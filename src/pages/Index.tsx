@@ -27,15 +27,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header mejorado */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      {/* Header */}
+      <header className="bg-white border-b-2 border-black">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           {/* Primera fila: Navegación y usuario */}
-          <div className="flex items-center justify-between py-4 border-b border-gray-100">
+          <div className="flex items-center justify-between py-4 border-b border-gray-300">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">Relación de Open Deals</h1>
+                  <h1 className="text-xl font-bold text-black">Relación de Open Deals</h1>
                   <p className="text-sm text-gray-600">Portal de inversiones y oportunidades</p>
                 </div>
               </div>
@@ -44,19 +44,19 @@ const Index = () => {
             <div className="flex items-center space-x-4">
               {user ? (
                 <Link to="/dashboard">
-                  <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto">
+                  <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto border-black text-black hover:bg-gray-100">
                     Mi Panel
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth">
-                  <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto">
+                  <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto border-black text-black hover:bg-gray-100">
                     Iniciar Sesión
                   </Button>
                 </Link>
               )}
               <Link to="/auth">
-                <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto">
+                <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto border-black text-black hover:bg-gray-100">
                   Panel Admin
                 </Button>
               </Link>
@@ -66,9 +66,9 @@ const Index = () => {
           {/* Segunda fila: Descripción y acción principal */}
           <div className="flex items-center justify-between py-6">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Oportunidades de Inversión</h2>
-              <p className="text-lg text-gray-600">Descubre las mejores operaciones disponibles para inversión</p>
-              <p className="text-sm text-gray-500 mt-1">Contacta directamente para más información detallada</p>
+              <h2 className="text-3xl font-bold text-black mb-2">Oportunidades de Inversión</h2>
+              <p className="text-lg text-gray-700">Descubre las mejores operaciones disponibles para inversión</p>
+              <p className="text-sm text-gray-600 mt-1">Contacta directamente para más información detallada</p>
             </div>
             
             <AddCompanyDialog />
@@ -77,42 +77,42 @@ const Index = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 bg-white">
-        {/* Stats Cards mejoradas */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div className="bg-white p-8 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
-                  <p className="text-base font-semibold text-gray-900">Valor Total</p>
+                  <p className="text-base font-semibold text-black">Valor Total</p>
                 </div>
-                <p className="text-3xl font-bold text-green-600 mb-1">
+                <p className="text-3xl font-bold text-black mb-1">
                   €{(totalValue / 1000000).toFixed(1)}M
                 </p>
-                <p className="text-sm text-gray-500">Portfolio completo</p>
+                <p className="text-sm text-gray-600">Portfolio completo</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div className="bg-white p-8 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
-                  <p className="text-base font-semibold text-gray-900">Disponibles</p>
+                  <p className="text-base font-semibold text-black">Disponibles</p>
                 </div>
-                <p className="text-3xl font-bold text-blue-600 mb-1">{availableOperations}</p>
-                <p className="text-sm text-gray-500">Listas para inversión</p>
+                <p className="text-3xl font-bold text-black mb-1">{availableOperations}</p>
+                <p className="text-sm text-gray-600">Listas para inversión</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div className="bg-white p-8 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
-                  <p className="text-base font-semibold text-gray-900">Total Operaciones</p>
+                  <p className="text-base font-semibold text-black">Total Operaciones</p>
                 </div>
-                <p className="text-3xl font-bold text-purple-600 mb-1">{totalOperations}</p>
-                <p className="text-sm text-gray-500">En el portfolio</p>
+                <p className="text-3xl font-bold text-black mb-1">{totalOperations}</p>
+                <p className="text-sm text-gray-600">En el portfolio</p>
               </div>
             </div>
           </div>

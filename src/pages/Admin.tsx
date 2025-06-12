@@ -48,7 +48,7 @@ const Admin = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
           <p className="text-black text-sm">Verificando permisos...</p>
         </div>
       </div>
@@ -62,7 +62,7 @@ const Admin = () => {
           <h1 className="text-2xl font-bold text-black mb-4">Acceso Denegado</h1>
           <p className="text-black mb-6 text-base">No tienes permisos de administrador</p>
           <Link to="/">
-            <Button size="lg">Volver al Portfolio</Button>
+            <Button size="lg" className="bg-black text-white hover:bg-gray-800">Volver al Portfolio</Button>
           </Link>
         </div>
       </div>
@@ -74,14 +74,14 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header mejorado */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      {/* Header */}
+      <header className="bg-white border-b-2 border-black">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           {/* Primera fila: Navegación y usuario */}
-          <div className="flex items-center justify-between py-4 border-b border-gray-100">
+          <div className="flex items-center justify-between py-4 border-b border-gray-300">
             <div className="flex items-center space-x-4">
               <Link to="/">
-                <Button variant="outline" size="default" className="text-sm font-medium">
+                <Button variant="outline" size="default" className="text-sm font-medium border-black text-black hover:bg-gray-100">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Volver al Portfolio
                 </Button>
@@ -90,19 +90,19 @@ const Admin = () => {
             
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user?.email}</p>
-                <p className="text-xs text-gray-500">Administrador</p>
+                <p className="text-sm font-medium text-black">{user?.email}</p>
+                <p className="text-xs text-gray-600">Administrador</p>
               </div>
               
               {role === 'superadmin' && (
                 <Link to="/superadmin">
-                  <Button variant="outline" size="default" className="text-sm">
+                  <Button variant="outline" size="default" className="text-sm border-black text-black hover:bg-gray-100">
                     Panel Superadmin
                   </Button>
                 </Link>
               )}
               
-              <Button variant="outline" onClick={handleSignOut} size="default" className="text-sm">
+              <Button variant="outline" onClick={handleSignOut} size="default" className="text-sm border-black text-black hover:bg-gray-100">
                 <LogOut className="h-4 w-4 mr-2" />
                 Cerrar Sesión
               </Button>
@@ -113,13 +113,13 @@ const Admin = () => {
           <div className="flex items-center justify-between py-6">
             <div className="flex items-center space-x-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Panel de Administración</h1>
+                <h1 className="text-2xl font-bold text-black">Panel de Administración</h1>
                 <p className="text-sm text-gray-600 mt-1">Gestiona las operaciones y solicitudes del sistema</p>
               </div>
-              <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+              <span className={`px-3 py-1 text-sm font-semibold rounded-full border-2 border-black ${
                 role === 'superadmin' 
-                  ? 'bg-red-100 text-red-800' 
-                  : 'bg-blue-100 text-blue-800'
+                  ? 'bg-black text-white' 
+                  : 'bg-gray-200 text-black'
               }`}>
                 {role?.toUpperCase()}
               </span>
@@ -127,7 +127,7 @@ const Admin = () => {
             
             <Button 
               onClick={() => setIsAddDialogOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-base px-6 py-3 h-auto"
+              className="bg-black hover:bg-gray-800 text-white text-base px-6 py-3 h-auto"
               size="lg"
             >
               <Plus className="h-5 w-5 mr-2" />
@@ -138,34 +138,34 @@ const Admin = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 bg-white">
-        {/* Stats mejoradas */}
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
             <div className="text-center">
-              <p className="text-3xl font-bold text-gray-900 mb-2">{availableOperations.length}</p>
-              <p className="text-sm font-medium text-gray-600">Operaciones Disponibles</p>
+              <p className="text-3xl font-bold text-black mb-2">{availableOperations.length}</p>
+              <p className="text-sm font-medium text-gray-700">Operaciones Disponibles</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
             <div className="text-center">
-              <p className="text-3xl font-bold text-amber-600 mb-2">{pendingOperations.length}</p>
-              <p className="text-sm font-medium text-gray-600">Solicitudes Pendientes</p>
+              <p className="text-3xl font-bold text-black mb-2">{pendingOperations.length}</p>
+              <p className="text-sm font-medium text-gray-700">Solicitudes Pendientes</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
             <div className="text-center">
-              <p className="text-3xl font-bold text-green-600 mb-2">
+              <p className="text-3xl font-bold text-black mb-2">
                 €{(availableOperations.reduce((sum, op) => sum + op.amount, 0) / 1000000).toFixed(1)}M
               </p>
-              <p className="text-sm font-medium text-gray-600">Valor Total Portfolio</p>
+              <p className="text-sm font-medium text-gray-700">Valor Total Portfolio</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
             <div className="text-center">
-              <p className="text-3xl font-bold text-purple-600 mb-2">
+              <p className="text-3xl font-bold text-black mb-2">
                 {Array.from(new Set(operations.map(op => op.sector))).length}
               </p>
-              <p className="text-sm font-medium text-gray-600">Sectores Representados</p>
+              <p className="text-sm font-medium text-gray-700">Sectores Representados</p>
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@ const Admin = () => {
         )}
 
         {/* Operations Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg border-2 border-black p-6">
           <AdminOperationsTable 
             operations={operations}
             loading={loading}
