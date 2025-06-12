@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -41,6 +40,16 @@ const parseFormattedNumber = (value: string) => {
   return parseInt(value.replace(/\./g, '')) || 0;
 };
 
+const generateRandomProjectName = () => {
+  const adjectives = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Omega', 'Nova', 'Apex', 'Prime', 'Elite', 'Ultra'];
+  const nouns = ['Ventures', 'Capital', 'Holdings', 'Group', 'Partners', 'Corp', 'Industries', 'Solutions', 'Tech', 'Labs'];
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+  const randomNumber = Math.floor(Math.random() * 999) + 1;
+  
+  return `${randomAdjective} ${randomNoun} ${randomNumber}`;
+};
+
 export const EditOperationDialog = ({ 
   open, 
   onOpenChange, 
@@ -50,6 +59,7 @@ export const EditOperationDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     company_name: "",
+    project_name: "",
     cif: "",
     sector: "",
     operation_type: "" as Operation["operation_type"],
@@ -70,6 +80,7 @@ export const EditOperationDialog = ({
     if (operation) {
       setFormData({
         company_name: operation.company_name || "",
+        project_name: operation.project_name || "",
         cif: operation.cif || "",
         sector: operation.sector || "",
         operation_type: operation.operation_type || "" as Operation["operation_type"],
@@ -113,6 +124,7 @@ export const EditOperationDialog = ({
       
       const operationData = {
         company_name: formData.company_name,
+        project_name: formData.project_name,
         cif: formData.cif,
         sector: formData.sector,
         operation_type: formData.operation_type,
@@ -164,6 +176,28 @@ export const EditOperationDialog = ({
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="project_name">Nombre del Proyecto</Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="project_name"
+                  value={formData.project_name}
+                  onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
+                  placeholder="Ej: Proyecto Alpha"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setFormData({ ...formData, project_name: generateRandomProjectName() })}
+                  className="shrink-0"
+                >
+                  Generar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="cif">CIF</Label>
               <Input
                 id="cif"
@@ -171,9 +205,7 @@ export const EditOperationDialog = ({
                 onChange={(e) => setFormData({ ...formData, cif: e.target.value })}
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="sector">Sector *</Label>
               <Select 
@@ -190,7 +222,9 @@ export const EditOperationDialog = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="operation_type">Tipo de Operación *</Label>
               <Select 
@@ -210,29 +244,29 @@ export const EditOperationDialog = ({
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="status">Estado</Label>
-            <Select 
-              value={formData.status} 
-              onValueChange={(value: Operation["status"]) => 
-                setFormData({ ...formData, status: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="available">Disponible</SelectItem>
-                <SelectItem value="pending_review">Pendiente de Revisión</SelectItem>
-                <SelectItem value="approved">Aprobada</SelectItem>
-                <SelectItem value="rejected">Rechazada</SelectItem>
-                <SelectItem value="in_process">En Proceso</SelectItem>
-                <SelectItem value="sold">Vendida</SelectItem>
-                <SelectItem value="withdrawn">Retirada</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <Label htmlFor="status">Estado</Label>
+              <Select 
+                value={formData.status} 
+                onValueChange={(value: Operation["status"]) => 
+                  setFormData({ ...formData, status: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="available">Disponible</SelectItem>
+                  <SelectItem value="pending_review">Pendiente de Revisión</SelectItem>
+                  <SelectItem value="approved">Aprobada</SelectItem>
+                  <SelectItem value="rejected">Rechazada</SelectItem>
+                  <SelectItem value="in_process">En Proceso</SelectItem>
+                  <SelectItem value="sold">Vendida</SelectItem>
+                  <SelectItem value="withdrawn">Retirada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

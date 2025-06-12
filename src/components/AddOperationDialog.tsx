@@ -56,11 +56,22 @@ const parseFormattedNumber = (value: string) => {
   return parseInt(value.replace(/\./g, '')) || 0;
 };
 
+const generateRandomProjectName = () => {
+  const adjectives = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Omega', 'Nova', 'Apex', 'Prime', 'Elite', 'Ultra'];
+  const nouns = ['Ventures', 'Capital', 'Holdings', 'Group', 'Partners', 'Corp', 'Industries', 'Solutions', 'Tech', 'Labs'];
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+  const randomNumber = Math.floor(Math.random() * 999) + 1;
+  
+  return `${randomAdjective} ${randomNoun} ${randomNumber}`;
+};
+
 export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOperationDialogProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     company_name: "",
+    project_name: "",
     cif: "",
     sector: "",
     operation_type: "" as Operation["operation_type"],
@@ -76,6 +87,17 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
     contact_email: "",
     contact_phone: ""
   });
+
+  // Generate random project name when dialog opens
+  const handleDialogChange = (open: boolean) => {
+    if (open && !formData.project_name) {
+      setFormData(prev => ({ 
+        ...prev, 
+        project_name: generateRandomProjectName() 
+      }));
+    }
+    onOpenChange(open);
+  };
 
   const handleRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatNumber(e.target.value);
@@ -119,6 +141,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
 
       const operationData = {
         company_name: formData.company_name,
+        project_name: formData.project_name || generateRandomProjectName(),
         cif: formData.cif,
         sector: formData.sector,
         operation_type: formData.operation_type,
@@ -143,6 +166,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       // Reset form
       setFormData({
         company_name: "",
+        project_name: "",
         cif: "",
         sector: "",
         operation_type: "" as Operation["operation_type"],
@@ -181,7 +205,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
   const showSellerField = formData.operation_type === "sale" || formData.operation_type === "partial_sale";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Añadir Nueva Operación</DialogTitle>
@@ -201,14 +225,34 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cif">CIF</Label>
-              <Input
-                id="cif"
-                value={formData.cif}
-                onChange={(e) => setFormData({ ...formData, cif: e.target.value })}
-                placeholder="Ej: A12345678"
-              />
+              <Label htmlFor="project_name">Nombre del Proyecto</Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="project_name"
+                  value={formData.project_name}
+                  onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
+                  placeholder="Ej: Proyecto Alpha"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setFormData({ ...formData, project_name: generateRandomProjectName() })}
+                  className="shrink-0"
+                >
+                  Generar
+                </Button>
+              </div>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cif">CIF</Label>
+            <Input
+              id="cif"
+              value={formData.cif}
+              onChange={(e) => setFormData({ ...formData, cif: e.target.value })}
+              placeholder="Ej: A12345678"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
