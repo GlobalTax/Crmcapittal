@@ -1,17 +1,20 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowLeft, LogOut } from "lucide-react";
+import { Plus, ArrowLeft, LogOut, Crown } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { operations, loading, error, addOperation } = useOperations();
   const { signOut, user } = useAuth();
+  const { role, loading: roleLoading } = useUserRole();
   const { toast } = useToast();
 
   const handleAddOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at">) => {
@@ -39,6 +42,31 @@ const Admin = () => {
     });
   };
 
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-black">Verificando permisos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (role !== 'superadmin' && role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-black mb-4">Acceso Denegado</h1>
+          <p className="text-black mb-4">No tienes permisos de administrador</p>
+          <Link to="/">
+            <Button>Volver al Portfolio</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -54,12 +82,27 @@ const Admin = () => {
               </Link>
               <div className="flex items-center">
                 <h1 className="text-2xl font-bold text-black">Panel de Administración</h1>
+                <span className={`ml-3 px-2 py-1 text-xs font-semibold rounded-full ${
+                  role === 'superadmin' 
+                    ? 'bg-red-100 text-red-800' 
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {role?.toUpperCase()}
+                </span>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm text-black">Bienvenido, {user?.email}</p>
               </div>
+              {role === 'superadmin' && (
+                <Link to="/superadmin">
+                  <Button variant="outline">
+                    <Crown className="h-4 w-4 mr-2" />
+                    Panel Superadmin
+                  </Button>
+                </Link>
+              )}
               <Button 
                 onClick={() => setIsAddDialogOpen(true)}
                 className="bg-blue-600 hover:bg-blue-700"
