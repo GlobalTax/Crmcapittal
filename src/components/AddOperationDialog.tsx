@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -13,13 +14,56 @@ interface AddOperationDialogProps {
   onAddOperation: (operation: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">) => void;
 }
 
+const SECTORS = [
+  "Tecnología",
+  "Salud",
+  "Energía",
+  "Finanzas",
+  "Retail",
+  "Inmobiliario",
+  "Manufacturero",
+  "Alimentación",
+  "Turismo",
+  "Logística",
+  "Educación",
+  "Telecomunicaciones",
+  "Automoción",
+  "Farmacéutico",
+  "Construcción"
+];
+
+const PROVINCES = [
+  "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", 
+  "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real",
+  "Córdoba", "Cuenca", "Girona", "Granada", "Guadalajara", "Gipuzkoa", "Huelva",
+  "Huesca", "Jaén", "La Coruña", "La Rioja", "Las Palmas", "León", "Lleida",
+  "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia",
+  "Pontevedra", "Salamanca", "Segovia", "Sevilla", "Soria", "Tarragona",
+  "Santa Cruz de Tenerife", "Teruel", "Toledo", "Valencia", "Valladolid",
+  "Bizkaia", "Zamora", "Zaragoza"
+];
+
+const formatNumber = (value: string) => {
+  // Remove all non-digits
+  const digits = value.replace(/\D/g, '');
+  
+  // Add thousand separators
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+const parseFormattedNumber = (value: string) => {
+  // Remove dots and convert to number
+  return parseInt(value.replace(/\./g, '')) || 0;
+};
+
 export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOperationDialogProps) => {
   const [formData, setFormData] = useState({
     company_name: "",
     cif: "",
     sector: "",
     operation_type: "" as Operation["operation_type"],
-    amount: "",
+    revenue: "",
+    ebitda: "",
     currency: "EUR",
     date: "",
     buyer: "",
@@ -31,16 +75,40 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
     contact_phone: ""
   });
 
+  const handleRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatNumber(e.target.value);
+    setFormData({ ...formData, revenue: formatted });
+  };
+
+  const handleEbitdaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatNumber(e.target.value);
+    setFormData({ ...formData, ebitda: formatted });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.company_name || !formData.sector || !formData.operation_type || !formData.amount || !formData.date) {
+    if (!formData.company_name || !formData.sector || !formData.operation_type || !formData.revenue || !formData.date) {
       return;
     }
 
     onAddOperation({
-      ...formData,
-      amount: parseFloat(formData.amount)
+      company_name: formData.company_name,
+      cif: formData.cif,
+      sector: formData.sector,
+      operation_type: formData.operation_type,
+      amount: parseFormattedNumber(formData.revenue), // Using revenue as main amount
+      revenue: parseFormattedNumber(formData.revenue),
+      ebitda: parseFormattedNumber(formData.ebitda),
+      currency: formData.currency,
+      date: formData.date,
+      buyer: formData.buyer,
+      seller: formData.seller,
+      status: formData.status,
+      description: formData.description,
+      location: formData.location,
+      contact_email: formData.contact_email,
+      contact_phone: formData.contact_phone
     });
 
     // Reset form
@@ -49,7 +117,8 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       cif: "",
       sector: "",
       operation_type: "" as Operation["operation_type"],
-      amount: "",
+      revenue: "",
+      ebitda: "",
       currency: "EUR",
       date: "",
       buyer: "",
@@ -63,6 +132,9 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
 
     onOpenChange(false);
   };
+
+  const showBuyerField = formData.operation_type === "buy_mandate";
+  const showSellerField = formData.operation_type === "sale" || formData.operation_type === "partial_sale";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -98,13 +170,19 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="sector">Sector *</Label>
-              <Input
-                id="sector"
-                value={formData.sector}
-                onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
-                placeholder="Ej: Tecnología, Salud, Energía"
-                required
-              />
+              <Select 
+                value={formData.sector} 
+                onValueChange={(value) => setFormData({ ...formData, sector: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SECTORS.map((sector) => (
+                    <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -150,14 +228,23 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Valor *</Label>
+              <Label htmlFor="revenue">Facturación *</Label>
               <Input
-                id="amount"
-                type="number"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                placeholder="50000000"
+                id="revenue"
+                value={formData.revenue}
+                onChange={handleRevenueChange}
+                placeholder="50.000.000"
                 required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="ebitda">EBITDA</Label>
+              <Input
+                id="ebitda"
+                value={formData.ebitda}
+                onChange={handleEbitdaChange}
+                placeholder="5.000.000"
               />
             </div>
 
@@ -177,49 +264,63 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="date">Fecha *</Label>
-              <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="buyer">Comprador</Label>
-              <Input
-                id="buyer"
-                value={formData.buyer}
-                onChange={(e) => setFormData({ ...formData, buyer: e.target.value })}
-                placeholder="Nombre del comprador"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="seller">Vendedor</Label>
-              <Input
-                id="seller"
-                value={formData.seller}
-                onChange={(e) => setFormData({ ...formData, seller: e.target.value })}
-                placeholder="Nombre del vendedor"
-              />
-            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Ubicación</Label>
+            <Label htmlFor="date">Fecha *</Label>
             <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              placeholder="Ej: Madrid, España"
+              id="date"
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              required
             />
+          </div>
+
+          {/* Conditional fields based on operation type */}
+          {(showBuyerField || showSellerField) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {showBuyerField && (
+                <div className="space-y-2">
+                  <Label htmlFor="buyer">Comprador</Label>
+                  <Input
+                    id="buyer"
+                    value={formData.buyer}
+                    onChange={(e) => setFormData({ ...formData, buyer: e.target.value })}
+                    placeholder="Nombre del comprador"
+                  />
+                </div>
+              )}
+
+              {showSellerField && (
+                <div className="space-y-2">
+                  <Label htmlFor="seller">Vendedor</Label>
+                  <Input
+                    id="seller"
+                    value={formData.seller}
+                    onChange={(e) => setFormData({ ...formData, seller: e.target.value })}
+                    placeholder="Nombre del vendedor"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="location">Ubicación</Label>
+            <Select 
+              value={formData.location} 
+              onValueChange={(value) => setFormData({ ...formData, location: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar provincia" />
+              </SelectTrigger>
+              <SelectContent>
+                {PROVINCES.map((province) => (
+                  <SelectItem key={province} value={province}>{province}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
