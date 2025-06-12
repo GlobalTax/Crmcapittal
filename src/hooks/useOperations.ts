@@ -17,22 +17,39 @@ export const useOperations = () => {
         .from('operations')
         .select(`
           *,
-          manager:operation_managers(*)
+          manager:operation_managers(
+            id,
+            name,
+            email,
+            phone,
+            position
+          )
         `)
         .eq('status', 'available')
         .order('created_at', { ascending: false });
 
       if (error) {
+        console.error('Error en la consulta:', error);
         throw error;
       }
+
+      console.log('Datos obtenidos:', data);
 
       // Asegurar que los tipos coincidan
       const typedOperations: Operation[] = (data || []).map(op => ({
         ...op,
         operation_type: op.operation_type as Operation['operation_type'],
-        status: op.status as Operation['status']
+        status: op.status as Operation['status'],
+        manager: op.manager ? {
+          id: op.manager.id,
+          name: op.manager.name,
+          email: op.manager.email,
+          phone: op.manager.phone,
+          position: op.manager.position
+        } : undefined
       }));
 
+      console.log('Operaciones procesadas:', typedOperations);
       setOperations(typedOperations);
     } catch (err) {
       console.error('Error cargando operaciones:', err);
