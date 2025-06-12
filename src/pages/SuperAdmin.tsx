@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowLeft, LogOut, Users, Settings, BarChart3 } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -71,7 +72,6 @@ const SuperAdmin = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
                 <div className="flex items-center">
-                  <Users className="h-6 w-6 text-blue-600 mr-3" />
                   <div>
                     <h3 className="text-sm font-semibold text-black">Gestión de Usuarios</h3>
                     <p className="text-xs text-black">Administrar roles y permisos</p>
@@ -84,7 +84,6 @@ const SuperAdmin = () => {
 
               <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
                 <div className="flex items-center">
-                  <BarChart3 className="h-6 w-6 text-green-600 mr-3" />
                   <div>
                     <h3 className="text-sm font-semibold text-black">Analytics Avanzados</h3>
                     <p className="text-xs text-black">Reportes y métricas globales</p>
@@ -97,7 +96,6 @@ const SuperAdmin = () => {
 
               <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
                 <div className="flex items-center">
-                  <Settings className="h-6 w-6 text-purple-600 mr-3" />
                   <div>
                     <h3 className="text-sm font-semibold text-black">Configuración Global</h3>
                     <p className="text-xs text-black">Ajustes del sistema</p>

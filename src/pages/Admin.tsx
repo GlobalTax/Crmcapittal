@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowLeft, LogOut, Crown } from "lucide-react";
+import { Plus, ArrowLeft, LogOut } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
 import { PendingOperationsManager } from "@/components/PendingOperationsManager";
 import { AdminOperationsTable } from "@/components/AdminOperationsTable";
@@ -96,7 +97,6 @@ const Admin = () => {
               {role === 'superadmin' && (
                 <Link to="/superadmin">
                   <Button variant="outline" size="default" className="text-sm">
-                    <Crown className="h-4 w-4 mr-2" />
                     Panel Superadmin
                   </Button>
                 </Link>

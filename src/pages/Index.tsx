@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OperationsList } from "@/components/OperationsList";
@@ -7,7 +8,6 @@ import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Settings, TrendingUp, Building2, DollarSign } from "lucide-react";
 
 const Index = () => {
   const { operations, loading, error } = useOperations();
@@ -34,7 +34,6 @@ const Index = () => {
           <div className="flex items-center justify-between py-4 border-b border-gray-100">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
-                <Building2 className="h-8 w-8 text-blue-600" />
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">Relación de Open Deals</h1>
                   <p className="text-sm text-gray-600">Portal de inversiones y oportunidades</p>
@@ -46,21 +45,18 @@ const Index = () => {
               {user ? (
                 <Link to="/dashboard">
                   <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto">
-                    <User className="h-5 w-5 mr-2" />
                     Mi Panel
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth">
                   <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto">
-                    <User className="h-5 w-5 mr-2" />
                     Iniciar Sesión
                   </Button>
                 </Link>
               )}
               <Link to="/auth">
                 <Button variant="outline" size="default" className="text-base px-6 py-3 h-auto">
-                  <Settings className="h-5 w-5 mr-2" />
                   Panel Admin
                 </Button>
               </Link>
@@ -87,9 +83,6 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <DollarSign className="h-6 w-6 text-green-600" />
-                  </div>
                   <p className="text-base font-semibold text-gray-900">Valor Total</p>
                 </div>
                 <p className="text-3xl font-bold text-green-600 mb-1">
@@ -104,9 +97,6 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-blue-600" />
-                  </div>
                   <p className="text-base font-semibold text-gray-900">Disponibles</p>
                 </div>
                 <p className="text-3xl font-bold text-blue-600 mb-1">{availableOperations}</p>
@@ -119,9 +109,6 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Building2 className="h-6 w-6 text-purple-600" />
-                  </div>
                   <p className="text-base font-semibold text-gray-900">Total Operaciones</p>
                 </div>
                 <p className="text-3xl font-bold text-purple-600 mb-1">{totalOperations}</p>
