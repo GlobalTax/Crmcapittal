@@ -13,11 +13,13 @@ export const useOperations = () => {
       setLoading(true);
       setError(null);
       
+      console.log('Iniciando consulta de operaciones...');
+      
       const { data, error } = await supabase
         .from('operations')
         .select(`
           *,
-          manager:operation_managers(
+          manager:operation_managers!manager_id(
             id,
             name,
             email,
@@ -33,23 +35,26 @@ export const useOperations = () => {
         throw error;
       }
 
-      console.log('Datos obtenidos:', data);
+      console.log('Datos obtenidos de la consulta:', data);
 
-      // Asegurar que los tipos coincidan
-      const typedOperations: Operation[] = (data || []).map(op => ({
-        ...op,
-        operation_type: op.operation_type as Operation['operation_type'],
-        status: op.status as Operation['status'],
-        manager: op.manager ? {
-          id: op.manager.id,
-          name: op.manager.name,
-          email: op.manager.email,
-          phone: op.manager.phone,
-          position: op.manager.position
-        } : undefined
-      }));
+      // Procesar y mapear los datos
+      const typedOperations: Operation[] = (data || []).map(op => {
+        console.log('Procesando operación:', op.company_name, 'Manager:', op.manager);
+        return {
+          ...op,
+          operation_type: op.operation_type as Operation['operation_type'],
+          status: op.status as Operation['status'],
+          manager: op.manager ? {
+            id: op.manager.id,
+            name: op.manager.name,
+            email: op.manager.email,
+            phone: op.manager.phone,
+            position: op.manager.position
+          } : undefined
+        };
+      });
 
-      console.log('Operaciones procesadas:', typedOperations);
+      console.log('Operaciones procesadas con gestores:', typedOperations);
       setOperations(typedOperations);
     } catch (err) {
       console.error('Error cargando operaciones:', err);
