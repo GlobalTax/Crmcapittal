@@ -75,10 +75,10 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b-2 border-black">
+      <header className="bg-white" style={{ borderBottom: '0.5px solid black' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           {/* Primera fila: Navegación y usuario */}
-          <div className="flex items-center justify-between py-4 border-b border-gray-300">
+          <div className="flex items-center justify-between py-4" style={{ borderBottom: '0.5px solid #d1d5db' }}>
             <div className="flex items-center space-x-4">
               <Link to="/">
                 <Button variant="outline" size="default" className="text-sm font-medium border-black text-black hover:bg-gray-100">
@@ -116,11 +116,11 @@ const Admin = () => {
                 <h1 className="text-2xl font-bold text-black">Panel de Administración</h1>
                 <p className="text-sm text-gray-600 mt-1">Gestiona las operaciones y solicitudes del sistema</p>
               </div>
-              <span className={`px-3 py-1 text-sm font-semibold rounded-full border-2 border-black ${
+              <span className={`px-3 py-1 text-sm font-semibold rounded-[10px] ${
                 role === 'superadmin' 
                   ? 'bg-black text-white' 
                   : 'bg-gray-200 text-black'
-              }`}>
+              }`} style={{ border: '0.5px solid black' }}>
                 {role?.toUpperCase()}
               </span>
             </div>
@@ -140,19 +140,19 @@ const Admin = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 bg-white">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
+          <div className="bg-white p-6 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
             <div className="text-center">
               <p className="text-3xl font-bold text-black mb-2">{availableOperations.length}</p>
               <p className="text-sm font-medium text-gray-700">Operaciones Disponibles</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
+          <div className="bg-white p-6 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
             <div className="text-center">
               <p className="text-3xl font-bold text-black mb-2">{pendingOperations.length}</p>
               <p className="text-sm font-medium text-gray-700">Solicitudes Pendientes</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
+          <div className="bg-white p-6 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
             <div className="text-center">
               <p className="text-3xl font-bold text-black mb-2">
                 €{(availableOperations.reduce((sum, op) => sum + op.amount, 0) / 1000000).toFixed(1)}M
@@ -160,7 +160,7 @@ const Admin = () => {
               <p className="text-sm font-medium text-gray-700">Valor Total Portfolio</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
+          <div className="bg-white p-6 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
             <div className="text-center">
               <p className="text-3xl font-bold text-black mb-2">
                 {Array.from(new Set(operations.map(op => op.sector))).length}
@@ -181,7 +181,7 @@ const Admin = () => {
         )}
 
         {/* Operations Table */}
-        <div className="bg-white rounded-lg border-2 border-black p-6">
+        <div className="bg-white rounded-[10px] p-6" style={{ border: '0.5px solid black' }}>
           <AdminOperationsTable 
             operations={operations}
             loading={loading}
