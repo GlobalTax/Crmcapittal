@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -73,23 +72,25 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           return;
         }
 
-        // Convertir tipos de operación
+        // Convertir tipos de operación - CORREGIDO para coincidir con la base de datos
         const typeMap: { [key: string]: Operation['operation_type'] } = {
           'acquisition': 'merger',
           'adquisición': 'merger', 
-          'sale': 'sale',
-          'venta': 'sale',
           'merger': 'merger',
           'fusión': 'merger',
+          'sale': 'sale',
+          'venta': 'sale',
           'funding round': 'buy_mandate',
           'ronda': 'buy_mandate',
+          'buy_mandate': 'buy_mandate',
+          'mandato compra': 'buy_mandate',
           'partial_sale': 'partial_sale',
           'venta parcial': 'partial_sale'
         };
 
         const mappedOperationType = typeMap[operation_type.toLowerCase()] || 'sale';
 
-        // Convertir estados
+        // Convertir estados - CORREGIDO para coincidir con la base de datos
         const statusMap: { [key: string]: Operation['status'] } = {
           'completed': 'available',
           'completado': 'available',
@@ -97,8 +98,10 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           'disponible': 'available',
           'in progress': 'in_process',
           'en progreso': 'in_process',
+          'in_process': 'in_process',
           'pending': 'pending_review',
-          'pendiente': 'pending_review'
+          'pendiente': 'pending_review',
+          'pending_review': 'pending_review'
         };
 
         const mappedStatus = statusMap[status_str.toLowerCase()] || 'available';
