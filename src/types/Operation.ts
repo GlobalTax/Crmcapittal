@@ -9,7 +9,7 @@ export interface Operation {
   date: string;
   buyer?: string;
   seller?: string;
-  status: "available" | "in_process" | "sold" | "withdrawn";
+  status: "available" | "pending_review" | "approved" | "rejected" | "in_process" | "sold" | "withdrawn";
   description: string;
   location: string;
   contact_email?: string;

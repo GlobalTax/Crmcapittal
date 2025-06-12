@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Operation } from "@/types/Operation";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface OperationFiltersProps {
   operations: Operation[];
@@ -15,6 +17,7 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
   const [sectorFilter, setSectorFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const { role } = useUserRole();
 
   const sectors = Array.from(new Set(operations.map(op => op.sector)));
   
@@ -127,6 +130,13 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
             <SelectContent>
               <SelectItem value="all">Todos los estados</SelectItem>
               <SelectItem value="available">Disponible</SelectItem>
+              {(role === 'admin' || role === 'superadmin') && (
+                <>
+                  <SelectItem value="pending_review">Pendiente Revisión</SelectItem>
+                  <SelectItem value="approved">Aprobada</SelectItem>
+                  <SelectItem value="rejected">Rechazada</SelectItem>
+                </>
+              )}
               <SelectItem value="in_process">En Proceso</SelectItem>
               <SelectItem value="sold">Vendida</SelectItem>
               <SelectItem value="withdrawn">Retirada</SelectItem>

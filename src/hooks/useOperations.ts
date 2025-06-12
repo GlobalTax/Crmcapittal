@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export const useOperations = () => {
   const [operations, setOperations] = useState<Operation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const { role } = useUserRole();
 
   const fetchOperations = async () => {
     try {
@@ -17,7 +19,7 @@ export const useOperations = () => {
       
       console.log('Iniciando consulta de operaciones...');
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('operations')
         .select(`
           *,
@@ -29,8 +31,14 @@ export const useOperations = () => {
             position
           )
         `)
-        .eq('status', 'available')
         .order('created_at', { ascending: false });
+
+      // Si el usuario no es admin, solo mostrar operaciones disponibles
+      if (role !== 'admin' && role !== 'superadmin') {
+        query = query.eq('status', 'available');
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error en la consulta:', error);
@@ -68,10 +76,19 @@ export const useOperations = () => {
 
   const addOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">) => {
     try {
+      // Determinar el estado inicial basado en el rol del usuario
+      let initialStatus = 'pending_review'; // Por defecto para usuarios normales
+      
+      if (role === 'admin' || role === 'superadmin') {
+        // Los admins pueden crear operaciones directamente como 'available'
+        initialStatus = operationData.status || 'available';
+      }
+
       const { data, error } = await supabase
         .from('operations')
         .insert([{
           ...operationData,
+          status: initialStatus,
           created_by: user?.id
         }])
         .select()
@@ -81,8 +98,8 @@ export const useOperations = () => {
         throw error;
       }
 
-      // Agregar la nueva operación a la lista si está disponible
-      if (data && data.status === 'available') {
+      // Solo agregar a la lista si es visible para el usuario actual
+      if (data && (role === 'admin' || role === 'superadmin' || data.status === 'available')) {
         const typedOperation: Operation = {
           ...data,
           operation_type: data.operation_type as Operation['operation_type'],
@@ -98,9 +115,43 @@ export const useOperations = () => {
     }
   };
 
+  const updateOperationStatus = async (operationId: string, newStatus: Operation['status']) => {
+    try {
+      const { data, error } = await supabase
+        .from('operations')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', operationId)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Actualizar la operación en el estado local
+      setOperations(prev => prev.map(op => 
+        op.id === operationId 
+          ? { ...op, status: newStatus, updated_at: data.updated_at }
+          : op
+      ));
+
+      return { data, error: null };
+    } catch (err) {
+      console.error('Error actualizando estado de operación:', err);
+      return { data: null, error: 'Error al actualizar el estado de la operación' };
+    }
+  };
+
   useEffect(() => {
     fetchOperations();
-  }, []);
+  }, [role]); // Re-fetch cuando cambie el rol
 
-  return { operations, loading, error, refetch: fetchOperations, addOperation };
+  return { 
+    operations, 
+    loading, 
+    error, 
+    refetch: fetchOperations, 
+    addOperation,
+    updateOperationStatus
+  };
 };

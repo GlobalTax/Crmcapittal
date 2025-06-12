@@ -3,16 +3,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft, LogOut, Crown } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
+import { PendingOperationsManager } from "@/components/PendingOperationsManager";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { getStatusLabel, getOperationTypeLabel } from "@/utils/operationHelpers";
 
 const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const { operations, loading, error, addOperation } = useOperations();
+  const { operations, loading, error, addOperation, updateOperationStatus } = useOperations();
   const { signOut, user } = useAuth();
   const { role, loading: roleLoading } = useUserRole();
   const { toast } = useToast();
@@ -66,6 +68,9 @@ const Admin = () => {
       </div>
     );
   }
+
+  const availableOperations = operations.filter(op => op.status === 'available');
+  const pendingOperations = operations.filter(op => op.status === 'pending_review');
 
   return (
     <div className="min-h-screen bg-white">
@@ -121,17 +126,23 @@ const Admin = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
             <div className="text-center">
-              <p className="text-2xl font-bold text-black">{operations.length}</p>
+              <p className="text-2xl font-bold text-black">{availableOperations.length}</p>
               <p className="text-sm text-black">Operaciones Disponibles</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
             <div className="text-center">
+              <p className="text-2xl font-bold text-black">{pendingOperations.length}</p>
+              <p className="text-sm text-black">Solicitudes Pendientes</p>
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
+            <div className="text-center">
               <p className="text-2xl font-bold text-black">
-                €{(operations.reduce((sum, op) => sum + op.amount, 0) / 1000000).toFixed(1)}M
+                €{(availableOperations.reduce((sum, op) => sum + op.amount, 0) / 1000000).toFixed(1)}M
               </p>
               <p className="text-sm text-black">Valor Total Portfolio</p>
             </div>
@@ -145,6 +156,16 @@ const Admin = () => {
             </div>
           </div>
         </div>
+
+        {/* Pending Operations Manager */}
+        {pendingOperations.length > 0 && (
+          <div className="mb-8">
+            <PendingOperationsManager 
+              operations={operations}
+              onStatusUpdate={updateOperationStatus}
+            />
+          </div>
+        )}
 
         {/* Operations Table */}
         <div className="bg-white rounded-xl shadow-sm border border-black overflow-hidden">
@@ -211,17 +232,20 @@ const Admin = () => {
                         {operation.sector}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
-                        {operation.operation_type === 'acquisition' && 'Adquisición'}
-                        {operation.operation_type === 'merger' && 'Fusión'}
-                        {operation.operation_type === 'sale' && 'Venta'}
-                        {operation.operation_type === 'ipo' && 'OPV'}
+                        {getOperationTypeLabel(operation.operation_type)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                         {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                          Disponible
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          operation.status === 'available' ? 'bg-green-100 text-green-800' :
+                          operation.status === 'pending_review' ? 'bg-yellow-100 text-yellow-800' :
+                          operation.status === 'approved' ? 'bg-blue-100 text-blue-800' :
+                          operation.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {getStatusLabel(operation.status)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
