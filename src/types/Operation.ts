@@ -29,4 +29,5 @@ export interface Operation {
   created_by?: string;
   created_at: string;
   updated_at: string;
+  cif?: string;
 }

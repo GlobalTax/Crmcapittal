@@ -16,6 +16,7 @@ export const AddCompanyDialog = () => {
 
   const [formData, setFormData] = useState({
     company_name: "",
+    cif: "",
     sector: "",
     operation_type: "",
     amount: "",
@@ -38,6 +39,7 @@ export const AddCompanyDialog = () => {
 Nueva solicitud para incluir empresa en la relación de Open Deals:
 
 Empresa: ${formData.company_name}
+CIF: ${formData.cif}
 Sector: ${formData.sector}
 Tipo de operación: ${formData.operation_type}
 Valoración: €${formData.amount}
@@ -63,6 +65,7 @@ ${formData.description}
       // Resetear formulario
       setFormData({
         company_name: "",
+        cif: "",
         sector: "",
         operation_type: "",
         amount: "",
@@ -123,6 +126,19 @@ ${formData.description}
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="cif">CIF *</Label>
+              <Input
+                id="cif"
+                value={formData.cif}
+                onChange={(e) => handleInputChange("cif", e.target.value)}
+                placeholder="ej. A12345678"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="sector">Sector *</Label>
               <Input
                 id="sector"
@@ -132,9 +148,7 @@ ${formData.description}
                 required
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="operation_type">Tipo de operación *</Label>
               <Select value={formData.operation_type} onValueChange={(value) => handleInputChange("operation_type", value)}>
@@ -142,25 +156,25 @@ ${formData.description}
                   <SelectValue placeholder="Selecciona el tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="acquisition">Adquisición</SelectItem>
                   <SelectItem value="merger">Fusión</SelectItem>
                   <SelectItem value="sale">Venta</SelectItem>
-                  <SelectItem value="ipo">OPV</SelectItem>
+                  <SelectItem value="partial_sale">Venta Parcial</SelectItem>
+                  <SelectItem value="buy_mandate">Mandato de Compra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="amount">Valoración estimada (€) *</Label>
-              <Input
-                id="amount"
-                type="number"
-                value={formData.amount}
-                onChange={(e) => handleInputChange("amount", e.target.value)}
-                placeholder="ej. 5000000"
-                required
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="amount">Valoración estimada (€) *</Label>
+            <Input
+              id="amount"
+              type="number"
+              value={formData.amount}
+              onChange={(e) => handleInputChange("amount", e.target.value)}
+              placeholder="ej. 5000000"
+              required
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -68,6 +68,7 @@ export type Database = {
           amount: number
           annual_growth_rate: number | null
           buyer: string | null
+          cif: string | null
           company_name: string
           contact_email: string | null
           contact_phone: string | null
@@ -92,6 +93,7 @@ export type Database = {
           amount: number
           annual_growth_rate?: number | null
           buyer?: string | null
+          cif?: string | null
           company_name: string
           contact_email?: string | null
           contact_phone?: string | null
@@ -116,6 +118,7 @@ export type Database = {
           amount?: number
           annual_growth_rate?: number | null
           buyer?: string | null
+          cif?: string | null
           company_name?: string
           contact_email?: string | null
           contact_phone?: string | null
