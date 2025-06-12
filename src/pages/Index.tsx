@@ -7,9 +7,12 @@ import { AddCompanyDialog } from "@/components/AddCompanyDialog";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { User } from "lucide-react";
 
 const Index = () => {
   const { operations, loading, error } = useOperations();
+  const { user } = useAuth();
   const [filteredOperations, setFilteredOperations] = useState<Operation[]>([]);
 
   const handleFilter = (filtered: Operation[]) => {
@@ -38,6 +41,20 @@ const Index = () => {
                 <p className="text-sm text-black">Operaciones disponibles para inversión</p>
                 <p className="text-xs text-black">Contacta para más información</p>
               </div>
+              {user ? (
+                <Link to="/dashboard">
+                  <Button variant="outline" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Mi Panel
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/auth">
+                  <Button variant="outline" size="sm">
+                    Iniciar Sesión
+                  </Button>
+                </Link>
+              )}
               <Link to="/auth">
                 <Button variant="outline" size="sm">
                   Panel Admin
