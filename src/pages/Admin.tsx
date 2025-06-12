@@ -14,7 +14,16 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const { operations, loading, error, addOperation, updateOperationStatus } = useOperations();
+  const { 
+    operations, 
+    loading, 
+    error, 
+    addOperation, 
+    updateOperation,
+    updateOperationStatus,
+    deleteOperation,
+    updateTeaserUrl
+  } = useOperations();
   const { signOut, user } = useAuth();
   const { role, loading: roleLoading } = useUserRole();
   const { toast } = useToast();
@@ -186,6 +195,9 @@ const Admin = () => {
             operations={operations}
             loading={loading}
             error={error}
+            onUpdateOperation={updateOperation}
+            onDeleteOperation={deleteOperation}
+            onUpdateTeaserUrl={updateTeaserUrl}
           />
         </div>
       </div>

@@ -146,6 +146,42 @@ export const useOperations = () => {
     }
   };
 
+  const updateOperation = async (operationId: string, operationData: Partial<Operation>) => {
+    try {
+      const { data, error } = await supabase
+        .from('operations')
+        .update({ 
+          ...operationData,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', operationId)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Actualizar la operación en el estado local
+      setOperations(prev => prev.map(op => 
+        op.id === operationId 
+          ? { 
+              ...op, 
+              ...operationData, 
+              operation_type: data.operation_type as Operation['operation_type'],
+              status: data.status as Operation['status'],
+              updated_at: data.updated_at 
+            }
+          : op
+      ));
+
+      return { data, error: null };
+    } catch (err) {
+      console.error('Error actualizando operación:', err);
+      return { data: null, error: 'Error al actualizar la operación' };
+    }
+  };
+
   const updateOperationStatus = async (operationId: string, newStatus: Operation['status']) => {
     try {
       const { data, error } = await supabase
@@ -173,6 +209,57 @@ export const useOperations = () => {
     }
   };
 
+  const deleteOperation = async (operationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('operations')
+        .delete()
+        .eq('id', operationId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Remover la operación del estado local
+      setOperations(prev => prev.filter(op => op.id !== operationId));
+
+      return { error: null };
+    } catch (err) {
+      console.error('Error eliminando operación:', err);
+      return { error: 'Error al eliminar la operación' };
+    }
+  };
+
+  const updateTeaserUrl = async (operationId: string, teaserUrl: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('operations')
+        .update({ 
+          teaser_url: teaserUrl,
+          updated_at: new Date().toISOString() 
+        })
+        .eq('id', operationId)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Actualizar la operación en el estado local
+      setOperations(prev => prev.map(op => 
+        op.id === operationId 
+          ? { ...op, teaser_url: teaserUrl, updated_at: data.updated_at }
+          : op
+      ));
+
+      return { data, error: null };
+    } catch (err) {
+      console.error('Error actualizando URL del teaser:', err);
+      return { data: null, error: 'Error al actualizar el teaser' };
+    }
+  };
+
   useEffect(() => {
     fetchOperations();
   }, [role]); // Re-fetch cuando cambie el rol
@@ -183,6 +270,9 @@ export const useOperations = () => {
     error, 
     refetch: fetchOperations, 
     addOperation,
-    updateOperationStatus
+    updateOperation,
+    updateOperationStatus,
+    deleteOperation,
+    updateTeaserUrl
   };
 };
