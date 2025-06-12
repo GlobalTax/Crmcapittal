@@ -72,6 +72,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          created_by: string | null
           currency: string
           date: string
           description: string | null
@@ -80,6 +81,7 @@ export type Database = {
           location: string | null
           manager_id: string | null
           operation_type: string
+          photo_url: string | null
           revenue: number | null
           sector: string
           seller: string | null
@@ -94,6 +96,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          created_by?: string | null
           currency?: string
           date: string
           description?: string | null
@@ -102,6 +105,7 @@ export type Database = {
           location?: string | null
           manager_id?: string | null
           operation_type: string
+          photo_url?: string | null
           revenue?: number | null
           sector: string
           seller?: string | null
@@ -116,6 +120,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          created_by?: string | null
           currency?: string
           date?: string
           description?: string | null
@@ -124,6 +129,7 @@ export type Database = {
           location?: string | null
           manager_id?: string | null
           operation_type?: string
+          photo_url?: string | null
           revenue?: number | null
           sector?: string
           seller?: string | null

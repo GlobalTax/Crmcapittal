@@ -13,6 +13,17 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
   
   return (
     <div className="space-y-3">
+      {/* Foto de la empresa si está disponible */}
+      {operation.photo_url && (
+        <div className="w-full">
+          <img 
+            src={operation.photo_url} 
+            alt={`Foto de ${operation.company_name}`}
+            className="w-full h-32 object-cover rounded-lg border border-border"
+          />
+        </div>
+      )}
+
       <div className="flex flex-col space-y-1 text-xs">
         <span className="font-medium text-foreground">Fecha</span>
         <span className="text-muted-foreground">

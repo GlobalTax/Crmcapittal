@@ -2,11 +2,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useOperations = () => {
   const [operations, setOperations] = useState<Operation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const fetchOperations = async () => {
     try {
@@ -64,11 +66,14 @@ export const useOperations = () => {
     }
   };
 
-  const addOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at">) => {
+  const addOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">) => {
     try {
       const { data, error } = await supabase
         .from('operations')
-        .insert([operationData])
+        .insert([{
+          ...operationData,
+          created_by: user?.id
+        }])
         .select()
         .single();
 
