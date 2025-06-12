@@ -6,33 +6,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Operation } from "@/pages/Index";
+import { Operation } from "@/types/Operation";
 
 interface AddOperationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddOperation: (operation: Omit<Operation, "id">) => void;
+  onAddOperation: (operation: Omit<Operation, "id" | "created_at" | "updated_at">) => void;
 }
 
 export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOperationDialogProps) => {
   const [formData, setFormData] = useState({
-    companyName: "",
+    company_name: "",
     sector: "",
-    operationType: "" as Operation["operationType"],
+    operation_type: "" as Operation["operation_type"],
     amount: "",
     currency: "EUR",
     date: "",
     buyer: "",
     seller: "",
-    status: "pending" as Operation["status"],
+    status: "available" as Operation["status"],
     description: "",
-    location: ""
+    location: "",
+    contact_email: "",
+    contact_phone: ""
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.companyName || !formData.sector || !formData.operationType || !formData.amount || !formData.date) {
+    if (!formData.company_name || !formData.sector || !formData.operation_type || !formData.amount || !formData.date) {
       return;
     }
 
@@ -43,17 +45,19 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
 
     // Reset form
     setFormData({
-      companyName: "",
+      company_name: "",
       sector: "",
-      operationType: "" as Operation["operationType"],
+      operation_type: "" as Operation["operation_type"],
       amount: "",
       currency: "EUR",
       date: "",
       buyer: "",
       seller: "",
-      status: "pending",
+      status: "available",
       description: "",
-      location: ""
+      location: "",
+      contact_email: "",
+      contact_phone: ""
     });
 
     onOpenChange(false);
@@ -69,11 +73,11 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="companyName">Nombre de la Empresa *</Label>
+              <Label htmlFor="company_name">Nombre de la Empresa *</Label>
               <Input
-                id="companyName"
-                value={formData.companyName}
-                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                id="company_name"
+                value={formData.company_name}
+                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
                 placeholder="Ej: TechCorp Solutions"
                 required
               />
@@ -93,11 +97,11 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="operationType">Tipo de Operación *</Label>
+              <Label htmlFor="operation_type">Tipo de Operación *</Label>
               <Select 
-                value={formData.operationType} 
-                onValueChange={(value: Operation["operationType"]) => 
-                  setFormData({ ...formData, operationType: value })
+                value={formData.operation_type} 
+                onValueChange={(value: Operation["operation_type"]) => 
+                  setFormData({ ...formData, operation_type: value })
                 }
               >
                 <SelectTrigger>
@@ -124,9 +128,10 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pendiente</SelectItem>
-                  <SelectItem value="completed">Completada</SelectItem>
-                  <SelectItem value="cancelled">Cancelada</SelectItem>
+                  <SelectItem value="available">Disponible</SelectItem>
+                  <SelectItem value="in_process">En Proceso</SelectItem>
+                  <SelectItem value="sold">Vendida</SelectItem>
+                  <SelectItem value="withdrawn">Retirada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -203,6 +208,27 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               placeholder="Ej: Madrid, España"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="contact_email">Email de Contacto</Label>
+            <Input
+              id="contact_email"
+              type="email"
+              value={formData.contact_email}
+              onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
+              placeholder="contacto@empresa.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="contact_phone">Teléfono de Contacto</Label>
+            <Input
+              id="contact_phone"
+              value={formData.contact_phone}
+              onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
+              placeholder="+34 600 000 000"
             />
           </div>
 

@@ -23,7 +23,14 @@ export const useOperations = () => {
         throw error;
       }
 
-      setOperations(data || []);
+      // Asegurar que los tipos coincidan
+      const typedOperations: Operation[] = (data || []).map(op => ({
+        ...op,
+        operation_type: op.operation_type as Operation['operation_type'],
+        status: op.status as Operation['status']
+      }));
+
+      setOperations(typedOperations);
     } catch (err) {
       console.error('Error cargando operaciones:', err);
       setError('Error al cargar las operaciones');
