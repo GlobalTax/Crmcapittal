@@ -48,8 +48,8 @@ const Admin = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-black">Verificando permisos...</p>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-black text-xs">Verificando permisos...</p>
         </div>
       </div>
     );
@@ -59,10 +59,10 @@ const Admin = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-black mb-4">Acceso Denegado</h1>
-          <p className="text-black mb-4">No tienes permisos de administrador</p>
+          <h1 className="text-lg font-bold text-black mb-2">Acceso Denegado</h1>
+          <p className="text-black mb-2 text-sm">No tienes permisos de administrador</p>
           <Link to="/">
-            <Button>Volver al Portfolio</Button>
+            <Button size="sm">Volver al Portfolio</Button>
           </Link>
         </div>
       </div>
@@ -76,18 +76,18 @@ const Admin = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b border-black shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               <Link to="/">
-                <Button variant="outline" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                <Button variant="outline" size="sm" className="text-xs">
+                  <ArrowLeft className="h-3 w-3 mr-1" />
                   Volver al Portfolio
                 </Button>
               </Link>
               <div className="flex items-center">
-                <h1 className="text-2xl font-bold text-black">Panel de Administración</h1>
-                <span className={`ml-3 px-2 py-1 text-xs font-semibold rounded-full ${
+                <h1 className="text-lg font-bold text-black">Panel de Administración</h1>
+                <span className={`ml-2 px-2 py-1 text-xs font-semibold rounded-full ${
                   role === 'superadmin' 
                     ? 'bg-red-100 text-red-800' 
                     : 'bg-blue-100 text-blue-800'
@@ -96,27 +96,28 @@ const Admin = () => {
                 </span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <div className="text-right">
-                <p className="text-sm text-black">Bienvenido, {user?.email}</p>
+                <p className="text-xs text-black">Bienvenido, {user?.email}</p>
               </div>
               {role === 'superadmin' && (
                 <Link to="/superadmin">
-                  <Button variant="outline">
-                    <Crown className="h-4 w-4 mr-2" />
+                  <Button variant="outline" size="sm" className="text-xs">
+                    <Crown className="h-3 w-3 mr-1" />
                     Panel Superadmin
                   </Button>
                 </Link>
               )}
               <Button 
                 onClick={() => setIsAddDialogOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-blue-600 hover:bg-blue-700 text-xs"
+                size="sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-3 w-3 mr-1" />
                 Añadir Operación
               </Button>
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
+              <Button variant="outline" onClick={handleSignOut} size="sm" className="text-xs">
+                <LogOut className="h-3 w-3 mr-1" />
                 Cerrar Sesión
               </Button>
             </div>
@@ -124,42 +125,42 @@ const Admin = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
             <div className="text-center">
-              <p className="text-2xl font-bold text-black">{availableOperations.length}</p>
-              <p className="text-sm text-black">Operaciones Disponibles</p>
+              <p className="text-lg font-bold text-black">{availableOperations.length}</p>
+              <p className="text-xs text-black">Operaciones Disponibles</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
             <div className="text-center">
-              <p className="text-2xl font-bold text-black">{pendingOperations.length}</p>
-              <p className="text-sm text-black">Solicitudes Pendientes</p>
+              <p className="text-lg font-bold text-black">{pendingOperations.length}</p>
+              <p className="text-xs text-black">Solicitudes Pendientes</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
             <div className="text-center">
-              <p className="text-2xl font-bold text-black">
+              <p className="text-lg font-bold text-black">
                 €{(availableOperations.reduce((sum, op) => sum + op.amount, 0) / 1000000).toFixed(1)}M
               </p>
-              <p className="text-sm text-black">Valor Total Portfolio</p>
+              <p className="text-xs text-black">Valor Total Portfolio</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
             <div className="text-center">
-              <p className="text-2xl font-bold text-black">
+              <p className="text-lg font-bold text-black">
                 {Array.from(new Set(operations.map(op => op.sector))).length}
               </p>
-              <p className="text-sm text-black">Sectores Representados</p>
+              <p className="text-xs text-black">Sectores Representados</p>
             </div>
           </div>
         </div>
 
         {/* Pending Operations Manager */}
         {pendingOperations.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-6">
             <PendingOperationsManager 
               operations={operations}
               onStatusUpdate={updateOperationStatus}
@@ -169,24 +170,24 @@ const Admin = () => {
 
         {/* Operations Table */}
         <div className="bg-white rounded-xl shadow-sm border border-black overflow-hidden">
-          <div className="px-6 py-4 border-b border-black">
-            <h2 className="text-lg font-semibold text-black">Gestión de Operaciones</h2>
+          <div className="px-4 py-3 border-b border-black">
+            <h2 className="text-sm font-semibold text-black">Gestión de Operaciones</h2>
           </div>
           
           {loading ? (
-            <div className="p-12 text-center">
-              <p className="text-black">Cargando operaciones...</p>
+            <div className="p-8 text-center">
+              <p className="text-black text-sm">Cargando operaciones...</p>
             </div>
           ) : error ? (
-            <div className="p-12 text-center">
-              <p className="text-red-600">{error}</p>
+            <div className="p-8 text-center">
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
           ) : operations.length === 0 ? (
-            <div className="p-12 text-center">
-              <h3 className="text-lg font-medium text-black mb-2">No hay operaciones</h3>
-              <p className="text-black mb-4">Añade tu primera operación al portfolio</p>
-              <Button onClick={() => setIsAddDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
+            <div className="p-8 text-center">
+              <h3 className="text-sm font-medium text-black mb-2">No hay operaciones</h3>
+              <p className="text-black mb-3 text-xs">Añade tu primera operación al portfolio</p>
+              <Button onClick={() => setIsAddDialogOpen(true)} size="sm" className="text-xs">
+                <Plus className="h-3 w-3 mr-1" />
                 Añadir Primera Operación
               </Button>
             </div>
@@ -195,22 +196,22 @@ const Admin = () => {
               <table className="min-w-full divide-y divide-black">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Empresa
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Sector
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Tipo
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Valor
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Fecha
                     </th>
                   </tr>
@@ -218,26 +219,26 @@ const Admin = () => {
                 <tbody className="bg-white divide-y divide-black">
                   {operations.map((operation) => (
                     <tr key={operation.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-black">
+                          <div className="text-xs font-medium text-black">
                             {operation.company_name}
                           </div>
-                          <div className="text-sm text-black">
+                          <div className="text-xs text-black">
                             {operation.location}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
                         {operation.sector}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
                         {getOperationTypeLabel(operation.operation_type)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
                         {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           operation.status === 'available' ? 'bg-green-100 text-green-800' :
                           operation.status === 'pending_review' ? 'bg-yellow-100 text-yellow-800' :
@@ -248,7 +249,7 @@ const Admin = () => {
                           {getStatusLabel(operation.status)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
                         {new Date(operation.date).toLocaleDateString('es-ES')}
                       </td>
                     </tr>
