@@ -31,7 +31,34 @@ export const useManagers = () => {
     }
   };
 
-  const addManager = async (managerData: Omit<Manager, "id" | "created_at" | "updated_at">) => {
+  const uploadPhoto = async (file: File, managerId: string) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${managerId}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('manager-photos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('manager-photos')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (err) {
+      console.error('Error subiendo foto:', err);
+      throw err;
+    }
+  };
+
+  const addManager = async (managerData: Omit<Manager, "id" | "created_at" | "updated_at">, photoFile?: File) => {
     try {
       const { data, error } = await supabase
         .from('operation_managers')
@@ -43,6 +70,29 @@ export const useManagers = () => {
         throw error;
       }
 
+      // Si hay una foto, subirla
+      if (photoFile && data) {
+        try {
+          const photoUrl = await uploadPhoto(photoFile, data.id);
+          
+          // Actualizar el gestor con la URL de la foto
+          const { data: updatedData, error: updateError } = await supabase
+            .from('operation_managers')
+            .update({ photo: photoUrl })
+            .eq('id', data.id)
+            .select()
+            .single();
+
+          if (updateError) {
+            console.error('Error actualizando foto:', updateError);
+          } else {
+            data.photo = photoUrl;
+          }
+        } catch (photoError) {
+          console.error('Error con la foto, pero gestor creado:', photoError);
+        }
+      }
+
       setManagers(prev => [...prev, data]);
       return { data, error: null };
     } catch (err) {
@@ -51,9 +101,46 @@ export const useManagers = () => {
     }
   };
 
+  const updateManagerPhoto = async (managerId: string, photoFile: File) => {
+    try {
+      const photoUrl = await uploadPhoto(photoFile, managerId);
+      
+      const { data, error } = await supabase
+        .from('operation_managers')
+        .update({ photo: photoUrl })
+        .eq('id', managerId)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setManagers(prev => 
+        prev.map(manager => 
+          manager.id === managerId 
+            ? { ...manager, photo: photoUrl }
+            : manager
+        )
+      );
+
+      return { data, error: null };
+    } catch (err) {
+      console.error('Error actualizando foto:', err);
+      return { data: null, error: 'Error al actualizar la foto' };
+    }
+  };
+
   useEffect(() => {
     fetchManagers();
   }, []);
 
-  return { managers, loading, error, refetch: fetchManagers, addManager };
+  return { 
+    managers, 
+    loading, 
+    error, 
+    refetch: fetchManagers, 
+    addManager,
+    updateManagerPhoto
+  };
 };
