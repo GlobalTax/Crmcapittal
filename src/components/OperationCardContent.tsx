@@ -2,7 +2,6 @@
 import { Operation } from "@/types/Operation";
 import { getOperationTypeLabel, formatFinancialValue } from "@/utils/operationHelpers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { User } from "lucide-react";
 
 interface OperationCardContentProps {
   operation: Operation;
@@ -65,7 +64,6 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-1 mb-1">
-                <User className="h-3 w-3 text-primary" />
                 <span className="text-xs font-semibold text-foreground">Gestor</span>
               </div>
               

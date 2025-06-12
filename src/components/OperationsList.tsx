@@ -10,7 +10,7 @@ import { OperationsViewToggle } from '@/components/OperationsViewToggle';
 import { OperationsEmptyState } from '@/components/OperationsEmptyState';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Sparkles } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 const initialFilters: FilterState = {
   search: '',
@@ -50,7 +50,6 @@ export const OperationsList = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <Sparkles className="h-5 w-5 text-blue-600" />
             <h2 className="text-xl font-semibold">Operaciones Disponibles</h2>
           </div>
           <OperationsViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
@@ -76,7 +75,6 @@ export const OperationsList = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <Sparkles className="h-5 w-5 text-blue-600" />
           <h2 className="text-xl font-semibold">
             Operaciones Disponibles
             <span className="text-sm text-gray-500 ml-2">

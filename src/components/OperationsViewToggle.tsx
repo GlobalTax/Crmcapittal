@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Grid, Table } from "lucide-react";
 
 interface OperationsViewToggleProps {
   viewMode: 'grid' | 'table';
@@ -20,7 +19,6 @@ export const OperationsViewToggle = ({ viewMode, onViewModeChange }: OperationsV
             : 'text-black hover:bg-gray-100'
         }`}
       >
-        <Grid className="h-4 w-4 mr-2" />
         Cards
       </Button>
       <Button
@@ -33,7 +31,6 @@ export const OperationsViewToggle = ({ viewMode, onViewModeChange }: OperationsV
             : 'text-black hover:bg-gray-100'
         }`}
       >
-        <Table className="h-4 w-4 mr-2" />
         Tabla
       </Button>
     </div>

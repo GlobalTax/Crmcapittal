@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getStatusColor, getStatusLabel, getOperationTypeLabel, formatFinancialValue } from '@/utils/operationHelpers';
-import { Building2, MapPin, TrendingUp, Calendar, Euro } from "lucide-react";
 
 interface OperationsTableProps {
   operations: Operation[];
@@ -46,7 +45,9 @@ export const OperationsTable = ({ operations }: OperationsTableProps) => {
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0">
                     <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-white" />
+                      <span className="text-white font-bold text-sm">
+                        {operation.company_name.charAt(0)}
+                      </span>
                     </div>
                   </div>
                   <div>
@@ -88,29 +89,26 @@ export const OperationsTable = ({ operations }: OperationsTableProps) => {
               </TableCell>
 
               <TableCell>
-                <div className="flex items-center text-sm text-gray-600">
-                  <MapPin className="h-3 w-3 mr-1" />
+                <div className="text-sm text-gray-600">
                   {operation.location}
                 </div>
               </TableCell>
 
               <TableCell>
-                <div className="flex items-center text-sm font-medium">
-                  <Euro className="h-3 w-3 mr-1 text-green-600" />
-                  {formatFinancialValue(operation.amount)}
+                <div className="text-sm font-medium">
+                  €{formatFinancialValue(operation.amount)}
                 </div>
               </TableCell>
 
               <TableCell>
                 <div className="text-sm text-gray-900">
-                  {formatFinancialValue(operation.revenue)}
+                  €{formatFinancialValue(operation.revenue)}
                 </div>
               </TableCell>
 
               <TableCell>
                 {operation.annual_growth_rate ? (
-                  <div className="flex items-center text-sm">
-                    <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
+                  <div className="text-sm">
                     <span className="font-medium text-green-600">
                       +{operation.annual_growth_rate}%
                     </span>
@@ -127,8 +125,7 @@ export const OperationsTable = ({ operations }: OperationsTableProps) => {
               </TableCell>
 
               <TableCell>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Calendar className="h-3 w-3 mr-1" />
+                <div className="text-sm text-gray-600">
                   {new Date(operation.date).toLocaleDateString('es-ES')}
                 </div>
               </TableCell>
