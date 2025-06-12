@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft, LogOut, Crown } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
 import { PendingOperationsManager } from "@/components/PendingOperationsManager";
+import { AdminOperationsTable } from "@/components/AdminOperationsTable";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
-import { getStatusLabel, getOperationTypeLabel } from "@/utils/operationHelpers";
 
 const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -168,96 +168,13 @@ const Admin = () => {
           </div>
         )}
 
-        {/* Operations Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-black overflow-hidden">
-          <div className="px-4 py-3 border-b border-black">
-            <h2 className="text-sm font-semibold text-black">Gestión de Operaciones</h2>
-          </div>
-          
-          {loading ? (
-            <div className="p-8 text-center">
-              <p className="text-black text-sm">Cargando operaciones...</p>
-            </div>
-          ) : error ? (
-            <div className="p-8 text-center">
-              <p className="text-red-600 text-sm">{error}</p>
-            </div>
-          ) : operations.length === 0 ? (
-            <div className="p-8 text-center">
-              <h3 className="text-sm font-medium text-black mb-2">No hay operaciones</h3>
-              <p className="text-black mb-3 text-xs">Añade tu primera operación al portfolio</p>
-              <Button onClick={() => setIsAddDialogOpen(true)} size="sm" className="text-xs">
-                <Plus className="h-3 w-3 mr-1" />
-                Añadir Primera Operación
-              </Button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-black">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
-                      Empresa
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
-                      Sector
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
-                      Tipo
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
-                      Valor
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
-                      Estado
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-black uppercase tracking-wider">
-                      Fecha
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-black">
-                  {operations.map((operation) => (
-                    <tr key={operation.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div>
-                          <div className="text-xs font-medium text-black">
-                            {operation.company_name}
-                          </div>
-                          <div className="text-xs text-black">
-                            {operation.location}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
-                        {operation.sector}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
-                        {getOperationTypeLabel(operation.operation_type)}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
-                        {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          operation.status === 'available' ? 'bg-green-100 text-green-800' :
-                          operation.status === 'pending_review' ? 'bg-yellow-100 text-yellow-800' :
-                          operation.status === 'approved' ? 'bg-blue-100 text-blue-800' :
-                          operation.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {getStatusLabel(operation.status)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-black">
-                        {new Date(operation.date).toLocaleDateString('es-ES')}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+        {/* Operations Table - Using new improved component */}
+        <div className="bg-white rounded-xl shadow-sm border border-black p-6">
+          <AdminOperationsTable 
+            operations={operations}
+            loading={loading}
+            error={error}
+          />
         </div>
       </div>
 
