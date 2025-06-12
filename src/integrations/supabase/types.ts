@@ -9,7 +9,84 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      operations: {
+        Row: {
+          amount: number
+          buyer: string | null
+          company_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          currency: string
+          date: string
+          description: string | null
+          id: string
+          location: string | null
+          operation_type: string
+          sector: string
+          seller: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer?: string | null
+          company_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          currency?: string
+          date: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          operation_type: string
+          sector: string
+          seller?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer?: string | null
+          company_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          currency?: string
+          date?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          operation_type?: string
+          sector?: string
+          seller?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

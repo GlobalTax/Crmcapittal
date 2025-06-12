@@ -4,7 +4,7 @@ import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Operation } from "@/pages/Index";
+import { Operation } from "@/types/Operation";
 
 interface OperationFiltersProps {
   operations: Operation[];
@@ -32,7 +32,7 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(op =>
-        op.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        op.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         op.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         op.buyer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         op.seller?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,7 +46,7 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
 
     // Filter by type
     if (typeFilter !== "all") {
-      filtered = filtered.filter(op => op.operationType === typeFilter);
+      filtered = filtered.filter(op => op.operation_type === typeFilter);
     }
 
     // Filter by status
@@ -127,9 +127,10 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="completed">Completada</SelectItem>
-              <SelectItem value="pending">Pendiente</SelectItem>
-              <SelectItem value="cancelled">Cancelada</SelectItem>
+              <SelectItem value="available">Disponible</SelectItem>
+              <SelectItem value="in_process">En Proceso</SelectItem>
+              <SelectItem value="sold">Vendida</SelectItem>
+              <SelectItem value="withdrawn">Retirada</SelectItem>
             </SelectContent>
           </Select>
         </div>
