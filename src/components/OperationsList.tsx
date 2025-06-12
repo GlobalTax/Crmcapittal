@@ -57,10 +57,10 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+      <div className="bg-white rounded-xl shadow-sm border-black border-[3px] p-12">
         <div className="text-center">
-          <h3 className="text-lg font-medium text-slate-900 mb-2">Cargando operaciones...</h3>
-          <p className="text-slate-600">Por favor espera mientras cargamos las operaciones disponibles.</p>
+          <h3 className="text-lg font-medium text-black mb-2">Cargando operaciones...</h3>
+          <p className="text-black">Por favor espera mientras cargamos las operaciones disponibles.</p>
         </div>
       </div>
     );
@@ -68,10 +68,10 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-red-200 p-12">
+      <div className="bg-white rounded-xl shadow-sm border-black border-[3px] p-12">
         <div className="text-center">
-          <h3 className="text-lg font-medium text-red-900 mb-2">Error al cargar operaciones</h3>
-          <p className="text-red-600">{error}</p>
+          <h3 className="text-lg font-medium text-black mb-2">Error al cargar operaciones</h3>
+          <p className="text-black">{error}</p>
         </div>
       </div>
     );
@@ -79,10 +79,10 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
 
   if (operations.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
+      <div className="bg-white rounded-xl shadow-sm border-black border-[3px] p-12">
         <div className="text-center">
-          <h3 className="text-lg font-medium text-slate-900 mb-2">No hay operaciones disponibles</h3>
-          <p className="text-slate-600">Actualmente no hay operaciones disponibles en nuestra cartera.</p>
+          <h3 className="text-lg font-medium text-black mb-2">No hay operaciones disponibles</h3>
+          <p className="text-black">Actualmente no hay operaciones disponibles en nuestra cartera.</p>
         </div>
       </div>
     );
@@ -90,16 +90,16 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-slate-900">Operaciones Disponibles</h2>
+      <h2 className="text-xl font-semibold text-black">Operaciones Disponibles</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {operations.map((operation) => (
-          <Card key={operation.id} className="hover:shadow-lg transition-all duration-200 border-slate-200 bg-white">
+          <Card key={operation.id} className="hover:shadow-lg transition-all duration-200 border-black border-[3px] bg-white">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
                   <div>
-                    <h3 className="font-semibold text-slate-900 text-lg">{operation.company_name}</h3>
-                    <p className="text-slate-600 text-sm">{operation.sector}</p>
+                    <h3 className="font-semibold text-black text-lg">{operation.company_name}</h3>
+                    <p className="text-black text-sm">{operation.sector}</p>
                   </div>
                 </div>
                 <Badge className={getStatusColor(operation.status)}>
@@ -111,30 +111,30 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="font-medium text-slate-900">
+                  <span className="font-medium text-black">
                     {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
                   </span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
-                  <span className="text-slate-600">
+                  <span className="text-black">
                     {new Date(operation.date).toLocaleDateString('es-ES')}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center space-x-2 text-sm">
-                <span className="text-slate-600">{operation.location}</span>
+                <span className="text-black">{operation.location}</span>
               </div>
 
               <div className="bg-slate-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-slate-700 mb-1">
+                <p className="text-sm font-medium text-black mb-1">
                   {getOperationTypeLabel(operation.operation_type)}
                 </p>
-                <p className="text-sm text-slate-600">{operation.description}</p>
+                <p className="text-sm text-black">{operation.description}</p>
               </div>
 
               {(operation.buyer || operation.seller) && (
-                <div className="flex justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+                <div className="flex justify-between text-xs text-black pt-2 border-t border-slate-100">
                   {operation.buyer && (
                     <span><strong>Comprador:</strong> {operation.buyer}</span>
                   )}
@@ -147,12 +147,12 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
               {(operation.contact_email || operation.contact_phone) && (
                 <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
                   {operation.contact_email && (
-                    <div className="flex items-center space-x-1 text-xs text-slate-600">
+                    <div className="flex items-center space-x-1 text-xs text-black">
                       <span>Email: {operation.contact_email}</span>
                     </div>
                   )}
                   {operation.contact_phone && (
-                    <div className="flex items-center space-x-1 text-xs text-slate-600">
+                    <div className="flex items-center space-x-1 text-xs text-black">
                       <span>Tel: {operation.contact_phone}</span>
                     </div>
                   )}
