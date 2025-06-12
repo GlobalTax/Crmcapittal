@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowLeft, LogOut } from "lucide-react";
+import { Plus, ArrowLeft, LogOut, MessageSquare } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
 import { BulkOperationUpload } from "@/components/BulkOperationUpload";
+import { QuickDataChat } from "@/components/QuickDataChat";
 import { PendingOperationsManager } from "@/components/PendingOperationsManager";
 import { AdminOperationsTable } from "@/components/AdminOperationsTable";
 import { useOperations } from "@/hooks/useOperations";
@@ -15,6 +15,8 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [showQuickChat, setShowQuickChat] = useState(false);
+  
   const { 
     operations, 
     loading, 
@@ -156,6 +158,14 @@ const Admin = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              <Button 
+                onClick={() => setShowQuickChat(!showQuickChat)}
+                variant="outline"
+                className="border-black text-black hover:bg-gray-100"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                {showQuickChat ? 'Ocultar Chat' : 'Chat Rápido'}
+              </Button>
               <BulkOperationUpload onBulkAdd={handleBulkAddOperations} />
               <Button 
                 onClick={() => setIsAddDialogOpen(true)}
@@ -171,6 +181,13 @@ const Admin = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 bg-white">
+        {/* Quick Data Chat */}
+        {showQuickChat && (
+          <div className="mb-8">
+            <QuickDataChat onBulkAdd={handleBulkAddOperations} />
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
