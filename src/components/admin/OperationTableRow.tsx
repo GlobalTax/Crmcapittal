@@ -56,14 +56,27 @@ export const OperationTableRow = ({
       </TableCell>
       
       <TableCell>
-        <div className="text-sm font-medium">
-          {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
+        <div className="text-sm">
+          {operation.revenue ? (
+            <div className="font-medium">
+              €{(operation.revenue / 1000000).toFixed(1)}M
+            </div>
+          ) : (
+            <span className="text-gray-400 text-xs">No disponible</span>
+          )}
         </div>
-        {operation.revenue && (
-          <div className="text-xs text-gray-500">
-            Rev: €{(operation.revenue / 1000000).toFixed(1)}M
-          </div>
-        )}
+      </TableCell>
+
+      <TableCell>
+        <div className="text-sm">
+          {operation.ebitda ? (
+            <div className="font-medium">
+              €{(operation.ebitda / 1000000).toFixed(1)}M
+            </div>
+          ) : (
+            <span className="text-gray-400 text-xs">No disponible</span>
+          )}
+        </div>
       </TableCell>
       
       <TableCell>

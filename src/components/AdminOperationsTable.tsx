@@ -109,7 +109,8 @@ export const AdminOperationsTable = ({
               <TableHead>Empresa</TableHead>
               <TableHead>Sector</TableHead>
               <TableHead>Tipo</TableHead>
-              <TableHead>Valor</TableHead>
+              <TableHead>Facturación</TableHead>
+              <TableHead>EBITDA</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Teaser</TableHead>
               <TableHead>Gestor</TableHead>
@@ -120,7 +121,7 @@ export const AdminOperationsTable = ({
           <TableBody>
             {filteredOperations.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8">
+                <TableCell colSpan={10} className="text-center py-8">
                   <div className="text-gray-500">
                     {searchTerm || filterStatus !== "all" || filterSector !== "all" 
                       ? "No se encontraron operaciones con los filtros aplicados"
