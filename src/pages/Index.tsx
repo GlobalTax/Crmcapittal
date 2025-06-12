@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, Building2, DollarSign, Settings } from "lucide-react";
+import { TrendingUp, DollarSign, Settings } from "lucide-react";
 import { OperationsList } from "@/components/OperationsList";
 import { OperationFilters } from "@/components/OperationFilters";
 import { useOperations } from "@/hooks/useOperations";
@@ -29,10 +29,7 @@ const Index = () => {
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Building2 className="h-6 w-6 text-white" />
-              </div>
+            <div className="flex items-center">
               <h1 className="text-2xl font-bold text-slate-900">Cartera de Operaciones M&A</h1>
             </div>
             <div className="flex items-center space-x-4">
@@ -87,7 +84,7 @@ const Index = () => {
                 <p className="text-2xl font-bold text-slate-900">{totalOperations}</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
-                <Building2 className="h-6 w-6 text-orange-600" />
+                <TrendingUp className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </div>

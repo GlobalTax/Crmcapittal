@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Building2, ArrowLeft, LogOut } from "lucide-react";
+import { Plus, ArrowLeft, LogOut } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
@@ -52,10 +52,7 @@ const Admin = () => {
                   Volver al Portfolio
                 </Button>
               </Link>
-              <div className="flex items-center space-x-3">
-                <div className="bg-blue-600 p-2 rounded-lg">
-                  <Building2 className="h-6 w-6 text-white" />
-                </div>
+              <div className="flex items-center">
                 <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
               </div>
             </div>
