@@ -6,7 +6,8 @@ import {
   updateOperationInDB, 
   updateOperationStatusInDB, 
   deleteOperationFromDB, 
-  updateTeaserUrlInDB 
+  updateTeaserUrlInDB,
+  insertBulkOperations
 } from './operationsService';
 
 export const useOperationsMutations = (
@@ -37,6 +38,34 @@ export const useOperationsMutations = (
       return { 
         data: null, 
         error: err instanceof Error ? err.message : 'Error al añadir la operación' 
+      };
+    }
+  };
+
+  const addBulkOperations = async (operationsData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">[]) => {
+    try {
+      if (!user?.id) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      const insertedOperations = await insertBulkOperations(operationsData, user.id);
+
+      if (insertedOperations && insertedOperations.length > 0) {
+        const typedOperations: Operation[] = insertedOperations.map(data => ({
+          ...data,
+          operation_type: data.operation_type as Operation['operation_type'],
+          status: data.status as Operation['status']
+        }));
+        
+        setOperations(prev => [...typedOperations, ...prev]);
+      }
+
+      return { data: insertedOperations, error: null };
+    } catch (err) {
+      console.error('Error añadiendo operaciones masivas:', err);
+      return { 
+        data: null, 
+        error: err instanceof Error ? err.message : 'Error al añadir las operaciones' 
       };
     }
   };
@@ -111,6 +140,7 @@ export const useOperationsMutations = (
 
   return {
     addOperation,
+    addBulkOperations,
     updateOperation,
     updateOperationStatus,
     deleteOperation,

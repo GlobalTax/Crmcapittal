@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft, LogOut } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
+import { BulkOperationUpload } from "@/components/BulkOperationUpload";
 import { PendingOperationsManager } from "@/components/PendingOperationsManager";
 import { AdminOperationsTable } from "@/components/AdminOperationsTable";
 import { useOperations } from "@/hooks/useOperations";
@@ -19,6 +20,7 @@ const Admin = () => {
     loading, 
     error, 
     addOperation, 
+    addBulkOperations,
     updateOperation,
     updateOperationStatus,
     deleteOperation,
@@ -42,6 +44,25 @@ const Admin = () => {
         title: "Éxito",
         description: "Operación añadida correctamente",
       });
+    }
+  };
+
+  const handleBulkAddOperations = async (operationsData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">[]) => {
+    const { error } = await addBulkOperations(operationsData);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: error,
+        variant: "destructive",
+      });
+      return { error };
+    } else {
+      toast({
+        title: "Éxito",
+        description: `${operationsData.length} operaciones añadidas correctamente`,
+      });
+      return { error: null };
     }
   };
 
@@ -134,14 +155,17 @@ const Admin = () => {
               </span>
             </div>
             
-            <Button 
-              onClick={() => setIsAddDialogOpen(true)}
-              className="bg-black hover:bg-gray-800 text-white text-base px-6 py-3 h-auto"
-              size="lg"
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Añadir Operación
-            </Button>
+            <div className="flex items-center space-x-4">
+              <BulkOperationUpload onBulkAdd={handleBulkAddOperations} />
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)}
+                className="bg-black hover:bg-gray-800 text-white text-base px-6 py-3 h-auto"
+                size="lg"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Añadir Operación
+              </Button>
+            </div>
           </div>
         </div>
       </header>
