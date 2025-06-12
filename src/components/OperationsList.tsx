@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -65,11 +64,12 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
     const subject = `Solicitud de información - ${operation.company_name}`;
     const body = `Hola,\n\nEstoy interesado en obtener más información sobre la operación de ${operation.company_name} (${getOperationTypeLabel(operation.operation_type)}) en el sector ${operation.sector}.\n\nGracias.`;
     
-    if (operation.contact_email) {
+    if (operation.manager?.email) {
+      window.location.href = `mailto:${operation.manager.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    } else if (operation.contact_email) {
       window.location.href = `mailto:${operation.contact_email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     } else {
-      // Si no hay email de contacto, mostrar información
-      alert(`Para más información sobre ${operation.company_name}, contacte por teléfono: ${operation.contact_phone || 'Información de contacto no disponible'}`);
+      alert(`Para más información sobre ${operation.company_name}, contacte por teléfono: ${operation.contact_phone || operation.manager?.phone || 'Información de contacto no disponible'}`);
     }
   };
 
@@ -174,16 +174,25 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
                 </div>
               )}
 
-              {(operation.contact_email || operation.contact_phone) && (
+              {/* Manager Information */}
+              {operation.manager && (
                 <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
-                  {operation.contact_email && (
+                  <div className="flex items-center space-x-1 text-xs text-black">
+                    <span className="font-medium">Gestor:</span>
+                    <span>{operation.manager.name}</span>
+                  </div>
+                  {operation.manager.position && (
                     <div className="flex items-center space-x-1 text-xs text-black">
-                      <span>Email: {operation.contact_email}</span>
+                      <span className="font-medium">Cargo:</span>
+                      <span>{operation.manager.position}</span>
                     </div>
                   )}
-                  {operation.contact_phone && (
+                  <div className="flex items-center space-x-1 text-xs text-black">
+                    <span>Email: {operation.manager.email}</span>
+                  </div>
+                  {operation.manager.phone && (
                     <div className="flex items-center space-x-1 text-xs text-black">
-                      <span>Tel: {operation.contact_phone}</span>
+                      <span>Tel: {operation.manager.phone}</span>
                     </div>
                   )}
                 </div>

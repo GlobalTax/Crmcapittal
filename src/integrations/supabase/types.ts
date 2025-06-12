@@ -30,6 +30,36 @@ export type Database = {
         }
         Relationships: []
       }
+      operation_managers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          position: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       operations: {
         Row: {
           amount: number
@@ -45,6 +75,7 @@ export type Database = {
           ebitda: number | null
           id: string
           location: string | null
+          manager_id: string | null
           operation_type: string
           revenue: number | null
           sector: string
@@ -66,6 +97,7 @@ export type Database = {
           ebitda?: number | null
           id?: string
           location?: string | null
+          manager_id?: string | null
           operation_type: string
           revenue?: number | null
           sector: string
@@ -87,6 +119,7 @@ export type Database = {
           ebitda?: number | null
           id?: string
           location?: string | null
+          manager_id?: string | null
           operation_type?: string
           revenue?: number | null
           sector?: string
@@ -94,7 +127,15 @@ export type Database = {
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "operations_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "operation_managers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

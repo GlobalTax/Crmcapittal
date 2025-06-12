@@ -15,7 +15,10 @@ export const useOperations = () => {
       
       const { data, error } = await supabase
         .from('operations')
-        .select('*')
+        .select(`
+          *,
+          manager:operation_managers(*)
+        `)
         .eq('status', 'available')
         .order('created_at', { ascending: false });
 
