@@ -21,6 +21,7 @@ export const useOperationsMutations = (
         throw new Error('Usuario no autenticado');
       }
 
+      console.log('Datos de operación a insertar:', operationData);
       const data = await insertOperation(operationData, user.id);
 
       if (data) {
@@ -48,6 +49,7 @@ export const useOperationsMutations = (
         throw new Error('Usuario no autenticado');
       }
 
+      console.log('Datos de operaciones masivas a insertar:', operationsData);
       const insertedOperations = await insertBulkOperations(operationsData, user.id);
 
       if (insertedOperations && insertedOperations.length > 0) {
