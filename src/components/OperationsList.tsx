@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Operation } from "@/types/Operation";
@@ -57,7 +56,7 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border-black border-[3px] p-12">
+      <div className="bg-white rounded-xl shadow-sm border-black p-12">
         <div className="text-center">
           <h3 className="text-lg font-medium text-black mb-2">Cargando operaciones...</h3>
           <p className="text-black">Por favor espera mientras cargamos las operaciones disponibles.</p>
@@ -68,7 +67,7 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border-black border-[3px] p-12">
+      <div className="bg-white rounded-xl shadow-sm border-black p-12">
         <div className="text-center">
           <h3 className="text-lg font-medium text-black mb-2">Error al cargar operaciones</h3>
           <p className="text-black">{error}</p>
@@ -79,7 +78,7 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
 
   if (operations.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border-black border-[3px] p-12">
+      <div className="bg-white rounded-xl shadow-sm border-black p-12">
         <div className="text-center">
           <h3 className="text-lg font-medium text-black mb-2">No hay operaciones disponibles</h3>
           <p className="text-black">Actualmente no hay operaciones disponibles en nuestra cartera.</p>
@@ -93,7 +92,7 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
       <h2 className="text-xl font-semibold text-black">Operaciones Disponibles</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {operations.map((operation) => (
-          <Card key={operation.id} className="hover:shadow-lg transition-all duration-200 border-black border-[3px] bg-white">
+          <Card key={operation.id} className="hover:shadow-lg transition-all duration-200 border-black bg-white">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">

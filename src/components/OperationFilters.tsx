@@ -57,7 +57,7 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
   }, [searchTerm, sectorFilter, typeFilter, statusFilter, operations, onFilter]);
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border-black border-[3px] mb-8">
+    <div className="bg-white p-6 rounded-xl shadow-sm border-black mb-8">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <Filter className="h-5 w-5 text-slate-600" />

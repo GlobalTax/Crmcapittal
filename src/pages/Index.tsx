@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OperationsList } from "@/components/OperationsList";
@@ -49,7 +48,7 @@ const Index = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border-black border-[3px] hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-xl shadow-sm border-black hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black">Valor Total</p>
@@ -60,7 +59,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border-black border-[3px] hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-xl shadow-sm border-black hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black">Disponibles</p>
@@ -69,7 +68,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border-black border-[3px] hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-xl shadow-sm border-black hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-black">Total Operaciones</p>
