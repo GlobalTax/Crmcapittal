@@ -23,12 +23,13 @@ export const useOperations = () => {
         .from('operations')
         .select(`
           *,
-          manager:operation_managers!manager_id(
+          operation_managers!manager_id(
             id,
             name,
             email,
             phone,
-            position
+            position,
+            photo
           )
         `)
         .order('created_at', { ascending: false });
@@ -49,17 +50,18 @@ export const useOperations = () => {
 
       // Procesar y mapear los datos
       const typedOperations: Operation[] = (data || []).map(op => {
-        console.log('Procesando operación:', op.company_name, 'Manager:', op.manager);
+        console.log('Procesando operación:', op.company_name, 'Manager data:', op.operation_managers);
         
-        // Manejar el caso donde manager puede ser null o undefined
+        // Manejar el caso donde operation_managers puede ser null o undefined
         let managerData = undefined;
-        if (op.manager && typeof op.manager === 'object' && op.manager.id) {
+        if (op.operation_managers && typeof op.operation_managers === 'object' && op.operation_managers.id) {
           managerData = {
-            id: op.manager.id,
-            name: op.manager.name,
-            email: op.manager.email,
-            phone: op.manager.phone,
-            position: op.manager.position
+            id: op.operation_managers.id,
+            name: op.operation_managers.name,
+            email: op.operation_managers.email,
+            phone: op.operation_managers.phone,
+            position: op.operation_managers.position,
+            photo: op.operation_managers.photo
           };
         }
         
