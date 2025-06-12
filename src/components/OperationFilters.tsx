@@ -48,7 +48,9 @@ export const OperationFilters = ({ onFiltersChange, operations }: OperationFilte
   ];
 
   const updateFilter = (key: keyof FilterState, value: any) => {
-    const newFilters = { ...filters, [key]: value };
+    // Convert "all" back to empty string for the filter logic
+    const filterValue = value === 'all' ? '' : value;
+    const newFilters = { ...filters, [key]: filterValue };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
@@ -96,12 +98,12 @@ export const OperationFilters = ({ onFiltersChange, operations }: OperationFilte
             {/* Sector Filter */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Sector</label>
-              <Select value={filters.sector} onValueChange={(value) => updateFilter('sector', value)}>
+              <Select value={filters.sector || 'all'} onValueChange={(value) => updateFilter('sector', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los sectores" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los sectores</SelectItem>
+                  <SelectItem value="all">Todos los sectores</SelectItem>
                   {uniqueSectors.map((sector) => (
                     <SelectItem key={sector} value={sector}>
                       {sector}
@@ -114,12 +116,12 @@ export const OperationFilters = ({ onFiltersChange, operations }: OperationFilte
             {/* Operation Type Filter */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Tipo de Operación</label>
-              <Select value={filters.operationType} onValueChange={(value) => updateFilter('operationType', value)}>
+              <Select value={filters.operationType || 'all'} onValueChange={(value) => updateFilter('operationType', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos los tipos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los tipos</SelectItem>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
                   {operationTypes.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
@@ -132,12 +134,12 @@ export const OperationFilters = ({ onFiltersChange, operations }: OperationFilte
             {/* Location Filter */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Ubicación</label>
-              <Select value={filters.location} onValueChange={(value) => updateFilter('location', value)}>
+              <Select value={filters.location || 'all'} onValueChange={(value) => updateFilter('location', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todas las ubicaciones" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas las ubicaciones</SelectItem>
+                  <SelectItem value="all">Todas las ubicaciones</SelectItem>
                   {uniqueLocations.map((location) => (
                     <SelectItem key={location} value={location}>
                       {location}
