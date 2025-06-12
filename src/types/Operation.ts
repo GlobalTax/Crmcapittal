@@ -30,4 +30,5 @@ export interface Operation {
   created_at: string;
   updated_at: string;
   cif?: string;
+  teaser_url?: string;
 }
