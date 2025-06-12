@@ -37,7 +37,6 @@ export const useFavoriteOperations = () => {
             annual_growth_rate,
             created_at,
             updated_at,
-            teaser_url,
             manager_id,
             operation_managers (
               id,
