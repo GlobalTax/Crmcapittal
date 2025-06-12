@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -108,7 +107,6 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="acquisition">Adquisición</SelectItem>
                   <SelectItem value="merger">Fusión</SelectItem>
                   <SelectItem value="sale">Venta</SelectItem>
                   <SelectItem value="partial_sale">Venta Parcial</SelectItem>

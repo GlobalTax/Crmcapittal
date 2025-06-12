@@ -43,8 +43,6 @@ export const getStatusLabel = (status: string) => {
 
 export const getOperationTypeLabel = (type: string) => {
   switch (type) {
-    case "acquisition":
-      return "Adquisición";
     case "merger":
       return "Fusión";
     case "sale":

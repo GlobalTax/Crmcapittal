@@ -3,7 +3,7 @@ export interface Operation {
   id: string;
   company_name: string;
   sector: string;
-  operation_type: "acquisition" | "merger" | "sale" | "partial_sale" | "buy_mandate";
+  operation_type: "merger" | "sale" | "partial_sale" | "buy_mandate";
   amount: number;
   currency: string;
   date: string;

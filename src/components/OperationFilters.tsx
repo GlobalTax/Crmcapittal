@@ -104,7 +104,6 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los tipos</SelectItem>
-              <SelectItem value="acquisition">Adquisición</SelectItem>
               <SelectItem value="merger">Fusión</SelectItem>
               <SelectItem value="sale">Venta</SelectItem>
               <SelectItem value="partial_sale">Venta Parcial</SelectItem>
