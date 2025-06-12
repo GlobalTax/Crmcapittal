@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OperationsList } from "@/components/OperationsList";
 import { OperationFilters } from "@/components/OperationFilters";
+import { AddCompanyDialog } from "@/components/AddCompanyDialog";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
@@ -28,9 +30,10 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-black">Cartera de Operaciones M&A</h1>
+              <h1 className="text-2xl font-bold text-black">Relación de Open Deals</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <AddCompanyDialog />
               <div className="text-right">
                 <p className="text-sm text-black">Operaciones disponibles para inversión</p>
                 <p className="text-xs text-black">Contacta para más información</p>
