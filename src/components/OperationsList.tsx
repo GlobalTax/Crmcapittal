@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -126,19 +127,11 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
             </CardHeader>
             
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex flex-col space-y-1 text-xs">
-                  <span className="font-medium text-black">Valoración</span>
-                  <span className="text-black">
-                    {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
-                  </span>
-                </div>
-                <div className="flex flex-col space-y-1 text-xs">
-                  <span className="font-medium text-black">Fecha</span>
-                  <span className="text-black">
-                    {new Date(operation.date).toLocaleDateString('es-ES')}
-                  </span>
-                </div>
+              <div className="flex flex-col space-y-1 text-xs">
+                <span className="font-medium text-black">Fecha</span>
+                <span className="text-black">
+                  {new Date(operation.date).toLocaleDateString('es-ES')}
+                </span>
               </div>
 
               {/* Financial Metrics */}
