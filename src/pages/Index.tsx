@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OperationsList } from "@/components/OperationsList";
@@ -27,7 +26,7 @@ const Index = () => {
   const totalOperations = displayOperations.length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header mejorado */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -81,7 +80,7 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 bg-white">
         {/* Stats Cards mejoradas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">

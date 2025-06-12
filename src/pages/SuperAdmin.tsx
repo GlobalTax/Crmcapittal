@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft, LogOut, Users, Settings, BarChart3 } from "lucide-react";
@@ -225,7 +224,7 @@ const SuperAdmin = () => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 bg-white">
         {renderContent()}
       </div>
     </div>
