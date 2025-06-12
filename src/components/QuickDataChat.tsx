@@ -72,7 +72,7 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           return;
         }
 
-        // Convertir tipos de operación - CORREGIDO para coincidir con la base de datos
+        // Convertir tipos de operación - Usando solo los valores exactos de la base de datos
         const typeMap: { [key: string]: Operation['operation_type'] } = {
           'acquisition': 'merger',
           'adquisición': 'merger', 
@@ -84,13 +84,21 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           'ronda': 'buy_mandate',
           'buy_mandate': 'buy_mandate',
           'mandato compra': 'buy_mandate',
+          'mandato de compra': 'buy_mandate',
           'partial_sale': 'partial_sale',
           'venta parcial': 'partial_sale'
         };
 
-        const mappedOperationType = typeMap[operation_type.toLowerCase()] || 'sale';
+        const normalizedType = operation_type.toLowerCase().trim();
+        const mappedOperationType = typeMap[normalizedType];
+        
+        if (!mappedOperationType) {
+          console.log('Tipo de operación no reconocido:', operation_type, 'usando sale como default');
+        }
+        
+        const finalOperationType = mappedOperationType || 'sale';
 
-        // Convertir estados - CORREGIDO para coincidir con la base de datos
+        // Convertir estados - Usando solo los valores exactos de la base de datos
         const statusMap: { [key: string]: Operation['status'] } = {
           'completed': 'available',
           'completado': 'available',
@@ -104,14 +112,15 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           'pending_review': 'pending_review'
         };
 
-        const mappedStatus = statusMap[status_str.toLowerCase()] || 'available';
+        const normalizedStatus = status_str.toLowerCase().trim();
+        const mappedStatus = statusMap[normalizedStatus] || 'available';
 
         // Parsear números
         const amount = parseInt(amount_str.replace(/[^\d]/g, '')) || 0;
-        const revenue = revenue_str ? parseInt(revenue_str.replace(/[^\d]/g, '')) || null : null;
-        const ebitda = ebitda_str ? parseInt(ebitda_str.replace(/[^\d]/g, '')) || null : null;
-        const annual_growth_rate = annual_growth_rate_str && annual_growth_rate_str !== 'N/A' 
-          ? parseFloat(annual_growth_rate_str.replace(/[^\d.]/g, '')) || null 
+        const revenue = revenue_str && revenue_str.trim() && revenue_str !== 'N/A' ? parseInt(revenue_str.replace(/[^\d]/g, '')) || null : null;
+        const ebitda = ebitda_str && ebitda_str.trim() && ebitda_str !== 'N/A' ? parseInt(ebitda_str.replace(/[^\d-]/g, '')) || null : null;
+        const annual_growth_rate = annual_growth_rate_str && annual_growth_rate_str.trim() && annual_growth_rate_str !== 'N/A' 
+          ? parseFloat(annual_growth_rate_str.replace(/[^\d.-]/g, '')) || null 
           : null;
 
         // Parsear fecha (formato YYYY-MM-DD)
@@ -132,7 +141,7 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           company_name: company_name.trim(),
           cif: cif || null,
           sector: sector.trim(),
-          operation_type: mappedOperationType,
+          operation_type: finalOperationType,
           amount,
           currency: currency || 'EUR',
           date: parsedDate,
@@ -148,8 +157,9 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           annual_growth_rate
         };
 
-        operations.push(operation);
         console.log('Operación procesada:', operation);
+        console.log('Tipo final:', finalOperationType, 'Estado final:', mappedStatus);
+        operations.push(operation);
 
       } catch (error) {
         console.error('Error procesando línea:', line, error);
