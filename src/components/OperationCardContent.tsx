@@ -60,8 +60,8 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
         </div>
       )}
 
-      {/* Información del Gestor mejorada */}
-      {operation.manager && (
+      {/* Información del Gestor mejorada - Solo si existe */}
+      {operation.manager && operation.manager.name && (
         <div className="bg-card border border-border rounded-lg p-3 shadow-sm">
           <div className="flex items-start space-x-3">
             <Avatar className="h-10 w-10 flex-shrink-0">
@@ -110,7 +110,7 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
       )}
 
       {/* Información de contacto alternativa si no hay gestor */}
-      {!operation.manager && (operation.contact_email || operation.contact_phone) && (
+      {(!operation.manager || !operation.manager.name) && (operation.contact_email || operation.contact_phone) && (
         <div className="bg-muted/30 border border-border rounded-lg p-3">
           <div className="flex items-center space-x-2 mb-2">
             <Phone className="h-3 w-3 text-muted-foreground" />

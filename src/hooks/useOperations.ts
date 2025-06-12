@@ -50,17 +50,24 @@ export const useOperations = () => {
       // Procesar y mapear los datos
       const typedOperations: Operation[] = (data || []).map(op => {
         console.log('Procesando operación:', op.company_name, 'Manager:', op.manager);
-        return {
-          ...op,
-          operation_type: op.operation_type as Operation['operation_type'],
-          status: op.status as Operation['status'],
-          manager: op.manager ? {
+        
+        // Manejar el caso donde manager puede ser null o undefined
+        let managerData = undefined;
+        if (op.manager && typeof op.manager === 'object' && op.manager.id) {
+          managerData = {
             id: op.manager.id,
             name: op.manager.name,
             email: op.manager.email,
             phone: op.manager.phone,
             position: op.manager.position
-          } : undefined
+          };
+        }
+        
+        return {
+          ...op,
+          operation_type: op.operation_type as Operation['operation_type'],
+          status: op.status as Operation['status'],
+          manager: managerData
         };
       });
 
