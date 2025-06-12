@@ -88,18 +88,32 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submitted with data:', formData);
+    
     if (!formData.company_name || !formData.sector || !formData.operation_type || !formData.revenue || !formData.date) {
+      console.error('Missing required fields:', {
+        company_name: formData.company_name,
+        sector: formData.sector,
+        operation_type: formData.operation_type,
+        revenue: formData.revenue,
+        date: formData.date
+      });
       return;
     }
 
-    onAddOperation({
+    const revenueValue = parseFormattedNumber(formData.revenue);
+    const ebitdaValue = parseFormattedNumber(formData.ebitda);
+    
+    console.log('Parsed values:', { revenueValue, ebitdaValue });
+
+    const operationData = {
       company_name: formData.company_name,
       cif: formData.cif,
       sector: formData.sector,
       operation_type: formData.operation_type,
-      amount: parseFormattedNumber(formData.revenue), // Using revenue as main amount
-      revenue: parseFormattedNumber(formData.revenue),
-      ebitda: parseFormattedNumber(formData.ebitda),
+      amount: revenueValue, // Using revenue as main amount
+      revenue: revenueValue,
+      ebitda: ebitdaValue,
       currency: formData.currency,
       date: formData.date,
       buyer: formData.buyer,
@@ -109,28 +123,36 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       location: formData.location,
       contact_email: formData.contact_email,
       contact_phone: formData.contact_phone
-    });
+    };
 
-    // Reset form
-    setFormData({
-      company_name: "",
-      cif: "",
-      sector: "",
-      operation_type: "" as Operation["operation_type"],
-      revenue: "",
-      ebitda: "",
-      currency: "EUR",
-      date: "",
-      buyer: "",
-      seller: "",
-      status: "available",
-      description: "",
-      location: "",
-      contact_email: "",
-      contact_phone: ""
-    });
+    console.log('Final operation data to be sent:', operationData);
 
-    onOpenChange(false);
+    try {
+      onAddOperation(operationData);
+      
+      // Reset form
+      setFormData({
+        company_name: "",
+        cif: "",
+        sector: "",
+        operation_type: "" as Operation["operation_type"],
+        revenue: "",
+        ebitda: "",
+        currency: "EUR",
+        date: "",
+        buyer: "",
+        seller: "",
+        status: "available",
+        description: "",
+        location: "",
+        contact_email: "",
+        contact_phone: ""
+      });
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+    }
   };
 
   const showBuyerField = formData.operation_type === "buy_mandate";
@@ -360,12 +382,14 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
               type="button" 
               variant="outline" 
               onClick={() => onOpenChange(false)}
+              style={{ border: '0.5px solid black' }}
+              className="rounded-[10px]"
             >
               Cancelar
             </Button>
             <Button 
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-black hover:bg-gray-800 text-white rounded-[10px]"
             >
               Añadir Operación
             </Button>
