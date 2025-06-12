@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Building2, DollarSign, Settings } from "lucide-react";
@@ -40,7 +39,7 @@ const Index = () => {
                 <p className="text-sm text-slate-600">Operaciones disponibles para inversión</p>
                 <p className="text-xs text-slate-500">Contacta para más información</p>
               </div>
-              <Link to="/admin">
+              <Link to="/auth">
                 <Button variant="outline" size="sm">
                   <Settings className="h-4 w-4 mr-2" />
                   Panel Admin

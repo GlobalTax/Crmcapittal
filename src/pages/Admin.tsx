@@ -1,16 +1,17 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Building2, ArrowLeft } from "lucide-react";
+import { Plus, Building2, ArrowLeft, LogOut } from "lucide-react";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Admin = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { operations, loading, error, addOperation } = useOperations();
+  const { signOut, user } = useAuth();
   const { toast } = useToast();
 
   const handleAddOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at">) => {
@@ -28,6 +29,14 @@ const Admin = () => {
         description: "Operación añadida correctamente",
       });
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Sesión cerrada",
+      description: "Has cerrado sesión correctamente",
+    });
   };
 
   return (
@@ -50,13 +59,22 @@ const Admin = () => {
                 <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
               </div>
             </div>
-            <Button 
-              onClick={() => setIsAddDialogOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Añadir Operación
-            </Button>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm text-slate-600">Bienvenido, {user?.email}</p>
+              </div>
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Añadir Operación
+              </Button>
+              <Button variant="outline" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Cerrar Sesión
+              </Button>
+            </div>
           </div>
         </div>
       </header>
