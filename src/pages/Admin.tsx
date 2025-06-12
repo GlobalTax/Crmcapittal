@@ -119,7 +119,6 @@ const Admin = () => {
             </div>
           ) : operations.length === 0 ? (
             <div className="p-12 text-center">
-              <Building2 className="h-16 w-16 text-slate-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-slate-900 mb-2">No hay operaciones</h3>
               <p className="text-slate-600 mb-4">Añade tu primera operación al portfolio</p>
               <Button onClick={() => setIsAddDialogOpen(true)}>
