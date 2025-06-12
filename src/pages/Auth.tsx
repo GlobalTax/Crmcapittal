@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -73,7 +72,7 @@ const Auth = () => {
           </Link>
         </div>
 
-        <Card className="bg-card border border-border">
+        <Card className="bg-card border border-black">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="bg-primary p-3 rounded-lg">
