@@ -83,10 +83,12 @@ export type Database = {
           manager_id: string | null
           operation_type: string
           photo_url: string | null
+          project_name: string | null
           revenue: number | null
           sector: string
           seller: string | null
           status: string
+          teaser_url: string | null
           updated_at: string
         }
         Insert: {
@@ -108,10 +110,12 @@ export type Database = {
           manager_id?: string | null
           operation_type: string
           photo_url?: string | null
+          project_name?: string | null
           revenue?: number | null
           sector: string
           seller?: string | null
           status?: string
+          teaser_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -133,10 +137,12 @@ export type Database = {
           manager_id?: string | null
           operation_type?: string
           photo_url?: string | null
+          project_name?: string | null
           revenue?: number | null
           sector?: string
           seller?: string | null
           status?: string
+          teaser_url?: string | null
           updated_at?: string
         }
         Relationships: [

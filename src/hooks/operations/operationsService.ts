@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
 
@@ -72,6 +73,7 @@ export const insertOperation = async (operationData: any, userId: string) => {
 
   const insertData = {
     company_name: operationData.company_name,
+    project_name: operationData.project_name || null,
     cif: operationData.cif || null,
     sector: operationData.sector,
     operation_type: operationData.operation_type,
@@ -118,6 +120,7 @@ export const insertBulkOperations = async (operationsData: any[], userId: string
 
   const insertData = operationsData.map(operationData => ({
     company_name: operationData.company_name,
+    project_name: operationData.project_name || null,
     cif: operationData.cif || null,
     sector: operationData.sector,
     operation_type: operationData.operation_type,
