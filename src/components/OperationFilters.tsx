@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Operation } from "@/types/Operation";
-import { useUserRole } from "@/hooks/useUserRole";
 
 interface OperationFiltersProps {
   operations: Operation[];
@@ -16,8 +15,6 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
   const [searchTerm, setSearchTerm] = useState("");
   const [sectorFilter, setSectorFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const { role } = useUserRole();
 
   const sectors = Array.from(new Set(operations.map(op => op.sector)));
   
@@ -25,7 +22,6 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
     setSearchTerm("");
     setSectorFilter("all");
     setTypeFilter("all");
-    setStatusFilter("all");
   };
 
   useEffect(() => {
@@ -51,16 +47,8 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
       filtered = filtered.filter(op => op.operation_type === typeFilter);
     }
 
-    // Filter by status
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(op => op.status === statusFilter);
-    }
-
     onFilter(filtered);
-  }, [searchTerm, sectorFilter, typeFilter, statusFilter, operations, onFilter]);
-
-  // Para usuarios regulares, solo mostrar filtros básicos sin estados administrativos
-  const isAdmin = role === 'admin' || role === 'superadmin';
+  }, [searchTerm, sectorFilter, typeFilter, operations, onFilter]);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border-black mb-8">
@@ -79,7 +67,7 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
         </Button>
       </div>
 
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4`}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Buscar</label>
           <div className="relative">
@@ -123,28 +111,6 @@ export const OperationFilters = ({ operations, onFilter }: OperationFiltersProps
             </SelectContent>
           </Select>
         </div>
-
-        {/* Solo mostrar filtro de estado para administradores */}
-        {isAdmin && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Estado</label>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todos los estados" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="available">Disponible</SelectItem>
-                <SelectItem value="pending_review">Pendiente Revisión</SelectItem>
-                <SelectItem value="approved">Aprobada</SelectItem>
-                <SelectItem value="rejected">Rechazada</SelectItem>
-                <SelectItem value="in_process">En Proceso</SelectItem>
-                <SelectItem value="sold">Vendida</SelectItem>
-                <SelectItem value="withdrawn">Retirada</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
       </div>
     </div>
   );
