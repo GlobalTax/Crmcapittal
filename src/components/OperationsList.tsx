@@ -1,5 +1,3 @@
-
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,6 +53,11 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
       default:
         return type;
     }
+  };
+
+  const formatFinancialValue = (value?: number) => {
+    if (!value) return 'N/A';
+    return `€${(value / 1000000).toFixed(1)}M`;
   };
 
   const handleRequestInfo = (operation: Operation) => {
@@ -123,15 +126,35 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
             </CardHeader>
             
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 gap-2">
-                <div className="flex items-center space-x-2 text-xs">
-                  <span className="font-medium text-black">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col space-y-1 text-xs">
+                  <span className="font-medium text-black">Valoración</span>
+                  <span className="text-black">
                     {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
                   </span>
                 </div>
-                <div className="flex items-center space-x-2 text-xs">
+                <div className="flex flex-col space-y-1 text-xs">
+                  <span className="font-medium text-black">Fecha</span>
                   <span className="text-black">
                     {new Date(operation.date).toLocaleDateString('es-ES')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Financial Metrics */}
+              <div className="grid grid-cols-3 gap-2 bg-slate-50 p-2 rounded-lg">
+                <div className="flex flex-col space-y-1 text-xs">
+                  <span className="font-medium text-black">Facturación</span>
+                  <span className="text-black">{formatFinancialValue(operation.revenue)}</span>
+                </div>
+                <div className="flex flex-col space-y-1 text-xs">
+                  <span className="font-medium text-black">EBITDA</span>
+                  <span className="text-black">{formatFinancialValue(operation.ebitda)}</span>
+                </div>
+                <div className="flex flex-col space-y-1 text-xs">
+                  <span className="font-medium text-black">Crecimiento</span>
+                  <span className="text-black">
+                    {operation.annual_growth_rate ? `${operation.annual_growth_rate}%` : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -190,4 +213,3 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
     </div>
   );
 };
-

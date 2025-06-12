@@ -33,6 +33,7 @@ export type Database = {
       operations: {
         Row: {
           amount: number
+          annual_growth_rate: number | null
           buyer: string | null
           company_name: string
           contact_email: string | null
@@ -41,9 +42,11 @@ export type Database = {
           currency: string
           date: string
           description: string | null
+          ebitda: number | null
           id: string
           location: string | null
           operation_type: string
+          revenue: number | null
           sector: string
           seller: string | null
           status: string
@@ -51,6 +54,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          annual_growth_rate?: number | null
           buyer?: string | null
           company_name: string
           contact_email?: string | null
@@ -59,9 +63,11 @@ export type Database = {
           currency?: string
           date: string
           description?: string | null
+          ebitda?: number | null
           id?: string
           location?: string | null
           operation_type: string
+          revenue?: number | null
           sector: string
           seller?: string | null
           status?: string
@@ -69,6 +75,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          annual_growth_rate?: number | null
           buyer?: string | null
           company_name?: string
           contact_email?: string | null
@@ -77,9 +84,11 @@ export type Database = {
           currency?: string
           date?: string
           description?: string | null
+          ebitda?: number | null
           id?: string
           location?: string | null
           operation_type?: string
+          revenue?: number | null
           sector?: string
           seller?: string | null
           status?: string

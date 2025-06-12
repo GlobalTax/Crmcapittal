@@ -14,6 +14,9 @@ export interface Operation {
   location: string;
   contact_email?: string;
   contact_phone?: string;
+  revenue?: number;
+  ebitda?: number;
+  annual_growth_rate?: number;
   created_at: string;
   updated_at: string;
 }
