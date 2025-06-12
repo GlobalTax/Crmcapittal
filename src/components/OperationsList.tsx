@@ -1,4 +1,5 @@
 
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -104,15 +105,15 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-black">Operaciones Disponibles</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {operations.map((operation) => (
           <Card key={operation.id} className="hover:shadow-lg transition-all duration-200 border-black bg-white">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
                   <div>
-                    <h3 className="font-semibold text-black text-lg">{operation.company_name}</h3>
-                    <p className="text-black text-sm">{operation.sector}</p>
+                    <h3 className="font-semibold text-black text-base">{operation.company_name}</h3>
+                    <p className="text-black text-xs">{operation.sector}</p>
                   </div>
                 </div>
                 <Badge className={getStatusColor(operation.status)}>
@@ -121,33 +122,33 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
               </div>
             </CardHeader>
             
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2 text-sm">
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-1 gap-2">
+                <div className="flex items-center space-x-2 text-xs">
                   <span className="font-medium text-black">
                     {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
                   </span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm">
+                <div className="flex items-center space-x-2 text-xs">
                   <span className="text-black">
                     {new Date(operation.date).toLocaleDateString('es-ES')}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 text-sm">
+              <div className="flex items-center space-x-2 text-xs">
                 <span className="text-black">{operation.location}</span>
               </div>
 
-              <div className="bg-slate-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-black mb-1">
+              <div className="bg-slate-50 p-2 rounded-lg">
+                <p className="text-xs font-medium text-black mb-1">
                   {getOperationTypeLabel(operation.operation_type)}
                 </p>
-                <p className="text-sm text-black">{operation.description}</p>
+                <p className="text-xs text-black line-clamp-2">{operation.description}</p>
               </div>
 
               {(operation.buyer || operation.seller) && (
-                <div className="flex justify-between text-xs text-black pt-2 border-t border-slate-100">
+                <div className="flex flex-col gap-1 text-xs text-black pt-2 border-t border-slate-100">
                   {operation.buyer && (
                     <span><strong>Comprador:</strong> {operation.buyer}</span>
                   )}
@@ -158,7 +159,7 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
               )}
 
               {(operation.contact_email || operation.contact_phone) && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+                <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
                   {operation.contact_email && (
                     <div className="flex items-center space-x-1 text-xs text-black">
                       <span>Email: {operation.contact_email}</span>
@@ -172,11 +173,12 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
                 </div>
               )}
 
-              <div className="pt-4 border-t border-slate-100">
+              <div className="pt-3 border-t border-slate-100">
                 <Button 
                   onClick={() => handleRequestInfo(operation)}
                   className="w-full"
                   variant="default"
+                  size="sm"
                 >
                   Solicitar información
                 </Button>
@@ -188,3 +190,4 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
     </div>
   );
 };
+
