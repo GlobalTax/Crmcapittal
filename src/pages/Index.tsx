@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OperationsList } from "@/components/OperationsList";
@@ -28,10 +27,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b-2 border-black">
+      <header className="bg-white" style={{ borderBottom: '0.5px solid black' }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           {/* Primera fila: Navegación y usuario */}
-          <div className="flex items-center justify-between py-4 border-b border-gray-300">
+          <div className="flex items-center justify-between py-4" style={{ borderBottom: '0.5px solid #d1d5db' }}>
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
                 <div>
@@ -79,7 +78,7 @@ const Index = () => {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 bg-white">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div className="bg-white p-8 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
+          <div className="bg-white p-8 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
@@ -93,7 +92,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
+          <div className="bg-white p-8 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
@@ -105,7 +104,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-lg border-2 border-black hover:bg-gray-50 transition-all">
+          <div className="bg-white p-8 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-3">
