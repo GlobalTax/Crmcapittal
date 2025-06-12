@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Phone, Mail } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Operation } from "@/types/Operation";
 import { FavoriteButton } from "./FavoriteButton";
 
@@ -18,18 +18,6 @@ export const OperationCardActions = ({ operation }: OperationCardActionsProps) =
     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
       <div className="flex items-center space-x-2">
         <FavoriteButton operationId={operation.id} />
-        
-        {operation.contact_email && (
-          <Button variant="outline" size="sm">
-            <Mail className="h-4 w-4" />
-          </Button>
-        )}
-        
-        {operation.contact_phone && (
-          <Button variant="outline" size="sm">
-            <Phone className="h-4 w-4" />
-          </Button>
-        )}
       </div>
       
       <Button 
