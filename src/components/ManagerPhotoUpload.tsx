@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Camera, Upload, X } from 'lucide-react';
+import { Camera, X } from 'lucide-react';
 import { useManagers } from '@/hooks/useManagers';
 
 interface ManagerPhotoUploadProps {
