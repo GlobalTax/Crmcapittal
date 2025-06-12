@@ -111,7 +111,8 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                   <SelectItem value="acquisition">Adquisición</SelectItem>
                   <SelectItem value="merger">Fusión</SelectItem>
                   <SelectItem value="sale">Venta</SelectItem>
-                  <SelectItem value="ipo">OPV</SelectItem>
+                  <SelectItem value="partial_sale">Venta Parcial</SelectItem>
+                  <SelectItem value="buy_mandate">Mandato de Compra</SelectItem>
                 </SelectContent>
               </Select>
             </div>

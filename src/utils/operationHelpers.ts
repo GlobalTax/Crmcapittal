@@ -49,8 +49,10 @@ export const getOperationTypeLabel = (type: string) => {
       return "Fusión";
     case "sale":
       return "Venta";
-    case "ipo":
-      return "OPV";
+    case "partial_sale":
+      return "Venta Parcial";
+    case "buy_mandate":
+      return "Mandato de Compra";
     default:
       return type;
   }
