@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Operation } from "@/types/Operation";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddOperationDialogProps {
   open: boolean;
@@ -57,6 +57,8 @@ const parseFormattedNumber = (value: string) => {
 };
 
 export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOperationDialogProps) => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     company_name: "",
     cif: "",
@@ -85,7 +87,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
     setFormData({ ...formData, ebitda: formatted });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     console.log('Form submitted with data:', formData);
@@ -98,37 +100,45 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
         revenue: formData.revenue,
         date: formData.date
       });
+      
+      toast({
+        title: "Campos requeridos",
+        description: "Por favor, completa todos los campos obligatorios marcados con *",
+        variant: "destructive",
+      });
       return;
     }
 
-    const revenueValue = parseFormattedNumber(formData.revenue);
-    const ebitdaValue = parseFormattedNumber(formData.ebitda);
-    
-    console.log('Parsed values:', { revenueValue, ebitdaValue });
-
-    const operationData = {
-      company_name: formData.company_name,
-      cif: formData.cif,
-      sector: formData.sector,
-      operation_type: formData.operation_type,
-      amount: revenueValue, // Using revenue as main amount
-      revenue: revenueValue,
-      ebitda: ebitdaValue,
-      currency: formData.currency,
-      date: formData.date,
-      buyer: formData.buyer,
-      seller: formData.seller,
-      status: formData.status,
-      description: formData.description,
-      location: formData.location,
-      contact_email: formData.contact_email,
-      contact_phone: formData.contact_phone
-    };
-
-    console.log('Final operation data to be sent:', operationData);
+    setIsSubmitting(true);
 
     try {
-      onAddOperation(operationData);
+      const revenueValue = parseFormattedNumber(formData.revenue);
+      const ebitdaValue = parseFormattedNumber(formData.ebitda);
+      
+      console.log('Parsed values:', { revenueValue, ebitdaValue });
+
+      const operationData = {
+        company_name: formData.company_name,
+        cif: formData.cif,
+        sector: formData.sector,
+        operation_type: formData.operation_type,
+        amount: revenueValue, // Using revenue as main amount
+        revenue: revenueValue,
+        ebitda: ebitdaValue,
+        currency: formData.currency,
+        date: formData.date,
+        buyer: formData.buyer,
+        seller: formData.seller,
+        status: formData.status,
+        description: formData.description,
+        location: formData.location,
+        contact_email: formData.contact_email,
+        contact_phone: formData.contact_phone
+      };
+
+      console.log('Final operation data to be sent:', operationData);
+
+      await onAddOperation(operationData);
       
       // Reset form
       setFormData({
@@ -149,9 +159,21 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
         contact_phone: ""
       });
 
+      toast({
+        title: "Operación añadida",
+        description: "La operación se ha creado exitosamente",
+      });
+
       onOpenChange(false);
     } catch (error) {
       console.error('Error in handleSubmit:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo crear la operación. Por favor, inténtalo de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -384,14 +406,16 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
               onClick={() => onOpenChange(false)}
               style={{ border: '0.5px solid black' }}
               className="rounded-[10px]"
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
             <Button 
               type="submit"
               className="bg-black hover:bg-gray-800 text-white rounded-[10px]"
+              disabled={isSubmitting}
             >
-              Añadir Operación
+              {isSubmitting ? "Añadiendo..." : "Añadir Operación"}
             </Button>
           </div>
         </form>

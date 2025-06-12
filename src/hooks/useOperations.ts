@@ -83,30 +83,51 @@ export const useOperations = () => {
 
   const addOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">) => {
     try {
-      // Determinar el estado inicial basado en el rol del usuario
-      let initialStatus = 'pending_review'; // Por defecto para usuarios normales
-      
-      if (role === 'admin' || role === 'superadmin') {
-        // Los admins pueden crear operaciones directamente como 'available'
-        initialStatus = operationData.status || 'available';
+      console.log('Añadiendo operación con datos:', operationData);
+      console.log('Usuario actual:', user?.id);
+
+      if (!user?.id) {
+        throw new Error('Usuario no autenticado');
       }
+
+      // Preparar los datos para la inserción
+      const insertData = {
+        company_name: operationData.company_name,
+        cif: operationData.cif || null,
+        sector: operationData.sector,
+        operation_type: operationData.operation_type,
+        amount: operationData.amount,
+        revenue: operationData.revenue || null,
+        ebitda: operationData.ebitda || null,
+        currency: operationData.currency,
+        date: operationData.date,
+        buyer: operationData.buyer || null,
+        seller: operationData.seller || null,
+        status: operationData.status,
+        description: operationData.description || null,
+        location: operationData.location || null,
+        contact_email: operationData.contact_email || null,
+        contact_phone: operationData.contact_phone || null,
+        created_by: user.id
+      };
+
+      console.log('Datos preparados para inserción:', insertData);
 
       const { data, error } = await supabase
         .from('operations')
-        .insert([{
-          ...operationData,
-          status: initialStatus,
-          created_by: user?.id
-        }])
+        .insert([insertData])
         .select()
         .single();
 
       if (error) {
+        console.error('Error de Supabase:', error);
         throw error;
       }
 
-      // Solo agregar a la lista si es visible para el usuario actual
-      if (data && (role === 'admin' || role === 'superadmin' || data.status === 'available')) {
+      console.log('Operación creada exitosamente:', data);
+
+      // Agregar la nueva operación a la lista
+      if (data) {
         const typedOperation: Operation = {
           ...data,
           operation_type: data.operation_type as Operation['operation_type'],
@@ -118,7 +139,10 @@ export const useOperations = () => {
       return { data, error: null };
     } catch (err) {
       console.error('Error añadiendo operación:', err);
-      return { data: null, error: 'Error al añadir la operación' };
+      return { 
+        data: null, 
+        error: err instanceof Error ? err.message : 'Error al añadir la operación' 
+      };
     }
   };
 
