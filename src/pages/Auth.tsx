@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -62,24 +63,24 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Portfolio Link */}
         <div className="mb-6">
-          <Link to="/" className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+          <Link to="/" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver al Portfolio
           </Link>
         </div>
 
-        <Card>
+        <Card className="bg-card border border-border">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="bg-blue-600 p-3 rounded-lg">
-                <Building2 className="h-8 w-8 text-white" />
+              <div className="bg-primary p-3 rounded-lg">
+                <Building2 className="h-8 w-8 text-primary-foreground" />
               </div>
             </div>
-            <CardTitle className="text-2xl">Panel de Administración</CardTitle>
+            <CardTitle className="text-2xl text-card-foreground">Panel de Administración</CardTitle>
             <CardDescription>
               Accede para gestionar tu cartera de operaciones M&A
             </CardDescription>
