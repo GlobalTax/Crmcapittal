@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, DollarSign } from "lucide-react";
 import { OperationsList } from "@/components/OperationsList";
 import { OperationFilters } from "@/components/OperationFilters";
 import { useOperations } from "@/hooks/useOperations";
@@ -58,9 +57,6 @@ const Index = () => {
                   €{(totalValue / 1000000).toFixed(1)}M
                 </p>
               </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <DollarSign className="h-6 w-6 text-green-600" />
-              </div>
             </div>
           </div>
 
@@ -70,9 +66,6 @@ const Index = () => {
                 <p className="text-sm font-medium text-black">Disponibles</p>
                 <p className="text-2xl font-bold text-black">{availableOperations}</p>
               </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-blue-600" />
-              </div>
             </div>
           </div>
 
@@ -81,9 +74,6 @@ const Index = () => {
               <div>
                 <p className="text-sm font-medium text-black">Total Operaciones</p>
                 <p className="text-2xl font-bold text-black">{totalOperations}</p>
-              </div>
-              <div className="bg-orange-100 p-3 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-orange-600" />
               </div>
             </div>
           </div>

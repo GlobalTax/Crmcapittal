@@ -1,5 +1,4 @@
 
-import { Building, Calendar, MapPin, DollarSign, Users, TrendingUp, Mail, Phone, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Operation } from "@/types/Operation";
@@ -56,26 +55,10 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
     }
   };
 
-  const getOperationTypeIcon = (type: string) => {
-    switch (type) {
-      case "acquisition":
-        return <Building className="h-4 w-4" />;
-      case "merger":
-        return <Users className="h-4 w-4" />;
-      case "sale":
-        return <DollarSign className="h-4 w-4" />;
-      case "ipo":
-        return <TrendingUp className="h-4 w-4" />;
-      default:
-        return <Building className="h-4 w-4" />;
-    }
-  };
-
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
         <div className="text-center">
-          <Loader2 className="h-16 w-16 text-slate-400 mx-auto mb-4 animate-spin" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">Cargando operaciones...</h3>
           <p className="text-slate-600">Por favor espera mientras cargamos las operaciones disponibles.</p>
         </div>
@@ -87,7 +70,6 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
     return (
       <div className="bg-white rounded-xl shadow-sm border border-red-200 p-12">
         <div className="text-center">
-          <Building className="h-16 w-16 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-red-900 mb-2">Error al cargar operaciones</h3>
           <p className="text-red-600">{error}</p>
         </div>
@@ -99,7 +81,6 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
     return (
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12">
         <div className="text-center">
-          <Building className="h-16 w-16 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-900 mb-2">No hay operaciones disponibles</h3>
           <p className="text-slate-600">Actualmente no hay operaciones disponibles en nuestra cartera.</p>
         </div>
@@ -116,9 +97,6 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-blue-100 p-2 rounded-lg">
-                    {getOperationTypeIcon(operation.operation_type)}
-                  </div>
                   <div>
                     <h3 className="font-semibold text-slate-900 text-lg">{operation.company_name}</h3>
                     <p className="text-slate-600 text-sm">{operation.sector}</p>
@@ -133,13 +111,11 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2 text-sm">
-                  <DollarSign className="h-4 w-4 text-slate-500" />
                   <span className="font-medium text-slate-900">
                     {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
                   </span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm">
-                  <Calendar className="h-4 w-4 text-slate-500" />
                   <span className="text-slate-600">
                     {new Date(operation.date).toLocaleDateString('es-ES')}
                   </span>
@@ -147,7 +123,6 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
               </div>
 
               <div className="flex items-center space-x-2 text-sm">
-                <MapPin className="h-4 w-4 text-slate-500" />
                 <span className="text-slate-600">{operation.location}</span>
               </div>
 
@@ -173,14 +148,12 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
                 <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
                   {operation.contact_email && (
                     <div className="flex items-center space-x-1 text-xs text-slate-600">
-                      <Mail className="h-3 w-3" />
-                      <span>{operation.contact_email}</span>
+                      <span>Email: {operation.contact_email}</span>
                     </div>
                   )}
                   {operation.contact_phone && (
                     <div className="flex items-center space-x-1 text-xs text-slate-600">
-                      <Phone className="h-3 w-3" />
-                      <span>{operation.contact_phone}</span>
+                      <span>Tel: {operation.contact_phone}</span>
                     </div>
                   )}
                 </div>
