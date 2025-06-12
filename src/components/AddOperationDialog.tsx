@@ -16,6 +16,7 @@ interface AddOperationDialogProps {
 export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOperationDialogProps) => {
   const [formData, setFormData] = useState({
     company_name: "",
+    cif: "",
     sector: "",
     operation_type: "" as Operation["operation_type"],
     amount: "",
@@ -45,6 +46,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
     // Reset form
     setFormData({
       company_name: "",
+      cif: "",
       sector: "",
       operation_type: "" as Operation["operation_type"],
       amount: "",
@@ -83,6 +85,18 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="cif">CIF</Label>
+              <Input
+                id="cif"
+                value={formData.cif}
+                onChange={(e) => setFormData({ ...formData, cif: e.target.value })}
+                placeholder="Ej: A12345678"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="sector">Sector *</Label>
               <Input
                 id="sector"
@@ -92,9 +106,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                 required
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="operation_type">Tipo de Operación *</Label>
               <Select 
@@ -114,26 +126,26 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="status">Estado</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value: Operation["status"]) => 
-                  setFormData({ ...formData, status: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="available">Disponible</SelectItem>
-                  <SelectItem value="in_process">En Proceso</SelectItem>
-                  <SelectItem value="sold">Vendida</SelectItem>
-                  <SelectItem value="withdrawn">Retirada</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="status">Estado</Label>
+            <Select 
+              value={formData.status} 
+              onValueChange={(value: Operation["status"]) => 
+                setFormData({ ...formData, status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="available">Disponible</SelectItem>
+                <SelectItem value="in_process">En Proceso</SelectItem>
+                <SelectItem value="sold">Vendida</SelectItem>
+                <SelectItem value="withdrawn">Retirada</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
