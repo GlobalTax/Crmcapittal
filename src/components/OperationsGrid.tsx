@@ -4,6 +4,8 @@ import { OperationCard } from "./OperationCard";
 
 interface OperationsGridProps {
   operations: Operation[];
+  onToggleFavorite: (operationId: string) => void;
+  isFavorite: (operationId: string) => boolean;
 }
 
 export const OperationsGrid = ({ operations }: OperationsGridProps) => {

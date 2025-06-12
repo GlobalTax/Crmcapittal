@@ -15,7 +15,7 @@ interface OperationsTableProps {
   isFavorite: (operationId: string) => boolean;
 }
 
-export const OperationsTable = ({ operations, onToggleFavorite, isFavorite }: OperationsTableProps) => {
+export const OperationsTable = ({ operations }: OperationsTableProps) => {
   return (
     <div className="border rounded-lg overflow-hidden shadow-sm">
       <Table>
@@ -39,11 +39,7 @@ export const OperationsTable = ({ operations, onToggleFavorite, isFavorite }: Op
           {operations.map((operation) => (
             <TableRow key={operation.id} className="hover:bg-gray-50 transition-colors">
               <TableCell>
-                <FavoriteButton
-                  operationId={operation.id}
-                  isFavorite={isFavorite(operation.id)}
-                  onToggle={() => onToggleFavorite(operation.id)}
-                />
+                <FavoriteButton operationId={operation.id} />
               </TableCell>
               
               <TableCell>

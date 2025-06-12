@@ -1,28 +1,20 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OperationsList } from "@/components/OperationsList";
-import { OperationFilters } from "@/components/OperationFilters";
 import { AddCompanyDialog } from "@/components/AddCompanyDialog";
 import { useOperations } from "@/hooks/useOperations";
-import { Operation } from "@/types/Operation";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const { operations, loading, error } = useOperations();
   const { user } = useAuth();
-  const [filteredOperations, setFilteredOperations] = useState<Operation[]>([]);
 
-  const handleFilter = (filtered: Operation[]) => {
-    setFilteredOperations(filtered);
-  };
-
-  // Use filtered operations if filters are applied, otherwise use all operations
-  const displayOperations = filteredOperations.length > 0 || operations.length === 0 ? filteredOperations : operations;
-
-  const totalValue = displayOperations.reduce((sum, op) => sum + op.amount, 0);
-  const availableOperations = displayOperations.filter(op => op.status === "available").length;
-  const totalOperations = displayOperations.length;
+  // Calculate stats from all operations
+  const totalValue = operations.reduce((sum, op) => sum + op.amount, 0);
+  const availableOperations = operations.filter(op => op.status === "available").length;
+  const totalOperations = operations.length;
 
   return (
     <div className="min-h-screen bg-white">
@@ -117,22 +109,8 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Filters */}
-        {!loading && (
-          <div className="mb-8">
-            <OperationFilters 
-              operations={operations} 
-              onFilter={handleFilter}
-            />
-          </div>
-        )}
-
-        {/* Operations List */}
-        <OperationsList 
-          operations={displayOperations} 
-          loading={loading}
-          error={error}
-        />
+        {/* Operations List with integrated filters */}
+        <OperationsList />
       </div>
     </div>
   );
