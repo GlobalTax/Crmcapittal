@@ -26,7 +26,6 @@ export interface Operation {
     position?: string;
     photo?: string;
   };
-  photo_url?: string;
   created_by?: string;
   created_at: string;
   updated_at: string;

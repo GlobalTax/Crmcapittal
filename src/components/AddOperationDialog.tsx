@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -6,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Operation } from "@/types/Operation";
-import { PhotoUpload } from "./PhotoUpload";
 
 interface AddOperationDialogProps {
   open: boolean;
@@ -28,8 +28,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
     description: "",
     location: "",
     contact_email: "",
-    contact_phone: "",
-    photo_url: ""
+    contact_phone: ""
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,19 +57,10 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       description: "",
       location: "",
       contact_email: "",
-      contact_phone: "",
-      photo_url: ""
+      contact_phone: ""
     });
 
     onOpenChange(false);
-  };
-
-  const handlePhotoUploaded = (photoUrl: string) => {
-    setFormData({ ...formData, photo_url: photoUrl });
-  };
-
-  const handlePhotoRemoved = () => {
-    setFormData({ ...formData, photo_url: "" });
   };
 
   return (
@@ -104,13 +94,6 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
               />
             </div>
           </div>
-
-          {/* Sección de foto */}
-          <PhotoUpload
-            onPhotoUploaded={handlePhotoUploaded}
-            currentPhotoUrl={formData.photo_url}
-            onPhotoRemoved={handlePhotoRemoved}
-          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
