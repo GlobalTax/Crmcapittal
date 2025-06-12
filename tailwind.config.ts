@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -23,9 +22,12 @@ export default {
 				sans: ['Manrope', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
-				sm: '3px',
+				sm: '10px',
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
+			},
+			borderWidth: {
+				'0.5': '0.5px',
 			},
 			colors: {
 				border: 'hsl(var(--border))',
