@@ -1,13 +1,13 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Send, Upload, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Send, Upload, AlertCircle, CheckCircle2, FileImage } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Operation } from "@/types/Operation";
 import { useCSVProcessor } from "@/hooks/useCSVProcessor";
+import { OCRProcessor } from "./OCRProcessor";
 
 interface QuickDataChatProps {
   onBulkAdd: (operationsData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">[]) => Promise<{ error: string | null }>;
@@ -19,6 +19,7 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [processingErrors, setProcessingErrors] = useState<string[]>([]);
+  const [showOCR, setShowOCR] = useState(false);
   const { toast } = useToast();
   const { processCSVText } = useCSVProcessor();
 
@@ -110,6 +111,14 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
     }
   };
 
+  const handleOCRTextExtracted = (text: string) => {
+    setInput(text);
+    toast({
+      title: "Texto extraído",
+      description: "El texto se ha añadido al área de entrada",
+    });
+  };
+
   const getOperationTypeLabel = (type: Operation['operation_type']) => {
     const labels = {
       'merger': 'Fusión/Adquisición',
@@ -146,6 +155,17 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex gap-2 mb-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowOCR(!showOCR)}
+              className="border-black text-black hover:bg-gray-100"
+            >
+              <FileImage className="h-4 w-4 mr-2" />
+              {showOCR ? 'Ocultar OCR' : 'Usar OCR'}
+            </Button>
+          </div>
+
           <Textarea
             placeholder="Ejemplo: TechCorp SL, B12345678, Tecnología, sale, 5000000, EUR, 2024-01-15, Buyer Corp, TechCorp, available, Venta de empresa tech, Madrid, contact@tech.com, +34600123456, 3000000, 600000, Proyecto Alpha"
             value={input}
@@ -196,6 +216,10 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           )}
         </CardContent>
       </Card>
+
+      {showOCR && (
+        <OCRProcessor onTextExtracted={handleOCRTextExtracted} />
+      )}
 
       {detectedOperations.length > 0 && (
         <Card>
