@@ -1,5 +1,7 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Operation } from "@/types/Operation";
 
 interface OperationsListProps {
@@ -51,6 +53,18 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
         return "OPV";
       default:
         return type;
+    }
+  };
+
+  const handleRequestInfo = (operation: Operation) => {
+    const subject = `Solicitud de información - ${operation.company_name}`;
+    const body = `Hola,\n\nEstoy interesado en obtener más información sobre la operación de ${operation.company_name} (${getOperationTypeLabel(operation.operation_type)}) en el sector ${operation.sector}.\n\nGracias.`;
+    
+    if (operation.contact_email) {
+      window.location.href = `mailto:${operation.contact_email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    } else {
+      // Si no hay email de contacto, mostrar información
+      alert(`Para más información sobre ${operation.company_name}, contacte por teléfono: ${operation.contact_phone || 'Información de contacto no disponible'}`);
     }
   };
 
@@ -157,6 +171,16 @@ export const OperationsList = ({ operations, loading, error }: OperationsListPro
                   )}
                 </div>
               )}
+
+              <div className="pt-4 border-t border-slate-100">
+                <Button 
+                  onClick={() => handleRequestInfo(operation)}
+                  className="w-full"
+                  variant="default"
+                >
+                  Solicitar información
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
