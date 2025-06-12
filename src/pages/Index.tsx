@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, DollarSign, Settings } from "lucide-react";
+import { TrendingUp, DollarSign } from "lucide-react";
 import { OperationsList } from "@/components/OperationsList";
 import { OperationFilters } from "@/components/OperationFilters";
 import { useOperations } from "@/hooks/useOperations";
@@ -30,16 +30,15 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-slate-900">Cartera de Operaciones M&A</h1>
+              <h1 className="text-2xl font-bold text-black">Cartera de Operaciones M&A</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-slate-600">Operaciones disponibles para inversión</p>
-                <p className="text-xs text-slate-500">Contacta para más información</p>
+                <p className="text-sm text-black">Operaciones disponibles para inversión</p>
+                <p className="text-xs text-black">Contacta para más información</p>
               </div>
               <Link to="/auth">
                 <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
                   Panel Admin
                 </Button>
               </Link>
@@ -54,8 +53,8 @@ const Index = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Valor Total</p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-sm font-medium text-black">Valor Total</p>
+                <p className="text-2xl font-bold text-black">
                   €{(totalValue / 1000000).toFixed(1)}M
                 </p>
               </div>
@@ -68,8 +67,8 @@ const Index = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Disponibles</p>
-                <p className="text-2xl font-bold text-slate-900">{availableOperations}</p>
+                <p className="text-sm font-medium text-black">Disponibles</p>
+                <p className="text-2xl font-bold text-black">{availableOperations}</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <TrendingUp className="h-6 w-6 text-blue-600" />
@@ -80,8 +79,8 @@ const Index = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Total Operaciones</p>
-                <p className="text-2xl font-bold text-slate-900">{totalOperations}</p>
+                <p className="text-sm font-medium text-black">Total Operaciones</p>
+                <p className="text-2xl font-bold text-black">{totalOperations}</p>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
                 <TrendingUp className="h-6 w-6 text-orange-600" />

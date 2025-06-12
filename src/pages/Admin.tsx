@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft, LogOut } from "lucide-react";
@@ -53,12 +54,12 @@ const Admin = () => {
                 </Button>
               </Link>
               <div className="flex items-center">
-                <h1 className="text-2xl font-bold text-slate-900">Panel de Administración</h1>
+                <h1 className="text-2xl font-bold text-black">Panel de Administración</h1>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-slate-600">Bienvenido, {user?.email}</p>
+                <p className="text-sm text-black">Bienvenido, {user?.email}</p>
               </div>
               <Button 
                 onClick={() => setIsAddDialogOpen(true)}
@@ -81,24 +82,24 @@ const Admin = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900">{operations.length}</p>
-              <p className="text-sm text-slate-600">Operaciones Disponibles</p>
+              <p className="text-2xl font-bold text-black">{operations.length}</p>
+              <p className="text-sm text-black">Operaciones Disponibles</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-2xl font-bold text-black">
                 €{(operations.reduce((sum, op) => sum + op.amount, 0) / 1000000).toFixed(1)}M
               </p>
-              <p className="text-sm text-slate-600">Valor Total Portfolio</p>
+              <p className="text-sm text-black">Valor Total Portfolio</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
             <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-2xl font-bold text-black">
                 {Array.from(new Set(operations.map(op => op.sector))).length}
               </p>
-              <p className="text-sm text-slate-600">Sectores Representados</p>
+              <p className="text-sm text-black">Sectores Representados</p>
             </div>
           </div>
         </div>
@@ -106,12 +107,12 @@ const Admin = () => {
         {/* Operations Table */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-200">
-            <h2 className="text-lg font-semibold text-slate-900">Gestión de Operaciones</h2>
+            <h2 className="text-lg font-semibold text-black">Gestión de Operaciones</h2>
           </div>
           
           {loading ? (
             <div className="p-12 text-center">
-              <p className="text-slate-600">Cargando operaciones...</p>
+              <p className="text-black">Cargando operaciones...</p>
             </div>
           ) : error ? (
             <div className="p-12 text-center">
@@ -119,8 +120,8 @@ const Admin = () => {
             </div>
           ) : operations.length === 0 ? (
             <div className="p-12 text-center">
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No hay operaciones</h3>
-              <p className="text-slate-600 mb-4">Añade tu primera operación al portfolio</p>
+              <h3 className="text-lg font-medium text-black mb-2">No hay operaciones</h3>
+              <p className="text-black mb-4">Añade tu primera operación al portfolio</p>
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Añadir Primera Operación
@@ -131,22 +132,22 @@ const Admin = () => {
               <table className="min-w-full divide-y divide-slate-200">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Empresa
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Sector
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Tipo
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Valor
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Estado
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                       Fecha
                     </th>
                   </tr>
@@ -156,24 +157,24 @@ const Admin = () => {
                     <tr key={operation.id} className="hover:bg-slate-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-slate-900">
+                          <div className="text-sm font-medium text-black">
                             {operation.company_name}
                           </div>
-                          <div className="text-sm text-slate-500">
+                          <div className="text-sm text-black">
                             {operation.location}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                         {operation.sector}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                         {operation.operation_type === 'acquisition' && 'Adquisición'}
                         {operation.operation_type === 'merger' && 'Fusión'}
                         {operation.operation_type === 'sale' && 'Venta'}
                         {operation.operation_type === 'ipo' && 'OPV'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                         {operation.currency} {(operation.amount / 1000000).toFixed(1)}M
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -181,7 +182,7 @@ const Admin = () => {
                           Disponible
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                         {new Date(operation.date).toLocaleDateString('es-ES')}
                       </td>
                     </tr>
