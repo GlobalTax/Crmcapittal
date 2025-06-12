@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft, LogOut } from "lucide-react";
@@ -43,7 +42,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-white border-b border-black shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -80,13 +79,13 @@ const Admin = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
             <div className="text-center">
               <p className="text-2xl font-bold text-black">{operations.length}</p>
               <p className="text-sm text-black">Operaciones Disponibles</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
             <div className="text-center">
               <p className="text-2xl font-bold text-black">
                 €{(operations.reduce((sum, op) => sum + op.amount, 0) / 1000000).toFixed(1)}M
@@ -94,7 +93,7 @@ const Admin = () => {
               <p className="text-sm text-black">Valor Total Portfolio</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-black">
             <div className="text-center">
               <p className="text-2xl font-bold text-black">
                 {Array.from(new Set(operations.map(op => op.sector))).length}
@@ -105,8 +104,8 @@ const Admin = () => {
         </div>
 
         {/* Operations Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-200">
+        <div className="bg-white rounded-xl shadow-sm border border-black overflow-hidden">
+          <div className="px-6 py-4 border-b border-black">
             <h2 className="text-lg font-semibold text-black">Gestión de Operaciones</h2>
           </div>
           
@@ -129,7 +128,7 @@ const Admin = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200">
+              <table className="min-w-full divide-y divide-black">
                 <thead className="bg-slate-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
@@ -152,7 +151,7 @@ const Admin = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-slate-200">
+                <tbody className="bg-white divide-y divide-black">
                   {operations.map((operation) => (
                     <tr key={operation.id} className="hover:bg-slate-50">
                       <td className="px-6 py-4 whitespace-nowrap">
