@@ -1,11 +1,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, TrendingUp, Building2, DollarSign } from "lucide-react";
+import { TrendingUp, Building2, DollarSign, Settings } from "lucide-react";
 import { OperationsList } from "@/components/OperationsList";
 import { OperationFilters } from "@/components/OperationFilters";
 import { useOperations } from "@/hooks/useOperations";
 import { Operation } from "@/types/Operation";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const { operations, loading, error } = useOperations();
@@ -34,9 +35,17 @@ const Index = () => {
               </div>
               <h1 className="text-2xl font-bold text-slate-900">Cartera de Operaciones M&A</h1>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-slate-600">Operaciones disponibles para inversión</p>
-              <p className="text-xs text-slate-500">Contacta para más información</p>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm text-slate-600">Operaciones disponibles para inversión</p>
+                <p className="text-xs text-slate-500">Contacta para más información</p>
+              </div>
+              <Link to="/admin">
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Panel Admin
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

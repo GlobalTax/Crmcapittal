@@ -39,9 +39,38 @@ export const useOperations = () => {
     }
   };
 
+  const addOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at">) => {
+    try {
+      const { data, error } = await supabase
+        .from('operations')
+        .insert([operationData])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      // Agregar la nueva operación a la lista si está disponible
+      if (data && data.status === 'available') {
+        const typedOperation: Operation = {
+          ...data,
+          operation_type: data.operation_type as Operation['operation_type'],
+          status: data.status as Operation['status']
+        };
+        setOperations(prev => [typedOperation, ...prev]);
+      }
+
+      return { data, error: null };
+    } catch (err) {
+      console.error('Error añadiendo operación:', err);
+      return { data: null, error: 'Error al añadir la operación' };
+    }
+  };
+
   useEffect(() => {
     fetchOperations();
   }, []);
 
-  return { operations, loading, error, refetch: fetchOperations };
+  return { operations, loading, error, refetch: fetchOperations, addOperation };
 };
