@@ -59,59 +59,12 @@ export const useSupabaseStorage = () => {
 
       if (error) {
         console.error('Error uploading file:', error);
-        
-        // Si el bucket no existe, intentar crearlo
-        if (error.message.includes('bucket') || error.message.includes('not found')) {
-          console.log('Intentando crear bucket teasers...');
-          
-          // Crear el bucket si no existe
-          const { error: bucketError } = await supabase.storage.createBucket('teasers', {
-            public: true,
-            allowedMimeTypes: [
-              'application/pdf',
-              'application/msword',
-              'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ],
-            fileSizeLimit: 10485760
-          });
-          
-          if (bucketError) {
-            console.error('Error creando bucket:', bucketError);
-            toast({
-              title: "Error de configuración",
-              description: "No se pudo configurar el almacenamiento. Contacta al administrador.",
-              variant: "destructive",
-            });
-            return null;
-          }
-          
-          // Intentar subir de nuevo
-          const { data: retryData, error: retryError } = await supabase.storage
-            .from('teasers')
-            .upload(fileName, file, {
-              cacheControl: '3600',
-              upsert: false
-            });
-            
-          if (retryError) {
-            console.error('Error en segundo intento:', retryError);
-            toast({
-              title: "Error al subir el archivo",
-              description: retryError.message,
-              variant: "destructive",
-            });
-            return null;
-          }
-          
-          console.log('Archivo subido en segundo intento:', retryData);
-        } else {
-          toast({
-            title: "Error al subir el archivo",
-            description: error.message,
-            variant: "destructive",
-          });
-          return null;
-        }
+        toast({
+          title: "Error al subir el archivo",
+          description: error.message || "No se pudo subir el teaser",
+          variant: "destructive",
+        });
+        return null;
       }
 
       console.log('Archivo subido exitosamente:', data);
