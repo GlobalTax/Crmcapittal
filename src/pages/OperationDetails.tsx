@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { EditOperationDialog } from "@/components/admin/EditOperationDialog";
 import { useOperationsMutations } from "@/hooks/operations/useOperationsMutations";
 import { useUserRole } from "@/hooks/useUserRole";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { Operation } from "@/types/Operation";
 import { getStatusLabel, getOperationTypeLabel, getStatusColor } from "@/utils/operationHelpers";
 
@@ -188,6 +190,7 @@ const OperationDetails = () => {
             <Badge className={getStatusColor(operation.status)}>
               {getStatusLabel(operation.status)}
             </Badge>
+            <FavoriteButton operationId={operation.id} size="default" />
             {isAdmin && (
               <>
                 <Button variant="outline" size="sm" onClick={handleEdit}>
