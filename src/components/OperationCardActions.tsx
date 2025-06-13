@@ -5,6 +5,7 @@ import { ArrowRight, Download, Mail, Eye } from "lucide-react";
 import { Operation } from "@/types/Operation";
 import { FavoriteButton } from "./FavoriteButton";
 import { UserDataModal } from "./UserDataModal";
+import { toast } from "@/components/ui/sonner";
 
 interface OperationCardActionsProps {
   operation: Operation;
@@ -15,17 +16,44 @@ interface OperationCardActionsProps {
 export const OperationCardActions = ({ operation, size = 'default', variant = 'default' }: OperationCardActionsProps) => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Simulamos datos de analytics (en una implementación real vendrían de la base de datos)
   const views = Math.floor(Math.random() * 500) + 50;
   const downloads = Math.floor(Math.random() * 100) + 10;
 
-  const handleTeaserDownload = () => {
-    if (operation.teaser_url) {
-      // Direct download for teaser - no form required
-      window.open(operation.teaser_url, '_blank');
-    } else {
-      console.log("No teaser available for:", operation.company_name);
+  const handleTeaserDownload = async () => {
+    if (!operation.teaser_url) {
+      toast.error("No hay teaser disponible para esta operación");
+      return;
+    }
+
+    setIsDownloading(true);
+    
+    try {
+      // Crear un elemento <a> temporal para forzar la descarga
+      const link = document.createElement('a');
+      link.href = operation.teaser_url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      
+      // Intentar extraer el nombre del archivo del URL
+      const urlParts = operation.teaser_url.split('/');
+      const fileName = urlParts[urlParts.length - 1] || `teaser-${operation.company_name}.pdf`;
+      link.download = fileName;
+      
+      // Añadir al DOM temporalmente y hacer click
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("Descarga iniciada");
+      
+    } catch (error) {
+      console.error("Error downloading teaser:", error);
+      toast.error("Error al descargar el teaser. Inténtalo de nuevo.");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -39,9 +67,11 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
       // TODO: Implement info request submission
       console.log("Info request submitted:", userData, "for operation:", operation.company_name);
       // Here you would typically send the request to your backend
+      toast.success("Solicitud de información enviada correctamente");
       setShowInfoModal(false);
     } catch (error) {
       console.error("Error submitting info request:", error);
+      toast.error("Error al enviar la solicitud. Inténtalo de nuevo.");
     } finally {
       setIsSubmitting(false);
     }
@@ -57,11 +87,11 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
             onClick={handleTeaserDownload}
             size={size} 
             variant="outline"
-            disabled={!operation.teaser_url}
+            disabled={!operation.teaser_url || isDownloading}
             className="border-black text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download className="h-4 w-4 mr-1" />
-            Teaser
+            {isDownloading ? "Descargando..." : "Teaser"}
           </Button>
           
           <Button 
@@ -110,11 +140,11 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
             onClick={handleTeaserDownload}
             size="sm" 
             variant="outline"
-            disabled={!operation.teaser_url}
+            disabled={!operation.teaser_url || isDownloading}
             className="border-black text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download className="mr-2 h-4 w-4" />
-            Teaser
+            {isDownloading ? "Descargando..." : "Teaser"}
           </Button>
           
           <Button 
