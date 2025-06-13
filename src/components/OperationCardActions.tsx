@@ -74,8 +74,8 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
           </Button>
         </div>
 
-        {/* Analytics justo debajo */}
-        <div className="flex items-center justify-between text-xs text-black">
+        {/* Analytics en la misma línea */}
+        <div className="flex items-center space-x-4 text-xs text-black">
           <div className="flex items-center space-x-1">
             <Eye className="h-3 w-3" />
             <span>{views} vistas</span>
@@ -128,8 +128,8 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
         </div>
       </div>
 
-      {/* Analytics justo debajo */}
-      <div className="flex items-center justify-between text-xs text-black">
+      {/* Analytics en la misma línea */}
+      <div className="flex items-center space-x-4 text-xs text-black">
         <div className="flex items-center space-x-1">
           <Eye className="h-3 w-3" />
           <span>{views} vistas</span>
