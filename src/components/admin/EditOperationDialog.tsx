@@ -66,7 +66,7 @@ export const EditOperationDialog = ({
         contact_email: operation.contact_email || "",
         contact_phone: operation.contact_phone || "",
         annual_growth_rate: operation.annual_growth_rate?.toString() || "",
-        manager_id: operation.manager_id || "",
+        manager_id: operation.manager_id || "none",
       });
     }
   }, [operation]);
@@ -95,7 +95,7 @@ export const EditOperationDialog = ({
       contact_email: formData.contact_email || null,
       contact_phone: formData.contact_phone || null,
       annual_growth_rate: formData.annual_growth_rate ? parseFloat(formData.annual_growth_rate) : null,
-      manager_id: formData.manager_id || null,
+      manager_id: formData.manager_id === "none" ? null : formData.manager_id,
     };
 
     await onSave(updateData);
@@ -277,7 +277,7 @@ export const EditOperationDialog = ({
                   <SelectValue placeholder="Seleccionar gestor..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin asignar</SelectItem>
+                  <SelectItem value="none">Sin asignar</SelectItem>
                   {managers.map((manager) => (
                     <SelectItem key={manager.id} value={manager.id}>
                       {manager.name} - {manager.position || 'Sin posición'}
