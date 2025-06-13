@@ -46,6 +46,16 @@ export const OperationTableRow = ({
       </TableCell>
       
       <TableCell>
+        <div className="text-sm">
+          {operation.project_name ? (
+            <span className="font-medium">{operation.project_name}</span>
+          ) : (
+            <span className="text-gray-400 text-xs">Sin nombre</span>
+          )}
+        </div>
+      </TableCell>
+      
+      <TableCell>
         <span className="text-sm">{operation.sector}</span>
       </TableCell>
       

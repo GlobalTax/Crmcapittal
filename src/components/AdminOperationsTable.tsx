@@ -58,6 +58,7 @@ export const AdminOperationsTable = ({
   // Filter operations based on search and filters
   const filteredOperations = operations.filter(operation => {
     const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          operation.location.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -190,6 +191,7 @@ export const AdminOperationsTable = ({
             <TableHeader>
               <TableRow>
                 <TableHead>Empresa</TableHead>
+                <TableHead>Proyecto</TableHead>
                 <TableHead>Sector</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Facturación</TableHead>
@@ -204,7 +206,7 @@ export const AdminOperationsTable = ({
             <TableBody>
               {filteredOperations.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center py-8">
+                  <TableCell colSpan={11} className="text-center py-8">
                     <div className="text-gray-500">
                       {searchTerm || filterStatus !== "all" || filterSector !== "all" 
                         ? "No se encontraron operaciones con los filtros aplicados"
