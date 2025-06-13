@@ -52,100 +52,118 @@ export const OperationsList = () => {
 
   const handleFiltersChange = (newFilters: FilterState) => {
     setFilters(newFilters);
-    resetPagination(); // Resetear a página 1 cuando cambian filtros
+    resetPagination();
   };
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <h2 className="text-xl font-semibold">Operaciones Disponibles</h2>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <h2 className="text-2xl font-bold text-gray-900">Operaciones Disponibles</h2>
+            </div>
+            <OperationsViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
           </div>
-          <OperationsViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+          <LoadingSkeleton viewMode={viewMode} />
         </div>
-        <LoadingSkeleton viewMode={viewMode} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Error al cargar las operaciones: {error}
-        </AlertDescription>
-      </Alert>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Error al cargar las operaciones: {error}
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <h2 className="text-xl font-semibold">
-            Operaciones Disponibles
-          </h2>
-        </div>
-        <OperationsViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-      </div>
-
-      {/* Stats */}
-      <OperationStats stats={stats} isFiltered={hasActiveFilters} />
-
-      {/* Filters */}
-      <OperationFilters 
-        onFiltersChange={handleFiltersChange} 
-        operations={allOperations}
-      />
-
-      {/* Results */}
-      {operations.length === 0 ? (
-        <OperationsEmptyState 
-          hasFilters={hasActiveFilters}
-          onClearFilters={clearFilters}
-        />
-      ) : (
-        <div className="space-y-6">
-          <div className="animate-fade-in">
-            {viewMode === 'grid' ? (
-              <OperationsGrid 
-                operations={operations}
-                onToggleFavorite={(operationId) => {
-                  if (isFavorite(operationId)) {
-                    removeFromFavorites(operationId);
-                  } else {
-                    addToFavorites(operationId);
-                  }
-                }}
-                isFavorite={isFavorite}
-              />
-            ) : (
-              <OperationsTable 
-                operations={operations}
-                onToggleFavorite={(operationId) => {
-                  if (isFavorite(operationId)) {
-                    removeFromFavorites(operationId);
-                  } else {
-                    addToFavorites(operationId);
-                  }
-                }}
-                isFavorite={isFavorite}
-              />
-            )}
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Header */}
+        <div className="flex justify-between items-center border-b border-gray-200 pb-6">
+          <div className="flex items-center space-x-3">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Operaciones Disponibles
+            </h1>
           </div>
-          
-          {/* Pagination */}
-          <PaginationControls
-            config={paginationConfig}
-            onPageChange={goToPage}
-            onNextPage={goToNextPage}
-            onPreviousPage={goToPreviousPage}
+          <OperationsViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+        </div>
+
+        {/* Stats */}
+        <div className="bg-gray-50 rounded-xl p-6">
+          <OperationStats stats={stats} isFiltered={hasActiveFilters} />
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <OperationFilters 
+            onFiltersChange={handleFiltersChange} 
+            operations={allOperations}
           />
         </div>
-      )}
+
+        {/* Results */}
+        {operations.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-12">
+            <OperationsEmptyState 
+              hasFilters={hasActiveFilters}
+              onClearFilters={clearFilters}
+            />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="animate-fade-in">
+              {viewMode === 'grid' ? (
+                <OperationsGrid 
+                  operations={operations}
+                  onToggleFavorite={(operationId) => {
+                    if (isFavorite(operationId)) {
+                      removeFromFavorites(operationId);
+                    } else {
+                      addToFavorites(operationId);
+                    }
+                  }}
+                  isFavorite={isFavorite}
+                />
+              ) : (
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                  <OperationsTable 
+                    operations={operations}
+                    onToggleFavorite={(operationId) => {
+                      if (isFavorite(operationId)) {
+                        removeFromFavorites(operationId);
+                      } else {
+                        addToFavorites(operationId);
+                      }
+                    }}
+                    isFavorite={isFavorite}
+                  />
+                </div>
+              )}
+            </div>
+            
+            {/* Pagination */}
+            <div className="flex justify-center">
+              <PaginationControls
+                config={paginationConfig}
+                onPageChange={goToPage}
+                onNextPage={goToNextPage}
+                onPreviousPage={goToPreviousPage}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
