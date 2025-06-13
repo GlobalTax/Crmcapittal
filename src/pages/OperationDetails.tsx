@@ -11,6 +11,7 @@ import { ArrowLeft, Edit, Trash2, Download, Upload, Building, Calendar, DollarSi
 import { useToast } from "@/hooks/use-toast";
 import { EditOperationDialog } from "@/components/admin/EditOperationDialog";
 import { useOperationsMutations } from "@/hooks/operations/useOperationsMutations";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Operation } from "@/types/Operation";
 import { getStatusLabel, getOperationTypeLabel, getStatusColor } from "@/utils/operationHelpers";
 
@@ -21,6 +22,9 @@ const OperationDetails = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [operations, setOperations] = useState<Operation[]>([]);
   const { updateOperation, deleteOperation } = useOperationsMutations(setOperations);
+  const { role, loading: roleLoading } = useUserRole();
+
+  const isAdmin = role === 'admin' || role === 'superadmin';
 
   const { data: operation, isLoading, error, refetch } = useQuery({
     queryKey: ['operation-details', id],
@@ -133,9 +137,9 @@ const OperationDetails = () => {
     }).format(amount);
   };
 
-  if (isLoading) {
+  if (isLoading || roleLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Cargando detalles de la operación...</p>
@@ -146,7 +150,7 @@ const OperationDetails = () => {
 
   if (error || !operation) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error al cargar la operación</p>
           <Button onClick={() => navigate('/admin')}>
@@ -158,7 +162,7 @@ const OperationDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -182,14 +186,18 @@ const OperationDetails = () => {
             <Badge className={getStatusColor(operation.status)}>
               {getStatusLabel(operation.status)}
             </Badge>
-            <Button variant="outline" size="sm" onClick={handleEdit}>
-              <Edit className="h-4 w-4 mr-2" />
-              Editar
-            </Button>
-            <Button variant="destructive" size="sm" onClick={handleDelete}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Eliminar
-            </Button>
+            {isAdmin && (
+              <>
+                <Button variant="outline" size="sm" onClick={handleEdit}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -197,7 +205,7 @@ const OperationDetails = () => {
           {/* Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Information */}
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building className="h-5 w-5" />
@@ -254,7 +262,7 @@ const OperationDetails = () => {
             </Card>
 
             {/* Financial Information */}
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
@@ -262,16 +270,9 @@ const OperationDetails = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">
-                      {formatAmount(operation.amount, operation.currency)}
-                    </p>
-                    <p className="text-sm text-gray-600">Valor de la Operación</p>
-                  </div>
-                  
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {operation.revenue && (
-                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-100">
                       <p className="text-2xl font-bold text-green-600">
                         {formatAmount(operation.revenue, operation.currency)}
                       </p>
@@ -280,7 +281,7 @@ const OperationDetails = () => {
                   )}
                   
                   {operation.ebitda && (
-                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-100">
                       <p className="text-2xl font-bold text-purple-600">
                         {formatAmount(operation.ebitda, operation.currency)}
                       </p>
@@ -290,7 +291,7 @@ const OperationDetails = () => {
                 </div>
 
                 {operation.annual_growth_rate && (
-                  <div className="mt-4 text-center p-4 bg-yellow-50 rounded-lg">
+                  <div className="mt-4 text-center p-4 bg-yellow-50 rounded-lg border border-yellow-100">
                     <p className="text-xl font-bold text-yellow-600">
                       {operation.annual_growth_rate}%
                     </p>
@@ -302,7 +303,7 @@ const OperationDetails = () => {
 
             {/* Transaction Details */}
             {(operation.buyer || operation.seller) && (
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
                   <CardTitle>Detalles de la Transacción</CardTitle>
                 </CardHeader>
@@ -329,7 +330,7 @@ const OperationDetails = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Status & Date */}
-            <Card>
+            <Card className="border border-gray-200 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
@@ -358,7 +359,7 @@ const OperationDetails = () => {
 
             {/* Manager */}
             {operation.manager && (
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <User className="h-5 w-5" />
@@ -392,36 +393,9 @@ const OperationDetails = () => {
               </Card>
             )}
 
-            {/* Contact Information */}
-            {(operation.contact_email || operation.contact_phone) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Información de Contacto</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {operation.contact_email && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4" />
-                      <a href={`mailto:${operation.contact_email}`} className="text-blue-600 hover:underline">
-                        {operation.contact_email}
-                      </a>
-                    </div>
-                  )}
-                  {operation.contact_phone && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4" />
-                      <a href={`tel:${operation.contact_phone}`} className="text-blue-600 hover:underline">
-                        {operation.contact_phone}
-                      </a>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
             {/* Teaser */}
             {operation.teaser_url && (
-              <Card>
+              <Card className="border border-gray-200 shadow-sm">
                 <CardHeader>
                   <CardTitle>Documentos</CardTitle>
                 </CardHeader>
@@ -442,12 +416,14 @@ const OperationDetails = () => {
       </div>
 
       {/* Edit Dialog */}
-      <EditOperationDialog
-        operation={operation}
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        onSave={handleSaveEdit}
-      />
+      {isAdmin && (
+        <EditOperationDialog
+          operation={operation}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 };
