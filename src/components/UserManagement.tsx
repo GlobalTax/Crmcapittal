@@ -12,6 +12,7 @@ import { Plus, Trash2, UserCheck, Camera, X, Edit } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EditUserDialog from "./EditUserDialog";
+import UserProjectsList from "./UserProjectsList";
 
 type UserRole = 'superadmin' | 'admin' | 'user';
 
@@ -503,13 +504,14 @@ const UserManagement = () => {
               <TableHead>Rol</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Información</TableHead>
+              <TableHead>Proyectos</TableHead>
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={6} className="text-center py-8">
                   Cargando usuarios...
                 </TableCell>
               </TableRow>
@@ -555,6 +557,13 @@ const UserManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell>
+                    <UserProjectsList 
+                      userId={user.user_id}
+                      userName={user.manager_name || user.email}
+                      isManager={user.is_manager}
+                    />
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
@@ -594,7 +603,7 @@ const UserManagement = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-black">
+                <TableCell colSpan={6} className="text-center py-8 text-black">
                   No hay usuarios registrados
                 </TableCell>
               </TableRow>
