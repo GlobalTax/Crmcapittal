@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavoriteOperations } from '@/hooks/useFavoriteOperations';
 import { useToast } from '@/hooks/use-toast';
@@ -54,7 +55,32 @@ export const FavoriteButton = ({ operationId, size = 'sm' }: FavoriteButtonProps
     }
   };
 
-  const isCurrentlyFavorite = isFavorite(operationId);
+  const isCurrentlyFavorite = user ? isFavorite(operationId) : false;
+
+  if (!user) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size={size}
+              disabled={true}
+              className="opacity-60 cursor-not-allowed"
+            >
+              <Heart className="h-4 w-4" />
+              {size !== 'sm' && (
+                <span className="ml-2">Guardar</span>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Date de alta para nuevas funcionalidades</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <Button

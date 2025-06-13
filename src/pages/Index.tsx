@@ -36,19 +36,19 @@ const Index = () => {
               {user ? (
                 <Link to="/dashboard" className="w-full sm:w-auto">
                   <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                    Mi Panel
+                    Mi Cuenta
                   </Button>
                 </Link>
               ) : (
                 <Link to="/auth" className="w-full sm:w-auto">
                   <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                    Iniciar Sesión
+                    Crear Cuenta / Acceder
                   </Button>
                 </Link>
               )}
               <Link to="/auth" className="w-full sm:w-auto">
                 <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                  Panel Admin
+                  Área Profesional
                 </Button>
               </Link>
             </div>
@@ -114,6 +114,68 @@ const Index = () => {
         {/* Operations List with integrated filters */}
         <OperationsList />
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-50 border-t border-gray-200 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Logo y descripción */}
+            <div className="col-span-1 md:col-span-1">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">OD</span>
+                </div>
+                <h3 className="text-lg font-bold text-black">Open Deals</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                Portal líder en oportunidades de inversión y adquisiciones empresariales.
+              </p>
+              <p className="text-xs text-gray-500">
+                © 2024 Open Deals. Todos los derechos reservados.
+              </p>
+            </div>
+
+            {/* Enlaces legales */}
+            <div className="col-span-1 md:col-span-1">
+              <h4 className="text-sm font-semibold text-black mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>
+                  <a href="#" className="hover:text-black transition-colors">
+                    Términos y Condiciones
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-black transition-colors">
+                    Política de Privacidad
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-black transition-colors">
+                    Aviso Legal
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-black transition-colors">
+                    Política de Cookies
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Contacto */}
+            <div className="col-span-1 md:col-span-1">
+              <h4 className="text-sm font-semibold text-black mb-4">Contacto</h4>
+              <div className="space-y-2 text-sm text-gray-600">
+                <p>info@opendeals.com</p>
+                <p>+34 900 123 456</p>
+                <p className="text-xs text-gray-500 mt-4">
+                  Para más información sobre nuestros servicios o para añadir tu empresa al portfolio.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
