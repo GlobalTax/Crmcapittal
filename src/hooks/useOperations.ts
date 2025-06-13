@@ -16,10 +16,26 @@ export const useOperations = () => {
       // Usar isPublicSample = true para que sean visibles públicamente
       mutations.addBulkOperations(sampleOperations, true).then(() => {
         setHasCreatedSamples(true);
-        refetch();
+        // Forzar recarga después de crear las operaciones para traer la info de managers
+        setTimeout(() => {
+          refetch();
+        }, 1000);
       });
     }
   }, [loading, operations.length, hasCreatedSamples, mutations, refetch]);
+
+  // Forzar una recarga adicional para asegurar que se carguen los managers
+  useEffect(() => {
+    if (!loading && operations.length > 0) {
+      const hasManagersAssigned = operations.some(op => op.manager && op.manager.name);
+      if (!hasManagersAssigned) {
+        console.log("Operaciones sin managers detectadas, forzando recarga...");
+        setTimeout(() => {
+          refetch();
+        }, 500);
+      }
+    }
+  }, [operations, loading, refetch]);
 
   return { 
     operations, 

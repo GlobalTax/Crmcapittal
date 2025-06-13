@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
 
 export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]> => {
-  console.log('Iniciando consulta de operaciones...');
+  console.log('Iniciando consulta de operaciones con join de managers...');
   
   let query = supabase
     .from('operations')
@@ -49,6 +49,9 @@ export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]>
         position: op.operation_managers.position,
         photo: op.operation_managers.photo
       };
+      console.log('Manager asignado:', managerData);
+    } else {
+      console.log('No hay manager para:', op.company_name);
     }
     
     return {
