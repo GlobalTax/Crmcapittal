@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Edit, Trash2, Download, Upload, Building, Calendar, DollarSign, User, MapPin, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EditOperationDialog } from "@/components/admin/EditOperationDialog";
@@ -42,7 +42,8 @@ const OperationDetails = () => {
             name,
             position,
             email,
-            phone
+            phone,
+            photo
           )
         `)
         .eq('id', id)
@@ -63,7 +64,8 @@ const OperationDetails = () => {
           name: data.operation_managers.name,
           position: data.operation_managers.position,
           email: data.operation_managers.email,
-          phone: data.operation_managers.phone
+          phone: data.operation_managers.phone,
+          photo: data.operation_managers.photo
         } : null
       } as Operation;
     },
@@ -366,12 +368,23 @@ const OperationDetails = () => {
                     Gestor Asignado
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <p className="font-medium">{operation.manager.name}</p>
-                    {operation.manager.position && (
-                      <p className="text-sm text-gray-600">{operation.manager.position}</p>
-                    )}
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage 
+                        src={operation.manager.photo} 
+                        alt={operation.manager.name}
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                        {operation.manager.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{operation.manager.name}</p>
+                      {operation.manager.position && (
+                        <p className="text-sm text-gray-600">{operation.manager.position}</p>
+                      )}
+                    </div>
                   </div>
                   {operation.manager.email && (
                     <div className="flex items-center gap-2 text-sm">
