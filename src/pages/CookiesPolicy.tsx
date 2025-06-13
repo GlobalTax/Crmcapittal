@@ -126,10 +126,10 @@ const CookiesPolicy = () => {
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-black mb-3">Configuración del Navegador:</h3>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
-                <li><strong>Chrome:</strong> Configuración > Avanzada > Privacidad y seguridad > Configuración de sitios > Cookies</li>
-                <li><strong>Firefox:</strong> Preferencias > Privacidad y seguridad > Cookies y datos del sitio</li>
-                <li><strong>Safari:</strong> Preferencias > Privacidad > Cookies y datos de sitios web</li>
-                <li><strong>Edge:</strong> Configuración > Cookies y permisos del sitio > Cookies y datos del sitio</li>
+                <li><strong>Chrome:</strong> Configuración &gt; Avanzada &gt; Privacidad y seguridad &gt; Configuración de sitios &gt; Cookies</li>
+                <li><strong>Firefox:</strong> Preferencias &gt; Privacidad y seguridad &gt; Cookies y datos del sitio</li>
+                <li><strong>Safari:</strong> Preferencias &gt; Privacidad &gt; Cookies y datos de sitios web</li>
+                <li><strong>Edge:</strong> Configuración &gt; Cookies y permisos del sitio &gt; Cookies y datos del sitio</li>
               </ul>
             </div>
           </section>
