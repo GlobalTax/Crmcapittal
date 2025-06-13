@@ -24,13 +24,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Operation } from "@/types/Operation";
 import { getOperationTypeLabel } from "@/utils/operationHelpers";
-import { Mail, Download } from "lucide-react";
+import { Mail, FileText, Shield } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   email: z.string().email("Email inválido"),
   company: z.string().min(2, "La empresa debe tener al menos 2 caracteres"),
+  position: z.string().min(2, "El cargo debe tener al menos 2 caracteres"),
   phone: z.string().optional(),
+  investment_capacity: z.string().min(1, "La capacidad de inversión es requerida"),
   message: z.string().optional(),
 });
 
@@ -57,7 +59,9 @@ export const UserDataModal = ({
       name: "",
       email: "",
       company: "",
+      position: "",
       phone: "",
+      investment_capacity: "",
       message: "",
     },
   });
@@ -67,25 +71,30 @@ export const UserDataModal = ({
   };
 
   const isInfoRequest = actionType === "info";
-  const title = isInfoRequest ? "Solicitar Información" : "Descargar Teaser";
-  const description = isInfoRequest 
-    ? `Solicitar más información sobre ${operation.company_name}`
-    : `Descargar teaser de ${operation.company_name}`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <div className="flex items-center space-x-2">
-            {isInfoRequest ? (
-              <Mail className="h-5 w-5 text-blue-600" />
-            ) : (
-              <Download className="h-5 w-5 text-green-600" />
-            )}
-            <DialogTitle>{title}</DialogTitle>
+            <Shield className="h-5 w-5 text-blue-600" />
+            <DialogTitle>Solicitar Información Detallada</DialogTitle>
           </div>
-          <DialogDescription>
-            {description} - {getOperationTypeLabel(operation.operation_type)} en {operation.sector}
+          <DialogDescription className="text-left">
+            <div className="space-y-2">
+              <p>
+                <strong>{operation.company_name}</strong> - {getOperationTypeLabel(operation.operation_type)} en {operation.sector}
+              </p>
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <div className="flex items-start space-x-2">
+                  <FileText className="h-4 w-4 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium">Información confidencial</p>
+                    <p>Esta solicitud incluye datos que requieren la firma de un Acuerdo de Confidencialidad (NDA). Recibirás la información completa incluyendo el nombre de la empresa tras la validación.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </DialogDescription>
         </DialogHeader>
 
@@ -97,9 +106,9 @@ export const UserDataModal = ({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre *</FormLabel>
+                    <FormLabel>Nombre completo *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Tu nombre completo" {...field} />
+                      <Input placeholder="Nombre y apellidos" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -108,12 +117,72 @@ export const UserDataModal = ({
 
               <FormField
                 control={form.control}
+                name="position"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cargo *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Director, Socio, etc." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email corporativo *</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="nombre@empresa.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teléfono</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+34 600 000 000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
                 name="company"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Empresa *</FormLabel>
+                    <FormLabel>Empresa/Fondo *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nombre de tu empresa" {...field} />
+                      <Input placeholder="Nombre de tu organización" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="investment_capacity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Capacidad de inversión *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="ej: 5-10M EUR" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,58 +192,32 @@ export const UserDataModal = ({
 
             <FormField
               control={form.control}
-              name="email"
+              name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email *</FormLabel>
+                  <FormLabel>Comentarios adicionales</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="tu@email.com" {...field} />
+                    <Textarea 
+                      placeholder="Información adicional sobre tu interés, experiencia en el sector, etc."
+                      className="min-h-[80px]"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+34 600 000 000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {isInfoRequest && (
-              <FormField
-                control={form.control}
-                name="message"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mensaje adicional</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Cuéntanos sobre tu interés en esta operación..."
-                        className="min-h-[80px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-700">
+              <p>Al enviar esta solicitud aceptas que tus datos sean utilizados para evaluar tu perfil como inversor y proceder con el envío de información confidencial sujeta a NDA.</p>
+            </div>
 
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Procesando..." : (isInfoRequest ? "Enviar Solicitud" : "Descargar Teaser")}
+                {isLoading ? "Enviando solicitud..." : "Enviar Solicitud"}
               </Button>
             </DialogFooter>
           </form>
