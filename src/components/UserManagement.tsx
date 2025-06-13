@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, UserCheck, Camera, X } from "lucide-react";
+import { Plus, Trash2, UserCheck, Camera, X, Edit } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import EditUserDialog from "./EditUserDialog";
 
 type UserRole = 'superadmin' | 'admin' | 'user';
 
@@ -27,6 +27,17 @@ interface CreateUserData {
   managerPhone?: string;
 }
 
+interface User {
+  user_id: string;
+  email: string;
+  role: UserRole;
+  first_name?: string;
+  last_name?: string;
+  is_manager: boolean;
+  manager_name?: string;
+  manager_position?: string;
+}
+
 const UserManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
@@ -36,6 +47,9 @@ const UserManagement = () => {
     password: '',
     role: 'user'
   });
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -321,6 +335,11 @@ const UserManagement = () => {
     deleteUserRoleMutation.mutate(userId);
   };
 
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+    setIsEditDialogOpen(true);
+  };
+
   const resetForm = () => {
     setFormData({ email: '', password: '', role: 'user' });
     setSelectedPhoto(null);
@@ -536,30 +555,40 @@ const UserManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-800">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>¿Eliminar rol de usuario?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta acción eliminará el rol del usuario. El usuario no podrá acceder a las funciones administrativas.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteUserRole(user.user_id)}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            Eliminar Rol
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleEditUser(user)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-800">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>¿Eliminar rol de usuario?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Esta acción eliminará el rol del usuario. El usuario no podrá acceder a las funciones administrativas.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteUserRole(user.user_id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Eliminar Rol
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -573,6 +602,15 @@ const UserManagement = () => {
           </TableBody>
         </Table>
       </div>
+
+      <EditUserDialog 
+        user={editingUser}
+        isOpen={isEditDialogOpen}
+        onClose={() => {
+          setIsEditDialogOpen(false);
+          setEditingUser(null);
+        }}
+      />
     </div>
   );
 };
