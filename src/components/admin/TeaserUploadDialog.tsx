@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, FileText } from "lucide-react";
 import { Operation } from "@/types/Operation";
-import { useToast } from "@/hooks/use-toast";
+import { useSupabaseStorage } from "@/hooks/useSupabaseStorage";
 
 interface TeaserUploadDialogProps {
   open: boolean;
@@ -22,8 +22,7 @@ export const TeaserUploadDialog = ({
   onUploadComplete 
 }: TeaserUploadDialogProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const { toast } = useToast();
+  const { uploadTeaser, isUploading } = useSupabaseStorage();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,21 +30,13 @@ export const TeaserUploadDialog = ({
       // Validate file type (PDF, DOC, DOCX)
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!allowedTypes.includes(file.type)) {
-        toast({
-          title: "Tipo de archivo no válido",
-          description: "Solo se permiten archivos PDF, DOC y DOCX",
-          variant: "destructive",
-        });
+        // Toast ya se maneja en el hook
         return;
       }
 
       // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "Archivo demasiado grande",
-          description: "El archivo no puede superar los 10MB",
-          variant: "destructive",
-        });
+        // Toast ya se maneja en el hook
         return;
       }
 
@@ -56,39 +47,24 @@ export const TeaserUploadDialog = ({
   const handleUpload = async () => {
     if (!selectedFile || !operation) return;
 
-    setIsUploading(true);
+    const teaserUrl = await uploadTeaser(selectedFile, operation.id);
     
-    try {
-      // TODO: Implement actual file upload to Supabase Storage
-      // For now, we'll simulate the upload
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simulate generating a URL
-      const mockUrl = `https://example.com/teasers/${operation.id}/${selectedFile.name}`;
-      
-      onUploadComplete(operation.id, mockUrl);
-      
-      toast({
-        title: "Teaser subido exitosamente",
-        description: "El archivo se ha subido correctamente",
-      });
-      
+    if (teaserUrl) {
+      onUploadComplete(operation.id, teaserUrl);
       setSelectedFile(null);
       onOpenChange(false);
-    } catch (error) {
-      console.error('Error uploading teaser:', error);
-      toast({
-        title: "Error al subir el archivo",
-        description: "No se pudo subir el teaser. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
     }
   };
 
+  const resetDialog = () => {
+    setSelectedFile(null);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(open) => {
+      onOpenChange(open);
+      if (!open) resetDialog();
+    }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">

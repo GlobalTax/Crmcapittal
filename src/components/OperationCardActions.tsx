@@ -6,6 +6,7 @@ import { Operation } from "@/types/Operation";
 import { FavoriteButton } from "./FavoriteButton";
 import { UserDataModal } from "./UserDataModal";
 import { toast } from "@/components/ui/sonner";
+import { useSupabaseStorage } from "@/hooks/useSupabaseStorage";
 
 interface OperationCardActionsProps {
   operation: Operation;
@@ -33,7 +34,7 @@ const generateConsistentAnalytics = (operationId: string) => {
 export const OperationCardActions = ({ operation, size = 'default', variant = 'default' }: OperationCardActionsProps) => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { downloadTeaser, isDownloading } = useSupabaseStorage();
 
   // Generar datos de analytics consistentes
   const { views, downloads } = generateConsistentAnalytics(operation.id);
@@ -44,33 +45,11 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
       return;
     }
 
-    setIsDownloading(true);
+    // Extraer nombre del archivo del URL o usar nombre por defecto
+    const urlParts = operation.teaser_url.split('/');
+    const fileName = urlParts[urlParts.length - 1] || `teaser-${operation.company_name}.pdf`;
     
-    try {
-      // Crear un elemento <a> temporal para forzar la descarga
-      const link = document.createElement('a');
-      link.href = operation.teaser_url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      
-      // Intentar extraer el nombre del archivo del URL
-      const urlParts = operation.teaser_url.split('/');
-      const fileName = urlParts[urlParts.length - 1] || `teaser-${operation.company_name}.pdf`;
-      link.download = fileName;
-      
-      // Añadir al DOM temporalmente y hacer click
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast.success("Descarga iniciada");
-      
-    } catch (error) {
-      console.error("Error downloading teaser:", error);
-      toast.error("Error al descargar el teaser. Inténtalo de nuevo.");
-    } finally {
-      setIsDownloading(false);
-    }
+    await downloadTeaser(operation.teaser_url, fileName);
   };
 
   const handleInfoRequest = () => {
