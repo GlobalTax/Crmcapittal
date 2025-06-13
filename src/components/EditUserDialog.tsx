@@ -106,7 +106,7 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
 
         console.log('Role updated successfully');
 
-        // Handle manager profile
+        // Handle manager profile based on new role
         if (userData.role === 'admin') {
           // Check if manager profile exists
           const { data: existingManager, error: checkError } = await supabase
@@ -184,7 +184,7 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
             }
           }
         } else {
-          // Remove manager profile if changing from admin to another role
+          // If new role is NOT admin and user currently IS a manager, remove manager profile
           if (user.is_manager) {
             console.log('Step 2: Removing manager profile...');
             const { error: deleteError } = await supabase
