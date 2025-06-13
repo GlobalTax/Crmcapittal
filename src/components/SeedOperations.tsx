@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useOperations } from "@/hooks/useOperations";
@@ -396,12 +395,12 @@ export const SeedOperations = () => {
   const handleSeedOperations = async () => {
     setIsLoading(true);
     try {
-      const { error } = await addBulkOperations(sampleOperations);
+      const result = await addBulkOperations(sampleOperations);
       
-      if (error) {
+      if (result.error) {
         toast({
           title: "Error",
-          description: error,
+          description: result.error,
           variant: "destructive",
         });
       } else {

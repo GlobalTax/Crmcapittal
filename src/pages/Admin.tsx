@@ -33,12 +33,12 @@ const Admin = () => {
   const { toast } = useToast();
 
   const handleAddOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at">) => {
-    const { error } = await addOperation(operationData);
+    const result = await addOperation(operationData);
     
-    if (error) {
+    if (result.error) {
       toast({
         title: "Error",
-        description: error,
+        description: result.error,
         variant: "destructive",
       });
     } else {
@@ -50,15 +50,15 @@ const Admin = () => {
   };
 
   const handleBulkAddOperations = async (operationsData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">[]) => {
-    const { error } = await addBulkOperations(operationsData);
+    const result = await addBulkOperations(operationsData);
     
-    if (error) {
+    if (result.error) {
       toast({
         title: "Error",
-        description: error,
+        description: result.error,
         variant: "destructive",
       });
-      return { error };
+      return { error: result.error };
     } else {
       toast({
         title: "Éxito",

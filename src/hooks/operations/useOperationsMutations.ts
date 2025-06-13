@@ -17,14 +17,17 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
 
   const addOperation = async (operationData: any) => {
     if (!user) {
-      throw new Error('Usuario no autenticado');
+      return { data: null, error: 'Usuario no autenticado' };
     }
 
     setLoading(true);
     try {
       const newOperation = await insertOperation(operationData, user.id);
-      setOperations(prev => [newOperation, ...prev]);
-      return newOperation;
+      setOperations(prev => [newOperation as Operation, ...prev]);
+      return { data: newOperation, error: null };
+    } catch (error) {
+      console.error('Error adding operation:', error);
+      return { data: null, error: 'Error al añadir la operación' };
     } finally {
       setLoading(false);
     }
@@ -33,7 +36,7 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
   const addBulkOperations = async (operationsData: any[], isPublicSample = false) => {
     // Para operaciones de ejemplo públicas, no requerir autenticación
     if (!isPublicSample && !user) {
-      throw new Error('Usuario no autenticado');
+      return { data: null, error: 'Usuario no autenticado' };
     }
 
     setLoading(true);
@@ -41,8 +44,11 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
       // Si es una muestra pública, usar un usuario ficticio o null
       const userId = isPublicSample ? 'public' : user!.id;
       const newOperations = await insertBulkOperations(operationsData, userId);
-      setOperations(prev => [...newOperations, ...prev]);
-      return newOperations;
+      setOperations(prev => [...(newOperations as Operation[]), ...prev]);
+      return { data: newOperations, error: null };
+    } catch (error) {
+      console.error('Error adding bulk operations:', error);
+      return { data: null, error: 'Error al añadir las operaciones' };
     } finally {
       setLoading(false);
     }
@@ -53,9 +59,12 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
     try {
       const updatedOperation = await updateOperationInDB(operationId, operationData);
       setOperations(prev => 
-        prev.map(op => op.id === operationId ? { ...op, ...updatedOperation } : op)
+        prev.map(op => op.id === operationId ? { ...op, ...updatedOperation } as Operation : op)
       );
-      return updatedOperation;
+      return { data: updatedOperation, error: null };
+    } catch (error) {
+      console.error('Error updating operation:', error);
+      return { data: null, error: 'Error al actualizar la operación' };
     } finally {
       setLoading(false);
     }
@@ -68,7 +77,10 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
       setOperations(prev => 
         prev.map(op => op.id === operationId ? { ...op, status: newStatus } : op)
       );
-      return updatedOperation;
+      return { data: updatedOperation, error: null };
+    } catch (error) {
+      console.error('Error updating operation status:', error);
+      return { data: null, error: 'Error al actualizar el estado' };
     } finally {
       setLoading(false);
     }
@@ -79,6 +91,10 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
     try {
       await deleteOperationFromDB(operationId);
       setOperations(prev => prev.filter(op => op.id !== operationId));
+      return { error: null };
+    } catch (error) {
+      console.error('Error deleting operation:', error);
+      return { error: 'Error al eliminar la operación' };
     } finally {
       setLoading(false);
     }
@@ -91,7 +107,10 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
       setOperations(prev => 
         prev.map(op => op.id === operationId ? { ...op, teaser_url: teaserUrl } : op)
       );
-      return updatedOperation;
+      return { data: updatedOperation, error: null };
+    } catch (error) {
+      console.error('Error updating teaser URL:', error);
+      return { data: null, error: 'Error al actualizar el teaser' };
     } finally {
       setLoading(false);
     }
