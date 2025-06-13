@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
 
 export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]> => {
-  console.log('Iniciando consulta de operaciones con join de managers...');
+  console.log('Iniciando consulta optimizada de operaciones con join de managers...');
   
   let query = supabase
     .from('operations')
@@ -31,11 +31,11 @@ export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]>
     throw error;
   }
 
-  console.log('Datos obtenidos de la consulta:', data);
+  console.log('Datos obtenidos de la consulta:', data?.length, 'operaciones');
 
-  // Procesar y mapear los datos
+  // Procesar y mapear los datos de manera optimizada
   const typedOperations: Operation[] = (data || []).map(op => {
-    console.log('Procesando operación:', op.company_name, 'Manager data:', op.operation_managers);
+    console.log('Procesando operación:', op.company_name);
     
     // Manejar el caso donde operation_managers puede ser null o undefined
     let managerData = undefined;
@@ -48,9 +48,6 @@ export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]>
         position: op.operation_managers.position,
         photo: op.operation_managers.photo
       };
-      console.log('Manager asignado:', managerData);
-    } else {
-      console.log('No hay manager para:', op.company_name);
     }
     
     return {
@@ -61,7 +58,7 @@ export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]>
     };
   });
 
-  console.log('Operaciones procesadas con gestores:', typedOperations);
+  console.log('Operaciones procesadas exitosamente:', typedOperations.length);
   return typedOperations;
 };
 
