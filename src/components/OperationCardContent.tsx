@@ -42,18 +42,6 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
         </div>
       </div>
 
-      {/* Analytics sencillos */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/30 p-2 rounded-lg">
-        <div className="flex items-center space-x-1">
-          <Eye className="h-3 w-3" />
-          <span>{views} vistas</span>
-        </div>
-        <div className="flex items-center space-x-1">
-          <Download className="h-3 w-3" />
-          <span>{downloads} descargas</span>
-        </div>
-      </div>
-
       <div className="flex items-center space-x-2 text-xs">
         <span className="text-muted-foreground">{operation.location}</span>
       </div>
@@ -97,6 +85,18 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
           </div>
         </div>
       )}
+
+      {/* Analytics al final y en negrita */}
+      <div className="flex items-center justify-between text-xs font-bold text-muted-foreground bg-muted/30 p-2 rounded-lg">
+        <div className="flex items-center space-x-1">
+          <Eye className="h-3 w-3" />
+          <span>{views} vistas</span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <Download className="h-3 w-3" />
+          <span>{downloads} descargas</span>
+        </div>
+      </div>
     </div>
   );
 };
