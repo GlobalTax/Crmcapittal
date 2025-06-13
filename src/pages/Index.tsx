@@ -26,7 +26,7 @@ const Index = () => {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
                 <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-black">Relación de Open Deals</h1>
+                  <h1 className="text-lg sm:text-xl font-bold text-black">Capittal</h1>
                   <p className="text-xs sm:text-sm text-gray-600">Portal de inversiones y oportunidades</p>
                 </div>
               </div>
@@ -123,15 +123,15 @@ const Index = () => {
             <div className="col-span-1 md:col-span-1">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">OD</span>
+                  <span className="text-white font-bold text-lg">C</span>
                 </div>
-                <h3 className="text-lg font-bold text-black">Open Deals</h3>
+                <h3 className="text-lg font-bold text-black">Capittal</h3>
               </div>
               <p className="text-sm text-gray-600 mb-4">
                 Portal líder en oportunidades de inversión y adquisiciones empresariales.
               </p>
               <p className="text-xs text-gray-500">
-                © 2024 Open Deals. Todos los derechos reservados.
+                © 2025 Capittal. Todos los derechos reservados.
               </p>
             </div>
 
@@ -140,24 +140,24 @@ const Index = () => {
               <h4 className="text-sm font-semibold text-black mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li>
-                  <a href="#" className="hover:text-black transition-colors">
+                  <Link to="/terms" className="hover:text-black transition-colors">
                     Términos y Condiciones
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-black transition-colors">
+                  <Link to="/privacy" className="hover:text-black transition-colors">
                     Política de Privacidad
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-black transition-colors">
+                  <Link to="/legal" className="hover:text-black transition-colors">
                     Aviso Legal
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-black transition-colors">
+                  <Link to="/cookies" className="hover:text-black transition-colors">
                     Política de Cookies
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -166,7 +166,7 @@ const Index = () => {
             <div className="col-span-1 md:col-span-1">
               <h4 className="text-sm font-semibold text-black mb-4">Contacto</h4>
               <div className="space-y-2 text-sm text-gray-600">
-                <p>info@opendeals.com</p>
+                <p>info@capittal.com</p>
                 <p>+34 900 123 456</p>
                 <p className="text-xs text-gray-500 mt-4">
                   Para más información sobre nuestros servicios o para añadir tu empresa al portfolio.

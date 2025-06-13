@@ -10,6 +10,10 @@ import SuperAdmin from "./pages/SuperAdmin";
 import Managers from "./pages/Managers";
 import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import LegalNotice from "./pages/LegalNotice";
+import CookiesPolicy from "./pages/CookiesPolicy";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -26,6 +30,10 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/legal" element={<LegalNotice />} />
+            <Route path="/cookies" element={<CookiesPolicy />} />
             <Route 
               path="/dashboard" 
               element={
