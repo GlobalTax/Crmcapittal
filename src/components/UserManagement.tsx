@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, UserCheck } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 type UserRole = 'superadmin' | 'admin' | 'user';
@@ -18,6 +18,12 @@ interface CreateUserData {
   email: string;
   password: string;
   role: UserRole;
+  firstName?: string;
+  lastName?: string;
+  // Para gestores/admins
+  managerName?: string;
+  managerPosition?: string;
+  managerPhone?: string;
 }
 
 const UserManagement = () => {
@@ -30,47 +36,63 @@ const UserManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch existing users with roles
+  // Fetch existing users with roles usando la nueva función
   const { data: users, isLoading } = useQuery({
-    queryKey: ['users-with-roles'],
+    queryKey: ['users-with-roles-complete'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('user_roles')
-        .select(`
-          user_id,
-          role,
-          created_at
-        `);
+        .rpc('get_users_with_roles');
       
       if (error) throw error;
       return data;
     }
   });
 
-  // Create user mutation
+  // Create user mutation actualizada
   const createUserMutation = useMutation({
     mutationFn: async (userData: CreateUserData) => {
-      // Create user via Supabase admin (this will need to be done via edge function)
-      const { data, error } = await supabase.auth.signUp({
+      // Create user via Supabase auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
+        options: {
+          data: {
+            first_name: userData.firstName,
+            last_name: userData.lastName
+          }
+        }
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      // If user was created successfully, assign role
-      if (data.user) {
+      if (authData.user) {
+        // Asignar rol
         const { error: roleError } = await supabase
           .from('user_roles')
           .insert({
-            user_id: data.user.id,
+            user_id: authData.user.id,
             role: userData.role
           });
 
         if (roleError) throw roleError;
+
+        // Si es admin, crear también el gestor
+        if (userData.role === 'admin' && userData.managerName) {
+          const { error: managerError } = await supabase
+            .from('operation_managers')
+            .insert({
+              user_id: authData.user.id,
+              name: userData.managerName,
+              email: userData.email,
+              phone: userData.managerPhone,
+              position: userData.managerPosition
+            });
+
+          if (managerError) throw managerError;
+        }
       }
 
-      return data;
+      return authData;
     },
     onSuccess: () => {
       toast({
@@ -79,7 +101,7 @@ const UserManagement = () => {
       });
       setIsDialogOpen(false);
       setFormData({ email: '', password: '', role: 'user' });
-      queryClient.invalidateQueries({ queryKey: ['users-with-roles'] });
+      queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
     onError: (error: any) => {
       toast({
@@ -105,7 +127,7 @@ const UserManagement = () => {
         title: "Rol eliminado",
         description: "El rol del usuario ha sido eliminado",
       });
-      queryClient.invalidateQueries({ queryKey: ['users-with-roles'] });
+      queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
     onError: (error: any) => {
       toast({
@@ -121,11 +143,21 @@ const UserManagement = () => {
     if (!formData.email || !formData.password) {
       toast({
         title: "Error",
-        description: "Por favor, completa todos los campos",
+        description: "Por favor, completa todos los campos obligatorios",
         variant: "destructive",
       });
       return;
     }
+
+    if (formData.role === 'admin' && !formData.managerName) {
+      toast({
+        title: "Error",
+        description: "Los administradores necesitan un nombre de gestor",
+        variant: "destructive",
+      });
+      return;
+    }
+
     createUserMutation.mutate(formData);
   };
 
@@ -144,13 +176,13 @@ const UserManagement = () => {
               Crear Usuario
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Crear Nuevo Usuario</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -160,8 +192,9 @@ const UserManagement = () => {
                   required
                 />
               </div>
+              
               <div>
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">Contraseña *</Label>
                 <Input
                   id="password"
                   type="password"
@@ -172,20 +205,57 @@ const UserManagement = () => {
                   required
                 />
               </div>
+
               <div>
-                <Label htmlFor="role">Rol</Label>
+                <Label htmlFor="role">Rol *</Label>
                 <Select value={formData.role} onValueChange={(value: UserRole) => setFormData({ ...formData, role: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="user">Usuario</SelectItem>
-                    <SelectItem value="admin">Administrador</SelectItem>
+                    <SelectItem value="admin">Administrador/Gestor</SelectItem>
                     <SelectItem value="superadmin">Superadministrador</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex justify-end space-x-2">
+
+              {formData.role === 'admin' && (
+                <>
+                  <div>
+                    <Label htmlFor="managerName">Nombre del Gestor *</Label>
+                    <Input
+                      id="managerName"
+                      value={formData.managerName || ''}
+                      onChange={(e) => setFormData({ ...formData, managerName: e.target.value })}
+                      placeholder="Nombre completo del gestor"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="managerPosition">Posición</Label>
+                    <Input
+                      id="managerPosition"
+                      value={formData.managerPosition || ''}
+                      onChange={(e) => setFormData({ ...formData, managerPosition: e.target.value })}
+                      placeholder="Director, Gerente, etc."
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="managerPhone">Teléfono</Label>
+                    <Input
+                      id="managerPhone"
+                      value={formData.managerPhone || ''}
+                      onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })}
+                      placeholder="+34 600 000 000"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="flex justify-end space-x-2 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>
@@ -202,23 +272,24 @@ const UserManagement = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Usuario ID</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead>Rol</TableHead>
-              <TableHead>Fecha de Creación</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Información</TableHead>
               <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   Cargando usuarios...
                 </TableCell>
               </TableRow>
             ) : users && users.length > 0 ? (
               users.map((user) => (
                 <TableRow key={user.user_id}>
-                  <TableCell className="font-mono text-sm">{user.user_id.slice(0, 8)}...</TableCell>
+                  <TableCell className="font-medium">{user.email}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                       user.role === 'superadmin' ? 'bg-red-100 text-red-800' :
@@ -228,7 +299,34 @@ const UserManagement = () => {
                       {user.role}
                     </span>
                   </TableCell>
-                  <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      {user.is_manager && (
+                        <span className="flex items-center gap-1 text-xs">
+                          <UserCheck className="h-3 w-3" />
+                          Gestor
+                        </span>
+                      )}
+                      {!user.is_manager && user.role !== 'superadmin' && (
+                        <span className="text-xs text-gray-500">Usuario</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-xs">
+                      {user.is_manager && user.manager_name && (
+                        <div>
+                          <div className="font-medium">{user.manager_name}</div>
+                          {user.manager_position && (
+                            <div className="text-gray-500">{user.manager_position}</div>
+                          )}
+                        </div>
+                      )}
+                      {user.first_name && user.last_name && (
+                        <div>{user.first_name} {user.last_name}</div>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -259,7 +357,7 @@ const UserManagement = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-8 text-black">
+                <TableCell colSpan={5} className="text-center py-8 text-black">
                   No hay usuarios registrados
                 </TableCell>
               </TableRow>

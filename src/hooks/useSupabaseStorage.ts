@@ -12,6 +12,32 @@ export const useSupabaseStorage = () => {
     setIsUploading(true);
     
     try {
+      // Verificar que el archivo sea del tipo correcto
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Tipo de archivo no válido",
+          description: "Solo se permiten archivos PDF y Word",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      // Verificar tamaño del archivo (10MB max)
+      if (file.size > 10485760) {
+        toast({
+          title: "Archivo demasiado grande",
+          description: "El archivo no puede exceder 10MB",
+          variant: "destructive",
+        });
+        return null;
+      }
+
       // Generar nombre único para el archivo
       const fileExt = file.name.split('.').pop();
       const fileName = `${operationId}/${Date.now()}_${file.name}`;

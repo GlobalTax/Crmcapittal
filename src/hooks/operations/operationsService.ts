@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
 
@@ -224,7 +225,9 @@ export const deleteOperationFromDB = async (operationId: string, userRole?: stri
   console.log('Operación eliminada exitosamente por usuario');
 };
 
-export const updateTeaserUrlInDB = async (operationId: string, teaserUrl: string) => {
+export const updateTeaserUrlInDB = async (operationId: string, teaserUrl: string | null) => {
+  console.log('Actualizando teaser_url para operación:', operationId, 'nueva URL:', teaserUrl);
+  
   const { data, error } = await supabase
     .from('operations')
     .update({ 
@@ -236,8 +239,10 @@ export const updateTeaserUrlInDB = async (operationId: string, teaserUrl: string
     .single();
 
   if (error) {
+    console.error('Error actualizando teaser_url:', error);
     throw error;
   }
 
+  console.log('Teaser URL actualizada exitosamente:', data);
   return data;
 };

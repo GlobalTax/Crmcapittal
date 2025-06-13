@@ -9,27 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_users: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       operation_managers: {
         Row: {
           created_at: string
@@ -40,6 +19,7 @@ export type Database = {
           photo: string | null
           position: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -50,6 +30,7 @@ export type Database = {
           photo?: string | null
           position?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -60,6 +41,7 @@ export type Database = {
           photo?: string | null
           position?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -246,6 +228,21 @@ export type Database = {
       get_user_highest_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_users_with_roles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          email: string
+          role: Database["public"]["Enums"]["app_role"]
+          first_name: string
+          last_name: string
+          company: string
+          phone: string
+          is_manager: boolean
+          manager_name: string
+          manager_position: string
+        }[]
       }
       has_role: {
         Args: {
