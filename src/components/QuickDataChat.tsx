@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -143,14 +144,14 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Send className="h-5 w-5" />
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Send className="h-4 w-4 sm:h-5 sm:w-5" />
             Chat de Carga Rápida
           </CardTitle>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
             Formato: Nombre Empresa, CIF, Sector, Tipo Operación, Importe, Moneda, Fecha, Comprador, Vendedor, Estado, Descripción, Ubicación, Email, Teléfono, Facturación, EBITDA, Nombre Proyecto
           </p>
         </CardHeader>
@@ -159,7 +160,8 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
             <Button
               variant="outline"
               onClick={() => setShowOCR(!showOCR)}
-              className="border-black text-black hover:bg-gray-100"
+              className="border-black text-black hover:bg-gray-100 text-sm"
+              size="sm"
             >
               <FileImage className="h-4 w-4 mr-2" />
               {showOCR ? 'Ocultar OCR' : 'Usar OCR'}
@@ -170,14 +172,14 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
             placeholder="Ejemplo: TechCorp SL, B12345678, Tecnología, sale, 5000000, EUR, 2024-01-15, Buyer Corp, TechCorp, available, Venta de empresa tech, Madrid, contact@tech.com, +34600123456, 3000000, 600000, Proyecto Alpha"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="min-h-[120px] font-mono text-sm"
+            className="min-h-[100px] sm:min-h-[120px] font-mono text-xs sm:text-sm resize-none"
           />
           
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               onClick={handleProcess}
               disabled={isProcessing || !input.trim()}
-              className="flex-1"
+              className="flex-1 text-sm"
             >
               {isProcessing ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
@@ -192,22 +194,23 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
                 onClick={handleUpload}
                 disabled={isUploading}
                 variant="default"
-                className="bg-green-600 hover:bg-green-700"
+                className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 text-sm"
               >
                 {isUploading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                 ) : (
                   <Upload className="h-4 w-4 mr-2" />
                 )}
-                Subir {detectedOperations.length} Operaciones
+                <span className="hidden sm:inline">Subir {detectedOperations.length} Operaciones</span>
+                <span className="sm:hidden">Subir ({detectedOperations.length})</span>
               </Button>
             )}
           </div>
 
           {processingErrors.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h4 className="font-medium text-red-800 mb-2">Errores de procesamiento:</h4>
-              <ul className="text-sm text-red-700 space-y-1 max-h-32 overflow-y-auto">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+              <h4 className="font-medium text-red-800 mb-2 text-sm">Errores de procesamiento:</h4>
+              <ul className="text-xs sm:text-sm text-red-700 space-y-1 max-h-32 overflow-y-auto">
                 {processingErrors.map((error, index) => (
                   <li key={index}>• {error}</li>
                 ))}
@@ -223,34 +226,34 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
 
       {detectedOperations.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+              <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
               Operaciones Detectadas ({detectedOperations.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {detectedOperations.map((operation, index) => (
-                <div key={index} className="p-3 border rounded-lg bg-gray-50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium">{operation.company_name}</h4>
+                <div key={index} className="p-3 sm:p-4 border rounded-lg bg-gray-50">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-sm sm:text-base truncate">{operation.company_name}</h4>
                       {operation.project_name && (
-                        <p className="text-sm text-blue-600">{operation.project_name}</p>
+                        <p className="text-xs sm:text-sm text-blue-600 truncate">{operation.project_name}</p>
                       )}
-                      <div className="text-sm text-gray-600 mt-1 grid grid-cols-2 gap-2">
-                        <span>Sector: {operation.sector}</span>
-                        <span>Ubicación: {operation.location || 'N/A'}</span>
+                      <div className="text-xs sm:text-sm text-gray-600 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2">
+                        <span className="truncate">Sector: {operation.sector}</span>
+                        <span className="truncate">Ubicación: {operation.location || 'N/A'}</span>
                         <span>Importe: €{(operation.amount / 1000000).toFixed(1)}M</span>
                         <span>Fecha: {new Date(operation.date).toLocaleDateString('es-ES')}</span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Badge variant="outline">
+                    <div className="flex flex-row sm:flex-col gap-2 sm:items-end">
+                      <Badge variant="outline" className="text-xs">
                         {getOperationTypeLabel(operation.operation_type)}
                       </Badge>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-xs">
                         {getStatusLabel(operation.status)}
                       </Badge>
                     </div>
@@ -264,10 +267,10 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
 
       {input.trim() && detectedOperations.length === 0 && processingErrors.length === 0 && (
         <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center gap-2 text-amber-800">
-              <AlertCircle className="h-5 w-5" />
-              <p className="text-sm">
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              <p className="text-xs sm:text-sm">
                 Haz clic en "Procesar Datos" para analizar el texto pegado y detectar operaciones.
               </p>
             </div>
