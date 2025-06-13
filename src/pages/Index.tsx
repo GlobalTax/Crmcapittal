@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { OperationsList } from "@/components/OperationsList";
 import { AddCompanyDialog } from "@/components/AddCompanyDialog";
-import { SeedOperations } from "@/components/SeedOperations";
 import { useOperations } from "@/hooks/useOperations";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,7 +63,6 @@ const Index = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row justify-center lg:justify-end space-y-2 sm:space-y-0 sm:space-x-2">
-              <SeedOperations />
               <AddCompanyDialog />
             </div>
           </div>
