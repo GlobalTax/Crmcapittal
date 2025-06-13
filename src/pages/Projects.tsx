@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -160,7 +161,6 @@ const Projects = () => {
       ebitda: null,
       annual_growth_rate: null,
       created_by: null,
-      photo_url: null,
       teaser_url: null,
       manager: project.manager
     };
