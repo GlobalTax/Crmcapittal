@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Table, 
@@ -104,7 +103,6 @@ export const AdminOperationsTable = ({
 
   const handleDownloadTeaser = (operation: Operation) => {
     if (operation.teaser_url) {
-      // TODO: Implement actual download functionality
       window.open(operation.teaser_url, '_blank');
     }
   };
@@ -112,18 +110,33 @@ export const AdminOperationsTable = ({
   const handleSaveEdit = async (operationData: Partial<Operation>) => {
     if (!editDialog.operation) return;
     
-    const { error } = await onUpdateOperation(editDialog.operation.id, operationData);
+    console.log('Guardando cambios para operación:', editDialog.operation.id);
+    console.log('Datos a actualizar:', operationData);
     
-    if (error) {
+    try {
+      const { error } = await onUpdateOperation(editDialog.operation.id, operationData);
+      
+      if (error) {
+        console.error('Error al actualizar:', error);
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+      } else {
+        console.log('Operación actualizada exitosamente');
+        toast({
+          title: "Operación actualizada",
+          description: "Los cambios se han guardado correctamente",
+        });
+        setEditDialog({ open: false, operation: null });
+      }
+    } catch (error) {
+      console.error('Error inesperado al actualizar:', error);
       toast({
         title: "Error",
-        description: error,
+        description: "Error inesperado al actualizar la operación",
         variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Operación actualizada",
-        description: "Los cambios se han guardado correctamente",
       });
     }
   };
@@ -182,7 +195,17 @@ export const AdminOperationsTable = ({
           filterSector={filterSector}
           onSectorChange={setFilterSector}
           uniqueSectors={uniqueSectors}
-          filteredCount={filteredOperations.length}
+          filteredCount={operations.filter(operation => {
+            const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                               operation.location?.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const matchesStatus = filterStatus === "all" || operation.status === filterStatus;
+            const matchesSector = filterSector === "all" || operation.sector === filterSector;
+            
+            return matchesSearch && matchesStatus && matchesSector;
+          }).length}
           totalCount={operations.length}
         />
 
@@ -204,7 +227,17 @@ export const AdminOperationsTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOperations.length === 0 ? (
+              {operations.filter(operation => {
+                const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                   operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                   operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                   operation.location?.toLowerCase().includes(searchTerm.toLowerCase());
+                
+                const matchesStatus = filterStatus === "all" || operation.status === filterStatus;
+                const matchesSector = filterSector === "all" || operation.sector === filterSector;
+                
+                return matchesSearch && matchesStatus && matchesSector;
+              }).length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={11} className="text-center py-8">
                     <div className="text-gray-500">
@@ -216,7 +249,17 @@ export const AdminOperationsTable = ({
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredOperations.map((operation) => (
+                operations.filter(operation => {
+                  const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                     operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                     operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                     operation.location?.toLowerCase().includes(searchTerm.toLowerCase());
+                  
+                  const matchesStatus = filterStatus === "all" || operation.status === filterStatus;
+                  const matchesSector = filterSector === "all" || operation.sector === filterSector;
+                  
+                  return matchesSearch && matchesStatus && matchesSector;
+                }).map((operation) => (
                   <OperationTableRow
                     key={operation.id}
                     operation={operation}

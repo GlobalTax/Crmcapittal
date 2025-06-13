@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Operation } from '@/types/Operation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -57,12 +56,24 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
   };
 
   const updateOperation = async (operationId: string, operationData: Partial<Operation>) => {
+    console.log('Hook updateOperation llamado con:', { operationId, operationData });
     setLoading(true);
     try {
       const updatedOperation = await updateOperationInDB(operationId, operationData);
-      setOperations(prev => 
-        prev.map(op => op.id === operationId ? { ...op, ...updatedOperation } as Operation : op)
-      );
+      console.log('Operación actualizada en DB:', updatedOperation);
+      
+      setOperations(prev => {
+        const newOperations = prev.map(op => {
+          if (op.id === operationId) {
+            console.log('Actualizando operación en estado:', op.id);
+            return { ...op, ...updatedOperation } as Operation;
+          }
+          return op;
+        });
+        console.log('Nuevo estado de operaciones:', newOperations);
+        return newOperations;
+      });
+      
       return { data: updatedOperation, error: null };
     } catch (error) {
       console.error('Error updating operation:', error);
