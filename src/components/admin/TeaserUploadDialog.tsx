@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText } from "lucide-react";
+import { Upload, FileText, AlertTriangle } from "lucide-react";
 import { Operation } from "@/types/Operation";
 import { useSupabaseStorage } from "@/hooks/useSupabaseStorage";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface TeaserUploadDialogProps {
   open: boolean;
@@ -22,7 +23,9 @@ export const TeaserUploadDialog = ({
   onUploadComplete 
 }: TeaserUploadDialogProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const { uploadTeaser, isUploading } = useSupabaseStorage();
+  const { uploadTeaser, isUploading, deleteTeaser } = useSupabaseStorage();
+
+  const isReplacingTeaser = operation?.teaser_url;
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -47,6 +50,11 @@ export const TeaserUploadDialog = ({
   const handleUpload = async () => {
     if (!selectedFile || !operation) return;
 
+    // Si estamos reemplazando un teaser, eliminar el anterior primero
+    if (isReplacingTeaser && operation.teaser_url) {
+      await deleteTeaser(operation.teaser_url);
+    }
+
     const teaserUrl = await uploadTeaser(selectedFile, operation.id);
     
     if (teaserUrl) {
@@ -68,7 +76,7 @@ export const TeaserUploadDialog = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            Subir Teaser
+            {isReplacingTeaser ? 'Cambiar Teaser' : 'Subir Teaser'}
           </DialogTitle>
         </DialogHeader>
 
@@ -78,6 +86,15 @@ export const TeaserUploadDialog = ({
               <p className="font-medium">{operation.company_name}</p>
               <p className="text-sm text-gray-600">{operation.sector}</p>
             </div>
+
+            {isReplacingTeaser && (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Al subir un nuevo archivo, se reemplazará el teaser actual de esta operación.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="space-y-4">
               <div className="space-y-2">
@@ -123,12 +140,12 @@ export const TeaserUploadDialog = ({
                 {isUploading ? (
                   <>
                     <Upload className="h-4 w-4 mr-2 animate-spin" />
-                    Subiendo...
+                    {isReplacingTeaser ? 'Cambiando...' : 'Subiendo...'}
                   </>
                 ) : (
                   <>
                     <Upload className="h-4 w-4 mr-2" />
-                    Subir Teaser
+                    {isReplacingTeaser ? 'Cambiar Teaser' : 'Subir Teaser'}
                   </>
                 )}
               </Button>

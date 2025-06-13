@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Download, Upload } from "lucide-react";
+import { CheckCircle, XCircle, Download, Upload, RefreshCw } from "lucide-react";
 import { Operation } from "@/types/Operation";
 
 interface OperationTeaserCellProps {
@@ -27,6 +27,15 @@ export const OperationTeaserCell = ({
           >
             <Download className="h-3 w-3 mr-1" />
             Ver
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onUpload(operation)}
+            className="h-6 px-2 text-xs text-orange-600 hover:text-orange-700"
+          >
+            <RefreshCw className="h-3 w-3 mr-1" />
+            Cambiar
           </Button>
         </>
       ) : (
