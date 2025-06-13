@@ -48,17 +48,16 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
       <div className="flex items-center space-x-2">
         <FavoriteButton operationId={operation.id} size={size} />
         
-        {operation.teaser_url && (
-          <Button 
-            onClick={handleTeaserDownload}
-            size={size} 
-            variant="outline"
-            className="border-black text-black hover:bg-gray-100"
-          >
-            <Download className="h-4 w-4 mr-1" />
-            Teaser
-          </Button>
-        )}
+        <Button 
+          onClick={handleTeaserDownload}
+          size={size} 
+          variant="outline"
+          disabled={!operation.teaser_url}
+          className="border-black text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="h-4 w-4 mr-1" />
+          Teaser
+        </Button>
         
         <Button 
           onClick={handleInfoRequest}
@@ -88,17 +87,16 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
       </div>
       
       <div className="flex items-center space-x-2">
-        {operation.teaser_url && (
-          <Button 
-            onClick={handleTeaserDownload}
-            size="sm" 
-            variant="outline"
-            className="border-black text-black hover:bg-gray-100"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Teaser
-          </Button>
-        )}
+        <Button 
+          onClick={handleTeaserDownload}
+          size="sm" 
+          variant="outline"
+          disabled={!operation.teaser_url}
+          className="border-black text-black hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Teaser
+        </Button>
         
         <Button 
           onClick={handleInfoRequest}
