@@ -40,16 +40,29 @@ export const OperationCardActions = ({ operation, size = 'default', variant = 'd
   const { views, downloads } = generateConsistentAnalytics(operation.id);
 
   const handleTeaserDownload = async () => {
+    console.log('Intentando descargar teaser:', operation.teaser_url);
+    
     if (!operation.teaser_url) {
+      console.error('No hay teaser_url disponible');
       toast.error("No hay teaser disponible para esta operación");
       return;
     }
 
-    // Extraer nombre del archivo del URL o usar nombre por defecto
-    const urlParts = operation.teaser_url.split('/');
-    const fileName = urlParts[urlParts.length - 1] || `teaser-${operation.company_name}.pdf`;
-    
-    await downloadTeaser(operation.teaser_url, fileName);
+    try {
+      // Extraer nombre del archivo del URL o usar nombre por defecto
+      const urlParts = operation.teaser_url.split('/');
+      const fileName = urlParts[urlParts.length - 1] || `teaser-${operation.company_name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      
+      console.log('Descargando con nombre:', fileName);
+      const success = await downloadTeaser(operation.teaser_url, fileName);
+      
+      if (!success) {
+        toast.error("Error al descargar el teaser");
+      }
+    } catch (error) {
+      console.error('Error en handleTeaserDownload:', error);
+      toast.error("Error al descargar el teaser");
+    }
   };
 
   const handleInfoRequest = () => {

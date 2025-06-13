@@ -12,6 +12,8 @@ export const useSupabaseStorage = () => {
     setIsUploading(true);
     
     try {
+      console.log('Iniciando subida de teaser:', file.name, 'para operación:', operationId);
+      
       // Verificar que el archivo sea del tipo correcto
       const allowedTypes = [
         'application/pdf',
@@ -20,9 +22,10 @@ export const useSupabaseStorage = () => {
       ];
       
       if (!allowedTypes.includes(file.type)) {
+        console.error('Tipo de archivo no válido:', file.type);
         toast({
           title: "Tipo de archivo no válido",
-          description: "Solo se permiten archivos PDF y Word",
+          description: "Solo se permiten archivos PDF y Word (.pdf, .doc, .docx)",
           variant: "destructive",
         });
         return null;
@@ -30,6 +33,7 @@ export const useSupabaseStorage = () => {
 
       // Verificar tamaño del archivo (10MB max)
       if (file.size > 10485760) {
+        console.error('Archivo demasiado grande:', file.size);
         toast({
           title: "Archivo demasiado grande",
           description: "El archivo no puede exceder 10MB",
@@ -40,9 +44,35 @@ export const useSupabaseStorage = () => {
 
       // Generar nombre único para el archivo
       const fileExt = file.name.split('.').pop();
-      const fileName = `${operationId}/${Date.now()}_${file.name}`;
+      const timestamp = Date.now();
+      const fileName = `${operationId}/${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       
-      console.log('Subiendo archivo:', fileName);
+      console.log('Subiendo archivo con nombre:', fileName);
+      
+      // Verificar que el bucket existe
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      console.log('Buckets disponibles:', buckets);
+      
+      if (bucketsError) {
+        console.error('Error obteniendo buckets:', bucketsError);
+        toast({
+          title: "Error de configuración",
+          description: "No se pudo acceder al almacenamiento",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      const teaserBucket = buckets?.find(bucket => bucket.id === 'teasers');
+      if (!teaserBucket) {
+        console.error('Bucket teasers no encontrado');
+        toast({
+          title: "Error de configuración",
+          description: "El almacenamiento de teasers no está configurado",
+          variant: "destructive",
+        });
+        return null;
+      }
       
       // Subir archivo a Supabase Storage
       const { data, error } = await supabase.storage
@@ -62,12 +92,14 @@ export const useSupabaseStorage = () => {
         return null;
       }
 
+      console.log('Archivo subido exitosamente:', data);
+
       // Obtener URL pública del archivo
       const { data: urlData } = supabase.storage
         .from('teasers')
         .getPublicUrl(fileName);
 
-      console.log('Archivo subido exitosamente:', urlData.publicUrl);
+      console.log('URL pública generada:', urlData.publicUrl);
       
       toast({
         title: "Teaser subido exitosamente",
@@ -159,6 +191,7 @@ export const useSupabaseStorage = () => {
         return false;
       }
 
+      console.log('Archivo eliminado exitosamente');
       return true;
       
     } catch (error) {
