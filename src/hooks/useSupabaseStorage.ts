@@ -12,6 +12,39 @@ export const useSupabaseStorage = () => {
     setIsUploading(true);
     
     try {
+      // Verificar si el bucket existe, si no, intentar crearlo
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      
+      if (bucketsError) {
+        console.error('Error checking buckets:', bucketsError);
+        toast({
+          title: "Error al verificar storage",
+          description: bucketsError.message,
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      const teaserBucket = buckets?.find(bucket => bucket.id === 'teasers');
+      
+      if (!teaserBucket) {
+        console.log('Bucket "teasers" no existe, intentando crear...');
+        const { error: createBucketError } = await supabase.storage.createBucket('teasers', {
+          public: true,
+          allowedMimeTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+        });
+
+        if (createBucketError) {
+          console.error('Error creating bucket:', createBucketError);
+          toast({
+            title: "Error al crear bucket",
+            description: "No se pudo crear el bucket de storage. Contacta al administrador.",
+            variant: "destructive",
+          });
+          return null;
+        }
+      }
+
       // Generar nombre único para el archivo
       const fileExt = file.name.split('.').pop();
       const fileName = `${operationId}/${Date.now()}_${file.name}`;
