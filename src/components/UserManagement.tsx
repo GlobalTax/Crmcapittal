@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, UserCheck } from "lucide-react";
+import { Plus, Trash2, UserCheck, Camera, X } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 type UserRole = 'superadmin' | 'admin' | 'user';
 
@@ -28,6 +28,8 @@ interface CreateUserData {
 
 const UserManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [formData, setFormData] = useState<CreateUserData>({
     email: '',
     password: '',
@@ -78,7 +80,7 @@ const UserManagement = () => {
 
         // Si es admin, crear también el gestor
         if (userData.role === 'admin' && userData.managerName) {
-          const { error: managerError } = await supabase
+          const { data: managerData, error: managerError } = await supabase
             .from('operation_managers')
             .insert({
               user_id: authData.user.id,
@@ -86,9 +88,26 @@ const UserManagement = () => {
               email: userData.email,
               phone: userData.managerPhone,
               position: userData.managerPosition
-            });
+            })
+            .select()
+            .single();
 
           if (managerError) throw managerError;
+
+          // Si hay una foto seleccionada, subirla
+          if (selectedPhoto && managerData) {
+            try {
+              const photoUrl = await uploadManagerPhoto(managerData.id, selectedPhoto);
+              
+              // Actualizar el gestor con la URL de la foto
+              await supabase
+                .from('operation_managers')
+                .update({ photo: photoUrl })
+                .eq('id', managerData.id);
+            } catch (photoError) {
+              console.error('Error con la foto, pero gestor creado:', photoError);
+            }
+          }
         }
       }
 
@@ -101,6 +120,8 @@ const UserManagement = () => {
       });
       setIsDialogOpen(false);
       setFormData({ email: '', password: '', role: 'user' });
+      setSelectedPhoto(null);
+      setPhotoPreview(null);
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
     onError: (error: any) => {
@@ -138,6 +159,72 @@ const UserManagement = () => {
     },
   });
 
+  const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Por favor selecciona un archivo de imagen",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validar tamaño (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "La imagen debe ser menor a 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSelectedPhoto(file);
+
+    // Crear preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPhotoPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearPhoto = () => {
+    setSelectedPhoto(null);
+    setPhotoPreview(null);
+  };
+
+  const uploadManagerPhoto = async (managerId: string, photoFile: File) => {
+    try {
+      const fileExt = photoFile.name.split('.').pop();
+      const fileName = `${managerId}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('manager-photos')
+        .upload(fileName, photoFile, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('manager-photos')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (err) {
+      console.error('Error subiendo foto:', err);
+      throw err;
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
@@ -165,11 +252,20 @@ const UserManagement = () => {
     deleteUserRoleMutation.mutate(userId);
   };
 
+  const resetForm = () => {
+    setFormData({ email: '', password: '', role: 'user' });
+    setSelectedPhoto(null);
+    setPhotoPreview(null);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold text-black">Gestión de Usuarios</h2>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) resetForm();
+        }}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
@@ -251,6 +347,49 @@ const UserManagement = () => {
                       onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })}
                       placeholder="+34 600 000 000"
                     />
+                  </div>
+
+                  {/* Foto del gestor */}
+                  <div>
+                    <Label>Foto del Gestor</Label>
+                    <div className="flex flex-col items-center space-y-3 mt-2">
+                      <div className="relative">
+                        <Avatar className="h-16 w-16">
+                          <AvatarImage src={photoPreview || undefined} />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {formData.managerName?.split(' ').map(n => n[0]).join('').substring(0, 2) || 'GM'}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        {photoPreview && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0"
+                            onClick={clearPhoto}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="relative overflow-hidden"
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoSelect}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                        <Camera className="h-4 w-4 mr-2" />
+                        {selectedPhoto ? 'Cambiar foto' : 'Seleccionar foto'}
+                      </Button>
+                    </div>
                   </div>
                 </>
               )}
