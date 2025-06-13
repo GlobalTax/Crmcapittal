@@ -1,6 +1,8 @@
 
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 import { Operation } from "@/types/Operation";
 import { getStatusLabel, getOperationTypeLabel } from "@/utils/operationHelpers";
 import { OperationTeaserCell } from "./OperationTeaserCell";

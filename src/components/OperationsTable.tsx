@@ -132,11 +132,7 @@ export const OperationsTable = ({ operations }: OperationsTableProps) => {
                 </TableCell>
 
                 <TableCell>
-                  <OperationCardActions
-                    operation={operation}
-                    size="sm"
-                    variant="minimal"
-                  />
+                  <OperationCardActions operation={operation} />
                 </TableCell>
               </TableRow>
             ))}
