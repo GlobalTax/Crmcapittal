@@ -15,20 +15,23 @@ import { useNavigate } from "react-router-dom";
 interface Project {
   id: string;
   company_name: string;
-  project_name: string;
+  project_name: string | null;
   sector: string;
   operation_type: string;
   amount: number;
   currency: string;
   status: string;
   date: string;
-  location: string;
-  description: string;
+  location: string | null;
+  description: string | null;
   created_at: string;
   manager?: {
+    id: string;
     name: string;
     position: string;
-  };
+    email: string;
+    phone: string;
+  } | null;
 }
 
 const Projects = () => {
@@ -59,9 +62,12 @@ const Projects = () => {
           location,
           description,
           created_at,
-          operation_managers:manager_id (
+          operation_managers!manager_id (
+            id,
             name,
-            position
+            position,
+            email,
+            phone
           )
         `)
         .order('created_at', { ascending: false });
@@ -90,14 +96,19 @@ const Projects = () => {
         throw error;
       }
 
+      console.log('Raw data from Supabase:', data);
+
       // Transform data to match our interface
       return (data || []).map(project => ({
         ...project,
         manager: project.operation_managers ? {
+          id: project.operation_managers.id,
           name: project.operation_managers.name,
-          position: project.operation_managers.position
-        } : undefined
-      }));
+          position: project.operation_managers.position,
+          email: project.operation_managers.email,
+          phone: project.operation_managers.phone
+        } : null
+      })) as Project[];
     },
   });
 
@@ -130,6 +141,17 @@ const Projects = () => {
     }
   };
 
+  const getOperationTypeLabel = (type: string) => {
+    switch (type) {
+      case 'merger': return 'Fusión';
+      case 'sale': return 'Venta';
+      case 'partial_sale': return 'Venta Parcial';
+      case 'buy_mandate': return 'Mandato de Compra';
+      case 'acquisition': return 'Adquisición';
+      default: return type;
+    }
+  };
+
   // Get unique values for filters
   const uniqueSectors = [...new Set(projects?.map(p => p.sector) || [])];
   const uniqueTypes = [...new Set(projects?.map(p => p.operation_type) || [])];
@@ -146,10 +168,11 @@ const Projects = () => {
   }
 
   if (error) {
+    console.error('Projects query error:', error);
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">Error al cargar los proyectos</p>
+          <p className="text-red-600">Error al cargar los proyectos: {error.message}</p>
           <Button onClick={() => window.location.reload()} className="mt-4">
             Intentar de nuevo
           </Button>
@@ -157,6 +180,8 @@ const Projects = () => {
       </div>
     );
   }
+
+  console.log('Final projects data:', projects);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -210,7 +235,7 @@ const Projects = () => {
             <CardContent>
               <div className="text-2xl font-bold">
                 {projects ? formatAmount(
-                  projects.reduce((sum, p) => sum + p.amount, 0), 
+                  projects.reduce((sum, p) => sum + (p.amount || 0), 0), 
                   'EUR'
                 ) : '€0'}
               </div>
@@ -280,7 +305,7 @@ const Projects = () => {
                 <SelectContent>
                   <SelectItem value="all">Todos los tipos</SelectItem>
                   {uniqueTypes.map(type => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                    <SelectItem key={type} value={type}>{getOperationTypeLabel(type)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -339,7 +364,7 @@ const Projects = () => {
                         <TableCell>{project.sector}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">
-                            {project.operation_type}
+                            {getOperationTypeLabel(project.operation_type)}
                           </Badge>
                         </TableCell>
                         <TableCell className="font-medium">

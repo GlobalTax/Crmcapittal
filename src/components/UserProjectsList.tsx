@@ -13,20 +13,14 @@ const UserProjectsList = ({ userId, userName, isManager }: UserProjectsListProps
   const navigate = useNavigate();
 
   const handleViewProjects = () => {
-    // Navegar a la página de proyectos con filtros para este usuario
-    const searchParams = new URLSearchParams();
-    if (isManager) {
-      searchParams.set('manager', userId);
-    } else {
-      searchParams.set('creator', userId);
-    }
-    navigate(`/projects?${searchParams.toString()}`);
+    // Navegar a la página de proyectos
+    navigate('/projects');
   };
 
   return (
     <Button variant="outline" size="sm" onClick={handleViewProjects}>
       <List className="h-4 w-4 mr-1" />
-      Proyectos
+      Ver Proyectos
     </Button>
   );
 };
