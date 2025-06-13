@@ -6,7 +6,6 @@ import { AddCompanyDialog } from "@/components/AddCompanyDialog";
 import { useOperations } from "@/hooks/useOperations";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { OperationAnalytics } from "@/components/OperationAnalytics";
 
 const Index = () => {
   const { operations, loading, error } = useOperations();
@@ -111,9 +110,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-
-        {/* Componente de Analytics */}
-        <OperationAnalytics />
 
         {/* Operations List with integrated filters */}
         <OperationsList />

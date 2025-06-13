@@ -2,6 +2,7 @@
 import { Operation } from "@/types/Operation";
 import { getOperationTypeLabel, formatFinancialValue } from "@/utils/operationHelpers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Eye, Download } from "lucide-react";
 
 interface OperationCardContentProps {
   operation: Operation;
@@ -9,6 +10,10 @@ interface OperationCardContentProps {
 
 export const OperationCardContent = ({ operation }: OperationCardContentProps) => {
   console.log('OperationCardContent - operation.manager:', operation.manager);
+  
+  // Simulamos datos de analytics (en una implementación real vendrían de la base de datos)
+  const views = Math.floor(Math.random() * 500) + 50;
+  const downloads = Math.floor(Math.random() * 100) + 10;
   
   return (
     <div className="space-y-3">
@@ -34,6 +39,18 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
           <span className="text-muted-foreground">
             {operation.annual_growth_rate ? `${operation.annual_growth_rate}%` : 'N/A'}
           </span>
+        </div>
+      </div>
+
+      {/* Analytics sencillos */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted/30 p-2 rounded-lg">
+        <div className="flex items-center space-x-1">
+          <Eye className="h-3 w-3" />
+          <span>{views} vistas</span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <Download className="h-3 w-3" />
+          <span>{downloads} descargas</span>
         </div>
       </div>
 
