@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,33 +43,57 @@ const UserManagement = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ['users-with-roles-complete'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .rpc('get_users_with_roles');
-      
-      if (error) throw error;
-      return data;
+      console.log('Fetching users with roles...');
+      try {
+        const { data, error } = await supabase
+          .rpc('get_users_with_roles');
+        
+        if (error) {
+          console.error('Error fetching users:', error);
+          throw error;
+        }
+        console.log('Users fetched successfully:', data);
+        return data;
+      } catch (err) {
+        console.error('Error in fetchUsers:', err);
+        throw err;
+      }
     }
   });
 
   // Create user mutation actualizada
   const createUserMutation = useMutation({
     mutationFn: async (userData: CreateUserData) => {
-      // Create user via Supabase auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: userData.email,
-        password: userData.password,
-        options: {
-          data: {
-            first_name: userData.firstName,
-            last_name: userData.lastName
+      console.log('Creating user with data:', userData);
+      
+      try {
+        // Create user via Supabase auth
+        console.log('Step 1: Creating auth user...');
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: userData.email,
+          password: userData.password,
+          options: {
+            data: {
+              first_name: userData.firstName,
+              last_name: userData.lastName
+            },
+            emailRedirectTo: `${window.location.origin}/`
           }
+        });
+
+        if (authError) {
+          console.error('Auth error:', authError);
+          throw new Error(`Error de autenticación: ${authError.message}`);
         }
-      });
 
-      if (authError) throw authError;
+        if (!authData.user) {
+          throw new Error('No se pudo crear el usuario en el sistema de autenticación');
+        }
 
-      if (authData.user) {
+        console.log('Auth user created:', authData.user.id);
+
         // Asignar rol
+        console.log('Step 2: Assigning role...');
         const { error: roleError } = await supabase
           .from('user_roles')
           .insert({
@@ -76,10 +101,16 @@ const UserManagement = () => {
             role: userData.role
           });
 
-        if (roleError) throw roleError;
+        if (roleError) {
+          console.error('Role error:', roleError);
+          throw new Error(`Error asignando rol: ${roleError.message}`);
+        }
+
+        console.log('Role assigned successfully');
 
         // Si es admin, crear también el gestor
         if (userData.role === 'admin' && userData.managerName) {
+          console.log('Step 3: Creating manager profile...');
           const { data: managerData, error: managerError } = await supabase
             .from('operation_managers')
             .insert({
@@ -92,28 +123,47 @@ const UserManagement = () => {
             .select()
             .single();
 
-          if (managerError) throw managerError;
+          if (managerError) {
+            console.error('Manager error:', managerError);
+            throw new Error(`Error creando perfil de gestor: ${managerError.message}`);
+          }
+
+          console.log('Manager profile created:', managerData);
 
           // Si hay una foto seleccionada, subirla
           if (selectedPhoto && managerData) {
             try {
+              console.log('Step 4: Uploading manager photo...');
               const photoUrl = await uploadManagerPhoto(managerData.id, selectedPhoto);
               
               // Actualizar el gestor con la URL de la foto
-              await supabase
+              const { error: updateError } = await supabase
                 .from('operation_managers')
                 .update({ photo: photoUrl })
                 .eq('id', managerData.id);
+
+              if (updateError) {
+                console.error('Photo update error:', updateError);
+                // No lanzamos error aquí porque el gestor ya se creó
+              } else {
+                console.log('Photo uploaded and linked successfully');
+              }
             } catch (photoError) {
               console.error('Error con la foto, pero gestor creado:', photoError);
+              // No bloqueamos la creación por errores de foto
             }
           }
         }
-      }
 
-      return authData;
+        console.log('User creation completed successfully');
+        return authData;
+      } catch (error: any) {
+        console.error('Error in createUser mutation:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
+      console.log('User creation mutation succeeded');
       toast({
         title: "Usuario creado",
         description: "El usuario ha sido creado exitosamente",
@@ -125,9 +175,18 @@ const UserManagement = () => {
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
     onError: (error: any) => {
+      console.error('User creation mutation failed:', error);
+      let errorMessage = "Error al crear el usuario";
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Error al crear el usuario",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -136,12 +195,16 @@ const UserManagement = () => {
   // Delete user role mutation
   const deleteUserRoleMutation = useMutation({
     mutationFn: async (userId: string) => {
+      console.log('Deleting user role for:', userId);
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete role error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -151,6 +214,7 @@ const UserManagement = () => {
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
     onError: (error: any) => {
+      console.error('Delete role mutation failed:', error);
       toast({
         title: "Error",
         description: error.message || "Error al eliminar el rol",
@@ -200,6 +264,7 @@ const UserManagement = () => {
 
   const uploadManagerPhoto = async (managerId: string, photoFile: File) => {
     try {
+      console.log('Uploading photo for manager:', managerId);
       const fileExt = photoFile.name.split('.').pop();
       const fileName = `${managerId}.${fileExt}`;
       
@@ -211,6 +276,7 @@ const UserManagement = () => {
         });
 
       if (uploadError) {
+        console.error('Storage upload error:', uploadError);
         throw uploadError;
       }
 
@@ -218,6 +284,7 @@ const UserManagement = () => {
         .from('manager-photos')
         .getPublicUrl(fileName);
 
+      console.log('Photo uploaded successfully:', publicUrl);
       return publicUrl;
     } catch (err) {
       console.error('Error subiendo foto:', err);
@@ -227,6 +294,8 @@ const UserManagement = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted with data:', formData);
+    
     if (!formData.email || !formData.password) {
       toast({
         title: "Error",
