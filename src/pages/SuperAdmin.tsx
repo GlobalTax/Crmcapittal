@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { ArrowLeft, LogOut, Users, BarChart3, Settings, Home } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -85,55 +85,64 @@ const SuperAdmin = () => {
         return <UserManagement />;
       case 'analytics':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-black p-4">
-            <h2 className="text-sm font-semibold text-black mb-3">Analytics Avanzados</h2>
-            <p className="text-black text-xs">Funcionalidad de analytics en desarrollo...</p>
+          <div className="bg-white rounded-xl shadow-sm border border-black p-6">
+            <h2 className="text-lg font-semibold text-black mb-4">Analytics Avanzados</h2>
+            <p className="text-black text-sm">Funcionalidad de analytics en desarrollo...</p>
           </div>
         );
       case 'settings':
         return (
-          <div className="bg-white rounded-xl shadow-sm border border-black p-4">
-            <h2 className="text-sm font-semibold text-black mb-3">Configuración Global</h2>
-            <p className="text-black text-xs">Configuración del sistema en desarrollo...</p>
+          <div className="bg-white rounded-xl shadow-sm border border-black p-6">
+            <h2 className="text-lg font-semibold text-black mb-4">Configuración Global</h2>
+            <p className="text-black text-sm">Configuración del sistema en desarrollo...</p>
           </div>
         );
       default:
         return (
           <>
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
-                <div className="flex items-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-black hover:shadow-md transition-shadow">
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-blue-50 rounded-lg mr-4">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
                   <div>
                     <h3 className="text-sm font-semibold text-black">Gestión de Usuarios</h3>
-                    <p className="text-xs text-black">Administrar roles y permisos</p>
+                    <p className="text-xs text-gray-600">Administrar roles y permisos</p>
                   </div>
                 </div>
-                <Button className="w-full mt-3 text-xs" size="sm" onClick={() => setActiveTab('users')}>
+                <Button className="w-full text-sm" size="sm" onClick={() => setActiveTab('users')}>
                   Gestionar Usuarios
                 </Button>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
-                <div className="flex items-center">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-black hover:shadow-md transition-shadow">
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-green-50 rounded-lg mr-4">
+                    <BarChart3 className="h-6 w-6 text-green-600" />
+                  </div>
                   <div>
                     <h3 className="text-sm font-semibold text-black">Analytics Avanzados</h3>
-                    <p className="text-xs text-black">Reportes y métricas globales</p>
+                    <p className="text-xs text-gray-600">Reportes y métricas globales</p>
                   </div>
                 </div>
-                <Button className="w-full mt-3 text-xs" size="sm" onClick={() => setActiveTab('analytics')}>
+                <Button className="w-full text-sm" size="sm" onClick={() => setActiveTab('analytics')}>
                   Ver Analytics
                 </Button>
               </div>
 
-              <div className="bg-white p-4 rounded-xl shadow-sm border border-black">
-                <div className="flex items-center">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-black hover:shadow-md transition-shadow">
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-purple-50 rounded-lg mr-4">
+                    <Settings className="h-6 w-6 text-purple-600" />
+                  </div>
                   <div>
                     <h3 className="text-sm font-semibold text-black">Configuración Global</h3>
-                    <p className="text-xs text-black">Ajustes del sistema</p>
+                    <p className="text-xs text-gray-600">Ajustes del sistema</p>
                   </div>
                 </div>
-                <Button className="w-full mt-3 text-xs" size="sm" onClick={() => setActiveTab('settings')}>
+                <Button className="w-full text-sm" size="sm" onClick={() => setActiveTab('settings')}>
                   Configurar Sistema
                 </Button>
               </div>
@@ -141,32 +150,33 @@ const SuperAdmin = () => {
 
             {/* System Overview */}
             <div className="bg-white rounded-xl shadow-sm border border-black overflow-hidden">
-              <div className="px-4 py-3 border-b border-black">
-                <h2 className="text-sm font-semibold text-black">Resumen del Sistema</h2>
+              <div className="px-6 py-4 border-b border-black bg-gray-50">
+                <h2 className="text-lg font-semibold text-black">Resumen del Sistema</h2>
+                <p className="text-sm text-gray-600 mt-1">Estado actual de la plataforma</p>
               </div>
-              <div className="p-4">
+              <div className="p-6">
                 {statsLoading ? (
-                  <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                    <p className="text-xs text-black">Cargando estadísticas...</p>
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-3"></div>
+                    <p className="text-sm text-black">Cargando estadísticas...</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-black">{userStats?.adminCount || 0}</p>
-                      <p className="text-xs text-black">Administradores</p>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-black mb-1">{userStats?.adminCount || 0}</p>
+                      <p className="text-sm text-gray-600">Administradores</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-black">{userStats?.superadminCount || 0}</p>
-                      <p className="text-xs text-black">Superadmins</p>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-black mb-1">{userStats?.superadminCount || 0}</p>
+                      <p className="text-sm text-gray-600">Superadmins</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-black">{userStats?.totalUsers || 0}</p>
-                      <p className="text-xs text-black">Usuarios Totales</p>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-black mb-1">{userStats?.totalUsers || 0}</p>
+                      <p className="text-sm text-gray-600">Usuarios Totales</p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-black">100%</p>
-                      <p className="text-xs text-black">Tiempo Actividad</p>
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-green-600 mb-1">100%</p>
+                      <p className="text-sm text-gray-600">Tiempo Actividad</p>
                     </div>
                   </div>
                 )}
@@ -178,38 +188,48 @@ const SuperAdmin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-black shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Navigation row */}
+          <div className="flex items-center justify-between py-4">
+            <div className="flex items-center space-x-4">
               <Link to="/">
-                <Button variant="outline" size="sm" className="text-xs">
-                  <ArrowLeft className="h-3 w-3 mr-1" />
-                  Volver al Portfolio
+                <Button variant="outline" size="sm" className="text-sm flex items-center gap-2">
+                  <Home className="h-4 w-4" />
+                  Inicio
                 </Button>
               </Link>
-              <div className="flex items-center">
-                <h1 className="text-lg font-bold text-black">Panel de Superadministrador</h1>
-                <span className="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                  SUPERADMIN
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="text-right">
-                <p className="text-xs text-black">Bienvenido, {user?.email}</p>
-              </div>
               <Link to="/admin">
-                <Button variant="outline" size="sm" className="text-xs">
+                <Button variant="outline" size="sm" className="text-sm">
                   Panel Admin
                 </Button>
               </Link>
-              <Button variant="outline" onClick={handleSignOut} size="sm" className="text-xs">
-                <LogOut className="h-3 w-3 mr-1" />
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-black">{user?.email}</p>
+                <p className="text-xs text-gray-500">Superadministrador</p>
+              </div>
+              <Button variant="outline" onClick={handleSignOut} size="sm" className="text-sm flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
                 Cerrar Sesión
               </Button>
+            </div>
+          </div>
+          
+          {/* Title row */}
+          <div className="py-6 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-black">Panel de Superadministrador</h1>
+                <p className="text-gray-600 mt-1">Gestión completa del sistema y usuarios</p>
+              </div>
+              <span className="px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
+                SUPERADMIN
+              </span>
             </div>
           </div>
         </div>
@@ -217,41 +237,41 @@ const SuperAdmin = () => {
 
       {/* Navigation Tabs */}
       {activeTab !== 'overview' && (
-        <div className="bg-white border-b border-black">
+        <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex space-x-6">
+            <nav className="flex space-x-8">
               <button
                 onClick={() => setActiveTab('overview')}
-                className="py-3 px-1 border-b-2 border-transparent text-xs font-medium text-black hover:text-blue-600 hover:border-blue-300"
+                className="py-4 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
               >
                 Resumen
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`py-3 px-1 border-b-2 text-xs font-medium ${
+                className={`py-4 px-1 border-b-2 text-sm font-medium transition-colors ${
                   activeTab === 'users'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-black hover:text-blue-600 hover:border-blue-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 Usuarios
               </button>
               <button
                 onClick={() => setActiveTab('analytics')}
-                className={`py-3 px-1 border-b-2 text-xs font-medium ${
+                className={`py-4 px-1 border-b-2 text-sm font-medium transition-colors ${
                   activeTab === 'analytics'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-black hover:text-blue-600 hover:border-blue-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 Analytics
               </button>
               <button
                 onClick={() => setActiveTab('settings')}
-                className={`py-3 px-1 border-b-2 text-xs font-medium ${
+                className={`py-4 px-1 border-b-2 text-sm font-medium transition-colors ${
                   activeTab === 'settings'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-black hover:text-blue-600 hover:border-blue-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 Configuración
@@ -261,7 +281,7 @@ const SuperAdmin = () => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderContent()}
       </div>
     </div>
