@@ -60,28 +60,34 @@ export const TeaserUploadDialog = ({
   const handleUpload = async () => {
     if (!selectedFile || !operation) {
       console.error('No hay archivo seleccionado o operación');
+      setUploadError('Selecciona un archivo válido');
       return;
     }
 
     console.log('Iniciando subida para operación:', operation.id);
     setUploadError(null);
 
-    // Si estamos reemplazando un teaser, eliminar el anterior primero
-    if (isReplacingTeaser && operation.teaser_url) {
-      console.log('Eliminando teaser anterior:', operation.teaser_url);
-      await deleteTeaser(operation.teaser_url);
-    }
+    try {
+      // Si estamos reemplazando un teaser, eliminar el anterior primero
+      if (isReplacingTeaser && operation.teaser_url) {
+        console.log('Eliminando teaser anterior:', operation.teaser_url);
+        await deleteTeaser(operation.teaser_url);
+      }
 
-    const teaserUrl = await uploadTeaser(selectedFile, operation.id);
-    
-    if (teaserUrl) {
-      console.log('Subida exitosa, URL:', teaserUrl);
-      onUploadComplete(operation.id, teaserUrl);
-      setSelectedFile(null);
-      setUploadError(null);
-      onOpenChange(false);
-    } else {
-      setUploadError('Error al subir el archivo. Inténtalo de nuevo.');
+      const teaserUrl = await uploadTeaser(selectedFile, operation.id);
+      
+      if (teaserUrl) {
+        console.log('Subida exitosa, URL:', teaserUrl);
+        onUploadComplete(operation.id, teaserUrl);
+        setSelectedFile(null);
+        setUploadError(null);
+        onOpenChange(false);
+      } else {
+        setUploadError('Error al subir el archivo. Verifica que el archivo sea válido.');
+      }
+    } catch (error) {
+      console.error('Error en handleUpload:', error);
+      setUploadError('Error inesperado al subir el archivo. Inténtalo de nuevo.');
     }
   };
 
