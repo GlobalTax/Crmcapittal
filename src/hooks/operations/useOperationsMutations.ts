@@ -1,142 +1,99 @@
 
+import { useState } from 'react';
 import { Operation } from '@/types/Operation';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   insertOperation, 
+  insertBulkOperations, 
   updateOperationInDB, 
-  updateOperationStatusInDB, 
-  deleteOperationFromDB, 
-  updateTeaserUrlInDB,
-  insertBulkOperations
+  updateOperationStatusInDB,
+  deleteOperationFromDB,
+  updateTeaserUrlInDB
 } from './operationsService';
 
-export const useOperationsMutations = (
-  setOperations: React.Dispatch<React.SetStateAction<Operation[]>>
-) => {
+export const useOperationsMutations = (setOperations: React.Dispatch<React.SetStateAction<Operation[]>>) => {
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  const addOperation = async (operationData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">) => {
+  const addOperation = async (operationData: any) => {
+    if (!user) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    setLoading(true);
     try {
-      if (!user?.id) {
-        throw new Error('Usuario no autenticado');
-      }
-
-      console.log('Datos de operación a insertar:', operationData);
-      const data = await insertOperation(operationData, user.id);
-
-      if (data) {
-        const typedOperation: Operation = {
-          ...data,
-          operation_type: data.operation_type as Operation['operation_type'],
-          status: data.status as Operation['status']
-        };
-        setOperations(prev => [typedOperation, ...prev]);
-      }
-
-      return { data, error: null };
-    } catch (err) {
-      console.error('Error añadiendo operación:', err);
-      return { 
-        data: null, 
-        error: err instanceof Error ? err.message : 'Error al añadir la operación' 
-      };
+      const newOperation = await insertOperation(operationData, user.id);
+      setOperations(prev => [newOperation, ...prev]);
+      return newOperation;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const addBulkOperations = async (operationsData: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">[]) => {
+  const addBulkOperations = async (operationsData: any[], isPublicSample = false) => {
+    // Para operaciones de ejemplo públicas, no requerir autenticación
+    if (!isPublicSample && !user) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    setLoading(true);
     try {
-      if (!user?.id) {
-        throw new Error('Usuario no autenticado');
-      }
-
-      console.log('Datos de operaciones masivas a insertar:', operationsData);
-      const insertedOperations = await insertBulkOperations(operationsData, user.id);
-
-      if (insertedOperations && insertedOperations.length > 0) {
-        const typedOperations: Operation[] = insertedOperations.map(data => ({
-          ...data,
-          operation_type: data.operation_type as Operation['operation_type'],
-          status: data.status as Operation['status']
-        }));
-        
-        setOperations(prev => [...typedOperations, ...prev]);
-      }
-
-      return { data: insertedOperations, error: null };
-    } catch (err) {
-      console.error('Error añadiendo operaciones masivas:', err);
-      return { 
-        data: null, 
-        error: err instanceof Error ? err.message : 'Error al añadir las operaciones' 
-      };
+      // Si es una muestra pública, usar un usuario ficticio o null
+      const userId = isPublicSample ? 'public' : user!.id;
+      const newOperations = await insertBulkOperations(operationsData, userId);
+      setOperations(prev => [...newOperations, ...prev]);
+      return newOperations;
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateOperation = async (operationId: string, operationData: Partial<Operation>) => {
+    setLoading(true);
     try {
-      const data = await updateOperationInDB(operationId, operationData);
-
-      setOperations(prev => prev.map(op => 
-        op.id === operationId 
-          ? { 
-              ...op, 
-              ...operationData, 
-              operation_type: data.operation_type as Operation['operation_type'],
-              status: data.status as Operation['status'],
-              updated_at: data.updated_at 
-            }
-          : op
-      ));
-
-      return { data, error: null };
-    } catch (err) {
-      console.error('Error actualizando operación:', err);
-      return { data: null, error: 'Error al actualizar la operación' };
+      const updatedOperation = await updateOperationInDB(operationId, operationData);
+      setOperations(prev => 
+        prev.map(op => op.id === operationId ? { ...op, ...updatedOperation } : op)
+      );
+      return updatedOperation;
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateOperationStatus = async (operationId: string, newStatus: Operation['status']) => {
+    setLoading(true);
     try {
-      const data = await updateOperationStatusInDB(operationId, newStatus);
-
-      setOperations(prev => prev.map(op => 
-        op.id === operationId 
-          ? { ...op, status: newStatus, updated_at: data.updated_at }
-          : op
-      ));
-
-      return { data, error: null };
-    } catch (err) {
-      console.error('Error actualizando estado de operación:', err);
-      return { data: null, error: 'Error al actualizar el estado de la operación' };
+      const updatedOperation = await updateOperationStatusInDB(operationId, newStatus);
+      setOperations(prev => 
+        prev.map(op => op.id === operationId ? { ...op, status: newStatus } : op)
+      );
+      return updatedOperation;
+    } finally {
+      setLoading(false);
     }
   };
 
   const deleteOperation = async (operationId: string) => {
+    setLoading(true);
     try {
       await deleteOperationFromDB(operationId);
       setOperations(prev => prev.filter(op => op.id !== operationId));
-      return { error: null };
-    } catch (err) {
-      console.error('Error eliminando operación:', err);
-      return { error: 'Error al eliminar la operación' };
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateTeaserUrl = async (operationId: string, teaserUrl: string) => {
+    setLoading(true);
     try {
-      const data = await updateTeaserUrlInDB(operationId, teaserUrl);
-
-      setOperations(prev => prev.map(op => 
-        op.id === operationId 
-          ? { ...op, teaser_url: teaserUrl, updated_at: data.updated_at }
-          : op
-      ));
-
-      return { data, error: null };
-    } catch (err) {
-      console.error('Error actualizando URL del teaser:', err);
-      return { data: null, error: 'Error al actualizar el teaser' };
+      const updatedOperation = await updateTeaserUrlInDB(operationId, teaserUrl);
+      setOperations(prev => 
+        prev.map(op => op.id === operationId ? { ...op, teaser_url: teaserUrl } : op)
+      );
+      return updatedOperation;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,6 +103,7 @@ export const useOperationsMutations = (
     updateOperation,
     updateOperationStatus,
     deleteOperation,
-    updateTeaserUrl
+    updateTeaserUrl,
+    loading
   };
 };

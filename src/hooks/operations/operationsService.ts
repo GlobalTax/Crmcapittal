@@ -114,7 +114,8 @@ export const insertBulkOperations = async (operationsData: any[], userId: string
   console.log('Añadiendo operaciones masivas:', operationsData.length, 'operaciones');
   console.log('Usuario actual:', userId);
 
-  if (!userId) {
+  // Para operaciones públicas de ejemplo, permitir userId = 'public'
+  if (!userId && userId !== 'public') {
     throw new Error('Usuario no autenticado');
   }
 
@@ -137,7 +138,8 @@ export const insertBulkOperations = async (operationsData: any[], userId: string
     contact_email: operationData.contact_email || null,
     contact_phone: operationData.contact_phone || null,
     annual_growth_rate: operationData.annual_growth_rate || null,
-    created_by: userId
+    // Para operaciones de ejemplo públicas, no asignar created_by
+    created_by: userId === 'public' ? null : userId
   }));
 
   console.log('Datos preparados para inserción masiva:', insertData);
