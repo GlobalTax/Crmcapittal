@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Operation } from '@/types/Operation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { 
   insertOperation, 
   insertBulkOperations, 
@@ -14,6 +15,7 @@ import {
 export const useOperationsMutations = (setOperations: React.Dispatch<React.SetStateAction<Operation[]>>) => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const { role } = useUserRole();
 
   const addOperation = async (operationData: any) => {
     if (!user) {
@@ -89,7 +91,7 @@ export const useOperationsMutations = (setOperations: React.Dispatch<React.SetSt
   const deleteOperation = async (operationId: string) => {
     setLoading(true);
     try {
-      await deleteOperationFromDB(operationId);
+      await deleteOperationFromDB(operationId, role);
       setOperations(prev => prev.filter(op => op.id !== operationId));
       return { error: null };
     } catch (error) {
