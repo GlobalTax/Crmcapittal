@@ -13,14 +13,14 @@ interface EditOperationDialogProps {
   operation: Operation | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdateOperation: (operationId: string, data: Partial<Operation>) => Promise<void>;
+  onSave: (operationData: Partial<Operation>) => Promise<void>;
 }
 
 export const EditOperationDialog = ({ 
   operation, 
   open, 
   onOpenChange, 
-  onUpdateOperation 
+  onSave 
 }: EditOperationDialogProps) => {
   const { managers } = useManagers();
   const [formData, setFormData] = useState({
@@ -28,7 +28,7 @@ export const EditOperationDialog = ({
     project_name: "",
     cif: "",
     sector: "",
-    operation_type: "acquisition" as Operation["operation_type"],
+    operation_type: "merger" as Operation["operation_type"],
     amount: "",
     revenue: "",
     ebitda: "",
@@ -98,7 +98,7 @@ export const EditOperationDialog = ({
       manager_id: formData.manager_id || null,
     };
 
-    await onUpdateOperation(operation.id, updateData);
+    await onSave(updateData);
     onOpenChange(false);
   };
 
@@ -161,12 +161,10 @@ export const EditOperationDialog = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="acquisition">Adquisición</SelectItem>
                   <SelectItem value="merger">Fusión</SelectItem>
                   <SelectItem value="sale">Venta</SelectItem>
-                  <SelectItem value="ipo">IPO</SelectItem>
-                  <SelectItem value="investment">Inversión</SelectItem>
-                  <SelectItem value="restructuring">Reestructuración</SelectItem>
+                  <SelectItem value="partial_sale">Venta Parcial</SelectItem>
+                  <SelectItem value="buy_mandate">Mandato de Compra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -260,8 +258,11 @@ export const EditOperationDialog = ({
                 <SelectContent>
                   <SelectItem value="available">Disponible</SelectItem>
                   <SelectItem value="pending_review">Pendiente de revisión</SelectItem>
-                  <SelectItem value="closed">Cerrada</SelectItem>
-                  <SelectItem value="draft">Borrador</SelectItem>
+                  <SelectItem value="approved">Aprobada</SelectItem>
+                  <SelectItem value="rejected">Rechazada</SelectItem>
+                  <SelectItem value="in_process">En proceso</SelectItem>
+                  <SelectItem value="sold">Vendida</SelectItem>
+                  <SelectItem value="withdrawn">Retirada</SelectItem>
                 </SelectContent>
               </Select>
             </div>

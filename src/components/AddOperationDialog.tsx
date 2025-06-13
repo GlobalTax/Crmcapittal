@@ -22,7 +22,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
     project_name: "",
     cif: "",
     sector: "",
-    operation_type: "acquisition" as Operation["operation_type"],
+    operation_type: "merger" as Operation["operation_type"],
     amount: "",
     revenue: "",
     ebitda: "",
@@ -62,7 +62,6 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       contact_phone: formData.contact_phone || null,
       annual_growth_rate: formData.annual_growth_rate ? parseFloat(formData.annual_growth_rate) : null,
       manager_id: formData.manager_id || null,
-      photo_url: null,
       teaser_url: null,
       created_by: null
     };
@@ -76,7 +75,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       project_name: "",
       cif: "",
       sector: "",
-      operation_type: "acquisition",
+      operation_type: "merger",
       amount: "",
       revenue: "",
       ebitda: "",
@@ -151,12 +150,10 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="acquisition">Adquisición</SelectItem>
                   <SelectItem value="merger">Fusión</SelectItem>
                   <SelectItem value="sale">Venta</SelectItem>
-                  <SelectItem value="ipo">IPO</SelectItem>
-                  <SelectItem value="investment">Inversión</SelectItem>
-                  <SelectItem value="restructuring">Reestructuración</SelectItem>
+                  <SelectItem value="partial_sale">Venta Parcial</SelectItem>
+                  <SelectItem value="buy_mandate">Mandato de Compra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -250,8 +247,11 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
                 <SelectContent>
                   <SelectItem value="available">Disponible</SelectItem>
                   <SelectItem value="pending_review">Pendiente de revisión</SelectItem>
-                  <SelectItem value="closed">Cerrada</SelectItem>
-                  <SelectItem value="draft">Borrador</SelectItem>
+                  <SelectItem value="approved">Aprobada</SelectItem>
+                  <SelectItem value="rejected">Rechazada</SelectItem>
+                  <SelectItem value="in_process">En proceso</SelectItem>
+                  <SelectItem value="sold">Vendida</SelectItem>
+                  <SelectItem value="withdrawn">Retirada</SelectItem>
                 </SelectContent>
               </Select>
             </div>
