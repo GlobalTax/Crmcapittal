@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -182,17 +183,19 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
               }
             }
           }
-        } else if (user.is_manager && userData.role !== 'admin') {
+        } else {
           // Remove manager profile if changing from admin to another role
-          console.log('Step 2: Removing manager profile...');
-          const { error: deleteError } = await supabase
-            .from('operation_managers')
-            .delete()
-            .eq('user_id', user.user_id);
+          if (user.is_manager) {
+            console.log('Step 2: Removing manager profile...');
+            const { error: deleteError } = await supabase
+              .from('operation_managers')
+              .delete()
+              .eq('user_id', user.user_id);
 
-          if (deleteError) {
-            console.error('Manager deletion error:', deleteError);
-            throw new Error(`Error eliminando gestor: ${deleteError.message}`);
+            if (deleteError) {
+              console.error('Manager deletion error:', deleteError);
+              throw new Error(`Error eliminando gestor: ${deleteError.message}`);
+            }
           }
         }
 
