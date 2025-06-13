@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,8 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Filter, ArrowLeft, Building, Calendar, DollarSign, MapPin } from "lucide-react";
+import { Search, Filter, ArrowLeft, Building, Calendar, DollarSign, MapPin, Edit, Eye, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { EditOperationDialog } from "@/components/admin/EditOperationDialog";
+import { useOperationsMutations } from "@/hooks/operations/useOperationsMutations";
+import { useToast } from "@/hooks/use-toast";
+import { Operation } from "@/types/Operation";
 
 interface Project {
   id: string;
@@ -25,6 +28,7 @@ interface Project {
   location: string | null;
   description: string | null;
   created_at: string;
+  manager_id?: string | null;
   manager?: {
     id: string;
     name: string;
@@ -39,10 +43,14 @@ const Projects = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [sectorFilter, setSectorFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [editingOperation, setEditingOperation] = useState<Operation | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const { data: projects, isLoading, error } = useQuery({
+  const { data: projects, isLoading, error, refetch } = useQuery({
     queryKey: ['all-projects', searchTerm, statusFilter, sectorFilter, typeFilter],
     queryFn: async () => {
       console.log('Fetching all projects...');
@@ -62,6 +70,15 @@ const Projects = () => {
           location,
           description,
           created_at,
+          manager_id,
+          cif,
+          buyer,
+          seller,
+          contact_email,
+          contact_phone,
+          revenue,
+          ebitda,
+          annual_growth_rate,
           operation_managers!manager_id (
             id,
             name,
@@ -111,6 +128,81 @@ const Projects = () => {
       })) as Project[];
     },
   });
+
+  // Set up mutations for operations
+  const [operations, setOperations] = useState<Operation[]>([]);
+  const { updateOperation } = useOperationsMutations(setOperations);
+
+  const handleEditOperation = (project: Project) => {
+    console.log('Editing operation:', project);
+    // Convert Project to Operation format
+    const operation: Operation = {
+      id: project.id,
+      company_name: project.company_name,
+      project_name: project.project_name,
+      sector: project.sector,
+      operation_type: project.operation_type as Operation['operation_type'],
+      amount: project.amount,
+      currency: project.currency,
+      status: project.status as Operation['status'],
+      date: project.date,
+      location: project.location,
+      description: project.description,
+      created_at: project.created_at,
+      updated_at: project.created_at,
+      manager_id: project.manager_id || null,
+      cif: null,
+      buyer: null,
+      seller: null,
+      contact_email: null,
+      contact_phone: null,
+      revenue: null,
+      ebitda: null,
+      annual_growth_rate: null,
+      created_by: null,
+      photo_url: null,
+      teaser_url: null,
+      manager: project.manager
+    };
+    
+    setEditingOperation(operation);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveOperation = async (operationData: Partial<Operation>) => {
+    if (!editingOperation) return;
+    
+    try {
+      console.log('Saving operation:', operationData);
+      const result = await updateOperation(editingOperation.id, operationData);
+      
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Éxito",
+        description: "Proyecto actualizado correctamente"
+      });
+      
+      // Refresh the projects list
+      refetch();
+      setIsEditDialogOpen(false);
+      setEditingOperation(null);
+    } catch (error) {
+      console.error('Error updating operation:', error);
+      toast({
+        title: "Error",
+        description: "Error al actualizar el proyecto",
+        variant: "destructive"
+      });
+    }
+  };
 
   const formatAmount = (amount: number, currency: string) => {
     return new Intl.NumberFormat('es-ES', {
@@ -345,6 +437,7 @@ const Projects = () => {
                       <TableHead>Gestor</TableHead>
                       <TableHead>Ubicación</TableHead>
                       <TableHead>Fecha</TableHead>
+                      <TableHead>Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -389,6 +482,18 @@ const Projects = () => {
                         <TableCell>
                           {new Date(project.date).toLocaleDateString('es-ES')}
                         </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditOperation(project)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -408,6 +513,14 @@ const Projects = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Operation Dialog */}
+      <EditOperationDialog
+        operation={editingOperation}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSave={handleSaveOperation}
+      />
     </div>
   );
 };
