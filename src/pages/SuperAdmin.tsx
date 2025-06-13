@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import UserManagement from "@/components/UserManagement";
 
 const SuperAdmin = () => {
@@ -13,6 +15,36 @@ const SuperAdmin = () => {
   const { role, loading } = useUserRole();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'settings'>('overview');
+
+  // Fetch user statistics
+  const { data: userStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['user-stats'],
+    queryFn: async () => {
+      console.log('Fetching user statistics...');
+      
+      const { data, error } = await supabase.rpc('get_users_with_roles');
+      
+      if (error) {
+        console.error('Error fetching user stats:', error);
+        throw error;
+      }
+
+      console.log('User stats data:', data);
+
+      // Count users by role
+      const adminCount = data?.filter(u => u.role === 'admin').length || 0;
+      const superadminCount = data?.filter(u => u.role === 'superadmin').length || 0;
+      const userCount = data?.filter(u => u.role === 'user').length || 0;
+      const totalUsers = data?.length || 0;
+
+      return {
+        adminCount,
+        superadminCount,
+        userCount,
+        totalUsers
+      };
+    },
+  });
 
   const handleSignOut = async () => {
     await signOut();
@@ -113,24 +145,31 @@ const SuperAdmin = () => {
                 <h2 className="text-sm font-semibold text-black">Resumen del Sistema</h2>
               </div>
               <div className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-black">0</p>
-                    <p className="text-xs text-black">Administradores</p>
+                {statsLoading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                    <p className="text-xs text-black">Cargando estadísticas...</p>
                   </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-black">1</p>
-                    <p className="text-xs text-black">Superadmins</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-black">{userStats?.adminCount || 0}</p>
+                      <p className="text-xs text-black">Administradores</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-black">{userStats?.superadminCount || 0}</p>
+                      <p className="text-xs text-black">Superadmins</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-black">{userStats?.totalUsers || 0}</p>
+                      <p className="text-xs text-black">Usuarios Totales</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-black">100%</p>
+                      <p className="text-xs text-black">Tiempo Actividad</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-black">0</p>
-                    <p className="text-xs text-black">Usuarios Activos</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-black">100%</p>
-                    <p className="text-xs text-black">Tiempo Actividad</p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </>
