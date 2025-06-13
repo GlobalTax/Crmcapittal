@@ -30,23 +30,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     console.log('AuthProvider: Setting up auth listeners');
     
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('AuthProvider: Auth state changed', event, session?.user?.email || 'no user');
-        setSession(session);
-        setUser(session?.user ?? null);
+    // Get initial session first
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('AuthProvider: Error getting initial session:', error);
+        } else {
+          console.log('AuthProvider: Initial session', session?.user?.email || 'no session');
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('AuthProvider: Error in getInitialSession:', error);
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    // THEN get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('AuthProvider: Initial session', session?.user?.email || 'no session');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    getInitialSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('AuthProvider: Auth state changed', event, session?.user?.email || 'no user');
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Only set loading to false after we've handled the auth state change
+        if (loading) {
+          setLoading(false);
+        }
+      }
+    );
 
     return () => {
       console.log('AuthProvider: Cleaning up subscription');
@@ -90,6 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     console.log('AuthProvider: Signing out');
     await supabase.auth.signOut();
+    setSession(null);
+    setUser(null);
     console.log('AuthProvider: Sign out complete');
   };
 

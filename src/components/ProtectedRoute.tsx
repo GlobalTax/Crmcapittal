@@ -1,6 +1,6 @@
 
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProtectedRouteProps {
@@ -10,14 +10,26 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [hasChecked, setHasChecked] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
+    if (!loading) {
+      setHasChecked(true);
+      
+      if (!user) {
+        console.log('ProtectedRoute: No user found, redirecting to auth');
+        // Store the current location to redirect back after login
+        navigate("/auth", { 
+          state: { from: location.pathname },
+          replace: true 
+        });
+      }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, location.pathname]);
 
-  if (loading) {
+  // Show loading while auth is being determined
+  if (loading || !hasChecked) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
@@ -28,6 +40,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
+  // Don't render anything if there's no user (we're redirecting)
   if (!user) {
     return null;
   }
