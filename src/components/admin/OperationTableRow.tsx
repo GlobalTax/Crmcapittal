@@ -36,6 +36,11 @@ export const OperationTableRow = ({
     }
   };
 
+  const handleViewDetails = () => {
+    // Navegar directamente a la página de detalles en lugar de usar el diálogo
+    window.location.href = `/operation/${operation.id}`;
+  };
+
   return (
     <TableRow className="hover:bg-gray-50">
       <TableCell>
@@ -121,12 +126,17 @@ export const OperationTableRow = ({
       </TableCell>
       
       <TableCell className="text-right">
-        <OperationActionsMenu
-          operation={operation}
-          onView={onViewDetails}
-          onEdit={onEditOperation}
-          onDelete={onDeleteOperation}
-        />
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleViewDetails}>
+            <Eye className="h-4 w-4" />
+          </Button>
+          <OperationActionsMenu
+            operation={operation}
+            onView={onViewDetails}
+            onEdit={onEditOperation}
+            onDelete={onDeleteOperation}
+          />
+        </div>
       </TableCell>
     </TableRow>
   );

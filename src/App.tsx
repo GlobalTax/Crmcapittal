@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +17,7 @@ import CookiesPolicy from "./pages/CookiesPolicy";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
+import OperationDetails from "./pages/OperationDetails";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +72,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Projects />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/operation/:id" 
+              element={
+                <ProtectedRoute>
+                  <OperationDetails />
                 </ProtectedRoute>
               } 
             />
