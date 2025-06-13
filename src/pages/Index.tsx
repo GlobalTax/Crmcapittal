@@ -70,9 +70,9 @@ const Index = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-white">
-        {/* Stats Cards - Más pequeñas */}
+        {/* Stats Cards - Sin efectos hover */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-          <div className="bg-white p-4 sm:p-5 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
+          <div className="bg-white p-4 sm:p-5 rounded-[10px]" style={{ border: '0.5px solid black' }}>
             <div className="flex items-center justify-between">
               <div className="w-full">
                 <div className="flex items-center space-x-2 mb-2">
@@ -86,7 +86,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="bg-white p-4 sm:p-5 rounded-[10px] hover:bg-gray-50 transition-all" style={{ border: '0.5px solid black' }}>
+          <div className="bg-white p-4 sm:p-5 rounded-[10px]" style={{ border: '0.5px solid black' }}>
             <div className="flex items-center justify-between">
               <div className="w-full">
                 <div className="flex items-center space-x-2 mb-2">
@@ -98,7 +98,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="bg-white p-4 sm:p-5 rounded-[10px] hover:bg-gray-50 transition-all sm:col-span-2 lg:col-span-1" style={{ border: '0.5px solid black' }}>
+          <div className="bg-white p-4 sm:p-5 rounded-[10px] sm:col-span-2 lg:col-span-1" style={{ border: '0.5px solid black' }}>
             <div className="flex items-center justify-between">
               <div className="w-full">
                 <div className="flex items-center space-x-2 mb-2">

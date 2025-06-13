@@ -11,7 +11,7 @@ interface OperationCardProps {
 
 export const OperationCard = ({ operation }: OperationCardProps) => {
   return (
-    <Card className="hover:shadow-lg transition-all duration-200 border-black bg-white">
+    <Card className="border-black bg-white">
       <CardHeader className="pb-3">
         <OperationCardHeader operation={operation} />
       </CardHeader>
