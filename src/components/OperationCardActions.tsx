@@ -13,14 +13,30 @@ interface OperationCardActionsProps {
   variant?: 'default' | 'minimal';
 }
 
+// Función para generar datos consistentes basados en el ID de la operación
+const generateConsistentAnalytics = (operationId: string) => {
+  // Usar el ID como semilla para generar números consistentes
+  let hash = 0;
+  for (let i = 0; i < operationId.length; i++) {
+    const char = operationId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Generar números pseudo-aleatorios pero consistentes
+  const views = Math.abs(hash % 450) + 50; // Entre 50 y 500
+  const downloads = Math.abs((hash * 7) % 90) + 10; // Entre 10 y 100
+  
+  return { views, downloads };
+};
+
 export const OperationCardActions = ({ operation, size = 'default', variant = 'default' }: OperationCardActionsProps) => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Simulamos datos de analytics (en una implementación real vendrían de la base de datos)
-  const views = Math.floor(Math.random() * 500) + 50;
-  const downloads = Math.floor(Math.random() * 100) + 10;
+  // Generar datos de analytics consistentes
+  const { views, downloads } = generateConsistentAnalytics(operation.id);
 
   const handleTeaserDownload = async () => {
     if (!operation.teaser_url) {

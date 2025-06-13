@@ -6,17 +6,33 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, Download, TrendingUp, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
 import { useOperations } from "@/hooks/useOperations";
 
+// Función para generar datos consistentes basados en el ID de la operación
+const generateConsistentAnalytics = (operationId: string) => {
+  // Usar el ID como semilla para generar números consistentes
+  let hash = 0;
+  for (let i = 0; i < operationId.length; i++) {
+    const char = operationId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Generar números pseudo-aleatorios pero consistentes
+  const views = Math.abs(hash % 450) + 50; // Entre 50 y 500
+  const downloads = Math.abs((hash * 7) % 90) + 10; // Entre 10 y 100
+  const viewsThisWeek = Math.abs((hash * 3) % 45) + 5; // Entre 5 y 50
+  const downloadsThisWeek = Math.abs((hash * 11) % 18) + 2; // Entre 2 y 20
+  
+  return { views, downloads, viewsThisWeek, downloadsThisWeek };
+};
+
 export const OperationAnalytics = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { operations } = useOperations();
 
-  // Simulamos datos de analytics (en una implementación real vendrían de la base de datos)
+  // Generar datos de analytics consistentes para cada operación
   const analyticsData = operations.map(op => ({
     ...op,
-    views: Math.floor(Math.random() * 500) + 50,
-    downloads: Math.floor(Math.random() * 100) + 10,
-    viewsThisWeek: Math.floor(Math.random() * 50) + 5,
-    downloadsThisWeek: Math.floor(Math.random() * 20) + 2,
+    ...generateConsistentAnalytics(op.id)
   }));
 
   const totalViews = analyticsData.reduce((sum, op) => sum + op.views, 0);
