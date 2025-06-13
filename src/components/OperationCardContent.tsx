@@ -2,7 +2,7 @@
 import { Operation } from "@/types/Operation";
 import { getOperationTypeLabel, formatFinancialValue } from "@/utils/operationHelpers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Eye, Download } from "lucide-react";
+import { Eye, Download, User, Mail, Phone } from "lucide-react";
 
 interface OperationCardContentProps {
   operation: Operation;
@@ -17,6 +17,57 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
   
   return (
     <div className="space-y-3">
+      {/* Información del gestor - Movida al principio y mejorada */}
+      {operation.manager && operation.manager.name && (
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div className="flex items-center space-x-3 mb-3">
+            <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-white shadow-md">
+              <AvatarImage 
+                src={operation.manager.photo} 
+                alt={operation.manager.name}
+              />
+              <AvatarFallback className="bg-black text-white text-sm font-bold">
+                {operation.manager.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2 mb-1">
+                <User className="h-4 w-4 text-gray-600" />
+                <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Gestor Asignado</span>
+              </div>
+              
+              <div className="text-base font-bold text-black mb-1">
+                {operation.manager.name}
+              </div>
+              
+              {operation.manager.position && (
+                <div className="text-sm text-gray-600 font-medium">
+                  {operation.manager.position}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Información de contacto adicional */}
+          <div className="flex flex-wrap gap-3 text-xs">
+            {operation.manager.email && (
+              <div className="flex items-center space-x-1 text-gray-600">
+                <Mail className="h-3 w-3" />
+                <span className="truncate max-w-[150px]">{operation.manager.email}</span>
+              </div>
+            )}
+            
+            {operation.manager.phone && (
+              <div className="flex items-center space-x-1 text-gray-600">
+                <Phone className="h-3 w-3" />
+                <span>{operation.manager.phone}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col space-y-1 text-xs">
         <span className="font-medium text-foreground">Fecha</span>
         <span className="text-muted-foreground">
@@ -52,39 +103,6 @@ export const OperationCardContent = ({ operation }: OperationCardContentProps) =
         </p>
         <p className="text-xs text-muted-foreground line-clamp-2">{operation.description}</p>
       </div>
-
-      {/* Información del gestor */}
-      {operation.manager && operation.manager.name && (
-        <div className="bg-card border border-border rounded-lg p-3 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage 
-                src={operation.manager.photo} 
-                alt={operation.manager.name}
-              />
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-                {operation.manager.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-1 mb-1">
-                <span className="text-xs font-semibold text-foreground">Gestor</span>
-              </div>
-              
-              <div className="text-sm font-medium text-foreground truncate">
-                {operation.manager.name}
-              </div>
-              
-              {operation.manager.position && (
-                <div className="text-xs text-muted-foreground truncate">
-                  {operation.manager.position}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
