@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,7 @@ import { useAdvancedContacts } from '@/hooks/useAdvancedContacts';
 import { ContactsDashboard } from './ContactsDashboard';
 import { AdvancedContactFilters } from './AdvancedContactFilters';
 import { BulkContactOperations } from './BulkContactOperations';
-import { AddContactDialog } from './AddContactDialog';
+import { EnhancedAddContactDialog } from './EnhancedAddContactDialog';
 import { EditContactDialog } from './EditContactDialog';
 import { ContactDetailsView } from './ContactDetailsView';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
@@ -127,12 +126,12 @@ export const EnhancedContactsList = () => {
       {/* Header con navegación por tabs */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Contactos</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Gestión de Contactos M&A</h1>
           <p className="text-gray-600 mt-2">
-            Sistema avanzado para administrar contactos M&A
+            Sistema avanzado para administrar contactos con funcionalidades específicas para M&A
           </p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
+        <Button onClick={() => setIsAddDialogOpen(true)} size="lg" className="bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo Contacto
         </Button>
@@ -334,8 +333,8 @@ export const EnhancedContactsList = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Dialogs */}
-      <AddContactDialog 
+      {/* Enhanced Add Contact Dialog */}
+      <EnhancedAddContactDialog 
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
       />
