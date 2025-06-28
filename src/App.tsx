@@ -17,6 +17,7 @@ import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import SearchPage from "./pages/SearchPage";
 import Management from "./pages/Management";
+import Contacts from "./pages/Contacts";
 import OperationDetails from "./pages/OperationDetails";
 import NotFound from "./pages/NotFound";
 
@@ -101,6 +102,17 @@ const App = () => (
               }
             >
               <Route index element={<SearchPage />} />
+            </Route>
+            
+            <Route
+              path="/contacts"
+              element={
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Contacts />} />
             </Route>
             
             <Route

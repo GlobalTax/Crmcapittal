@@ -9,6 +9,122 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contact_notes: {
+        Row: {
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string
+          note_type: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note: string
+          note_type?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string
+          note_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_notes_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_operations: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          operation_id: string
+          relationship_type: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          operation_id: string
+          relationship_type?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          operation_id?: string
+          relationship_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_operations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_operations_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          company: string | null
+          contact_type: string
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          position: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          contact_type?: string
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          contact_type?: string
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       operation_managers: {
         Row: {
           created_at: string
