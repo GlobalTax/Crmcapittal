@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Contact, ContactNote, ContactOperation, ContactType } from '@/types/Contact';
@@ -24,7 +23,11 @@ export const useContacts = () => {
       // Cast the data to ensure proper typing
       const typedContacts = (data || []).map(contact => ({
         ...contact,
-        contact_type: contact.contact_type as ContactType
+        contact_type: contact.contact_type as ContactType,
+        contact_priority: (contact.contact_priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        is_active: contact.is_active ?? true,
+        language_preference: contact.language_preference || 'es',
+        preferred_contact_method: contact.preferred_contact_method || 'email'
       }));
       
       setContacts(typedContacts);
@@ -53,7 +56,11 @@ export const useContacts = () => {
       // Cast the returned data
       const typedContact = {
         ...data,
-        contact_type: data.contact_type as ContactType
+        contact_type: data.contact_type as ContactType,
+        contact_priority: (data.contact_priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        is_active: data.is_active ?? true,
+        language_preference: data.language_preference || 'es',
+        preferred_contact_method: data.preferred_contact_method || 'email'
       };
       
       setContacts(prev => [typedContact, ...prev]);
@@ -87,7 +94,11 @@ export const useContacts = () => {
       // Cast the returned data
       const typedContact = {
         ...data,
-        contact_type: data.contact_type as ContactType
+        contact_type: data.contact_type as ContactType,
+        contact_priority: (data.contact_priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        is_active: data.is_active ?? true,
+        language_preference: data.language_preference || 'es',
+        preferred_contact_method: data.preferred_contact_method || 'email'
       };
       
       setContacts(prev => prev.map(contact => 

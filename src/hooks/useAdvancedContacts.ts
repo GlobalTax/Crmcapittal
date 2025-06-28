@@ -209,7 +209,16 @@ export const useAdvancedContacts = () => {
           created_by: user?.id,
           interaction_date: new Date().toISOString(),
           interaction_type: interactionData.interaction_type || 'email',
-          ...interactionData
+          interaction_method: interactionData.interaction_method,
+          subject: interactionData.subject,
+          description: interactionData.description,
+          outcome: interactionData.outcome,
+          next_action: interactionData.next_action,
+          next_action_date: interactionData.next_action_date,
+          duration_minutes: interactionData.duration_minutes,
+          location: interactionData.location,
+          attendees: interactionData.attendees,
+          documents_shared: interactionData.documents_shared
         })
         .select()
         .single();
@@ -246,14 +255,22 @@ export const useAdvancedContacts = () => {
 
   const addReminder = async (contactId: string, reminderData: Partial<ContactReminder>) => {
     try {
+      // Ensure required fields are present
+      if (!reminderData.title || !reminderData.reminder_date) {
+        throw new Error('Title and reminder date are required');
+      }
+
       const { data, error } = await supabase
         .from('contact_reminders')
         .insert({
           contact_id: contactId,
           created_by: user?.id,
+          title: reminderData.title,
+          description: reminderData.description,
+          reminder_date: reminderData.reminder_date,
           reminder_type: reminderData.reminder_type || 'follow_up',
           priority: reminderData.priority || 'medium',
-          ...reminderData
+          is_completed: reminderData.is_completed || false
         })
         .select()
         .single();
@@ -288,12 +305,18 @@ export const useAdvancedContacts = () => {
 
   const createTag = async (tagData: Partial<ContactTag>) => {
     try {
+      // Ensure name is present
+      if (!tagData.name) {
+        throw new Error('Tag name is required');
+      }
+
       const { data, error } = await supabase
         .from('contact_tags')
         .insert({
-          created_by: user?.id,
+          name: tagData.name,
           color: tagData.color || '#3B82F6',
-          ...tagData
+          description: tagData.description,
+          created_by: user?.id
         })
         .select()
         .single();
