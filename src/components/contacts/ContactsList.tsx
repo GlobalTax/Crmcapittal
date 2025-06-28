@@ -52,7 +52,7 @@ export const ContactsList = () => {
   };
 
   if (loading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton viewMode="grid" />;
   }
 
   if (selectedContact) {

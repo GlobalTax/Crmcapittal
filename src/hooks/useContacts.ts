@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Contact, ContactNote, ContactOperation } from '@/types/Contact';
+import { Contact, ContactNote, ContactOperation, ContactType } from '@/types/Contact';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,7 +20,14 @@ export const useContacts = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContacts(data || []);
+      
+      // Cast the data to ensure proper typing
+      const typedContacts = (data || []).map(contact => ({
+        ...contact,
+        contact_type: contact.contact_type as ContactType
+      }));
+      
+      setContacts(typedContacts);
     } catch (error) {
       console.error('Error fetching contacts:', error);
       toast({
@@ -43,12 +50,18 @@ export const useContacts = () => {
 
       if (error) throw error;
       
-      setContacts(prev => [data, ...prev]);
+      // Cast the returned data
+      const typedContact = {
+        ...data,
+        contact_type: data.contact_type as ContactType
+      };
+      
+      setContacts(prev => [typedContact, ...prev]);
       toast({
         title: "Éxito",
         description: "Contacto creado correctamente",
       });
-      return data;
+      return typedContact;
     } catch (error) {
       console.error('Error creating contact:', error);
       toast({
@@ -71,15 +84,21 @@ export const useContacts = () => {
 
       if (error) throw error;
       
+      // Cast the returned data
+      const typedContact = {
+        ...data,
+        contact_type: data.contact_type as ContactType
+      };
+      
       setContacts(prev => prev.map(contact => 
-        contact.id === id ? { ...contact, ...data } : contact
+        contact.id === id ? { ...contact, ...typedContact } : contact
       ));
       
       toast({
         title: "Éxito",
         description: "Contacto actualizado correctamente",
       });
-      return data;
+      return typedContact;
     } catch (error) {
       console.error('Error updating contact:', error);
       toast({
@@ -148,7 +167,14 @@ export const useContactNotes = (contactId?: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setNotes(data || []);
+      
+      // Cast the data to ensure proper typing
+      const typedNotes = (data || []).map(note => ({
+        ...note,
+        note_type: note.note_type as ContactNote['note_type']
+      }));
+      
+      setNotes(typedNotes);
     } catch (error) {
       console.error('Error fetching contact notes:', error);
     } finally {
@@ -173,12 +199,18 @@ export const useContactNotes = (contactId?: string) => {
 
       if (error) throw error;
       
-      setNotes(prev => [data, ...prev]);
+      // Cast the returned data
+      const typedNote = {
+        ...data,
+        note_type: data.note_type as ContactNote['note_type']
+      };
+      
+      setNotes(prev => [typedNote, ...prev]);
       toast({
         title: "Nota añadida",
         description: "La nota se ha guardado correctamente",
       });
-      return data;
+      return typedNote;
     } catch (error) {
       console.error('Error adding note:', error);
       toast({
