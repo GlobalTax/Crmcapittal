@@ -568,6 +568,102 @@ export type Database = {
           },
         ]
       }
+      time_entries: {
+        Row: {
+          activity_type: string
+          contact_id: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          end_time: string | null
+          hourly_rate: number | null
+          id: string
+          is_billable: boolean
+          operation_id: string | null
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type?: string
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_billable?: boolean
+          operation_id?: string | null
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_billable?: boolean
+          operation_id?: string | null
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_goals: {
+        Row: {
+          activity_type: string | null
+          created_at: string
+          goal_type: string
+          id: string
+          is_active: boolean
+          target_hours: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type?: string | null
+          created_at?: string
+          goal_type: string
+          id?: string
+          is_active?: boolean
+          target_hours: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string | null
+          created_at?: string
+          goal_type?: string
+          id?: string
+          is_active?: boolean
+          target_hours?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_favorite_operations: {
         Row: {
           created_at: string
