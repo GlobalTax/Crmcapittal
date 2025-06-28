@@ -1,21 +1,17 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Edit, Trash2, Download, Upload, Building, Calendar, DollarSign, User, MapPin, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EditOperationDialog } from "@/components/admin/EditOperationDialog";
 import { useOperationsMutations } from "@/hooks/operations/useOperationsMutations";
 import { useUserRole } from "@/hooks/useUserRole";
-import { FavoriteButton } from "@/components/FavoriteButton";
 import { Operation } from "@/types/Operation";
-import { getStatusLabel, getOperationTypeLabel, getStatusColor } from "@/utils/operationHelpers";
+import { OperationHeader } from "@/components/operation-details/OperationHeader";
+import { OperationBasicInfo } from "@/components/operation-details/OperationBasicInfo";
+import { OperationFinancialInfo } from "@/components/operation-details/OperationFinancialInfo";
+import { OperationTransactionDetails } from "@/components/operation-details/OperationTransactionDetails";
+import { OperationSidebar } from "@/components/operation-details/OperationSidebar";
 
 const OperationDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -157,9 +153,9 @@ const OperationDetails = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error al cargar la operación</p>
-          <Button onClick={() => navigate('/admin')}>
+          <button onClick={() => navigate('/admin')}>
             Volver al panel de administración
-          </Button>
+          </button>
         </div>
       </div>
     );
@@ -168,266 +164,24 @@ const OperationDetails = () => {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigate('/admin')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Volver al Panel
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">{operation.company_name}</h1>
-              <p className="text-slate-600">{operation.project_name || 'Detalles de la operación'}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Badge className={getStatusColor(operation.status)}>
-              {getStatusLabel(operation.status)}
-            </Badge>
-            <FavoriteButton operationId={operation.id} size="default" />
-            {isAdmin && (
-              <>
-                <Button variant="outline" size="sm" onClick={handleEdit}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar
-                </Button>
-                <Button variant="destructive" size="sm" onClick={handleDelete}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Eliminar
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
+        <OperationHeader 
+          operation={operation}
+          isAdmin={isAdmin}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Info */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Basic Information */}
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building className="h-5 w-5" />
-                  Información Básica
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Empresa</label>
-                    <p className="text-sm font-semibold">{operation.company_name}</p>
-                  </div>
-                  {operation.project_name && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Proyecto</label>
-                      <p className="text-sm">{operation.project_name}</p>
-                    </div>
-                  )}
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Sector</label>
-                    <p className="text-sm">{operation.sector}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">Tipo de Operación</label>
-                    <p className="text-sm">{getOperationTypeLabel(operation.operation_type)}</p>
-                  </div>
-                  {operation.cif && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">CIF</label>
-                      <p className="text-sm">{operation.cif}</p>
-                    </div>
-                  )}
-                  {operation.location && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Ubicación</label>
-                      <p className="text-sm flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {operation.location}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                
-                {operation.description && (
-                  <>
-                    <Separator />
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">Descripción</label>
-                      <p className="text-sm mt-2 leading-relaxed">{operation.description}</p>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Financial Information */}
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Información Financiera
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {operation.revenue && (
-                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-100">
-                      <p className="text-2xl font-bold text-green-600">
-                        {formatAmount(operation.revenue, operation.currency)}
-                      </p>
-                      <p className="text-sm text-gray-600">Facturación</p>
-                    </div>
-                  )}
-                  
-                  {operation.ebitda && (
-                    <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-100">
-                      <p className="text-2xl font-bold text-purple-600">
-                        {formatAmount(operation.ebitda, operation.currency)}
-                      </p>
-                      <p className="text-sm text-gray-600">EBITDA</p>
-                    </div>
-                  )}
-                </div>
-
-                {operation.annual_growth_rate && (
-                  <div className="mt-4 text-center p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-                    <p className="text-xl font-bold text-yellow-600">
-                      {operation.annual_growth_rate}%
-                    </p>
-                    <p className="text-sm text-gray-600">Crecimiento Anual</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Transaction Details */}
-            {(operation.buyer || operation.seller) && (
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Detalles de la Transacción</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {operation.buyer && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-600">Comprador</label>
-                        <p className="text-sm">{operation.buyer}</p>
-                      </div>
-                    )}
-                    {operation.seller && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-600">Vendedor</label>
-                        <p className="text-sm">{operation.seller}</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <OperationBasicInfo operation={operation} />
+            <OperationFinancialInfo 
+              operation={operation} 
+              formatAmount={formatAmount}
+            />
+            <OperationTransactionDetails operation={operation} />
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Status & Date */}
-            <Card className="border border-gray-200 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Estado y Fechas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Estado</label>
-                  <div className="mt-1">
-                    <Badge className={getStatusColor(operation.status)}>
-                      {getStatusLabel(operation.status)}
-                    </Badge>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Fecha de Operación</label>
-                  <p className="text-sm">{new Date(operation.date).toLocaleDateString('es-ES')}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Fecha de Creación</label>
-                  <p className="text-sm">{new Date(operation.created_at).toLocaleDateString('es-ES')}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Manager */}
-            {operation.manager && (
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Gestor Asignado
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage 
-                        src={operation.manager.photo} 
-                        alt={operation.manager.name}
-                      />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
-                        {operation.manager.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{operation.manager.name}</p>
-                      {operation.manager.position && (
-                        <p className="text-sm text-gray-600">{operation.manager.position}</p>
-                      )}
-                    </div>
-                  </div>
-                  {operation.manager.email && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="h-4 w-4" />
-                      <a href={`mailto:${operation.manager.email}`} className="text-blue-600 hover:underline">
-                        {operation.manager.email}
-                      </a>
-                    </div>
-                  )}
-                  {operation.manager.phone && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-4 w-4" />
-                      <a href={`tel:${operation.manager.phone}`} className="text-blue-600 hover:underline">
-                        {operation.manager.phone}
-                      </a>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Teaser */}
-            {operation.teaser_url && (
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Documentos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => window.open(operation.teaser_url, '_blank')}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Descargar Teaser
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <OperationSidebar operation={operation} />
         </div>
       </div>
 
