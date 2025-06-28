@@ -67,7 +67,14 @@ export const useTimeTracking = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTimeGoals(data || []);
+      
+      // Cast the goal_type to the correct union type
+      const typedGoals: TimeGoal[] = (data || []).map(goal => ({
+        ...goal,
+        goal_type: goal.goal_type as 'daily' | 'weekly' | 'monthly'
+      }));
+      
+      setTimeGoals(typedGoals);
     } catch (error) {
       console.error('Error fetching time goals:', error);
     }

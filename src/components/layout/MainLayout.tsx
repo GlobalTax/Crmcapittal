@@ -23,7 +23,7 @@ export const MainLayout = () => {
   return (
     <div className="h-screen flex bg-gray-50">
       {/* Sidebar */}
-      <Sidebar isCollapsed={sidebarCollapsed} />
+      <Sidebar />
       
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">

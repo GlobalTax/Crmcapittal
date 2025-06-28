@@ -13,7 +13,8 @@ import {
   Clock,
   DollarSign,
   Globe,
-  Linkedin
+  Linkedin,
+  ArrowLeft
 } from 'lucide-react';
 import { TimeTracker } from '@/components/time-tracking/TimeTracker';
 
@@ -38,10 +39,11 @@ interface Contact {
 
 interface ContactDetailsViewProps {
   contact: Contact;
-  onEdit: () => void;
+  onBack: () => void;
+  onEdit?: () => void;
 }
 
-export const ContactDetailsView = ({ contact, onEdit }: ContactDetailsViewProps) => {
+export const ContactDetailsView = ({ contact, onBack, onEdit }: ContactDetailsViewProps) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
@@ -67,21 +69,29 @@ export const ContactDetailsView = ({ contact, onEdit }: ContactDetailsViewProps)
       <Card>
         <CardHeader>
           <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-2xl">{contact.name}</CardTitle>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline">{contact.contact_type}</Badge>
-                {contact.contact_priority && (
-                  <Badge className={`text-white ${getPriorityColor(contact.contact_priority)}`}>
-                    {contact.contact_priority}
-                  </Badge>
-                )}
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm" onClick={onBack}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver
+              </Button>
+              <div>
+                <CardTitle className="text-2xl">{contact.name}</CardTitle>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="outline">{contact.contact_type}</Badge>
+                  {contact.contact_priority && (
+                    <Badge className={`text-white ${getPriorityColor(contact.contact_priority)}`}>
+                      {contact.contact_priority}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
-            <Button onClick={onEdit} variant="outline">
-              <Edit className="h-4 w-4 mr-2" />
-              Editar
-            </Button>
+            {onEdit && (
+              <Button onClick={onEdit} variant="outline">
+                <Edit className="h-4 w-4 mr-2" />
+                Editar
+              </Button>
+            )}
           </div>
         </CardHeader>
       </Card>
