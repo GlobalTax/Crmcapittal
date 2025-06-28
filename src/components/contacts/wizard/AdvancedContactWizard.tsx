@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useContacts } from '@/hooks/useContacts';
+import { ContactType } from '@/types/Contact';
 import { ContactWizardSteps } from './ContactWizardSteps';
 import { BasicInfoStep } from './steps/BasicInfoStep';
 import { ProfessionalInfoStep } from './steps/ProfessionalInfoStep';
@@ -33,9 +34,9 @@ export const AdvancedContactWizard = ({ open, onOpenChange }: AdvancedContactWiz
     phone: '',
     company: '',
     position: '',
-    contact_type: 'other',
+    contact_type: 'other' as ContactType,
     contact_source: '',
-    contact_priority: 'medium',
+    contact_priority: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
     notes: '',
     linkedin_url: '',
     website_url: '',
@@ -44,7 +45,7 @@ export const AdvancedContactWizard = ({ open, onOpenChange }: AdvancedContactWiz
     language_preference: 'es',
     investment_capacity_min: 0,
     investment_capacity_max: 0,
-    sectors_of_interest: [],
+    sectors_of_interest: [] as string[],
     deal_preferences: '',
     is_active: true,
   });
@@ -89,7 +90,7 @@ export const AdvancedContactWizard = ({ open, onOpenChange }: AdvancedContactWiz
     try {
       setLoading(true);
       
-      // Prepare data for submission
+      // Prepare data for submission with proper typing
       const contactData = {
         ...formData,
         email: formData.email || undefined,
@@ -115,9 +116,9 @@ export const AdvancedContactWizard = ({ open, onOpenChange }: AdvancedContactWiz
         phone: '',
         company: '',
         position: '',
-        contact_type: 'other',
+        contact_type: 'other' as ContactType,
         contact_source: '',
-        contact_priority: 'medium',
+        contact_priority: 'medium' as 'low' | 'medium' |'high' | 'urgent',
         notes: '',
         linkedin_url: '',
         website_url: '',
@@ -126,7 +127,7 @@ export const AdvancedContactWizard = ({ open, onOpenChange }: AdvancedContactWiz
         language_preference: 'es',
         investment_capacity_min: 0,
         investment_capacity_max: 0,
-        sectors_of_interest: [],
+        sectors_of_interest: [] as string[],
         deal_preferences: '',
         is_active: true,
       });
