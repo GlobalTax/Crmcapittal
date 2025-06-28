@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ export const MainDashboard = () => {
   // Calculate key metrics
   const totalValue = operations.reduce((sum, op) => sum + op.amount, 0);
   const activeDeals = operations.filter(op => op.status === 'available').length;
-  const completedDeals = operations.filter(op => op.status === 'completed').length;
+  const completedDeals = operations.filter(op => op.status === 'sold').length;
   const totalDeals = operations.length;
 
   const quickActions = [
