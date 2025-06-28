@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +15,9 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import LegalNotice from "./pages/LegalNotice";
 import CookiesPolicy from "./pages/CookiesPolicy";
+import MADashboardPage from "./pages/MADashboardPage";
+import MAReportsPage from "./pages/MAReportsPage";
+import MASearchPage from "./pages/MASearchPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -40,6 +44,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <UserDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ma-dashboard" 
+              element={
+                <ProtectedRoute>
+                  <MADashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ma-reports" 
+              element={
+                <ProtectedRoute>
+                  <MAReportsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ma-search" 
+              element={
+                <ProtectedRoute>
+                  <MASearchPage />
                 </ProtectedRoute>
               } 
             />
