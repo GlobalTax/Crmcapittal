@@ -38,9 +38,14 @@ export const useAdvancedContacts = () => {
 
       if (contactsError) throw contactsError;
       
-      const typedContacts = (contactsData || []).map(contact => ({
+      // Type cast and sanitize the data from Supabase
+      const typedContacts: Contact[] = (contactsData || []).map(contact => ({
         ...contact,
-        contact_type: contact.contact_type as ContactType
+        contact_type: contact.contact_type as ContactType,
+        contact_priority: (contact.contact_priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        is_active: contact.is_active ?? true,
+        language_preference: contact.language_preference || 'es',
+        preferred_contact_method: contact.preferred_contact_method || 'email'
       }));
       
       setContacts(typedContacts);
@@ -75,7 +80,16 @@ export const useAdvancedContacts = () => {
       .limit(100);
 
     if (!error && data) {
-      setInteractions(data);
+      // Type cast interaction data
+      const typedInteractions: ContactInteraction[] = data.map(interaction => ({
+        ...interaction,
+        interaction_type: interaction.interaction_type as 'email' | 'call' | 'meeting' | 'linkedin' | 'whatsapp' | 'video_call' | 'in_person',
+        interaction_method: interaction.interaction_method as 'inbound' | 'outbound' | undefined,
+        outcome: interaction.outcome as 'positive' | 'negative' | 'neutral' | 'follow_up_needed' | undefined,
+        attendees: interaction.attendees || undefined,
+        documents_shared: interaction.documents_shared || undefined
+      }));
+      setInteractions(typedInteractions);
     }
   };
 
@@ -87,7 +101,14 @@ export const useAdvancedContacts = () => {
       .order('reminder_date', { ascending: true });
 
     if (!error && data) {
-      setReminders(data);
+      // Type cast reminder data
+      const typedReminders: ContactReminder[] = data.map(reminder => ({
+        ...reminder,
+        reminder_type: (reminder.reminder_type as 'follow_up' | 'birthday' | 'meeting' | 'deadline') || 'follow_up',
+        priority: (reminder.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        is_completed: reminder.is_completed ?? false
+      }));
+      setReminders(typedReminders);
     }
   };
 
@@ -98,7 +119,11 @@ export const useAdvancedContacts = () => {
       .order('name');
 
     if (!error && data) {
-      setTags(data);
+      const typedTags: ContactTag[] = data.map(tag => ({
+        ...tag,
+        color: tag.color || '#3B82F6'
+      }));
+      setTags(typedTags);
     }
   };
 
@@ -109,7 +134,11 @@ export const useAdvancedContacts = () => {
       .order('company_name');
 
     if (!error && data) {
-      setCompanies(data);
+      const typedCompanies: ContactCompany[] = data.map(company => ({
+        ...company,
+        is_primary: company.is_primary ?? true
+      }));
+      setCompanies(typedCompanies);
     }
   };
 
@@ -121,7 +150,14 @@ export const useAdvancedContacts = () => {
       .order('name');
 
     if (!error && data) {
-      setTemplates(data);
+      // Type cast template data
+      const typedTemplates: CommunicationTemplate[] = data.map(template => ({
+        ...template,
+        template_type: template.template_type as 'email' | 'linkedin' | 'proposal' | 'follow_up',
+        is_active: template.is_active ?? true,
+        variables: template.variables || undefined
+      }));
+      setTemplates(typedTemplates);
     }
   };
 
@@ -168,24 +204,35 @@ export const useAdvancedContacts = () => {
     try {
       const { data, error } = await supabase
         .from('contact_interactions')
-        .insert([{
+        .insert({
           contact_id: contactId,
           created_by: user?.id,
           interaction_date: new Date().toISOString(),
+          interaction_type: interactionData.interaction_type || 'email',
           ...interactionData
-        }])
+        })
         .select()
         .single();
 
       if (error) throw error;
 
-      setInteractions(prev => [data, ...prev]);
+      // Type cast the returned data
+      const typedInteraction: ContactInteraction = {
+        ...data,
+        interaction_type: data.interaction_type as 'email' | 'call' | 'meeting' | 'linkedin' | 'whatsapp' | 'video_call' | 'in_person',
+        interaction_method: data.interaction_method as 'inbound' | 'outbound' | undefined,
+        outcome: data.outcome as 'positive' | 'negative' | 'neutral' | 'follow_up_needed' | undefined,
+        attendees: data.attendees || undefined,
+        documents_shared: data.documents_shared || undefined
+      };
+
+      setInteractions(prev => [typedInteraction, ...prev]);
       toast({
         title: "Interacción registrada",
         description: "La interacción se ha guardado correctamente",
       });
 
-      return data;
+      return typedInteraction;
     } catch (error) {
       console.error('Error adding interaction:', error);
       toast({
@@ -201,23 +248,33 @@ export const useAdvancedContacts = () => {
     try {
       const { data, error } = await supabase
         .from('contact_reminders')
-        .insert([{
+        .insert({
           contact_id: contactId,
           created_by: user?.id,
+          reminder_type: reminderData.reminder_type || 'follow_up',
+          priority: reminderData.priority || 'medium',
           ...reminderData
-        }])
+        })
         .select()
         .single();
 
       if (error) throw error;
 
-      setReminders(prev => [...prev, data]);
+      // Type cast the returned data
+      const typedReminder: ContactReminder = {
+        ...data,
+        reminder_type: (data.reminder_type as 'follow_up' | 'birthday' | 'meeting' | 'deadline') || 'follow_up',
+        priority: (data.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+        is_completed: data.is_completed ?? false
+      };
+
+      setReminders(prev => [...prev, typedReminder]);
       toast({
         title: "Recordatorio creado",
         description: "El recordatorio se ha programado correctamente",
       });
 
-      return data;
+      return typedReminder;
     } catch (error) {
       console.error('Error adding reminder:', error);
       toast({
@@ -233,22 +290,28 @@ export const useAdvancedContacts = () => {
     try {
       const { data, error } = await supabase
         .from('contact_tags')
-        .insert([{
+        .insert({
           created_by: user?.id,
+          color: tagData.color || '#3B82F6',
           ...tagData
-        }])
+        })
         .select()
         .single();
 
       if (error) throw error;
 
-      setTags(prev => [...prev, data]);
+      const typedTag: ContactTag = {
+        ...data,
+        color: data.color || '#3B82F6'
+      };
+
+      setTags(prev => [...prev, typedTag]);
       toast({
         title: "Etiqueta creada",
         description: "La etiqueta se ha creado correctamente",
       });
 
-      return data;
+      return typedTag;
     } catch (error) {
       console.error('Error creating tag:', error);
       toast({
@@ -264,7 +327,7 @@ export const useAdvancedContacts = () => {
     try {
       const { error } = await supabase
         .from('contact_tag_relations')
-        .insert([{ contact_id: contactId, tag_id: tagId }]);
+        .insert({ contact_id: contactId, tag_id: tagId });
 
       if (error) throw error;
 
