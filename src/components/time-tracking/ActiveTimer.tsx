@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Play, Square } from 'lucide-react';
+import { Play, Square, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TimeEntry } from '@/types/TimeTracking';
 
@@ -45,36 +45,50 @@ export const ActiveTimer: React.FC<ActiveTimerProps> = ({
 
   if (!isTimerRunning || !activeTimer) {
     return (
-      <div className="text-center py-8">
-        <div className="mb-4">
-          <Play className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+      <div className="text-center py-12">
+        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Play className="w-8 h-8 text-gray-400" />
         </div>
-        <p className="text-gray-500 mb-4">No hay temporizador activo</p>
-        <p className="text-sm text-gray-400">
-          Inicia una tarea desde tu plan del día o usa el temporizador manual
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No hay temporizador activo</h3>
+        <p className="text-gray-500 text-sm">
+          Inicia una tarea desde tu plan del día para comenzar a medir el tiempo
         </p>
       </div>
     );
   }
 
   return (
-    <div className="text-center py-6">
+    <div className="text-center py-8">
+      {/* Timer Display */}
+      <div className="relative mb-8">
+        <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <div className="text-white">
+            <div className="text-2xl font-mono font-bold leading-none">
+              {formatTime(elapsedSeconds)}
+            </div>
+          </div>
+        </div>
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white animate-pulse"></div>
+      </div>
+
+      {/* Task Info */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2 text-gray-900">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
           {activeTimer.description || 'Tarea sin título'}
         </h3>
-        <div className="text-4xl font-mono font-bold text-blue-600 mb-4">
-          {formatTime(elapsedSeconds)}
-        </div>
         <p className="text-sm text-gray-500">
-          Iniciado a las {new Date(activeTimer.start_time).toLocaleTimeString()}
+          Iniciado a las {new Date(activeTimer.start_time).toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
         </p>
       </div>
       
+      {/* Stop Button */}
       <Button 
         onClick={onStopTimer}
         size="lg"
-        className="bg-red-600 hover:bg-red-700 text-white"
+        className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
       >
         <Square className="w-5 h-5 mr-2" />
         Detener Temporizador
