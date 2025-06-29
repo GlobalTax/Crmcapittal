@@ -10,6 +10,9 @@ import { PipelineHeader } from "./PipelineHeader";
 import { KanbanBoard } from "./KanbanBoard";
 import { groupItemsByStage } from "./utils/kanbanUtils";
 
+// UUID del pipeline por defecto para DEAL
+const DEFAULT_DEAL_PIPELINE_ID = '00000000-0000-0000-0000-000000000001';
+
 interface FlexibleKanbanPipelineProps {
   pipelineType: PipelineType;
   pipelineId?: string;
@@ -22,8 +25,14 @@ export const FlexibleKanbanPipeline = ({
   onToggleView 
 }: FlexibleKanbanPipelineProps) => {
   const { targetCompanies, loading: targetLoading, updateStatus } = useTargetCompanies();
-  const { deals, loading: dealsLoading, updateDealStage } = useDeals(pipelineId);
-  const { stages, loading: stagesLoading } = useStages(pipelineId);
+  
+  // Use default pipeline ID for DEAL type if none provided
+  const effectivePipelineId = pipelineType === 'DEAL' && !pipelineId 
+    ? DEFAULT_DEAL_PIPELINE_ID 
+    : pipelineId;
+    
+  const { deals, loading: dealsLoading, updateDealStage } = useDeals(effectivePipelineId);
+  const { stages, loading: stagesLoading } = useStages(effectivePipelineId);
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
 
   const loading = targetLoading || dealsLoading || stagesLoading;
@@ -83,7 +92,7 @@ export const FlexibleKanbanPipeline = ({
     <div className="space-y-4">
       <PipelineHeader 
         pipelineType={pipelineType} 
-        pipelineId={pipelineId} 
+        pipelineId={effectivePipelineId} 
         onToggleView={onToggleView} 
       />
       
