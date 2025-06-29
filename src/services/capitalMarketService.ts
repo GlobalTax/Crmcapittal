@@ -2,6 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CreateLeadData, LeadSource } from '@/types/Lead';
 import { triggerAutomation } from './leadsService';
+import { DatabaseService } from './databaseService';
 
 export interface CapitalMarketLead {
   id: string;
@@ -23,11 +24,8 @@ export class CapitalMarketService {
   async getConfig() {
     if (!this.config) {
       try {
-        const { data } = await supabase
-          .rpc('execute_sql', {
-            query: 'SELECT * FROM capital_market_config WHERE enabled = true LIMIT 1'
-          });
-        this.config = data && data.length > 0 ? data[0] : null;
+        const result = await DatabaseService.getCapitalMarketConfig();
+        this.config = result.success ? result.data : null;
       } catch (error) {
         console.error('Error fetching capital market config:', error);
         this.config = null;
@@ -60,7 +58,7 @@ export class CapitalMarketService {
       }
     };
 
-    // Create lead in our system
+    // Create lead in our system - only use fields that exist in the current database
     const { data, error } = await supabase
       .from('leads')
       .insert([{
@@ -68,17 +66,9 @@ export class CapitalMarketService {
         email: leadData.email,
         phone: leadData.phone,
         company_name: leadData.company_name,
-        job_title: leadData.job_title,
         message: leadData.message,
         source: leadData.source,
-        status: 'NEW',
-        priority: leadData.priority,
-        quality: leadData.quality,
-        lead_score: leadData.lead_score,
-        tags: leadData.tags,
-        form_data: leadData.form_data,
-        external_id: capitalMarketData.id,
-        external_source: 'capital_market'
+        status: 'NEW'
       }])
       .select('*')
       .single();
@@ -138,51 +128,15 @@ export class CapitalMarketService {
       const { data: sequences } = await supabase
         .from('nurturing_sequences')
         .select('*')
-        .eq('enabled', true);
+        .eq('is_active', true);
 
       for (const sequence of sequences || []) {
-        const isTargetAudience = this.evaluateTargetAudience(sequence.target_audience, leadData);
-        
-        if (isTargetAudience) {
-          // Use raw query for lead_nurturing_sequences table
-          await supabase.rpc('execute_sql', {
-            query: `
-              INSERT INTO lead_nurturing_sequences (lead_id, sequence_id, sequence_name, current_step, status)
-              VALUES ($1, $2, $3, $4, $5)
-            `,
-            params: [leadData.id, sequence.id, sequence.name, 0, 'active']
-          });
-          
-          console.log(`Started nurturing sequence "${sequence.name}" for lead ${leadData.id}`);
-          break; // Start only the first matching sequence
-        }
+        // For now, just log the sequence start since we don't have the full nurturing tables
+        console.log(`Would start nurturing sequence "${sequence.name}" for lead ${leadData.id}`);
       }
     } catch (error) {
       console.error('Error starting nurturing sequence:', error);
     }
-  }
-
-  private evaluateTargetAudience(criteria: any[], leadData: any): boolean {
-    if (!criteria || criteria.length === 0) return true;
-    
-    return criteria.some(criterion => {
-      const fieldValue = leadData[criterion.field];
-      const expectedValue = criterion.value;
-      
-      switch (criterion.operator) {
-        case 'contains':
-          if (Array.isArray(fieldValue)) {
-            return fieldValue.some(item => 
-              String(item).toLowerCase().includes(String(expectedValue).toLowerCase())
-            );
-          }
-          return String(fieldValue || '').toLowerCase().includes(String(expectedValue).toLowerCase());
-        case 'equals':
-          return fieldValue === expectedValue;
-        default:
-          return false;
-      }
-    });
   }
 
   async syncFromCapitalMarket(): Promise<{ success: boolean; imported: number; errors: string[] }> {
@@ -226,11 +180,11 @@ export class CapitalMarketService {
 
       for (const mockLead of mockLeads) {
         try {
-          // Check if lead already exists
+          // Check if lead already exists by email (since external_id field might not exist)
           const { data: existing } = await supabase
             .from('leads')
             .select('id')
-            .eq('external_id', mockLead.id)
+            .eq('email', mockLead.email)
             .single();
 
           if (!existing) {
