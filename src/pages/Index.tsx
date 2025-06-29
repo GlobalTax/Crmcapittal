@@ -39,12 +39,6 @@ const Index = () => {
     );
   }
 
-  // Handle deal creation
-  const handleCreateDeal = (dealData: any) => {
-    setDeals(prev => [dealData, ...prev]);
-    console.log('Nuevo deal creado:', dealData);
-  };
-
   // HubSpot-style recent activities
   const recentActivities = [
     {
@@ -81,7 +75,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardHeader role={role} onCreateDeal={handleCreateDeal} />
+      <DashboardHeader role={role} />
 
       <div className="p-6 space-y-6">
         <KPIMetrics metrics={kpiMetrics} />

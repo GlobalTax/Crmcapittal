@@ -7,10 +7,9 @@ import { Filter, Download } from "lucide-react";
 
 interface DashboardHeaderProps {
   role: string | null;
-  onCreateDeal: (dealData: any) => void;
 }
 
-export const DashboardHeader = ({ role, onCreateDeal }: DashboardHeaderProps) => {
+export const DashboardHeader = ({ role }: DashboardHeaderProps) => {
   const { user } = useAuth();
 
   return (
@@ -23,7 +22,7 @@ export const DashboardHeader = ({ role, onCreateDeal }: DashboardHeaderProps) =>
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <CreateDealDialog onCreateDeal={onCreateDeal} />
+          <CreateDealDialog pipelineId="default" />
           <Button variant="outline" size="sm" className="border-gray-300">
             <Filter className="h-4 w-4 mr-2" />
             Filtros
