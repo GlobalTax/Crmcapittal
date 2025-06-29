@@ -14,11 +14,11 @@ interface DealCardProps {
 export const DealCard = ({ deal, isDragging }: DealCardProps) => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'baja': return "bg-neutral-50 text-neutral-600 border-neutral-200";
-      case 'media': return "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case 'alta': return "bg-orange-50 text-orange-700 border-orange-200";
-      case 'urgente': return "bg-red-50 text-red-700 border-red-200";
-      default: return "bg-neutral-50 text-neutral-600 border-neutral-200";
+      case 'baja': return "bg-neutral-100 text-neutral-600 border-neutral-200";
+      case 'media': return "bg-neutral-200 text-neutral-700 border-neutral-300";
+      case 'alta': return "bg-neutral-700 text-neutral-50 border-neutral-700";
+      case 'urgente': return "bg-neutral-900 text-neutral-50 border-neutral-900";
+      default: return "bg-neutral-100 text-neutral-600 border-neutral-200";
     }
   };
 

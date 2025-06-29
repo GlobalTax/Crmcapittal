@@ -13,13 +13,13 @@ export const EmailStatusIndicator = ({ status, openedAt, openCount = 0 }: EmailS
   const getStatusIcon = () => {
     switch (status) {
       case 'SENT':
-        return <Check className="h-4 w-4 text-gray-400" />;
+        return <Check className="h-4 w-4 text-neutral-400" />;
       case 'OPENED':
-        return <CheckCheck className="h-4 w-4 text-blue-500" />;
+        return <CheckCheck className="h-4 w-4 text-neutral-600" />;
       case 'CLICKED':
-        return <Mouse className="h-4 w-4 text-green-500" />;
+        return <Mouse className="h-4 w-4 text-neutral-800" />;
       default:
-        return <Check className="h-4 w-4 text-gray-400" />;
+        return <Check className="h-4 w-4 text-neutral-400" />;
     }
   };
 

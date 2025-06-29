@@ -16,7 +16,7 @@ export const ContactRowInfo = ({ name, email, phone }: ContactRowInfoProps) => {
   return (
     <div className="flex items-center space-x-3">
       <Avatar className="h-8 w-8">
-        <AvatarFallback className="bg-orange-100 text-orange-700 text-xs">
+        <AvatarFallback className="bg-neutral-100 text-neutral-700 text-xs">
           {getInitials(name)}
         </AvatarFallback>
       </Avatar>
