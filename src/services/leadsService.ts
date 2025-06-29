@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource } from '@/types/Lead';
 
@@ -15,8 +14,11 @@ export const fetchLeads = async (filters?: {
 
   // Only filter by status if it's one of the database-supported statuses
   // Database only supports: NEW, CONTACTED, QUALIFIED, DISQUALIFIED
-  if (filters?.status && ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(filters.status)) {
-    query = query.eq('status', filters.status);
+  if (filters?.status) {
+    const dbSupportedStatuses = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'];
+    if (dbSupportedStatuses.includes(filters.status)) {
+      query = query.eq('status', filters.status);
+    }
   }
 
   if (filters?.assigned_to_id) {

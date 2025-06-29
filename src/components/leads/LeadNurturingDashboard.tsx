@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ import {
 } from "lucide-react";
 import { useLeadNurturing, useLeadScoring } from "@/hooks/useLeadNurturing";
 import { LeadStage } from "@/types/LeadNurturing";
-import { LeadStatus } from "@/types/Lead";
+import { LeadStatus, Lead } from "@/types/Lead";
 import WebhookSettings from "./WebhookSettings";
 import { LeadManagementDashboard } from "./LeadManagementDashboard";
 import { LeadNurturingPipeline } from "./LeadNurturingPipeline";
