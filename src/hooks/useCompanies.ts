@@ -28,7 +28,14 @@ export const useCompanies = () => {
         throw error;
       }
 
-      return data as Company[];
+      // Transform the data to match the Company type
+      const transformedData = data?.map(company => ({
+        ...company,
+        contacts_count: Array.isArray(company.contacts_count) ? company.contacts_count[0]?.count || 0 : 0,
+        deals_count: Array.isArray(company.deals_count) ? company.deals_count[0]?.count || 0 : 0,
+      })) || [];
+
+      return transformedData as Company[];
     },
   });
 
