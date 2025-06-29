@@ -86,15 +86,15 @@ const Index = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">
+    <div className="space-y-8">
+      <div className="text-center lg:text-left">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h2>
+        <p className="text-gray-600 mt-2">
           Bienvenido a tu panel de control. Aquí tienes un resumen de tu actividad.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
           <StatsCard key={index} {...stat} />
         ))}
@@ -102,32 +102,34 @@ const Index = () => {
 
       {/* Email Stats Section for admin users */}
       {(role === 'admin' || role === 'superadmin') && (
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-gray-900">Estadísticas de Email</h3>
           <EmailStatsCard />
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <ActivityFeed activities={recentActivities} />
+      <div className="grid gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-5">
+          <ActivityFeed activities={recentActivities} />
+        </div>
         
-        <div className="col-span-4 space-y-4">
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-            <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
-            <div className="grid gap-2">
-              <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
-                <div className="font-medium">Explorar Portfolio</div>
-                <div className="text-sm text-muted-foreground">Descubre oportunidades de inversión</div>
+        <div className="lg:col-span-7">
+          <div className="rounded-lg border bg-white shadow-sm p-6">
+            <h3 className="text-xl font-semibold mb-6 text-gray-900">Acciones Rápidas</h3>
+            <div className="grid gap-4">
+              <a href="/portfolio" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                <div className="font-medium text-gray-900">Explorar Portfolio</div>
+                <div className="text-sm text-gray-600 mt-1">Descubre oportunidades de inversión</div>
               </a>
               {role === 'admin' || role === 'superadmin' ? (
                 <>
-                  <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
-                    <div className="font-medium">Gestionar Operaciones</div>
-                    <div className="text-sm text-muted-foreground">Administra el portfolio de operaciones</div>
+                  <a href="/portfolio" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                    <div className="font-medium text-gray-900">Gestionar Operaciones</div>
+                    <div className="text-sm text-gray-600 mt-1">Administra el portfolio de operaciones</div>
                   </a>
-                  <a href="/leads" className="block p-3 rounded-md hover:bg-muted transition-colors">
-                    <div className="font-medium">Ver Leads</div>
-                    <div className="text-sm text-muted-foreground">Gestiona los leads entrantes</div>
+                  <a href="/leads" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                    <div className="font-medium text-gray-900">Ver Leads</div>
+                    <div className="text-sm text-gray-600 mt-1">Gestiona los leads entrantes</div>
                   </a>
                 </>
               ) : null}

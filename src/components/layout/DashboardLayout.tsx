@@ -11,8 +11,8 @@ export const DashboardLayout = () => {
         <AppSidebar />
         <SidebarInset className="flex-1 flex flex-col">
           <GlobalHeader />
-          <main className="flex-1 overflow-auto">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main className="flex-1 overflow-auto bg-gray-50/30">
+            <div className="w-full max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 py-8">
               <Outlet />
             </div>
           </main>
