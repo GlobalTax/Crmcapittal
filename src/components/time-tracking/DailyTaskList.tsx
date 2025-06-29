@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Play, Clock, CheckCircle, Pause, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PlannedTask } from '@/types/TimeTracking';
@@ -19,28 +20,38 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
     switch (status) {
       case 'PENDING':
         return {
-          color: 'bg-neutral-100 text-neutral-700 border-neutral-200',
+          icon: Circle,
+          color: 'bg-gray-100 text-gray-700 border-gray-200',
           text: 'Pendiente',
+          iconColor: 'text-gray-400'
         };
       case 'IN_PROGRESS':
         return {
-          color: 'bg-neutral-200 text-neutral-800 border-neutral-300',
+          icon: Play,
+          color: 'bg-blue-100 text-blue-700 border-blue-200',
           text: 'En Progreso',
+          iconColor: 'text-blue-500'
         };
       case 'COMPLETED':
         return {
-          color: 'bg-neutral-800 text-neutral-50 border-neutral-800',
+          icon: CheckCircle,
+          color: 'bg-green-100 text-green-700 border-green-200',
           text: 'Completado',
+          iconColor: 'text-green-500'
         };
       case 'ON_HOLD':
         return {
-          color: 'bg-neutral-300 text-neutral-800 border-neutral-400',
+          icon: Pause,
+          color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
           text: 'En Pausa',
+          iconColor: 'text-yellow-500'
         };
       default:
         return {
-          color: 'bg-neutral-100 text-neutral-700 border-neutral-200',
+          icon: Circle,
+          color: 'bg-gray-100 text-gray-700 border-gray-200',
           text: status,
+          iconColor: 'text-gray-400'
         };
     }
   };
@@ -49,7 +60,7 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <div className="w-6 h-6 bg-gray-400 rounded-sm"></div>
+          <Clock className="w-6 h-6 text-gray-400" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">No hay tareas planificadas</h3>
         <p className="text-gray-500 text-sm">
@@ -72,7 +83,7 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-5 h-5 bg-neutral-400 rounded-sm"></div>
+                  <statusConfig.icon className={`w-5 h-5 ${statusConfig.iconColor}`} />
                   <h4 className="font-medium text-gray-900">{task.title}</h4>
                 </div>
                 
@@ -87,7 +98,7 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
                   
                   {task.estimated_duration && (
                     <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <div className="w-3 h-3 bg-gray-400 rounded-sm"></div>
+                      <Clock className="w-3 h-3" />
                       {task.estimated_duration} min
                     </span>
                   )}
@@ -100,23 +111,23 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
                     onClick={() => onStartTimer(task.id)}
                     disabled={isTimerRunning}
                     size="sm"
-                    className="bg-neutral-700 hover:bg-neutral-800 text-white"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    <div className="w-4 h-4 mr-1 bg-white rounded-sm"></div>
+                    <Play className="w-4 h-4 mr-1" />
                     Iniciar
                   </Button>
                 )}
                 
                 {task.status === 'IN_PROGRESS' && (
-                  <Badge className="bg-neutral-200 text-neutral-800 px-3 py-1">
-                    <div className="w-3 h-3 mr-1 bg-neutral-800 rounded-sm"></div>
+                  <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                    <Play className="w-3 h-3 mr-1" />
                     En curso
                   </Badge>
                 )}
                 
                 {task.status === 'COMPLETED' && (
-                  <Badge className="bg-neutral-800 text-neutral-50 px-3 py-1">
-                    <div className="w-3 h-3 mr-1 bg-neutral-50 rounded-sm"></div>
+                  <Badge className="bg-green-100 text-green-800 px-3 py-1">
+                    <CheckCircle className="w-3 h-3 mr-1" />
                     Completado
                   </Badge>
                 )}

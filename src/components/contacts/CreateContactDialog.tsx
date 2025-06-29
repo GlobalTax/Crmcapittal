@@ -80,7 +80,7 @@ export const CreateContactDialog = ({ onCreateContact, isCreating = false }: Cre
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-neutral-900 hover:bg-neutral-800 text-white">
+        <Button className="bg-orange-600 hover:bg-orange-700 text-white">
           <Plus className="h-4 w-4 mr-2" />
           Crear Contacto
         </Button>
@@ -88,7 +88,7 @@ export const CreateContactDialog = ({ onCreateContact, isCreating = false }: Cre
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
-            <User className="h-5 w-5 mr-2 text-neutral-600" />
+            <User className="h-5 w-5 mr-2 text-orange-600" />
             Crear Nuevo Contacto
           </DialogTitle>
         </DialogHeader>
@@ -110,7 +110,7 @@ export const CreateContactDialog = ({ onCreateContact, isCreating = false }: Cre
             </Button>
             <Button 
               type="submit" 
-              className="bg-neutral-900 hover:bg-neutral-800 text-white"
+              className="bg-orange-600 hover:bg-orange-700 text-white"
               disabled={isCreating}
             >
               {isCreating ? "Creando..." : "Crear Contacto"}

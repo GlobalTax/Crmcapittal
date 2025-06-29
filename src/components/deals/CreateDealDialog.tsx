@@ -12,14 +12,11 @@ import { FinancialInfo } from "./forms/FinancialInfo";
 import { ContactSelector } from "./forms/ContactSelector";
 import { AdditionalInfo } from "./forms/AdditionalInfo";
 
-// UUID del pipeline por defecto creado en la base de datos
-const DEFAULT_PIPELINE_ID = '00000000-0000-0000-0000-000000000001';
-
 interface CreateDealDialogProps {
-  pipelineId?: string;
+  pipelineId: string;
 }
 
-export const CreateDealDialog = ({ pipelineId = DEFAULT_PIPELINE_ID }: CreateDealDialogProps) => {
+export const CreateDealDialog = ({ pipelineId }: CreateDealDialogProps) => {
   const [open, setOpen] = useState(false);
   const { stages } = useStages(pipelineId);
   const { createDeal } = useDeals();
@@ -118,7 +115,7 @@ export const CreateDealDialog = ({ pipelineId = DEFAULT_PIPELINE_ID }: CreateDea
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-neutral-900 hover:bg-neutral-800 text-white">
+        <Button className="bg-orange-600 hover:bg-orange-700 text-white">
           <Plus className="h-4 w-4 mr-2" />
           Crear Deal M&A
         </Button>
@@ -126,7 +123,7 @@ export const CreateDealDialog = ({ pipelineId = DEFAULT_PIPELINE_ID }: CreateDea
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
-            <Building2 className="h-5 w-5 mr-2 text-neutral-600" />
+            <Building2 className="h-5 w-5 mr-2 text-orange-600" />
             Crear Nuevo Deal M&A
           </DialogTitle>
         </DialogHeader>
@@ -148,7 +145,7 @@ export const CreateDealDialog = ({ pipelineId = DEFAULT_PIPELINE_ID }: CreateDea
             </Button>
             <Button 
               type="submit" 
-              className="bg-neutral-900 hover:bg-neutral-800 text-white"
+              className="bg-orange-600 hover:bg-orange-700 text-white"
             >
               Crear Deal M&A
             </Button>

@@ -33,7 +33,7 @@ export const QuickActions = ({ actions, role }: QuickActionsProps) => {
               <Link key={index} to={action.href}>
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start hover:bg-neutral-100 hover:text-neutral-900"
+                  className="w-full justify-start hover:bg-orange-50 hover:text-orange-700"
                 >
                   <action.icon className="h-4 w-4 mr-3" />
                   {action.title}

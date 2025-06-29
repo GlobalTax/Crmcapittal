@@ -22,12 +22,12 @@ export const DashboardHeader = ({ role }: DashboardHeaderProps) => {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <CreateDealDialog pipelineId="00000000-0000-0000-0000-000000000001" />
-          <Button variant="outline" size="sm" className="border-gray-300 bg-white">
+          <CreateDealDialog pipelineId="default" />
+          <Button variant="outline" size="sm" className="border-gray-300">
             <Filter className="h-4 w-4 mr-2" />
             Filtros
           </Button>
-          <Button variant="outline" size="sm" className="border-gray-300 bg-white">
+          <Button variant="outline" size="sm" className="border-gray-300">
             <Download className="h-4 w-4 mr-2" />
             Exportar
           </Button>

@@ -10,22 +10,22 @@ const statusConfig = {
   NEW: {
     label: 'Nuevo',
     variant: 'secondary' as const,
-    className: 'bg-neutral-100 text-neutral-800 hover:bg-neutral-100'
+    className: 'bg-blue-100 text-blue-800 hover:bg-blue-100'
   },
   CONTACTED: {
     label: 'Contactado',
     variant: 'secondary' as const,
-    className: 'bg-neutral-200 text-neutral-900 hover:bg-neutral-200'
+    className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
   },
   QUALIFIED: {
     label: 'Calificado',
     variant: 'secondary' as const,
-    className: 'bg-neutral-300 text-neutral-900 hover:bg-neutral-300'
+    className: 'bg-green-100 text-green-800 hover:bg-green-100'
   },
   DISQUALIFIED: {
     label: 'Descalificado',
     variant: 'secondary' as const,
-    className: 'bg-neutral-800 text-neutral-50 hover:bg-neutral-800'
+    className: 'bg-red-100 text-red-800 hover:bg-red-100'
   }
 };
 

@@ -20,34 +20,17 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+				sans: ['Manrope', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
-				xs: 'var(--radius-xs)',
-				sm: 'var(--radius-sm)',
-				DEFAULT: 'var(--radius)',
-				md: 'var(--radius-md)',
-				lg: 'var(--radius-lg)',
-				xl: 'var(--radius-xl)',
-				'2xl': 'var(--radius-2xl)',
+				sm: '10px',
+				lg: 'var(--radius)',
+				md: 'calc(var(--radius) - 2px)',
 			},
 			borderWidth: {
 				'0.5': '0.5px',
 			},
 			colors: {
-				neutral: {
-					50: 'hsl(var(--neutral-50))',
-					100: 'hsl(var(--neutral-100))',
-					200: 'hsl(var(--neutral-200))',
-					300: 'hsl(var(--neutral-300))',
-					400: 'hsl(var(--neutral-400))',
-					500: 'hsl(var(--neutral-500))',
-					600: 'hsl(var(--neutral-600))',
-					700: 'hsl(var(--neutral-700))',
-					800: 'hsl(var(--neutral-800))',
-					900: 'hsl(var(--neutral-900))',
-					950: 'hsl(var(--neutral-950))',
-				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -91,19 +74,6 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
-			},
-			boxShadow: {
-				'xs': 'var(--shadow-xs)',
-				'subtle': 'var(--shadow-sm)',
-				'soft': 'var(--shadow)',
-				'medium': 'var(--shadow-md)',
-				'elevated': 'var(--shadow-lg)',
-				'floating': 'var(--shadow-xl)',
-				'deep': 'var(--shadow-2xl)',
-			},
-			spacing: {
-				'18': '4.5rem',
-				'88': '22rem',
 			},
 			keyframes: {
 				'accordion-down': {

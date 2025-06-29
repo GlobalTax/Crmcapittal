@@ -25,7 +25,7 @@ export const GlobalHeader = () => {
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-white backdrop-blur supports-[backdrop-filter]:bg-white px-4">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
       <div className="flex items-center gap-4">
         <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-2">
@@ -55,7 +55,7 @@ export const GlobalHeader = () => {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-white" align="end" forceMount>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
             <div className="flex items-center justify-start gap-2 p-2">
               <div className="flex flex-col space-y-1 leading-none">
                 <p className="font-medium">{user?.email}</p>

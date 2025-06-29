@@ -22,8 +22,7 @@ export const useStages = (pipelineId?: string) => {
         .eq('is_active', true)
         .order('order_index', { ascending: true });
 
-      // Only add pipeline filter if a valid UUID is provided
-      if (pipelineId && pipelineId !== 'default' && pipelineId.match(/^[0-9a-f-]+$/i)) {
+      if (pipelineId) {
         query = query.eq('pipeline_id', pipelineId);
       }
 
