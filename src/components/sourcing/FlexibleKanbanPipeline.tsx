@@ -1,18 +1,14 @@
 
 import { useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { DropResult } from "react-beautiful-dnd";
 import { useTargetCompanies } from "@/hooks/useTargetCompanies";
 import { useDeals } from "@/hooks/useDeals";
 import { useStages } from "@/hooks/useStages";
-import { TargetCompany, TargetStatus } from "@/types/TargetCompany";
-import { Deal } from "@/types/Deal";
+import { TargetStatus } from "@/types/TargetCompany";
 import { PipelineType } from "@/types/Pipeline";
-import { KanbanColumn } from "./KanbanColumn";
-import { KanbanCard } from "./KanbanCard";
-import { DealCard } from "@/components/deals/DealCard";
-import { CreateDealDialog } from "@/components/deals/CreateDealDialog";
-import { Button } from "@/components/ui/button";
-import { Table, Plus } from "lucide-react";
+import { PipelineHeader } from "./PipelineHeader";
+import { KanbanBoard } from "./KanbanBoard";
+import { groupItemsByStage } from "./utils/kanbanUtils";
 
 interface FlexibleKanbanPipelineProps {
   pipelineType: PipelineType;
@@ -33,28 +29,7 @@ export const FlexibleKanbanPipeline = ({
   const loading = targetLoading || dealsLoading || stagesLoading;
 
   // Group items by stage
-  const itemsByStage = stages.reduce((acc, stage) => {
-    if (pipelineType === 'DEAL') {
-      acc[stage.id] = deals.filter(deal => deal.stage_id === stage.id);
-    } else if (pipelineType === 'TARGET_COMPANY') {
-      // For target companies, we still use the old status-based grouping
-      const statusColumns: { id: TargetStatus; stageId?: string }[] = [
-        { id: 'IDENTIFIED' },
-        { id: 'RESEARCHING' },
-        { id: 'OUTREACH_PLANNED' },
-        { id: 'CONTACTED' },
-        { id: 'IN_CONVERSATION' },
-        { id: 'ON_HOLD' },
-        { id: 'CONVERTED_TO_DEAL' }
-      ];
-      
-      const matchingStatus = statusColumns.find((_, index) => index === stage.order_index - 1);
-      if (matchingStatus) {
-        acc[stage.id] = targetCompanies.filter(company => company.status === matchingStatus.id);
-      }
-    }
-    return acc;
-  }, {} as Record<string, (Deal | TargetCompany)[]>);
+  const itemsByStage = groupItemsByStage(stages, pipelineType, deals, targetCompanies);
 
   const handleDragEnd = async (result: DropResult) => {
     setDraggedCard(null);
@@ -96,41 +71,6 @@ export const FlexibleKanbanPipeline = ({
     setDraggedCard(start.draggableId);
   };
 
-  const renderCard = (item: Deal | TargetCompany, index: number) => {
-    const isDragging = draggedCard === item.id;
-    
-    if (pipelineType === 'DEAL' && 'deal_name' in item) {
-      return (
-        <Draggable key={item.id} draggableId={item.id} index={index}>
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-            >
-              <DealCard deal={item} isDragging={isDragging} />
-            </div>
-          )}
-        </Draggable>
-      );
-    } else if ('name' in item) {
-      return (
-        <Draggable key={item.id} draggableId={item.id} index={index}>
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-            >
-              <KanbanCard company={item} />
-            </div>
-          )}
-        </Draggable>
-      );
-    }
-    return null;
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -139,72 +79,22 @@ export const FlexibleKanbanPipeline = ({
     );
   }
 
-  const getTitle = () => {
-    switch (pipelineType) {
-      case 'DEAL': return 'Pipeline de Deals M&A';
-      case 'TARGET_COMPANY': return 'Pipeline de Empresas Objetivo';
-      case 'LEAD': return 'Pipeline de Leads';
-      case 'OPERACION': return 'Pipeline de Operaciones';
-      case 'PROYECTO': return 'Pipeline de Proyectos';
-      default: return 'Pipeline';
-    }
-  };
-
   return (
     <div className="space-y-4">
-      {/* Header with toggle and create button */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">{getTitle()}</h3>
-        <div className="flex gap-2">
-          {pipelineType === 'DEAL' && pipelineId && (
-            <CreateDealDialog pipelineId={pipelineId} />
-          )}
-          <Button
-            onClick={onToggleView}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Table className="h-4 w-4" />
-            Vista Tabla
-          </Button>
-        </div>
-      </div>
-
-      {/* Kanban Board */}
-      <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {stages.map((stage) => (
-            <div key={stage.id} className="flex-shrink-0 w-80">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-medium text-gray-900">{stage.name}</h4>
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: stage.color }}
-                  />
-                </div>
-                
-                <Droppable droppableId={stage.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`min-h-[200px] ${
-                        snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200 border-dashed' : ''
-                      }`}
-                    >
-                      {(itemsByStage[stage.id] || []).map((item, index) => 
-                        renderCard(item, index)
-                      )}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            </div>
-          ))}
-        </div>
-      </DragDropContext>
+      <PipelineHeader 
+        pipelineType={pipelineType} 
+        pipelineId={pipelineId} 
+        onToggleView={onToggleView} 
+      />
+      
+      <KanbanBoard
+        stages={stages}
+        itemsByStage={itemsByStage}
+        draggedCardId={draggedCard}
+        pipelineType={pipelineType}
+        onDragEnd={handleDragEnd}
+        onDragStart={handleDragStart}
+      />
     </div>
   );
 };
