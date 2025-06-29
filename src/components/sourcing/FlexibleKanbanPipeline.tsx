@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import { useTargetCompanies } from "@/hooks/useTargetCompanies";
 import { useStages } from "@/hooks/useStages";
 import { usePipelines } from "@/hooks/usePipelines";
 import { TargetCompany } from "@/types/TargetCompany";
-import { Stage } from "@/types/Pipeline";
+import { Stage, PipelineType } from "@/types/Pipeline";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanCard } from "./KanbanCard";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,7 @@ import { LayoutGrid, Table } from "lucide-react";
 
 interface FlexibleKanbanPipelineProps {
   onToggleView: () => void;
-  pipelineType?: 'TARGET_COMPANY' | 'OPERACION' | 'LEAD';
+  pipelineType?: PipelineType;
 }
 
 export const FlexibleKanbanPipeline = ({ 
