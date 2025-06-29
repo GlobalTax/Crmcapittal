@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
 
@@ -10,14 +9,7 @@ export const fetchLeads = async (filters?: {
   
   let query = supabase
     .from('leads')
-    .select(`
-      *,
-      user_profiles(
-        id,
-        first_name,
-        last_name
-      )
-    `)
+    .select('*')
     .order('created_at', { ascending: false });
 
   if (filters?.status) {
@@ -35,10 +27,27 @@ export const fetchLeads = async (filters?: {
     throw error;
   }
 
+  // Fetch user profiles for assigned users
+  const assignedUserIds = (data || [])
+    .map(lead => lead.assigned_to_id)
+    .filter(Boolean);
+
+  let userProfiles: any[] = [];
+  if (assignedUserIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, first_name, last_name')
+      .in('id', assignedUserIds);
+    
+    userProfiles = profiles || [];
+  }
+
   // Transform the data to match our Lead interface
   const transformedData = (data || []).map(lead => ({
     ...lead,
-    assigned_to: lead.user_profiles || null
+    assigned_to: lead.assigned_to_id 
+      ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
+      : null
   }));
 
   console.log('Leads fetched successfully:', transformedData?.length);
@@ -50,14 +59,7 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
   
   const { data, error } = await supabase
     .from('leads')
-    .select(`
-      *,
-      user_profiles(
-        id,
-        first_name,
-        last_name
-      )
-    `)
+    .select('*')
     .eq('id', id)
     .single();
 
@@ -66,10 +68,22 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     throw error;
   }
 
+  // Fetch user profile if assigned
+  let assignedTo = null;
+  if (data.assigned_to_id) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id, first_name, last_name')
+      .eq('id', data.assigned_to_id)
+      .single();
+    
+    assignedTo = profile;
+  }
+
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    assigned_to: data.user_profiles || null
+    assigned_to: assignedTo
   };
 
   console.log('Lead fetched successfully:', transformedData);
@@ -82,14 +96,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   const { data, error } = await supabase
     .from('leads')
     .insert([leadData])
-    .select(`
-      *,
-      user_profiles(
-        id,
-        first_name,
-        last_name
-      )
-    `)
+    .select('*')
     .single();
 
   if (error) {
@@ -97,10 +104,22 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     throw error;
   }
 
+  // Fetch user profile if assigned
+  let assignedTo = null;
+  if (data.assigned_to_id) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id, first_name, last_name')
+      .eq('id', data.assigned_to_id)
+      .single();
+    
+    assignedTo = profile;
+  }
+
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    assigned_to: data.user_profiles || null
+    assigned_to: assignedTo
   };
 
   console.log('Lead created successfully:', transformedData);
@@ -114,14 +133,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     .from('leads')
     .update(updates)
     .eq('id', id)
-    .select(`
-      *,
-      user_profiles(
-        id,
-        first_name,
-        last_name
-      )
-    `)
+    .select('*')
     .single();
 
   if (error) {
@@ -129,10 +141,22 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     throw error;
   }
 
+  // Fetch user profile if assigned
+  let assignedTo = null;
+  if (data.assigned_to_id) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id, first_name, last_name')
+      .eq('id', data.assigned_to_id)
+      .single();
+    
+    assignedTo = profile;
+  }
+
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    assigned_to: data.user_profiles || null
+    assigned_to: assignedTo
   };
 
   console.log('Lead updated successfully:', transformedData);
