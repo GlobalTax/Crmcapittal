@@ -15,7 +15,7 @@ export const fetchLeads = async (filters?: {
   // Only filter by status if it's one of the database-supported statuses
   // Database only supports: NEW, CONTACTED, QUALIFIED, DISQUALIFIED
   if (filters?.status) {
-    const dbSupportedStatuses = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'];
+    const dbSupportedStatuses: LeadStatus[] = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'];
     if (dbSupportedStatuses.includes(filters.status)) {
       query = query.eq('status', filters.status);
     }
@@ -245,10 +245,7 @@ export const deleteLead = async (id: string): Promise<void> => {
 
 export const convertLeadToContact = async (
   leadId: string,
-  options: {
-    createCompany: boolean;
-    createDeal: boolean;
-  }
+  options: { createCompany: boolean; createDeal: boolean; }
 ): Promise<{ contactId: string }> => {
   console.log('Converting lead to contact:', leadId, options);
 

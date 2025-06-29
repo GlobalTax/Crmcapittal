@@ -55,6 +55,14 @@ export interface Lead {
   converted_to_contact_id?: string;
   converted_to_deal_id?: string;
   conversion_value?: number;
+
+  // Lead nurturing data
+  lead_nurturing?: Array<{
+    lead_score: number;
+    engagement_score: number;
+    stage: string;
+    last_activity_date: string;
+  }>;
 }
 
 export interface CreateLeadData {
