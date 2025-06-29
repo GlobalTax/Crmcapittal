@@ -24,18 +24,18 @@ import {
 const navigationItems = {
   user: [
     { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Portfolio", url: "/", icon: Grid },
+    { title: "Portfolio", url: "/portfolio", icon: Grid },
   ],
   admin: [
     { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Portfolio", url: "/", icon: Grid },
+    { title: "Portfolio", url: "/portfolio", icon: Grid },
     { title: "Operaciones", url: "/admin", icon: Activity },
     { title: "Leads", url: "/leads", icon: Bell },
     { title: "Proyectos", url: "/projects", icon: Settings },
   ],
   superadmin: [
     { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Portfolio", url: "/", icon: Grid },
+    { title: "Portfolio", url: "/portfolio", icon: Grid },
     { title: "Operaciones", url: "/admin", icon: Activity },
     { title: "Leads", url: "/leads", icon: Bell },
     { title: "Proyectos", url: "/projects", icon: Settings },

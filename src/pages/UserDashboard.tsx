@@ -94,6 +94,10 @@ const UserDashboard = () => {
             <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
               <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
               <div className="grid gap-2">
+                <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                  <div className="font-medium">Explorar Portfolio</div>
+                  <div className="text-sm text-muted-foreground">Descubre oportunidades de inversión</div>
+                </a>
                 {role === 'admin' || role === 'superadmin' ? (
                   <>
                     <a href="/admin" className="block p-3 rounded-md hover:bg-muted transition-colors">
@@ -105,12 +109,7 @@ const UserDashboard = () => {
                       <div className="text-sm text-muted-foreground">Gestiona los leads entrantes</div>
                     </a>
                   </>
-                ) : (
-                  <a href="/" className="block p-3 rounded-md hover:bg-muted transition-colors">
-                    <div className="font-medium">Explorar Portfolio</div>
-                    <div className="text-sm text-muted-foreground">Descubre oportunidades de inversión</div>
-                  </a>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
