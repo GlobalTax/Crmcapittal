@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { StatCard } from "@/components/dashboard/StatCard";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
 import {
   Select,
@@ -15,7 +15,6 @@ import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadStatus } from "@/types/Lead";
 import { Bell, Users, TrendingUp, UserCheck } from "lucide-react";
-import { Card } from "@/components/ui/card";
 
 const Leads = () => {
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
@@ -76,8 +75,8 @@ const Leads = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">Bandeja de Leads</h2>
-          <p className="text-sm text-slate-600">
+          <h2 className="text-3xl font-bold tracking-tight">Bandeja de Leads</h2>
+          <p className="text-muted-foreground">
             Gestiona y convierte tus leads en oportunidades de negocio.
           </p>
         </div>
@@ -86,21 +85,21 @@ const Leads = () => {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
+          <StatsCard key={index} {...stat} />
         ))}
       </div>
 
       {/* Email Stats Section */}
       <div className="space-y-2">
-        <h3 className="text-lg font-medium text-slate-900">Estadísticas de Email</h3>
+        <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
         <EmailStatsCard />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
-          <Label htmlFor="status-filter" className="text-sm font-medium text-slate-600">Estado</Label>
+          <Label htmlFor="status-filter">Estado</Label>
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
-            <SelectTrigger className="border-slate-200">
+            <SelectTrigger>
               <SelectValue placeholder="Todos los estados" />
             </SelectTrigger>
             <SelectContent>
@@ -114,7 +113,7 @@ const Leads = () => {
         </div>
       </div>
 
-      <Card className="border-slate-200">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="p-6">
           <LeadsTable
             leads={leads}
@@ -124,7 +123,7 @@ const Leads = () => {
             isLoading={isLoading}
           />
         </div>
-      </Card>
+      </div>
     </div>
   );
 };

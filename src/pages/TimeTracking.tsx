@@ -39,7 +39,7 @@ const TimeTracking = () => {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Cargando datos del día...</p>
+          <p className="text-gray-600">Cargando datos del día...</p>
         </div>
       </div>
     );
@@ -50,14 +50,14 @@ const TimeTracking = () => {
       {/* Page Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Control de Tiempo</h1>
-          <p className="text-sm text-slate-600">Mide y controla el tiempo dedicado a tus actividades</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Control de Tiempo</h1>
+          <p className="text-gray-600">Mide y controla el tiempo dedicado a tus actividades</p>
         </div>
         <div className="flex gap-3">
           <Button 
             onClick={() => setShowManualEntry(true)}
             variant="outline"
-            className="border-slate-300 text-slate-600"
+            className="border-gray-300"
           >
             <Clock className="w-4 h-4 mr-2" />
             Entrada Manual
@@ -80,9 +80,9 @@ const TimeTracking = () => {
         {/* Left Column - Timer and Quick Actions */}
         <div className="lg:col-span-1 space-y-6">
           {/* Active Timer */}
-          <Card className="border-slate-200">
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium text-slate-900 flex items-center gap-2">
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 Temporizador Activo
               </CardTitle>
@@ -97,9 +97,9 @@ const TimeTracking = () => {
           </Card>
 
           {/* Quick Stats */}
-          <Card className="border-slate-200">
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium text-slate-900 flex items-center gap-2">
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-blue-600" />
                 Resumen del Día
               </CardTitle>
@@ -107,20 +107,20 @@ const TimeTracking = () => {
             <CardContent className="pt-0">
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Tiempo Total</span>
-                  <span className="font-semibold text-slate-900">
+                  <span className="text-sm text-gray-600">Tiempo Total</span>
+                  <span className="font-semibold text-gray-900">
                     {dailyData?.timeEntries.reduce((total, entry) => total + (entry.duration_minutes || 0), 0) || 0} min
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Tareas Completadas</span>
-                  <span className="font-semibold text-slate-900">
+                  <span className="text-sm text-gray-600">Tareas Completadas</span>
+                  <span className="font-semibold text-gray-900">
                     {dailyData?.plannedTasks.filter(t => t.status === 'COMPLETED').length || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Tareas Pendientes</span>
-                  <span className="font-semibold text-slate-900">
+                  <span className="text-sm text-gray-600">Tareas Pendientes</span>
+                  <span className="font-semibold text-gray-900">
                     {dailyData?.plannedTasks.filter(t => t.status === 'PENDING').length || 0}
                   </span>
                 </div>
@@ -132,9 +132,9 @@ const TimeTracking = () => {
         {/* Right Column - Tasks and Time Entries */}
         <div className="lg:col-span-2 space-y-6">
           {/* Tasks List */}
-          <Card className="border-slate-200">
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium text-slate-900 flex items-center gap-2">
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-blue-600" />
                 Tareas con Temporizador
               </CardTitle>
@@ -149,9 +149,9 @@ const TimeTracking = () => {
           </Card>
 
           {/* Time Sheet */}
-          <Card className="border-slate-200">
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-medium text-slate-900 flex items-center gap-2">
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-blue-600" />
                 Registro de Tiempo
               </CardTitle>

@@ -1,7 +1,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
-import { StatCard } from "@/components/dashboard/StatCard";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
 import { useOperations } from "@/hooks/useOperations";
@@ -22,7 +22,7 @@ const Index = () => {
   // Show loading state while auth is being determined
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600">Cargando...</p>
@@ -88,22 +88,22 @@ const Index = () => {
   return (
     <div className="space-y-8">
       <div className="text-center lg:text-left">
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h2>
-        <p className="text-sm text-slate-600 mt-2">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h2>
+        <p className="text-gray-600 mt-2">
           Bienvenido a tu panel de control. Aquí tienes un resumen de tu actividad.
         </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
+          <StatsCard key={index} {...stat} />
         ))}
       </div>
 
       {/* Email Stats Section for admin users */}
       {(role === 'admin' || role === 'superadmin') && (
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-slate-900">Estadísticas de Email</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Estadísticas de Email</h3>
           <EmailStatsCard />
         </div>
       )}
@@ -114,22 +114,22 @@ const Index = () => {
         </div>
         
         <div className="lg:col-span-7">
-          <div className="rounded-lg border bg-white shadow-sm p-6 border-slate-200">
-            <h3 className="text-lg font-medium mb-6 text-slate-900">Acciones Rápidas</h3>
+          <div className="rounded-lg border bg-white shadow-sm p-6">
+            <h3 className="text-xl font-semibold mb-6 text-gray-900">Acciones Rápidas</h3>
             <div className="grid gap-4">
-              <a href="/portfolio" className="block p-4 rounded-lg hover:bg-slate-50 transition-colors border border-slate-200">
-                <div className="font-medium text-slate-900">Explorar Portfolio</div>
-                <div className="text-sm text-slate-600 mt-1">Descubre oportunidades de inversión</div>
+              <a href="/portfolio" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                <div className="font-medium text-gray-900">Explorar Portfolio</div>
+                <div className="text-sm text-gray-600 mt-1">Descubre oportunidades de inversión</div>
               </a>
               {role === 'admin' || role === 'superadmin' ? (
                 <>
-                  <a href="/portfolio" className="block p-4 rounded-lg hover:bg-slate-50 transition-colors border border-slate-200">
-                    <div className="font-medium text-slate-900">Gestionar Operaciones</div>
-                    <div className="text-sm text-slate-600 mt-1">Administra el portfolio de operaciones</div>
+                  <a href="/portfolio" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                    <div className="font-medium text-gray-900">Gestionar Operaciones</div>
+                    <div className="text-sm text-gray-600 mt-1">Administra el portfolio de operaciones</div>
                   </a>
-                  <a href="/leads" className="block p-4 rounded-lg hover:bg-slate-50 transition-colors border border-slate-200">
-                    <div className="font-medium text-slate-900">Ver Leads</div>
-                    <div className="text-sm text-slate-600 mt-1">Gestiona los leads entrantes</div>
+                  <a href="/leads" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                    <div className="font-medium text-gray-900">Ver Leads</div>
+                    <div className="text-sm text-gray-600 mt-1">Gestiona los leads entrantes</div>
                   </a>
                 </>
               ) : null}
