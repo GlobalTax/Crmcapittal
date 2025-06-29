@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
 
@@ -12,7 +11,7 @@ export const fetchLeads = async (filters?: {
     .from('leads')
     .select(`
       *,
-      assigned_to:user_profiles(
+      user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
@@ -35,8 +34,14 @@ export const fetchLeads = async (filters?: {
     throw error;
   }
 
-  console.log('Leads fetched successfully:', data?.length);
-  return data || [];
+  // Transform the data to match our Lead interface
+  const transformedData = (data || []).map(lead => ({
+    ...lead,
+    assigned_to: lead.user_profiles || null
+  }));
+
+  console.log('Leads fetched successfully:', transformedData?.length);
+  return transformedData;
 };
 
 export const fetchLeadById = async (id: string): Promise<Lead | null> => {
@@ -46,7 +51,7 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     .from('leads')
     .select(`
       *,
-      assigned_to:user_profiles(
+      user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
@@ -60,8 +65,14 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     throw error;
   }
 
-  console.log('Lead fetched successfully:', data);
-  return data;
+  // Transform the data to match our Lead interface
+  const transformedData = {
+    ...data,
+    assigned_to: data.user_profiles || null
+  };
+
+  console.log('Lead fetched successfully:', transformedData);
+  return transformedData;
 };
 
 export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
@@ -72,7 +83,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     .insert([leadData])
     .select(`
       *,
-      assigned_to:user_profiles(
+      user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
@@ -85,8 +96,14 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     throw error;
   }
 
-  console.log('Lead created successfully:', data);
-  return data;
+  // Transform the data to match our Lead interface
+  const transformedData = {
+    ...data,
+    assigned_to: data.user_profiles || null
+  };
+
+  console.log('Lead created successfully:', transformedData);
+  return transformedData;
 };
 
 export const updateLead = async (id: string, updates: UpdateLeadData): Promise<Lead> => {
@@ -98,7 +115,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     .eq('id', id)
     .select(`
       *,
-      assigned_to:user_profiles(
+      user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
@@ -111,8 +128,14 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     throw error;
   }
 
-  console.log('Lead updated successfully:', data);
-  return data;
+  // Transform the data to match our Lead interface
+  const transformedData = {
+    ...data,
+    assigned_to: data.user_profiles || null
+  };
+
+  console.log('Lead updated successfully:', transformedData);
+  return transformedData;
 };
 
 export const deleteLead = async (id: string): Promise<void> => {
