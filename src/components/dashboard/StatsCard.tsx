@@ -25,8 +25,8 @@ export const StatsCard = ({
   textColor = "text-gray-900"
 }: StatsCardProps) => {
   const isGradient = bgColor.includes('gradient');
-  const iconBgColor = isGradient ? "bg-white/20" : "bg-blue-50";
-  const iconTextColor = isGradient ? "text-white" : "text-blue-600";
+  const iconBgColor = isGradient ? "bg-white/20" : "bg-gray-50";
+  const iconTextColor = isGradient ? "text-white" : "text-gray-600";
   const titleColor = isGradient ? "text-white/90" : "text-gray-600";
   const descriptionColor = isGradient ? "text-white/80" : "text-gray-500";
   const trendColor = trend?.isPositive ? 
@@ -34,7 +34,7 @@ export const StatsCard = ({
     (isGradient ? "text-white/90" : "text-red-600");
 
   return (
-    <Card className={`${bgColor} hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 shadow-lg`}>
+    <Card className={`${bgColor} hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200 shadow-lg`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className={`text-sm font-medium ${titleColor}`}>{title}</CardTitle>
         <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
