@@ -45,6 +45,17 @@ export const fetchLeads = async (filters?: {
   // Transform the data to match our Lead interface
   const transformedData = (data || []).map(lead => ({
     ...lead,
+    // Set default values for new fields to maintain compatibility
+    lead_score: lead.lead_score || 0,
+    priority: lead.priority || 'MEDIUM',
+    quality: lead.quality || 'FAIR',
+    follow_up_count: lead.follow_up_count || 0,
+    email_opens: lead.email_opens || 0,
+    email_clicks: lead.email_clicks || 0,
+    website_visits: lead.website_visits || 0,
+    content_downloads: lead.content_downloads || 0,
+    tags: lead.tags || [],
+    form_data: lead.form_data || {},
     assigned_to: lead.assigned_to_id 
       ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
       : null
@@ -83,6 +94,17 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
+    // Set default values for new fields to maintain compatibility
+    lead_score: data.lead_score || 0,
+    priority: data.priority || 'MEDIUM',
+    quality: data.quality || 'FAIR',
+    follow_up_count: data.follow_up_count || 0,
+    email_opens: data.email_opens || 0,
+    email_clicks: data.email_clicks || 0,
+    website_visits: data.website_visits || 0,
+    content_downloads: data.content_downloads || 0,
+    tags: data.tags || [],
+    form_data: data.form_data || {},
     assigned_to: assignedTo
   };
 
@@ -93,9 +115,19 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
 export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   console.log('Creating lead:', leadData);
 
+  // Prepare data with defaults
+  const dataToInsert = {
+    ...leadData,
+    lead_score: leadData.lead_score || 10, // Default initial score
+    priority: leadData.priority || 'MEDIUM',
+    quality: leadData.quality || 'FAIR',
+    tags: leadData.tags || [],
+    form_data: leadData.form_data || {}
+  };
+
   const { data, error } = await supabase
     .from('leads')
-    .insert([leadData])
+    .insert([dataToInsert])
     .select('*')
     .single();
 
@@ -119,6 +151,16 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
+    lead_score: data.lead_score || 0,
+    priority: data.priority || 'MEDIUM',
+    quality: data.quality || 'FAIR',
+    follow_up_count: data.follow_up_count || 0,
+    email_opens: data.email_opens || 0,
+    email_clicks: data.email_clicks || 0,
+    website_visits: data.website_visits || 0,
+    content_downloads: data.content_downloads || 0,
+    tags: data.tags || [],
+    form_data: data.form_data || {},
     assigned_to: assignedTo
   };
 
@@ -156,6 +198,16 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
+    lead_score: data.lead_score || 0,
+    priority: data.priority || 'MEDIUM',
+    quality: data.quality || 'FAIR',
+    follow_up_count: data.follow_up_count || 0,
+    email_opens: data.email_opens || 0,
+    email_clicks: data.email_clicks || 0,
+    website_visits: data.website_visits || 0,
+    content_downloads: data.content_downloads || 0,
+    tags: data.tags || [],
+    form_data: data.form_data || {},
     assigned_to: assignedTo
   };
 

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,10 @@ import {
 } from "lucide-react";
 import { useLeadNurturing, useLeadScoring } from "@/hooks/useLeadNurturing";
 import { LeadStage } from "@/types/LeadNurturing";
+import { LeadStatus } from "@/types/Lead";
 import WebhookSettings from "./WebhookSettings";
+import { LeadManagementDashboard } from "./LeadManagementDashboard";
+import { LeadNurturingPipeline } from "./LeadNurturingPipeline";
 
 const LeadNurturingDashboard = () => {
   const { leadScores, isLoading } = useLeadScoring();
@@ -44,6 +48,24 @@ const LeadNurturingDashboard = () => {
 
   const handleStageUpdate = (leadId: string, newStage: LeadStage) => {
     updateStage({ leadId, stage: newStage });
+  };
+
+  const handleUpdateLeadStatus = (leadId: string, newStatus: LeadStatus) => {
+    // Map LeadStatus to LeadStage for compatibility
+    const stageMapping: Record<LeadStatus, LeadStage> = {
+      'NEW': 'CAPTURED',
+      'CONTACTED': 'CAPTURED',
+      'QUALIFIED': 'QUALIFIED',
+      'NURTURING': 'NURTURING',
+      'CONVERTED': 'CONVERTED',
+      'DISQUALIFIED': 'LOST',
+      'LOST': 'LOST'
+    };
+    
+    const mappedStage = stageMapping[newStatus];
+    if (mappedStage) {
+      handleStageUpdate(leadId, mappedStage);
+    }
   };
 
   // Helper function to get nurturing data safely
@@ -141,57 +163,33 @@ const LeadNurturingDashboard = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="pipeline" className="space-y-4">
+      <Tabs defaultValue="management" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="management">Lead Management</TabsTrigger>
+          <TabsTrigger value="nurturing-pipeline">Pipeline Nurturing</TabsTrigger>
           <TabsTrigger value="scoring">Lead Scoring</TabsTrigger>
           <TabsTrigger value="activities">Actividades</TabsTrigger>
           <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="pipeline" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pipeline de Nurturing</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-6">
-                {['CAPTURED', 'QUALIFIED', 'NURTURING', 'SALES_READY', 'CONVERTED', 'LOST'].map((stage) => (
-                  <div key={stage} className="space-y-2">
-                    <h3 className="font-medium text-sm text-center">{stage}</h3>
-                    <div className="min-h-[200px] p-2 bg-gray-50 rounded-lg">
-                      {leadScores
-                        .filter(lead => {
-                          const nurturingData = getLeadNurturingData(lead);
-                          return nurturingData?.stage === stage || (!nurturingData && stage === 'CAPTURED');
-                        })
-                        .map((lead) => {
-                          const nurturingData = getLeadNurturingData(lead);
-                          return (
-                            <div
-                              key={lead.id}
-                              className="p-2 mb-2 bg-white rounded border cursor-pointer hover:shadow-sm"
-                              onClick={() => setSelectedLeadId(lead.id)}
-                            >
-                              <div className="font-medium text-sm">{lead.name}</div>
-                              <div className="text-xs text-gray-500">{lead.company_name}</div>
-                              <div className="flex items-center justify-between mt-1">
-                                <span className="text-xs">
-                                  Score: {nurturingData?.lead_score || 0}
-                                </span>
-                                <Badge variant="outline" className="text-xs">
-                                  {getScoreLevel(nurturingData?.lead_score || 0).level}
-                                </Badge>
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="management" className="space-y-4">
+          <LeadManagementDashboard 
+            leads={leadScores}
+            onViewLead={(lead) => setSelectedLeadId(lead.id)}
+            onUpdateLead={handleUpdateLeadStatus}
+          />
+        </TabsContent>
+
+        <TabsContent value="nurturing-pipeline" className="space-y-4">
+          <LeadNurturingPipeline 
+            leads={leadScores}
+            onUpdateLeadStatus={handleUpdateLeadStatus}
+            onViewLead={(lead) => setSelectedLeadId(lead.id)}
+            onScheduleActivity={(leadId, activityType) => {
+              console.log('Schedule activity:', leadId, activityType);
+              // Implement activity scheduling logic
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="scoring" className="space-y-4">
