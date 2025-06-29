@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { BasicDealInfo } from "./forms/BasicDealInfo";
 import { PipelineAndStatus } from "./forms/PipelineAndStatus";
 import { FinancialInfo } from "./forms/FinancialInfo";
-import { ContactInfo } from "./forms/ContactInfo";
+import { ContactSelector } from "./forms/ContactSelector";
 import { AdditionalInfo } from "./forms/AdditionalInfo";
 
 interface CreateDealDialogProps {
@@ -36,6 +36,8 @@ export const CreateDealDialog = ({ pipelineId }: CreateDealDialogProps) => {
     sector: "",
     location: "",
     employees: "",
+    // Contacto principal (asociado)
+    contact_id: "",
     contact_name: "",
     contact_email: "",
     contact_phone: "",
@@ -48,6 +50,11 @@ export const CreateDealDialog = ({ pipelineId }: CreateDealDialogProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!dealData.contact_id) {
+      toast.error('Por favor selecciona un contacto para asociar al deal');
+      return;
+    }
     
     const dealPayload = {
       ...dealData,
@@ -83,6 +90,7 @@ export const CreateDealDialog = ({ pipelineId }: CreateDealDialogProps) => {
         sector: "",
         location: "",
         employees: "",
+        contact_id: "",
         contact_name: "",
         contact_email: "",
         contact_phone: "",
@@ -124,7 +132,7 @@ export const CreateDealDialog = ({ pipelineId }: CreateDealDialogProps) => {
           <BasicDealInfo dealData={dealData} updateField={updateField} />
           <PipelineAndStatus dealData={dealData} updateField={updateField} stages={stages} />
           <FinancialInfo dealData={dealData} updateField={updateField} />
-          <ContactInfo dealData={dealData} updateField={updateField} />
+          <ContactSelector dealData={dealData} updateField={updateField} />
           <AdditionalInfo dealData={dealData} updateField={updateField} />
 
           <div className="flex justify-end space-x-3 pt-4 border-t">

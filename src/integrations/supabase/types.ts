@@ -455,6 +455,7 @@ export type Database = {
           close_date: string | null
           company_name: string | null
           contact_email: string | null
+          contact_id: string | null
           contact_name: string | null
           contact_phone: string | null
           contact_role: string | null
@@ -485,6 +486,7 @@ export type Database = {
           close_date?: string | null
           company_name?: string | null
           contact_email?: string | null
+          contact_id?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           contact_role?: string | null
@@ -515,6 +517,7 @@ export type Database = {
           close_date?: string | null
           company_name?: string | null
           contact_email?: string | null
+          contact_id?: string | null
           contact_name?: string | null
           contact_phone?: string | null
           contact_role?: string | null
@@ -542,6 +545,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "deals_stage_id_fkey"
             columns: ["stage_id"]

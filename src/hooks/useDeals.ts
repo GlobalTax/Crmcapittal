@@ -23,6 +23,15 @@ export const useDeals = (pipelineId?: string) => {
             color,
             order_index,
             pipeline_id
+          ),
+          contacts!contact_id (
+            id,
+            name,
+            email,
+            phone,
+            mobile,
+            company,
+            position
           )
         `)
         .eq('is_active', true)
@@ -43,6 +52,14 @@ export const useDeals = (pipelineId?: string) => {
           name: deal.stages.name,
           color: deal.stages.color,
           order_index: deal.stages.order_index
+        } : undefined,
+        contact: deal.contacts ? {
+          id: deal.contacts.id,
+          name: deal.contacts.name,
+          email: deal.contacts.email,
+          phone: deal.contacts.phone || deal.contacts.mobile,
+          company: deal.contacts.company,
+          position: deal.contacts.position
         } : undefined
       }));
       

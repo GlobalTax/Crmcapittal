@@ -15,6 +15,7 @@ export interface Deal {
   sector?: string;
   location?: string;
   employees?: number;
+  contact_id?: string; // Nueva referencia al contacto
   contact_name?: string;
   contact_email?: string;
   contact_phone?: string;
@@ -33,6 +34,14 @@ export interface Deal {
     name: string;
     color: string;
     order_index: number;
+  };
+  contact?: {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+    position?: string;
   };
 }
 

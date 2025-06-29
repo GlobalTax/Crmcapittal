@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Deal } from "@/types/Deal";
-import { Building2, Euro, User, Calendar } from "lucide-react";
+import { Building2, Euro, User, Calendar, Mail, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -73,12 +73,34 @@ export const DealCard = ({ deal, isDragging }: DealCardProps) => {
           {deal.deal_type}
         </div>
 
-        {/* Contact Info */}
-        {deal.contact_name && (
-          <div className="flex items-center text-sm text-slate-600">
-            <User className="h-3 w-3 mr-1" />
-            {deal.contact_name}
-            {deal.contact_role && ` (${deal.contact_role})`}
+        {/* Contact Info - Usando información del contacto asociado */}
+        {deal.contact && (
+          <div className="space-y-2 p-2 bg-slate-50 rounded-lg">
+            <div className="flex items-center text-sm font-medium text-slate-700">
+              <User className="h-3 w-3 mr-1" />
+              {deal.contact.name}
+              {deal.contact.position && ` (${deal.contact.position})`}
+            </div>
+            {deal.contact.company && (
+              <div className="flex items-center text-xs text-slate-600">
+                <Building2 className="h-3 w-3 mr-1" />
+                {deal.contact.company}
+              </div>
+            )}
+            <div className="flex items-center space-x-3 text-xs text-slate-500">
+              {deal.contact.email && (
+                <div className="flex items-center">
+                  <Mail className="h-3 w-3 mr-1" />
+                  {deal.contact.email}
+                </div>
+              )}
+              {deal.contact.phone && (
+                <div className="flex items-center">
+                  <Phone className="h-3 w-3 mr-1" />
+                  {deal.contact.phone}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
