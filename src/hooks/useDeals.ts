@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Deal } from '@/types/Deal';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,7 +28,6 @@ export const useDeals = (pipelineId?: string) => {
             name,
             email,
             phone,
-            mobile,
             company,
             position
           )
@@ -57,7 +55,7 @@ export const useDeals = (pipelineId?: string) => {
           id: deal.contacts.id,
           name: deal.contacts.name,
           email: deal.contacts.email,
-          phone: deal.contacts.phone || deal.contacts.mobile,
+          phone: deal.contacts.phone,
           company: deal.contacts.company,
           position: deal.contacts.position
         } : undefined
