@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource } from '@/types/Lead';
 
@@ -18,7 +17,8 @@ export const fetchLeads = async (filters?: {
   if (filters?.status) {
     const dbSupportedStatuses: LeadStatus[] = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'];
     if (dbSupportedStatuses.includes(filters.status)) {
-      query = query.eq('status', filters.status);
+      // Cast to the specific type that the database supports
+      query = query.eq('status', filters.status as 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED');
     }
     // If the filter status is not supported by DB (like NURTURING, CONVERTED, LOST),
     // we don't apply the filter and let the frontend handle it
