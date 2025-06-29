@@ -2,7 +2,11 @@
 import { useState, useEffect } from "react";
 import { OperationsList } from "@/components/OperationsList";
 import { AddCompanyDialog } from "@/components/AddCompanyDialog";
+import { AddOperationDialog } from "@/components/AddOperationDialog";
 import { useOperations } from "@/hooks/useOperations";
+import { Button } from "@/components/ui/button";
+import { Plus, Building2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface PortfolioViewProps {
   showHeader?: boolean;
@@ -10,12 +14,30 @@ interface PortfolioViewProps {
 }
 
 export const PortfolioView = ({ showHeader = true, showAddCompany = true }: PortfolioViewProps) => {
-  const { operations, loading, error } = useOperations();
+  const { operations, loading, error, addOperation } = useOperations();
+  const [showAddOperationDialog, setShowAddOperationDialog] = useState(false);
+  const { toast } = useToast();
 
   // Calculate stats from all operations
   const totalValue = operations.reduce((sum, op) => sum + op.amount, 0);
   const availableOperations = operations.filter(op => op.status === "available").length;
   const totalOperations = operations.length;
+
+  const handleAddOperation = async (operationData: any) => {
+    const result = await addOperation(operationData);
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Éxito",
+        description: "Operación creada correctamente",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -27,11 +49,17 @@ export const PortfolioView = ({ showHeader = true, showAddCompany = true }: Port
             <p className="text-xs sm:text-sm text-gray-600 mt-1">Contacta directamente para más información detallada</p>
           </div>
           
-          {showAddCompany && (
-            <div className="flex justify-center lg:justify-end">
-              <AddCompanyDialog />
-            </div>
-          )}
+          <div className="flex justify-center lg:justify-end space-x-3">
+            <Button
+              onClick={() => setShowAddOperationDialog(true)}
+              className="flex items-center space-x-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Nueva Operación</span>
+            </Button>
+            
+            {showAddCompany && <AddCompanyDialog />}
+          </div>
         </div>
       )}
 
@@ -78,6 +106,13 @@ export const PortfolioView = ({ showHeader = true, showAddCompany = true }: Port
 
       {/* Operations List with integrated filters */}
       <OperationsList />
+
+      {/* Add Operation Dialog */}
+      <AddOperationDialog
+        open={showAddOperationDialog}
+        onOpenChange={setShowAddOperationDialog}
+        onAddOperation={handleAddOperation}
+      />
     </div>
   );
 };

@@ -89,7 +89,9 @@ export const useBulkOperations = () => {
       contact_phone: row['Teléfono Contacto'] || null,
       revenue: row['Facturación'] ? Number(row['Facturación']) : null,
       ebitda: row['EBITDA'] ? Number(row['EBITDA']) : null,
-      annual_growth_rate: row['Crecimiento Anual %'] ? Number(row['Crecimiento Anual %']) : null
+      annual_growth_rate: row['Crecimiento Anual %'] ? Number(row['Crecimiento Anual %']) : null,
+      manager_id: null,
+      teaser_url: null
     }));
   };
 
@@ -138,7 +140,7 @@ export const useBulkOperations = () => {
             } else {
               toast({
                 title: "Éxito",
-                description: `Se han importado ${operations.length} operaciones correctamente`,
+                description: `Se han importado ${operations.length} operaciones correctamente. Listas para sincronizar con capitalmarket.com`,
               });
               resolve({ success: true, data: operations });
             }
