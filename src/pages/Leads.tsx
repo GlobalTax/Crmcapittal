@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { StatsCard } from "@/components/dashboard/StatsCard";
 import {
   Select,
   SelectContent,
@@ -13,9 +14,9 @@ import { useLeads } from "@/hooks/useLeads";
 import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadStatus } from "@/types/Lead";
+import { Bell, Users, TrendingUp, UserCheck } from "lucide-react";
 
 const Leads = () => {
-  const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   const [assignedFilter, setAssignedFilter] = useState<string>('all');
 
@@ -33,9 +34,32 @@ const Leads = () => {
     isCreating
   } = useLeads(filters);
 
-  const handleViewLead = (leadId: string) => {
-    navigate(`/leads/${leadId}`);
-  };
+  const stats = [
+    {
+      title: "Total Leads",
+      value: leads.length,
+      description: "Leads en el sistema",
+      icon: Bell,
+    },
+    {
+      title: "Nuevos",
+      value: leads.filter(l => l.status === 'NEW').length,
+      description: "Pendientes de contacto",
+      icon: Users,
+    },
+    {
+      title: "Contactados",
+      value: leads.filter(l => l.status === 'CONTACTED').length,
+      description: "En proceso",
+      icon: TrendingUp,
+    },
+    {
+      title: "Calificados",
+      value: leads.filter(l => l.status === 'QUALIFIED').length,
+      description: "Listos para conversión",
+      icon: UserCheck,
+    },
+  ];
 
   const handleAssignLead = (leadId: string, userId: string) => {
     updateLead({ id: leadId, updates: { assigned_to_id: userId } });
@@ -48,88 +72,47 @@ const Leads = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Bandeja de Leads</h1>
-              <p className="text-gray-600">Gestiona y convierte tus leads en oportunidades</p>
-            </div>
-            <div className="mt-4 sm:mt-0">
-              <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
-            </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Bandeja de Leads</h2>
+            <p className="text-muted-foreground">
+              Gestiona y convierte tus leads en oportunidades de negocio.
+            </p>
           </div>
+          <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
+        </div>
 
-          {/* Filters */}
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="status-filter">Estado</Label>
-              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos los estados" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="NEW">Nuevo</SelectItem>
-                  <SelectItem value="CONTACTED">Contactado</SelectItem>
-                  <SelectItem value="QUALIFIED">Calificado</SelectItem>
-                  <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat, index) => (
+            <StatsCard key={index} {...stat} />
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <Label htmlFor="status-filter">Estado</Label>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos los estados" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="NEW">Nuevo</SelectItem>
+                <SelectItem value="CONTACTED">Contactado</SelectItem>
+                <SelectItem value="QUALIFIED">Calificado</SelectItem>
+                <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Total Leads</p>
-                <p className="text-2xl font-bold text-gray-900">{leads.length}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Nuevos</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {leads.filter(l => l.status === 'NEW').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Contactados</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  {leads.filter(l => l.status === 'CONTACTED').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Calificados</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {leads.filter(l => l.status === 'QUALIFIED').length}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Leads Table */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
           <div className="p-6">
             <LeadsTable
               leads={leads}
-              onViewLead={handleViewLead}
+              onViewLead={(leadId) => console.log('Ver lead:', leadId)}
               onDeleteLead={handleDeleteLead}
               onAssignLead={handleAssignLead}
               isLoading={isLoading}
@@ -137,7 +120,7 @@ const Leads = () => {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
