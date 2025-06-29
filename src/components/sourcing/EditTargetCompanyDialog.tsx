@@ -71,7 +71,7 @@ export const EditTargetCompanyDialog = ({ target, open, onOpenChange }: EditTarg
     
     const result = await updateTargetCompany(target.id, data);
     
-    if (result.success) {
+    if (result.data) {
       onOpenChange(false);
     }
     

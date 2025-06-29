@@ -76,8 +76,8 @@ HealthTech Ltd.,https://healthtech.com,Salud,Plataforma de telemedicina,Mercado 
 
       const result = await bulkImportTargets(targets);
       
-      if (result.success) {
-        setImportResult(`✅ Importación exitosa: ${result.successCount} empresas añadidas`);
+      if (result.data) {
+        setImportResult(`✅ Importación exitosa: ${result.data.length} empresas añadidas`);
       } else {
         setImportResult(`❌ Error en la importación: ${result.error}`);
       }

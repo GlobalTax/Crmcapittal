@@ -45,7 +45,7 @@ export const CreateContactDialog = ({ targetCompanyId, open, onOpenChange }: Cre
     
     const result = await createTargetContact(data);
     
-    if (result.success) {
+    if (result.data) {
       form.reset();
       onOpenChange(false);
     }

@@ -2,6 +2,7 @@
 export type TargetStatus = 
   | 'IDENTIFIED'
   | 'RESEARCHING' 
+  | 'OUTREACH_PLANNED'
   | 'CONTACTED'
   | 'IN_CONVERSATION'
   | 'ON_HOLD'
@@ -39,4 +40,25 @@ export interface TargetCompany {
     color: string;
     order_index: number;
   };
+}
+
+export interface CreateTargetCompanyData {
+  name: string;
+  website?: string;
+  industry?: string;
+  description?: string;
+  revenue?: number;
+  ebitda?: number;
+  fit_score?: number;
+  investment_thesis?: string;
+  source_notes?: string;
+  status?: TargetStatus;
+}
+
+export interface CreateTargetContactData {
+  name: string;
+  title?: string;
+  email?: string;
+  linkedin_url?: string;
+  target_company_id: string;
 }

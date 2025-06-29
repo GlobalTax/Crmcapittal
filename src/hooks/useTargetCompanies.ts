@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { TargetCompany, TargetStatus } from '@/types/TargetCompany';
+import { TargetCompany, TargetStatus, CreateTargetCompanyData, CreateTargetContactData } from '@/types/TargetCompany';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -42,10 +42,15 @@ export const useTargetCompanies = () => {
         throw error;
       }
 
-      const transformedData = (data || []).map(company => ({
+      const transformedData: TargetCompany[] = (data || []).map(company => ({
         ...company,
         contacts: company.target_contacts || [],
-        stage: company.stages
+        stage: company.stages ? {
+          id: company.stages.id,
+          name: company.stages.name,
+          color: company.stages.color,
+          order_index: company.stages.order_index
+        } : undefined
       }));
 
       setTargetCompanies(transformedData);
@@ -57,7 +62,7 @@ export const useTargetCompanies = () => {
     }
   };
 
-  const createTargetCompany = async (companyData: Omit<TargetCompany, 'id' | 'created_at' | 'updated_at' | 'created_by_user_id' | 'contacts'>) => {
+  const createTargetCompany = async (companyData: CreateTargetCompanyData) => {
     if (!user) {
       return { data: null, error: 'Usuario no autenticado' };
     }
@@ -67,6 +72,7 @@ export const useTargetCompanies = () => {
         .from('target_companies')
         .insert([{
           ...companyData,
+          status: companyData.status || 'IDENTIFIED',
           created_by_user_id: user.id
         }])
         .select()
@@ -74,8 +80,13 @@ export const useTargetCompanies = () => {
 
       if (error) throw error;
 
-      setTargetCompanies(prev => [data, ...prev]);
-      return { data, error: null };
+      const newCompany: TargetCompany = {
+        ...data,
+        contacts: []
+      };
+
+      setTargetCompanies(prev => [newCompany, ...prev]);
+      return { data: newCompany, error: null };
     } catch (err) {
       console.error('Error creating target company:', err);
       return { data: null, error: err instanceof Error ? err.message : 'Error desconocido' };
@@ -146,28 +157,33 @@ export const useTargetCompanies = () => {
     }
   };
 
-  // Métodos adicionales para compatibilidad con los componentes existentes
-  const bulkImportTargets = async (targets: any[]) => {
+  const bulkImportTargets = async (targets: CreateTargetCompanyData[]) => {
     try {
       const { data, error } = await supabase
         .from('target_companies')
         .insert(targets.map(target => ({
           ...target,
+          status: target.status || 'IDENTIFIED',
           created_by_user_id: user?.id
         })))
         .select();
 
       if (error) throw error;
 
-      setTargetCompanies(prev => [...data, ...prev]);
-      return { data, error: null };
+      const newCompanies: TargetCompany[] = (data || []).map(company => ({
+        ...company,
+        contacts: []
+      }));
+
+      setTargetCompanies(prev => [...newCompanies, ...prev]);
+      return { data: newCompanies, error: null };
     } catch (err) {
       console.error('Error bulk importing targets:', err);
       return { data: null, error: err instanceof Error ? err.message : 'Error desconocido' };
     }
   };
 
-  const createTargetContact = async (contactData: any) => {
+  const createTargetContact = async (contactData: CreateTargetContactData) => {
     try {
       const { data, error } = await supabase
         .from('target_contacts')

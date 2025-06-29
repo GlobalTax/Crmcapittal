@@ -56,7 +56,7 @@ export const CreateTargetCompanyDialog = ({ open, onOpenChange }: CreateTargetCo
     
     const result = await createTargetCompany(data);
     
-    if (result.success) {
+    if (result.data) {
       form.reset();
       onOpenChange(false);
     }
