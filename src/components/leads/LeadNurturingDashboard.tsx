@@ -45,6 +45,14 @@ const LeadNurturingDashboard = () => {
     updateStage({ leadId, stage: newStage });
   };
 
+  // Helper function to get nurturing data safely
+  const getLeadNurturingData = (lead: any) => {
+    if (Array.isArray(lead.lead_nurturing) && lead.lead_nurturing.length > 0) {
+      return lead.lead_nurturing[0];
+    }
+    return null;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -86,7 +94,10 @@ const LeadNurturingDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Hot Leads</p>
                 <p className="text-2xl font-semibold text-red-600">
-                  {leadScores.filter(lead => (lead.lead_nurturing?.[0]?.lead_score ?? 0) >= 80).length}
+                  {leadScores.filter(lead => {
+                    const nurturingData = getLeadNurturingData(lead);
+                    return nurturingData?.lead_score >= 80;
+                  }).length}
                 </p>
               </div>
               <TrendingUp className="h-8 w-8 text-red-600" />
@@ -100,7 +111,10 @@ const LeadNurturingDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Sales Ready</p>
                 <p className="text-2xl font-semibold text-purple-600">
-                  {leadScores.filter(lead => lead.lead_nurturing?.[0]?.stage === 'SALES_READY').length}
+                  {leadScores.filter(lead => {
+                    const nurturingData = getLeadNurturingData(lead);
+                    return nurturingData?.stage === 'SALES_READY';
+                  }).length}
                 </p>
               </div>
               <Target className="h-8 w-8 text-purple-600" />
@@ -114,7 +128,10 @@ const LeadNurturingDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Convertidos</p>
                 <p className="text-2xl font-semibold text-green-600">
-                  {leadScores.filter(lead => lead.lead_nurturing?.[0]?.stage === 'CONVERTED').length}
+                  {leadScores.filter(lead => {
+                    const nurturingData = getLeadNurturingData(lead);
+                    return nurturingData?.stage === 'CONVERTED';
+                  }).length}
                 </p>
               </div>
               <Star className="h-8 w-8 text-green-600" />
@@ -142,25 +159,31 @@ const LeadNurturingDashboard = () => {
                     <h3 className="font-medium text-sm text-center">{stage}</h3>
                     <div className="min-h-[200px] p-2 bg-gray-50 rounded-lg">
                       {leadScores
-                        .filter(lead => lead.lead_nurturing?.[0]?.stage === stage || (!lead.lead_nurturing?.[0] && stage === 'CAPTURED'))
-                        .map((lead) => (
-                        <div
-                          key={lead.id}
-                          className="p-2 mb-2 bg-white rounded border cursor-pointer hover:shadow-sm"
-                          onClick={() => setSelectedLeadId(lead.id)}
-                        >
-                          <div className="font-medium text-sm">{lead.name}</div>
-                          <div className="text-xs text-gray-500">{lead.company_name}</div>
-                          <div className="flex items-center justify-between mt-1">
-                            <span className="text-xs">
-                              Score: {lead.lead_nurturing?.[0]?.lead_score ?? 0}
-                            </span>
-                            <Badge variant="outline" className="text-xs">
-                              {getScoreLevel(lead.lead_nurturing?.[0]?.lead_score ?? 0).level}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
+                        .filter(lead => {
+                          const nurturingData = getLeadNurturingData(lead);
+                          return nurturingData?.stage === stage || (!nurturingData && stage === 'CAPTURED');
+                        })
+                        .map((lead) => {
+                          const nurturingData = getLeadNurturingData(lead);
+                          return (
+                            <div
+                              key={lead.id}
+                              className="p-2 mb-2 bg-white rounded border cursor-pointer hover:shadow-sm"
+                              onClick={() => setSelectedLeadId(lead.id)}
+                            >
+                              <div className="font-medium text-sm">{lead.name}</div>
+                              <div className="text-xs text-gray-500">{lead.company_name}</div>
+                              <div className="flex items-center justify-between mt-1">
+                                <span className="text-xs">
+                                  Score: {nurturingData?.lead_score || 0}
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {getScoreLevel(nurturingData?.lead_score || 0).level}
+                                </Badge>
+                              </div>
+                            </div>
+                          );
+                        })}
                     </div>
                   </div>
                 ))}
@@ -177,10 +200,15 @@ const LeadNurturingDashboard = () => {
             <CardContent>
               <div className="space-y-4">
                 {leadScores
-                  .sort((a, b) => (b.lead_nurturing?.[0]?.lead_score ?? 0) - (a.lead_nurturing?.[0]?.lead_score ?? 0))
+                  .sort((a, b) => {
+                    const scoreA = getLeadNurturingData(a)?.lead_score || 0;
+                    const scoreB = getLeadNurturingData(b)?.lead_score || 0;
+                    return scoreB - scoreA;
+                  })
                   .slice(0, 20)
                   .map((lead) => {
-                    const score = lead.lead_nurturing?.[0]?.lead_score ?? 0;
+                    const nurturingData = getLeadNurturingData(lead);
+                    const score = nurturingData?.lead_score || 0;
                     const scoreLevel = getScoreLevel(score);
                     
                     return (
@@ -191,8 +219,8 @@ const LeadNurturingDashboard = () => {
                           <div className="text-sm text-gray-500">{lead.company_name}</div>
                         </div>
                         <div className="flex items-center space-x-4">
-                          <Badge className={getStageColor(lead.lead_nurturing?.[0]?.stage ?? 'CAPTURED')}>
-                            {lead.lead_nurturing?.[0]?.stage ?? 'CAPTURED'}
+                          <Badge className={getStageColor(nurturingData?.stage || 'CAPTURED')}>
+                            {nurturingData?.stage || 'CAPTURED'}
                           </Badge>
                           <div className="text-right">
                             <div className={`font-bold ${scoreLevel.color}`}>

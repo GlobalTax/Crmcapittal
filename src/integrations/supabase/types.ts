@@ -692,6 +692,130 @@ export type Database = {
           },
         ]
       }
+      lead_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          created_at: string
+          created_by: string | null
+          id: string
+          lead_id: string
+          points_awarded: number
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lead_id: string
+          points_awarded?: number
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: Database["public"]["Enums"]["activity_type"]
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lead_id?: string
+          points_awarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_nurturing: {
+        Row: {
+          assigned_to_id: string | null
+          created_at: string
+          engagement_score: number
+          id: string
+          last_activity_date: string | null
+          lead_id: string
+          lead_score: number
+          next_action_date: string | null
+          nurturing_status: Database["public"]["Enums"]["nurturing_status"]
+          qualification_criteria: Json | null
+          source_details: Json | null
+          stage: Database["public"]["Enums"]["lead_stage"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to_id?: string | null
+          created_at?: string
+          engagement_score?: number
+          id?: string
+          last_activity_date?: string | null
+          lead_id: string
+          lead_score?: number
+          next_action_date?: string | null
+          nurturing_status?: Database["public"]["Enums"]["nurturing_status"]
+          qualification_criteria?: Json | null
+          source_details?: Json | null
+          stage?: Database["public"]["Enums"]["lead_stage"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to_id?: string | null
+          created_at?: string
+          engagement_score?: number
+          id?: string
+          last_activity_date?: string | null
+          lead_id?: string
+          lead_score?: number
+          next_action_date?: string | null
+          nurturing_status?: Database["public"]["Enums"]["nurturing_status"]
+          qualification_criteria?: Json | null
+          source_details?: Json | null
+          stage?: Database["public"]["Enums"]["lead_stage"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_nurturing_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_scoring_rules: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          points_awarded: number
+          trigger_condition: Json
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          points_awarded: number
+          trigger_condition: Json
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          points_awarded?: number
+          trigger_condition?: Json
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           assigned_to_id: string | null
@@ -741,6 +865,80 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nurturing_sequences: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          trigger_criteria: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          trigger_criteria?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          trigger_criteria?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      nurturing_steps: {
+        Row: {
+          condition_criteria: Json | null
+          delay_days: number
+          email_template_id: string | null
+          id: string
+          is_active: boolean
+          sequence_id: string
+          step_order: number
+          step_type: string
+          task_description: string | null
+        }
+        Insert: {
+          condition_criteria?: Json | null
+          delay_days?: number
+          email_template_id?: string | null
+          id?: string
+          is_active?: boolean
+          sequence_id: string
+          step_order: number
+          step_type: string
+          task_description?: string | null
+        }
+        Update: {
+          condition_criteria?: Json | null
+          delay_days?: number
+          email_template_id?: string | null
+          id?: string
+          is_active?: boolean
+          sequence_id?: string
+          step_order?: number
+          step_type?: string
+          task_description?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nurturing_steps_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "nurturing_sequences"
             referencedColumns: ["id"]
           },
         ]
@@ -1453,8 +1651,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      update_lead_score: {
+        Args: { p_lead_id: string; p_points_to_add: number }
+        Returns: undefined
+      }
     }
     Enums: {
+      activity_type:
+        | "EMAIL_SENT"
+        | "EMAIL_OPENED"
+        | "EMAIL_CLICKED"
+        | "CALL_MADE"
+        | "MEETING_SCHEDULED"
+        | "FORM_SUBMITTED"
+        | "WEBSITE_VISIT"
+        | "DOCUMENT_DOWNLOADED"
       app_role: "superadmin" | "admin" | "user"
       company_size: "1-10" | "11-50" | "51-200" | "201-500" | "500+"
       company_status:
@@ -1470,6 +1681,22 @@ export type Database = {
         | "franquicia"
         | "competidor"
       email_status: "SENT" | "OPENED" | "CLICKED"
+      lead_source:
+        | "WEBSITE_FORM"
+        | "CAPITAL_MARKET"
+        | "REFERRAL"
+        | "EMAIL_CAMPAIGN"
+        | "SOCIAL_MEDIA"
+        | "COLD_OUTREACH"
+        | "EVENT"
+        | "OTHER"
+      lead_stage:
+        | "CAPTURED"
+        | "QUALIFIED"
+        | "NURTURING"
+        | "SALES_READY"
+        | "CONVERTED"
+        | "LOST"
       lead_status: "NEW" | "CONTACTED" | "QUALIFIED" | "DISQUALIFIED"
       lifecycle_stage:
         | "lead"
@@ -1478,6 +1705,7 @@ export type Database = {
         | "opportunity"
         | "customer"
         | "evangelist"
+      nurturing_status: "ACTIVE" | "PAUSED" | "COMPLETED" | "FAILED"
       target_status:
         | "IDENTIFIED"
         | "RESEARCHING"
@@ -1603,6 +1831,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_type: [
+        "EMAIL_SENT",
+        "EMAIL_OPENED",
+        "EMAIL_CLICKED",
+        "CALL_MADE",
+        "MEETING_SCHEDULED",
+        "FORM_SUBMITTED",
+        "WEBSITE_VISIT",
+        "DOCUMENT_DOWNLOADED",
+      ],
       app_role: ["superadmin", "admin", "user"],
       company_size: ["1-10", "11-50", "51-200", "201-500", "500+"],
       company_status: ["activa", "inactiva", "prospecto", "cliente", "perdida"],
@@ -1614,6 +1852,24 @@ export const Constants = {
         "competidor",
       ],
       email_status: ["SENT", "OPENED", "CLICKED"],
+      lead_source: [
+        "WEBSITE_FORM",
+        "CAPITAL_MARKET",
+        "REFERRAL",
+        "EMAIL_CAMPAIGN",
+        "SOCIAL_MEDIA",
+        "COLD_OUTREACH",
+        "EVENT",
+        "OTHER",
+      ],
+      lead_stage: [
+        "CAPTURED",
+        "QUALIFIED",
+        "NURTURING",
+        "SALES_READY",
+        "CONVERTED",
+        "LOST",
+      ],
       lead_status: ["NEW", "CONTACTED", "QUALIFIED", "DISQUALIFIED"],
       lifecycle_stage: [
         "lead",
@@ -1623,6 +1879,7 @@ export const Constants = {
         "customer",
         "evangelist",
       ],
+      nurturing_status: ["ACTIVE", "PAUSED", "COMPLETED", "FAILED"],
       target_status: [
         "IDENTIFIED",
         "RESEARCHING",
