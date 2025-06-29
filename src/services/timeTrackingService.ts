@@ -1,6 +1,5 @@
-
 import { supabase } from "@/integrations/supabase/client";
-import { CreatePlannedTaskData, CreateTimeEntryData, PlannedTask, TimeEntry, DailyTimeData, TeamActivityData } from "@/types/TimeTracking";
+import { CreatePlannedTaskData, CreateTimeEntryData, PlannedTask, TimeEntry, DailyTimeData, TeamActivityData, TaskStatus } from "@/types/TimeTracking";
 
 export class TimeTrackingService {
   // Planned Tasks Management
@@ -46,7 +45,7 @@ export class TimeTrackingService {
     }
   }
 
-  static async updatePlannedTaskStatus(taskId: string, status: string): Promise<{ error: string | null }> {
+  static async updatePlannedTaskStatus(taskId: string, status: TaskStatus): Promise<{ error: string | null }> {
     try {
       const { error } = await supabase
         .from('planned_tasks')

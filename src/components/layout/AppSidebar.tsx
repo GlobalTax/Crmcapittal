@@ -41,12 +41,12 @@ const navigation = [
 ];
 
 export function AppSidebar() {
-  const { userRole } = useUserRole();
+  const { role } = useUserRole();
 
   const filteredNavigation = navigation.map(group => ({
     ...group,
     items: group.items.filter(item => 
-      item.roles.includes(userRole || 'user')
+      item.roles.includes(role || 'user')
     )
   })).filter(group => group.items.length > 0);
 

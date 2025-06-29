@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +22,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OperationDetails from "./pages/OperationDetails";
-import DashboardLayout from "./components/DashboardLayout";
+import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
@@ -38,20 +39,18 @@ function App() {
             <Route path="/legal-notice" element={<LegalNotice />} />
             <Route path="/cookies-policy" element={<CookiesPolicy />} />
             
-            <Route element={<ProtectedRoute />}>
-              <Route element={<DashboardLayout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/time-tracking" element={<TimeTracking />} />
-                <Route path="/portfolio" element={<Portfolio />} />
-                <Route path="/sourcing" element={<Sourcing />} />
-                <Route path="/leads" element={<Leads />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/managers" element={<Managers />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/super-admin" element={<SuperAdmin />} />
-                <Route path="/operation/:id" element={<OperationDetails />} />
-                <Route path="/user-dashboard" element={<UserDashboard />} />
-              </Route>
+            <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+              <Route path="/" element={<Index />} />
+              <Route path="/time-tracking" element={<TimeTracking />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/sourcing" element={<Sourcing />} />
+              <Route path="/leads" element={<Leads />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/managers" element={<Managers />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/super-admin" element={<SuperAdmin />} />
+              <Route path="/operation/:id" element={<OperationDetails />} />
+              <Route path="/user-dashboard" element={<UserDashboard />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
