@@ -450,6 +450,107 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          close_date: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contact_role: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          deal_name: string
+          deal_owner: string | null
+          deal_type: string
+          deal_value: number | null
+          description: string | null
+          ebitda: number | null
+          employees: number | null
+          id: string
+          is_active: boolean
+          lead_source: string | null
+          location: string | null
+          multiplier: number | null
+          next_activity: string | null
+          notes: string | null
+          priority: string | null
+          revenue: number | null
+          sector: string | null
+          stage_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          close_date?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_role?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deal_name: string
+          deal_owner?: string | null
+          deal_type?: string
+          deal_value?: number | null
+          description?: string | null
+          ebitda?: number | null
+          employees?: number | null
+          id?: string
+          is_active?: boolean
+          lead_source?: string | null
+          location?: string | null
+          multiplier?: number | null
+          next_activity?: string | null
+          notes?: string | null
+          priority?: string | null
+          revenue?: number | null
+          sector?: string | null
+          stage_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          close_date?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contact_role?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deal_name?: string
+          deal_owner?: string | null
+          deal_type?: string
+          deal_value?: number | null
+          description?: string | null
+          ebitda?: number | null
+          employees?: number | null
+          id?: string
+          is_active?: boolean
+          lead_source?: string | null
+          location?: string | null
+          multiplier?: number | null
+          next_activity?: string | null
+          notes?: string | null
+          priority?: string | null
+          revenue?: number | null
+          sector?: string | null
+          stage_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           assigned_to_id: string | null

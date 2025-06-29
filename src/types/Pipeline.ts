@@ -2,7 +2,7 @@
 export interface Pipeline {
   id: string;
   name: string;
-  type: 'OPERACION' | 'PROYECTO' | 'LEAD' | 'TARGET_COMPANY';
+  type: 'OPERACION' | 'PROYECTO' | 'LEAD' | 'TARGET_COMPANY' | 'DEAL';
   description?: string;
   is_active: boolean;
   created_at: string;
