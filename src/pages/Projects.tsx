@@ -1,6 +1,6 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { UserProjectsList } from "@/components/UserProjectsList";
+import UserProjectsList from "@/components/UserProjectsList";
 
 const Projects = () => {
   return (

@@ -72,10 +72,10 @@ const OperationDetails = () => {
                   </div>
                 </div>
               )}
-              {operation.growth_rate && (
+              {operation.annual_growth_rate && (
                 <div>
                   <div className="text-sm text-muted-foreground">Tasa de Crecimiento</div>
-                  <div className="text-lg font-semibold">{operation.growth_rate}%</div>
+                  <div className="text-lg font-semibold">{operation.annual_growth_rate}%</div>
                 </div>
               )}
             </CardContent>

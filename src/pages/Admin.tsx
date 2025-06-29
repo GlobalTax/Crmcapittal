@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 const Admin = () => {
-  const { operations, loading, updateOperationStatus } = useOperations();
+  const { 
+    operations, 
+    loading, 
+    error,
+    updateOperation,
+    updateOperationStatus,
+    deleteOperation,
+    updateTeaserUrl
+  } = useOperations();
 
   return (
     <DashboardLayout>
@@ -37,6 +45,10 @@ const Admin = () => {
               <AdminOperationsTable 
                 operations={operations}
                 loading={loading}
+                error={error}
+                onUpdateOperation={updateOperation}
+                onDeleteOperation={deleteOperation}
+                onUpdateTeaserUrl={updateTeaserUrl}
               />
             </div>
           </div>

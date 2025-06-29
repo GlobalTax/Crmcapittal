@@ -1,6 +1,6 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { UserManagement } from "@/components/UserManagement";
+import UserManagement from "@/components/UserManagement";
 
 const SuperAdmin = () => {
   return (
