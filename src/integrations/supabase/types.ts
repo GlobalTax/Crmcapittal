@@ -620,6 +620,83 @@ export type Database = {
           },
         ]
       }
+      planned_tasks: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          date: string
+          description: string | null
+          estimated_duration: number | null
+          id: string
+          lead_id: string | null
+          operation_id: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          target_company_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          date: string
+          description?: string | null
+          estimated_duration?: number | null
+          id?: string
+          lead_id?: string | null
+          operation_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          target_company_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          estimated_duration?: number | null
+          id?: string
+          lead_id?: string | null
+          operation_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          target_company_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planned_tasks_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_tasks_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_tasks_target_company_id_fkey"
+            columns: ["target_company_id"]
+            isOneToOne: false
+            referencedRelation: "target_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       target_companies: {
         Row: {
           created_at: string
@@ -724,6 +801,7 @@ export type Database = {
           id: string
           is_billable: boolean
           operation_id: string | null
+          planned_task_id: string | null
           start_time: string
           updated_at: string
           user_id: string
@@ -739,6 +817,7 @@ export type Database = {
           id?: string
           is_billable?: boolean
           operation_id?: string | null
+          planned_task_id?: string | null
           start_time: string
           updated_at?: string
           user_id: string
@@ -754,6 +833,7 @@ export type Database = {
           id?: string
           is_billable?: boolean
           operation_id?: string | null
+          planned_task_id?: string | null
           start_time?: string
           updated_at?: string
           user_id?: string
@@ -771,6 +851,13 @@ export type Database = {
             columns: ["operation_id"]
             isOneToOne: false
             referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_planned_task_id_fkey"
+            columns: ["planned_task_id"]
+            isOneToOne: false
+            referencedRelation: "planned_tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -1029,6 +1116,7 @@ export type Database = {
         | "ON_HOLD"
         | "ARCHIVED"
         | "CONVERTED_TO_DEAL"
+      task_status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "ON_HOLD"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1157,6 +1245,7 @@ export const Constants = {
         "ARCHIVED",
         "CONVERTED_TO_DEAL",
       ],
+      task_status: ["PENDING", "IN_PROGRESS", "COMPLETED", "ON_HOLD"],
     },
   },
 } as const

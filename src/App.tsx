@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import SuperAdmin from "./pages/SuperAdmin";
 import Managers from "./pages/Managers";
@@ -17,103 +16,51 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import LegalNotice from "./pages/LegalNotice";
 import CookiesPolicy from "./pages/CookiesPolicy";
 import Leads from "./pages/Leads";
+import TimeTracking from "./pages/TimeTracking";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OperationDetails from "./pages/OperationDetails";
+import DashboardLayout from "./components/DashboardLayout";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
           <Routes>
-            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/legal" element={<LegalNotice />} />
-            <Route path="/cookies" element={<CookiesPolicy />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <UserDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/portfolio" 
-              element={
-                <ProtectedRoute>
-                  <Portfolio />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/sourcing" 
-              element={
-                <ProtectedRoute>
-                  <Sourcing />
-                </ProtectedRoute>
-              } 
-            />
-            {/* Redirect old admin route to portfolio */}
-            <Route 
-              path="/admin" 
-              element={<Navigate to="/portfolio" replace />}
-            />
-            <Route 
-              path="/superadmin" 
-              element={
-                <ProtectedRoute>
-                  <SuperAdmin />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/managers" 
-              element={
-                <ProtectedRoute>
-                  <Managers />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/projects" 
-              element={
-                <ProtectedRoute>
-                  <Projects />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/leads" 
-              element={
-                <ProtectedRoute>
-                  <Leads />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/operation/:id" 
-              element={
-                <ProtectedRoute>
-                  <OperationDetails />
-                </ProtectedRoute>
-              } 
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+            <Route path="/legal-notice" element={<LegalNotice />} />
+            <Route path="/cookies-policy" element={<CookiesPolicy />} />
+            
+            <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/time-tracking" element={<TimeTracking />} />
+                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/sourcing" element={<Sourcing />} />
+                <Route path="/leads" element={<Leads />} />
+                <Route path="/projects" element={<Projects />} />
+                <Route path="/managers" element={<Managers />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/super-admin" element={<SuperAdmin />} />
+                <Route path="/operation/:id" element={<OperationDetails />} />
+                <Route path="/user-dashboard" element={<UserDashboard />} />
+              </Route>
+            </Route>
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+        </Router>
+        <Toaster />
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

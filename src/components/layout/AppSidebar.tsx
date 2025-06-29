@@ -1,5 +1,7 @@
 
-import { NavLink, useLocation } from "react-router-dom";
+import React from "react";
+import { Calendar, Clock, Users, Building2, Target, BarChart3, Settings, FileText, MessageSquare, Timer } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   Sidebar,
   SidebarContent,
@@ -10,74 +12,67 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useUserRole } from "@/hooks/useUserRole";
-import {
-  Home,
-  User,
-  Settings,
-  Users,
-  Bell,
-  Grid,
-  Target,
-} from "lucide-react";
 
-const navigationItems = {
-  user: [
-    { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Portfolio", url: "/portfolio", icon: Grid },
-    { title: "Sourcing", url: "/sourcing", icon: Target },
-  ],
-  admin: [
-    { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Portfolio", url: "/portfolio", icon: Grid },
-    { title: "Sourcing", url: "/sourcing", icon: Target },
-    { title: "Leads", url: "/leads", icon: Bell },
-    { title: "Proyectos", url: "/projects", icon: Settings },
-  ],
-  superadmin: [
-    { title: "Dashboard", url: "/dashboard", icon: Home },
-    { title: "Portfolio", url: "/portfolio", icon: Grid },
-    { title: "Sourcing", url: "/sourcing", icon: Target },
-    { title: "Leads", url: "/leads", icon: Bell },
-    { title: "Proyectos", url: "/projects", icon: Settings },
-    { title: "Managers", url: "/managers", icon: Users },
-    { title: "Super Admin", url: "/superadmin", icon: User },
-  ],
-};
+const navigation = [
+  {
+    title: "Dashboard",
+    items: [
+      { title: "Inicio", url: "/", icon: BarChart3, roles: ["user", "admin", "superadmin"] },
+      { title: "Mi Día", url: "/time-tracking", icon: Timer, roles: ["user", "admin", "superadmin"] },
+    ],
+  },
+  {
+    title: "Gestión",
+    items: [
+      { title: "Operaciones", url: "/portfolio", icon: Building2, roles: ["user", "admin", "superadmin"] },
+      { title: "Sourcing", url: "/sourcing", icon: Target, roles: ["user", "admin", "superadmin"] },
+      { title: "Leads", url: "/leads", icon: MessageSquare, roles: ["user", "admin", "superadmin"] },
+      { title: "Proyectos", url: "/projects", icon: FileText, roles: ["user", "admin", "superadmin"] },
+    ],
+  },
+  {
+    title: "Administración",
+    items: [
+      { title: "Managers", url: "/managers", icon: Users, roles: ["admin", "superadmin"] },
+      { title: "Admin Panel", url: "/admin", icon: Settings, roles: ["admin", "superadmin"] },
+      { title: "Super Admin", url: "/super-admin", icon: Settings, roles: ["superadmin"] },
+    ],
+  },
+];
 
-export const AppSidebar = () => {
-  const { role } = useUserRole();
-  const location = useLocation();
-  
-  const items = role ? navigationItems[role] || navigationItems.user : navigationItems.user;
-  
-  const isActive = (url: string) => {
-    if (url === "/" && location.pathname === "/") return true;
-    if (url !== "/" && location.pathname.startsWith(url)) return true;
-    return false;
-  };
+export function AppSidebar() {
+  const { userRole } = useUserRole();
+
+  const filteredNavigation = navigation.map(group => ({
+    ...group,
+    items: group.items.filter(item => 
+      item.roles.includes(userRole || 'user')
+    )
+  })).filter(group => group.items.length > 0);
 
   return (
-    <Sidebar className="border-r">
+    <Sidebar>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navegación</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink to={item.url} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {filteredNavigation.map((group) => (
+          <SidebarGroup key={group.title}>
+            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
     </Sidebar>
   );
-};
+}
