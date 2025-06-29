@@ -2,6 +2,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
 import { useOperations } from "@/hooks/useOperations";
 import { useLeads } from "@/hooks/useLeads";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -87,6 +88,14 @@ const UserDashboard = () => {
           ))}
         </div>
 
+        {/* Email Stats Section for admin users */}
+        {(role === 'admin' || role === 'superadmin') && (
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
+            <EmailStatsCard />
+          </div>
+        )}
+
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <ActivityFeed activities={recentActivities} />
           
@@ -100,7 +109,7 @@ const UserDashboard = () => {
                 </a>
                 {role === 'admin' || role === 'superadmin' ? (
                   <>
-                    <a href="/admin" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                    <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
                       <div className="font-medium">Gestionar Operaciones</div>
                       <div className="text-sm text-muted-foreground">Administra el portfolio de operaciones</div>
                     </a>

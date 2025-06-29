@@ -808,6 +808,95 @@ export type Database = {
         }
         Relationships: []
       }
+      tracked_emails: {
+        Row: {
+          contact_id: string | null
+          content: string | null
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          lead_id: string | null
+          open_count: number
+          opened_at: string | null
+          operation_id: string | null
+          recipient_email: string
+          sent_at: string
+          status: Database["public"]["Enums"]["email_status"]
+          subject: string | null
+          target_company_id: string | null
+          tracking_id: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          contact_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          lead_id?: string | null
+          open_count?: number
+          opened_at?: string | null
+          operation_id?: string | null
+          recipient_email: string
+          sent_at?: string
+          status?: Database["public"]["Enums"]["email_status"]
+          subject?: string | null
+          target_company_id?: string | null
+          tracking_id?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          lead_id?: string | null
+          open_count?: number
+          opened_at?: string | null
+          operation_id?: string | null
+          recipient_email?: string
+          sent_at?: string
+          status?: Database["public"]["Enums"]["email_status"]
+          subject?: string | null
+          target_company_id?: string | null
+          tracking_id?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracked_emails_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracked_emails_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracked_emails_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracked_emails_target_company_id_fkey"
+            columns: ["target_company_id"]
+            isOneToOne: false
+            referencedRelation: "target_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_favorite_operations: {
         Row: {
           created_at: string
@@ -929,6 +1018,7 @@ export type Database = {
     }
     Enums: {
       app_role: "superadmin" | "admin" | "user"
+      email_status: "SENT" | "OPENED" | "CLICKED"
       lead_status: "NEW" | "CONTACTED" | "QUALIFIED" | "DISQUALIFIED"
       target_status:
         | "IDENTIFIED"
@@ -1055,6 +1145,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["superadmin", "admin", "user"],
+      email_status: ["SENT", "OPENED", "CLICKED"],
       lead_status: ["NEW", "CONTACTED", "QUALIFIED", "DISQUALIFIED"],
       target_status: [
         "IDENTIFIED",

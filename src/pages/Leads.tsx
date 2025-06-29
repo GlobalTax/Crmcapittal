@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
 import {
   Select,
   SelectContent,
@@ -88,6 +89,12 @@ const Leads = () => {
           {stats.map((stat, index) => (
             <StatsCard key={index} {...stat} />
           ))}
+        </div>
+
+        {/* Email Stats Section */}
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
+          <EmailStatsCard />
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
