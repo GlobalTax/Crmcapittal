@@ -37,8 +37,8 @@ export const KPIMetrics = ({ metrics }: KPIMetricsProps) => {
                   <span className="text-sm text-gray-500 ml-1">{metric.description}</span>
                 </div>
               </div>
-              <div className="p-3 bg-orange-50 rounded-lg">
-                <metric.icon className="h-6 w-6 text-orange-600" />
+              <div className="p-3 bg-neutral-50 rounded-lg">
+                <metric.icon className="h-6 w-6 text-neutral-600" />
               </div>
             </div>
           </CardContent>

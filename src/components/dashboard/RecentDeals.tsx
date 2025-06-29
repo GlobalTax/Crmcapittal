@@ -22,18 +22,18 @@ export const RecentDeals = ({ deals }: RecentDealsProps) => {
     <Card className="bg-white border border-gray-200">
       <CardHeader className="border-b border-gray-100 pb-4">
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-          <Target className="h-4 w-4 mr-2 text-orange-600" />
+          <Target className="h-4 w-4 mr-2 text-neutral-600" />
           Deals Recientes
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
         <div className="space-y-3">
           {deals.slice(0, 3).map(deal => (
-            <div key={deal.id} className="border-l-4 border-orange-500 pl-3">
+            <div key={deal.id} className="border-l-4 border-neutral-500 pl-3">
               <p className="text-sm font-medium text-gray-900">{deal.dealName}</p>
               <p className="text-xs text-gray-500">{deal.companyName}</p>
               <div className="flex items-center justify-between mt-1">
-                <Badge className="text-xs bg-orange-100 text-orange-800">
+                <Badge className="text-xs bg-neutral-100 text-neutral-800">
                   {deal.dealType}
                 </Badge>
                 <span className="text-xs font-medium text-gray-900">
