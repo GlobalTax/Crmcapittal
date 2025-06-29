@@ -20,6 +20,8 @@ export const fetchLeads = async (filters?: {
     if (dbSupportedStatuses.includes(filters.status)) {
       query = query.eq('status', filters.status);
     }
+    // If the filter status is not supported by DB (like NURTURING, CONVERTED, LOST),
+    // we don't apply the filter and let the frontend handle it
   }
 
   if (filters?.assigned_to_id) {
