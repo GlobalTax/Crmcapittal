@@ -20,15 +20,12 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Manrope', 'system-ui', 'sans-serif'],
+				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
-				sm: '10px',
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-			},
-			borderWidth: {
-				'0.5': '0.5px',
+				lg: '0.5rem',
+				md: 'calc(0.5rem - 2px)',
+				sm: '0.25rem',
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -73,6 +70,25 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// New LegalCRM Design System Colors
+				slate: {
+					50: '#F8FAFC',
+					200: '#E2E8F0',
+					300: '#CBD5E1',
+					500: '#64748B',
+					600: '#475569',
+					900: '#0F172A'
+				},
+				blue: {
+					50: '#EFF6FF',
+					600: '#2563EB'
+				},
+				green: {
+					600: '#16A34A'
+				},
+				red: {
+					600: '#DC2626'
 				}
 			},
 			keyframes: {

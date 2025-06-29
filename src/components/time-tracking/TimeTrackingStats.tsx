@@ -40,29 +40,29 @@ export const TimeTrackingStats: React.FC<TimeTrackingStatsProps> = ({ timeEntrie
       title: 'Sesiones',
       value: completedEntries.length.toString(),
       icon: TrendingUp,
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600'
+      bgColor: 'bg-slate-50',
+      iconColor: 'text-slate-600'
     },
     {
       title: 'Eficiencia',
       value: totalMinutes > 0 ? `${Math.round((billableMinutes / totalMinutes) * 100)}%` : '0%',
       icon: Calendar,
-      bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-600'
+      bgColor: 'bg-slate-50',
+      iconColor: 'text-slate-600'
     }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="shadow-sm border border-gray-200/60 bg-white">
+        <Card key={index} className="shadow-sm border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm font-medium text-slate-500">{stat.title}</p>
+                <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
               </div>
-              <div className={`w-12 h-12 ${stat.bgColor} rounded-full flex items-center justify-center`}>
+              <div className={`w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center`}>
                 <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
               </div>
             </div>
