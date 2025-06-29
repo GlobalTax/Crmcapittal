@@ -61,14 +61,14 @@ export const ActiveTimer: React.FC<ActiveTimerProps> = ({
     <div className="text-center py-8">
       {/* Timer Display */}
       <div className="relative mb-8">
-        <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+        <div className="w-32 h-32 bg-gradient-to-br from-neutral-600 to-neutral-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
           <div className="text-white">
             <div className="text-2xl font-mono font-bold leading-none">
               {formatTime(elapsedSeconds)}
             </div>
           </div>
         </div>
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white animate-pulse"></div>
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-neutral-500 rounded-full border-4 border-white animate-pulse"></div>
       </div>
 
       {/* Task Info */}
@@ -88,7 +88,7 @@ export const ActiveTimer: React.FC<ActiveTimerProps> = ({
       <Button 
         onClick={onStopTimer}
         size="lg"
-        className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+        className="bg-neutral-800 hover:bg-neutral-900 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
       >
         <Square className="w-5 h-5 mr-2" />
         Detener Temporizador

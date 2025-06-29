@@ -21,37 +21,37 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
       case 'PENDING':
         return {
           icon: Circle,
-          color: 'bg-gray-100 text-gray-700 border-gray-200',
+          color: 'bg-neutral-100 text-neutral-700 border-neutral-200',
           text: 'Pendiente',
-          iconColor: 'text-gray-400'
+          iconColor: 'text-neutral-400'
         };
       case 'IN_PROGRESS':
         return {
           icon: Play,
-          color: 'bg-blue-100 text-blue-700 border-blue-200',
+          color: 'bg-neutral-200 text-neutral-800 border-neutral-300',
           text: 'En Progreso',
-          iconColor: 'text-blue-500'
+          iconColor: 'text-neutral-600'
         };
       case 'COMPLETED':
         return {
           icon: CheckCircle,
-          color: 'bg-green-100 text-green-700 border-green-200',
+          color: 'bg-neutral-800 text-neutral-50 border-neutral-800',
           text: 'Completado',
-          iconColor: 'text-green-500'
+          iconColor: 'text-neutral-50'
         };
       case 'ON_HOLD':
         return {
           icon: Pause,
-          color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+          color: 'bg-neutral-300 text-neutral-800 border-neutral-400',
           text: 'En Pausa',
-          iconColor: 'text-yellow-500'
+          iconColor: 'text-neutral-700'
         };
       default:
         return {
           icon: Circle,
-          color: 'bg-gray-100 text-gray-700 border-gray-200',
+          color: 'bg-neutral-100 text-neutral-700 border-neutral-200',
           text: status,
-          iconColor: 'text-gray-400'
+          iconColor: 'text-neutral-400'
         };
     }
   };
@@ -111,7 +111,7 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
                     onClick={() => onStartTimer(task.id)}
                     disabled={isTimerRunning}
                     size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-neutral-700 hover:bg-neutral-800 text-white"
                   >
                     <Play className="w-4 h-4 mr-1" />
                     Iniciar
@@ -119,14 +119,14 @@ export const DailyTaskList: React.FC<DailyTaskListProps> = ({
                 )}
                 
                 {task.status === 'IN_PROGRESS' && (
-                  <Badge className="bg-blue-100 text-blue-800 px-3 py-1">
+                  <Badge className="bg-neutral-200 text-neutral-800 px-3 py-1">
                     <Play className="w-3 h-3 mr-1" />
                     En curso
                   </Badge>
                 )}
                 
                 {task.status === 'COMPLETED' && (
-                  <Badge className="bg-green-100 text-green-800 px-3 py-1">
+                  <Badge className="bg-neutral-800 text-neutral-50 px-3 py-1">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Completado
                   </Badge>

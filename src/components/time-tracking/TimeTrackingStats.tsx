@@ -26,29 +26,29 @@ export const TimeTrackingStats: React.FC<TimeTrackingStatsProps> = ({ timeEntrie
       title: 'Tiempo Total',
       value: formatTime(totalMinutes),
       icon: Clock,
-      bgColor: 'bg-blue-50',
-      iconColor: 'text-blue-600'
+      bgColor: 'bg-neutral-100',
+      iconColor: 'text-neutral-600'
     },
     {
       title: 'Tiempo Facturable',
       value: formatTime(billableMinutes),
       icon: Target,
-      bgColor: 'bg-green-50',
-      iconColor: 'text-green-600'
+      bgColor: 'bg-neutral-200',
+      iconColor: 'text-neutral-700'
     },
     {
       title: 'Sesiones',
       value: completedEntries.length.toString(),
       icon: TrendingUp,
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600'
+      bgColor: 'bg-neutral-300',
+      iconColor: 'text-neutral-800'
     },
     {
       title: 'Eficiencia',
       value: totalMinutes > 0 ? `${Math.round((billableMinutes / totalMinutes) * 100)}%` : '0%',
       icon: Calendar,
-      bgColor: 'bg-orange-50',
-      iconColor: 'text-orange-600'
+      bgColor: 'bg-neutral-400',
+      iconColor: 'text-neutral-50'
     }
   ];
 

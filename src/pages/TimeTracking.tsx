@@ -38,7 +38,7 @@ const TimeTracking = () => {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Cargando datos del día...</p>
         </div>
       </div>
@@ -64,7 +64,7 @@ const TimeTracking = () => {
           </Button>
           <Button 
             onClick={() => setShowCreateTask(true)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-neutral-800 hover:bg-neutral-900 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Nueva Tarea
@@ -83,7 +83,7 @@ const TimeTracking = () => {
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-neutral-500 rounded-full animate-pulse"></div>
                 Temporizador Activo
               </CardTitle>
             </CardHeader>
@@ -100,7 +100,7 @@ const TimeTracking = () => {
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-600" />
+                <BarChart3 className="w-5 h-5 text-neutral-600" />
                 Resumen del Día
               </CardTitle>
             </CardHeader>
@@ -135,7 +135,7 @@ const TimeTracking = () => {
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
+                <Calendar className="w-5 h-5 text-neutral-600" />
                 Tareas con Temporizador
               </CardTitle>
             </CardHeader>
@@ -152,7 +152,7 @@ const TimeTracking = () => {
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-blue-600" />
+                <Clock className="w-5 h-5 text-neutral-600" />
                 Registro de Tiempo
               </CardTitle>
             </CardHeader>
