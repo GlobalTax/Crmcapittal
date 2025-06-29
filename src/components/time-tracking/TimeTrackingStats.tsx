@@ -24,22 +24,22 @@ export const TimeTrackingStats: React.FC<TimeTrackingStatsProps> = ({ timeEntrie
     {
       title: 'Tiempo Total',
       value: formatTime(totalMinutes),
-      bgColor: 'bg-neutral-100',
+      bgColor: 'bg-gray-100',
     },
     {
       title: 'Tiempo Facturable',
       value: formatTime(billableMinutes),
-      bgColor: 'bg-neutral-200',
+      bgColor: 'bg-gray-200',
     },
     {
       title: 'Sesiones',
       value: completedEntries.length.toString(),
-      bgColor: 'bg-neutral-300',
+      bgColor: 'bg-gray-300',
     },
     {
       title: 'Eficiencia',
       value: totalMinutes > 0 ? `${Math.round((billableMinutes / totalMinutes) * 100)}%` : '0%',
-      bgColor: 'bg-neutral-400',
+      bgColor: 'bg-gray-400',
     }
   ];
 
