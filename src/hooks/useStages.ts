@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Stage } from '@/types/Pipeline';
+import { Stage, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useStages = (pipelineId?: string) => {
@@ -33,7 +33,10 @@ export const useStages = (pipelineId?: string) => {
       // Transform the data to match our Stage type
       const transformedData = (data || []).map(stage => ({
         ...stage,
-        pipeline: stage.pipelines
+        pipeline: stage.pipelines ? {
+          ...stage.pipelines,
+          type: stage.pipelines.type as PipelineType
+        } : undefined
       }));
       
       setStages(transformedData);

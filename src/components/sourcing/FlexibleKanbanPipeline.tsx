@@ -31,16 +31,14 @@ export const FlexibleKanbanPipeline = ({
   const relevantPipelines = pipelines.filter(p => p.type === pipelineType);
   
   // Auto-seleccionar el primer pipeline si no hay uno seleccionado
-  useState(() => {
-    if (!selectedPipelineId && relevantPipelines.length > 0) {
-      setSelectedPipelineId(relevantPipelines[0].id);
-    }
-  });
+  if (!selectedPipelineId && relevantPipelines.length > 0) {
+    setSelectedPipelineId(relevantPipelines[0].id);
+  }
 
   // Filtrar stages por pipeline seleccionado
   const pipelineStages = stages.filter(stage => stage.pipeline_id === selectedPipelineId);
 
-  // Agrupar empresas por stage
+  // Agrupar empresas por stage (usando stage_id en lugar de stage.id)
   const companiesByStage = pipelineStages.reduce((acc, stage) => {
     acc[stage.id] = targetCompanies.filter(company => company.stage_id === stage.id);
     return acc;

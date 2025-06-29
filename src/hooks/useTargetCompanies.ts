@@ -146,6 +146,64 @@ export const useTargetCompanies = () => {
     }
   };
 
+  // Métodos adicionales para compatibilidad con los componentes existentes
+  const bulkImportTargets = async (targets: any[]) => {
+    try {
+      const { data, error } = await supabase
+        .from('target_companies')
+        .insert(targets.map(target => ({
+          ...target,
+          created_by_user_id: user?.id
+        })))
+        .select();
+
+      if (error) throw error;
+
+      setTargetCompanies(prev => [...data, ...prev]);
+      return { data, error: null };
+    } catch (err) {
+      console.error('Error bulk importing targets:', err);
+      return { data: null, error: err instanceof Error ? err.message : 'Error desconocido' };
+    }
+  };
+
+  const createTargetContact = async (contactData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('target_contacts')
+        .insert([contactData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Refresh target companies to get updated contacts
+      await fetchTargetCompanies();
+      return { data, error: null };
+    } catch (err) {
+      console.error('Error creating target contact:', err);
+      return { data: null, error: err instanceof Error ? err.message : 'Error desconocido' };
+    }
+  };
+
+  const deleteTargetContact = async (contactId: string) => {
+    try {
+      const { error } = await supabase
+        .from('target_contacts')
+        .delete()
+        .eq('id', contactId);
+
+      if (error) throw error;
+
+      // Refresh target companies to get updated contacts
+      await fetchTargetCompanies();
+      return { error: null };
+    } catch (err) {
+      console.error('Error deleting target contact:', err);
+      return { error: err instanceof Error ? err.message : 'Error desconocido' };
+    }
+  };
+
   useEffect(() => {
     fetchTargetCompanies();
   }, [user]);
@@ -158,6 +216,9 @@ export const useTargetCompanies = () => {
     updateTargetCompany,
     updateStatus,
     deleteTargetCompany,
+    bulkImportTargets,
+    createTargetContact,
+    deleteTargetContact,
     refetch: fetchTargetCompanies
   };
 };
