@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource } from '@/types/Lead';
 
@@ -65,7 +66,8 @@ export const fetchLeads = async (filters?: {
     form_data: {},
     assigned_to: lead.assigned_to_id 
       ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
-      : null
+      : null,
+    lead_nurturing: []
   }));
 
   console.log('Leads fetched successfully:', transformedData?.length);

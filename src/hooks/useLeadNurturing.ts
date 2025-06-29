@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { LeadNurturing, LeadActivity, LeadStage, LeadSource } from '@/types/LeadNurturing';
+import { Lead } from '@/types/Lead';
 import { toast } from 'sonner';
 
 export const useLeadNurturing = (leadId?: string) => {
@@ -161,8 +162,11 @@ export const useLeadScoring = () => {
           name,
           email,
           company_name,
+          phone,
+          source,
           status,
           created_at,
+          updated_at,
           lead_nurturing(lead_score, engagement_score, stage, last_activity_date)
         `)
         .order('created_at', { ascending: false });
@@ -172,7 +176,45 @@ export const useLeadScoring = () => {
         throw error;
       }
 
-      return data;
+      // Transform data to match Lead interface
+      const transformedData: Lead[] = (data || []).map(lead => {
+        const nurturingData = Array.isArray(lead.lead_nurturing) && lead.lead_nurturing.length > 0 
+          ? lead.lead_nurturing[0] 
+          : null;
+
+        return {
+          id: lead.id,
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          company_name: lead.company_name,
+          source: (lead.source as any) || 'other',
+          status: lead.status,
+          lead_score: nurturingData?.lead_score || 0,
+          created_at: lead.created_at,
+          updated_at: lead.updated_at,
+          // Set default values for required fields
+          priority: 'MEDIUM',
+          quality: 'FAIR',
+          follow_up_count: 0,
+          email_opens: 0,
+          email_clicks: 0,
+          website_visits: 0,
+          content_downloads: 0,
+          tags: [],
+          form_data: {},
+          assigned_to: null,
+          // Include the lead_nurturing data as expected by the interface
+          lead_nurturing: nurturingData ? [{
+            lead_score: nurturingData.lead_score,
+            engagement_score: nurturingData.engagement_score,
+            stage: nurturingData.stage,
+            last_activity_date: nurturingData.last_activity_date
+          }] : []
+        };
+      });
+
+      return transformedData;
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
