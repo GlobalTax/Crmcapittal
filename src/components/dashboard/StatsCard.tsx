@@ -11,25 +11,44 @@ interface StatsCardProps {
     value: number;
     isPositive: boolean;
   };
+  bgColor?: string;
+  textColor?: string;
 }
 
-export const StatsCard = ({ title, value, description, icon: Icon, trend }: StatsCardProps) => {
+export const StatsCard = ({ 
+  title, 
+  value, 
+  description, 
+  icon: Icon, 
+  trend, 
+  bgColor = "bg-white",
+  textColor = "text-gray-900"
+}: StatsCardProps) => {
+  const isGradient = bgColor.includes('gradient');
+  const iconBgColor = isGradient ? "bg-white/20" : "bg-blue-50";
+  const iconTextColor = isGradient ? "text-white" : "text-blue-600";
+  const titleColor = isGradient ? "text-white/90" : "text-gray-600";
+  const descriptionColor = isGradient ? "text-white/80" : "text-gray-500";
+  const trendColor = trend?.isPositive ? 
+    (isGradient ? "text-white/90" : "text-green-600") : 
+    (isGradient ? "text-white/90" : "text-red-600");
+
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200">
+    <Card className={`${bgColor} hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 shadow-lg`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-gray-600">{title}</CardTitle>
-        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-          <Icon className="h-5 w-5 text-blue-600" />
+        <CardTitle className={`text-sm font-medium ${titleColor}`}>{title}</CardTitle>
+        <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
+          <Icon className={`h-6 w-6 ${iconTextColor}`} />
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-gray-900 mb-1">{value}</div>
+        <div className={`text-3xl font-bold ${textColor} mb-1`}>{value}</div>
         {description && (
-          <p className="text-xs text-gray-500 mb-2">{description}</p>
+          <p className={`text-sm ${descriptionColor} mb-2`}>{description}</p>
         )}
         {trend && (
-          <div className={`text-xs flex items-center ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            <span className="mr-1">{trend.isPositive ? '↗' : '↘'}</span>
+          <div className={`text-sm flex items-center ${trendColor} font-medium`}>
+            <span className="mr-1 text-lg">{trend.isPositive ? '↗' : '↘'}</span>
             {trend.isPositive ? '+' : ''}{trend.value}% desde el mes pasado
           </div>
         )}

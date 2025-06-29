@@ -31,21 +31,39 @@ const Index = () => {
     );
   }
 
-  // Mock activity data
+  // Mock recent activities with more realistic M&A data
   const recentActivities = [
     {
       id: '1',
       type: 'operation' as const,
-      description: 'Nueva operación añadida al portfolio',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 min ago
-      user: 'Sistema'
+      description: 'Nueva operación de fusión valorada en €2.5M añadida al portfolio',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 min ago
+      user: 'Ana García',
+      priority: 'high' as const
     },
     {
       id: '2',
       type: 'lead' as const,
-      description: 'Nuevo lead recibido desde el formulario web',
+      description: 'Lead cualificado: Empresa tecnológica busca adquisición',
+      timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 min ago
+      user: 'Carlos Ruiz',
+      priority: 'medium' as const
+    },
+    {
+      id: '3',
+      type: 'operation' as const,
+      description: 'Operación de venta parcial cerrada exitosamente - €1.8M',
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      user: 'Sistema'
+      user: 'María López',
+      priority: 'high' as const
+    },
+    {
+      id: '4',
+      type: 'user' as const,
+      description: 'Reunión programada con cliente potencial para mañana',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+      user: 'Sistema',
+      priority: 'low' as const
     },
   ];
 
@@ -55,14 +73,18 @@ const Index = () => {
       value: operationsLoading ? "..." : operations.length,
       description: "Operaciones en el sistema",
       icon: Activity,
-      trend: { value: 12, isPositive: true }
+      trend: { value: 12, isPositive: true },
+      bgColor: "bg-gradient-to-br from-blue-500 to-blue-600",
+      textColor: "text-white"
     },
     {
       title: "Operaciones Disponibles",
       value: operationsLoading ? "..." : operations.filter(op => op.status === 'available').length,
       description: "Listas para inversión",
       icon: TrendingUp,
-      trend: { value: 8, isPositive: true }
+      trend: { value: 8, isPositive: true },
+      bgColor: "bg-gradient-to-br from-green-500 to-green-600",
+      textColor: "text-white"
     },
   ];
 
@@ -73,7 +95,9 @@ const Index = () => {
       value: leadsLoading ? "..." : leads.length,
       description: "Leads en el sistema",
       icon: Bell,
-      trend: { value: 23, isPositive: true }
+      trend: { value: 23, isPositive: true },
+      bgColor: "bg-gradient-to-br from-purple-500 to-purple-600",
+      textColor: "text-white"
     });
 
     stats.push({
@@ -81,7 +105,9 @@ const Index = () => {
       value: leadsLoading ? "..." : leads.filter(l => l.status === 'NEW').length,
       description: "Pendientes de contacto",
       icon: Users,
-      trend: { value: 5, isPositive: true }
+      trend: { value: 5, isPositive: true },
+      bgColor: "bg-gradient-to-br from-orange-500 to-orange-600",
+      textColor: "text-white"
     });
   }
 
@@ -123,9 +149,9 @@ const Index = () => {
               </a>
               {role === 'admin' || role === 'superadmin' ? (
                 <>
-                  <a href="/portfolio" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
+                  <a href="/operaciones" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
                     <div className="font-medium text-gray-900">Gestionar Operaciones</div>
-                    <div className="text-sm text-gray-600 mt-1">Administra el portfolio de operaciones</div>
+                    <div className="text-sm text-gray-600 mt-1">Administra el pipeline de operaciones</div>
                   </a>
                   <a href="/leads" className="block p-4 rounded-lg hover:bg-gray-50 transition-colors border border-gray-100">
                     <div className="font-medium text-gray-900">Ver Leads</div>

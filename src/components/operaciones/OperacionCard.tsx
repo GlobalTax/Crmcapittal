@@ -13,11 +13,17 @@ interface OperacionCardProps {
 }
 
 export const OperacionCard = ({ operacion }: OperacionCardProps) => {
-  // Score condicional: verde si >80, como describes en tu guía
+  // Score condicional: verde si >80, amarillo si >60, rojo si <=60
   const getScoreColor = (score: number) => {
     if (score > 80) return "bg-green-100 text-green-800 border-green-200";
     if (score > 60) return "bg-yellow-100 text-yellow-800 border-yellow-200";
     return "bg-red-100 text-red-800 border-red-200";
+  };
+
+  const getScoreBarColor = (score: number) => {
+    if (score > 80) return "bg-green-500";
+    if (score > 60) return "bg-yellow-500";
+    return "bg-red-500";
   };
 
   return (
@@ -55,10 +61,7 @@ export const OperacionCard = ({ operacion }: OperacionCardProps) => {
         {/* Indicador visual del score */}
         <div className="w-full bg-slate-200 rounded-full h-2">
           <div 
-            className={`h-2 rounded-full transition-all ${
-              operacion.score > 80 ? 'bg-green-500' : 
-              operacion.score > 60 ? 'bg-yellow-500' : 'bg-red-500'
-            }`}
+            className={`h-2 rounded-full transition-all ${getScoreBarColor(operacion.score)}`}
             style={{ width: `${operacion.score}%` }}
           />
         </div>
