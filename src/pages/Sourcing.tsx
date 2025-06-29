@@ -1,16 +1,18 @@
 
 import { TargetCompaniesTable } from "@/components/sourcing/TargetCompaniesTable";
+import { KanbanPipeline } from "@/components/sourcing/KanbanPipeline";
 import { CreateTargetCompanyDialog } from "@/components/sourcing/CreateTargetCompanyDialog";
 import { BulkImportDialog } from "@/components/sourcing/BulkImportDialog";
 import { useTargetCompanies } from "@/hooks/useTargetCompanies";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Target } from "lucide-react";
+import { Plus, Upload, Target, LayoutGrid, Table } from "lucide-react";
 import { useState } from "react";
 
 const Sourcing = () => {
   const { targetCompanies, loading } = useTargetCompanies();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
 
   // Calculate stats
   const totalTargets = targetCompanies.length;
@@ -31,7 +33,29 @@ const Sourcing = () => {
           </p>
         </div>
         
-        <div className="flex space-x-3">
+        <div className="flex items-center space-x-3">
+          {/* View Toggle */}
+          <div className="flex items-center bg-white rounded-lg border p-1">
+            <Button
+              variant={viewMode === 'table' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              className="h-8"
+            >
+              <Table className="h-4 w-4 mr-1" />
+              Tabla
+            </Button>
+            <Button
+              variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('kanban')}
+              className="h-8"
+            >
+              <LayoutGrid className="h-4 w-4 mr-1" />
+              Kanban
+            </Button>
+          </div>
+
           <Button
             onClick={() => setShowImportDialog(true)}
             variant="outline"
@@ -88,8 +112,12 @@ const Sourcing = () => {
         </div>
       </div>
 
-      {/* Main Table */}
-      <TargetCompaniesTable />
+      {/* Main Content - Toggle between Table and Kanban */}
+      {viewMode === 'table' ? (
+        <TargetCompaniesTable />
+      ) : (
+        <KanbanPipeline onToggleView={() => setViewMode('table')} />
+      )}
 
       {/* Dialogs */}
       <CreateTargetCompanyDialog
