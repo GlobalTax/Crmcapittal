@@ -14,11 +14,11 @@ interface DealCardProps {
 export const DealCard = ({ deal, isDragging }: DealCardProps) => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'baja': return "bg-neutral-100 text-neutral-700 border-neutral-200";
+      case 'baja': return "bg-neutral-50 text-neutral-600 border-neutral-200";
       case 'media': return "bg-yellow-50 text-yellow-700 border-yellow-200";
       case 'alta': return "bg-orange-50 text-orange-700 border-orange-200";
       case 'urgente': return "bg-red-50 text-red-700 border-red-200";
-      default: return "bg-neutral-100 text-neutral-700 border-neutral-200";
+      default: return "bg-neutral-50 text-neutral-600 border-neutral-200";
     }
   };
 
@@ -51,7 +51,7 @@ export const DealCard = ({ deal, isDragging }: DealCardProps) => {
             )}
           </div>
           <Badge 
-            className={`${getPriorityColor(deal.priority)} border text-xs font-medium`}
+            className={`${getPriorityColor(deal.priority)} text-xs font-medium`}
             variant="outline"
           >
             {deal.priority}
@@ -75,7 +75,7 @@ export const DealCard = ({ deal, isDragging }: DealCardProps) => {
 
         {/* Contact Info - Usando información del contacto asociado */}
         {deal.contact && (
-          <div className="space-y-2 p-3 bg-muted/30 border border-border/50 rounded-md">
+          <div className="space-y-2 p-3 bg-neutral-50 border border-border rounded-md">
             <div className="flex items-center text-sm font-medium text-foreground">
               <User className="h-3 w-3 mr-1" />
               {deal.contact.name}

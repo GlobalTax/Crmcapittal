@@ -23,11 +23,13 @@ export default {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
+				xs: 'var(--radius-xs)',
 				sm: 'var(--radius-sm)',
 				DEFAULT: 'var(--radius)',
 				md: 'var(--radius-md)',
 				lg: 'var(--radius-lg)',
 				xl: 'var(--radius-xl)',
+				'2xl': 'var(--radius-2xl)',
 			},
 			borderWidth: {
 				'0.5': '0.5px',
@@ -91,11 +93,17 @@ export default {
 				}
 			},
 			boxShadow: {
+				'xs': 'var(--shadow-xs)',
 				'subtle': 'var(--shadow-sm)',
 				'soft': 'var(--shadow)',
 				'medium': 'var(--shadow-md)',
 				'elevated': 'var(--shadow-lg)',
 				'floating': 'var(--shadow-xl)',
+				'deep': 'var(--shadow-2xl)',
+			},
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem',
 			},
 			keyframes: {
 				'accordion-down': {
