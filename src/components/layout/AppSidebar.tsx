@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Calendar, Clock, Users, Building2, Target, BarChart3, Settings, FileText, MessageSquare, Timer } from "lucide-react";
+import { Calendar, Clock, Users, Building2, Target, BarChart3, Settings, FileText, MessageSquare, Timer, Workflow } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Link } from "react-router-dom";
 import {
@@ -26,6 +26,7 @@ const navigation = [
   {
     title: "Gestión",
     items: [
+      { title: "Pipelines", url: "/pipelines", icon: Workflow, roles: ["user", "admin", "superadmin"] },
       { title: "Operaciones", url: "/portfolio", icon: Building2, roles: ["user", "admin", "superadmin"] },
       { title: "Sourcing", url: "/sourcing", icon: Target, roles: ["user", "admin", "superadmin"] },
       { title: "Leads", url: "/leads", icon: MessageSquare, roles: ["user", "admin", "superadmin"] },

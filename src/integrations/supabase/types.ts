@@ -461,6 +461,7 @@ export type Database = {
           name: string
           phone: string | null
           source: string
+          stage_id: string | null
           status: Database["public"]["Enums"]["lead_status"]
           updated_at: string
         }
@@ -474,6 +475,7 @@ export type Database = {
           name: string
           phone?: string | null
           source: string
+          stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
         }
@@ -487,10 +489,19 @@ export type Database = {
           name?: string
           phone?: string | null
           source?: string
+          stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       operation_managers: {
         Row: {
@@ -552,6 +563,7 @@ export type Database = {
           revenue: number | null
           sector: string
           seller: string | null
+          stage_id: string | null
           status: string
           teaser_url: string | null
           updated_at: string
@@ -579,6 +591,7 @@ export type Database = {
           revenue?: number | null
           sector: string
           seller?: string | null
+          stage_id?: string | null
           status?: string
           teaser_url?: string | null
           updated_at?: string
@@ -606,6 +619,7 @@ export type Database = {
           revenue?: number | null
           sector?: string
           seller?: string | null
+          stage_id?: string | null
           status?: string
           teaser_url?: string | null
           updated_at?: string
@@ -618,7 +632,47 @@ export type Database = {
             referencedRelation: "operation_managers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "operations_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      pipelines: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       planned_tasks: {
         Row: {
@@ -697,6 +751,50 @@ export type Database = {
           },
         ]
       }
+      stages: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          order_index: number
+          pipeline_id: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          order_index: number
+          pipeline_id: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          order_index?: number
+          pipeline_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stages_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       target_companies: {
         Row: {
           created_at: string
@@ -710,6 +808,7 @@ export type Database = {
           name: string
           revenue: number | null
           source_notes: string | null
+          stage_id: string | null
           status: Database["public"]["Enums"]["target_status"]
           updated_at: string
           website: string | null
@@ -726,6 +825,7 @@ export type Database = {
           name: string
           revenue?: number | null
           source_notes?: string | null
+          stage_id?: string | null
           status?: Database["public"]["Enums"]["target_status"]
           updated_at?: string
           website?: string | null
@@ -742,11 +842,20 @@ export type Database = {
           name?: string
           revenue?: number | null
           source_notes?: string | null
+          stage_id?: string | null
           status?: Database["public"]["Enums"]["target_status"]
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "target_companies_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       target_contacts: {
         Row: {

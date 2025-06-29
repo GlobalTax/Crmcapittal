@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,44 +23,41 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import OperationDetails from "./pages/OperationDetails";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Admin from "./pages/Admin";
+import PipelinesManager from "./pages/PipelinesManager";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-              <Route path="/legal-notice" element={<LegalNotice />} />
-              <Route path="/cookies-policy" element={<CookiesPolicy />} />
-              
-              <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-                <Route path="/" element={<Index />} />
-                <Route path="/my-day" element={<MyDay />} />
-                <Route path="/time-tracking" element={<TimeTracking />} />
-                <Route path="/portfolio" element={<Portfolio />} />
-                <Route path="/sourcing" element={<Sourcing />} />
-                <Route path="/leads" element={<Leads />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/managers" element={<Managers />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/super-admin" element={<SuperAdmin />} />
-                <Route path="/operation/:id" element={<OperationDetails />} />
-              </Route>
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Router>
-          <Toaster />
-          <Sonner />
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClient client={queryClient}>
+        <Toaster />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/legal-notice" element={<LegalNotice />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/cookies" element={<CookiesPolicy />} />
+            <Route element={<DashboardLayout />}>
+              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/my-day" element={<ProtectedRoute><MyDay /></ProtectedRoute>} />
+              <Route path="/time-tracking" element={<ProtectedRoute><TimeTracking /></ProtectedRoute>} />
+              <Route path="/pipelines" element={<ProtectedRoute><PipelinesManager /></ProtectedRoute>} />
+              <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
+              <Route path="/sourcing" element={<ProtectedRoute><Sourcing /></ProtectedRoute>} />
+              <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+              <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+              <Route path="/managers" element={<ProtectedRoute><Managers /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path="/super-admin" element={<ProtectedRoute><SuperAdmin /></ProtectedRoute>} />
+              <Route path="/operation/:id" element={<ProtectedRoute><OperationDetails /></ProtectedRoute>} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </QueryClient>
+    </AuthProvider>
   );
 }
 
