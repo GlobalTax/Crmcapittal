@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,6 +25,7 @@ import OperationDetails from "./pages/OperationDetails";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import Admin from "./pages/Admin";
 import PipelinesManager from "./pages/PipelinesManager";
+import Contacts from "./pages/Contacts";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +52,7 @@ function App() {
                 <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
                 <Route path="/sourcing" element={<ProtectedRoute><Sourcing /></ProtectedRoute>} />
                 <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+                <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
                 <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
                 <Route path="/managers" element={<ProtectedRoute><Managers /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />

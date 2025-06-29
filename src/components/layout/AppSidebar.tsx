@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Calendar, Clock, Users, Building2, Target, BarChart3, Settings, FileText, MessageSquare, Timer, Workflow, GitBranch } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -40,6 +39,17 @@ const navigation = [
       { title: "Managers", url: "/managers", icon: Users, roles: ["admin", "superadmin"] },
       { title: "Admin Panel", url: "/admin", icon: Settings, roles: ["admin", "superadmin"] },
       { title: "Super Admin", url: "/super-admin", icon: Settings, roles: ["superadmin"] },
+    ],
+  },
+  {
+    title: "CRM",
+    url: "#",
+    icon: Users,
+    isActive: false,
+    items: [
+      { title: "Leads", url: "/leads", icon: MessageSquare, roles: ["user", "admin", "superadmin"] },
+      { title: "Contactos", url: "/contacts", icon: Users, roles: ["user", "admin", "superadmin"] },
+      { title: "Proyectos", url: "/projects", icon: FileText, roles: ["user", "admin", "superadmin"] },
     ],
   },
 ];
