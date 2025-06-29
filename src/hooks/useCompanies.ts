@@ -1,7 +1,6 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Company, CreateCompanyData, UpdateCompanyData } from "@/types/Company";
+import { Company, CreateCompanyData, UpdateCompanyData, CompanyStatus, CompanyType } from "@/types/Company";
 import { toast } from "sonner";
 
 interface UseCompaniesOptions {
@@ -34,11 +33,11 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
       }
       
       if (statusFilter !== "all") {
-        query = query.eq("company_status", statusFilter);
+        query = query.eq("company_status", statusFilter as CompanyStatus);
       }
       
       if (typeFilter !== "all") {
-        query = query.eq("company_type", typeFilter);
+        query = query.eq("company_type", typeFilter as CompanyType);
       }
 
       // Apply pagination

@@ -19,6 +19,7 @@ import OperationDetails from "./pages/OperationDetails";
 import Contacts from "./pages/Contacts";
 import Companies from "./pages/Companies";
 import Leads from "./pages/Leads";
+import LeadNurturing from "./pages/LeadNurturing";
 import Sourcing from "./pages/Sourcing";
 import PipelinesManager from "./pages/PipelinesManager";
 import Operaciones from "./pages/Operaciones";
@@ -61,6 +62,7 @@ function App() {
                 <Route path="contacts" element={<Contacts />} />
                 <Route path="companies" element={<Companies />} />
                 <Route path="leads" element={<Leads />} />
+                <Route path="lead-nurturing" element={<LeadNurturing />} />
                 <Route path="sourcing" element={<Sourcing />} />
                 <Route path="pipelines" element={<PipelinesManager />} />
                 <Route path="operaciones" element={<Operaciones />} />
