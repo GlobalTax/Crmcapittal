@@ -50,22 +50,22 @@ export const fetchLeads = async (filters?: {
     userProfiles = profiles || [];
   }
 
-  // Transform the data to match our Lead interface
+  // Transform the data to match our Lead interface with enhanced fields
   const transformedData = (data || []).map(lead => ({
     ...lead,
     // Ensure source is properly typed
     source: (lead.source as LeadSource) || 'other',
-    // Set default values for new fields to maintain compatibility
-    lead_score: 0, // Default since this field doesn't exist in DB yet
-    priority: 'MEDIUM' as const,
-    quality: 'FAIR' as const,
-    follow_up_count: 0,
-    email_opens: 0,
-    email_clicks: 0,
-    website_visits: 0,
-    content_downloads: 0,
-    tags: [],
-    form_data: {},
+    // Use actual database values or defaults
+    lead_score: lead.lead_score || 0,
+    priority: lead.priority || 'MEDIUM',
+    quality: lead.quality || 'FAIR',
+    follow_up_count: lead.follow_up_count || 0,
+    email_opens: lead.email_opens || 0,
+    email_clicks: lead.email_clicks || 0,
+    website_visits: lead.website_visits || 0,
+    content_downloads: lead.content_downloads || 0,
+    tags: lead.tags || [],
+    form_data: lead.form_data || {},
     assigned_to: lead.assigned_to_id 
       ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
       : null,
@@ -126,15 +126,22 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
 export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   console.log('Creating lead:', leadData);
 
-  // Prepare data for the current database schema
+  // Prepare data for the enhanced database schema
   const dataToInsert = {
     name: leadData.name,
     email: leadData.email,
     phone: leadData.phone,
     company_name: leadData.company_name,
+    job_title: leadData.job_title,
     message: leadData.message,
     source: leadData.source,
-    status: 'NEW' as const // Default status
+    status: 'NEW' as const,
+    priority: leadData.priority || 'MEDIUM',
+    quality: leadData.quality || 'FAIR',
+    lead_score: leadData.lead_score || 10,
+    tags: leadData.tags || [],
+    form_data: leadData.form_data || {},
+    external_source: leadData.source
   };
 
   const { data, error } = await supabase
@@ -152,20 +159,24 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   const transformedData = {
     ...data,
     source: (data.source as LeadSource) || 'other',
-    lead_score: leadData.lead_score || 10,
-    priority: leadData.priority || 'MEDIUM',
-    quality: leadData.quality || 'FAIR',
-    follow_up_count: 0,
-    email_opens: 0,
-    email_clicks: 0,
-    website_visits: 0,
-    content_downloads: 0,
-    tags: leadData.tags || [],
-    form_data: leadData.form_data || {},
+    lead_score: data.lead_score || 10,
+    priority: data.priority || 'MEDIUM',
+    quality: data.quality || 'FAIR',
+    follow_up_count: data.follow_up_count || 0,
+    email_opens: data.email_opens || 0,
+    email_clicks: data.email_clicks || 0,
+    website_visits: data.website_visits || 0,
+    content_downloads: data.content_downloads || 0,
+    tags: data.tags || [],
+    form_data: data.form_data || {},
     assigned_to: null
   };
 
   console.log('Lead created successfully:', transformedData);
+  
+  // Trigger automation after lead creation
+  await triggerAutomation('lead_created', transformedData);
+  
   return transformedData;
 };
 
@@ -286,4 +297,105 @@ export const convertLeadToContact = async (
 
   console.log('Lead converted successfully to contact:', contact.id);
   return { contactId: contact.id };
+};
+
+// New automation trigger function
+export const triggerAutomation = async (triggerType: string, leadData: any) => {
+  try {
+    const { data: rules } = await supabase
+      .from('automation_rules')
+      .select('*')
+      .eq('trigger_type', triggerType)
+      .eq('enabled', true)
+      .order('priority', { ascending: false });
+
+    for (const rule of rules || []) {
+      const conditionsMet = evaluateConditions(rule.conditions, leadData);
+      if (conditionsMet) {
+        await executeActions(rule.actions, leadData);
+      }
+    }
+  } catch (error) {
+    console.error('Error triggering automation:', error);
+  }
+};
+
+// Helper function to evaluate conditions
+const evaluateConditions = (conditions: any[], leadData: any): boolean => {
+  if (!conditions || conditions.length === 0) return true;
+  
+  return conditions.every(condition => {
+    const fieldValue = leadData[condition.field];
+    const expectedValue = condition.value;
+    
+    switch (condition.operator) {
+      case 'equals':
+        return fieldValue === expectedValue;
+      case 'greater_than':
+        return Number(fieldValue) > Number(expectedValue);
+      case 'contains':
+        return Array.isArray(fieldValue) 
+          ? fieldValue.includes(expectedValue)
+          : String(fieldValue).includes(String(expectedValue));
+      case 'in':
+        return Array.isArray(expectedValue) && expectedValue.includes(fieldValue);
+      default:
+        return false;
+    }
+  });
+};
+
+// Helper function to execute actions
+const executeActions = async (actions: any[], leadData: any) => {
+  for (const action of actions) {
+    try {
+      switch (action.type) {
+        case 'send_email':
+          await sendAutomatedEmail(leadData, action.config);
+          break;
+        case 'create_task':
+          await createFollowUpTask(leadData, action.config);
+          break;
+        case 'move_stage':
+          await updateLeadStatus(leadData.id, action.config.new_status);
+          break;
+        case 'notify_user':
+          console.log('Notification:', action.config.message);
+          break;
+        default:
+          console.log('Unknown action type:', action.type);
+      }
+    } catch (error) {
+      console.error('Error executing action:', action.type, error);
+    }
+  }
+};
+
+// Helper functions for actions
+const sendAutomatedEmail = async (leadData: any, config: any) => {
+  // Implementation would integrate with email service
+  console.log('Sending automated email to:', leadData.email, config);
+};
+
+const createFollowUpTask = async (leadData: any, config: any) => {
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + (config.due_days || 1));
+  
+  await supabase.from('planned_tasks').insert({
+    title: config.description || 'Follow up with lead',
+    description: `${config.description} - ${leadData.name} (${leadData.email})`,
+    date: dueDate.toISOString().split('T')[0],
+    lead_id: leadData.id,
+    user_id: leadData.assigned_to_id,
+    status: 'PENDING'
+  });
+};
+
+const updateLeadStatus = async (leadId: string, newStatus: string) => {
+  if (['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(newStatus)) {
+    await supabase
+      .from('leads')
+      .update({ status: newStatus })
+      .eq('id', leadId);
+  }
 };

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +12,12 @@ import {
   Phone,
   Calendar,
   Star,
-  Settings
+  Settings,
+  Zap,
+  RefreshCw
 } from "lucide-react";
 import { useLeadNurturing, useLeadScoring } from "@/hooks/useLeadNurturing";
+import { useCapitalMarket } from "@/hooks/useCapitalMarket";
 import { LeadStage } from "@/types/LeadNurturing";
 import { LeadStatus, Lead } from "@/types/Lead";
 import WebhookSettings from "./WebhookSettings";
@@ -24,6 +26,7 @@ import { LeadNurturingPipeline } from "./LeadNurturingPipeline";
 
 const LeadNurturingDashboard = () => {
   const { leadScores, isLoading } = useLeadScoring();
+  const { syncStatus, syncFromCapitalMarket, isSyncing } = useCapitalMarket();
   const [selectedLeadId, setSelectedLeadId] = useState<string>('');
   const { nurturingData, activities, updateStage } = useLeadNurturing(selectedLeadId);
 
@@ -76,7 +79,7 @@ const LeadNurturingDashboard = () => {
     return null;
   };
 
-  // Create mock leads that match our Lead interface with all required fields
+  // Enhanced mock leads with Capital Market integration data
   const mockLeads: Lead[] = [
     {
       id: "lead_1",
@@ -95,56 +98,60 @@ const LeadNurturingDashboard = () => {
       message: "Interesada en servicios de valoración para posible venta",
       assigned_to: { id: "luis_montanya", first_name: "Luis", last_name: "Montanya" },
       follow_up_count: 0,
-      email_opens: 0,
-      email_clicks: 0,
-      website_visits: 3,
-      content_downloads: 1,
-      tags: ["CEO", "Tech", "High-Value"],
+      email_opens: 3,
+      email_clicks: 1,
+      website_visits: 5,
+      content_downloads: 2,
+      tags: ["CEO", "Tech", "High-Value", "Auto-Qualified"],
       form_data: {
         form_type: "consultation_request",
         utm_source: "google",
         utm_medium: "cpc",
         utm_campaign: "ma_services",
-        landing_page: "/servicios-ma"
+        landing_page: "/servicios-ma",
+        automation_triggered: true
       },
       lead_nurturing: [{
         lead_score: 85,
-        engagement_score: 72,
-        stage: "CAPTURED",
+        engagement_score: 78,
+        stage: "QUALIFIED",
         last_activity_date: "2024-01-22T10:30:00Z"
       }]
     },
     {
       id: "lead_2", 
-      name: "Carlos Martín",
-      email: "carlos@distribuidora.com",
-      company_name: "Distribuidora Norte",
-      status: "CONTACTED",
-      source: "lead_marker",
-      lead_score: 72,
+      name: "Roberto Silva",
+      email: "roberto@technovatex.com",
+      company_name: "TechnovatEx",
+      status: "QUALIFIED",
+      source: "capittal_market",
+      lead_score: 92,
       created_at: "2024-01-20T09:15:00Z",
       updated_at: "2024-01-21T16:30:00Z",
-      priority: "MEDIUM",
-      quality: "GOOD",
-      phone: "+34 678 987 654",
-      job_title: "Director Financiero",
-      message: "Necesito asesoramiento para adquisición",
+      priority: "URGENT",
+      quality: "EXCELLENT",
+      phone: "+34 611 222 333",
+      job_title: "CEO",
+      message: "Buscamos asesoramiento para posible venta tras 8 años de crecimiento",
       assigned_to: { id: "samuel_lorente", first_name: "Samuel", last_name: "Lorente" },
+      external_id: "cm_001",
+      external_source: "capital_market",
       first_contact_date: "2024-01-20T14:15:00Z",
-      follow_up_count: 2,
-      email_opens: 3,
-      email_clicks: 1,
-      website_visits: 5,
-      content_downloads: 2,
-      tags: ["CFO", "Acquisition", "Mid-Market"],
+      follow_up_count: 3,
+      email_opens: 5,
+      email_clicks: 3,
+      website_visits: 8,
+      content_downloads: 4,
+      tags: ["CEO", "Tech", "Exit-Ready", "Capital Market", "High-Revenue"],
       form_data: {
-        form_type: "demo_request",
-        referrer_url: "https://leadmarker.com"
+        external_source: "capital_market",
+        import_date: "2024-01-20T09:15:00Z",
+        automation_sequence: "startup_exit_sequence"
       },
       lead_nurturing: [{
-        lead_score: 72,
-        engagement_score: 65,
-        stage: "QUALIFIED",
+        lead_score: 92,
+        engagement_score: 88,
+        stage: "SALES_READY",
         last_activity_date: "2024-01-21T16:30:00Z"
       }]
     },
@@ -186,7 +193,7 @@ const LeadNurturingDashboard = () => {
     }
   ];
 
-  // Use mock data if leadScores is empty
+  // Use enhanced mock data
   const leadsData = leadScores.length > 0 ? leadScores : mockLeads;
 
   if (isLoading) {
@@ -203,13 +210,27 @@ const LeadNurturingDashboard = () => {
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Lead Nurturing Dashboard</h2>
           <p className="text-muted-foreground">
-            Gestiona el proceso de nurturing desde captura hasta conversión
+            Gestiona el proceso de nurturing automatizado desde captura hasta conversión
           </p>
+        </div>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline"
+            onClick={() => syncFromCapitalMarket()}
+            disabled={isSyncing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+            {isSyncing ? 'Sincronizando...' : 'Sync Capital Market'}
+          </Button>
+          <Button>
+            <Zap className="h-4 w-4 mr-2" />
+            Automatización
+          </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Enhanced Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -232,7 +253,7 @@ const LeadNurturingDashboard = () => {
                 <p className="text-2xl font-semibold text-red-600">
                   {leadsData.filter(lead => {
                     const nurturingData = getLeadNurturingData(lead);
-                    return nurturingData?.lead_score >= 80;
+                    return (nurturingData?.lead_score || lead.lead_score) >= 80;
                   }).length}
                 </p>
               </div>
@@ -262,6 +283,20 @@ const LeadNurturingDashboard = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
+                <p className="text-sm text-gray-600">Capital Market</p>
+                <p className="text-2xl font-semibold text-orange-600">
+                  {leadsData.filter(lead => lead.source === 'capittal_market').length}
+                </p>
+              </div>
+              <Zap className="h-8 w-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
                 <p className="text-sm text-gray-600">Convertidos</p>
                 <p className="text-2xl font-semibold text-green-600">
                   {leadsData.filter(lead => {
@@ -276,12 +311,35 @@ const LeadNurturingDashboard = () => {
         </Card>
       </div>
 
+      {/* Capital Market Sync Status */}
+      {syncStatus.lastSync && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Zap className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="font-medium text-blue-900">Última sincronización Capital Market</p>
+                  <p className="text-sm text-blue-700">
+                    {syncStatus.lastSync.toLocaleString()} - {syncStatus.imported} leads importados
+                  </p>
+                </div>
+              </div>
+              {syncStatus.errors.length > 0 && (
+                <Badge variant="destructive">{syncStatus.errors.length} errores</Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs defaultValue="management" className="space-y-4">
         <TabsList>
           <TabsTrigger value="management">Lead Management</TabsTrigger>
           <TabsTrigger value="nurturing-pipeline">Pipeline Nurturing</TabsTrigger>
           <TabsTrigger value="scoring">Lead Scoring</TabsTrigger>
           <TabsTrigger value="activities">Actividades</TabsTrigger>
+          <TabsTrigger value="automation">Automatización</TabsTrigger>
           <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
         </TabsList>
 
@@ -390,6 +448,55 @@ const LeadNurturingDashboard = () => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="automation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Estado de Automatización</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-3">
+                  <h4 className="font-medium">Reglas Activas</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <Mail className="h-4 w-4 text-green-600" />
+                        <span className="text-sm">Bienvenida Lead Nuevo</span>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">Activa</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <Target className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm">Cualificación Automática</span>
+                      </div>
+                      <Badge className="bg-blue-100 text-blue-800">Activa</Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-medium">Estadísticas de Automatización</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Emails automáticos enviados</span>
+                      <span className="font-medium">24</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Tareas creadas automáticamente</span>
+                      <span className="font-medium">12</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Leads cualificados automáticamente</span>
+                      <span className="font-medium">8</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="webhooks" className="space-y-4">
