@@ -1,6 +1,6 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import UserProjectsList from "@/components/UserProjectsList";
+import ProjectsList from "@/components/ProjectsList";
 
 const Projects = () => {
   return (
@@ -13,7 +13,7 @@ const Projects = () => {
           </p>
         </div>
         
-        <UserProjectsList />
+        <ProjectsList />
       </div>
     </DashboardLayout>
   );
