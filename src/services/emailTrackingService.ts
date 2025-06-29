@@ -13,7 +13,13 @@ export class EmailTrackingService {
 
       if (error) throw error;
 
-      return { data: trackedEmail, error: null };
+      // Convert the database response to match our TypeScript interface
+      const convertedEmail: TrackedEmail = {
+        ...trackedEmail,
+        ip_address: trackedEmail.ip_address ? String(trackedEmail.ip_address) : null
+      };
+
+      return { data: convertedEmail, error: null };
     } catch (error) {
       console.error('Error creating tracked email:', error);
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
@@ -49,7 +55,13 @@ export class EmailTrackingService {
 
       if (error) throw error;
 
-      return { data: data || [], error: null };
+      // Convert the database response to match our TypeScript interface
+      const convertedEmails: TrackedEmail[] = (data || []).map(email => ({
+        ...email,
+        ip_address: email.ip_address ? String(email.ip_address) : null
+      }));
+
+      return { data: convertedEmails, error: null };
     } catch (error) {
       console.error('Error fetching tracked emails:', error);
       return { data: [], error: error instanceof Error ? error.message : 'Unknown error' };

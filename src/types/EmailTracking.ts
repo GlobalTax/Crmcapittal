@@ -15,7 +15,7 @@ export interface TrackedEmail {
   opened_at?: string;
   open_count: number;
   user_agent?: string;
-  ip_address?: string;
+  ip_address?: string | null; // Changed from string to string | null to handle INET type
   sent_at: string;
   created_at: string;
   updated_at: string;

@@ -1,8 +1,7 @@
 
-import { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/integrations/supabase/client';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
@@ -32,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           opened_at: email.opened_at || new Date().toISOString(),
           open_count: email.open_count + 1,
           user_agent: req.headers['user-agent'] || null,
-          ip_address: req.socket.remoteAddress || req.headers['x-forwarded-for'] || null
+          ip_address: req.socket?.remoteAddress || req.headers['x-forwarded-for'] || null
         })
         .eq('id', email.id);
 
