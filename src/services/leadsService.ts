@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource } from '@/types/Lead';
+import { DatabaseService } from './databaseService';
 
 export const fetchLeads = async (filters?: {
   status?: LeadStatus;
@@ -299,20 +300,32 @@ export const convertLeadToContact = async (
   return { contactId: contact.id };
 };
 
-// New automation trigger function
+// New automation trigger function - updated to use DatabaseService
 export const triggerAutomation = async (triggerType: string, leadData: any) => {
   try {
-    const { data: rules } = await supabase
-      .from('automation_rules')
-      .select('*')
-      .eq('trigger_type', triggerType)
-      .eq('enabled', true)
-      .order('priority', { ascending: false });
+    console.log('Triggering automation for:', triggerType, leadData.id);
+    
+    // Use DatabaseService to get automation rules
+    const result = await DatabaseService.getAutomationRules();
+    if (!result.success) {
+      console.error('Failed to fetch automation rules:', result.error);
+      return;
+    }
 
-    for (const rule of rules || []) {
-      const conditionsMet = evaluateConditions(rule.conditions, leadData);
-      if (conditionsMet) {
-        await executeActions(rule.actions, leadData);
+    const rules = result.data || [];
+    const matchingRules = rules.filter(rule => 
+      rule.trigger_type === triggerType && rule.enabled
+    );
+
+    for (const rule of matchingRules) {
+      try {
+        const conditionsMet = evaluateConditions(rule.conditions, leadData);
+        if (conditionsMet) {
+          console.log('Executing automation rule:', rule.name);
+          await executeActions(rule.actions, leadData);
+        }
+      } catch (error) {
+        console.error('Error executing automation rule:', rule.name, error);
       }
     }
   } catch (error) {
@@ -378,24 +391,34 @@ const sendAutomatedEmail = async (leadData: any, config: any) => {
 };
 
 const createFollowUpTask = async (leadData: any, config: any) => {
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + (config.due_days || 1));
-  
-  await supabase.from('planned_tasks').insert({
-    title: config.description || 'Follow up with lead',
-    description: `${config.description} - ${leadData.name} (${leadData.email})`,
-    date: dueDate.toISOString().split('T')[0],
-    lead_id: leadData.id,
-    user_id: leadData.assigned_to_id,
-    status: 'PENDING'
-  });
+  try {
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + (config.due_days || 1));
+    
+    await supabase.from('planned_tasks').insert({
+      title: config.description || 'Follow up with lead',
+      description: `${config.description} - ${leadData.name} (${leadData.email})`,
+      date: dueDate.toISOString().split('T')[0],
+      lead_id: leadData.id,
+      user_id: leadData.assigned_to_id,
+      status: 'PENDING'
+    });
+  } catch (error) {
+    console.error('Error creating follow-up task:', error);
+  }
 };
 
 const updateLeadStatus = async (leadId: string, newStatus: string) => {
-  if (['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(newStatus)) {
-    await supabase
-      .from('leads')
-      .update({ status: newStatus })
-      .eq('id', leadId);
+  try {
+    // Only update status if it's supported by the database
+    const supportedStatuses = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'];
+    if (supportedStatuses.includes(newStatus)) {
+      await supabase
+        .from('leads')
+        .update({ status: newStatus as 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED' })
+        .eq('id', leadId);
+    }
+  } catch (error) {
+    console.error('Error updating lead status:', error);
   }
 };
