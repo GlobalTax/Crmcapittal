@@ -2,6 +2,7 @@
 import React from "react";
 import { Calendar, Clock, Users, Building2, Target, BarChart3, Settings, FileText, MessageSquare, Timer } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
+import { Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -61,10 +62,10 @@ export function AppSidebar() {
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a href={item.url}>
+                      <Link to={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

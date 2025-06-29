@@ -1,11 +1,23 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { PortfolioView } from "@/components/PortfolioView";
-import { Link } from "react-router-dom";
+
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import { StatsCard } from "@/components/dashboard/StatsCard";
+import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
+import { useOperations } from "@/hooks/useOperations";
+import { useLeads } from "@/hooks/useLeads";
+import { 
+  Activity, 
+  Users, 
+  Bell, 
+  TrendingUp 
+} from "lucide-react";
 
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
+  const { operations, loading: operationsLoading } = useOperations();
+  const { leads, isLoading: leadsLoading } = useLeads();
+  const { role } = useUserRole();
 
   // Show loading state while auth is being determined
   if (authLoading) {
@@ -19,125 +31,110 @@ const Index = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white" style={{ borderBottom: '0.5px solid black' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Primera fila: Navegación y usuario */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 space-y-4 sm:space-y-0" style={{ borderBottom: '0.5px solid #d1d5db' }}>
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-black">Capittal</h1>
-                  <p className="text-xs sm:text-sm text-gray-600">Portal de inversiones y oportunidades</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-              {user ? (
-                <>
-                  <Link to="/dashboard" className="w-full sm:w-auto">
-                    <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                      Mi Cuenta
-                    </Button>
-                  </Link>
-                  <Link to="/leads" className="w-full sm:w-auto">
-                    <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                      Leads
-                    </Button>
-                  </Link>
-                  <Link to="/auth" className="w-full sm:w-auto">
-                    <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                      Área Profesional
-                    </Button>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/auth" className="w-full sm:w-auto">
-                    <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                      Crear Cuenta / Acceder
-                    </Button>
-                  </Link>
-                  <Link to="/auth" className="w-full sm:w-auto">
-                    <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
-                      Área Profesional
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+  // Mock activity data
+  const recentActivities = [
+    {
+      id: '1',
+      type: 'operation' as const,
+      description: 'Nueva operación añadida al portfolio',
+      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 min ago
+      user: 'Sistema'
+    },
+    {
+      id: '2',
+      type: 'lead' as const,
+      description: 'Nuevo lead recibido desde el formulario web',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+      user: 'Sistema'
+    },
+  ];
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-white">
-        <PortfolioView />
+  const stats = [
+    {
+      title: "Total Operaciones",
+      value: operationsLoading ? "..." : operations.length,
+      description: "Operaciones en el sistema",
+      icon: Activity,
+      trend: { value: 12, isPositive: true }
+    },
+    {
+      title: "Operaciones Disponibles",
+      value: operationsLoading ? "..." : operations.filter(op => op.status === 'available').length,
+      description: "Listas para inversión",
+      icon: TrendingUp,
+      trend: { value: 8, isPositive: true }
+    },
+  ];
+
+  // Add lead stats for admin and superadmin
+  if (role === 'admin' || role === 'superadmin') {
+    stats.push({
+      title: "Total Leads",
+      value: leadsLoading ? "..." : leads.length,
+      description: "Leads en el sistema",
+      icon: Bell,
+      trend: { value: 23, isPositive: true }
+    });
+
+    stats.push({
+      title: "Leads Nuevos",
+      value: leadsLoading ? "..." : leads.filter(l => l.status === 'NEW').length,
+      description: "Pendientes de contacto",
+      icon: Users,
+      trend: { value: 5, isPositive: true }
+    });
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-muted-foreground">
+          Bienvenido a tu panel de control. Aquí tienes un resumen de tu actividad.
+        </p>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Logo y descripción */}
-            <div className="col-span-1 md:col-span-1">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">C</span>
-                </div>
-                <h3 className="text-lg font-bold text-black">Capittal</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-4">
-                Portal líder en oportunidades de inversión y adquisiciones empresariales.
-              </p>
-              <p className="text-xs text-gray-500">
-                © 2025 Capittal. Todos los derechos reservados.
-              </p>
-            </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <StatsCard key={index} {...stat} />
+        ))}
+      </div>
 
-            {/* Enlaces legales */}
-            <div className="col-span-1 md:col-span-1">
-              <h4 className="text-sm font-semibold text-black mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>
-                  <Link to="/terms" className="hover:text-black transition-colors">
-                    Términos y Condiciones
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/privacy" className="hover:text-black transition-colors">
-                    Política de Privacidad
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/legal" className="hover:text-black transition-colors">
-                    Aviso Legal
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/cookies" className="hover:text-black transition-colors">
-                    Política de Cookies
-                  </Link>
-                </li>
-              </ul>
-            </div>
+      {/* Email Stats Section for admin users */}
+      {(role === 'admin' || role === 'superadmin') && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
+          <EmailStatsCard />
+        </div>
+      )}
 
-            {/* Contacto */}
-            <div className="col-span-1 md:col-span-1">
-              <h4 className="text-sm font-semibold text-black mb-4">Contacto</h4>
-              <div className="space-y-2 text-sm text-gray-600">
-                <p>info@capittal.com</p>
-                <p>+34 900 123 456</p>
-                <p className="text-xs text-gray-500 mt-4">
-                  Para más información sobre nuestros servicios o para añadir tu empresa al portfolio.
-                </p>
-              </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <ActivityFeed activities={recentActivities} />
+        
+        <div className="col-span-4 space-y-4">
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+            <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
+            <div className="grid gap-2">
+              <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                <div className="font-medium">Explorar Portfolio</div>
+                <div className="text-sm text-muted-foreground">Descubre oportunidades de inversión</div>
+              </a>
+              {role === 'admin' || role === 'superadmin' ? (
+                <>
+                  <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                    <div className="font-medium">Gestionar Operaciones</div>
+                    <div className="text-sm text-muted-foreground">Administra el portfolio de operaciones</div>
+                  </a>
+                  <a href="/leads" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                    <div className="font-medium">Ver Leads</div>
+                    <div className="text-sm text-muted-foreground">Gestiona los leads entrantes</div>
+                  </a>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 };
