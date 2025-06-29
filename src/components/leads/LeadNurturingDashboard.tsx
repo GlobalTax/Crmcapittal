@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,10 +11,12 @@ import {
   Mail,
   Phone,
   Calendar,
-  Star
+  Star,
+  Settings
 } from "lucide-react";
 import { useLeadNurturing, useLeadScoring } from "@/hooks/useLeadNurturing";
 import { LeadStage } from "@/types/LeadNurturing";
+import WebhookSettings from "./WebhookSettings";
 
 const LeadNurturingDashboard = () => {
   const { leadScores, isLoading } = useLeadScoring();
@@ -145,6 +146,7 @@ const LeadNurturingDashboard = () => {
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="scoring">Lead Scoring</TabsTrigger>
           <TabsTrigger value="activities">Actividades</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pipeline" className="space-y-4">
@@ -277,6 +279,10 @@ const LeadNurturingDashboard = () => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="space-y-4">
+          <WebhookSettings />
         </TabsContent>
       </Tabs>
     </div>
