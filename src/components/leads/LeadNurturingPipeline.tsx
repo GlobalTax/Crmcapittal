@@ -484,7 +484,7 @@ export const LeadNurturingPipeline = ({
                             <span className="text-xs font-medium">{lead.lead_score}</span>
                           </div>
                           {lead.priority && (
-                            <Badge size="sm" className={getPriorityColor(lead.priority)}>
+                            <Badge variant="outline" className={getPriorityColor(lead.priority)}>
                               {lead.priority}
                             </Badge>
                           )}

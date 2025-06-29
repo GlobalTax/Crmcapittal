@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
-import { CreateLeadData } from "@/types/Lead";
+import { CreateLeadData, LeadSource } from "@/types/Lead";
 
 interface CreateLeadDialogProps {
   onCreateLead: (data: CreateLeadData) => void;
@@ -29,13 +29,13 @@ interface CreateLeadDialogProps {
 }
 
 const leadSources = [
-  { value: 'website', label: 'Sitio Web' },
+  { value: 'website_form', label: 'Sitio Web' },
   { value: 'referral', label: 'Referencia' },
-  { value: 'email', label: 'Email Marketing' },
-  { value: 'social', label: 'Redes Sociales' },
+  { value: 'email_campaign', label: 'Email Marketing' },
+  { value: 'social_media', label: 'Redes Sociales' },
   { value: 'event', label: 'Evento' },
   { value: 'other', label: 'Otro' }
-];
+] as const;
 
 export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogProps) => {
   const [open, setOpen] = useState(false);
@@ -45,7 +45,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogP
     phone: '',
     company_name: '',
     message: '',
-    source: ''
+    source: 'other' as LeadSource
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,7 +57,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogP
       phone: '',
       company_name: '',
       message: '',
-      source: ''
+      source: 'other' as LeadSource
     });
     setOpen(false);
   };

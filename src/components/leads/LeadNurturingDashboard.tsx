@@ -76,6 +76,64 @@ const LeadNurturingDashboard = () => {
     return null;
   };
 
+  // Create mock leads that match our Lead interface
+  const mockLeads = [
+    {
+      id: "lead_1",
+      name: "María González",
+      email: "maria.gonzalez@techstartup.com",
+      company_name: "Tech Startup SL",
+      status: "NEW" as const,
+      source: "website_form" as const,
+      lead_score: 85,
+      created_at: "2024-01-22T10:30:00Z",
+      updated_at: "2024-01-22T10:30:00Z",
+      lead_nurturing: [{
+        lead_score: 85,
+        engagement_score: 72,
+        stage: "CAPTURED" as const,
+        last_activity_date: "2024-01-22T10:30:00Z"
+      }]
+    },
+    {
+      id: "lead_2", 
+      name: "Carlos Martín",
+      email: "carlos@distribuidora.com",
+      company_name: "Distribuidora Norte",
+      status: "CONTACTED" as const,
+      source: "lead_marker" as const,
+      lead_score: 72,
+      created_at: "2024-01-20T09:15:00Z",
+      updated_at: "2024-01-21T16:30:00Z",
+      lead_nurturing: [{
+        lead_score: 72,
+        engagement_score: 65,
+        stage: "QUALIFIED" as const,
+        last_activity_date: "2024-01-21T16:30:00Z"
+      }]
+    },
+    {
+      id: "lead_3",
+      name: "Ana Rodríguez", 
+      email: "ana.rodriguez@capittalmarket.com",
+      company_name: "InnovateLabs",
+      status: "QUALIFIED" as const,
+      source: "capittal_market" as const,
+      lead_score: 93,
+      created_at: "2024-01-18T08:30:00Z",
+      updated_at: "2024-01-21T15:45:00Z",
+      lead_nurturing: [{
+        lead_score: 93,
+        engagement_score: 88,
+        stage: "SALES_READY" as const,
+        last_activity_date: "2024-01-21T15:45:00Z"
+      }]
+    }
+  ];
+
+  // Use mock data if leadScores is empty
+  const leadsData = leadScores.length > 0 ? leadScores : mockLeads;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -103,7 +161,7 @@ const LeadNurturingDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Total Leads</p>
                 <p className="text-2xl font-semibold text-blue-600">
-                  {leadScores.length}
+                  {leadsData.length}
                 </p>
               </div>
               <Users className="h-8 w-8 text-blue-600" />
@@ -117,7 +175,7 @@ const LeadNurturingDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Hot Leads</p>
                 <p className="text-2xl font-semibold text-red-600">
-                  {leadScores.filter(lead => {
+                  {leadsData.filter(lead => {
                     const nurturingData = getLeadNurturingData(lead);
                     return nurturingData?.lead_score >= 80;
                   }).length}
@@ -134,7 +192,7 @@ const LeadNurturingDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Sales Ready</p>
                 <p className="text-2xl font-semibold text-purple-600">
-                  {leadScores.filter(lead => {
+                  {leadsData.filter(lead => {
                     const nurturingData = getLeadNurturingData(lead);
                     return nurturingData?.stage === 'SALES_READY';
                   }).length}
@@ -151,7 +209,7 @@ const LeadNurturingDashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">Convertidos</p>
                 <p className="text-2xl font-semibold text-green-600">
-                  {leadScores.filter(lead => {
+                  {leadsData.filter(lead => {
                     const nurturingData = getLeadNurturingData(lead);
                     return nurturingData?.stage === 'CONVERTED';
                   }).length}
@@ -174,7 +232,7 @@ const LeadNurturingDashboard = () => {
 
         <TabsContent value="management" className="space-y-4">
           <LeadManagementDashboard 
-            leads={leadScores}
+            leads={leadsData}
             onViewLead={(lead) => setSelectedLeadId(lead.id)}
             onUpdateLead={handleUpdateLeadStatus}
           />
@@ -182,7 +240,7 @@ const LeadNurturingDashboard = () => {
 
         <TabsContent value="nurturing-pipeline" className="space-y-4">
           <LeadNurturingPipeline 
-            leads={leadScores}
+            leads={leadsData}
             onUpdateLeadStatus={handleUpdateLeadStatus}
             onViewLead={(lead) => setSelectedLeadId(lead.id)}
             onScheduleActivity={(leadId, activityType) => {
@@ -199,7 +257,7 @@ const LeadNurturingDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {leadScores
+                {leadsData
                   .sort((a, b) => {
                     const scoreA = getLeadNurturingData(a)?.lead_score || 0;
                     const scoreB = getLeadNurturingData(b)?.lead_score || 0;

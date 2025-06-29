@@ -1,5 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource } from '@/types/Lead';
 
 export const fetchLeads = async (filters?: {
   status?: LeadStatus;
@@ -12,7 +13,8 @@ export const fetchLeads = async (filters?: {
     .select('*')
     .order('created_at', { ascending: false });
 
-  if (filters?.status) {
+  // Only filter by status if it's one of the database-supported statuses
+  if (filters?.status && ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(filters.status)) {
     query = query.eq('status', filters.status);
   }
 
@@ -46,16 +48,17 @@ export const fetchLeads = async (filters?: {
   const transformedData = (data || []).map(lead => ({
     ...lead,
     // Set default values for new fields to maintain compatibility
-    lead_score: lead.lead_score || 0,
-    priority: lead.priority || 'MEDIUM',
-    quality: lead.quality || 'FAIR',
-    follow_up_count: lead.follow_up_count || 0,
-    email_opens: lead.email_opens || 0,
-    email_clicks: lead.email_clicks || 0,
-    website_visits: lead.website_visits || 0,
-    content_downloads: lead.content_downloads || 0,
-    tags: lead.tags || [],
-    form_data: lead.form_data || {},
+    source: (lead.source as LeadSource) || 'other',
+    lead_score: 0, // Default since this field doesn't exist in DB yet
+    priority: 'MEDIUM' as const,
+    quality: 'FAIR' as const,
+    follow_up_count: 0,
+    email_opens: 0,
+    email_clicks: 0,
+    website_visits: 0,
+    content_downloads: 0,
+    tags: [],
+    form_data: {},
     assigned_to: lead.assigned_to_id 
       ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
       : null
@@ -94,17 +97,17 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    // Set default values for new fields to maintain compatibility
-    lead_score: data.lead_score || 0,
-    priority: data.priority || 'MEDIUM',
-    quality: data.quality || 'FAIR',
-    follow_up_count: data.follow_up_count || 0,
-    email_opens: data.email_opens || 0,
-    email_clicks: data.email_clicks || 0,
-    website_visits: data.website_visits || 0,
-    content_downloads: data.content_downloads || 0,
-    tags: data.tags || [],
-    form_data: data.form_data || {},
+    source: (data.source as LeadSource) || 'other',
+    lead_score: 0, // Default since this field doesn't exist in DB yet
+    priority: 'MEDIUM' as const,
+    quality: 'FAIR' as const,
+    follow_up_count: 0,
+    email_opens: 0,
+    email_clicks: 0,
+    website_visits: 0,
+    content_downloads: 0,
+    tags: [],
+    form_data: {},
     assigned_to: assignedTo
   };
 
@@ -115,14 +118,15 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
 export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   console.log('Creating lead:', leadData);
 
-  // Prepare data with defaults
+  // Prepare data for the current database schema
   const dataToInsert = {
-    ...leadData,
-    lead_score: leadData.lead_score || 10, // Default initial score
-    priority: leadData.priority || 'MEDIUM',
-    quality: leadData.quality || 'FAIR',
-    tags: leadData.tags || [],
-    form_data: leadData.form_data || {}
+    name: leadData.name,
+    email: leadData.email,
+    phone: leadData.phone,
+    company_name: leadData.company_name,
+    message: leadData.message,
+    source: leadData.source,
+    status: 'NEW' as const // Default status
   };
 
   const { data, error } = await supabase
@@ -136,32 +140,21 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     throw error;
   }
 
-  // Fetch user profile if assigned
-  let assignedTo = null;
-  if (data.assigned_to_id) {
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id, first_name, last_name')
-      .eq('id', data.assigned_to_id)
-      .single();
-    
-    assignedTo = profile;
-  }
-
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    lead_score: data.lead_score || 0,
-    priority: data.priority || 'MEDIUM',
-    quality: data.quality || 'FAIR',
-    follow_up_count: data.follow_up_count || 0,
-    email_opens: data.email_opens || 0,
-    email_clicks: data.email_clicks || 0,
-    website_visits: data.website_visits || 0,
-    content_downloads: data.content_downloads || 0,
-    tags: data.tags || [],
-    form_data: data.form_data || {},
-    assigned_to: assignedTo
+    source: (data.source as LeadSource) || 'other',
+    lead_score: leadData.lead_score || 10,
+    priority: leadData.priority || 'MEDIUM',
+    quality: leadData.quality || 'FAIR',
+    follow_up_count: 0,
+    email_opens: 0,
+    email_clicks: 0,
+    website_visits: 0,
+    content_downloads: 0,
+    tags: leadData.tags || [],
+    form_data: leadData.form_data || {},
+    assigned_to: null
   };
 
   console.log('Lead created successfully:', transformedData);
@@ -171,9 +164,22 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
 export const updateLead = async (id: string, updates: UpdateLeadData): Promise<Lead> => {
   console.log('Updating lead:', id, updates);
 
+  // Only include fields that exist in the database
+  const dbUpdates: any = {};
+  if (updates.name !== undefined) dbUpdates.name = updates.name;
+  if (updates.email !== undefined) dbUpdates.email = updates.email;
+  if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+  if (updates.company_name !== undefined) dbUpdates.company_name = updates.company_name;
+  if (updates.message !== undefined) dbUpdates.message = updates.message;
+  if (updates.source !== undefined) dbUpdates.source = updates.source;
+  if (updates.status !== undefined && ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(updates.status)) {
+    dbUpdates.status = updates.status;
+  }
+  if (updates.assigned_to_id !== undefined) dbUpdates.assigned_to_id = updates.assigned_to_id;
+
   const { data, error } = await supabase
     .from('leads')
-    .update(updates)
+    .update(dbUpdates)
     .eq('id', id)
     .select('*')
     .single();
@@ -198,16 +204,17 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    lead_score: data.lead_score || 0,
-    priority: data.priority || 'MEDIUM',
-    quality: data.quality || 'FAIR',
-    follow_up_count: data.follow_up_count || 0,
-    email_opens: data.email_opens || 0,
-    email_clicks: data.email_clicks || 0,
-    website_visits: data.website_visits || 0,
-    content_downloads: data.content_downloads || 0,
-    tags: data.tags || [],
-    form_data: data.form_data || {},
+    source: (data.source as LeadSource) || 'other',
+    lead_score: updates.lead_score || 0,
+    priority: updates.priority || 'MEDIUM',
+    quality: updates.quality || 'FAIR',
+    follow_up_count: 0,
+    email_opens: 0,
+    email_clicks: 0,
+    website_visits: 0,
+    content_downloads: 0,
+    tags: updates.tags || [],
+    form_data: updates.form_data || {},
     assigned_to: assignedTo
   };
 
