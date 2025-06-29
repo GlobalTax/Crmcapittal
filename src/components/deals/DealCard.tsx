@@ -14,11 +14,11 @@ interface DealCardProps {
 export const DealCard = ({ deal, isDragging }: DealCardProps) => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'baja': return "bg-gray-100 text-gray-800 border-gray-200";
-      case 'media': return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case 'alta': return "bg-orange-100 text-orange-800 border-orange-200";
-      case 'urgente': return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case 'baja': return "bg-neutral-100 text-neutral-700 border-neutral-200";
+      case 'media': return "bg-yellow-50 text-yellow-700 border-yellow-200";
+      case 'alta': return "bg-orange-50 text-orange-700 border-orange-200";
+      case 'urgente': return "bg-red-50 text-red-700 border-red-200";
+      default: return "bg-neutral-100 text-neutral-700 border-neutral-200";
     }
   };
 
@@ -33,25 +33,25 @@ export const DealCard = ({ deal, isDragging }: DealCardProps) => {
 
   return (
     <Card 
-      className={`bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer mb-3 ${
-        isDragging ? 'opacity-50 rotate-2' : ''
+      className={`hover-lift cursor-pointer mb-3 ${
+        isDragging ? 'opacity-50 rotate-1' : ''
       }`}
     >
       <CardHeader className="pb-2 p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h5 className="text-md font-semibold text-slate-900 leading-tight">
+            <h5 className="text-md font-semibold text-foreground leading-tight">
               {deal.deal_name}
             </h5>
             {deal.company_name && (
-              <div className="flex items-center text-sm text-slate-600 mt-1">
+              <div className="flex items-center text-sm text-muted-foreground mt-1">
                 <Building2 className="h-3 w-3 mr-1" />
                 {deal.company_name}
               </div>
             )}
           </div>
           <Badge 
-            className={`${getPriorityColor(deal.priority)} border text-xs`}
+            className={`${getPriorityColor(deal.priority)} border text-xs font-medium`}
             variant="outline"
           >
             {deal.priority}
@@ -62,32 +62,32 @@ export const DealCard = ({ deal, isDragging }: DealCardProps) => {
       <CardContent className="pt-0 p-4 space-y-3">
         {/* Deal Value */}
         {deal.deal_value && (
-          <div className="flex items-center text-lg font-bold text-slate-900">
+          <div className="flex items-center text-lg font-bold text-foreground">
             <Euro className="h-4 w-4 mr-1" />
             {formatCurrency(deal.deal_value)}
           </div>
         )}
 
         {/* Deal Type */}
-        <div className="text-sm text-slate-600 capitalize">
+        <div className="text-sm text-muted-foreground capitalize">
           {deal.deal_type}
         </div>
 
         {/* Contact Info - Usando información del contacto asociado */}
         {deal.contact && (
-          <div className="space-y-2 p-2 bg-slate-50 rounded-lg">
-            <div className="flex items-center text-sm font-medium text-slate-700">
+          <div className="space-y-2 p-3 bg-muted/30 border border-border/50 rounded-md">
+            <div className="flex items-center text-sm font-medium text-foreground">
               <User className="h-3 w-3 mr-1" />
               {deal.contact.name}
               {deal.contact.position && ` (${deal.contact.position})`}
             </div>
             {deal.contact.company && (
-              <div className="flex items-center text-xs text-slate-600">
+              <div className="flex items-center text-xs text-muted-foreground">
                 <Building2 className="h-3 w-3 mr-1" />
                 {deal.contact.company}
               </div>
             )}
-            <div className="flex items-center space-x-3 text-xs text-slate-500">
+            <div className="flex items-center space-x-3 text-xs text-muted-foreground">
               {deal.contact.email && (
                 <div className="flex items-center">
                   <Mail className="h-3 w-3 mr-1" />
@@ -106,7 +106,7 @@ export const DealCard = ({ deal, isDragging }: DealCardProps) => {
 
         {/* Financial Info */}
         {(deal.revenue || deal.ebitda) && (
-          <div className="text-xs text-slate-500 space-y-1">
+          <div className="text-xs text-muted-foreground space-y-1">
             {deal.revenue && (
               <div>Facturación: {formatCurrency(deal.revenue)}</div>
             )}
@@ -118,13 +118,13 @@ export const DealCard = ({ deal, isDragging }: DealCardProps) => {
 
         {/* Deal Owner */}
         {deal.deal_owner && (
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-muted-foreground">
             Responsable: {deal.deal_owner.replace('_', ' ')}
           </div>
         )}
 
         {/* Created Date */}
-        <div className="flex items-center text-xs text-slate-400">
+        <div className="flex items-center text-xs text-muted-foreground">
           <Calendar className="h-3 w-3 mr-1" />
           {format(new Date(deal.created_at), 'dd MMM yyyy', { locale: es })}
         </div>
