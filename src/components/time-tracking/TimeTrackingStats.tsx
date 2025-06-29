@@ -26,48 +26,44 @@ export const TimeTrackingStats: React.FC<TimeTrackingStatsProps> = ({ timeEntrie
       title: 'Tiempo Total',
       value: formatTime(totalMinutes),
       icon: Clock,
-      color: 'bg-blue-500',
       bgColor: 'bg-blue-50',
-      textColor: 'text-blue-700'
+      iconColor: 'text-blue-600'
     },
     {
       title: 'Tiempo Facturable',
       value: formatTime(billableMinutes),
       icon: Target,
-      color: 'bg-green-500',
       bgColor: 'bg-green-50',
-      textColor: 'text-green-700'
+      iconColor: 'text-green-600'
     },
     {
       title: 'Sesiones',
       value: completedEntries.length.toString(),
       icon: TrendingUp,
-      color: 'bg-purple-500',
       bgColor: 'bg-purple-50',
-      textColor: 'text-purple-700'
+      iconColor: 'text-purple-600'
     },
     {
       title: 'Eficiencia',
       value: totalMinutes > 0 ? `${Math.round((billableMinutes / totalMinutes) * 100)}%` : '0%',
       icon: Calendar,
-      color: 'bg-orange-500',
       bgColor: 'bg-orange-50',
-      textColor: 'text-orange-700'
+      iconColor: 'text-orange-600'
     }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="shadow-sm border-0 bg-white overflow-hidden">
-          <CardContent className="p-0">
-            <div className="flex items-center">
-              <div className={`${stat.bgColor} p-4 flex items-center justify-center`}>
-                <stat.icon className={`w-6 h-6 ${stat.textColor}`} />
+        <Card key={index} className="shadow-sm border border-gray-200/60 bg-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
-              <div className="flex-1 p-4">
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.title}</div>
+              <div className={`w-12 h-12 ${stat.bgColor} rounded-full flex items-center justify-center`}>
+                <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
               </div>
             </div>
           </CardContent>
