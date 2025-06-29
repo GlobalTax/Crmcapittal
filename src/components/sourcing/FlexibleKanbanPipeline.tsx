@@ -122,7 +122,7 @@ export const FlexibleKanbanPipeline = ({
               {...provided.draggableProps}
               {...provided.dragHandleProps}
             >
-              <KanbanCard company={item} isDragging={isDragging} />
+              <KanbanCard company={item} />
             </div>
           )}
         </Draggable>
