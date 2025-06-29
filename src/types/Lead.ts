@@ -15,10 +15,9 @@ export interface Lead {
   updated_at: string;
   assigned_to?: {
     id: string;
-    email: string;
     first_name?: string;
     last_name?: string;
-  };
+  } | null;
 }
 
 export interface CreateLeadData {
