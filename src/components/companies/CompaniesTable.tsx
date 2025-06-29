@@ -6,60 +6,81 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, 
-  Filter, 
-  Download, 
   MoreHorizontal, 
   Edit, 
   Trash2, 
-  Phone,
   Globe,
   Building2,
   Users,
   TrendingUp,
   Eye,
   MapPin,
-  Calendar
+  Calendar,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
-import { Company, CompanyStatus, CompanyType, LifecycleStage } from "@/types/Company";
+import { Company, CompanyStatus, CompanyType } from "@/types/Company";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface CompaniesTableProps {
   companies: Company[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  stats?: {
+    totalCompanies: number;
+    clientCompanies: number;
+    targetAccounts: number;
+    totalDealsValue: number;
+  };
+  statsLoading?: boolean;
   onEditCompany?: (company: Company) => void;
   onDeleteCompany?: (companyId: string) => void;
   onViewCompany?: (company: Company) => void;
+  onSearch?: (term: string) => void;
+  onStatusFilter?: (status: string) => void;
+  onTypeFilter?: (type: string) => void;
+  onPageChange?: (page: number) => void;
   isLoading?: boolean;
 }
 
 export const CompaniesTable = ({ 
   companies = [], 
+  totalCount,
+  currentPage,
+  totalPages,
+  stats,
+  statsLoading,
   onEditCompany,
   onDeleteCompany,
   onViewCompany,
+  onSearch,
+  onStatusFilter,
+  onTypeFilter,
+  onPageChange,
   isLoading 
 }: CompaniesTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<CompanyStatus | "all">("all");
   const [filterType, setFilterType] = useState<CompanyType | "all">("all");
-  const [filterStage, setFilterStage] = useState<LifecycleStage | "all">("all");
 
-  const filteredCompanies = useMemo(() => {
-    return companies.filter(company => {
-      const matchesSearch = 
-        company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.domain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.industry?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.city?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = filterStatus === "all" || company.company_status === filterStatus;
-      const matchesType = filterType === "all" || company.company_type === filterType;
-      const matchesStage = filterStage === "all" || company.lifecycle_stage === filterStage;
-      
-      return matchesSearch && matchesStatus && matchesType && matchesStage;
-    });
-  }, [companies, searchTerm, filterStatus, filterType, filterStage]);
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    onSearch?.(value);
+  };
+
+  const handleStatusChange = (status: CompanyStatus | "all") => {
+    setFilterStatus(status);
+    onStatusFilter?.(status);
+  };
+
+  const handleTypeChange = (type: CompanyType | "all") => {
+    setFilterType(type);
+    onTypeFilter?.(type);
+  };
 
   const getStatusBadge = (status: CompanyStatus) => {
     const statusConfig = {
@@ -100,14 +121,55 @@ export const CompaniesTable = ({
     }).format(amount);
   };
 
-  if (isLoading) {
+  const StatsCard = ({ title, value, icon: Icon, color }: { title: string; value: string | number; icon: any; color: string }) => (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">{title}</p>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-16 mt-1" />
+            ) : (
+              <p className={`text-2xl font-semibold ${color}`}>{value}</p>
+            )}
+          </div>
+          <Icon className={`h-8 w-8 ${color}`} />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  if (isLoading && companies.length === 0) {
     return (
-      <div className="space-y-4">
-        <div className="animate-pulse space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-gray-200 rounded"></div>
+      <div className="space-y-6">
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Skeleton className="h-4 w-20 mb-2" />
+                    <Skeleton className="h-8 w-16" />
+                  </div>
+                  <Skeleton className="h-8 w-8 rounded" />
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
+        
+        {/* Table Skeleton */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -124,7 +186,7 @@ export const CompaniesTable = ({
                 <Input
                   placeholder="Buscar empresas por nombre, dominio, industria o ciudad..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -132,7 +194,7 @@ export const CompaniesTable = ({
             <div className="flex gap-2">
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as CompanyStatus | "all")}
+                onChange={(e) => handleStatusChange(e.target.value as CompanyStatus | "all")}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm"
               >
                 <option value="all">Todos los estados</option>
@@ -145,7 +207,7 @@ export const CompaniesTable = ({
               
               <select
                 value={filterType}
-                onChange={(e) => setFilterType(e.target.value as CompanyType | "all")}
+                onChange={(e) => handleTypeChange(e.target.value as CompanyType | "all")}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm"
               >
                 <option value="all">Todos los tipos</option>
@@ -162,67 +224,38 @@ export const CompaniesTable = ({
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Empresas</p>
-                <p className="text-2xl font-semibold text-gray-900">{companies.length}</p>
-              </div>
-              <Building2 className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Clientes</p>
-                <p className="text-2xl font-semibold text-green-600">
-                  {companies.filter(c => c.company_status === 'cliente').length}
-                </p>
-              </div>
-              <Users className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Target Accounts</p>
-                <p className="text-2xl font-semibold text-purple-600">
-                  {companies.filter(c => c.is_target_account).length}
-                </p>
-              </div>
-              <Calendar className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Valor Total Deals</p>
-                <p className="text-2xl font-semibold text-orange-600">
-                  {formatCurrency(companies.reduce((acc, c) => acc + (c.total_deal_value || 0), 0))}
-                </p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Total Empresas"
+          value={stats?.totalCompanies || 0}
+          icon={Building2}
+          color="text-orange-600"
+        />
+        <StatsCard
+          title="Clientes"
+          value={stats?.clientCompanies || 0}
+          icon={Users}
+          color="text-green-600"
+        />
+        <StatsCard
+          title="Target Accounts"
+          value={stats?.targetAccounts || 0}
+          icon={Calendar}
+          color="text-purple-600"
+        />
+        <StatsCard
+          title="Valor Total Deals"
+          value={stats ? formatCurrency(stats.totalDealsValue) : "€0"}
+          icon={TrendingUp}
+          color="text-orange-600"
+        />
       </div>
 
       {/* Companies Table */}
       <Card>
         <CardHeader>
           <CardTitle>
-            {filteredCompanies.length} empresas
-            {searchTerm && ` (filtradas de ${companies.length})`}
+            {totalCount} empresas
+            {totalCount > companies.length && ` (mostrando ${companies.length})`}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -235,12 +268,11 @@ export const CompaniesTable = ({
                   <TableHead>Estado</TableHead>
                   <TableHead>Tipo</TableHead>
                   <TableHead>Lead Score</TableHead>
-                  <TableHead>Contactos</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCompanies.map((company) => (
+                {companies.map((company) => (
                   <TableRow key={company.id} className="hover:bg-gray-50">
                     <TableCell>
                       <div className="flex items-center space-x-3">
@@ -292,12 +324,6 @@ export const CompaniesTable = ({
                       </div>
                     </TableCell>
                     
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {company.contacts_count || 0} contactos
-                      </Badge>
-                    </TableCell>
-                    
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -330,17 +356,46 @@ export const CompaniesTable = ({
             </Table>
           </div>
           
-          {filteredCompanies.length === 0 && (
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-gray-700">
+                Mostrando {((currentPage - 1) * 25) + 1} a {Math.min(currentPage * 25, totalCount)} de {totalCount} empresas
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onPageChange?.(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Anterior
+                </Button>
+                <span className="text-sm">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onPageChange?.(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                >
+                  Siguiente
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+          
+          {companies.length === 0 && !isLoading && (
             <div className="text-center py-12">
               <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No se encontraron empresas
               </h3>
               <p className="text-gray-500">
-                {searchTerm ? 
-                  "Intenta con otros términos de búsqueda" : 
-                  "Crea tu primera empresa para comenzar"
-                }
+                Intenta con otros términos de búsqueda o crea tu primera empresa
               </p>
             </div>
           )}

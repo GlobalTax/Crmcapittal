@@ -4,40 +4,101 @@ import { supabase } from "@/integrations/supabase/client";
 import { Company, CreateCompanyData, UpdateCompanyData } from "@/types/Company";
 import { toast } from "sonner";
 
-export const useCompanies = () => {
+interface UseCompaniesOptions {
+  page?: number;
+  limit?: number;
+  searchTerm?: string;
+  statusFilter?: string;
+  typeFilter?: string;
+}
+
+export const useCompanies = (options: UseCompaniesOptions = {}) => {
   const queryClient = useQueryClient();
+  const { page = 1, limit = 25, searchTerm = "", statusFilter = "all", typeFilter = "all" } = options;
 
   const {
-    data: companies = [],
+    data: companiesData,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["companies"],
+    queryKey: ["companies", page, limit, searchTerm, statusFilter, typeFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("companies")
-        .select(`
-          *,
-          contacts_count:contacts(count),
-          deals_count:deals(count)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
+
+      // Apply filters
+      if (searchTerm) {
+        query = query.or(`name.ilike.%${searchTerm}%,domain.ilike.%${searchTerm}%,industry.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`);
+      }
+      
+      if (statusFilter !== "all") {
+        query = query.eq("company_status", statusFilter);
+      }
+      
+      if (typeFilter !== "all") {
+        query = query.eq("company_type", typeFilter);
+      }
+
+      // Apply pagination
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
 
       if (error) {
         console.error("Error fetching companies:", error);
         throw error;
       }
 
-      // Transform the data to match the Company type
-      const transformedData = data?.map(company => ({
-        ...company,
-        contacts_count: Array.isArray(company.contacts_count) ? company.contacts_count[0]?.count || 0 : 0,
-        deals_count: Array.isArray(company.deals_count) ? company.deals_count[0]?.count || 0 : 0,
-      })) || [];
-
-      return transformedData as Company[];
+      return {
+        companies: data as Company[],
+        totalCount: count || 0,
+        currentPage: page,
+        totalPages: Math.ceil((count || 0) / limit)
+      };
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
+
+  // Separate query for getting counts when needed
+  const useCompanyStats = () => {
+    return useQuery({
+      queryKey: ["company-stats"],
+      queryFn: async () => {
+        const { data: totalCompanies } = await supabase
+          .from("companies")
+          .select("id", { count: "exact", head: true });
+
+        const { data: clientCompanies } = await supabase
+          .from("companies")
+          .select("id", { count: "exact", head: true })
+          .eq("company_status", "cliente");
+
+        const { data: targetAccounts } = await supabase
+          .from("companies")
+          .select("id", { count: "exact", head: true })
+          .eq("is_target_account", true);
+
+        const { data: dealsValue } = await supabase
+          .from("deals")
+          .select("deal_value");
+
+        const totalDealsValue = dealsValue?.reduce((sum, deal) => sum + (deal.deal_value || 0), 0) || 0;
+
+        return {
+          totalCompanies: totalCompanies?.length || 0,
+          clientCompanies: clientCompanies?.length || 0,
+          targetAccounts: targetAccounts?.length || 0,
+          totalDealsValue
+        };
+      },
+      staleTime: 10 * 60 * 1000, // 10 minutes
+    });
+  };
 
   const createCompanyMutation = useMutation({
     mutationFn: async (companyData: CreateCompanyData) => {
@@ -63,6 +124,7 @@ export const useCompanies = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+      queryClient.invalidateQueries({ queryKey: ["company-stats"] });
       toast.success("Empresa creada exitosamente");
     },
     onError: (error) => {
@@ -89,6 +151,7 @@ export const useCompanies = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+      queryClient.invalidateQueries({ queryKey: ["company-stats"] });
       toast.success("Empresa actualizada exitosamente");
     },
     onError: (error) => {
@@ -113,6 +176,7 @@ export const useCompanies = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+      queryClient.invalidateQueries({ queryKey: ["company-stats"] });
       toast.success("Empresa eliminada exitosamente");
     },
     onError: (error) => {
@@ -122,7 +186,10 @@ export const useCompanies = () => {
   });
 
   return {
-    companies,
+    companies: companiesData?.companies || [],
+    totalCount: companiesData?.totalCount || 0,
+    currentPage: companiesData?.currentPage || 1,
+    totalPages: companiesData?.totalPages || 1,
     isLoading,
     error,
     createCompany: createCompanyMutation.mutate,
@@ -131,6 +198,7 @@ export const useCompanies = () => {
     isCreating: createCompanyMutation.isPending,
     isUpdating: updateCompanyMutation.isPending,
     isDeleting: deleteCompanyMutation.isPending,
+    useCompanyStats,
   };
 };
 
@@ -156,5 +224,6 @@ export const useCompany = (companyId: string) => {
       return data as Company;
     },
     enabled: !!companyId,
+    staleTime: 5 * 60 * 1000,
   });
 };
