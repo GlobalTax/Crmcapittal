@@ -13,16 +13,16 @@ interface OperacionCardProps {
 }
 
 export const OperacionCard = ({ operacion }: OperacionCardProps) => {
-  // Score condicional: verde si >80, azul si >60, rojo si <=60
+  // Score condicional: verde si >80, gris si >60, rojo si <=60
   const getScoreColor = (score: number) => {
     if (score > 80) return "bg-green-100 text-green-800 border-green-200";
-    if (score > 60) return "bg-blue-100 text-blue-800 border-blue-200";
+    if (score > 60) return "bg-white text-gray-800 border-gray-200";
     return "bg-red-100 text-red-800 border-red-200";
   };
 
   const getScoreBarColor = (score: number) => {
     if (score > 80) return "bg-green-500";
-    if (score > 60) return "bg-blue-500";
+    if (score > 60) return "bg-gray-500";
     return "bg-red-500";
   };
 

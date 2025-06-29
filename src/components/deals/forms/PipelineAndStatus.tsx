@@ -13,8 +13,8 @@ interface PipelineAndStatusProps {
 
 const priorities = [
   { value: "baja", label: "Baja", color: "bg-gray-100 text-gray-800" },
-  { value: "media", label: "Media", color: "bg-yellow-100 text-yellow-800" },
-  { value: "alta", label: "Alta", color: "bg-orange-100 text-orange-800" },
+  { value: "media", label: "Media", color: "bg-white text-gray-800" },
+  { value: "alta", label: "Alta", color: "bg-red-100 text-red-800" },
   { value: "urgente", label: "Urgente", color: "bg-red-100 text-red-800" }
 ];
 

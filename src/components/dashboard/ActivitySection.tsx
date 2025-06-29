@@ -79,7 +79,7 @@ export const ActivitySection = ({ deals, activities }: ActivitySectionProps) => 
               </div>
               <Badge className={`text-xs ${
                 activity.priority === 'high' ? 'bg-red-100 text-red-800' :
-                activity.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                activity.priority === 'medium' ? 'bg-white text-gray-800' :
                 'bg-gray-100 text-gray-800'
               }`}>
                 {activity.priority === 'high' ? 'Alta' : 

@@ -101,7 +101,7 @@ export const KanbanCard = ({ company }: KanbanCardProps) => {
           {/* Fit Score */}
           {company.fit_score && (
             <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 text-yellow-400 fill-current" />
+              <Star className="h-3 w-3 text-gray-400 fill-current" />
               <span className="text-xs text-gray-600">{company.fit_score}/5</span>
             </div>
           )}

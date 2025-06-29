@@ -11,8 +11,8 @@ import { LayoutGrid, Table } from "lucide-react";
 const statusColumns: { id: TargetStatus; title: string; color: string }[] = [
   { id: 'IDENTIFIED', title: 'Identificado', color: 'bg-gray-100' },
   { id: 'RESEARCHING', title: 'Investigando', color: 'bg-blue-100' },
-  { id: 'OUTREACH_PLANNED', title: 'Contacto Planificado', color: 'bg-yellow-100' },
-  { id: 'CONTACTED', title: 'Contactado', color: 'bg-orange-100' },
+  { id: 'OUTREACH_PLANNED', title: 'Contacto Planificado', color: 'bg-white' },
+  { id: 'CONTACTED', title: 'Contactado', color: 'bg-white' },
   { id: 'IN_CONVERSATION', title: 'En Conversación', color: 'bg-green-100' },
   { id: 'ON_HOLD', title: 'En Pausa', color: 'bg-red-100' },
   { id: 'CONVERTED_TO_DEAL', title: 'Convertido', color: 'bg-purple-100' }
