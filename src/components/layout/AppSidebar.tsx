@@ -13,7 +13,6 @@ import {
 import { useUserRole } from "@/hooks/useUserRole";
 import {
   Home,
-  Activity,
   User,
   Settings,
   Users,
@@ -32,7 +31,6 @@ const navigationItems = {
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Portfolio", url: "/portfolio", icon: Grid },
     { title: "Sourcing", url: "/sourcing", icon: Target },
-    { title: "Operaciones", url: "/admin", icon: Activity },
     { title: "Leads", url: "/leads", icon: Bell },
     { title: "Proyectos", url: "/projects", icon: Settings },
   ],
@@ -40,7 +38,6 @@ const navigationItems = {
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Portfolio", url: "/portfolio", icon: Grid },
     { title: "Sourcing", url: "/sourcing", icon: Target },
-    { title: "Operaciones", url: "/admin", icon: Activity },
     { title: "Leads", url: "/leads", icon: Bell },
     { title: "Proyectos", url: "/projects", icon: Settings },
     { title: "Managers", url: "/managers", icon: Users },

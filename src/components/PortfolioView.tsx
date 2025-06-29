@@ -3,9 +3,13 @@ import { useState, useEffect } from "react";
 import { OperationsList } from "@/components/OperationsList";
 import { AddCompanyDialog } from "@/components/AddCompanyDialog";
 import { AddOperationDialog } from "@/components/AddOperationDialog";
+import { PendingOperationsManager } from "@/components/PendingOperationsManager";
+import { AdminOperationsTable } from "@/components/AdminOperationsTable";
 import { useOperations } from "@/hooks/useOperations";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
-import { Plus, Building2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Building2, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface PortfolioViewProps {
@@ -14,9 +18,12 @@ interface PortfolioViewProps {
 }
 
 export const PortfolioView = ({ showHeader = true, showAddCompany = true }: PortfolioViewProps) => {
-  const { operations, loading, error, addOperation } = useOperations();
+  const { operations, loading, error, addOperation, updateOperation, updateOperationStatus, deleteOperation, updateTeaserUrl } = useOperations();
+  const { role } = useUserRole();
   const [showAddOperationDialog, setShowAddOperationDialog] = useState(false);
   const { toast } = useToast();
+
+  const isAdmin = role === 'admin' || role === 'superadmin';
 
   // Calculate stats from all operations
   const totalValue = operations.reduce((sum, op) => sum + op.amount, 0);
@@ -44,9 +51,15 @@ export const PortfolioView = ({ showHeader = true, showAddCompany = true }: Port
       {showHeader && (
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
           <div className="text-center lg:text-left">
-            <h2 className="text-2xl sm:text-3xl font-bold text-black mb-2">Oportunidades de Inversión</h2>
-            <p className="text-base sm:text-lg text-gray-700">Descubre las mejores operaciones disponibles para inversión</p>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">Contacta directamente para más información detallada</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-black mb-2">
+              {isAdmin ? "Gestión de Portfolio" : "Oportunidades de Inversión"}
+            </h2>
+            <p className="text-base sm:text-lg text-gray-700">
+              {isAdmin ? "Administra y gestiona las operaciones del portfolio" : "Descubre las mejores operaciones disponibles para inversión"}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">
+              {isAdmin ? "Controla el estado y la información de todas las operaciones" : "Contacta directamente para más información detallada"}
+            </p>
           </div>
           
           <div className="flex justify-center lg:justify-end space-x-3">
@@ -104,8 +117,48 @@ export const PortfolioView = ({ showHeader = true, showAddCompany = true }: Port
         </div>
       </div>
 
-      {/* Operations List with integrated filters */}
-      <OperationsList />
+      {/* Content based on user role */}
+      {isAdmin ? (
+        <Tabs defaultValue="operations" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="operations" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Gestión Operaciones
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              Vista Portfolio
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="operations" className="space-y-6">
+            <PendingOperationsManager 
+              operations={operations} 
+              onStatusUpdate={updateOperationStatus}
+            />
+            
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Administración de Operaciones</h3>
+                <AdminOperationsTable 
+                  operations={operations}
+                  loading={loading}
+                  error={error}
+                  onUpdateOperation={updateOperation}
+                  onDeleteOperation={deleteOperation}
+                  onUpdateTeaserUrl={updateTeaserUrl}
+                />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="portfolio">
+            <OperationsList />
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <OperationsList />
+      )}
 
       {/* Add Operation Dialog */}
       <AddOperationDialog
