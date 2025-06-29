@@ -17,6 +17,7 @@ import LegalNotice from "./pages/LegalNotice";
 import CookiesPolicy from "./pages/CookiesPolicy";
 import Leads from "./pages/Leads";
 import TimeTracking from "./pages/TimeTracking";
+import MyDay from "./pages/MyDay";
 import { AuthProvider } from "./contexts/AuthContext";
 import Auth from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -41,6 +42,7 @@ function App() {
               
               <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                 <Route path="/" element={<Index />} />
+                <Route path="/my-day" element={<MyDay />} />
                 <Route path="/time-tracking" element={<TimeTracking />} />
                 <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/sourcing" element={<Sourcing />} />

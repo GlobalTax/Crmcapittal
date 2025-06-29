@@ -52,8 +52,8 @@ const TimeTracking = () => {
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Time Tracking</h1>
-              <p className="text-gray-600">Gestiona tu tiempo y productividad de manera eficiente</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Control de Tiempo</h1>
+              <p className="text-gray-600">Mide y controla el tiempo dedicado a tus actividades</p>
             </div>
             <div className="flex gap-3">
               <Button 
@@ -143,7 +143,7 @@ const TimeTracking = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-blue-600" />
-                  Plan de Hoy
+                  Tareas con Temporizador
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">

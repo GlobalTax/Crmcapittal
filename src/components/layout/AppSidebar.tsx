@@ -19,7 +19,8 @@ const navigation = [
     title: "Dashboard",
     items: [
       { title: "Inicio", url: "/", icon: BarChart3, roles: ["user", "admin", "superadmin"] },
-      { title: "Mi Día", url: "/time-tracking", icon: Timer, roles: ["user", "admin", "superadmin"] },
+      { title: "Mi Día", url: "/my-day", icon: Calendar, roles: ["user", "admin", "superadmin"] },
+      { title: "Time Tracking", url: "/time-tracking", icon: Clock, roles: ["user", "admin", "superadmin"] },
     ],
   },
   {
