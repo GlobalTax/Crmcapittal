@@ -12,7 +12,7 @@ export const fetchLeads = async (filters?: {
     .from('leads')
     .select(`
       *,
-      assigned_to:user_profiles(
+      assigned_to:user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
@@ -46,7 +46,7 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     .from('leads')
     .select(`
       *,
-      assigned_to:user_profiles(
+      assigned_to:user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
@@ -72,7 +72,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     .insert([leadData])
     .select(`
       *,
-      assigned_to:user_profiles(
+      assigned_to:user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
@@ -98,7 +98,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     .eq('id', id)
     .select(`
       *,
-      assigned_to:user_profiles(
+      assigned_to:user_profiles!leads_assigned_to_id_fkey(
         id,
         first_name,
         last_name
