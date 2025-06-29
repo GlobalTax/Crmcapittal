@@ -52,6 +52,11 @@ const Index = () => {
                       Mi Cuenta
                     </Button>
                   </Link>
+                  <Link to="/leads" className="w-full sm:w-auto">
+                    <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
+                      Leads
+                    </Button>
+                  </Link>
                   <Link to="/auth" className="w-full sm:w-auto">
                     <Button variant="outline" size="default" className="w-full sm:w-auto text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 h-auto border-black text-black hover:bg-gray-100">
                       Área Profesional
