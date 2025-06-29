@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Clock, Target, TrendingUp, Calendar } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { TimeEntry } from '@/types/TimeTracking';
 
@@ -25,30 +24,22 @@ export const TimeTrackingStats: React.FC<TimeTrackingStatsProps> = ({ timeEntrie
     {
       title: 'Tiempo Total',
       value: formatTime(totalMinutes),
-      icon: Clock,
       bgColor: 'bg-neutral-100',
-      iconColor: 'text-neutral-600'
     },
     {
       title: 'Tiempo Facturable',
       value: formatTime(billableMinutes),
-      icon: Target,
       bgColor: 'bg-neutral-200',
-      iconColor: 'text-neutral-700'
     },
     {
       title: 'Sesiones',
       value: completedEntries.length.toString(),
-      icon: TrendingUp,
       bgColor: 'bg-neutral-300',
-      iconColor: 'text-neutral-800'
     },
     {
       title: 'Eficiencia',
       value: totalMinutes > 0 ? `${Math.round((billableMinutes / totalMinutes) * 100)}%` : '0%',
-      icon: Calendar,
       bgColor: 'bg-neutral-400',
-      iconColor: 'text-neutral-50'
     }
   ];
 
@@ -63,7 +54,7 @@ export const TimeTrackingStats: React.FC<TimeTrackingStatsProps> = ({ timeEntrie
                 <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
               <div className={`w-12 h-12 ${stat.bgColor} rounded-full flex items-center justify-center`}>
-                <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
+                <div className="w-6 h-6 bg-neutral-600 rounded-sm"></div>
               </div>
             </div>
           </CardContent>

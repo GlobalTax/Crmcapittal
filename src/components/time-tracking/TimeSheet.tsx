@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Clock, Play, DollarSign } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { TimeEntry } from '@/types/TimeTracking';
 
@@ -36,7 +35,7 @@ export const TimeSheet: React.FC<TimeSheetProps> = ({ timeEntries }) => {
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Clock className="w-6 h-6 text-gray-400" />
+          <div className="w-6 h-6 bg-gray-400 rounded-sm"></div>
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">No hay registros de tiempo</h3>
         <p className="text-gray-500 text-sm">
@@ -77,9 +76,9 @@ export const TimeSheet: React.FC<TimeSheetProps> = ({ timeEntries }) => {
                   !entry.end_time ? 'bg-neutral-200' : 'bg-gray-100'
                 }`}>
                   {!entry.end_time ? (
-                    <Play className="w-4 h-4 text-neutral-600" />
+                    <div className="w-4 h-4 bg-neutral-600 rounded-sm"></div>
                   ) : (
-                    <Clock className="w-4 h-4 text-gray-600" />
+                    <div className="w-4 h-4 bg-gray-600 rounded-sm"></div>
                   )}
                 </div>
                 
@@ -102,7 +101,7 @@ export const TimeSheet: React.FC<TimeSheetProps> = ({ timeEntries }) => {
               <div className="flex items-center gap-3">
                 {!entry.end_time && (
                   <Badge className="bg-neutral-200 text-neutral-800 border-neutral-300">
-                    <Play className="w-3 h-3 mr-1" />
+                    <div className="w-3 h-3 mr-1 bg-neutral-800 rounded-sm"></div>
                     En curso
                   </Badge>
                 )}
@@ -125,7 +124,7 @@ export const TimeSheet: React.FC<TimeSheetProps> = ({ timeEntries }) => {
               <div className="flex items-center gap-2">
                 {entry.is_billable && (
                   <Badge variant="outline" className="text-neutral-600 border-neutral-300 bg-neutral-50">
-                    <DollarSign className="w-3 h-3 mr-1" />
+                    <div className="w-3 h-3 mr-1 bg-neutral-600 rounded-sm"></div>
                     Facturable
                   </Badge>
                 )}

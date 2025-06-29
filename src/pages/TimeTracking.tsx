@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Plus, Clock, Calendar, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTimeTracking } from '@/hooks/useTimeTracking';
@@ -59,14 +58,14 @@ const TimeTracking = () => {
             variant="outline"
             className="border-gray-300"
           >
-            <Clock className="w-4 h-4 mr-2" />
+            <div className="w-4 h-4 mr-2 bg-gray-600 rounded-sm"></div>
             Entrada Manual
           </Button>
           <Button 
             onClick={() => setShowCreateTask(true)}
             className="bg-neutral-800 hover:bg-neutral-900 text-white"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <div className="w-4 h-4 mr-2 bg-white rounded-sm"></div>
             Nueva Tarea
           </Button>
         </div>
@@ -100,7 +99,7 @@ const TimeTracking = () => {
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-neutral-600" />
+                <div className="w-5 h-5 bg-neutral-600 rounded-sm"></div>
                 Resumen del Día
               </CardTitle>
             </CardHeader>
@@ -135,7 +134,7 @@ const TimeTracking = () => {
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-neutral-600" />
+                <div className="w-5 h-5 bg-neutral-600 rounded-sm"></div>
                 Tareas con Temporizador
               </CardTitle>
             </CardHeader>
@@ -152,7 +151,7 @@ const TimeTracking = () => {
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-neutral-600" />
+                <div className="w-5 h-5 bg-neutral-600 rounded-sm"></div>
                 Registro de Tiempo
               </CardTitle>
             </CardHeader>
