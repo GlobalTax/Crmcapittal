@@ -14,6 +14,7 @@ export const fetchLeads = async (filters?: {
     .order('created_at', { ascending: false });
 
   // Only filter by status if it's one of the database-supported statuses
+  // Database only supports: NEW, CONTACTED, QUALIFIED, DISQUALIFIED
   if (filters?.status && ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(filters.status)) {
     query = query.eq('status', filters.status);
   }
@@ -47,8 +48,9 @@ export const fetchLeads = async (filters?: {
   // Transform the data to match our Lead interface
   const transformedData = (data || []).map(lead => ({
     ...lead,
-    // Set default values for new fields to maintain compatibility
+    // Ensure source is properly typed
     source: (lead.source as LeadSource) || 'other',
+    // Set default values for new fields to maintain compatibility
     lead_score: 0, // Default since this field doesn't exist in DB yet
     priority: 'MEDIUM' as const,
     quality: 'FAIR' as const,
@@ -172,6 +174,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
   if (updates.company_name !== undefined) dbUpdates.company_name = updates.company_name;
   if (updates.message !== undefined) dbUpdates.message = updates.message;
   if (updates.source !== undefined) dbUpdates.source = updates.source;
+  // Only update status if it's supported by the database
   if (updates.status !== undefined && ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(updates.status)) {
     dbUpdates.status = updates.status;
   }
@@ -275,7 +278,7 @@ export const convertLeadToContact = async (
     throw contactError;
   }
 
-  // Update lead status to QUALIFIED
+  // Update lead status to QUALIFIED (since CONVERTED isn't supported in DB)
   await updateLead(leadId, { status: 'QUALIFIED' });
 
   console.log('Lead converted successfully to contact:', contact.id);

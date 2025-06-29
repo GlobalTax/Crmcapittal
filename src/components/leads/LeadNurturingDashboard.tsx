@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -76,22 +75,41 @@ const LeadNurturingDashboard = () => {
     return null;
   };
 
-  // Create mock leads that match our Lead interface
-  const mockLeads = [
+  // Create mock leads that match our Lead interface with all required fields
+  const mockLeads: Lead[] = [
     {
       id: "lead_1",
       name: "María González",
       email: "maria.gonzalez@techstartup.com",
       company_name: "Tech Startup SL",
-      status: "NEW" as const,
-      source: "website_form" as const,
+      status: "NEW",
+      source: "website_form",
       lead_score: 85,
       created_at: "2024-01-22T10:30:00Z",
       updated_at: "2024-01-22T10:30:00Z",
+      priority: "HIGH",
+      quality: "EXCELLENT",
+      phone: "+34 600 123 456",
+      job_title: "CEO",
+      message: "Interesada en servicios de valoración para posible venta",
+      assigned_to: { id: "luis_montanya", first_name: "Luis", last_name: "Montanya" },
+      follow_up_count: 0,
+      email_opens: 0,
+      email_clicks: 0,
+      website_visits: 3,
+      content_downloads: 1,
+      tags: ["CEO", "Tech", "High-Value"],
+      form_data: {
+        form_type: "consultation_request",
+        utm_source: "google",
+        utm_medium: "cpc",
+        utm_campaign: "ma_services",
+        landing_page: "/servicios-ma"
+      },
       lead_nurturing: [{
         lead_score: 85,
         engagement_score: 72,
-        stage: "CAPTURED" as const,
+        stage: "CAPTURED",
         last_activity_date: "2024-01-22T10:30:00Z"
       }]
     },
@@ -100,15 +118,32 @@ const LeadNurturingDashboard = () => {
       name: "Carlos Martín",
       email: "carlos@distribuidora.com",
       company_name: "Distribuidora Norte",
-      status: "CONTACTED" as const,
-      source: "lead_marker" as const,
+      status: "CONTACTED",
+      source: "lead_marker",
       lead_score: 72,
       created_at: "2024-01-20T09:15:00Z",
       updated_at: "2024-01-21T16:30:00Z",
+      priority: "MEDIUM",
+      quality: "GOOD",
+      phone: "+34 678 987 654",
+      job_title: "Director Financiero",
+      message: "Necesito asesoramiento para adquisición",
+      assigned_to: { id: "samuel_lorente", first_name: "Samuel", last_name: "Lorente" },
+      first_contact_date: "2024-01-20T14:15:00Z",
+      follow_up_count: 2,
+      email_opens: 3,
+      email_clicks: 1,
+      website_visits: 5,
+      content_downloads: 2,
+      tags: ["CFO", "Acquisition", "Mid-Market"],
+      form_data: {
+        form_type: "demo_request",
+        referrer_url: "https://leadmarker.com"
+      },
       lead_nurturing: [{
         lead_score: 72,
         engagement_score: 65,
-        stage: "QUALIFIED" as const,
+        stage: "QUALIFIED",
         last_activity_date: "2024-01-21T16:30:00Z"
       }]
     },
@@ -117,15 +152,34 @@ const LeadNurturingDashboard = () => {
       name: "Ana Rodríguez", 
       email: "ana.rodriguez@capittalmarket.com",
       company_name: "InnovateLabs",
-      status: "QUALIFIED" as const,
-      source: "capittal_market" as const,
+      status: "QUALIFIED",
+      source: "capittal_market",
       lead_score: 93,
       created_at: "2024-01-18T08:30:00Z",
       updated_at: "2024-01-21T15:45:00Z",
+      priority: "URGENT",
+      quality: "EXCELLENT",
+      phone: "+34 612 345 678",
+      job_title: "Founder",
+      message: "Startup busca funding, posible exit strategy",
+      assigned_to: { id: "andrea_moreno", first_name: "Andrea", last_name: "Moreno" },
+      first_contact_date: "2024-01-18T11:00:00Z",
+      last_contact_date: "2024-01-21T15:45:00Z",
+      next_follow_up_date: "2024-01-25T10:00:00Z",
+      follow_up_count: 4,
+      email_opens: 8,
+      email_clicks: 4,
+      website_visits: 12,
+      content_downloads: 5,
+      tags: ["Founder", "Startup", "Exit-Ready", "High-Value"],
+      form_data: {
+        form_type: "consultation_request",
+        external_source: "capittal_market_platform"
+      },
       lead_nurturing: [{
         lead_score: 93,
         engagement_score: 88,
-        stage: "SALES_READY" as const,
+        stage: "SALES_READY",
         last_activity_date: "2024-01-21T15:45:00Z"
       }]
     }
@@ -259,14 +313,14 @@ const LeadNurturingDashboard = () => {
               <div className="space-y-4">
                 {leadsData
                   .sort((a, b) => {
-                    const scoreA = getLeadNurturingData(a)?.lead_score || 0;
-                    const scoreB = getLeadNurturingData(b)?.lead_score || 0;
+                    const scoreA = getLeadNurturingData(a)?.lead_score || a.lead_score || 0;
+                    const scoreB = getLeadNurturingData(b)?.lead_score || b.lead_score || 0;
                     return scoreB - scoreA;
                   })
                   .slice(0, 20)
                   .map((lead) => {
                     const nurturingData = getLeadNurturingData(lead);
-                    const score = nurturingData?.lead_score || 0;
+                    const score = nurturingData?.lead_score || lead.lead_score || 0;
                     const scoreLevel = getScoreLevel(score);
                     
                     return (
