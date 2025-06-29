@@ -1,8 +1,4 @@
 
-import React from "react";
-import { Calendar, Clock, Users, Building2, Target, BarChart3, Settings, FileText, MessageSquare, Timer, Workflow, GitBranch } from "lucide-react";
-import { useUserRole } from "@/hooks/useUserRole";
-import { Link } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -13,71 +9,103 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { 
+  BarChart3, 
+  Users, 
+  FileText, 
+  Settings, 
+  Home,
+  FolderOpen,
+  UserCheck,
+  Shield,
+  ShieldCheck,
+  Calendar,
+  Clock,
+  Target,
+  Workflow,
+  Building2,
+  UserPlus,
+  Briefcase
+} from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { useUserRole } from "@/hooks/useUserRole";
 
-const navigation = [
+const menuItems = [
   {
-    title: "Dashboard",
+    title: "General",
     items: [
-      { title: "Inicio", url: "/", icon: BarChart3, roles: ["user", "admin", "superadmin"] },
-      { title: "Mi Día", url: "/my-day", icon: Calendar, roles: ["user", "admin", "superadmin"] },
-    ],
+      { title: "Dashboard", url: "/", icon: Home },
+      { title: "Mi Día", url: "/my-day", icon: Calendar },
+      { title: "Time Tracking", url: "/time-tracking", icon: Clock },
+    ]
   },
   {
     title: "CRM & Ventas",
     items: [
-      { title: "Contactos", url: "/contacts", icon: Users, roles: ["user", "admin", "superadmin"] },
-      { title: "Leads", url: "/leads", icon: MessageSquare, roles: ["user", "admin", "superadmin"] },
-      { title: "Time Tracking", url: "/time-tracking", icon: Clock, roles: ["user", "admin", "superadmin"] },
-    ],
+      { title: "Empresas", url: "/companies", icon: Building2 },
+      { title: "Contactos", url: "/contacts", icon: Users },
+      { title: "Leads", url: "/leads", icon: UserPlus },
+      { title: "Pipelines", url: "/pipelines", icon: Workflow },
+    ]
   },
   {
-    title: "Gestión de Negocio",
+    title: "Operaciones",
     items: [
-      { title: "Pipelines", url: "/pipelines", icon: Workflow, roles: ["user", "admin", "superadmin"] },
-      { title: "Operaciones", url: "/operaciones", icon: GitBranch, roles: ["user", "admin", "superadmin"] },
-      { title: "Portfolio", url: "/portfolio", icon: Building2, roles: ["user", "admin", "superadmin"] },
-      { title: "Sourcing", url: "/sourcing", icon: Target, roles: ["user", "admin", "superadmin"] },
-      { title: "Proyectos", url: "/projects", icon: FileText, roles: ["user", "admin", "superadmin"] },
-    ],
+      { title: "Portfolio", url: "/portfolio", icon: BarChart3 },
+      { title: "Operaciones", url: "/operaciones", icon: Briefcase },
+      { title: "Sourcing", url: "/sourcing", icon: Target },
+      { title: "Proyectos", url: "/projects", icon: FolderOpen },
+    ]
+  },
+  {
+    title: "Gestión",
+    items: [
+      { title: "Managers", url: "/managers", icon: UserCheck },
+    ]
   },
   {
     title: "Administración",
     items: [
-      { title: "Managers", url: "/managers", icon: Users, roles: ["admin", "superadmin"] },
-      { title: "Admin Panel", url: "/admin", icon: Settings, roles: ["admin", "superadmin"] },
-      { title: "Super Admin", url: "/super-admin", icon: Settings, roles: ["superadmin"] },
-    ],
-  },
+      { title: "Admin", url: "/admin", icon: Shield, roles: ['admin', 'superadmin'] },
+      { title: "Super Admin", url: "/super-admin", icon: ShieldCheck, roles: ['superadmin'] },
+    ]
+  }
 ];
 
 export function AppSidebar() {
+  const location = useLocation();
   const { role } = useUserRole();
 
-  const filteredNavigation = navigation.map(group => ({
-    ...group,
-    items: group.items.filter(item => 
-      item.roles.includes(role || 'user')
-    )
-  })).filter(group => group.items.length > 0);
+  const hasAccess = (itemRoles?: string[]) => {
+    if (!itemRoles) return true;
+    return itemRoles.includes(role || '');
+  };
 
   return (
     <Sidebar>
       <SidebarContent>
-        {filteredNavigation.map((group) => (
+        {menuItems.map((group) => (
           <SidebarGroup key={group.title}>
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <Link to={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items.map((item) => {
+                  if (!hasAccess(item.roles)) return null;
+                  
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={location.pathname === item.url}
+                      >
+                        <Link to={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

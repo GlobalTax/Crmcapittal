@@ -48,6 +48,126 @@ export type Database = {
         }
         Relationships: []
       }
+      companies: {
+        Row: {
+          address: string | null
+          annual_revenue: number | null
+          city: string | null
+          company_size: Database["public"]["Enums"]["company_size"]
+          company_status: Database["public"]["Enums"]["company_status"]
+          company_type: Database["public"]["Enums"]["company_type"]
+          country: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          domain: string | null
+          engagement_score: number | null
+          facebook_url: string | null
+          first_contact_date: string | null
+          founded_year: number | null
+          id: string
+          industry: string | null
+          is_franquicia: boolean
+          is_key_account: boolean
+          is_target_account: boolean
+          last_activity_date: string | null
+          last_contact_date: string | null
+          lead_score: number | null
+          lifecycle_stage: Database["public"]["Enums"]["lifecycle_stage"]
+          linkedin_url: string | null
+          name: string
+          next_follow_up_date: string | null
+          notes: string | null
+          owner_id: string | null
+          owner_name: string | null
+          phone: string | null
+          postal_code: string | null
+          state: string | null
+          tags: string[] | null
+          twitter_url: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          annual_revenue?: number | null
+          city?: string | null
+          company_size?: Database["public"]["Enums"]["company_size"]
+          company_status?: Database["public"]["Enums"]["company_status"]
+          company_type?: Database["public"]["Enums"]["company_type"]
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          domain?: string | null
+          engagement_score?: number | null
+          facebook_url?: string | null
+          first_contact_date?: string | null
+          founded_year?: number | null
+          id?: string
+          industry?: string | null
+          is_franquicia?: boolean
+          is_key_account?: boolean
+          is_target_account?: boolean
+          last_activity_date?: string | null
+          last_contact_date?: string | null
+          lead_score?: number | null
+          lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
+          linkedin_url?: string | null
+          name: string
+          next_follow_up_date?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          tags?: string[] | null
+          twitter_url?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          annual_revenue?: number | null
+          city?: string | null
+          company_size?: Database["public"]["Enums"]["company_size"]
+          company_status?: Database["public"]["Enums"]["company_status"]
+          company_type?: Database["public"]["Enums"]["company_type"]
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          domain?: string | null
+          engagement_score?: number | null
+          facebook_url?: string | null
+          first_contact_date?: string | null
+          founded_year?: number | null
+          id?: string
+          industry?: string | null
+          is_franquicia?: boolean
+          is_key_account?: boolean
+          is_target_account?: boolean
+          last_activity_date?: string | null
+          last_contact_date?: string | null
+          lead_score?: number | null
+          lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
+          linkedin_url?: string | null
+          name?: string
+          next_follow_up_date?: string | null
+          notes?: string | null
+          owner_id?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          tags?: string[] | null
+          twitter_url?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       contact_companies: {
         Row: {
           company_description: string | null
@@ -372,6 +492,7 @@ export type Database = {
       contacts: {
         Row: {
           company: string | null
+          company_id: string | null
           contact_priority: string | null
           contact_source: string | null
           contact_type: string
@@ -398,6 +519,7 @@ export type Database = {
         }
         Insert: {
           company?: string | null
+          company_id?: string | null
           contact_priority?: string | null
           contact_source?: string | null
           contact_type?: string
@@ -424,6 +546,7 @@ export type Database = {
         }
         Update: {
           company?: string | null
+          company_id?: string | null
           contact_priority?: string | null
           contact_source?: string | null
           contact_type?: string
@@ -448,7 +571,15 @@ export type Database = {
           updated_at?: string
           website_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deals: {
         Row: {
@@ -1325,8 +1456,28 @@ export type Database = {
     }
     Enums: {
       app_role: "superadmin" | "admin" | "user"
+      company_size: "1-10" | "11-50" | "51-200" | "201-500" | "500+"
+      company_status:
+        | "activa"
+        | "inactiva"
+        | "prospecto"
+        | "cliente"
+        | "perdida"
+      company_type:
+        | "prospect"
+        | "cliente"
+        | "partner"
+        | "franquicia"
+        | "competidor"
       email_status: "SENT" | "OPENED" | "CLICKED"
       lead_status: "NEW" | "CONTACTED" | "QUALIFIED" | "DISQUALIFIED"
+      lifecycle_stage:
+        | "lead"
+        | "marketing_qualified_lead"
+        | "sales_qualified_lead"
+        | "opportunity"
+        | "customer"
+        | "evangelist"
       target_status:
         | "IDENTIFIED"
         | "RESEARCHING"
@@ -1453,8 +1604,25 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["superadmin", "admin", "user"],
+      company_size: ["1-10", "11-50", "51-200", "201-500", "500+"],
+      company_status: ["activa", "inactiva", "prospecto", "cliente", "perdida"],
+      company_type: [
+        "prospect",
+        "cliente",
+        "partner",
+        "franquicia",
+        "competidor",
+      ],
       email_status: ["SENT", "OPENED", "CLICKED"],
       lead_status: ["NEW", "CONTACTED", "QUALIFIED", "DISQUALIFIED"],
+      lifecycle_stage: [
+        "lead",
+        "marketing_qualified_lead",
+        "sales_qualified_lead",
+        "opportunity",
+        "customer",
+        "evangelist",
+      ],
       target_status: [
         "IDENTIFIED",
         "RESEARCHING",
