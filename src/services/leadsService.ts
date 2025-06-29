@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
 
@@ -11,7 +12,7 @@ export const fetchLeads = async (filters?: {
     .from('leads')
     .select(`
       *,
-      user_profiles!leads_assigned_to_id_fkey(
+      user_profiles(
         id,
         first_name,
         last_name
@@ -51,7 +52,7 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     .from('leads')
     .select(`
       *,
-      user_profiles!leads_assigned_to_id_fkey(
+      user_profiles(
         id,
         first_name,
         last_name
@@ -83,7 +84,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     .insert([leadData])
     .select(`
       *,
-      user_profiles!leads_assigned_to_id_fkey(
+      user_profiles(
         id,
         first_name,
         last_name
@@ -115,7 +116,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     .eq('id', id)
     .select(`
       *,
-      user_profiles!leads_assigned_to_id_fkey(
+      user_profiles(
         id,
         first_name,
         last_name
