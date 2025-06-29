@@ -38,6 +38,10 @@ export interface Lead {
     landing_page?: string;
     referrer_url?: string;
     external_source?: string;
+    automation_triggered?: boolean;
+    import_date?: string;
+    automation_sequence?: string;
+    [key: string]: any; // Allow additional properties
   };
   first_contact_date?: string;
   last_contact_date?: string;
@@ -63,6 +67,10 @@ export interface Lead {
     stage: string;
     last_activity_date: string;
   }>;
+  
+  // External source tracking
+  external_id?: string;
+  external_source?: string;
 }
 
 export interface CreateLeadData {

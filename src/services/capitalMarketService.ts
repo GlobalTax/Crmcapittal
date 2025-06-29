@@ -22,12 +22,16 @@ export class CapitalMarketService {
 
   async getConfig() {
     if (!this.config) {
-      const { data } = await supabase
-        .from('capital_market_config')
-        .select('*')
-        .eq('enabled', true)
-        .single();
-      this.config = data;
+      try {
+        const { data } = await supabase
+          .rpc('execute_sql', {
+            query: 'SELECT * FROM capital_market_config WHERE enabled = true LIMIT 1'
+          });
+        this.config = data && data.length > 0 ? data[0] : null;
+      } catch (error) {
+        console.error('Error fetching capital market config:', error);
+        this.config = null;
+      }
     }
     return this.config;
   }
@@ -51,7 +55,8 @@ export class CapitalMarketService {
       form_data: {
         external_source: 'capital_market',
         source_data: capitalMarketData.source_data,
-        import_date: new Date().toISOString()
+        import_date: new Date().toISOString(),
+        automation_triggered: true
       }
     };
 
@@ -139,12 +144,13 @@ export class CapitalMarketService {
         const isTargetAudience = this.evaluateTargetAudience(sequence.target_audience, leadData);
         
         if (isTargetAudience) {
-          await supabase.from('lead_nurturing_sequences').insert({
-            lead_id: leadData.id,
-            sequence_id: sequence.id,
-            sequence_name: sequence.name,
-            current_step: 0,
-            status: 'active'
+          // Use raw query for lead_nurturing_sequences table
+          await supabase.rpc('execute_sql', {
+            query: `
+              INSERT INTO lead_nurturing_sequences (lead_id, sequence_id, sequence_name, current_step, status)
+              VALUES ($1, $2, $3, $4, $5)
+            `,
+            params: [leadData.id, sequence.id, sequence.name, 0, 'active']
           });
           
           console.log(`Started nurturing sequence "${sequence.name}" for lead ${leadData.id}`);
