@@ -10,6 +10,7 @@ import SuperAdmin from "./pages/SuperAdmin";
 import Managers from "./pages/Managers";
 import Projects from "./pages/Projects";
 import Portfolio from "./pages/Portfolio";
+import Sourcing from "./pages/Sourcing";
 import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 import TermsAndConditions from "./pages/TermsAndConditions";
@@ -51,6 +52,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Portfolio />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/sourcing" 
+              element={
+                <ProtectedRoute>
+                  <Sourcing />
                 </ProtectedRoute>
               } 
             />

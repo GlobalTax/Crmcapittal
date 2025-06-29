@@ -19,16 +19,19 @@ import {
   Users,
   Bell,
   Grid,
+  Target,
 } from "lucide-react";
 
 const navigationItems = {
   user: [
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Portfolio", url: "/portfolio", icon: Grid },
+    { title: "Sourcing", url: "/sourcing", icon: Target },
   ],
   admin: [
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Portfolio", url: "/portfolio", icon: Grid },
+    { title: "Sourcing", url: "/sourcing", icon: Target },
     { title: "Operaciones", url: "/admin", icon: Activity },
     { title: "Leads", url: "/leads", icon: Bell },
     { title: "Proyectos", url: "/projects", icon: Settings },
@@ -36,6 +39,7 @@ const navigationItems = {
   superadmin: [
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Portfolio", url: "/portfolio", icon: Grid },
+    { title: "Sourcing", url: "/sourcing", icon: Target },
     { title: "Operaciones", url: "/admin", icon: Activity },
     { title: "Leads", url: "/leads", icon: Bell },
     { title: "Proyectos", url: "/projects", icon: Settings },

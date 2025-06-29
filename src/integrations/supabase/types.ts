@@ -620,6 +620,98 @@ export type Database = {
           },
         ]
       }
+      target_companies: {
+        Row: {
+          created_at: string
+          created_by_user_id: string
+          description: string | null
+          ebitda: number | null
+          fit_score: number | null
+          id: string
+          industry: string | null
+          investment_thesis: string | null
+          name: string
+          revenue: number | null
+          source_notes: string | null
+          status: Database["public"]["Enums"]["target_status"]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id: string
+          description?: string | null
+          ebitda?: number | null
+          fit_score?: number | null
+          id?: string
+          industry?: string | null
+          investment_thesis?: string | null
+          name: string
+          revenue?: number | null
+          source_notes?: string | null
+          status?: Database["public"]["Enums"]["target_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: string
+          description?: string | null
+          ebitda?: number | null
+          fit_score?: number | null
+          id?: string
+          industry?: string | null
+          investment_thesis?: string | null
+          name?: string
+          revenue?: number | null
+          source_notes?: string | null
+          status?: Database["public"]["Enums"]["target_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      target_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          linkedin_url: string | null
+          name: string
+          target_company_id: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name: string
+          target_company_id: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          linkedin_url?: string | null
+          name?: string
+          target_company_id?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "target_contacts_target_company_id_fkey"
+            columns: ["target_company_id"]
+            isOneToOne: false
+            referencedRelation: "target_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       time_entries: {
         Row: {
           activity_type: string
@@ -838,6 +930,15 @@ export type Database = {
     Enums: {
       app_role: "superadmin" | "admin" | "user"
       lead_status: "NEW" | "CONTACTED" | "QUALIFIED" | "DISQUALIFIED"
+      target_status:
+        | "IDENTIFIED"
+        | "RESEARCHING"
+        | "OUTREACH_PLANNED"
+        | "CONTACTED"
+        | "IN_CONVERSATION"
+        | "ON_HOLD"
+        | "ARCHIVED"
+        | "CONVERTED_TO_DEAL"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -955,6 +1056,16 @@ export const Constants = {
     Enums: {
       app_role: ["superadmin", "admin", "user"],
       lead_status: ["NEW", "CONTACTED", "QUALIFIED", "DISQUALIFIED"],
+      target_status: [
+        "IDENTIFIED",
+        "RESEARCHING",
+        "OUTREACH_PLANNED",
+        "CONTACTED",
+        "IN_CONVERSATION",
+        "ON_HOLD",
+        "ARCHIVED",
+        "CONVERTED_TO_DEAL",
+      ],
     },
   },
 } as const
