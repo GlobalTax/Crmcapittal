@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Calendar, Clock, Users, Building2, Target, BarChart3, Settings, FileText, MessageSquare, Timer, Workflow, GitBranch } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -19,17 +20,23 @@ const navigation = [
     items: [
       { title: "Inicio", url: "/", icon: BarChart3, roles: ["user", "admin", "superadmin"] },
       { title: "Mi Día", url: "/my-day", icon: Calendar, roles: ["user", "admin", "superadmin"] },
+    ],
+  },
+  {
+    title: "CRM & Ventas",
+    items: [
+      { title: "Contactos", url: "/contacts", icon: Users, roles: ["user", "admin", "superadmin"] },
+      { title: "Leads", url: "/leads", icon: MessageSquare, roles: ["user", "admin", "superadmin"] },
       { title: "Time Tracking", url: "/time-tracking", icon: Clock, roles: ["user", "admin", "superadmin"] },
     ],
   },
   {
-    title: "Gestión",
+    title: "Gestión de Negocio",
     items: [
       { title: "Pipelines", url: "/pipelines", icon: Workflow, roles: ["user", "admin", "superadmin"] },
       { title: "Operaciones", url: "/operaciones", icon: GitBranch, roles: ["user", "admin", "superadmin"] },
       { title: "Portfolio", url: "/portfolio", icon: Building2, roles: ["user", "admin", "superadmin"] },
       { title: "Sourcing", url: "/sourcing", icon: Target, roles: ["user", "admin", "superadmin"] },
-      { title: "Leads", url: "/leads", icon: MessageSquare, roles: ["user", "admin", "superadmin"] },
       { title: "Proyectos", url: "/projects", icon: FileText, roles: ["user", "admin", "superadmin"] },
     ],
   },
@@ -39,17 +46,6 @@ const navigation = [
       { title: "Managers", url: "/managers", icon: Users, roles: ["admin", "superadmin"] },
       { title: "Admin Panel", url: "/admin", icon: Settings, roles: ["admin", "superadmin"] },
       { title: "Super Admin", url: "/super-admin", icon: Settings, roles: ["superadmin"] },
-    ],
-  },
-  {
-    title: "CRM",
-    url: "#",
-    icon: Users,
-    isActive: false,
-    items: [
-      { title: "Leads", url: "/leads", icon: MessageSquare, roles: ["user", "admin", "superadmin"] },
-      { title: "Contactos", url: "/contacts", icon: Users, roles: ["user", "admin", "superadmin"] },
-      { title: "Proyectos", url: "/projects", icon: FileText, roles: ["user", "admin", "superadmin"] },
     ],
   },
 ];
