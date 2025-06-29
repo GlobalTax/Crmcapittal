@@ -1,5 +1,4 @@
 
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
@@ -73,58 +72,56 @@ const UserDashboard = () => {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-muted-foreground">
-            Bienvenido a tu panel de control. Aquí tienes un resumen de tu actividad.
-          </p>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <p className="text-muted-foreground">
+          Bienvenido a tu panel de control. Aquí tienes un resumen de tu actividad.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <StatsCard key={index} {...stat} />
+        ))}
+      </div>
+
+      {/* Email Stats Section for admin users */}
+      {(role === 'admin' || role === 'superadmin') && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
+          <EmailStatsCard />
         </div>
+      )}
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <StatsCard key={index} {...stat} />
-          ))}
-        </div>
-
-        {/* Email Stats Section for admin users */}
-        {(role === 'admin' || role === 'superadmin') && (
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
-            <EmailStatsCard />
-          </div>
-        )}
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <ActivityFeed activities={recentActivities} />
-          
-          <div className="col-span-4 space-y-4">
-            <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
-              <div className="grid gap-2">
-                <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
-                  <div className="font-medium">Explorar Portfolio</div>
-                  <div className="text-sm text-muted-foreground">Descubre oportunidades de inversión</div>
-                </a>
-                {role === 'admin' || role === 'superadmin' ? (
-                  <>
-                    <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
-                      <div className="font-medium">Gestionar Operaciones</div>
-                      <div className="text-sm text-muted-foreground">Administra el portfolio de operaciones</div>
-                    </a>
-                    <a href="/leads" className="block p-3 rounded-md hover:bg-muted transition-colors">
-                      <div className="font-medium">Ver Leads</div>
-                      <div className="text-sm text-muted-foreground">Gestiona los leads entrantes</div>
-                    </a>
-                  </>
-                ) : null}
-              </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <ActivityFeed activities={recentActivities} />
+        
+        <div className="col-span-4 space-y-4">
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+            <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
+            <div className="grid gap-2">
+              <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                <div className="font-medium">Explorar Portfolio</div>
+                <div className="text-sm text-muted-foreground">Descubre oportunidades de inversión</div>
+              </a>
+              {role === 'admin' || role === 'superadmin' ? (
+                <>
+                  <a href="/portfolio" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                    <div className="font-medium">Gestionar Operaciones</div>
+                    <div className="text-sm text-muted-foreground">Administra el portfolio de operaciones</div>
+                  </a>
+                  <a href="/leads" className="block p-3 rounded-md hover:bg-muted transition-colors">
+                    <div className="font-medium">Ver Leads</div>
+                    <div className="text-sm text-muted-foreground">Gestiona los leads entrantes</div>
+                  </a>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 

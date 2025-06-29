@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
 import {
@@ -73,61 +72,59 @@ const Leads = () => {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">Bandeja de Leads</h2>
-            <p className="text-muted-foreground">
-              Gestiona y convierte tus leads en oportunidades de negocio.
-            </p>
-          </div>
-          <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Bandeja de Leads</h2>
+          <p className="text-muted-foreground">
+            Gestiona y convierte tus leads en oportunidades de negocio.
+          </p>
         </div>
+        <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
+      </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <StatsCard key={index} {...stat} />
-          ))}
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <StatsCard key={index} {...stat} />
+        ))}
+      </div>
 
-        {/* Email Stats Section */}
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
-          <EmailStatsCard />
-        </div>
+      {/* Email Stats Section */}
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Estadísticas de Email</h3>
+        <EmailStatsCard />
+      </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <Label htmlFor="status-filter">Estado</Label>
-            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
-              <SelectTrigger>
-                <SelectValue placeholder="Todos los estados" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="NEW">Nuevo</SelectItem>
-                <SelectItem value="CONTACTED">Contactado</SelectItem>
-                <SelectItem value="QUALIFIED">Calificado</SelectItem>
-                <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-          <div className="p-6">
-            <LeadsTable
-              leads={leads}
-              onViewLead={(leadId) => console.log('Ver lead:', leadId)}
-              onDeleteLead={handleDeleteLead}
-              onAssignLead={handleAssignLead}
-              isLoading={isLoading}
-            />
-          </div>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <Label htmlFor="status-filter">Estado</Label>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
+            <SelectTrigger>
+              <SelectValue placeholder="Todos los estados" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="NEW">Nuevo</SelectItem>
+              <SelectItem value="CONTACTED">Contactado</SelectItem>
+              <SelectItem value="QUALIFIED">Calificado</SelectItem>
+              <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
-    </DashboardLayout>
+
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="p-6">
+          <LeadsTable
+            leads={leads}
+            onViewLead={(leadId) => console.log('Ver lead:', leadId)}
+            onDeleteLead={handleDeleteLead}
+            onAssignLead={handleAssignLead}
+            isLoading={isLoading}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 
