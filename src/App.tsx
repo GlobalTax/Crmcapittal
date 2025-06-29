@@ -10,6 +10,7 @@ import Managers from "./pages/Managers";
 import Projects from "./pages/Projects";
 import Portfolio from "./pages/Portfolio";
 import Sourcing from "./pages/Sourcing";
+import Operaciones from "./pages/Operaciones";
 import NotFound from "./pages/NotFound";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/my-day" element={<ProtectedRoute><MyDay /></ProtectedRoute>} />
                 <Route path="/time-tracking" element={<ProtectedRoute><TimeTracking /></ProtectedRoute>} />
                 <Route path="/pipelines" element={<ProtectedRoute><PipelinesManager /></ProtectedRoute>} />
+                <Route path="/operaciones" element={<ProtectedRoute><Operaciones /></ProtectedRoute>} />
                 <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
                 <Route path="/sourcing" element={<ProtectedRoute><Sourcing /></ProtectedRoute>} />
                 <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
