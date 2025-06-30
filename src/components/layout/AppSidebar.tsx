@@ -45,6 +45,7 @@ const menuItems = [
       { title: "Empresas", url: "/companies", icon: Building2 },
       { title: "Contactos", url: "/contacts", icon: Users },
       { title: "Leads", url: "/leads", icon: UserPlus },
+      { title: "Negocios", url: "/deals", icon: Briefcase },
       { title: "Pipelines", url: "/pipelines", icon: Workflow },
     ]
   },

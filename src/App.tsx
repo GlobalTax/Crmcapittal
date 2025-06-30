@@ -25,6 +25,7 @@ import PipelinesManager from "./pages/PipelinesManager";
 import Operaciones from "./pages/Operaciones";
 import MyDay from "./pages/MyDay";
 import TimeTracking from "./pages/TimeTracking";
+import Deals from "./pages/Deals";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
@@ -62,6 +63,7 @@ function App() {
                 <Route path="contacts" element={<Contacts />} />
                 <Route path="companies" element={<Companies />} />
                 <Route path="leads" element={<Leads />} />
+                <Route path="deals" element={<Deals />} />
                 <Route path="lead-nurturing" element={<LeadNurturing />} />
                 <Route path="sourcing" element={<Sourcing />} />
                 <Route path="pipelines" element={<PipelinesManager />} />
