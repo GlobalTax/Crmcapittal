@@ -9,6 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cases: {
+        Row: {
+          actual_hours: number | null
+          assigned_to: string | null
+          case_number: string
+          company_id: string | null
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          estimated_hours: number | null
+          id: string
+          practice_area_id: string
+          priority: string | null
+          proposal_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          actual_hours?: number | null
+          assigned_to?: string | null
+          case_number: string
+          company_id?: string | null
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          estimated_hours?: number | null
+          id?: string
+          practice_area_id: string
+          priority?: string | null
+          proposal_id?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          actual_hours?: number | null
+          assigned_to?: string | null
+          case_number?: string
+          company_id?: string | null
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          estimated_hours?: number | null
+          id?: string
+          practice_area_id?: string
+          priority?: string | null
+          proposal_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_practice_area_id_fkey"
+            columns: ["practice_area_id"]
+            isOneToOne: false
+            referencedRelation: "practice_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communication_templates: {
         Row: {
           content: string
@@ -692,6 +784,62 @@ export type Database = {
           },
         ]
       }
+      fee_history: {
+        Row: {
+          amount: number
+          billing_period_end: string
+          billing_period_start: string
+          created_at: string
+          currency: string | null
+          id: string
+          invoice_date: string | null
+          invoice_number: string | null
+          notes: string | null
+          payment_date: string | null
+          recurring_fee_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          billing_period_end: string
+          billing_period_start: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string | null
+          notes?: string | null
+          payment_date?: string | null
+          recurring_fee_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billing_period_end?: string
+          billing_period_start?: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string | null
+          notes?: string | null
+          payment_date?: string | null
+          recurring_fee_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_history_recurring_fee_id_fkey"
+            columns: ["recurring_fee_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_fees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_activities: {
         Row: {
           activity_data: Json | null
@@ -1187,6 +1335,210 @@ export type Database = {
             columns: ["target_company_id"]
             isOneToOne: false
             referencedRelation: "target_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practice_areas: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          notes: string | null
+          practice_area_id: string | null
+          proposal_type: string
+          status: string
+          terms_and_conditions: string | null
+          title: string
+          total_amount: number | null
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          notes?: string | null
+          practice_area_id?: string | null
+          proposal_type?: string
+          status?: string
+          terms_and_conditions?: string | null
+          title: string
+          total_amount?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          notes?: string | null
+          practice_area_id?: string | null
+          proposal_type?: string
+          status?: string
+          terms_and_conditions?: string | null
+          title?: string
+          total_amount?: number | null
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_practice_area_id_fkey"
+            columns: ["practice_area_id"]
+            isOneToOne: false
+            referencedRelation: "practice_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recurring_fees: {
+        Row: {
+          amount: number
+          billing_frequency: string
+          billing_type: string
+          company_id: string | null
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          end_date: string | null
+          fee_name: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          practice_area_id: string
+          proposal_id: string | null
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          billing_frequency?: string
+          billing_type?: string
+          company_id?: string | null
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          end_date?: string | null
+          fee_name: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          practice_area_id: string
+          proposal_id?: string | null
+          start_date?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billing_frequency?: string
+          billing_type?: string
+          company_id?: string | null
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          end_date?: string | null
+          fee_name?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          practice_area_id?: string
+          proposal_id?: string | null
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_fees_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_fees_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_fees_practice_area_id_fkey"
+            columns: ["practice_area_id"]
+            isOneToOne: false
+            referencedRelation: "practice_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_fees_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
             referencedColumns: ["id"]
           },
         ]
