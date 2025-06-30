@@ -24,7 +24,7 @@ export const useProposals = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProposals(data || []);
+      setProposals((data || []) as Proposal[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar propuestas';
       setError(errorMessage);
@@ -49,12 +49,12 @@ export const useProposals = () => {
 
       if (error) throw error;
 
-      setProposals(prev => [newProposal, ...prev]);
+      setProposals(prev => [newProposal as Proposal, ...prev]);
       toast({
         title: "Propuesta creada",
         description: `${newProposal.title} ha sido creada correctamente.`,
       });
-      return newProposal;
+      return newProposal as Proposal;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al crear propuesta';
       toast({
@@ -83,13 +83,13 @@ export const useProposals = () => {
       if (error) throw error;
 
       setProposals(prev => 
-        prev.map(proposal => proposal.id === id ? updatedProposal : proposal)
+        prev.map(proposal => proposal.id === id ? updatedProposal as Proposal : proposal)
       );
       toast({
         title: "Propuesta actualizada",
         description: "Los cambios han sido guardados correctamente.",
       });
-      return updatedProposal;
+      return updatedProposal as Proposal;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al actualizar propuesta';
       toast({
@@ -146,14 +146,14 @@ export const useProposals = () => {
       if (error) throw error;
 
       setProposals(prev => 
-        prev.map(proposal => proposal.id === id ? approvedProposal : proposal)
+        prev.map(proposal => proposal.id === id ? approvedProposal as Proposal : proposal)
       );
       toast({
         title: "Propuesta aprobada",
         description: "La propuesta ha sido aprobada y está lista para generar expediente.",
         variant: "default",
       });
-      return approvedProposal;
+      return approvedProposal as Proposal;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al aprobar propuesta';
       toast({

@@ -26,7 +26,7 @@ export const useRecurringFees = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRecurringFees(data || []);
+      setRecurringFees((data || []) as RecurringFee[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar cuotas recurrentes';
       setError(errorMessage);
@@ -52,12 +52,12 @@ export const useRecurringFees = () => {
 
       if (error) throw error;
 
-      setRecurringFees(prev => [newFee, ...prev]);
+      setRecurringFees(prev => [newFee as RecurringFee, ...prev]);
       toast({
         title: "Cuota recurrente creada",
         description: `${newFee.fee_name} ha sido creada correctamente.`,
       });
-      return newFee;
+      return newFee as RecurringFee;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al crear cuota recurrente';
       toast({
@@ -87,13 +87,13 @@ export const useRecurringFees = () => {
       if (error) throw error;
 
       setRecurringFees(prev => 
-        prev.map(fee => fee.id === id ? updatedFee : fee)
+        prev.map(fee => fee.id === id ? updatedFee as RecurringFee : fee)
       );
       toast({
         title: "Cuota recurrente actualizada",
         description: "Los cambios han sido guardados correctamente.",
       });
-      return updatedFee;
+      return updatedFee as RecurringFee;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al actualizar cuota recurrente';
       toast({

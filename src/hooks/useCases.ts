@@ -25,7 +25,7 @@ export const useCases = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setCases(data || []);
+      setCases((data || []) as Case[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar expedientes';
       setError(errorMessage);
@@ -51,12 +51,12 @@ export const useCases = () => {
 
       if (error) throw error;
 
-      setCases(prev => [newCase, ...prev]);
+      setCases(prev => [newCase as Case, ...prev]);
       toast({
         title: "Expediente creado",
         description: `Expediente ${newCase.case_number} creado correctamente.`,
       });
-      return newCase;
+      return newCase as Case;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al crear expediente';
       toast({
@@ -86,13 +86,13 @@ export const useCases = () => {
       if (error) throw error;
 
       setCases(prev => 
-        prev.map(caseItem => caseItem.id === id ? updatedCase : caseItem)
+        prev.map(caseItem => caseItem.id === id ? updatedCase as Case : caseItem)
       );
       toast({
         title: "Expediente actualizado",
         description: "Los cambios han sido guardados correctamente.",
       });
-      return updatedCase;
+      return updatedCase as Case;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al actualizar expediente';
       toast({
