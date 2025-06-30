@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Stage, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useStages = (pipelineId?: string) => {
+export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
   const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,8 +22,12 @@ export const useStages = (pipelineId?: string) => {
         .eq('is_active', true)
         .order('order_index', { ascending: true });
 
-      if (pipelineId) {
-        query = query.eq('pipeline_id', pipelineId);
+      // If a specific pipeline ID is provided, filter by it
+      if (pipelineTypeOrId && pipelineTypeOrId !== 'DEAL') {
+        query = query.eq('pipeline_id', pipelineTypeOrId);
+      } else if (pipelineTypeOrId === 'DEAL') {
+        // If 'DEAL' is passed, filter by pipeline type
+        query = query.eq('pipelines.type', 'DEAL');
       }
 
       const { data, error } = await query;
@@ -131,7 +135,7 @@ export const useStages = (pipelineId?: string) => {
 
   useEffect(() => {
     fetchStages();
-  }, [pipelineId]);
+  }, [pipelineTypeOrId]);
 
   return {
     stages,

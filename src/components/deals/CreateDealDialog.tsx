@@ -14,9 +14,10 @@ interface CreateDealDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (newDeal: Omit<Deal, 'id' | 'created_at' | 'updated_at'>) => void;
+  pipelineId?: string;
 }
 
-export const CreateDealDialog = ({ open, onOpenChange, onSuccess }: CreateDealDialogProps) => {
+export const CreateDealDialog = ({ open, onOpenChange, onSuccess, pipelineId }: CreateDealDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     deal_name: '',
@@ -36,7 +37,7 @@ export const CreateDealDialog = ({ open, onOpenChange, onSuccess }: CreateDealDi
     employees: 0,
   });
 
-  const { stages } = useStages('DEAL');
+  const { stages } = useStages(pipelineId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +47,7 @@ export const CreateDealDialog = ({ open, onOpenChange, onSuccess }: CreateDealDi
       const dealData = {
         ...formData,
         stage_id: formData.stage_id || (stages.length > 0 ? stages[0].id : ''),
+        currency: 'EUR', // Add the missing currency property
         is_active: true,
       };
       
