@@ -11,17 +11,9 @@ interface TimeEntry {
   is_billable: boolean;
   created_at: string;
   updated_at: string;
-  case?: {
-    id: string;
-    title: string;
-    contact?: {
-      name: string;
-    };
-  };
 }
 
 interface CreateTimeEntryData {
-  case_id?: string | null;
   description: string;
   duration_minutes: number;
   is_billable: boolean;
