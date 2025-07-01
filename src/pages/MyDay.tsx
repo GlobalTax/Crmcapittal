@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, CheckCircle, Circle, Calendar, Star, Clock, Target, Timer as TimerIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -90,7 +89,7 @@ const MyDay = () => {
   const totalTime = tasks.reduce((total, task) => total + task.estimatedTime, 0);
   const completedTime = tasks.filter(task => task.completed).reduce((total, task) => total + task.estimatedTime, 0);
 
-  // Calculate time tracking stats
+  // Calculate time tracking stats using the correct timeEntries
   const todayTimeEntries = timeEntries.filter(entry => {
     const entryDate = new Date(entry.created_at).toDateString();
     const today = new Date().toDateString();

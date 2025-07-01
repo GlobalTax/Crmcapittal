@@ -70,8 +70,11 @@ export const useTimeEntries = () => {
       const { data: timeEntry, error } = await supabase
         .from('time_entries')
         .insert({
-          ...data,
-          user_id: user.id
+          user_id: user.id,
+          case_id: data.case_id,
+          description: data.description,
+          duration_minutes: data.duration_minutes,
+          is_billable: data.is_billable
         })
         .select()
         .single();

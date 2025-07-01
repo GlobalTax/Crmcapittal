@@ -9,7 +9,7 @@ import { CreateCaseDialog } from "@/components/cases/CreateCaseDialog";
 
 const Cases = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const { cases, loading, error, refetch } = useCases();
+  const { cases, isLoading, error, refetch } = useCases();
 
   if (error) {
     return (
@@ -46,7 +46,7 @@ const Cases = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <CasesTable cases={cases} loading={loading} onRefetch={refetch} />
+          <CasesTable cases={cases} loading={isLoading} onRefetch={refetch} />
         </CardContent>
       </Card>
 
