@@ -90,9 +90,10 @@ export const useCases = () => {
       };
 
       // Insert without case_number, let the trigger handle it
+      // Cast to any to bypass TypeScript's strict type checking for auto-generated fields
       const { data: newCase, error } = await supabase
         .from('cases')
-        .insert(insertData)
+        .insert(insertData as any)
         .select(`
           id,
           title,
