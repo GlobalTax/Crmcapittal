@@ -1,6 +1,5 @@
 
 import { usePipelines } from "@/hooks/usePipelines";
-import { useStages } from "@/hooks/useStages";
 import { Pipeline } from "@/types/Pipeline";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +18,6 @@ export const PipelinesDashboard = ({
   onCreatePipeline
 }: PipelinesDashboardProps) => {
   const { pipelines, loading } = usePipelines();
-  const { stages } = useStages();
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -54,10 +52,6 @@ export const PipelinesDashboard = ({
     }
   };
 
-  const getPipelineStageCount = (pipelineId: string) => {
-    return stages.filter(stage => stage.pipeline_id === pipelineId).length;
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -82,7 +76,6 @@ export const PipelinesDashboard = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pipelines.map((pipeline) => {
           const Icon = getTypeIcon(pipeline.type);
-          const stageCount = getPipelineStageCount(pipeline.id);
           
           return (
             <Card key={pipeline.id} className="hover:shadow-lg transition-shadow">
@@ -110,7 +103,6 @@ export const PipelinesDashboard = ({
                 )}
                 
                 <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{stageCount} etapas</span>
                   <span>
                     Creado: {new Date(pipeline.created_at).toLocaleDateString('es-ES')}
                   </span>

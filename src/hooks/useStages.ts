@@ -4,6 +4,8 @@ import { Stage, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
 import { getDefaultPipelineByType } from '@/services/pipelineService';
 
+const VALID_PIPELINE_TYPES: PipelineType[] = ['OPERACION', 'PROYECTO', 'LEAD', 'TARGET_COMPANY', 'DEAL'];
+
 export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
   const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +16,13 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
       setLoading(true);
       setError(null);
       
+      // Si no se proporciona parámetro, no hacer consulta
+      if (!pipelineTypeOrId) {
+        console.log('No pipeline type or ID provided, skipping stages fetch');
+        setStages([]);
+        return;
+      }
+
       let query = supabase
         .from('stages')
         .select(`
@@ -23,24 +32,31 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
         .eq('is_active', true)
         .order('order_index', { ascending: true });
 
-      // Handle different input types
-      if (pipelineTypeOrId) {
-        // Check if it's a UUID (pipeline ID) or a pipeline type
-        const isUUID = pipelineTypeOrId.length === 36 && pipelineTypeOrId.includes('-');
-        
-        if (isUUID) {
-          // Direct pipeline ID
-          query = query.eq('pipeline_id', pipelineTypeOrId);
+      // Check if it's a UUID (pipeline ID) or a pipeline type
+      const isUUID = typeof pipelineTypeOrId === 'string' && 
+                     pipelineTypeOrId.length === 36 && 
+                     pipelineTypeOrId.includes('-');
+      
+      if (isUUID) {
+        // Direct pipeline ID
+        query = query.eq('pipeline_id', pipelineTypeOrId);
+      } else {
+        // Validate pipeline type
+        const pipelineType = pipelineTypeOrId as PipelineType;
+        if (!VALID_PIPELINE_TYPES.includes(pipelineType)) {
+          console.error(`Invalid pipeline type: ${pipelineType}. Valid types are: ${VALID_PIPELINE_TYPES.join(', ')}`);
+          setError(`Tipo de pipeline inválido: ${pipelineType}`);
+          return;
+        }
+
+        // Pipeline type - get the default pipeline for this type
+        const defaultPipelineId = await getDefaultPipelineByType(pipelineType);
+        if (defaultPipelineId) {
+          query = query.eq('pipeline_id', defaultPipelineId);
         } else {
-          // Pipeline type - get the default pipeline for this type
-          const defaultPipelineId = await getDefaultPipelineByType(pipelineTypeOrId as PipelineType);
-          if (defaultPipelineId) {
-            query = query.eq('pipeline_id', defaultPipelineId);
-          } else {
-            console.error(`No default pipeline found for type: ${pipelineTypeOrId}`);
-            setError(`No se encontró pipeline por defecto para el tipo: ${pipelineTypeOrId}`);
-            return;
-          }
+          console.error(`No default pipeline found for type: ${pipelineType}`);
+          setError(`No se encontró pipeline por defecto para el tipo: ${pipelineType}`);
+          return;
         }
       }
 
