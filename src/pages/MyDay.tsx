@@ -1,11 +1,23 @@
 
 import React, { useState } from 'react';
-import { Plus, CheckCircle, Circle, Calendar, Star, Clock, Target } from 'lucide-react';
+import { Plus, CheckCircle, Circle, Calendar, Star, Clock, Target, Timer as TimerIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTimeTracking } from '@/hooks/useTimeTracking';
+import { useTimeEntries } from '@/hooks/useTimeEntries';
+import { Timer } from '@/components/time-tracking/Timer';
+import { DigitalClock } from '@/components/time-tracking/DigitalClock';
+import { FloatingTimer } from '@/components/time-tracking/FloatingTimer';
+import { TimeSheet } from '@/components/time-tracking/TimeSheet';
+import { toast } from 'sonner';
 
 const MyDay = () => {
+  const today = new Date().toISOString().split('T')[0];
+  const { dailyData, isLoading: isTimeLoading } = useTimeTracking(today);
+  const { timeEntries, createTimeEntry } = useTimeEntries();
+  const [showFloatingTimer, setShowFloatingTimer] = useState(false);
+
   const [tasks, setTasks] = useState([
     {
       id: '1',
@@ -42,6 +54,20 @@ const MyDay = () => {
     ));
   };
 
+  const handleFloatingTimerSave = async (seconds: number) => {
+    try {
+      const minutes = Math.round(seconds / 60);
+      await createTimeEntry({
+        description: 'Tiempo registrado desde timer flotante',
+        duration_minutes: minutes,
+        is_billable: true
+      });
+      toast.success(`Tiempo guardado: ${minutes} minutos`);
+    } catch (error) {
+      toast.error('Error al guardar el tiempo');
+    }
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'bg-red-100 text-red-700 border-red-200';
@@ -64,22 +90,43 @@ const MyDay = () => {
   const totalTime = tasks.reduce((total, task) => total + task.estimatedTime, 0);
   const completedTime = tasks.filter(task => task.completed).reduce((total, task) => total + task.estimatedTime, 0);
 
+  // Calculate time tracking stats
+  const todayTimeEntries = timeEntries.filter(entry => {
+    const entryDate = new Date(entry.created_at).toDateString();
+    const today = new Date().toDateString();
+    return entryDate === today;
+  });
+
+  const totalTrackedMinutes = todayTimeEntries.reduce((sum, entry) => sum + entry.duration_minutes, 0);
+  const billableMinutes = todayTimeEntries.filter(entry => entry.is_billable).reduce((sum, entry) => sum + entry.duration_minutes, 0);
+
   return (
     <div className="space-y-8">
-      {/* Page Header */}
+      {/* Page Header with Clock */}
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Día</h1>
           <p className="text-gray-600">Organiza y planifica tu jornada de trabajo</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Nueva Tarea
-        </Button>
+        <div className="flex gap-4 items-center">
+          <DigitalClock />
+          <Button 
+            onClick={() => setShowFloatingTimer(!showFloatingTimer)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <TimerIcon className="w-4 h-4" />
+            {showFloatingTimer ? 'Ocultar' : 'Mostrar'} Timer
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nueva Tarea
+          </Button>
+        </div>
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <Card className="shadow-sm border border-gray-200/60 bg-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -112,11 +159,25 @@ const MyDay = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Tiempo Total</p>
-                <p className="text-2xl font-bold text-gray-900">{Math.floor(totalTime / 60)}h {totalTime % 60}m</p>
+                <p className="text-sm font-medium text-gray-600">Tiempo Registrado</p>
+                <p className="text-2xl font-bold text-gray-900">{Math.floor(totalTrackedMinutes / 60)}h {totalTrackedMinutes % 60}m</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                 <Clock className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border border-gray-200/60 bg-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Tiempo Facturable</p>
+                <p className="text-2xl font-bold text-gray-900">{Math.floor(billableMinutes / 60)}h {billableMinutes % 60}m</p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <Star className="w-6 h-6 text-orange-600" />
               </div>
             </div>
           </CardContent>
@@ -131,8 +192,8 @@ const MyDay = () => {
                   {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
                 </p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <Star className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                <Target className="w-6 h-6 text-indigo-600" />
               </div>
             </div>
           </CardContent>
@@ -142,7 +203,7 @@ const MyDay = () => {
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Tasks List */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -214,10 +275,29 @@ const MyDay = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Time Tracking Section */}
+          {todayTimeEntries.length > 0 && (
+            <Card className="shadow-sm border border-gray-200/60 bg-white">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  Registro de Tiempo - Hoy
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TimeSheet timeEntries={todayTimeEntries} />
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        {/* Daily Summary */}
+        {/* Right Sidebar */}
         <div className="space-y-6">
+          {/* Timer Component */}
+          <Timer />
+
+          {/* Daily Summary */}
           <Card className="shadow-sm border border-gray-200/60 bg-white">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900">Resumen del Día</CardTitle>
@@ -239,48 +319,35 @@ const MyDay = () => {
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Tiempo completado</span>
+                  <span className="text-sm text-gray-600">Tiempo registrado</span>
                   <span className="font-semibold text-gray-900">
-                    {Math.floor(completedTime / 60)}h {completedTime % 60}m
+                    {Math.floor(totalTrackedMinutes / 60)}h {totalTrackedMinutes % 60}m
                   </span>
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Tiempo restante</span>
+                  <span className="text-sm text-gray-600">Tiempo facturable</span>
                   <span className="font-semibold text-gray-900">
-                    {Math.floor((totalTime - completedTime) / 60)}h {(totalTime - completedTime) % 60}m
+                    {Math.floor(billableMinutes / 60)}h {billableMinutes % 60}m
                   </span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Quick Actions */}
-          <Card className="shadow-sm border border-gray-200/60 bg-white">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Acciones Rápidas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Agregar Tarea
-                </Button>
-                
-                <Button variant="outline" className="w-full justify-start">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Ver Calendario
-                </Button>
-                
-                <Button variant="outline" className="w-full justify-start">
-                  <Clock className="w-4 h-4 mr-2" />
-                  Iniciar Timer
-                </Button>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Entradas de tiempo</span>
+                  <span className="font-semibold text-gray-900">
+                    {todayTimeEntries.length}
+                  </span>
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Floating Timer */}
+      {showFloatingTimer && (
+        <FloatingTimer onSave={handleFloatingTimerSave} />
+      )}
     </div>
   );
 };
