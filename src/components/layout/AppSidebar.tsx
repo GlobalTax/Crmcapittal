@@ -25,7 +25,8 @@ import {
   Workflow,
   Building2,
   UserPlus,
-  Briefcase
+  Briefcase,
+  Scale
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -47,6 +48,12 @@ const menuItems = [
       { title: "Leads", url: "/leads", icon: UserPlus },
       { title: "Negocios", url: "/deals", icon: Briefcase },
       { title: "Pipelines", url: "/pipelines", icon: Workflow },
+    ]
+  },
+  {
+    title: "Legal & Casos",
+    items: [
+      { title: "Expedientes", url: "/cases", icon: Scale },
     ]
   },
   {

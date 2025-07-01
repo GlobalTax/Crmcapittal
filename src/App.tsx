@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -25,6 +26,7 @@ import Operaciones from "./pages/Operaciones";
 import MyDay from "./pages/MyDay";
 import TimeTracking from "./pages/TimeTracking";
 import Deals from "./pages/Deals";
+import Cases from "./pages/Cases";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
@@ -65,6 +67,7 @@ function App() {
                 <Route path="leads" element={<Leads />} />
                 <Route path="deals" element={<Deals />} />
                 <Route path="deals/:id" element={<DealDetail />} />
+                <Route path="cases" element={<Cases />} />
                 <Route path="lead-nurturing" element={<LeadNurturing />} />
                 <Route path="sourcing" element={<Sourcing />} />
                 <Route path="pipelines" element={<PipelinesManager />} />
