@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TimeTrackingService } from '@/services/timeTrackingService';
@@ -20,9 +19,9 @@ export const useTimeTracking = (date: string) => {
         throw err;
       }
     },
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
       // Only refetch if there's an active timer
-      return data?.activeTimer ? 30000 : false;
+      return query.state.data?.activeTimer ? 30000 : false;
     },
     refetchOnWindowFocus: false,
     staleTime: 15000, // Consider data fresh for 15 seconds
