@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
+import MyDay from "./pages/MyDay";
 import Negocios from "./pages/Negocios";
 import NegocioDetail from "./pages/NegocioDetail";
 import Operaciones from "./pages/Operaciones";
@@ -43,6 +44,7 @@ function App() {
                 </ProtectedRoute>
               }>
                 <Route index element={<Index />} />
+                <Route path="my-day" element={<MyDay />} />
                 <Route path="negocios" element={<Negocios />} />
                 <Route path="negocios/:id" element={<NegocioDetail />} />
                 <Route path="operaciones" element={<Operaciones />} />

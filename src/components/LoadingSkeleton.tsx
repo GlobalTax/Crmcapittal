@@ -41,24 +41,12 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
       case 'lead-table-row':
         return (
           <tr className="border-b border-gray-100">
-            <td className="p-4">
-              <Skeleton className="h-4 w-32" />
-            </td>
-            <td className="p-4">
-              <Skeleton className="h-4 w-40" />
-            </td>
-            <td className="p-4">
-              <Skeleton className="h-4 w-24" />
-            </td>
-            <td className="p-4">
-              <Skeleton className="h-4 w-20" />
-            </td>
-            <td className="p-4">
-              <Skeleton className="h-6 w-16 rounded-full" />
-            </td>
-            <td className="p-4">
-              <Skeleton className="h-8 w-20 rounded" />
-            </td>
+            <td className="p-4"><Skeleton className="h-4 w-32" /></td>
+            <td className="p-4"><Skeleton className="h-4 w-40" /></td>
+            <td className="p-4"><Skeleton className="h-4 w-24" /></td>
+            <td className="p-4"><Skeleton className="h-4 w-20" /></td>
+            <td className="p-4"><Skeleton className="h-6 w-16 rounded-full" /></td>
+            <td className="p-4"><Skeleton className="h-8 w-20 rounded" /></td>
             <td className="p-4">
               <div className="flex gap-1">
                 <Skeleton className="h-8 w-8 rounded" />
@@ -66,12 +54,8 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
                 <Skeleton className="h-8 w-8 rounded" />
               </div>
             </td>
-            <td className="p-4">
-              <Skeleton className="h-4 w-16" />
-            </td>
-            <td className="p-4">
-              <Skeleton className="h-8 w-8 rounded" />
-            </td>
+            <td className="p-4"><Skeleton className="h-4 w-16" /></td>
+            <td className="p-4"><Skeleton className="h-8 w-8 rounded" /></td>
           </tr>
         );
 
@@ -144,28 +128,25 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
   );
 };
 
-// Componente específico para operaciones
+// Componentes específicos optimizados
 export const OperationsLoadingSkeleton = ({ count = 6 }: { count?: number }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <LoadingSkeleton type="operation-card" count={count} />
   </div>
 );
 
-// Componente específico para tabla
 export const TableLoadingSkeleton = ({ count = 5 }: { count?: number }) => (
   <div className="bg-white rounded-lg border border-gray-200">
     <LoadingSkeleton type="table-row" count={count} />
   </div>
 );
 
-// Componente específico para tabla de leads
 export const LeadsTableSkeleton = ({ count = 5 }: { count?: number }) => (
   <tbody>
     <LoadingSkeleton type="lead-table-row" count={count} />
   </tbody>
 );
 
-// Componente específico para dashboard
 export const DashboardLoadingSkeleton = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <LoadingSkeleton type="dashboard-card" count={4} />

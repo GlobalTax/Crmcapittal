@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Operation } from '@/types/Operation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -10,132 +11,122 @@ import {
   deleteOperationFromDB,
   updateTeaserUrlInDB
 } from './operationsService';
+import { toast } from 'sonner';
 
-export const useOperationsMutations = (setOperations: React.Dispatch<React.SetStateAction<Operation[]>>) => {
-  const [loading, setLoading] = useState(false);
+export const useOperationsMutations = () => {
   const { user } = useAuth();
   const { role } = useUserRole();
+  const queryClient = useQueryClient();
 
-  const addOperation = async (operationData: any) => {
-    if (!user) {
-      return { data: null, error: 'Usuario no autenticado' };
-    }
-
-    setLoading(true);
-    try {
-      const newOperation = await insertOperation(operationData, user.id);
-      setOperations(prev => [newOperation as Operation, ...prev]);
-      return { data: newOperation, error: null };
-    } catch (error) {
+  const addOperationMutation = useMutation({
+    mutationFn: async (operationData: any) => {
+      if (!user) {
+        throw new Error('Usuario no autenticado');
+      }
+      return await insertOperation(operationData, user.id);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success('Operación creada correctamente');
+    },
+    onError: (error) => {
       console.error('Error adding operation:', error);
-      return { data: null, error: 'Error al añadir la operación' };
-    } finally {
-      setLoading(false);
+      toast.error('Error al añadir la operación');
     }
-  };
+  });
 
-  const addBulkOperations = async (operationsData: any[], isPublicSample = false) => {
-    // Para operaciones de ejemplo públicas, no requerir autenticación
-    if (!isPublicSample && !user) {
-      return { data: null, error: 'Usuario no autenticado' };
-    }
-
-    setLoading(true);
-    try {
-      // Si es una muestra pública, usar un usuario ficticio o null
+  const addBulkOperationsMutation = useMutation({
+    mutationFn: async ({ operationsData, isPublicSample }: { operationsData: any[], isPublicSample?: boolean }) => {
+      if (!isPublicSample && !user) {
+        throw new Error('Usuario no autenticado');
+      }
       const userId = isPublicSample ? 'public' : user!.id;
-      const newOperations = await insertBulkOperations(operationsData, userId);
-      setOperations(prev => [...(newOperations as Operation[]), ...prev]);
-      return { data: newOperations, error: null };
-    } catch (error) {
+      return await insertBulkOperations(operationsData, userId);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success(`${data.length} operaciones creadas correctamente`);
+    },
+    onError: (error) => {
       console.error('Error adding bulk operations:', error);
-      return { data: null, error: 'Error al añadir las operaciones' };
-    } finally {
-      setLoading(false);
+      toast.error('Error al añadir las operaciones');
     }
-  };
+  });
 
-  const updateOperation = async (operationId: string, operationData: Partial<Operation>) => {
-    console.log('Hook updateOperation llamado con:', { operationId, operationData });
-    setLoading(true);
-    try {
-      const updatedOperation = await updateOperationInDB(operationId, operationData);
-      console.log('Operación actualizada en DB:', updatedOperation);
-      
-      setOperations(prev => {
-        const newOperations = prev.map(op => {
-          if (op.id === operationId) {
-            console.log('Actualizando operación en estado:', op.id);
-            return { ...op, ...updatedOperation } as Operation;
-          }
-          return op;
-        });
-        console.log('Nuevo estado de operaciones:', newOperations);
-        return newOperations;
-      });
-      
-      return { data: updatedOperation, error: null };
-    } catch (error) {
+  const updateOperationMutation = useMutation({
+    mutationFn: async ({ operationId, operationData }: { operationId: string, operationData: Partial<Operation> }) => {
+      console.log('Mutation updateOperation llamada con:', { operationId, operationData });
+      return await updateOperationInDB(operationId, operationData);
+    },
+    onSuccess: (data, variables) => {
+      console.log('Operación actualizada en DB:', data);
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success('Operación actualizada correctamente');
+    },
+    onError: (error) => {
       console.error('Error updating operation:', error);
-      return { data: null, error: 'Error al actualizar la operación' };
-    } finally {
-      setLoading(false);
+      toast.error('Error al actualizar la operación');
     }
-  };
+  });
 
-  const updateOperationStatus = async (operationId: string, newStatus: Operation['status']) => {
-    setLoading(true);
-    try {
-      const updatedOperation = await updateOperationStatusInDB(operationId, newStatus);
-      setOperations(prev => 
-        prev.map(op => op.id === operationId ? { ...op, status: newStatus } : op)
-      );
-      return { data: updatedOperation, error: null };
-    } catch (error) {
+  const updateOperationStatusMutation = useMutation({
+    mutationFn: async ({ operationId, newStatus }: { operationId: string, newStatus: Operation['status'] }) => {
+      return await updateOperationStatusInDB(operationId, newStatus);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success('Estado actualizado correctamente');
+    },
+    onError: (error) => {
       console.error('Error updating operation status:', error);
-      return { data: null, error: 'Error al actualizar el estado' };
-    } finally {
-      setLoading(false);
+      toast.error('Error al actualizar el estado');
     }
-  };
+  });
 
-  const deleteOperation = async (operationId: string) => {
-    setLoading(true);
-    try {
-      await deleteOperationFromDB(operationId, role);
-      setOperations(prev => prev.filter(op => op.id !== operationId));
-      return { error: null };
-    } catch (error) {
+  const deleteOperationMutation = useMutation({
+    mutationFn: async (operationId: string) => {
+      return await deleteOperationFromDB(operationId, role);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success('Operación eliminada correctamente');
+    },
+    onError: (error) => {
       console.error('Error deleting operation:', error);
-      return { error: 'Error al eliminar la operación' };
-    } finally {
-      setLoading(false);
+      toast.error('Error al eliminar la operación');
     }
-  };
+  });
 
-  const updateTeaserUrl = async (operationId: string, teaserUrl: string) => {
-    setLoading(true);
-    try {
-      const updatedOperation = await updateTeaserUrlInDB(operationId, teaserUrl);
-      setOperations(prev => 
-        prev.map(op => op.id === operationId ? { ...op, teaser_url: teaserUrl } : op)
-      );
-      return { data: updatedOperation, error: null };
-    } catch (error) {
+  const updateTeaserUrlMutation = useMutation({
+    mutationFn: async ({ operationId, teaserUrl }: { operationId: string, teaserUrl: string }) => {
+      return await updateTeaserUrlInDB(operationId, teaserUrl);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['operations'] });
+      toast.success('Teaser actualizado correctamente');
+    },
+    onError: (error) => {
       console.error('Error updating teaser URL:', error);
-      return { data: null, error: 'Error al actualizar el teaser' };
-    } finally {
-      setLoading(false);
+      toast.error('Error al actualizar el teaser');
     }
-  };
+  });
 
   return {
-    addOperation,
-    addBulkOperations,
-    updateOperation,
-    updateOperationStatus,
-    deleteOperation,
-    updateTeaserUrl,
-    loading
+    addOperation: addOperationMutation.mutate,
+    addBulkOperations: (operationsData: any[], isPublicSample = false) => 
+      addBulkOperationsMutation.mutate({ operationsData, isPublicSample }),
+    updateOperation: (operationId: string, operationData: Partial<Operation>) => 
+      updateOperationMutation.mutate({ operationId, operationData }),
+    updateOperationStatus: (operationId: string, newStatus: Operation['status']) => 
+      updateOperationStatusMutation.mutate({ operationId, newStatus }),
+    deleteOperation: deleteOperationMutation.mutate,
+    updateTeaserUrl: (operationId: string, teaserUrl: string) => 
+      updateTeaserUrlMutation.mutate({ operationId, teaserUrl }),
+    loading: addOperationMutation.isPending || 
+             addBulkOperationsMutation.isPending || 
+             updateOperationMutation.isPending || 
+             updateOperationStatusMutation.isPending || 
+             deleteOperationMutation.isPending || 
+             updateTeaserUrlMutation.isPending
   };
 };
