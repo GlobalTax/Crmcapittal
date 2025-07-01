@@ -57,7 +57,7 @@ export const DashboardHeader = ({ role }: DashboardHeaderProps) => {
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onSuccess={handleCreateDeal}
-        pipelineId="default"
+        pipelineId="DEAL"
       />
     </div>
   );

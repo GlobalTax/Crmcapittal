@@ -41,7 +41,7 @@ export const PipelineHeader = ({ pipelineType, pipelineId, onToggleView }: Pipel
     <div className="flex justify-between items-center">
       <h3 className="text-lg font-semibold">{getTitle()}</h3>
       <div className="flex gap-2">
-        {pipelineType === 'DEAL' && pipelineId && (
+        {pipelineType === 'DEAL' && (
           <Button onClick={() => setShowCreateDialog(true)}>
             Crear Deal
           </Button>
@@ -60,7 +60,7 @@ export const PipelineHeader = ({ pipelineType, pipelineId, onToggleView }: Pipel
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onSuccess={handleCreateDeal}
-        pipelineId={pipelineId}
+        pipelineId={pipelineType}
       />
     </div>
   );
