@@ -1155,6 +1155,112 @@ export type Database = {
           },
         ]
       }
+      negocios: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          descripcion: string | null
+          ebitda: number | null
+          empleados: number | null
+          fecha_cierre: string | null
+          fuente_lead: string | null
+          id: string
+          ingresos: number | null
+          is_active: boolean
+          moneda: string | null
+          multiplicador: number | null
+          nombre_negocio: string
+          notas: string | null
+          prioridad: string | null
+          propietario_negocio: string | null
+          proxima_actividad: string | null
+          sector: string | null
+          stage_id: string | null
+          tipo_negocio: string
+          ubicacion: string | null
+          updated_at: string
+          valor_negocio: number | null
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          ebitda?: number | null
+          empleados?: number | null
+          fecha_cierre?: string | null
+          fuente_lead?: string | null
+          id?: string
+          ingresos?: number | null
+          is_active?: boolean
+          moneda?: string | null
+          multiplicador?: number | null
+          nombre_negocio: string
+          notas?: string | null
+          prioridad?: string | null
+          propietario_negocio?: string | null
+          proxima_actividad?: string | null
+          sector?: string | null
+          stage_id?: string | null
+          tipo_negocio?: string
+          ubicacion?: string | null
+          updated_at?: string
+          valor_negocio?: number | null
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          ebitda?: number | null
+          empleados?: number | null
+          fecha_cierre?: string | null
+          fuente_lead?: string | null
+          id?: string
+          ingresos?: number | null
+          is_active?: boolean
+          moneda?: string | null
+          multiplicador?: number | null
+          nombre_negocio?: string
+          notas?: string | null
+          prioridad?: string | null
+          propietario_negocio?: string | null
+          proxima_actividad?: string | null
+          sector?: string | null
+          stage_id?: string | null
+          tipo_negocio?: string
+          ubicacion?: string | null
+          updated_at?: string
+          valor_negocio?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negocios_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negocios_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negocios_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nurturing_sequences: {
         Row: {
           created_at: string

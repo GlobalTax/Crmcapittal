@@ -13,9 +13,9 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL('/portfolio');
     await expect(page.locator('h1')).toContainText('Portfolio');
 
-    // Test navigation to Operations
-    await page.click('text=Operaciones');
-    await expect(page).toHaveURL('/operaciones');
+    // Test navigation to Negocios
+    await page.click('text=Negocios');
+    await expect(page).toHaveURL('/negocios');
     
     // Test navigation to Contacts
     await page.click('text=Contactos');
@@ -33,6 +33,6 @@ test.describe('Navigation', () => {
     // Check main navigation items
     await expect(page.locator('text=Dashboard')).toBeVisible();
     await expect(page.locator('text=Portfolio')).toBeVisible();
-    await expect(page.locator('text=Operaciones')).toBeVisible();
+    await expect(page.locator('text=Negocios')).toBeVisible();
   });
 });
