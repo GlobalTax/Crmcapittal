@@ -15,19 +15,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, UserPlus, Trash2 } from "lucide-react";
+import { MoreHorizontal, Eye, UserPlus, Trash2, ArrowRight, User, Building2, Briefcase } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Lead } from "@/types/Lead";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 import { AssignLeadDialog } from "./AssignLeadDialog";
+import { ConvertLeadDialog } from "./ConvertLeadDialog";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { toast } from "sonner";
 
 interface LeadsTableProps {
   leads: Lead[];
   onViewLead: (leadId: string) => void;
   onDeleteLead: (leadId: string) => void;
   onAssignLead: (leadId: string, userId: string) => void;
+  onConvertLead?: (leadId: string, options: { createCompany: boolean; createDeal: boolean }) => void;
   isLoading?: boolean;
+  isConverting?: boolean;
 }
 
 export const LeadsTable = ({
@@ -35,10 +40,14 @@ export const LeadsTable = ({
   onViewLead,
   onDeleteLead,
   onAssignLead,
-  isLoading
+  onConvertLead,
+  isLoading,
+  isConverting = false
 }: LeadsTableProps) => {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [convertDialogOpen, setConvertDialogOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string>('');
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const handleAssignClick = (leadId: string) => {
     setSelectedLeadId(leadId);
@@ -51,6 +60,46 @@ export const LeadsTable = ({
     }
     setAssignDialogOpen(false);
     setSelectedLeadId('');
+  };
+
+  const handleConvertClick = (lead: Lead) => {
+    setSelectedLead(lead);
+    setConvertDialogOpen(true);
+  };
+
+  const handleQuickConvert = (lead: Lead, type: 'contact' | 'company' | 'full') => {
+    if (!onConvertLead) {
+      toast.error('Función de conversión no disponible');
+      return;
+    }
+
+    const options = {
+      createCompany: type === 'company' || type === 'full',
+      createDeal: type === 'full'
+    };
+
+    onConvertLead(lead.id, options);
+    
+    const messages = {
+      contact: 'Lead convertido a contacto',
+      company: 'Lead convertido a contacto y empresa',
+      full: 'Lead convertido completamente (contacto, empresa y negocio)'
+    };
+    
+    toast.success(messages[type]);
+  };
+
+  const handleConvert = (leadId: string, options: { createCompany: boolean; createDeal: boolean }) => {
+    if (!onConvertLead) {
+      toast.error('Función de conversión no disponible');
+      return;
+    }
+    
+    onConvertLead(leadId, options);
+  };
+
+  const isConverted = (lead: Lead) => {
+    return lead.status === 'QUALIFIED'; // Assuming QUALIFIED means converted
   };
 
   if (isLoading) {
@@ -81,6 +130,7 @@ export const LeadsTable = ({
               <TableHead>Fuente</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Asignado a</TableHead>
+              <TableHead>Conversión</TableHead>
               <TableHead>Fecha</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
@@ -111,6 +161,46 @@ export const LeadsTable = ({
                     </Button>
                   )}
                 </TableCell>
+                <TableCell>
+                  {isConverted(lead) ? (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Convertido
+                    </Badge>
+                  ) : (
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleQuickConvert(lead, 'contact')}
+                        disabled={isConverting}
+                        title="Solo contacto"
+                        className="px-2"
+                      >
+                        <User className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleQuickConvert(lead, 'company')}
+                        disabled={isConverting}
+                        title="Contacto + Empresa"
+                        className="px-2"
+                      >
+                        <Building2 className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleConvertClick(lead)}
+                        disabled={isConverting}
+                        title="Conversión personalizada"
+                        className="px-2"
+                      >
+                        <ArrowRight className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="text-sm text-gray-500">
                   {format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: es })}
                 </TableCell>
@@ -130,6 +220,12 @@ export const LeadsTable = ({
                         <UserPlus className="mr-2 h-4 w-4" />
                         Reasignar
                       </DropdownMenuItem>
+                      {!isConverted(lead) && (
+                        <DropdownMenuItem onClick={() => handleConvertClick(lead)}>
+                          <ArrowRight className="mr-2 h-4 w-4" />
+                          Convertir
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem 
                         onClick={() => onDeleteLead(lead.id)}
                         className="text-red-600"
@@ -150,6 +246,14 @@ export const LeadsTable = ({
         open={assignDialogOpen}
         onOpenChange={setAssignDialogOpen}
         onAssign={handleAssign}
+      />
+
+      <ConvertLeadDialog
+        open={convertDialogOpen}
+        onOpenChange={setConvertDialogOpen}
+        lead={selectedLead}
+        onConvert={handleConvert}
+        isConverting={isConverting}
       />
     </>
   );

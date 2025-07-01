@@ -31,7 +31,9 @@ const Leads = () => {
     createLead,
     updateLead,
     deleteLead,
-    isCreating
+    convertLead,
+    isCreating,
+    isConverting
   } = useLeads(filters);
 
   const stats = [
@@ -69,6 +71,10 @@ const Leads = () => {
     if (confirm('¿Estás seguro de que quieres eliminar este lead?')) {
       deleteLead(leadId);
     }
+  };
+
+  const handleConvertLead = (leadId: string, options: { createCompany: boolean; createDeal: boolean }) => {
+    convertLead({ leadId, options });
   };
 
   return (
@@ -120,7 +126,9 @@ const Leads = () => {
             onViewLead={(leadId) => console.log('Ver lead:', leadId)}
             onDeleteLead={handleDeleteLead}
             onAssignLead={handleAssignLead}
+            onConvertLead={handleConvertLead}
             isLoading={isLoading}
+            isConverting={isConverting}
           />
         </div>
       </div>
