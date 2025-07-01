@@ -6,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Lead } from "@/types/Lead";
 import { Building2, User, Briefcase, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
 
 interface ConvertLeadDialogProps {
   open: boolean;
@@ -35,6 +34,14 @@ export const ConvertLeadDialog = ({
     // Reset options for next time
     setCreateCompany(true);
     setCreateDeal(true);
+  };
+
+  const handleCreateCompanyChange = (checked: boolean | "indeterminate") => {
+    setCreateCompany(checked === true);
+  };
+
+  const handleCreateDealChange = (checked: boolean | "indeterminate") => {
+    setCreateDeal(checked === true);
   };
 
   if (!lead) return null;
@@ -73,7 +80,7 @@ export const ConvertLeadDialog = ({
               <Checkbox
                 id="create-company"
                 checked={createCompany}
-                onCheckedChange={setCreateCompany}
+                onCheckedChange={handleCreateCompanyChange}
               />
               <Building2 className="h-4 w-4 text-green-600" />
               <Label htmlFor="create-company" className="text-sm font-medium flex-1">
@@ -88,7 +95,7 @@ export const ConvertLeadDialog = ({
               <Checkbox
                 id="create-deal"
                 checked={createDeal}
-                onCheckedChange={setCreateDeal}
+                onCheckedChange={handleCreateDealChange}
               />
               <Briefcase className="h-4 w-4 text-purple-600" />
               <Label htmlFor="create-deal" className="text-sm font-medium">
