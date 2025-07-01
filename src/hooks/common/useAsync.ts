@@ -7,7 +7,7 @@ interface AsyncState<T> {
   error: string | null;
 }
 
-interface UseAsyncOptions {
+export interface UseAsyncOptions {
   onSuccess?: (data: any) => void;
   onError?: (error: string) => void;
   retryCount?: number;
@@ -109,9 +109,9 @@ export const useAsync = <T = any>(options: UseAsyncOptions = {}) => {
 // Hook especializado para operaciones CRUD
 export const useCRUD = <T = any>(options: UseAsyncOptions = {}) => {
   const create = useAsync<T>(options);
-  const read = useAsync<T>(options);
+  const read = useAsync<T[]>(options);
   const update = useAsync<T>(options);
-  const remove = useAsync<T>(options);
+  const remove = useAsync<void>(options);
 
   return {
     create,
@@ -137,12 +137,8 @@ export const useAsyncWithCache = <T = any>(
 
     if (cached && (now - cached.timestamp) < cacheTime) {
       asyncHook.reset();
-      asyncHook.setState?.({
-        data: cached.data,
-        loading: false,
-        error: null,
-      });
-      return cached.data;
+      // Directly set the state using a new execution with cached data
+      return asyncHook.execute(async () => cached.data);
     }
 
     const result = await asyncHook.execute(asyncFunction);

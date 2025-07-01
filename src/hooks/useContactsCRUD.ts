@@ -42,7 +42,7 @@ export const useContactsCRUD = () => {
         description: `${contactData.name} ha sido creado correctamente.`,
       });
       
-      return data;
+      return data as Contact;
     });
   };
 
@@ -55,7 +55,7 @@ export const useContactsCRUD = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw new Error(error.message);
-      return data;
+      return (data || []) as Contact[];
     });
   };
 
@@ -75,7 +75,7 @@ export const useContactsCRUD = () => {
         description: "Los cambios han sido guardados correctamente.",
       });
       
-      return data;
+      return data as Contact;
     });
   };
 
