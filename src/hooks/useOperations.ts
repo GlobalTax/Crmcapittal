@@ -35,16 +35,16 @@ export const useOperations = () => {
   useEffect(() => {
     if (!loading && operations.length === 0 && !hasCreatedSamples && role) {
       console.log("Base de datos vacía, creando operaciones de ejemplo...");
-      mutations.addBulkOperations(sampleOperations, true);
+      addBulkOperations(sampleOperations, true);
       setHasCreatedSamples(true);
       // Forzar recarga después de crear las operaciones
       setTimeout(() => {
         refetch();
       }, 1000);
     }
-  }, [loading, operations.length, hasCreatedSamples, mutations, refetch, role]);
+  }, [loading, operations.length, hasCreatedSamples, role]);
 
-  // Forzar una recarga adicional para asegurar que se carguen los managers
+  // Auto-reload para asegurar que se carguen los managers
   useEffect(() => {
     if (!loading && operations.length > 0) {
       const hasManagersAssigned = operations.some(op => op.manager && op.manager.name);
@@ -57,11 +57,101 @@ export const useOperations = () => {
     }
   }, [operations, loading, refetch]);
 
+  // Wrapper functions to maintain API compatibility
+  const addOperation = async (operationData: any) => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        mutations.addOperation(operationData, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error)
+        });
+      });
+      return { data: null, error: null };
+    } catch (error) {
+      return { data: null, error: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  };
+
+  const addBulkOperations = async (operationsData: any[], isPublicSample = false) => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        mutations.addBulkOperations(operationsData, isPublicSample, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error)
+        });
+      });
+      return { data: operationsData, error: null };
+    } catch (error) {
+      return { data: null, error: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  };
+
+  const updateOperation = async (operationId: string, operationData: Partial<Operation>) => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        mutations.updateOperation(operationId, operationData, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error)
+        });
+      });
+      return { data: null, error: null };
+    } catch (error) {
+      return { data: null, error: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  };
+
+  const updateOperationStatus = async (operationId: string, newStatus: Operation['status']) => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        mutations.updateOperationStatus(operationId, newStatus, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error)
+        });
+      });
+      return { data: null, error: null };
+    } catch (error) {
+      return { data: null, error: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  };
+
+  const deleteOperation = async (operationId: string) => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        mutations.deleteOperation(operationId, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error)
+        });
+      });
+      return { error: null };
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  };
+
+  const updateTeaserUrl = async (operationId: string, teaserUrl: string) => {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        mutations.updateTeaserUrl(operationId, teaserUrl, {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error)
+        });
+      });
+      return { data: null, error: null };
+    } catch (error) {
+      return { data: null, error: error instanceof Error ? error.message : 'Error desconocido' };
+    }
+  };
+
   return { 
     operations, 
     loading, 
     error: error?.message || null, 
     refetch,
-    ...mutations
+    addOperation,
+    addBulkOperations,
+    updateOperation,
+    updateOperationStatus,
+    deleteOperation,
+    updateTeaserUrl
   };
 };

@@ -13,6 +13,11 @@ import {
 } from './operationsService';
 import { toast } from 'sonner';
 
+interface MutationCallbacks {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
 export const useOperationsMutations = () => {
   const { user } = useAuth();
   const { role } = useUserRole();
@@ -112,16 +117,42 @@ export const useOperationsMutations = () => {
   });
 
   return {
-    addOperation: addOperationMutation.mutate,
-    addBulkOperations: (operationsData: any[], isPublicSample = false) => 
-      addBulkOperationsMutation.mutate({ operationsData, isPublicSample }),
-    updateOperation: (operationId: string, operationData: Partial<Operation>) => 
-      updateOperationMutation.mutate({ operationId, operationData }),
-    updateOperationStatus: (operationId: string, newStatus: Operation['status']) => 
-      updateOperationStatusMutation.mutate({ operationId, newStatus }),
-    deleteOperation: deleteOperationMutation.mutate,
-    updateTeaserUrl: (operationId: string, teaserUrl: string) => 
-      updateTeaserUrlMutation.mutate({ operationId, teaserUrl }),
+    addOperation: (operationData: any, callbacks?: MutationCallbacks) => {
+      addOperationMutation.mutate(operationData, {
+        onSuccess: callbacks?.onSuccess,
+        onError: callbacks?.onError
+      });
+    },
+    addBulkOperations: (operationsData: any[], isPublicSample = false, callbacks?: MutationCallbacks) => {
+      addBulkOperationsMutation.mutate({ operationsData, isPublicSample }, {
+        onSuccess: callbacks?.onSuccess,
+        onError: callbacks?.onError
+      });
+    },
+    updateOperation: (operationId: string, operationData: Partial<Operation>, callbacks?: MutationCallbacks) => {
+      updateOperationMutation.mutate({ operationId, operationData }, {
+        onSuccess: callbacks?.onSuccess,
+        onError: callbacks?.onError
+      });
+    },
+    updateOperationStatus: (operationId: string, newStatus: Operation['status'], callbacks?: MutationCallbacks) => {
+      updateOperationStatusMutation.mutate({ operationId, newStatus }, {
+        onSuccess: callbacks?.onSuccess,
+        onError: callbacks?.onError
+      });
+    },
+    deleteOperation: (operationId: string, callbacks?: MutationCallbacks) => {
+      deleteOperationMutation.mutate(operationId, {
+        onSuccess: callbacks?.onSuccess,
+        onError: callbacks?.onError
+      });
+    },
+    updateTeaserUrl: (operationId: string, teaserUrl: string, callbacks?: MutationCallbacks) => {
+      updateTeaserUrlMutation.mutate({ operationId, teaserUrl }, {
+        onSuccess: callbacks?.onSuccess,
+        onError: callbacks?.onError
+      });
+    },
     loading: addOperationMutation.isPending || 
              addBulkOperationsMutation.isPending || 
              updateOperationMutation.isPending || 
