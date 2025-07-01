@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   Table,
@@ -21,6 +20,7 @@ import { Lead } from "@/types/Lead";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 import { AssignLeadDialog } from "./AssignLeadDialog";
 import { ConvertLeadDialog } from "./ConvertLeadDialog";
+import { LeadsTableSkeleton } from "@/components/LoadingSkeleton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
@@ -102,15 +102,7 @@ export const LeadsTable = ({
     return lead.status === 'QUALIFIED'; // Assuming QUALIFIED means converted
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (leads.length === 0) {
+  if (leads.length === 0 && !isLoading) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>No hay leads disponibles</p>
@@ -135,110 +127,114 @@ export const LeadsTable = ({
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {leads.map((lead) => (
-              <TableRow key={lead.id}>
-                <TableCell className="font-medium">{lead.name}</TableCell>
-                <TableCell>{lead.email}</TableCell>
-                <TableCell>{lead.company_name || '-'}</TableCell>
-                <TableCell>{lead.source}</TableCell>
-                <TableCell>
-                  <LeadStatusBadge status={lead.status} />
-                </TableCell>
-                <TableCell>
-                  {lead.assigned_to ? (
-                    <span className="text-sm">
-                      {lead.assigned_to.first_name} {lead.assigned_to.last_name}
-                    </span>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleAssignClick(lead.id)}
-                    >
-                      <UserPlus className="h-4 w-4 mr-1" />
-                      Asignar
-                    </Button>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {isConverted(lead) ? (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                      Convertido
-                    </Badge>
-                  ) : (
-                    <div className="flex gap-1">
+          {isLoading ? (
+            <LeadsTableSkeleton count={6} />
+          ) : (
+            <TableBody>
+              {leads.map((lead) => (
+                <TableRow key={lead.id}>
+                  <TableCell className="font-medium">{lead.name}</TableCell>
+                  <TableCell>{lead.email}</TableCell>
+                  <TableCell>{lead.company_name || '-'}</TableCell>
+                  <TableCell>{lead.source}</TableCell>
+                  <TableCell>
+                    <LeadStatusBadge status={lead.status} />
+                  </TableCell>
+                  <TableCell>
+                    {lead.assigned_to ? (
+                      <span className="text-sm">
+                        {lead.assigned_to.first_name} {lead.assigned_to.last_name}
+                      </span>
+                    ) : (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleQuickConvert(lead, 'contact')}
-                        disabled={isConverting}
-                        title="Solo contacto"
-                        className="px-2"
+                        onClick={() => handleAssignClick(lead.id)}
                       >
-                        <User className="h-3 w-3" />
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Asignar
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleQuickConvert(lead, 'company')}
-                        disabled={isConverting}
-                        title="Contacto + Empresa"
-                        className="px-2"
-                      >
-                        <Building2 className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleConvertClick(lead)}
-                        disabled={isConverting}
-                        title="Conversión personalizada"
-                        className="px-2"
-                      >
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell className="text-sm text-gray-500">
-                  {format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: es })}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onViewLead(lead.id)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Ver detalles
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleAssignClick(lead.id)}>
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        Reasignar
-                      </DropdownMenuItem>
-                      {!isConverted(lead) && (
-                        <DropdownMenuItem onClick={() => handleConvertClick(lead)}>
-                          <ArrowRight className="mr-2 h-4 w-4" />
-                          Convertir
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {isConverted(lead) ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Convertido
+                      </Badge>
+                    ) : (
+                      <div className="flex gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleQuickConvert(lead, 'contact')}
+                          disabled={isConverting}
+                          title="Solo contacto"
+                          className="px-2"
+                        >
+                          <User className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleQuickConvert(lead, 'company')}
+                          disabled={isConverting}
+                          title="Contacto + Empresa"
+                          className="px-2"
+                        >
+                          <Building2 className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleConvertClick(lead)}
+                          disabled={isConverting}
+                          title="Conversión personalizada"
+                          className="px-2"
+                        >
+                          <ArrowRight className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-500">
+                    {format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: es })}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => onViewLead(lead.id)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Ver detalles
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem 
-                        onClick={() => onDeleteLead(lead.id)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Eliminar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+                        <DropdownMenuItem onClick={() => handleAssignClick(lead.id)}>
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          Reasignar
+                        </DropdownMenuItem>
+                        {!isConverted(lead) && (
+                          <DropdownMenuItem onClick={() => handleConvertClick(lead)}>
+                            <ArrowRight className="mr-2 h-4 w-4" />
+                            Convertir
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem 
+                          onClick={() => onDeleteLead(lead.id)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          )}
         </Table>
       </div>
 
