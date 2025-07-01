@@ -2,7 +2,10 @@
 import { useState } from "react";
 import { CompaniesTable } from "@/components/companies/CompaniesTable";
 import { CreateCompanyDialog } from "@/components/companies/CreateCompanyDialog";
+import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
+import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
 import { useCompanies } from "@/hooks/useCompanies";
+import { Company } from "@/types/Company";
 import { Button } from "@/components/ui/button";
 import { Filter, Download } from "lucide-react";
 
@@ -11,6 +14,8 @@ const Companies = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
 
   const { 
     companies, 
@@ -35,9 +40,12 @@ const Companies = () => {
 
   const { data: stats, isLoading: statsLoading } = useCompanyStats();
 
-  const handleEditCompany = (company: any) => {
-    console.log("Edit company:", company);
-    // TODO: Implement edit dialog
+  const handleEditCompany = (company: Company) => {
+    setEditingCompany(company);
+  };
+
+  const handleUpdateCompany = (companyId: string, companyData: any) => {
+    updateCompany({ id: companyId, ...companyData });
   };
 
   const handleDeleteCompany = (companyId: string) => {
@@ -46,9 +54,8 @@ const Companies = () => {
     }
   };
 
-  const handleViewCompany = (company: any) => {
-    console.log("View company:", company);
-    // TODO: Implement company details dialog
+  const handleViewCompany = (company: Company) => {
+    setViewingCompany(company);
   };
 
   const handleSearch = (term: string) => {
@@ -108,6 +115,30 @@ const Companies = () => {
         onPageChange={setPage}
         isLoading={isLoading}
       />
+
+      {/* Edit Company Dialog */}
+      {editingCompany && (
+        <EditCompanyDialog
+          company={editingCompany}
+          open={!!editingCompany}
+          onOpenChange={(open) => !open && setEditingCompany(null)}
+          onUpdateCompany={handleUpdateCompany}
+          isUpdating={isUpdating}
+        />
+      )}
+
+      {/* Company Details Dialog */}
+      {viewingCompany && (
+        <CompanyDetailsDialog
+          company={viewingCompany}
+          open={!!viewingCompany}
+          onOpenChange={(open) => !open && setViewingCompany(null)}
+          onEditCompany={(company) => {
+            setViewingCompany(null);
+            setEditingCompany(company);
+          }}
+        />
+      )}
     </div>
   );
 };
