@@ -78,7 +78,7 @@ export const TeaserUploadDialog = ({
               selectedFile={selectedFile}
               isUploading={isUploading}
               uploadError={uploadError}
-              isReplacingTeaser={isReplacingTeaser}
+              isReplacingTeaser={!!isReplacingTeaser}
               onCancel={() => onOpenChange(false)}
               onUpload={handleUpload}
             />
