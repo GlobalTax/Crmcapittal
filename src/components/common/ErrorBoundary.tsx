@@ -5,7 +5,6 @@ import { ErrorFallback } from './ErrorFallback'
 interface Props {
   children: ReactNode
   fallback?: React.ComponentType<{ error: Error; resetError: () => void }>
-  context?: string
 }
 
 interface State {
@@ -42,7 +41,6 @@ export class ErrorBoundary extends Component<Props, State> {
         <FallbackComponent 
           error={this.state.error} 
           resetError={this.resetError}
-          context={this.props.context}
         />
       )
     }
