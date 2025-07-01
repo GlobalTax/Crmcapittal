@@ -17,7 +17,7 @@ interface CreateDealDialogProps {
   pipelineId?: string;
 }
 
-export const CreateDealDialog = ({ open, onOpenChange, onSuccess, pipelineId }: CreateDealDialogProps) => {
+export const CreateDealDialog = ({ open, onOpenChange, onSuccess, pipelineId = "DEAL" }: CreateDealDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     deal_name: '',

@@ -89,6 +89,7 @@ const Deals = () => {
           createDeal(newDeal);
           setShowCreateDialog(false);
         }}
+        pipelineId="DEAL"
       />
     </div>
   );
