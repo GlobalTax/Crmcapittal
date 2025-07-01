@@ -1,6 +1,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useVirtualization } from '@/hooks/useVirtualization'
 
 interface VirtualTableProps<T> {
   data: T[]
@@ -21,22 +22,16 @@ export function VirtualTable<T>({
 }: VirtualTableProps<T>) {
   const [scrollTop, setScrollTop] = useState(0)
 
-  const visibleItems = useMemo(() => {
-    const startIndex = Math.floor(scrollTop / itemHeight)
-    const endIndex = Math.min(
-      startIndex + Math.ceil(containerHeight / itemHeight) + 1,
-      data.length
-    )
-    
-    return {
-      startIndex,
-      endIndex,
-      items: data.slice(startIndex, endIndex)
-    }
-  }, [data, scrollTop, itemHeight, containerHeight])
+  const { visibleItems, totalHeight, offsetY, startIndex } = useVirtualization(
+    data.length,
+    itemHeight,
+    containerHeight,
+    scrollTop
+  )
 
-  const totalHeight = data.length * itemHeight
-  const offsetY = visibleItems.startIndex * itemHeight
+  const visibleData = useMemo(() => {
+    return visibleItems.map(index => data[index])
+  }, [data, visibleItems])
 
   return (
     <div 
@@ -53,9 +48,9 @@ export function VirtualTable<T>({
             position: 'absolute',
             width: '100%'
           }}>
-            {visibleItems.items.map((item, index) => (
+            {visibleData.map((item, localIndex) => (
               <div key={keyExtractor(item)} style={{ height: itemHeight }}>
-                {renderRow(item, visibleItems.startIndex + index)}
+                {renderRow(item, startIndex + localIndex)}
               </div>
             ))}
           </div>
