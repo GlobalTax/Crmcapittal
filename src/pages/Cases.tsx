@@ -46,7 +46,7 @@ const Cases = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <CasesTable cases={cases} loading={isLoading} onRefetch={refetch} />
+          <CasesTable cases={cases as any} loading={isLoading} onRefetch={refetch} />
         </CardContent>
       </Card>
 

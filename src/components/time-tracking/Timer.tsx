@@ -11,11 +11,17 @@ import { useCases } from '@/hooks/useCases'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
 import { toast } from 'sonner'
 
+interface CreateTimeEntryData {
+  description: string;
+  duration_minutes: number;
+  is_billable: boolean;
+}
+
 export const Timer = () => {
   const [isRunning, setIsRunning] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [seconds, setSeconds] = useState(0)
-  const [selectedCaseId, setSelectedCaseId] = useState<string>('')
+  const [selectedCaseId, setSelectedCaseId] = useState<string>('none')
   const [description, setDescription] = useState('')
   const [isBillable, setIsBillable] = useState(true)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -83,7 +89,6 @@ export const Timer = () => {
       const minutes = Math.round(seconds / 60)
       
       await createTimeEntry({
-        case_id: selectedCaseId || null,
         description: description.trim(),
         duration_minutes: minutes,
         is_billable: isBillable
@@ -94,6 +99,7 @@ export const Timer = () => {
       setIsPaused(false)
       setSeconds(0)
       setDescription('')
+      setSelectedCaseId('none')
       startTimeRef.current = null
 
       toast.success(`Tiempo registrado: ${minutes} minutos`)
@@ -107,6 +113,7 @@ export const Timer = () => {
     setIsRunning(false)
     setIsPaused(false)
     setSeconds(0)
+    setSelectedCaseId('none')
     startTimeRef.current = null
   }
 
@@ -195,7 +202,7 @@ export const Timer = () => {
                 <SelectValue placeholder="Seleccionar caso..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Sin caso específico</SelectItem>
+                <SelectItem value="none">Sin caso específico</SelectItem>
                 {cases.map((case_) => (
                   <SelectItem key={case_.id} value={case_.id}>
                     {case_.title} {case_.contact && `(${case_.contact.name})`}

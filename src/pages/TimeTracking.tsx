@@ -157,7 +157,7 @@ const TimeTracking = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <TimeSheet timeEntries={dailyData?.timeEntries || []} />
+              <TimeSheet timeEntries={dailyData?.timeEntries as any || []} />
             </CardContent>
           </Card>
         </div>
