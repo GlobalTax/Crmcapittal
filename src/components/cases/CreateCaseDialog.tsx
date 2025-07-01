@@ -64,15 +64,29 @@ export const CreateCaseDialog = ({ open, onOpenChange, onCaseCreated }: CreateCa
     defaultValues: {
       title: "",
       description: "",
+      contact_id: "",
+      company_id: "",
+      practice_area_id: "",
       priority: "medium",
+      start_date: "",
+      end_date: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
+      
+      // Ensure required fields are present
       const caseData: CreateCaseData = {
-        ...values,
+        title: values.title,
+        contact_id: values.contact_id,
+        practice_area_id: values.practice_area_id,
+        description: values.description || undefined,
+        company_id: values.company_id || undefined,
+        priority: values.priority || "medium",
+        start_date: values.start_date || undefined,
+        end_date: values.end_date || undefined,
         estimated_hours: values.estimated_hours || undefined,
       };
       
@@ -120,7 +134,7 @@ export const CreateCaseDialog = ({ open, onOpenChange, onCaseCreated }: CreateCa
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cliente</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona un cliente" />
@@ -145,7 +159,7 @@ export const CreateCaseDialog = ({ open, onOpenChange, onCaseCreated }: CreateCa
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Empresa (Opcional)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona una empresa" />
@@ -170,7 +184,7 @@ export const CreateCaseDialog = ({ open, onOpenChange, onCaseCreated }: CreateCa
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Área de Práctica</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona área de práctica" />
@@ -195,7 +209,7 @@ export const CreateCaseDialog = ({ open, onOpenChange, onCaseCreated }: CreateCa
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Prioridad</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecciona prioridad" />
@@ -253,6 +267,7 @@ export const CreateCaseDialog = ({ open, onOpenChange, onCaseCreated }: CreateCa
                         placeholder="0"
                         {...field}
                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormMessage />
