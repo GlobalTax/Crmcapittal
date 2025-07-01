@@ -673,6 +673,117 @@ export type Database = {
           },
         ]
       }
+      cuentas: {
+        Row: {
+          balance_actual: number | null
+          credito: number | null
+          datos_completos: Json | null
+          debito: number | null
+          id: string
+          nombre: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          balance_actual?: number | null
+          credito?: number | null
+          datos_completos?: Json | null
+          debito?: number | null
+          id: string
+          nombre?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          balance_actual?: number | null
+          credito?: number | null
+          datos_completos?: Json | null
+          debito?: number | null
+          id?: string
+          nombre?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      customers: {
+        Row: {
+          account: string | null
+          address: string | null
+          city: string | null
+          company_id: string | null
+          contact: string | null
+          country: string | null
+          country_id: string | null
+          created_at: string
+          customer_id: string
+          discount: number | null
+          email: string | null
+          id: number
+          name: string | null
+          nif: string | null
+          observations: string | null
+          origin_id: string | null
+          pay_document_description: string | null
+          phone: string | null
+          postal_code: string | null
+          province: string | null
+          reason: string | null
+          retention: number | null
+          sell_account_description: string | null
+          way_to_pay_description: string | null
+        }
+        Insert: {
+          account?: string | null
+          address?: string | null
+          city?: string | null
+          company_id?: string | null
+          contact?: string | null
+          country?: string | null
+          country_id?: string | null
+          created_at?: string
+          customer_id: string
+          discount?: number | null
+          email?: string | null
+          id?: number
+          name?: string | null
+          nif?: string | null
+          observations?: string | null
+          origin_id?: string | null
+          pay_document_description?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          reason?: string | null
+          retention?: number | null
+          sell_account_description?: string | null
+          way_to_pay_description?: string | null
+        }
+        Update: {
+          account?: string | null
+          address?: string | null
+          city?: string | null
+          company_id?: string | null
+          contact?: string | null
+          country?: string | null
+          country_id?: string | null
+          created_at?: string
+          customer_id?: string
+          discount?: number | null
+          email?: string | null
+          id?: number
+          name?: string | null
+          nif?: string | null
+          observations?: string | null
+          origin_id?: string | null
+          pay_document_description?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          reason?: string | null
+          retention?: number | null
+          sell_account_description?: string | null
+          way_to_pay_description?: string | null
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           close_date: string | null
@@ -783,6 +894,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      empresas: {
+        Row: {
+          codigo_interno: number | null
+          datos_completos: Json | null
+          id: number
+          nif: string | null
+          nombre: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          codigo_interno?: number | null
+          datos_completos?: Json | null
+          id: number
+          nif?: string | null
+          nombre?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          codigo_interno?: number | null
+          datos_completos?: Json | null
+          id?: number
+          nif?: string | null
+          nombre?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       fee_history: {
         Row: {
@@ -1454,6 +1592,39 @@ export type Database = {
           },
         ]
       }
+      proveedores: {
+        Row: {
+          company_id_origen: number | null
+          datos_completos: Json | null
+          email: string | null
+          nif: string | null
+          nombre: string | null
+          regid: number
+          telefono: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id_origen?: number | null
+          datos_completos?: Json | null
+          email?: string | null
+          nif?: string | null
+          nombre?: string | null
+          regid: number
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id_origen?: number | null
+          datos_completos?: Json | null
+          email?: string | null
+          nif?: string | null
+          nombre?: string | null
+          regid?: number
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       recurring_fees: {
         Row: {
           amount: number
@@ -1973,6 +2144,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      diagnostico_net_queue: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_highest_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -2002,6 +2177,34 @@ export type Database = {
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      obtener_token_integraloop: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_clientes_quantum: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_cuentas_quantum: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_cuentas_quantum_final: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_empresas_quantum: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_impuestos_quantum: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_proveedores_quantum: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       update_lead_score: {
         Args: { p_lead_id: string; p_points_to_add: number }

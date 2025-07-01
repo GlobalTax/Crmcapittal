@@ -1,19 +1,19 @@
-import { useState } from "react";
+
 import { 
   Table, 
-  TableBody, 
-  TableCell, 
   TableHead, 
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
 import { Operation } from "@/types/Operation";
 import { AdminTableHeader } from "./admin/AdminTableHeader";
-import { OperationTableRow } from "./admin/OperationTableRow";
+import { AdminTableBody } from "./admin/AdminTableBody";
 import { OperationDetailsDialog } from "./admin/OperationDetailsDialog";
 import { EditOperationDialog } from "./admin/EditOperationDialog";
 import { TeaserUploadDialog } from "./admin/TeaserUploadDialog";
-import { useToast } from "@/hooks/use-toast";
+import { useAdminTableFilters } from "@/hooks/admin/useAdminTableFilters";
+import { useAdminDialogs } from "@/hooks/admin/useAdminDialogs";
+import { useAdminOperationHandlers } from "./admin/AdminOperationHandlers";
 
 interface AdminOperationsTableProps {
   operations: Operation[];
@@ -32,129 +32,46 @@ export const AdminOperationsTable = ({
   onDeleteOperation,
   onUpdateTeaserUrl
 }: AdminOperationsTableProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterSector, setFilterSector] = useState<string>("all");
-  
-  // Dialog states
-  const [detailsDialog, setDetailsDialog] = useState<{
-    open: boolean;
-    operation: Operation | null;
-  }>({ open: false, operation: null });
-  
-  const [editDialog, setEditDialog] = useState<{
-    open: boolean;
-    operation: Operation | null;
-  }>({ open: false, operation: null });
-  
-  const [uploadDialog, setUploadDialog] = useState<{
-    open: boolean;
-    operation: Operation | null;
-  }>({ open: false, operation: null });
+  const {
+    searchTerm,
+    setSearchTerm,
+    filterStatus,
+    setFilterStatus,
+    filterSector,
+    setFilterSector,
+    filteredOperations,
+    uniqueSectors
+  } = useAdminTableFilters(operations);
 
-  const { toast } = useToast();
+  const {
+    detailsDialog,
+    editDialog,
+    uploadDialog,
+    openDetailsDialog,
+    closeDetailsDialog,
+    openEditDialog,
+    closeEditDialog,
+    openUploadDialog,
+    closeUploadDialog
+  } = useAdminDialogs();
 
-  // Filter operations based on search and filters
-  const filteredOperations = operations.filter(operation => {
-    const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         operation.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = filterStatus === "all" || operation.status === filterStatus;
-    const matchesSector = filterSector === "all" || operation.sector === filterSector;
-    
-    return matchesSearch && matchesStatus && matchesSector;
+  const {
+    handleDeleteOperation,
+    handleDownloadTeaser,
+    handleSaveEdit,
+    handleUploadComplete
+  } = useAdminOperationHandlers({
+    onUpdateOperation,
+    onDeleteOperation,
+    onUpdateTeaserUrl
   });
 
-  // Get unique sectors for filter dropdown
-  const uniqueSectors = Array.from(new Set(operations.map(op => op.sector)));
-
-  const handleViewDetails = (operation: Operation) => {
-    setDetailsDialog({ open: true, operation });
-  };
-
-  const handleEditOperation = (operation: Operation) => {
-    setEditDialog({ open: true, operation });
-  };
-
-  const handleDeleteOperation = async (operation: Operation) => {
-    if (window.confirm(`¿Estás seguro de que quieres eliminar la operación "${operation.company_name}"?`)) {
-      const { error } = await onDeleteOperation(operation.id);
-      
-      if (error) {
-        toast({
-          title: "Error",
-          description: error,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Operación eliminada",
-          description: "La operación se ha eliminado correctamente",
-        });
-      }
-    }
-  };
-
-  const handleUploadTeaser = (operation: Operation) => {
-    setUploadDialog({ open: true, operation });
-  };
-
-  const handleDownloadTeaser = (operation: Operation) => {
-    if (operation.teaser_url) {
-      window.open(operation.teaser_url, '_blank');
-    }
-  };
-
-  const handleSaveEdit = async (operationData: Partial<Operation>) => {
+  const handleSaveEditWrapper = async (operationData: Partial<Operation>) => {
     if (!editDialog.operation) return;
     
-    console.log('Guardando cambios para operación:', editDialog.operation.id);
-    console.log('Datos a actualizar:', operationData);
-    
-    try {
-      const { error } = await onUpdateOperation(editDialog.operation.id, operationData);
-      
-      if (error) {
-        console.error('Error al actualizar:', error);
-        toast({
-          title: "Error",
-          description: error,
-          variant: "destructive",
-        });
-      } else {
-        console.log('Operación actualizada exitosamente');
-        toast({
-          title: "Operación actualizada",
-          description: "Los cambios se han guardado correctamente",
-        });
-        setEditDialog({ open: false, operation: null });
-      }
-    } catch (error) {
-      console.error('Error inesperado al actualizar:', error);
-      toast({
-        title: "Error",
-        description: "Error inesperado al actualizar la operación",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUploadComplete = async (operationId: string, teaserUrl: string) => {
-    const { error } = await onUpdateTeaserUrl(operationId, teaserUrl);
-    
-    if (error) {
-      toast({
-        title: "Error",
-        description: error,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Teaser actualizado",
-        description: "El teaser se ha subido correctamente",
-      });
+    const result = await handleSaveEdit(editDialog.operation.id, operationData);
+    if (result.success) {
+      closeEditDialog();
     }
   };
 
@@ -195,17 +112,7 @@ export const AdminOperationsTable = ({
           filterSector={filterSector}
           onSectorChange={setFilterSector}
           uniqueSectors={uniqueSectors}
-          filteredCount={operations.filter(operation => {
-            const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                               operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                               operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                               operation.location?.toLowerCase().includes(searchTerm.toLowerCase());
-            
-            const matchesStatus = filterStatus === "all" || operation.status === filterStatus;
-            const matchesSector = filterSector === "all" || operation.sector === filterSector;
-            
-            return matchesSearch && matchesStatus && matchesSector;
-          }).length}
+          filteredCount={filteredOperations.length}
           totalCount={operations.length}
         />
 
@@ -226,52 +133,17 @@ export const AdminOperationsTable = ({
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {operations.filter(operation => {
-                const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                   operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                   operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                   operation.location?.toLowerCase().includes(searchTerm.toLowerCase());
-                
-                const matchesStatus = filterStatus === "all" || operation.status === filterStatus;
-                const matchesSector = filterSector === "all" || operation.sector === filterSector;
-                
-                return matchesSearch && matchesStatus && matchesSector;
-              }).length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={11} className="text-center py-8">
-                    <div className="text-gray-500">
-                      {searchTerm || filterStatus !== "all" || filterSector !== "all" 
-                        ? "No se encontraron operaciones con los filtros aplicados"
-                        : "No hay operaciones disponibles"
-                      }
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                operations.filter(operation => {
-                  const matchesSearch = operation.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                     operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                     operation.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                     operation.location?.toLowerCase().includes(searchTerm.toLowerCase());
-                  
-                  const matchesStatus = filterStatus === "all" || operation.status === filterStatus;
-                  const matchesSector = filterSector === "all" || operation.sector === filterSector;
-                  
-                  return matchesSearch && matchesStatus && matchesSector;
-                }).map((operation) => (
-                  <OperationTableRow
-                    key={operation.id}
-                    operation={operation}
-                    onViewDetails={handleViewDetails}
-                    onEditOperation={handleEditOperation}
-                    onDeleteOperation={handleDeleteOperation}
-                    onUploadTeaser={handleUploadTeaser}
-                    onDownloadTeaser={handleDownloadTeaser}
-                  />
-                ))
-              )}
-            </TableBody>
+            <AdminTableBody
+              filteredOperations={filteredOperations}
+              searchTerm={searchTerm}
+              filterStatus={filterStatus}
+              filterSector={filterSector}
+              onViewDetails={openDetailsDialog}
+              onEditOperation={openEditDialog}
+              onDeleteOperation={handleDeleteOperation}
+              onUploadTeaser={openUploadDialog}
+              onDownloadTeaser={handleDownloadTeaser}
+            />
           </Table>
         </div>
       </div>
@@ -279,20 +151,20 @@ export const AdminOperationsTable = ({
       {/* Dialogs */}
       <OperationDetailsDialog
         open={detailsDialog.open}
-        onOpenChange={(open) => setDetailsDialog({ open, operation: null })}
+        onOpenChange={closeDetailsDialog}
         operation={detailsDialog.operation}
       />
 
       <EditOperationDialog
         open={editDialog.open}
-        onOpenChange={(open) => setEditDialog({ open, operation: null })}
+        onOpenChange={closeEditDialog}
         operation={editDialog.operation}
-        onSave={handleSaveEdit}
+        onSave={handleSaveEditWrapper}
       />
 
       <TeaserUploadDialog
         open={uploadDialog.open}
-        onOpenChange={(open) => setUploadDialog({ open, operation: null })}
+        onOpenChange={closeUploadDialog}
         operation={uploadDialog.operation}
         onUploadComplete={handleUploadComplete}
       />
