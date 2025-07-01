@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ContactsTable } from "@/components/contacts/ContactsTable";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
 import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
@@ -23,13 +23,13 @@ export default function Contacts() {
   } = useContactsCRUD();
 
   // Fetch contacts on mount
-  React.useEffect(() => {
+  useEffect(() => {
     fetchContacts();
   }, []);
 
   const handleCreateContact = (contactData: CreateContactData) => {
     createContact(contactData).then((result) => {
-      if (result.data) {
+      if (result) {
         // Refresh the contacts list
         fetchContacts();
       }
@@ -42,7 +42,7 @@ export default function Contacts() {
 
   const handleUpdateContact = (contactId: string, contactData: UpdateContactData) => {
     updateContact(contactId, contactData).then((result) => {
-      if (result.data) {
+      if (result) {
         // Refresh the contacts list
         fetchContacts();
         setEditingContact(null);
