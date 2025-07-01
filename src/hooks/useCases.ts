@@ -61,10 +61,21 @@ export const useCases = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuario no autenticado');
 
+      // Remove case_number from data as it's auto-generated
       const { data: newCase, error } = await supabase
         .from('cases')
         .insert({
-          ...data,
+          contact_id: data.contact_id,
+          company_id: data.company_id,
+          practice_area_id: data.practice_area_id,
+          proposal_id: data.proposal_id,
+          title: data.title,
+          description: data.description,
+          priority: data.priority || 'medium',
+          start_date: data.start_date,
+          end_date: data.end_date,
+          estimated_hours: data.estimated_hours,
+          assigned_to: data.assigned_to,
           created_by: user.id
         })
         .select()

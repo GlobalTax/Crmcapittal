@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 
 interface TimeEntry {
   id: string;
-  case_id?: string;
   description: string;
   duration_minutes: number;
   is_billable: boolean;
@@ -45,12 +44,12 @@ export const useTimeEntries = () => {
       const { data, error } = await supabase
         .from('time_entries')
         .select(`
-          *,
-          case:cases(
-            id,
-            title,
-            contact:contacts(name)
-          )
+          id,
+          description,
+          duration_minutes,
+          is_billable,
+          created_at,
+          updated_at
         `)
         .gte('created_at', startOfDay.toISOString())
         .lte('created_at', endOfDay.toISOString())
@@ -71,10 +70,11 @@ export const useTimeEntries = () => {
         .from('time_entries')
         .insert({
           user_id: user.id,
-          case_id: data.case_id,
           description: data.description,
           duration_minutes: data.duration_minutes,
-          is_billable: data.is_billable
+          is_billable: data.is_billable,
+          activity_type: 'work',
+          start_time: new Date().toISOString()
         })
         .select()
         .single();
