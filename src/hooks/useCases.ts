@@ -39,7 +39,7 @@ export const useCases = () => {
     try {
       const { data: newCase, error } = await supabase
         .from('cases')
-        .insert([data])
+        .insert(data)
         .select(`
           *,
           contact:contacts(id, name, email),
