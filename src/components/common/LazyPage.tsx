@@ -9,7 +9,7 @@ interface LazyPageProps {
 
 export const LazyPage: React.FC<LazyPageProps> = ({ 
   children, 
-  fallback = <LoadingSkeleton viewMode="table" count={3} /> 
+  fallback = <LoadingSkeleton type="table-row" count={3} /> 
 }) => {
   return (
     <Suspense fallback={fallback}>

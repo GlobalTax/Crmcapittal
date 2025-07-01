@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useFavoriteOperations } from '@/hooks/useFavoriteOperations';
 import { useOperationsOptimized } from '@/hooks/operations/useOperationsOptimized';
@@ -65,7 +64,7 @@ export const OperationsList = () => {
             </div>
             <OperationsViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
           </div>
-          <LoadingSkeleton viewMode={viewMode} />
+          <LoadingSkeleton type={viewMode === 'table' ? 'table-row' : 'operation-card'} count={12} />
         </div>
       </div>
     );
