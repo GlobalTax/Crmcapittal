@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Stage, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +14,13 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
     try {
       setLoading(true);
       setError(null);
+      
+      // Enhanced logging to track what's being passed
+      console.log('useStages called with parameter:', {
+        pipelineTypeOrId,
+        type: typeof pipelineTypeOrId,
+        isValidType: VALID_PIPELINE_TYPES.includes(pipelineTypeOrId as PipelineType)
+      });
       
       // Si no se proporciona parámetro, no hacer consulta
       if (!pipelineTypeOrId) {
@@ -39,30 +45,41 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
       
       if (isUUID) {
         // Direct pipeline ID
+        console.log('Using direct pipeline ID:', pipelineTypeOrId);
         query = query.eq('pipeline_id', pipelineTypeOrId);
       } else {
-        // Validate pipeline type
+        // Pipeline type - validate it first
         const pipelineType = pipelineTypeOrId as PipelineType;
+        
         if (!VALID_PIPELINE_TYPES.includes(pipelineType)) {
-          console.error(`Invalid pipeline type: ${pipelineType}. Valid types are: ${VALID_PIPELINE_TYPES.join(', ')}`);
+          console.error(`Invalid or undefined pipeline type: "${pipelineType}". Valid types are: ${VALID_PIPELINE_TYPES.join(', ')}`);
           setError(`Tipo de pipeline inválido: ${pipelineType}`);
+          setStages([]);
           return;
         }
 
-        // Pipeline type - get the default pipeline for this type
+        console.log('Fetching default pipeline for valid type:', pipelineType);
+        
+        // Get the default pipeline for this type
         const defaultPipelineId = await getDefaultPipelineByType(pipelineType);
-        if (defaultPipelineId) {
-          query = query.eq('pipeline_id', defaultPipelineId);
-        } else {
-          console.error(`No default pipeline found for type: ${pipelineType}`);
-          setError(`No se encontró pipeline por defecto para el tipo: ${pipelineType}`);
+        
+        if (!defaultPipelineId) {
+          console.warn(`No default pipeline found for type: ${pipelineType}`);
+          // Don't set as error, just return empty stages
+          setStages([]);
           return;
         }
+
+        console.log('Using default pipeline ID:', defaultPipelineId);
+        query = query.eq('pipeline_id', defaultPipelineId);
       }
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching stages:', error);
+        throw error;
+      }
       
       // Transform the data to match our Stage type
       const transformedData = (data || []).map(stage => ({
@@ -73,10 +90,12 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
         } : undefined
       }));
       
+      console.log(`Fetched ${transformedData.length} stages for pipeline`);
       setStages(transformedData);
     } catch (err) {
-      console.error('Error fetching stages:', err);
+      console.error('Error in fetchStages:', err);
       setError('Error al cargar las etapas');
+      setStages([]);
     } finally {
       setLoading(false);
     }
