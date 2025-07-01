@@ -31,7 +31,7 @@ export const TeaserActions = ({
       </Button>
       <Button 
         onClick={onUpload}
-        disabled={!selectedFile || isUploading || !!uploadError}
+        disabled={!selectedFile || isUploading || uploadError !== null}
       >
         {isUploading ? (
           <>
