@@ -4,7 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { Layout } from "./components/Layout";
+import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Negocios from "./pages/Negocios";
 import NegocioDetail from "./pages/NegocioDetail";
@@ -27,32 +30,39 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Index />} />
-              <Route path="negocios" element={<Negocios />} />
-              <Route path="negocios/:id" element={<NegocioDetail />} />
-              <Route path="operaciones" element={<Operaciones />} />
-              <Route path="operaciones/:id" element={<OperationDetails />} />
-              <Route path="contacts" element={<Contacts />} />
-              <Route path="companies" element={<Companies />} />
-              <Route path="leads" element={<Leads />} />
-              <Route path="pipeline" element={<Pipeline />} />
-              <Route path="portfolio" element={<Portfolio />} />
-              <Route path="calendar" element={<Calendar />} />
-              <Route path="pipelines" element={<PipelinesManager />} />
-              <Route path="sourcing" element={<Sourcing />} />
-              <Route path="admin" element={<AdminPanel />} />
-              <Route path="user-management" element={<UserManagement />} />
-              <Route path="time-tracking" element={<TimeTracking />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<Index />} />
+                <Route path="negocios" element={<Negocios />} />
+                <Route path="negocios/:id" element={<NegocioDetail />} />
+                <Route path="operaciones" element={<Operaciones />} />
+                <Route path="operaciones/:id" element={<OperationDetails />} />
+                <Route path="contacts" element={<Contacts />} />
+                <Route path="companies" element={<Companies />} />
+                <Route path="leads" element={<Leads />} />
+                <Route path="pipeline" element={<Pipeline />} />
+                <Route path="portfolio" element={<Portfolio />} />
+                <Route path="calendar" element={<Calendar />} />
+                <Route path="pipelines" element={<PipelinesManager />} />
+                <Route path="sourcing" element={<Sourcing />} />
+                <Route path="admin" element={<AdminPanel />} />
+                <Route path="user-management" element={<UserManagement />} />
+                <Route path="time-tracking" element={<TimeTracking />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

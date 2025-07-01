@@ -19,7 +19,12 @@ export const usePipelines = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching pipelines:', error);
+        // Don't throw error, just log it and return empty array
+        setPipelines([]);
+        return;
+      }
       
       // Transform data to match Pipeline type
       const transformedData = (data || []).map(item => ({
@@ -31,6 +36,7 @@ export const usePipelines = () => {
     } catch (err) {
       console.error('Error fetching pipelines:', err);
       setError('Error al cargar los pipelines');
+      setPipelines([]);
     } finally {
       setLoading(false);
     }
@@ -46,17 +52,21 @@ export const usePipelines = () => {
         .from('pipelines')
         .insert([pipelineData])
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
-      const transformedData = {
-        ...data,
-        type: data.type as PipelineType
-      };
+      if (data) {
+        const transformedData = {
+          ...data,
+          type: data.type as PipelineType
+        };
+        
+        setPipelines(prev => [...prev, transformedData]);
+        return { data: transformedData, error: null };
+      }
       
-      setPipelines(prev => [...prev, transformedData]);
-      return { data: transformedData, error: null };
+      return { data: null, error: 'No se pudo crear el pipeline' };
     } catch (err) {
       console.error('Error creating pipeline:', err);
       return { data: null, error: 'Error al crear el pipeline' };
@@ -70,17 +80,21 @@ export const usePipelines = () => {
         .update(updates)
         .eq('id', id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
-      const transformedData = {
-        ...data,
-        type: data.type as PipelineType
-      };
+      if (data) {
+        const transformedData = {
+          ...data,
+          type: data.type as PipelineType
+        };
+        
+        setPipelines(prev => prev.map(p => p.id === id ? { ...p, ...transformedData } : p));
+        return { data: transformedData, error: null };
+      }
       
-      setPipelines(prev => prev.map(p => p.id === id ? { ...p, ...transformedData } : p));
-      return { data: transformedData, error: null };
+      return { data: null, error: 'No se pudo actualizar el pipeline' };
     } catch (err) {
       console.error('Error updating pipeline:', err);
       return { data: null, error: 'Error al actualizar el pipeline' };

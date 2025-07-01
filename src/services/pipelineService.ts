@@ -10,7 +10,7 @@ export const getDefaultPipelineByType = async (type: PipelineType) => {
       .eq('type', type)
       .eq('is_active', true)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error(`Error fetching default pipeline for type ${type}:`, error);
@@ -42,7 +42,7 @@ export const ensureDefaultPipeline = async (type: PipelineType, name: string, de
         is_active: true
       })
       .select('id')
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error(`Error creating default pipeline for type ${type}:`, error);
