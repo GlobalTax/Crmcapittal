@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Case, CreateCaseData, UpdateCaseData } from '@/types/Case';
@@ -39,7 +38,7 @@ export const useCases = () => {
     try {
       const { data: newCase, error } = await supabase
         .from('cases')
-        .insert(data)
+        .insert(data as any) // Type assertion to bypass the case_number requirement
         .select(`
           *,
           contact:contacts(id, name, email),
