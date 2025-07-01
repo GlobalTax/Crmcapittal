@@ -1,11 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { Deal } from '@/types/Deal';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export const useDeals = (pipelineId?: string) => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchDeals = async () => {
     try {
@@ -63,8 +66,9 @@ export const useDeals = (pipelineId?: string) => {
       
       setDeals(transformedData);
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al cargar los deals';
+      setError(errorMessage);
       console.error('Error fetching deals:', err);
-      setError('Error al cargar los deals');
     } finally {
       setLoading(false);
     }
@@ -72,11 +76,13 @@ export const useDeals = (pipelineId?: string) => {
 
   const createDeal = async (dealData: Omit<Deal, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      const { data: user } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase
         .from('deals')
         .insert([{
           ...dealData,
-          created_by: (await supabase.auth.getUser()).data.user?.id
+          created_by: user?.user?.id
         }])
         .select()
         .single();
@@ -84,10 +90,20 @@ export const useDeals = (pipelineId?: string) => {
       if (error) throw error;
       
       await fetchDeals();
+      toast({
+        title: "Deal creado",
+        description: `${dealData.deal_name} ha sido creado correctamente.`,
+      });
       return { data, error: null };
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al crear el deal';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
       console.error('Error creating deal:', err);
-      return { data: null, error: 'Error al crear el deal' };
+      return { data: null, error: errorMessage };
     }
   };
 
@@ -103,10 +119,20 @@ export const useDeals = (pipelineId?: string) => {
       if (error) throw error;
       
       await fetchDeals();
+      toast({
+        title: "Deal actualizado",
+        description: "Los cambios han sido guardados correctamente.",
+      });
       return { data, error: null };
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar el deal';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
       console.error('Error updating deal:', err);
-      return { data: null, error: 'Error al actualizar el deal' };
+      return { data: null, error: errorMessage };
     }
   };
 
@@ -124,10 +150,20 @@ export const useDeals = (pipelineId?: string) => {
       if (error) throw error;
       
       await fetchDeals();
+      toast({
+        title: "Deal eliminado",
+        description: "El deal ha sido eliminado correctamente.",
+      });
       return { error: null };
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al eliminar el deal';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
       console.error('Error deleting deal:', err);
-      return { error: 'Error al eliminar el deal' };
+      return { error: errorMessage };
     }
   };
 

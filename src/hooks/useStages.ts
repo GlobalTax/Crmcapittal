@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Stage, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
+import { getDefaultPipelineByType } from '@/services/pipelineService';
 
 export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
   const [stages, setStages] = useState<Stage[]>([]);
@@ -22,12 +23,25 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
         .eq('is_active', true)
         .order('order_index', { ascending: true });
 
-      // If a specific pipeline ID is provided, filter by it
-      if (pipelineTypeOrId && pipelineTypeOrId !== 'DEAL') {
-        query = query.eq('pipeline_id', pipelineTypeOrId);
-      } else if (pipelineTypeOrId === 'DEAL') {
-        // If 'DEAL' is passed, filter by pipeline type
-        query = query.eq('pipelines.type', 'DEAL');
+      // Handle different input types
+      if (pipelineTypeOrId) {
+        // Check if it's a UUID (pipeline ID) or a pipeline type
+        const isUUID = pipelineTypeOrId.length === 36 && pipelineTypeOrId.includes('-');
+        
+        if (isUUID) {
+          // Direct pipeline ID
+          query = query.eq('pipeline_id', pipelineTypeOrId);
+        } else {
+          // Pipeline type - get the default pipeline for this type
+          const defaultPipelineId = await getDefaultPipelineByType(pipelineTypeOrId as PipelineType);
+          if (defaultPipelineId) {
+            query = query.eq('pipeline_id', defaultPipelineId);
+          } else {
+            console.error(`No default pipeline found for type: ${pipelineTypeOrId}`);
+            setError(`No se encontró pipeline por defecto para el tipo: ${pipelineTypeOrId}`);
+            return;
+          }
+        }
       }
 
       const { data, error } = await query;
