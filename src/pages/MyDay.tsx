@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Plus, CheckCircle, Circle, Calendar, Star, Clock, Target, Timer as TimerIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,12 +9,13 @@ import { Timer } from '@/components/time-tracking/Timer';
 import { DigitalClock } from '@/components/time-tracking/DigitalClock';
 import { FloatingTimer } from '@/components/time-tracking/FloatingTimer';
 import { TimeSheet } from '@/components/time-tracking/TimeSheet';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { toast } from 'sonner';
 
 const MyDay = () => {
   const today = new Date().toISOString().split('T')[0];
-  const { dailyData, isLoading: isTimeLoading } = useTimeTracking(today);
-  const { timeEntries, createTimeEntry } = useTimeEntries();
+  const { dailyData, isLoading: isTimeLoading, error: timeTrackingError } = useTimeTracking(today);
+  const { timeEntries, createTimeEntry, error: timeEntriesError } = useTimeEntries();
   const [showFloatingTimer, setShowFloatingTimer] = useState(false);
 
   const [tasks, setTasks] = useState([
@@ -64,6 +64,7 @@ const MyDay = () => {
       });
       toast.success(`Tiempo guardado: ${minutes} minutos`);
     } catch (error) {
+      console.error('Error saving floating timer:', error);
       toast.error('Error al guardar el tiempo');
     }
   };
@@ -100,255 +101,277 @@ const MyDay = () => {
   const totalTrackedMinutes = todayTimeEntries.reduce((sum, entry) => sum + entry.duration_minutes, 0);
   const billableMinutes = todayTimeEntries.filter(entry => entry.is_billable).reduce((sum, entry) => sum + entry.duration_minutes, 0);
 
+  // Show error state if there are persistent errors
+  if ((timeTrackingError || timeEntriesError) && !isTimeLoading) {
+    return (
+      <ErrorBoundary>
+        <div className="space-y-8">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Día</h1>
+              <p className="text-red-600">Error al cargar los datos. Recarga la página para intentar de nuevo.</p>
+            </div>
+            <Button onClick={() => window.location.reload()}>
+              Recargar
+            </Button>
+          </div>
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      {/* Page Header with Clock */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Día</h1>
-          <p className="text-gray-600">Organiza y planifica tu jornada de trabajo</p>
+    <ErrorBoundary>
+      <div className="space-y-8">
+        {/* Page Header with Clock */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Día</h1>
+            <p className="text-gray-600">Organiza y planifica tu jornada de trabajo</p>
+          </div>
+          <div className="flex gap-4 items-center">
+            <DigitalClock />
+            <Button 
+              onClick={() => setShowFloatingTimer(!showFloatingTimer)}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <TimerIcon className="w-4 h-4" />
+              {showFloatingTimer ? 'Ocultar' : 'Mostrar'} Timer
+            </Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Nueva Tarea
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-4 items-center">
-          <DigitalClock />
-          <Button 
-            onClick={() => setShowFloatingTimer(!showFloatingTimer)}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <TimerIcon className="w-4 h-4" />
-            {showFloatingTimer ? 'Ocultar' : 'Mostrar'} Timer
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Nueva Tarea
-          </Button>
-        </div>
-      </div>
 
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <Card className="shadow-sm border border-gray-200/60 bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Tareas Totales</p>
-                <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Target className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border border-gray-200/60 bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Completadas</p>
-                <p className="text-2xl font-bold text-gray-900">{completedTasks}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border border-gray-200/60 bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Tiempo Registrado</p>
-                <p className="text-2xl font-bold text-gray-900">{Math.floor(totalTrackedMinutes / 60)}h {totalTrackedMinutes % 60}m</p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <Clock className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border border-gray-200/60 bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Tiempo Facturable</p>
-                <p className="text-2xl font-bold text-gray-900">{Math.floor(billableMinutes / 60)}h {billableMinutes % 60}m</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <Star className="w-6 h-6 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border border-gray-200/60 bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Progreso</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                <Target className="w-6 h-6 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Tasks List */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           <Card className="shadow-sm border border-gray-200/60 bg-white">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
-                Tareas de Hoy
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {tasks.map((task) => {
-                  const CategoryIcon = getCategoryIcon(task.category);
-                  
-                  return (
-                    <div
-                      key={task.id}
-                      className={`p-4 rounded-lg border-l-4 transition-all duration-200 ${
-                        task.completed 
-                          ? 'bg-gray-50 border-l-gray-300' 
-                          : 'bg-white border-l-blue-400 shadow-sm'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3 flex-1">
-                          <button
-                            onClick={() => toggleTask(task.id)}
-                            className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                              task.completed
-                                ? 'bg-green-500 border-green-500 text-white'
-                                : 'border-gray-300 hover:border-green-500'
-                            }`}
-                          >
-                            {task.completed && <CheckCircle className="w-3 h-3" />}
-                          </button>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <CategoryIcon className="w-4 h-4 text-gray-500" />
-                              <h3 className={`font-medium ${
-                                task.completed ? 'text-gray-500 line-through' : 'text-gray-900'
-                              }`}>
-                                {task.title}
-                              </h3>
-                            </div>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Tareas Totales</p>
+                  <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Target className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Completadas</p>
+                  <p className="text-2xl font-bold text-gray-900">{completedTasks}</p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Tiempo Registrado</p>
+                  <p className="text-2xl font-bold text-gray-900">{Math.floor(totalTrackedMinutes / 60)}h {totalTrackedMinutes % 60}m</p>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <Clock className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Tiempo Facturable</p>
+                  <p className="text-2xl font-bold text-gray-900">{Math.floor(billableMinutes / 60)}h {billableMinutes % 60}m</p>
+                </div>
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Star className="w-6 h-6 text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm border border-gray-200/60 bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Progreso</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <Target className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Tasks List */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="shadow-sm border border-gray-200/60 bg-white">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                  Tareas de Hoy
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                
+                <div className="space-y-4">
+                  {tasks.map((task) => {
+                    const CategoryIcon = getCategoryIcon(task.category);
+                    
+                    return (
+                      <div
+                        key={task.id}
+                        className={`p-4 rounded-lg border-l-4 transition-all duration-200 ${
+                          task.completed 
+                            ? 'bg-gray-50 border-l-gray-300' 
+                            : 'bg-white border-l-blue-400 shadow-sm'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3 flex-1">
+                            <button
+                              onClick={() => toggleTask(task.id)}
+                              className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                task.completed
+                                  ? 'bg-green-500 border-green-500 text-white'
+                                  : 'border-gray-300 hover:border-green-500'
+                              }`}
+                            >
+                              {task.completed && <CheckCircle className="w-3 h-3" />}
+                            </button>
                             
-                            {task.description && (
-                              <p className={`text-sm mb-3 ${
-                                task.completed ? 'text-gray-400' : 'text-gray-600'
-                              }`}>
-                                {task.description}
-                              </p>
-                            )}
-                            
-                            <div className="flex items-center gap-3">
-                              <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                                {task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
-                              </Badge>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <CategoryIcon className="w-4 h-4 text-gray-500" />
+                                <h3 className={`font-medium ${
+                                  task.completed ? 'text-gray-500 line-through' : 'text-gray-900'
+                                }`}>
+                                  {task.title}
+                                </h3>
+                              </div>
                               
-                              <span className="text-xs text-gray-500 flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {task.estimatedTime} min
-                              </span>
+                              {task.description && (
+                                <p className={`text-sm mb-3 ${
+                                  task.completed ? 'text-gray-400' : 'text-gray-600'
+                                }`}>
+                                  {task.description}
+                                </p>
+                              )}
+                              
+                              <div className="flex items-center gap-3">
+                                <Badge variant="outline" className={getPriorityColor(task.priority)}>
+                                  {task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
+                                </Badge>
+                                
+                                <span className="text-xs text-gray-500 flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {task.estimatedTime} min
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Time Tracking Section */}
-          {todayTimeEntries.length > 0 && (
-            <Card className="shadow-sm border border-gray-200/60 bg-white">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  Registro de Tiempo - Hoy
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TimeSheet timeEntries={todayTimeEntries} />
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
-          )}
+
+            {/* Time Tracking Section */}
+            {todayTimeEntries.length > 0 && (
+              <Card className="shadow-sm border border-gray-200/60 bg-white">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-blue-600" />
+                    Registro de Tiempo - Hoy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TimeSheet timeEntries={todayTimeEntries} />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            {/* Timer Component */}
+            <Timer />
+
+            {/* Daily Summary */}
+            <Card className="shadow-sm border border-gray-200/60 bg-white">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold text-gray-900">Resumen del Día</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Progreso general</span>
+                    <span className="font-semibold text-gray-900">
+                      {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
+                    </span>
+                  </div>
+                  
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0}%` }}
+                    ></div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Tiempo registrado</span>
+                    <span className="font-semibold text-gray-900">
+                      {Math.floor(totalTrackedMinutes / 60)}h {totalTrackedMinutes % 60}m
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Tiempo facturable</span>
+                    <span className="font-semibold text-gray-900">
+                      {Math.floor(billableMinutes / 60)}h {billableMinutes % 60}m
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Entradas de tiempo</span>
+                    <span className="font-semibold text-gray-900">
+                      {todayTimeEntries.length}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="space-y-6">
-          {/* Timer Component */}
-          <Timer />
-
-          {/* Daily Summary */}
-          <Card className="shadow-sm border border-gray-200/60 bg-white">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Resumen del Día</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Progreso general</span>
-                  <span className="font-semibold text-gray-900">
-                    {tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0}%
-                  </span>
-                </div>
-                
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0}%` }}
-                  ></div>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Tiempo registrado</span>
-                  <span className="font-semibold text-gray-900">
-                    {Math.floor(totalTrackedMinutes / 60)}h {totalTrackedMinutes % 60}m
-                  </span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Tiempo facturable</span>
-                  <span className="font-semibold text-gray-900">
-                    {Math.floor(billableMinutes / 60)}h {billableMinutes % 60}m
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Entradas de tiempo</span>
-                  <span className="font-semibold text-gray-900">
-                    {todayTimeEntries.length}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Floating Timer */}
+        {showFloatingTimer && (
+          <FloatingTimer onSave={handleFloatingTimerSave} />
+        )}
       </div>
-
-      {/* Floating Timer */}
-      {showFloatingTimer && (
-        <FloatingTimer onSave={handleFloatingTimerSave} />
-      )}
-    </div>
+    </ErrorBoundary>
   );
 };
 

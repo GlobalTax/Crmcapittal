@@ -10,6 +10,7 @@ import { Play, Pause, Square, Clock } from 'lucide-react'
 import { useCases } from '@/hooks/useCases'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
 import { toast } from 'sonner'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 interface CreateTimeEntryData {
   description: string;
@@ -28,7 +29,7 @@ export const Timer = () => {
   const startTimeRef = useRef<Date | null>(null)
 
   const { cases } = useCases()
-  const { createTimeEntry, isCreating } = useTimeEntries()
+  const { createTimeEntry, isCreating, error } = useTimeEntries()
 
   useEffect(() => {
     if (isRunning && !isPaused) {
@@ -105,7 +106,7 @@ export const Timer = () => {
       toast.success(`Tiempo registrado: ${minutes} minutos`)
     } catch (error) {
       console.error('Error al registrar tiempo:', error)
-      toast.error('Error al registrar el tiempo')
+      // Error is already handled by the hook
     }
   }
 
@@ -117,130 +118,151 @@ export const Timer = () => {
     startTimeRef.current = null
   }
 
-  return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Clock className="h-5 w-5" />
-          Timer de Trabajo
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-6">
-        {/* Display del Timer */}
-        <div className="text-center">
-          <div className="text-4xl font-mono font-bold tracking-wider text-primary mb-2">
-            {formatTime(seconds)}
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {seconds > 0 && `${Math.round(seconds / 60)} minutos`}
-          </div>
-        </div>
+  // Show error state if there's a persistent error
+  if (error && !isCreating) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-red-600">
+            <Clock className="h-5 w-5" />
+            Error en Timer
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-600">
+            No se pueden cargar los datos del timer. Verifica tu conexión e intenta de nuevo.
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
 
-        {/* Controles del Timer */}
-        <div className="flex justify-center gap-2">
-          {!isRunning ? (
-            <Button
-              onClick={handleStart}
-              className="flex items-center gap-2"
-              disabled={isCreating}
-            >
-              <Play className="h-4 w-4" />
-              Iniciar
-            </Button>
-          ) : (
-            <>
-              {!isPaused ? (
-                <Button
-                  onClick={handlePause}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <Pause className="h-4 w-4" />
-                  Pausar
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleResume}
-                  className="flex items-center gap-2"
-                >
-                  <Play className="h-4 w-4" />
-                  Reanudar
-                </Button>
-              )}
-              
+  return (
+    <ErrorBoundary>
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Timer de Trabajo
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {/* Display del Timer */}
+          <div className="text-center">
+            <div className="text-4xl font-mono font-bold tracking-wider text-primary mb-2">
+              {formatTime(seconds)}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {seconds > 0 && `${Math.round(seconds / 60)} minutos`}
+            </div>
+          </div>
+
+          {/* Controles del Timer */}
+          <div className="flex justify-center gap-2">
+            {!isRunning ? (
               <Button
-                onClick={handleStop}
-                variant="destructive"
+                onClick={handleStart}
                 className="flex items-center gap-2"
                 disabled={isCreating}
               >
-                <Square className="h-4 w-4" />
-                Parar y Guardar
+                <Play className="h-4 w-4" />
+                Iniciar
               </Button>
-            </>
+            ) : (
+              <>
+                {!isPaused ? (
+                  <Button
+                    onClick={handlePause}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Pause className="h-4 w-4" />
+                    Pausar
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleResume}
+                    className="flex items-center gap-2"
+                  >
+                    <Play className="h-4 w-4" />
+                    Reanudar
+                  </Button>
+                )}
+                
+                <Button
+                  onClick={handleStop}
+                  variant="destructive"
+                  className="flex items-center gap-2"
+                  disabled={isCreating}
+                >
+                  <Square className="h-4 w-4" />
+                  {isCreating ? 'Guardando...' : 'Parar y Guardar'}
+                </Button>
+              </>
+            )}
+            
+            {(isRunning || seconds > 0) && (
+              <Button
+                onClick={handleReset}
+                variant="outline"
+                size="sm"
+                disabled={isCreating}
+              >
+                Reset
+              </Button>
+            )}
+          </div>
+
+          {/* Configuración */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="case-select">Caso (Opcional)</Label>
+              <Select value={selectedCaseId} onValueChange={setSelectedCaseId}>
+                <SelectTrigger id="case-select">
+                  <SelectValue placeholder="Seleccionar caso..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin caso específico</SelectItem>
+                  {cases.map((case_) => (
+                    <SelectItem key={case_.id} value={case_.id}>
+                      {case_.title} {case_.contact && `(${case_.contact.name})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Descripción del trabajo</Label>
+              <Textarea
+                id="description"
+                placeholder="¿En qué has trabajado?"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="resize-none"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="billable">Tiempo facturable</Label>
+              <Switch
+                id="billable"
+                checked={isBillable}
+                onCheckedChange={setIsBillable}
+              />
+            </div>
+          </div>
+
+          {/* Información adicional */}
+          {isRunning && startTimeRef.current && (
+            <div className="text-xs text-muted-foreground text-center">
+              Iniciado a las {startTimeRef.current.toLocaleTimeString()}
+            </div>
           )}
-          
-          {(isRunning || seconds > 0) && (
-            <Button
-              onClick={handleReset}
-              variant="outline"
-              size="sm"
-              disabled={isCreating}
-            >
-              Reset
-            </Button>
-          )}
-        </div>
-
-        {/* Configuración */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="case-select">Caso (Opcional)</Label>
-            <Select value={selectedCaseId} onValueChange={setSelectedCaseId}>
-              <SelectTrigger id="case-select">
-                <SelectValue placeholder="Seleccionar caso..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sin caso específico</SelectItem>
-                {cases.map((case_) => (
-                  <SelectItem key={case_.id} value={case_.id}>
-                    {case_.title} {case_.contact && `(${case_.contact.name})`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Descripción del trabajo</Label>
-            <Textarea
-              id="description"
-              placeholder="¿En qué has trabajado?"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="resize-none"
-              rows={3}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Label htmlFor="billable">Tiempo facturable</Label>
-            <Switch
-              id="billable"
-              checked={isBillable}
-              onCheckedChange={setIsBillable}
-            />
-          </div>
-        </div>
-
-        {/* Información adicional */}
-        {isRunning && startTimeRef.current && (
-          <div className="text-xs text-muted-foreground text-center">
-            Iniciado a las {startTimeRef.current.toLocaleTimeString()}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </ErrorBoundary>
   )
 }

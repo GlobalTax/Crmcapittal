@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TimeTrackingService } from '@/services/timeTrackingService';
 import { CreatePlannedTaskData, CreateTimeEntryData, DailyTimeData, TimeEntry } from '@/types/TimeTracking';
@@ -8,18 +8,40 @@ export const useTimeTracking = (date: string) => {
   const queryClient = useQueryClient();
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
-  // Fetch daily time data
+  // Fetch daily time data with proper error handling and caching
   const { data: dailyData, isLoading, error } = useQuery({
     queryKey: ['dailyTimeData', date],
-    queryFn: () => TimeTrackingService.getDailyTimeData(date),
-    select: (result) => result.data,
-    refetchInterval: 30000, // Refetch every 30 seconds to keep data fresh
+    queryFn: async () => {
+      try {
+        const result = await TimeTrackingService.getDailyTimeData(date);
+        return result.data;
+      } catch (err) {
+        console.error('Error fetching daily time data:', err);
+        throw err;
+      }
+    },
+    refetchInterval: (data) => {
+      // Only refetch if there's an active timer
+      return data?.activeTimer ? 30000 : false;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 15000, // Consider data fresh for 15 seconds
+    retry: (failureCount, error: any) => {
+      // Don't retry on authentication errors
+      if (error?.status === 403 || error?.status === 401) {
+        return false;
+      }
+      return failureCount < 2;
+    }
   });
 
-  // Check if timer is active on component mount
+  // Update timer state when data changes
   useEffect(() => {
-    setIsTimerRunning(!!dailyData?.activeTimer);
-  }, [dailyData?.activeTimer]);
+    const hasActiveTimer = !!dailyData?.activeTimer;
+    if (isTimerRunning !== hasActiveTimer) {
+      setIsTimerRunning(hasActiveTimer);
+    }
+  }, [dailyData?.activeTimer, isTimerRunning]);
 
   // Create planned task mutation
   const createPlannedTaskMutation = useMutation({
@@ -27,6 +49,9 @@ export const useTimeTracking = (date: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyTimeData', date] });
     },
+    onError: (error) => {
+      console.error('Error creating planned task:', error);
+    }
   });
 
   // Start timer mutation
@@ -42,6 +67,9 @@ export const useTimeTracking = (date: string) => {
         queryClient.invalidateQueries({ queryKey: ['dailyTimeData', date] });
       }
     },
+    onError: (error) => {
+      console.error('Error starting timer:', error);
+    }
   });
 
   // Stop timer mutation
@@ -51,6 +79,9 @@ export const useTimeTracking = (date: string) => {
       setIsTimerRunning(false);
       queryClient.invalidateQueries({ queryKey: ['dailyTimeData', date] });
     },
+    onError: (error) => {
+      console.error('Error stopping timer:', error);
+    }
   });
 
   // Create manual time entry mutation
@@ -59,51 +90,74 @@ export const useTimeTracking = (date: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyTimeData', date] });
     },
+    onError: (error) => {
+      console.error('Error creating manual entry:', error);
+    }
   });
 
-  // Helper functions
-  const startTimer = async (plannedTaskId?: string, activityType: string = 'general', description?: string) => {
-    const result = await startTimerMutation.mutateAsync({ plannedTaskId, activityType, description });
-    if (result.error) {
-      throw new Error(result.error);
+  // Memoize helper functions to prevent unnecessary re-renders
+  const startTimer = useCallback(async (plannedTaskId?: string, activityType: string = 'general', description?: string) => {
+    try {
+      const result = await startTimerMutation.mutateAsync({ plannedTaskId, activityType, description });
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    } catch (error) {
+      console.error('Start timer error:', error);
+      throw error;
     }
-    return result.data;
-  };
+  }, [startTimerMutation]);
 
-  const stopTimer = async () => {
+  const stopTimer = useCallback(async () => {
     if (!dailyData?.activeTimer) {
       throw new Error('No hay temporizador activo');
     }
-    const result = await stopTimerMutation.mutateAsync(dailyData.activeTimer.id);
-    if (result.error) {
-      throw new Error(result.error);
+    try {
+      const result = await stopTimerMutation.mutateAsync(dailyData.activeTimer.id);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    } catch (error) {
+      console.error('Stop timer error:', error);
+      throw error;
     }
-    return result.data;
-  };
+  }, [stopTimerMutation, dailyData?.activeTimer]);
 
-  const createPlannedTask = async (data: CreatePlannedTaskData) => {
-    const result = await createPlannedTaskMutation.mutateAsync(data);
-    if (result.error) {
-      throw new Error(result.error);
+  const createPlannedTask = useCallback(async (data: CreatePlannedTaskData) => {
+    try {
+      const result = await createPlannedTaskMutation.mutateAsync(data);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    } catch (error) {
+      console.error('Create planned task error:', error);
+      throw error;
     }
-    return result.data;
-  };
+  }, [createPlannedTaskMutation]);
 
-  const createManualEntry = async (data: CreateTimeEntryData) => {
-    const result = await createManualEntryMutation.mutateAsync(data);
-    if (result.error) {
-      throw new Error(result.error);
+  const createManualEntry = useCallback(async (data: CreateTimeEntryData) => {
+    try {
+      const result = await createManualEntryMutation.mutateAsync(data);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    } catch (error) {
+      console.error('Create manual entry error:', error);
+      throw error;
     }
-    return result.data;
-  };
+  }, [createManualEntryMutation]);
 
   // Calculate elapsed time for active timer
-  const getElapsedTime = (): number => {
+  const getElapsedTime = useCallback((): number => {
     if (!dailyData?.activeTimer) return 0;
     const startTime = new Date(dailyData.activeTimer.start_time);
     const now = new Date();
     return Math.floor((now.getTime() - startTime.getTime()) / 1000); // Return seconds
-  };
+  }, [dailyData?.activeTimer]);
 
   return {
     // Data

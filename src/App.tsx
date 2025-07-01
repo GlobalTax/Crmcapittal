@@ -25,6 +25,8 @@ import Sourcing from "./pages/Sourcing";
 import AdminPanel from "./pages/AdminPanel";
 import UserManagement from "./pages/UserManagement";
 import TimeTracking from "./pages/TimeTracking";
+import Deals from "./pages/Deals";
+import Cases from "./pages/Cases";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,8 @@ function App() {
                 <Route path="my-day" element={<MyDay />} />
                 <Route path="negocios" element={<Negocios />} />
                 <Route path="negocios/:id" element={<NegocioDetail />} />
+                <Route path="deals" element={<Deals />} />
+                <Route path="cases" element={<Cases />} />
                 <Route path="operaciones" element={<Operaciones />} />
                 <Route path="operaciones/:id" element={<OperationDetails />} />
                 <Route path="contacts" element={<Contacts />} />
