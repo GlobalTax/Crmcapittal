@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,8 @@ import {
   Phone,
   Mail,
   Building2,
-  User
+  User,
+  Eye
 } from "lucide-react";
 import { Contact, ContactType } from "@/types/Contact";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -27,6 +27,7 @@ interface ContactsTableProps {
   onCreateContact: (contactData: any) => void;
   onEditContact?: (contact: Contact) => void;
   onDeleteContact?: (contactId: string) => void;
+  onViewContact?: (contact: Contact) => void;
   isLoading?: boolean;
   isCreating?: boolean;
 }
@@ -36,6 +37,7 @@ export const ContactsTable = ({
   onCreateContact,
   onEditContact,
   onDeleteContact,
+  onViewContact,
   isLoading = false,
   isCreating = false
 }: ContactsTableProps) => {
@@ -308,6 +310,12 @@ export const ContactsTable = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          {onViewContact && (
+                            <DropdownMenuItem onClick={() => onViewContact(contact)}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Ver Detalles
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => onEditContact?.(contact)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Editar
