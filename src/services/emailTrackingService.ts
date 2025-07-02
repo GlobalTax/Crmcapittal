@@ -84,7 +84,7 @@ export class EmailTrackingService {
       // Convert the database response to match our TypeScript interface
       const convertedEmails: TrackedEmail[] = (data || []).map(email => ({
         ...email,
-        ip_address: email.ip_address ? String(email.ip_address) : null
+        ip_address: email.ip_address != null ? String(email.ip_address) : null
       }));
 
       return { data: convertedEmails, error: null };
