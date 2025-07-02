@@ -1,4 +1,3 @@
-
 export interface Proposal {
   id: string;
   contact_id?: string;
@@ -174,9 +173,7 @@ export interface CreateProposalData {
   notes?: string;
   template_id?: string;
   services?: Omit<ProposalService, 'id'>[];
-  fee_structure?: Omit<FeeStructure, 'payment_schedule'> & {
-    payment_schedule?: Omit<PaymentSchedule, 'id'>[];
-  };
+  fee_structure?: FeeStructure;
   timeline?: Omit<ProjectMilestone, 'id'>[];
   visual_config?: VisualConfig;
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,12 +18,25 @@ interface FeesStepProps {
 }
 
 export const FeesStep: React.FC<FeesStepProps> = ({ data, onChange, errors }) => {
-  const [feeStructure, setFeeStructure] = useState<FeeStructure>(
-    data.fee_structure || {
+  const [feeStructure, setFeeStructure] = useState<FeeStructure>(() => {
+    if (data.fee_structure) {
+      // Asegurar que payment_schedule tenga IDs válidos
+      const paymentSchedule = data.fee_structure.payment_schedule?.map((payment, index) => ({
+        ...payment,
+        id: payment.id || `payment-${Date.now()}-${index}`
+      })) || [];
+      
+      return {
+        ...data.fee_structure,
+        payment_schedule: paymentSchedule
+      };
+    }
+    
+    return {
       type: 'fixed',
       payment_schedule: []
-    }
-  );
+    };
+  });
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
@@ -57,7 +71,7 @@ export const FeesStep: React.FC<FeesStepProps> = ({ data, onChange, errors }) =>
 
   const addPayment = () => {
     const newPayment: PaymentSchedule = {
-      id: Date.now().toString(),
+      id: `payment-${Date.now()}`,
       description: 'Pago',
       amount: 0,
       due_date: '',
