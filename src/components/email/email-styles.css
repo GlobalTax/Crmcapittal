@@ -64,35 +64,42 @@
 
 /* Estilos para los paneles de la aplicación */
 .email-panel {
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .email-panel-content {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .email-list-header {
   flex-shrink: 0;
   border-bottom: 1px solid #e5e7eb;
   padding: 1rem;
+  background: white;
 }
 
 .email-list-content {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .email-viewer-header {
   flex-shrink: 0;
   border-bottom: 1px solid #e5e7eb;
+  background: white;
 }
 
 .email-viewer-content {
   flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 /* Estilos para los indicadores de estado */
@@ -132,20 +139,67 @@
 }
 
 /* Estilos responsivos */
+@media (max-width: 1024px) {
+  .email-panel {
+    min-height: 400px;
+  }
+  
+  .email-list-header {
+    padding: 0.75rem;
+  }
+  
+  .email-viewer-header {
+    padding: 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .email-panel {
-    height: calc(100vh - 4rem);
+    min-height: 300px;
   }
   
   .email-content {
     font-size: 0.875rem;
   }
   
-  .email-viewer-header {
-    padding: 0.75rem;
+  .email-list-header {
+    padding: 0.5rem;
   }
   
-  .email-list-header {
-    padding: 0.75rem;
+  .email-viewer-header {
+    padding: 0.5rem;
   }
+}
+
+/* Mejorar la apariencia del ResizableHandle */
+[data-panel-group-direction="horizontal"] > [data-panel-resize-handle-enabled] {
+  background: #f1f5f9;
+  width: 4px;
+  transition: background-color 0.2s;
+}
+
+[data-panel-group-direction="horizontal"] > [data-panel-resize-handle-enabled]:hover {
+  background: #cbd5e1;
+}
+
+/* Scrollbar personalizado para mejor apariencia */
+.email-list-content::-webkit-scrollbar,
+.email-viewer-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.email-list-content::-webkit-scrollbar-track,
+.email-viewer-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.email-list-content::-webkit-scrollbar-thumb,
+.email-viewer-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.email-list-content::-webkit-scrollbar-thumb:hover,
+.email-viewer-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
