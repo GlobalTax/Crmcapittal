@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +20,6 @@ import {
   Building2,
   UserPlus,
   Briefcase,
-  Scale,
   Mail
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -44,12 +42,6 @@ const menuItems = [
       { title: "Contactos", url: "/contacts", icon: Users },
       { title: "Control Leads", url: "/leads", icon: UserPlus },
       { title: "Negocios", url: "/deals", icon: Briefcase },
-    ]
-  },
-  {
-    title: "Legal & Casos",
-    items: [
-      { title: "Expedientes", url: "/cases", icon: Scale },
     ]
   },
   {
