@@ -84,6 +84,10 @@ export const ServicesStep: React.FC<ServicesStepProps> = ({ data, onChange, erro
     });
   };
 
+  const handleAddService = () => {
+    addService();
+  };
+
   const updateService = (index: number, updates: Partial<Omit<ProposalService, 'id'>>) => {
     const updatedServices = [...services];
     updatedServices[index] = { ...updatedServices[index], ...updates };
@@ -216,7 +220,7 @@ export const ServicesStep: React.FC<ServicesStepProps> = ({ data, onChange, erro
             </Select>
           </div>
 
-          <Button onClick={addService} className="w-full">
+          <Button onClick={handleAddService} className="w-full">
             <Plus className="h-4 w-4 mr-2" />
             Agregar Servicio
           </Button>
@@ -358,7 +362,7 @@ export const ServicesStep: React.FC<ServicesStepProps> = ({ data, onChange, erro
               <p className="text-sm mb-4">
                 Agrega servicios para detallar tu propuesta
               </p>
-              <Button onClick={addService} variant="outline">
+              <Button onClick={handleAddService} variant="outline">
                 <Plus className="h-4 w-4 mr-2" />
                 Agregar Primer Servicio
               </Button>
