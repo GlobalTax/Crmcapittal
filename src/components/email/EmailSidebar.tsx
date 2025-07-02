@@ -64,18 +64,18 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
         <div className="email-list-header">
           <Button 
             onClick={onCompose}
-            className="w-full justify-start"
-            size="sm"
+            className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
+            size="lg"
           >
             <Edit className="h-4 w-4 mr-2" />
-            Redactar
+            Redactar Email
           </Button>
         </div>
 
         {/* Folders */}
         <ScrollArea className="email-list-content">
-          <div className="p-2">
-            <div className="space-y-1">
+          <div className="p-4">
+            <div className="space-y-2">
               {folders.map((folder) => {
                 const Icon = folder.icon;
                 const isSelected = selectedFolder === folder.id;
@@ -85,17 +85,20 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
                     key={folder.id}
                     variant={isSelected ? "secondary" : "ghost"}
                     className={cn(
-                      "w-full justify-start px-3 py-2 h-auto",
-                      isSelected && "bg-muted font-medium"
+                      "w-full justify-start px-4 py-3 h-auto text-left",
+                      isSelected && "bg-blue-50 text-blue-700 border-blue-200 font-medium"
                     )}
                     onClick={() => onFolderSelect(folder.id)}
                   >
-                    <Icon className={cn("h-4 w-4 mr-3", folder.color)} />
-                    <span className="flex-1 text-left">{folder.name}</span>
+                    <Icon className={cn("h-5 w-5 mr-3", isSelected ? "text-blue-600" : folder.color)} />
+                    <span className="flex-1">{folder.name}</span>
                     {folder.count > 0 && (
                       <Badge 
                         variant={isSelected ? "default" : "secondary"} 
-                        className="ml-2 text-xs"
+                        className={cn(
+                          "ml-2 text-xs",
+                          isSelected ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
+                        )}
                       >
                         {folder.count}
                       </Badge>
@@ -106,31 +109,40 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
             </div>
 
             {/* Additional Actions */}
-            <div className="mt-6 pt-4 border-t">
-              <div className="space-y-1">
+            <div className="mt-8 pt-4 border-t border-gray-200">
+              <div className="space-y-2">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start px-3 py-2 h-auto text-muted-foreground"
+                  className="w-full justify-start px-4 py-3 h-auto text-muted-foreground"
                   disabled
                 >
-                  <Star className="h-4 w-4 mr-3" />
+                  <Star className="h-5 w-5 mr-3" />
                   Destacados
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    Próximamente
+                  </Badge>
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start px-3 py-2 h-auto text-muted-foreground"
+                  className="w-full justify-start px-4 py-3 h-auto text-muted-foreground"
                   disabled
                 >
-                  <Archive className="h-4 w-4 mr-3" />
+                  <Archive className="h-5 w-5 mr-3" />
                   Archivados
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    Próximamente
+                  </Badge>
                 </Button>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start px-3 py-2 h-auto text-muted-foreground"
+                  className="w-full justify-start px-4 py-3 h-auto text-muted-foreground"
                   disabled
                 >
-                  <Trash2 className="h-4 w-4 mr-3" />
+                  <Trash2 className="h-5 w-5 mr-3" />
                   Papelera
+                  <Badge variant="outline" className="ml-auto text-xs">
+                    Próximamente
+                  </Badge>
                 </Button>
               </div>
             </div>
@@ -138,9 +150,11 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-t p-4">
-          <div className="text-xs text-muted-foreground text-center">
-            Sistema de Email CRM
+        <div className="border-t border-gray-200 p-4">
+          <div className="text-xs text-muted-foreground text-center bg-gray-50 rounded-lg p-3">
+            <Mail className="h-4 w-4 mx-auto mb-1 text-blue-600" />
+            <div className="font-medium">Sistema de Email CRM</div>
+            <div className="mt-1">Rastrea y gestiona tus comunicaciones</div>
           </div>
         </div>
       </div>

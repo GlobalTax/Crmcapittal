@@ -1,13 +1,13 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useEmailTracking } from "@/hooks/useEmailTracking";
 import { CreateTrackedEmailData } from "@/types/EmailTracking";
-import { Mail, Send, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
@@ -18,14 +18,14 @@ import {
 } from "@/components/ui/select";
 
 interface EmailComposerProps {
+  isOpen: boolean;
+  onClose: () => void;
   recipientEmail?: string;
   recipientName?: string;
   lead_id?: string;
   contact_id?: string;
   target_company_id?: string;
   operation_id?: string;
-  trigger?: React.ReactNode;
-  onClose?: () => void;
 }
 
 const emailTemplates = [
@@ -50,16 +50,15 @@ const emailTemplates = [
 ];
 
 export const EmailComposer = ({
+  isOpen,
+  onClose,
   recipientEmail = "",
   recipientName = "",
   lead_id,
   contact_id,
   target_company_id,
-  operation_id,
-  trigger,
-  onClose
+  operation_id
 }: EmailComposerProps) => {
-  const [open, setOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [formError, setFormError] = useState<string>('');
   const [formData, setFormData] = useState({
@@ -125,7 +124,7 @@ export const EmailComposer = ({
       
       // Reset form and close dialog
       setFormData({
-        recipient_email: recipientEmail,
+        recipient_email: "",
         subject: "",
         content: "",
         sender_name: "Equipo CRM",
@@ -133,31 +132,19 @@ export const EmailComposer = ({
       });
       setSelectedTemplate('');
       setFormError('');
-      setOpen(false);
-      onClose?.();
+      onClose();
     } catch (error) {
       setFormError('Error al enviar el email. Por favor, inténtalo de nuevo.');
     }
   };
 
   const handleClose = () => {
-    setOpen(false);
     setFormError('');
-    onClose?.();
+    onClose();
   };
 
-  const defaultTrigger = (
-    <Button size="sm" className="flex items-center gap-2">
-      <Mail className="h-4 w-4" />
-      Enviar Email
-    </Button>
-  );
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>

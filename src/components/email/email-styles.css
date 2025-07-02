@@ -68,6 +68,12 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+}
+
+.email-panel:last-child {
+  border-right: none;
 }
 
 .email-panel-content {
@@ -80,7 +86,7 @@
 .email-list-header {
   flex-shrink: 0;
   border-bottom: 1px solid #e5e7eb;
-  padding: 1rem;
+  padding: 1.5rem;
   background: white;
 }
 
@@ -100,6 +106,7 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  padding: 1.5rem;
 }
 
 /* Estilos para los indicadores de estado */
@@ -128,58 +135,16 @@
   color: #1e40af;
 }
 
-/* Estilos para el composer */
-.email-composer-modal {
-  z-index: 50;
-}
-
-.email-composer-content {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* Estilos responsivos */
-@media (max-width: 1024px) {
-  .email-panel {
-    min-height: 400px;
-  }
-  
-  .email-list-header {
-    padding: 0.75rem;
-  }
-  
-  .email-viewer-header {
-    padding: 0.75rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .email-panel {
-    min-height: 300px;
-  }
-  
-  .email-content {
-    font-size: 0.875rem;
-  }
-  
-  .email-list-header {
-    padding: 0.5rem;
-  }
-  
-  .email-viewer-header {
-    padding: 0.5rem;
-  }
-}
-
 /* Mejorar la apariencia del ResizableHandle */
 [data-panel-group-direction="horizontal"] > [data-panel-resize-handle-enabled] {
   background: #f1f5f9;
-  width: 4px;
+  width: 2px;
   transition: background-color 0.2s;
 }
 
 [data-panel-group-direction="horizontal"] > [data-panel-resize-handle-enabled]:hover {
   background: #cbd5e1;
+  width: 4px;
 }
 
 /* Scrollbar personalizado para mejor apariencia */
@@ -202,4 +167,60 @@
 .email-list-content::-webkit-scrollbar-thumb:hover,
 .email-viewer-content::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Estilos responsivos */
+@media (max-width: 1024px) {
+  .email-panel {
+    min-height: 500px;
+  }
+  
+  .email-list-header {
+    padding: 1rem;
+  }
+  
+  .email-viewer-header {
+    padding: 1rem;
+  }
+  
+  .email-viewer-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .email-panel {
+    min-height: 400px;
+  }
+  
+  .email-content {
+    font-size: 0.875rem;
+  }
+  
+  .email-list-header {
+    padding: 0.75rem;
+  }
+  
+  .email-viewer-header {
+    padding: 0.75rem;
+  }
+  
+  .email-viewer-content {
+    padding: 0.75rem;
+  }
+}
+
+/* Efectos hover mejorados */
+.email-panel .email-list-content > div > div {
+  transition: background-color 0.15s ease-in-out;
+}
+
+.email-panel .email-list-content > div > div:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Estilos para el panel seleccionado */
+.email-panel .email-list-content > div > div[data-selected="true"] {
+  background-color: #f0f9ff !important;
+  border-left: 3px solid #3b82f6;
 }

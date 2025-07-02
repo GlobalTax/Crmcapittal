@@ -74,9 +74,9 @@ export default function Email() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex-shrink-0 border-b bg-background p-4">
-        <h1 className="text-2xl font-bold">Sistema de Email</h1>
-        <p className="text-sm text-muted-foreground">
+      <div className="flex-shrink-0 border-b bg-background p-6">
+        <h1 className="text-2xl font-bold text-gray-900">Sistema de Email</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Gestiona y rastrea tus emails de manera eficiente
         </p>
       </div>
@@ -85,7 +85,7 @@ export default function Email() {
       <div className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Sidebar */}
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="min-w-[250px]">
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="min-w-[280px]">
             <EmailSidebar
               selectedFolder={selectedFolder}
               onFolderSelect={setSelectedFolder}
@@ -128,13 +128,11 @@ export default function Email() {
       </div>
 
       {/* Email Composer Modal */}
-      {isComposerOpen && (
-        <EmailComposer
-          trigger={null}
-          recipientEmail={selectedEmail?.recipient_email}
-          onClose={handleCloseComposer}
-        />
-      )}
+      <EmailComposer
+        isOpen={isComposerOpen}
+        onClose={handleCloseComposer}
+        recipientEmail={selectedEmail?.recipient_email}
+      />
     </div>
   );
 }
