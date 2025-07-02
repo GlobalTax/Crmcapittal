@@ -7,6 +7,8 @@ import { EmailComposer } from '@/components/email/EmailComposer';
 import { useEmailTracking } from '@/hooks/useEmailTracking';
 import { TrackedEmail } from '@/types/EmailTracking';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 export default function Email() {
   const [selectedEmail, setSelectedEmail] = useState<TrackedEmail | null>(null);
@@ -14,7 +16,7 @@ export default function Email() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   
-  const { emails, isLoading } = useEmailTracking();
+  const { emails, isLoading, error } = useEmailTracking();
 
   const handleEmailSelect = (email: TrackedEmail) => {
     setSelectedEmail(email);
@@ -28,6 +30,19 @@ export default function Email() {
     setIsComposerOpen(false);
   };
 
+  if (error) {
+    return (
+      <div className="flex h-screen bg-background p-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Error loading email data. Please try refreshing the page.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-background">
       <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -38,9 +53,9 @@ export default function Email() {
             onFolderSelect={setSelectedFolder}
             onCompose={handleCompose}
             emailCounts={{
-              inbox: emails.length,
-              sent: emails.filter(e => e.status === 'SENT').length,
-              unread: emails.filter(e => e.status !== 'OPENED').length
+              inbox: emails?.length || 0,
+              sent: emails?.filter(e => e.status === 'SENT').length || 0,
+              unread: emails?.filter(e => e.status !== 'OPENED').length || 0
             }}
           />
         </ResizablePanel>
@@ -50,7 +65,7 @@ export default function Email() {
         {/* Email List */}
         <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <EmailList
-            emails={emails}
+            emails={emails || []}
             selectedEmail={selectedEmail}
             onEmailSelect={handleEmailSelect}
             searchQuery={searchQuery}

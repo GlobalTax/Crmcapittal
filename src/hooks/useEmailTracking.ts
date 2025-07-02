@@ -20,8 +20,14 @@ export const useEmailTracking = (filters?: {
     error
   } = useQuery({
     queryKey: ['tracked-emails', filters],
-    queryFn: () => EmailTrackingService.getTrackedEmails(filters),
-    select: (data) => data.data,
+    queryFn: async () => {
+      const result = await EmailTrackingService.getTrackedEmails(filters);
+      if (result.error) {
+        console.error('Error fetching emails:', result.error);
+        return [];
+      }
+      return result.data;
+    },
     refetchInterval: 30000 // Refetch every 30 seconds for real-time updates
   });
 

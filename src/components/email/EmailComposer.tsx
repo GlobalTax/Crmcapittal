@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useEmailTracking } from "@/hooks/useEmailTracking";
 import { CreateTrackedEmailData } from "@/types/EmailTracking";
 import { Mail, Send, X } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -60,6 +61,7 @@ export const EmailComposer = ({
 }: EmailComposerProps) => {
   const [open, setOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [formError, setFormError] = useState<string>('');
   const [formData, setFormData] = useState({
     recipient_email: recipientEmail,
     subject: "",
@@ -82,10 +84,27 @@ export const EmailComposer = ({
     setSelectedTemplate(templateId);
   };
 
+  const validateForm = () => {
+    if (!formData.recipient_email.trim()) {
+      setFormError('El email del destinatario es requerido');
+      return false;
+    }
+    if (!formData.content.trim()) {
+      setFormError('El contenido del email es requerido');
+      return false;
+    }
+    if (!formData.sender_email.trim()) {
+      setFormError('Tu email es requerido');
+      return false;
+    }
+    setFormError('');
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.recipient_email || !formData.content) {
+    if (!validateForm()) {
       return;
     }
 
@@ -101,23 +120,29 @@ export const EmailComposer = ({
       sender_email: formData.sender_email
     };
 
-    await sendTrackedEmail(emailData);
-    
-    // Reset form and close dialog on success
-    setFormData({
-      recipient_email: recipientEmail,
-      subject: "",
-      content: "",
-      sender_name: "Equipo CRM",
-      sender_email: "contacto@empresa.com"
-    });
-    setSelectedTemplate('');
-    setOpen(false);
-    onClose?.();
+    try {
+      await sendTrackedEmail(emailData);
+      
+      // Reset form and close dialog
+      setFormData({
+        recipient_email: recipientEmail,
+        subject: "",
+        content: "",
+        sender_name: "Equipo CRM",
+        sender_email: "contacto@empresa.com"
+      });
+      setSelectedTemplate('');
+      setFormError('');
+      setOpen(false);
+      onClose?.();
+    } catch (error) {
+      setFormError('Error al enviar el email. Por favor, inténtalo de nuevo.');
+    }
   };
 
   const handleClose = () => {
     setOpen(false);
+    setFormError('');
     onClose?.();
   };
 
@@ -143,6 +168,12 @@ export const EmailComposer = ({
           </Button>
         </DialogHeader>
         
+        {formError && (
+          <Alert variant="destructive">
+            <AlertDescription>{formError}</AlertDescription>
+          </Alert>
+        )}
+        
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 space-y-4 overflow-hidden">
           {/* Template Selector */}
           <div>
@@ -163,7 +194,7 @@ export const EmailComposer = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="recipient_email">Para</Label>
+              <Label htmlFor="recipient_email">Para *</Label>
               <Input
                 id="recipient_email"
                 type="email"
@@ -197,19 +228,20 @@ export const EmailComposer = ({
             </div>
 
             <div>
-              <Label htmlFor="sender_email">Tu email</Label>
+              <Label htmlFor="sender_email">Tu email *</Label>
               <Input
                 id="sender_email"
                 type="email"
                 value={formData.sender_email}
                 onChange={(e) => setFormData(prev => ({ ...prev, sender_email: e.target.value }))}
                 placeholder="tu@empresa.com"
+                required
               />
             </div>
           </div>
 
           <div className="flex-1 flex flex-col min-h-0">
-            <Label htmlFor="content">Mensaje</Label>
+            <Label htmlFor="content">Mensaje *</Label>
             <Textarea
               id="content"
               value={formData.content}
@@ -221,7 +253,7 @@ export const EmailComposer = ({
           </div>
 
           <div className="flex justify-end space-x-2 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={handleClose}>
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isSending}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isSending} className="flex items-center gap-2">
