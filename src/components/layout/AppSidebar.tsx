@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +21,8 @@ import {
   Building2,
   UserPlus,
   Briefcase,
-  Mail
+  Mail,
+  FileText
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -42,6 +44,7 @@ const menuItems = [
       { title: "Contactos", url: "/contacts", icon: Users },
       { title: "Control Leads", url: "/leads", icon: UserPlus },
       { title: "Negocios", url: "/deals", icon: Briefcase },
+      { title: "Propuestas", url: "/proposals", icon: FileText },
     ]
   },
   {
