@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { CreateTrackedEmailData, TrackedEmail } from "@/types/EmailTracking";
 
@@ -44,7 +43,13 @@ export class EmailTrackingService {
         return { data: null, error: fetchError.message };
       }
 
-      return { data: emailRecord, error: null };
+      // Convert the database response to match our TypeScript interface
+      const convertedEmail: TrackedEmail = {
+        ...emailRecord,
+        ip_address: emailRecord.ip_address != null ? String(emailRecord.ip_address) : null
+      };
+
+      return { data: convertedEmail, error: null };
 
     } catch (error) {
       console.error('Error in createTrackedEmail:', error);
