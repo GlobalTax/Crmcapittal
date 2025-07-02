@@ -10,19 +10,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { 
-  BarChart3, 
   Users, 
-  FileText, 
   Settings, 
   Home,
-  FolderOpen,
   UserCheck,
   Shield,
   ShieldCheck,
   Calendar,
   Clock,
-  Target,
-  Workflow,
   Building2,
   UserPlus,
   Briefcase,
@@ -49,22 +44,12 @@ const menuItems = [
       { title: "Contactos", url: "/contacts", icon: Users },
       { title: "Control Leads", url: "/leads", icon: UserPlus },
       { title: "Negocios", url: "/deals", icon: Briefcase },
-      { title: "Pipelines", url: "/pipelines", icon: Workflow },
     ]
   },
   {
     title: "Legal & Casos",
     items: [
       { title: "Expedientes", url: "/cases", icon: Scale },
-    ]
-  },
-  {
-    title: "Operaciones",
-    items: [
-      { title: "Portfolio", url: "/portfolio", icon: BarChart3 },
-      { title: "Operaciones", url: "/operaciones", icon: Briefcase },
-      { title: "Sourcing", url: "/sourcing", icon: Target },
-      { title: "Proyectos", url: "/projects", icon: FolderOpen },
     ]
   },
   {

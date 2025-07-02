@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,16 +12,10 @@ import Index from "./pages/Index";
 import MyDay from "./pages/MyDay";
 import Negocios from "./pages/Negocios";
 import NegocioDetail from "./pages/NegocioDetail";
-import Operaciones from "./pages/Operaciones";
-import OperationDetails from "./pages/OperationDetails";
 import Contacts from "./pages/Contacts";
 import Companies from "./pages/Companies";
 import Leads from "./pages/Leads";
-import Pipeline from "./pages/Pipeline";
-import Portfolio from "./pages/Portfolio";
 import Calendar from "./pages/Calendar";
-import PipelinesManager from "./pages/PipelinesManager";
-import Sourcing from "./pages/Sourcing";
 import AdminPanel from "./pages/AdminPanel";
 import UserManagement from "./pages/UserManagement";
 import TimeTracking from "./pages/TimeTracking";
@@ -52,16 +47,10 @@ function App() {
                 <Route path="negocios/:id" element={<NegocioDetail />} />
                 <Route path="deals" element={<Deals />} />
                 <Route path="cases" element={<Cases />} />
-                <Route path="operaciones" element={<Operaciones />} />
-                <Route path="operaciones/:id" element={<OperationDetails />} />
                 <Route path="contacts" element={<Contacts />} />
                 <Route path="companies" element={<Companies />} />
                 <Route path="leads" element={<Leads />} />
-                <Route path="pipeline" element={<Pipeline />} />
-                <Route path="portfolio" element={<Portfolio />} />
                 <Route path="calendar" element={<Calendar />} />
-                <Route path="pipelines" element={<PipelinesManager />} />
-                <Route path="sourcing" element={<Sourcing />} />
                 <Route path="admin" element={<AdminPanel />} />
                 <Route path="user-management" element={<UserManagement />} />
                 <Route path="time-tracking" element={<TimeTracking />} />
