@@ -120,7 +120,7 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
           </div>
           <div>
             No leídos: {emailCounts.unread}
-          </dev>
+          </div>
         </div>
       </div>
     </div>
