@@ -32,19 +32,19 @@ const emailTemplates = [
     id: 'intro',
     name: 'Introducción',
     subject: 'Presentación de servicios',
-    content: 'Estimado/a [NOMBRE],\n\nEspero que se encuentre bien. Me pongo en contacto con usted para presentarle nuestros servicios...\n\nSaludos cordiales,'
+    content: 'Estimado/a [NOMBRE],\n\nEspero que se encuentre bien. Me pongo en contacto con usted para presentarle nuestros servicios.\n\nNuestro equipo cuenta con amplia experiencia en el sector y estaríamos encantados de poder colaborar con su empresa.\n\n¿Podríamos programar una llamada para discutir cómo podemos ayudarle?\n\nSaludos cordiales,'
   },
   {
     id: 'followup',
     name: 'Seguimiento',
     subject: 'Seguimiento de nuestra conversación',
-    content: 'Estimado/a [NOMBRE],\n\nQuería hacer seguimiento a nuestra conversación anterior...\n\nQuedo a la espera de su respuesta.\n\nSaludos,'
+    content: 'Estimado/a [NOMBRE],\n\nQuería hacer seguimiento a nuestra conversación anterior sobre los servicios que podemos ofrecer a su empresa.\n\n¿Ha tenido oportunidad de revisar la información que le compartí? Me gustaría conocer sus comentarios y resolver cualquier duda que pueda tener.\n\nQuedo a la espera de su respuesta.\n\nSaludos,'
   },
   {
     id: 'proposal',
     name: 'Propuesta',
     subject: 'Propuesta comercial',
-    content: 'Estimado/a [NOMBRE],\n\nTengo el placer de enviarle nuestra propuesta comercial...\n\nQuedo a su disposición para cualquier consulta.\n\nSaludos,'
+    content: 'Estimado/a [NOMBRE],\n\nTengo el placer de enviarle nuestra propuesta comercial para los servicios que discutimos.\n\nHemos preparado una solución personalizada que se adapta a las necesidades específicas de su empresa, con condiciones competitivas y un excelente nivel de servicio.\n\nQuedo a su disposición para cualquier consulta o aclaración que necesite.\n\nSaludos,'
   }
 ];
 
@@ -63,7 +63,9 @@ export const EmailComposer = ({
   const [formData, setFormData] = useState({
     recipient_email: recipientEmail,
     subject: "",
-    content: ""
+    content: "",
+    sender_name: "Equipo CRM",
+    sender_email: "contacto@empresa.com"
   });
 
   const { sendTrackedEmail, isSending } = useEmailTracking();
@@ -87,14 +89,16 @@ export const EmailComposer = ({
       return;
     }
 
-    const emailData: CreateTrackedEmailData = {
+    const emailData: CreateTrackedEmailData & { sender_name: string; sender_email: string } = {
       recipient_email: formData.recipient_email,
       subject: formData.subject || "Sin asunto",
       content: formData.content,
       lead_id,
       contact_id,
       target_company_id,
-      operation_id
+      operation_id,
+      sender_name: formData.sender_name,
+      sender_email: formData.sender_email
     };
 
     await sendTrackedEmail(emailData);
@@ -103,7 +107,9 @@ export const EmailComposer = ({
     setFormData({
       recipient_email: recipientEmail,
       subject: "",
-      content: ""
+      content: "",
+      sender_name: "Equipo CRM",
+      sender_email: "contacto@empresa.com"
     });
     setSelectedTemplate('');
     setOpen(false);
@@ -179,6 +185,29 @@ export const EmailComposer = ({
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="sender_name">Tu nombre</Label>
+              <Input
+                id="sender_name"
+                value={formData.sender_name}
+                onChange={(e) => setFormData(prev => ({ ...prev, sender_name: e.target.value }))}
+                placeholder="Tu nombre"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="sender_email">Tu email</Label>
+              <Input
+                id="sender_email"
+                type="email"
+                value={formData.sender_email}
+                onChange={(e) => setFormData(prev => ({ ...prev, sender_email: e.target.value }))}
+                placeholder="tu@empresa.com"
+              />
+            </div>
+          </div>
+
           <div className="flex-1 flex flex-col min-h-0">
             <Label htmlFor="content">Mensaje</Label>
             <Textarea
@@ -186,7 +215,7 @@ export const EmailComposer = ({
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
               placeholder="Escribe tu mensaje aquí..."
-              className="flex-1 resize-none"
+              className="flex-1 resize-none min-h-[200px]"
               required
             />
           </div>

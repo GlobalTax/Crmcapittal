@@ -1,27 +1,52 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { CreateTrackedEmailData, TrackedEmail } from "@/types/EmailTracking";
 
 export class EmailTrackingService {
-  static async createTrackedEmail(data: CreateTrackedEmailData): Promise<{ data: TrackedEmail | null; error: string | null }> {
+  static async createTrackedEmail(data: CreateTrackedEmailData & { 
+    sender_name?: string; 
+    sender_email?: string; 
+  }): Promise<{ data: TrackedEmail | null; error: string | null }> {
     try {
-      const { data: trackedEmail, error } = await supabase
+      // Call the edge function to send the email
+      const { data: response, error } = await supabase.functions.invoke('send-tracked-email', {
+        body: {
+          recipient_email: data.recipient_email,
+          subject: data.subject || 'Sin asunto',
+          content: data.content,
+          lead_id: data.lead_id,
+          contact_id: data.contact_id,
+          target_company_id: data.target_company_id,
+          operation_id: data.operation_id,
+          sender_name: data.sender_name,
+          sender_email: data.sender_email
+        }
+      });
+
+      if (error) {
+        console.error('Error calling send-tracked-email function:', error);
+        return { data: null, error: error.message };
+      }
+
+      if (!response.success) {
+        return { data: null, error: response.error || 'Unknown error occurred' };
+      }
+
+      // Fetch the created email record
+      const { data: emailRecord, error: fetchError } = await supabase
         .from('tracked_emails')
-        .insert(data)
-        .select()
+        .select('*')
+        .eq('id', response.email_id)
         .single();
 
-      if (error) throw error;
+      if (fetchError) {
+        console.error('Error fetching created email:', fetchError);
+        return { data: null, error: fetchError.message };
+      }
 
-      // Convert the database response to match our TypeScript interface
-      const convertedEmail: TrackedEmail = {
-        ...trackedEmail,
-        ip_address: trackedEmail.ip_address ? String(trackedEmail.ip_address) : null
-      };
+      return { data: emailRecord, error: null };
 
-      return { data: convertedEmail, error: null };
     } catch (error) {
-      console.error('Error creating tracked email:', error);
+      console.error('Error in createTrackedEmail:', error);
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -100,9 +125,7 @@ export class EmailTrackingService {
   }
 
   static buildEmailContent(content: string, trackingId: string): string {
-    const trackingPixel = `<img src="${window.location.origin}/api/track/${trackingId}" width="1" height="1" alt="" style="display:block;" />`;
-    
-    // Add tracking pixel at the end of the email content
+    const trackingPixel = `<img src="${window.location.origin}/functions/v1/track-email-open/${trackingId}" width="1" height="1" alt="" style="display:block;" />`;
     return `${content}${trackingPixel}`;
   }
 }

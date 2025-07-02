@@ -21,7 +21,8 @@ export const useEmailTracking = (filters?: {
   } = useQuery({
     queryKey: ['tracked-emails', filters],
     queryFn: () => EmailTrackingService.getTrackedEmails(filters),
-    select: (data) => data.data
+    select: (data) => data.data,
+    refetchInterval: 30000 // Refetch every 30 seconds for real-time updates
   });
 
   const {
@@ -30,37 +31,43 @@ export const useEmailTracking = (filters?: {
   } = useQuery({
     queryKey: ['email-stats'],
     queryFn: () => EmailTrackingService.getEmailStats(),
-    refetchInterval: 30000 // Refetch every 30 seconds
+    refetchInterval: 30000
   });
 
   const createEmailMutation = useMutation({
-    mutationFn: (data: CreateTrackedEmailData) => EmailTrackingService.createTrackedEmail(data),
+    mutationFn: (data: CreateTrackedEmailData & { sender_name?: string; sender_email?: string }) => 
+      EmailTrackingService.createTrackedEmail(data),
     onSuccess: (result) => {
       if (result.error) {
         toast({
-          title: "Error",
+          title: "Error al enviar email",
           description: result.error,
           variant: "destructive"
         });
       } else {
         toast({
-          title: "Email enviado",
-          description: "El email ha sido enviado correctamente"
+          title: "Email enviado correctamente",
+          description: "El email ha sido enviado y está siendo rastreado"
         });
+        // Invalidate and refetch email data
         queryClient.invalidateQueries({ queryKey: ['tracked-emails'] });
         queryClient.invalidateQueries({ queryKey: ['email-stats'] });
       }
     },
     onError: (error) => {
+      console.error('Email sending error:', error);
       toast({
         title: "Error",
-        description: "No se pudo enviar el email",
+        description: "No se pudo enviar el email. Por favor, inténtalo de nuevo.",
         variant: "destructive"
       });
     }
   });
 
-  const sendTrackedEmail = async (emailData: CreateTrackedEmailData) => {
+  const sendTrackedEmail = async (emailData: CreateTrackedEmailData & { 
+    sender_name?: string; 
+    sender_email?: string; 
+  }) => {
     return createEmailMutation.mutate(emailData);
   };
 

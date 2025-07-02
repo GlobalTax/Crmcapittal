@@ -24,6 +24,10 @@ export default function Email() {
     setIsComposerOpen(true);
   };
 
+  const handleCloseComposer = () => {
+    setIsComposerOpen(false);
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -74,6 +78,7 @@ export default function Email() {
         <EmailComposer
           trigger={null}
           recipientEmail={selectedEmail?.recipient_email}
+          onClose={handleCloseComposer}
         />
       )}
     </div>
