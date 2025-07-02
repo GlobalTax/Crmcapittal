@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -68,7 +69,7 @@ export function Sidebar({ className }: SidebarProps) {
       color: "text-green-700",
     },
     {
-      label: "Leads",
+      label: "Control Leads",
       icon: UserCheck,
       href: "/leads",
       color: "text-blue-600",

@@ -81,7 +81,7 @@ const Leads = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Bandeja de Leads</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Control Leads</h2>
           <p className="text-muted-foreground">
             Gestiona y convierte tus leads en oportunidades de negocio.
           </p>
