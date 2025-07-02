@@ -72,8 +72,7 @@ export const ServicesStep: React.FC<ServicesStepProps> = ({ data, onChange, erro
   };
 
   const addService = (serviceData?: Partial<ProposalService>) => {
-    const service: ProposalService = {
-      id: Date.now().toString(),
+    const service: Omit<ProposalService, 'id'> = {
       name: serviceData?.name || newService.name || '',
       description: serviceData?.description || newService.description || '',
       quantity: serviceData?.quantity || newService.quantity || 1,
@@ -127,7 +126,6 @@ export const ServicesStep: React.FC<ServicesStepProps> = ({ data, onChange, erro
     const original = services[index];
     const duplicate = {
       ...original,
-      id: Date.now().toString(),
       name: `${original.name} (Copia)`
     };
     
@@ -258,7 +256,7 @@ export const ServicesStep: React.FC<ServicesStepProps> = ({ data, onChange, erro
           {services.length > 0 ? (
             <div className="space-y-3">
               {services.map((service, index) => (
-                <Card key={service.id} className="border-l-4 border-l-blue-500">
+                <Card key={index} className="border-l-4 border-l-blue-500">
                   <CardContent className="p-4">
                     {editingService === index ? (
                       /* Modo Edición */

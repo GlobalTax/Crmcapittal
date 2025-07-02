@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, BarChart3, FileText, Filter } from 'lucide-react';
+import { Plus, BarChart3, FileText, Filter, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { useProposals } from '@/hooks/useProposals';
 import { ProposalDashboard } from '@/components/proposals/ProposalDashboard';
 import { ProposalWizard } from '@/components/proposals/ProposalWizard';
@@ -44,6 +45,10 @@ export default function Proposals() {
       case 'expired': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleCreateProposal = async (data: any) => {
+    await createProposal(data);
   };
 
   if (loading) {
@@ -201,7 +206,7 @@ export default function Proposals() {
       <ProposalWizard
         isOpen={isWizardOpen}
         onClose={() => setIsWizardOpen(false)}
-        onSubmit={createProposal}
+        onSubmit={handleCreateProposal}
       />
     </div>
   );
