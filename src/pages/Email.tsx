@@ -9,6 +9,7 @@ import { TrackedEmail } from '@/types/EmailTracking';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Email() {
   const [selectedEmail, setSelectedEmail] = useState<TrackedEmail | null>(null);
@@ -17,6 +18,7 @@ export default function Email() {
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   
   const { emails, isLoading, error } = useEmailTracking();
+  const { toast } = useToast();
 
   const handleEmailSelect = (email: TrackedEmail) => {
     setSelectedEmail(email);
@@ -30,13 +32,38 @@ export default function Email() {
     setIsComposerOpen(false);
   };
 
+  const handleReply = () => {
+    if (selectedEmail) {
+      setIsComposerOpen(true);
+    }
+  };
+
+  const handleArchive = () => {
+    if (selectedEmail) {
+      toast({
+        title: "Funcionalidad no disponible",
+        description: "La función de archivar estará disponible próximamente.",
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedEmail) {
+      toast({
+        title: "Funcionalidad no disponible",
+        description: "La función de eliminar estará disponible próximamente.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (error) {
     return (
       <div className="flex h-screen bg-background p-4">
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="max-w-md mx-auto mt-8">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Error loading email data. Please try refreshing the page.
+            Error cargando los datos del email. Por favor, actualiza la página o inténtalo más tarde.
           </AlertDescription>
         </Alert>
       </div>
@@ -81,9 +108,9 @@ export default function Email() {
         <ResizablePanel defaultSize={45} minSize={30}>
           <EmailViewer
             email={selectedEmail}
-            onReply={() => setIsComposerOpen(true)}
-            onArchive={() => {}}
-            onDelete={() => {}}
+            onReply={handleReply}
+            onArchive={handleArchive}
+            onDelete={handleDelete}
           />
         </ResizablePanel>
       </ResizablePanelGroup>
