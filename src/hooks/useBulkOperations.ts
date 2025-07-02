@@ -102,7 +102,7 @@ export const useBulkOperations = () => {
     setIsProcessing(true);
     
     try {
-      const XLSX = await import('xlsx');
+      const ExcelJS = await import('exceljs');
       
       const reader = new FileReader();
       
@@ -110,10 +110,37 @@ export const useBulkOperations = () => {
         reader.onload = async (e) => {
           try {
             const data = new Uint8Array(e.target?.result as ArrayBuffer);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(data);
+            const worksheet = workbook.getWorksheet(1);
+            const jsonData: any[] = [];
+            
+            if (worksheet) {
+              const headers: string[] = [];
+              
+              // Get headers from first row
+              worksheet.getRow(1).eachCell((cell, colNumber) => {
+                headers[colNumber - 1] = cell.value?.toString() || '';
+              });
+              
+              // Process data rows
+              worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return; // Skip header row
+                
+                const rowData: any = {};
+                row.eachCell((cell, colNumber) => {
+                  const header = headers[colNumber - 1];
+                  if (header) {
+                    rowData[header] = cell.value;
+                  }
+                });
+                
+                // Only add rows with data
+                if (Object.keys(rowData).length > 0) {
+                  jsonData.push(rowData);
+                }
+              });
+            }
             
             const validation = validateExcelData(jsonData);
             

@@ -1,37 +1,97 @@
 
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import * as XLSX from 'xlsx';
 
 export const TemplateDownloader = () => {
-  const downloadTemplate = () => {
-    const template = [
-      {
-        'Nombre Empresa': 'Ejemplo Tech SL',
-        'Nombre Proyecto': 'Proyecto Alpha 123',
-        'CIF': 'B12345678',
-        'Sector': 'Tecnología',
-        'Tipo Operación': 'sale',
-        'Importe': 5000000,
-        'Moneda': 'EUR',
-        'Fecha': '2024-01-15',
-        'Comprador': 'TechCorp Inc',
-        'Vendedor': 'Fundadores',
-        'Estado': 'available',
-        'Descripción': 'Venta de startup tecnológica',
-        'Ubicación': 'Madrid',
-        'Email Contacto': 'contacto@ejemplo.com',
-        'Teléfono Contacto': '+34 600 123 456',
-        'Facturación': 3000000,
-        'EBITDA': 600000,
-        'Crecimiento Anual %': 25.5
-      }
-    ];
+  const downloadTemplate = async () => {
+    try {
+      const ExcelJS = await import('exceljs');
+      
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Plantilla Operaciones');
 
-    const ws = XLSX.utils.json_to_sheet(template);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Plantilla Operaciones');
-    XLSX.writeFile(wb, 'plantilla_operaciones.xlsx');
+      // Define headers
+      const headers = [
+        'Nombre Empresa',
+        'Nombre Proyecto', 
+        'CIF',
+        'Sector',
+        'Tipo Operación',
+        'Importe',
+        'Moneda',
+        'Fecha',
+        'Comprador',
+        'Vendedor',
+        'Estado',
+        'Descripción',
+        'Ubicación',
+        'Email Contacto',
+        'Teléfono Contacto',
+        'Facturación',
+        'EBITDA',
+        'Crecimiento Anual %'
+      ];
+
+      // Add headers
+      worksheet.addRow(headers);
+
+      // Add sample data
+      const sampleData = [
+        'Ejemplo Tech SL',
+        'Proyecto Alpha 123',
+        'B12345678',
+        'Tecnología',
+        'sale',
+        5000000,
+        'EUR',
+        '2024-01-15',
+        'TechCorp Inc',
+        'Fundadores',
+        'available',
+        'Venta de startup tecnológica',
+        'Madrid',
+        'contacto@ejemplo.com',
+        '+34 600 123 456',
+        3000000,
+        600000,
+        25.5
+      ];
+      
+      worksheet.addRow(sampleData);
+
+      // Style the header row
+      const headerRow = worksheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE6F3FF' }
+      };
+
+      // Auto-fit columns
+      worksheet.columns.forEach(column => {
+        if (column.header) {
+          column.width = Math.max(column.header.toString().length + 2, 15);
+        }
+      });
+
+      // Generate buffer and download
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'plantilla_operaciones.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      
+    } catch (error) {
+      console.error('Error generating template:', error);
+    }
   };
 
   return (

@@ -1,73 +1,215 @@
-# Welcome to your Lovable project
 
-## Project info
+# CRMCAPITTAL - Sistema CRM para Capital Market
 
-**URL**: https://lovable.dev/projects/70eb3963-db14-48c2-bbf3-4af4ae21d5df
+Sistema CRM completo desarrollado en React + TypeScript para la gestión de operaciones de capital market, leads, contactos y pipelines.
 
-## How can I edit this code?
+## 🚀 Características
 
-There are several ways of editing your application.
+- **Gestión de Operaciones**: Crear, editar y gestionar operaciones de capital market
+- **CRM Completo**: Gestión de leads, contactos, empresas y deals
+- **Pipelines**: Visualización y gestión de pipelines de ventas
+- **Autenticación**: Sistema de autenticación seguro con Supabase
+- **Dashboard**: Panel de control con métricas y actividades
+- **Importación Masiva**: Carga masiva de datos desde Excel (mejorado con ExcelJS)
+- **Tracking de Tiempo**: Sistema de seguimiento de tiempo
+- **Automatización**: Workflows automáticos para leads
 
-**Use Lovable**
+## 🛠️ Tecnologías
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/70eb3963-db14-48c2-bbf3-4af4ae21d5df) and start prompting.
+- **Frontend**: React 18 + TypeScript
+- **UI**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (PostgreSQL + Auth + Storage)
+- **Estado**: TanStack Query (React Query)
+- **Routing**: React Router DOM
+- **Formularios**: React Hook Form + Zod
+- **Notificaciones**: Sonner + React Hot Toast
+- **Excel Processing**: ExcelJS (reemplazado xlsx por seguridad)
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🔒 Mejoras de Seguridad
 
-**Use your preferred IDE**
+### ✅ Vulnerabilidades Resueltas
+- **xlsx → exceljs**: Eliminada vulnerabilidad crítica de Prototype Pollution
+- **Mejor manejo de errores**: Error boundaries mejorados con recuperación
+- **Validación de datos**: Validación más estricta en importación de Excel
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Beneficios de ExcelJS
+- Procesamiento más seguro de archivos Excel
+- Mejor rendimiento y menor tamaño de bundle
+- API más moderna y mantenible
+- Soporte completo para formatos Excel modernos
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📦 Instalación
 
-Follow these steps:
+### Prerrequisitos
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Node.js 18+ 
+- npm o yarn
+- Cuenta de Supabase
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 1. Clonar el repositorio
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+git clone <repository-url>
+cd CRMCAPITTAL
 ```
 
-**Edit a file directly in GitHub**
+### 2. Instalar dependencias
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm install
+```
 
-**Use GitHub Codespaces**
+### 3. Configurar variables de entorno
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Copia el archivo `env.example` a `.env.local`:
 
-## What technologies are used for this project?
+```bash
+cp env.example .env.local
+```
 
-This project is built with:
+Edita `.env.local` con tus credenciales de Supabase:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+VITE_CAPITAL_MARKET_API_KEY=your-api-key-here
+VITE_WEBHOOK_SECRET_KEY=your-webhook-secret-here
+```
 
-## How can I deploy this project?
+### 4. Configurar Supabase
 
-Simply open [Lovable](https://lovable.dev/projects/70eb3963-db14-48c2-bbf3-4af4ae21d5df) and click on Share -> Publish.
+1. Crea un proyecto en [Supabase](https://supabase.com)
+2. Ejecuta las migraciones desde la carpeta `supabase/migrations/`
+3. Configura las políticas RLS según tus necesidades
 
-## Can I connect a custom domain to my Lovable project?
+### 5. Ejecutar el proyecto
 
-Yes, you can!
+```bash
+# Desarrollo
+npm run dev
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Construcción
+npm run build
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Vista previa
+npm run preview
+```
+
+## 🔧 Scripts Disponibles
+
+- `npm run dev` - Servidor de desarrollo
+- `npm run build` - Construir para producción
+- `npm run build:dev` - Construir en modo desarrollo
+- `npm run lint` - Ejecutar ESLint
+- `npm run preview` - Vista previa de la build
+
+## 📁 Estructura del Proyecto
+
+```
+src/
+├── components/          # Componentes React
+│   ├── ui/             # Componentes de UI base
+│   ├── layout/         # Componentes de layout
+│   ├── common/         # Componentes comunes (ErrorBoundary, etc.)
+│   ├── deals/          # Componentes de deals
+│   ├── contacts/       # Componentes de contactos
+│   └── ...
+├── hooks/              # Hooks personalizados
+├── pages/              # Páginas de la aplicación
+├── contexts/           # Contextos de React
+├── services/           # Servicios de API
+├── types/              # Tipos de TypeScript
+├── utils/              # Utilidades
+└── integrations/       # Integraciones externas
+```
+
+## 🔒 Seguridad
+
+- **Autenticación**: JWT con Supabase Auth
+- **Autorización**: Row Level Security (RLS) en PostgreSQL
+- **Validación**: Zod para validación de esquemas
+- **Sanitización**: Validación de entrada en formularios
+- **Manejo de Errores**: Error boundaries con recuperación automática
+
+## 📊 Funcionalidades Principales
+
+### Operaciones
+- Crear y gestionar operaciones de capital market
+- Importación masiva desde Excel (con ExcelJS seguro)
+- Filtros avanzados y búsqueda
+- Estados y flujos de trabajo
+- Validación robusta de datos
+
+### CRM
+- Gestión de leads y contactos
+- Pipeline de ventas
+- Seguimiento de actividades
+- Automatización de workflows
+
+### Dashboard
+- Métricas en tiempo real
+- Actividad reciente
+- Gráficos y reportes
+- Notificaciones
+
+## 🚨 Historial de Vulnerabilidades
+
+### ✅ Resueltas (v2.0.0)
+- **xlsx (Crítica)**: Prototype Pollution → Reemplazado por ExcelJS
+- **Error Handling**: Mejorado manejo de errores con recuperación
+
+### Pendientes (Moderadas)
+- @babel/runtime, brace-expansion, esbuild, nanoid
+
+### Solución para pendientes
+```bash
+npm audit fix
+```
+
+## 🔄 Changelog
+
+### v2.0.0 - Mejoras de Seguridad
+- ✅ Reemplazado xlsx por exceljs (vulnerabilidad crítica resuelta)
+- ✅ Mejorado manejo de errores con Error Boundaries
+- ✅ Navegación mejorada en errores
+- ✅ Validación más robusta de datos Excel
+- ✅ Better error recovery mechanisms
+
+### v1.0.0
+- Lanzamiento inicial
+- Sistema CRM completo
+- Integración con Supabase
+- Dashboard y métricas
+
+## 🤝 Contribución
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📝 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 🆘 Soporte
+
+Para soporte técnico o preguntas:
+- Crear un issue en GitHub
+- Contactar al equipo de desarrollo
+
+## 🔍 Auditoría de Seguridad
+
+Para verificar el estado de seguridad actual:
+
+```bash
+# Verificar vulnerabilidades
+npm audit
+
+# Corregir automáticamente
+npm audit fix
+
+# Ver detalles de una vulnerabilidad específica
+npm audit --audit-level=moderate
+```

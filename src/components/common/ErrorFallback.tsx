@@ -2,7 +2,8 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 interface ErrorFallbackProps {
   error: Error
@@ -15,8 +16,18 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   resetError, 
   context = 'aplicación' 
 }) => {
+  const navigate = useNavigate()
+
+  const handleReload = () => {
+    window.location.reload()
+  }
+
+  const handleGoHome = () => {
+    navigate('/')
+  }
+
   return (
-    <div className="flex items-center justify-center min-h-[400px] p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -44,11 +55,20 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             </Button>
             
             <Button 
-              onClick={() => window.location.reload()} 
+              onClick={handleReload} 
               className="w-full"
-              variant="ghost"
             >
+              <RefreshCw className="h-4 w-4 mr-2" />
               Recargar página
+            </Button>
+            
+            <Button 
+              onClick={handleGoHome} 
+              className="w-full"
+              variant="outline"
+            >
+              <Home className="h-4 w-4 mr-2" />
+              Ir al inicio
             </Button>
           </div>
           
@@ -57,7 +77,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
               <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
                 Detalles técnicos
               </summary>
-              <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto">
+              <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-h-32">
                 {error.stack}
               </pre>
             </details>
