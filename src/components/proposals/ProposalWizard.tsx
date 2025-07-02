@@ -293,6 +293,7 @@ export const ProposalWizard: React.FC<ProposalWizardProps> = ({
               const isCompleted = index < currentStep;
               const isCurrent = index === currentStep;
               const hasErrors = validationErrors[step.id]?.length > 0;
+              const StepIcon = step.icon;
 
               return (
                 <Button
@@ -303,7 +304,7 @@ export const ProposalWizard: React.FC<ProposalWizardProps> = ({
                   onClick={() => handleStepChange(index)}
                   disabled={index > currentStep + 1}
                 >
-                  <step.icon className="h-4 w-4" />
+                  <StepIcon className="h-4 w-4" />
                   <span className="hidden sm:inline">{step.title}</span>
                   {hasErrors && <Badge variant="destructive" className="ml-1 h-2 w-2 p-0" />}
                 </Button>
@@ -320,7 +321,7 @@ export const ProposalWizard: React.FC<ProposalWizardProps> = ({
             <CardHeader>
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-blue-50 rounded-lg">
-                  <WIZARD_STEPS[currentStep].icon className="h-5 w-5 text-blue-600" />
+                  {React.createElement(WIZARD_STEPS[currentStep].icon, { className: "h-5 w-5 text-blue-600" })}
                 </div>
                 <div>
                   <CardTitle>{WIZARD_STEPS[currentStep].title}</CardTitle>
