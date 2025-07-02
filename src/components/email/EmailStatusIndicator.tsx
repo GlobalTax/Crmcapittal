@@ -32,29 +32,33 @@ export const EmailStatusIndicator: React.FC<EmailStatusIndicatorProps> = ({
         return {
           icon: Mail,
           text: 'Enviado',
-          color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-          iconColor: 'text-yellow-600'
+          color: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+          iconColor: 'text-yellow-600',
+          dotColor: 'bg-yellow-400'
         };
       case 'OPENED':
         return {
           icon: MailOpen,
           text: 'Abierto',
-          color: 'bg-green-100 text-green-800 border-green-200',
-          iconColor: 'text-green-600'
+          color: 'bg-green-50 text-green-700 border-green-200',
+          iconColor: 'text-green-600',
+          dotColor: 'bg-green-400'
         };
       case 'CLICKED':
         return {
           icon: MousePointer,
           text: 'Clic',
-          color: 'bg-blue-100 text-blue-800 border-blue-200',
-          iconColor: 'text-blue-600'
+          color: 'bg-blue-50 text-blue-700 border-blue-200',
+          iconColor: 'text-blue-600',
+          dotColor: 'bg-blue-400'
         };
       default:
         return {
           icon: AlertCircle,
           text: 'Desconocido',
-          color: 'bg-gray-100 text-gray-800 border-gray-200',
-          iconColor: 'text-gray-600'
+          color: 'bg-gray-50 text-gray-700 border-gray-200',
+          iconColor: 'text-gray-600',
+          dotColor: 'bg-gray-400'
         };
     }
   };
@@ -74,14 +78,21 @@ export const EmailStatusIndicator: React.FC<EmailStatusIndicatorProps> = ({
     lg: 'h-5 w-5'
   };
 
+  const dotSizes = {
+    sm: 'h-2 w-2',
+    md: 'h-3 w-3',
+    lg: 'h-4 w-4'
+  };
+
   if (!showText) {
     return (
-      <div className={cn(
-        "inline-flex items-center justify-center rounded-full border",
-        config.color,
-        size === 'sm' ? 'p-1' : size === 'md' ? 'p-1.5' : 'p-2'
-      )}>
-        <Icon className={cn(iconSizes[size], config.iconColor)} />
+      <div className="relative">
+        <div className={cn(
+          "rounded-full",
+          config.dotColor,
+          dotSizes[size]
+        )}>
+        </div>
       </div>
     );
   }

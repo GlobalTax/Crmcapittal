@@ -10,9 +10,7 @@ import {
   Archive, 
   Trash2, 
   Star, 
-  Edit,
-  Inbox,
-  MailOpen
+  Edit
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,127 +35,102 @@ export const EmailSidebar: React.FC<EmailSidebarProps> = ({
     {
       id: 'inbox',
       name: 'Bandeja de entrada',
-      icon: Inbox,
+      icon: Mail,
       count: emailCounts.inbox,
-      color: 'text-blue-600'
     },
     {
       id: 'sent',
       name: 'Enviados',
       icon: Send,
       count: emailCounts.sent,
-      color: 'text-green-600'
     },
     {
       id: 'unread',
       name: 'No leídos',
-      icon: MailOpen,
+      icon: Eye,
       count: emailCounts.unread,
-      color: 'text-orange-600'
     }
   ];
 
   return (
-    <div className="email-panel">
-      <div className="email-panel-content">
-        {/* Header */}
-        <div className="email-list-header">
-          <Button 
-            onClick={onCompose}
-            className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white"
-            size="lg"
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Redactar Email
-          </Button>
-        </div>
-
-        {/* Folders */}
-        <ScrollArea className="email-list-content">
-          <div className="p-4">
-            <div className="space-y-2">
-              {folders.map((folder) => {
-                const Icon = folder.icon;
-                const isSelected = selectedFolder === folder.id;
-                
-                return (
-                  <Button
-                    key={folder.id}
-                    variant={isSelected ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start px-4 py-3 h-auto text-left",
-                      isSelected && "bg-blue-50 text-blue-700 border-blue-200 font-medium"
-                    )}
-                    onClick={() => onFolderSelect(folder.id)}
-                  >
-                    <Icon className={cn("h-5 w-5 mr-3", isSelected ? "text-blue-600" : folder.color)} />
-                    <span className="flex-1">{folder.name}</span>
-                    {folder.count > 0 && (
-                      <Badge 
-                        variant={isSelected ? "default" : "secondary"} 
-                        className={cn(
-                          "ml-2 text-xs",
-                          isSelected ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600"
-                        )}
-                      >
-                        {folder.count}
-                      </Badge>
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-
-            {/* Additional Actions */}
-            <div className="mt-8 pt-4 border-t border-gray-200">
-              <div className="space-y-2">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start px-4 py-3 h-auto text-muted-foreground"
-                  disabled
-                >
-                  <Star className="h-5 w-5 mr-3" />
-                  Destacados
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    Próximamente
-                  </Badge>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start px-4 py-3 h-auto text-muted-foreground"
-                  disabled
-                >
-                  <Archive className="h-5 w-5 mr-3" />
-                  Archivados
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    Próximamente
-                  </Badge>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start px-4 py-3 h-auto text-muted-foreground"
-                  disabled
-                >
-                  <Trash2 className="h-5 w-5 mr-3" />
-                  Papelera
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    Próximamente
-                  </Badge>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </ScrollArea>
-
-        {/* Footer */}
-        <div className="border-t border-gray-200 p-4">
-          <div className="text-xs text-muted-foreground text-center bg-gray-50 rounded-lg p-3">
-            <Mail className="h-4 w-4 mx-auto mb-1 text-blue-600" />
-            <div className="font-medium">Sistema de Email CRM</div>
-            <div className="mt-1">Rastrea y gestiona tus comunicaciones</div>
-          </div>
-        </div>
+    <div className="h-full flex flex-col bg-white">
+      {/* Botón de redactar */}
+      <div className="p-4">
+        <Button 
+          onClick={onCompose}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          size="lg"
+        >
+          <Edit className="h-4 w-4 mr-2" />
+          Redactar
+        </Button>
       </div>
+
+      {/* Lista de carpetas */}
+      <ScrollArea className="flex-1">
+        <div className="px-2">
+          <div className="space-y-1">
+            {folders.map((folder) => {
+              const Icon = folder.icon;
+              const isSelected = selectedFolder === folder.id;
+              
+              return (
+                <Button
+                  key={folder.id}
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start px-3 py-2 h-auto text-left font-normal",
+                    isSelected && "bg-blue-50 text-blue-700 font-medium"
+                  )}
+                  onClick={() => onFolderSelect(folder.id)}
+                >
+                  <Icon className="h-4 w-4 mr-3" />
+                  <span className="flex-1">{folder.name}</span>
+                  {folder.count > 0 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="ml-2 text-xs bg-gray-100 text-gray-600"
+                    >
+                      {folder.count}
+                    </Badge>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* Separador */}
+          <div className="my-4 border-t border-gray-200"></div>
+
+          {/* Acciones adicionales */}
+          <div className="space-y-1">
+            <Button
+              variant="ghost"
+              className="w-full justify-start px-3 py-2 h-auto text-muted-foreground"
+              disabled
+            >
+              <Star className="h-4 w-4 mr-3" />
+              Destacados
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start px-3 py-2 h-auto text-muted-foreground"
+              disabled
+            >
+              <Archive className="h-4 w-4 mr-3" />
+              Archivados
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start px-3 py-2 h-auto text-muted-foreground"
+              disabled
+            >
+              <Trash2 className="h-4 w-4 mr-3" />
+              Papelera
+            </Button>
+          </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 };

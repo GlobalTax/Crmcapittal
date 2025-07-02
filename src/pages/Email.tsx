@@ -6,11 +6,7 @@ import { EmailViewer } from '@/components/email/EmailViewer';
 import { EmailComposer } from '@/components/email/EmailComposer';
 import { useEmailTracking } from '@/hooks/useEmailTracking';
 import { TrackedEmail } from '@/types/EmailTracking';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import '@/components/email/email-styles.css';
 
 export default function Email() {
   const [selectedEmail, setSelectedEmail] = useState<TrackedEmail | null>(null);
@@ -61,73 +57,62 @@ export default function Email() {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Error cargando los datos del email. Por favor, actualiza la página o inténtalo más tarde.
-          </AlertDescription>
-        </Alert>
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Error cargando los datos del email</p>
+          <p className="text-sm text-gray-500">Por favor, actualiza la página o inténtalo más tarde.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex-shrink-0 border-b bg-background p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Sistema de Email</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Gestiona y rastrea tus emails de manera eficiente
-        </p>
+    <div className="h-screen bg-white flex flex-col">
+      {/* Header limpio */}
+      <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
+        <h1 className="text-xl font-semibold text-gray-900">Sistema de Email</h1>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
-          {/* Sidebar */}
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="min-w-[280px]">
-            <EmailSidebar
-              selectedFolder={selectedFolder}
-              onFolderSelect={setSelectedFolder}
-              onCompose={handleCompose}
-              emailCounts={{
-                inbox: emails?.length || 0,
-                sent: emails?.filter(e => e.status === 'SENT').length || 0,
-                unread: emails?.filter(e => e.status !== 'OPENED').length || 0
-              }}
-            />
-          </ResizablePanel>
+      {/* Contenido principal */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-64 border-r border-gray-200 bg-white">
+          <EmailSidebar
+            selectedFolder={selectedFolder}
+            onFolderSelect={setSelectedFolder}
+            onCompose={handleCompose}
+            emailCounts={{
+              inbox: emails?.length || 0,
+              sent: emails?.filter(e => e.status === 'SENT').length || 0,
+              unread: emails?.filter(e => e.status !== 'OPENED').length || 0
+            }}
+          />
+        </div>
 
-          <ResizableHandle withHandle />
+        {/* Lista de emails */}
+        <div className="w-80 border-r border-gray-200 bg-white">
+          <EmailList
+            emails={emails || []}
+            selectedEmail={selectedEmail}
+            onEmailSelect={handleEmailSelect}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedFolder={selectedFolder}
+            isLoading={isLoading}
+          />
+        </div>
 
-          {/* Email List */}
-          <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
-            <EmailList
-              emails={emails || []}
-              selectedEmail={selectedEmail}
-              onEmailSelect={handleEmailSelect}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              selectedFolder={selectedFolder}
-              isLoading={isLoading}
-            />
-          </ResizablePanel>
-
-          <ResizableHandle withHandle />
-
-          {/* Email Viewer */}
-          <ResizablePanel defaultSize={45} minSize={30}>
-            <EmailViewer
-              email={selectedEmail}
-              onReply={handleReply}
-              onArchive={handleArchive}
-              onDelete={handleDelete}
-            />
-          </ResizablePanel>
-        </ResizablePanelGroup>
+        {/* Visor de email */}
+        <div className="flex-1 bg-white">
+          <EmailViewer
+            email={selectedEmail}
+            onReply={handleReply}
+            onArchive={handleArchive}
+            onDelete={handleDelete}
+          />
+        </div>
       </div>
 
-      {/* Email Composer Modal */}
+      {/* Modal del compositor */}
       <EmailComposer
         isOpen={isComposerOpen}
         onClose={handleCloseComposer}

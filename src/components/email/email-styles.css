@@ -3,13 +3,13 @@
 .email-content {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
-  color: #333;
+  color: #374151;
   max-width: 100%;
   word-wrap: break-word;
 }
 
 .email-content h1, .email-content h2, .email-content h3 {
-  color: #1f2937;
+  color: #111827;
   margin-bottom: 1rem;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .email-content pre {
-  background-color: #f3f4f6;
+  background-color: #f9fafb;
   padding: 1rem;
   border-radius: 0.375rem;
   overflow-x: auto;
@@ -56,98 +56,13 @@
 }
 
 .email-content code {
-  background-color: #f3f4f6;
+  background-color: #f9fafb;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-family: 'Courier New', monospace;
 }
 
-/* Estilos para los paneles de la aplicación */
-.email-panel {
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border-right: 1px solid #e5e7eb;
-}
-
-.email-panel:last-child {
-  border-right: none;
-}
-
-.email-panel-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.email-list-header {
-  flex-shrink: 0;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1.5rem;
-  background: white;
-}
-
-.email-list-content {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-.email-viewer-header {
-  flex-shrink: 0;
-  border-bottom: 1px solid #e5e7eb;
-  background: white;
-}
-
-.email-viewer-content {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-  padding: 1.5rem;
-}
-
-/* Estilos para los indicadores de estado */
-.email-status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.email-status-sent {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.email-status-opened {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.email-status-clicked {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-/* Mejorar la apariencia del ResizableHandle */
-[data-panel-group-direction="horizontal"] > [data-panel-resize-handle-enabled] {
-  background: #f1f5f9;
-  width: 2px;
-  transition: background-color 0.2s;
-}
-
-[data-panel-group-direction="horizontal"] > [data-panel-resize-handle-enabled]:hover {
-  background: #cbd5e1;
-  width: 4px;
-}
-
-/* Scrollbar personalizado para mejor apariencia */
+/* Scrollbar personalizado */
 .email-list-content::-webkit-scrollbar,
 .email-viewer-content::-webkit-scrollbar {
   width: 6px;
@@ -155,72 +70,67 @@
 
 .email-list-content::-webkit-scrollbar-track,
 .email-viewer-content::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f9fafb;
 }
 
 .email-list-content::-webkit-scrollbar-thumb,
 .email-viewer-content::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #d1d5db;
   border-radius: 3px;
 }
 
 .email-list-content::-webkit-scrollbar-thumb:hover,
 .email-viewer-content::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #9ca3af;
+}
+
+/* Estilos para líneas de texto truncadas */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Transiciones suaves */
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Efectos hover mejorados */
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: #1d4ed8;
+}
+
+/* Estados de selección */
+.bg-blue-50 {
+  background-color: #eff6ff;
+}
+
+.text-blue-700 {
+  color: #1d4ed8;
+}
+
+.border-blue-600 {
+  border-color: #2563eb;
 }
 
 /* Estilos responsivos */
 @media (max-width: 1024px) {
-  .email-panel {
-    min-height: 500px;
-  }
-  
-  .email-list-header {
-    padding: 1rem;
-  }
-  
-  .email-viewer-header {
-    padding: 1rem;
-  }
-  
-  .email-viewer-content {
-    padding: 1rem;
+  .email-content {
+    font-size: 0.875rem;
   }
 }
 
 @media (max-width: 768px) {
-  .email-panel {
-    min-height: 400px;
-  }
-  
   .email-content {
     font-size: 0.875rem;
-  }
-  
-  .email-list-header {
     padding: 0.75rem;
   }
-  
-  .email-viewer-header {
-    padding: 0.75rem;
-  }
-  
-  .email-viewer-content {
-    padding: 0.75rem;
-  }
-}
-
-/* Efectos hover mejorados */
-.email-panel .email-list-content > div > div {
-  transition: background-color 0.15s ease-in-out;
-}
-
-.email-panel .email-list-content > div > div:hover {
-  background-color: #f8fafc !important;
-}
-
-/* Estilos para el panel seleccionado */
-.email-panel .email-list-content > div > div[data-selected="true"] {
-  background-color: #f0f9ff !important;
-  border-left: 3px solid #3b82f6;
 }
