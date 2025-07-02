@@ -26,7 +26,8 @@ import {
   Building2,
   UserPlus,
   Briefcase,
-  Scale
+  Scale,
+  Mail
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -37,6 +38,7 @@ const menuItems = [
     items: [
       { title: "Dashboard", url: "/", icon: Home },
       { title: "Mi Día", url: "/my-day", icon: Calendar },
+      { title: "Email", url: "/email", icon: Mail },
       { title: "Time Tracking", url: "/time-tracking", icon: Clock },
     ]
   },

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +26,7 @@ import UserManagement from "./pages/UserManagement";
 import TimeTracking from "./pages/TimeTracking";
 import Deals from "./pages/Deals";
 import Cases from "./pages/Cases";
+import Email from "./pages/Email";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +47,7 @@ function App() {
               }>
                 <Route index element={<Index />} />
                 <Route path="my-day" element={<MyDay />} />
+                <Route path="email" element={<Email />} />
                 <Route path="negocios" element={<Negocios />} />
                 <Route path="negocios/:id" element={<NegocioDetail />} />
                 <Route path="deals" element={<Deals />} />
