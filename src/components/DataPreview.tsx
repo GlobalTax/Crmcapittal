@@ -1,6 +1,6 @@
 
 interface DataPreviewProps {
-  data: any[];
+  data: Record<string, unknown>[];
 }
 
 export const DataPreview = ({ data }: DataPreviewProps) => {
