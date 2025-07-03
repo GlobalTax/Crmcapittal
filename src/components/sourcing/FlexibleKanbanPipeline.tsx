@@ -9,7 +9,7 @@ interface FlexibleKanbanPipelineProps {
 }
 
 export const FlexibleKanbanPipeline: React.FC<FlexibleKanbanPipelineProps> = ({ pipelineId }) => {
-  const { negocios, loading } = useNegocios(pipelineId);
+  const { negocios, loading } = useNegocios();
 
   if (loading) {
     return <div className="flex items-center justify-center p-8">Cargando pipeline...</div>;

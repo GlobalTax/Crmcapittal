@@ -60,11 +60,7 @@ export default function PipelinesManager() {
           </div>
           
           <FlexibleKanbanPipeline
-            pipelineType={selectedPipeline?.type || 'TARGET_COMPANY'}
-            onToggleView={() => {
-              // TODO: Implementar vista de tabla
-              console.log('Toggle to table view');
-            }}
+            pipelineId={selectedPipeline?.id || ''}
           />
         </div>
       )}

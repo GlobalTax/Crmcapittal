@@ -2,6 +2,7 @@
 // Common hooks exports
 export { useAsync } from './useAsync';
 export { useAsyncWithErrorBoundary } from './useAsyncWithErrorBoundary';
+export { useCRUD } from './useCRUD';
 
 // Performance hooks
 export { useAsyncOperation } from '../performance/useAsyncOperation';
