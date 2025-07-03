@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -11,7 +10,6 @@ import {
   Settings,
   Mail,
   Target,
-  Briefcase,
   DollarSign,
   ChevronRight,
   Phone,
@@ -60,11 +58,6 @@ const sidebarData: SidebarSection[] = [
   {
     title: "Ventas & Negocios",
     items: [
-      {
-        title: "Deals",
-        href: "/deals",
-        icon: Briefcase,
-      },
       {
         title: "Propuestas",
         href: "/proposals",

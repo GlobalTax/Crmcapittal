@@ -12,7 +12,6 @@ import { AuthProvider } from '@/contexts/AuthContext';
 const Leads = lazy(() => import('@/pages/Leads'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
 const Companies = lazy(() => import('@/pages/Companies'));
-const Deals = lazy(() => import('@/pages/Deals'));
 const Negocios = lazy(() => import('@/pages/Negocios'));
 const Proposals = lazy(() => import('@/pages/Proposals'));
 const TimeTracking = lazy(() => import('@/pages/TimeTracking'));
@@ -61,14 +60,6 @@ function App() {
                     element={
                       <Suspense fallback={<LoadingSkeleton />}>
                         <Companies />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/deals" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Deals />
                       </Suspense>
                     } 
                   />
