@@ -13,6 +13,8 @@ export const useTransactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const { data, error } = await supabase
         .from('transactions')
         .select(`
@@ -26,7 +28,11 @@ export const useTransactions = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw new Error(error.message);
+      }
+      
       setTransactions((data || []) as Transaction[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar transacciones';
@@ -45,7 +51,9 @@ export const useTransactions = () => {
         .from('transactions')
         .insert([{
           ...data,
-          created_by: user?.user?.id
+          created_by: user?.user?.id,
+          status: 'nda_pending',
+          currency: data.currency || 'EUR'
         }])
         .select(`
           *,
@@ -55,12 +63,15 @@ export const useTransactions = () => {
         `)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Create transaction error:', error);
+        throw new Error(error.message);
+      }
 
       setTransactions(prev => [newTransaction as Transaction, ...prev]);
       toast({
         title: "Transacción creada",
-        description: `La transacción ${newTransaction.transaction_code} ha sido creada correctamente.`,
+        description: `La transacción ha sido creada correctamente.`,
       });
       return newTransaction as Transaction;
     } catch (err) {
@@ -88,11 +99,15 @@ export const useTransactions = () => {
         `)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update transaction error:', error);
+        throw new Error(error.message);
+      }
 
       setTransactions(prev => 
         prev.map(transaction => transaction.id === id ? updatedTransaction as Transaction : transaction)
       );
+      
       toast({
         title: "Transacción actualizada",
         description: "Los cambios han sido guardados correctamente.",
@@ -118,7 +133,10 @@ export const useTransactions = () => {
         .eq('id', proposalId)
         .single();
 
-      if (proposalError) throw proposalError;
+      if (proposalError) {
+        console.error('Proposal fetch error:', proposalError);
+        throw new Error(proposalError.message);
+      }
 
       const transactionData: CreateTransactionData = {
         proposal_id: proposalId,
