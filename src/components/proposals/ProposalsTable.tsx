@@ -1,14 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, MoreHorizontal, Send, Download } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Proposal } from '@/types/Proposal';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { MoreHorizontal, Eye, Edit, CheckCircle, ArrowRight, Building } from 'lucide-react';
+import { useTransactions } from '@/hooks/useTransactions';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ProposalsTableProps {
   proposals: Proposal[];
@@ -16,167 +21,197 @@ interface ProposalsTableProps {
   getStatusColor: (status: string) => string;
 }
 
-export const ProposalsTable: React.FC<ProposalsTableProps> = ({ 
-  proposals, 
-  getStatusIcon, 
-  getStatusColor 
+export const ProposalsTable: React.FC<ProposalsTableProps> = ({
+  proposals,
+  getStatusIcon,
+  getStatusColor
 }) => {
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'draft': return 'Borrador';
-      case 'sent': return 'Enviada';
-      case 'approved': return 'Aprobada';
-      case 'rejected': return 'Rechazada';
-      case 'expired': return 'Expirada';
-      default: return status;
+  const { createTransactionFromProposal } = useTransactions();
+  const { toast } = useToast();
+  const [creatingTransaction, setCreatingTransaction] = useState<string | null>(null);
+
+  const formatCurrency = (amount?: number, currency = 'EUR') => {
+    if (!amount) return '-';
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('es-ES');
+  };
+
+  const handleCreateTransaction = async (proposalId: string) => {
+    setCreatingTransaction(proposalId);
+    try {
+      await createTransactionFromProposal(proposalId);
+      toast({
+        title: "Transacción creada",
+        description: "La transacción M&A ha sido creada exitosamente desde la propuesta.",
+      });
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+    } finally {
+      setCreatingTransaction(null);
     }
   };
-
-  const handleViewProposal = (proposal: Proposal) => {
-    console.log('Ver propuesta:', proposal.id);
-    // TODO: Implementar vista de propuesta
-  };
-
-  const handleEditProposal = (proposal: Proposal) => {
-    console.log('Editar propuesta:', proposal.id);
-    // TODO: Implementar edición de propuesta
-  };
-
-  const handleSendProposal = (proposal: Proposal) => {
-    console.log('Enviar propuesta:', proposal.id);
-    // TODO: Implementar envío de propuesta
-  };
-
-  const handleDownloadProposal = (proposal: Proposal) => {
-    console.log('Descargar propuesta:', proposal.id);
-    // TODO: Implementar descarga de PDF
-  };
-
-  if (proposals.length === 0) {
-    return (
-      <Card>
-        <CardContent className="py-8">
-          <div className="text-center">
-            <div className="mx-auto h-12 w-12 text-gray-400">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No hay propuestas</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Comienza creando tu primera propuesta de honorarios.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lista de Propuestas</CardTitle>
+        <CardTitle className="flex items-center space-x-2">
+          <Building className="h-5 w-5 text-blue-600" />
+          <span>Lista de Propuestas</span>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Título</TableHead>
-              <TableHead>Cliente/Empresa</TableHead>
-              <TableHead>Área de Práctica</TableHead>
-              <TableHead>Importe</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Fecha Creación</TableHead>
-              <TableHead>Válida Hasta</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {proposals.map((proposal) => (
-              <TableRow key={proposal.id}>
-                <TableCell className="font-medium">
-                  {proposal.title}
-                </TableCell>
-                <TableCell>
-                  <div className="space-y-1">
-                    {proposal.contact && (
-                      <div className="text-sm font-medium">{proposal.contact.name}</div>
-                    )}
-                    {proposal.company && (
-                      <div className="text-xs text-gray-500">{proposal.company.name}</div>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {proposal.practice_area && (
-                    <Badge 
-                      variant="outline" 
-                      style={{ backgroundColor: proposal.practice_area.color + '20', borderColor: proposal.practice_area.color }}
-                    >
-                      {proposal.practice_area.name}
-                    </Badge>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {proposal.total_amount ? (
-                    <span className="font-medium">
-                      €{proposal.total_amount.toLocaleString()}
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(proposal.status)}>
-                    <span className="flex items-center gap-1">
-                      {getStatusIcon(proposal.status)}
-                      {getStatusLabel(proposal.status)}
-                    </span>
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {format(new Date(proposal.created_at), 'dd/MM/yyyy', { locale: es })}
-                </TableCell>
-                <TableCell>
-                  {proposal.valid_until ? (
-                    format(new Date(proposal.valid_until), 'dd/MM/yyyy', { locale: es })
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleViewProposal(proposal)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        Ver
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEditProposal(proposal)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </DropdownMenuItem>
-                      {proposal.status === 'draft' && (
-                        <DropdownMenuItem onClick={() => handleSendProposal(proposal)}>
-                          <Send className="mr-2 h-4 w-4" />
-                          Enviar
-                        </DropdownMenuItem>
+        {proposals.length > 0 ? (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Cliente</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Valor Total</TableHead>
+                  <TableHead>Área de Práctica</TableHead>
+                  <TableHead>Válida Hasta</TableHead>
+                  <TableHead>Creada</TableHead>
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {proposals.map((proposal) => (
+                  <TableRow key={proposal.id} className="hover:bg-gray-50">
+                    <TableCell className="font-medium">
+                      {proposal.title}
+                      {proposal.description && (
+                        <div className="text-sm text-gray-500 mt-1">
+                          {proposal.description.slice(0, 100)}...
+                        </div>
                       )}
-                      <DropdownMenuItem onClick={() => handleDownloadProposal(proposal)}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Descargar PDF
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                    </TableCell>
+                    
+                    <TableCell>
+                      {proposal.contact ? (
+                        <div>
+                          <div className="font-medium">{proposal.contact.name}</div>
+                          {proposal.contact.email && (
+                            <div className="text-sm text-gray-500">
+                              {proposal.contact.email}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">Sin contacto</span>
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge className={getStatusColor(proposal.status)}>
+                        <div className="flex items-center space-x-1">
+                          {getStatusIcon(proposal.status)}
+                          <span>{proposal.status}</span>
+                        </div>
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="font-medium">
+                        {formatCurrency(proposal.total_amount, proposal.currency)}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {proposal.proposal_type}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      {proposal.practice_area ? (
+                        <Badge 
+                          variant="outline" 
+                          style={{ 
+                            borderColor: proposal.practice_area.color,
+                            color: proposal.practice_area.color 
+                          }}
+                        >
+                          {proposal.practice_area.name}
+                        </Badge>
+                      ) : (
+                        <span className="text-gray-400">No especificada</span>
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {formatDate(proposal.valid_until)}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {formatDate(proposal.created_at)}
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        {proposal.status === 'approved' && (
+                          <Button
+                            size="sm"
+                            onClick={() => handleCreateTransaction(proposal.id)}
+                            disabled={creatingTransaction === proposal.id}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            {creatingTransaction === proposal.id ? (
+                              'Creando...'
+                            ) : (
+                              <>
+                                <ArrowRight className="h-4 w-4 mr-1" />
+                                Crear Transacción
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Ver detalles
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                            {proposal.status === 'sent' && (
+                              <DropdownMenuItem>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Marcar como aprobada
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Building className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium mb-2">No hay propuestas</h3>
+            <p className="text-sm">
+              Las propuestas aparecerán aquí cuando se creen
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

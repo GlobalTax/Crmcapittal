@@ -1,106 +1,213 @@
 
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { 
-  Users, 
-  Settings, 
-  Home,
-  UserCheck,
-  Shield,
-  ShieldCheck,
+  BarChart3,
+  Users,
+  Building,
   Calendar,
-  Clock,
-  Building2,
-  UserPlus,
-  Briefcase,
+  FileText,
+  Settings,
   Mail,
-  FileText
-} from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
-import { useUserRole } from "@/hooks/useUserRole";
+  Target,
+  Briefcase,
+  DollarSign,
+  ChevronRight,
+  Home,
+  Phone,
+  Archive,
+  Timer,
+  Search,
+  PieChart,
+  MessageSquare,
+  Folder,
+  ArrowLeftRight // ... keep existing code (imports)
+} from 'lucide-react';
 
-const menuItems = [
+interface SidebarItem {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+}
+
+interface SidebarSection {
+  title: string;
+  items: SidebarItem[];
+}
+
+const sidebarData: SidebarSection[] = [
   {
-    title: "General",
+    title: "Principal",
     items: [
-      { title: "Dashboard", url: "/", icon: Home },
-      { title: "Mi Día", url: "/my-day", icon: Calendar },
-      { title: "Email", url: "/email", icon: Mail },
-      { title: "Time Tracking", url: "/time-tracking", icon: Clock },
-    ]
+      {
+        title: "Dashboard",
+        href: "/dashboard",
+        icon: Home,
+      },
+      {
+        title: "Leads",
+        href: "/leads",
+        icon: Target,
+      },
+      {
+        title: "Contactos",
+        href: "/contacts",
+        icon: Users,
+      },
+      {
+        title: "Empresas",
+        href: "/companies",
+        icon: Building,
+      },
+    ],
   },
   {
-    title: "CRM & Ventas",
+    title: "Ventas & Negocios",
     items: [
-      { title: "Empresas", url: "/companies", icon: Building2 },
-      { title: "Contactos", url: "/contacts", icon: Users },
-      { title: "Control Leads", url: "/leads", icon: UserPlus },
-      { title: "Negocios", url: "/deals", icon: Briefcase },
-      { title: "Propuestas", url: "/proposals", icon: FileText },
-    ]
+      {
+        title: "Deals",
+        href: "/deals",
+        icon: Briefcase,
+      },
+      {
+        title: "Negocios",
+        href: "/negocios",
+        icon: DollarSign,
+      },
+      {
+        title: "Propuestas",
+        href: "/proposals",
+        icon: FileText,
+      },
+      {
+        title: "Transacciones M&A",
+        href: "/transactions",
+        icon: ArrowLeftRight,
+      },
+    ],
   },
   {
-    title: "Gestión",
+    title: "Operaciones",
     items: [
-      { title: "Managers", url: "/managers", icon: UserCheck },
-    ]
+      {
+        title: "Operaciones",
+        href: "/operations",
+        icon: Archive,
+      },
+      {
+        title: "Sourcing",
+        href: "/sourcing",
+        icon: Search,
+      },
+      {
+        title: "Pipelines",
+        href: "/pipelines",
+        icon: PieChart,
+      },
+      {
+        title: "Time Tracking",
+        href: "/time-tracking",
+        icon: Timer,
+      },
+    ],
+  },
+  {
+    title: "Comunicación",
+    items: [
+      {
+        title: "Email",
+        href: "/email",
+        icon: Mail,
+      },
+      {
+        title: "Mensajes",
+        href: "/messages",
+        icon: MessageSquare,
+      },
+      {
+        title: "Calendario",
+        href: "/calendar",
+        icon: Calendar,
+      },
+    ],
   },
   {
     title: "Administración",
     items: [
-      { title: "Admin", url: "/admin", icon: Shield, roles: ['admin', 'superadmin'] },
-      { title: "Super Admin", url: "/super-admin", icon: ShieldCheck, roles: ['superadmin'] },
-    ]
-  }
+      {
+        title: "Documentos",
+        href: "/documents",
+        icon: Folder,
+      },
+      {
+        title: "Reportes",
+        href: "/reports",
+        icon: BarChart3,
+      },
+      {
+        title: "Configuración",
+        href: "/settings",
+        icon: Settings,
+      },
+    ],
+  },
 ];
 
-export function AppSidebar() {
+export const AppSidebar = () => {
   const location = useLocation();
-  const { role } = useUserRole();
-
-  const hasAccess = (itemRoles?: string[]) => {
-    if (!itemRoles) return true;
-    return itemRoles.includes(role || '');
-  };
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        {menuItems.map((group) => (
-          <SidebarGroup key={group.title}>
-            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  if (!hasAccess(item.roles)) return null;
-                  
+    <div className="w-64 bg-gray-900 text-white h-full overflow-y-auto">
+      <div className="p-4">
+        <div className="flex items-center space-x-2 mb-8">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Building className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold">CRM Pro</h1>
+            <p className="text-xs text-gray-400">M&A Platform</p>
+          </div>
+        </div>
+
+        <nav className="space-y-6">
+          {sidebarData.map((section) => (
+            <div key={section.title}>
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                {section.title}
+              </h2>
+              <ul className="space-y-1">
+                {section.items.map((item) => {
+                  const isActive = location.pathname === item.href;
                   return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={location.pathname === item.url}
+                    <li key={item.href}>
+                      <Link
+                        to={item.href}
+                        className={cn(
+                          "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                          isActive
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                        )}
                       >
-                        <Link to={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span className="flex-1">{item.title}</span>
+                        {item.badge && (
+                          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                            {item.badge}
+                          </span>
+                        )}
+                        {isActive && <ChevronRight className="h-4 w-4" />}
+                      </Link>
+                    </li>
                   );
                 })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
-      </SidebarContent>
-    </Sidebar>
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </div>
+    </div>
   );
-}
+};

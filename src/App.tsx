@@ -1,63 +1,201 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { Layout } from "./components/Layout";
-import Auth from "./pages/Auth";
-import Index from "./pages/Index";
-import MyDay from "./pages/MyDay";
-import Negocios from "./pages/Negocios";
-import NegocioDetail from "./pages/NegocioDetail";
-import Contacts from "./pages/Contacts";
-import Companies from "./pages/Companies";
-import Leads from "./pages/Leads";
-import Calendar from "./pages/Calendar";
-import AdminPanel from "./pages/AdminPanel";
-import UserManagement from "./pages/UserManagement";
-import TimeTracking from "./pages/TimeTracking";
-import Deals from "./pages/Deals";
-import Email from "./pages/Email";
-import Proposals from "./pages/Proposals";
+import { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { LoadingSkeleton } from '@/components/LoadingSkeleton';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { LazyPage } from '@/components/common/LazyPage';
 
-const queryClient = new QueryClient();
+// Lazy load pages
+const Dashboard = LazyPage(() => import('@/pages/Dashboard'));
+const Leads = LazyPage(() => import('@/pages/Leads'));
+const Contacts = LazyPage(() => import('@/pages/Contacts'));
+const Companies = LazyPage(() => import('@/pages/Companies'));
+const Deals = LazyPage(() => import('@/pages/Deals'));
+const Negocios = LazyPage(() => import('@/pages/Negocios'));
+const Proposals = LazyPage(() => import('@/pages/Proposals'));
+const Operations = LazyPage(() => import('@/pages/Operations'));
+const Sourcing = LazyPage(() => import('@/pages/Sourcing'));
+const Pipelines = LazyPage(() => import('@/pages/Pipelines'));
+const TimeTracking = LazyPage(() => import('@/pages/TimeTracking'));
+const Email = LazyPage(() => import('@/pages/Email'));
+const Messages = LazyPage(() => import('@/pages/Messages'));
+const CalendarPage = LazyPage(() => import('@/pages/Calendar'));
+const Documents = LazyPage(() => import('@/pages/Documents'));
+const Reports = LazyPage(() => import('@/pages/Reports'));
+const Settings = LazyPage(() => import('@/pages/Settings'));
+const Transactions = LazyPage(() => import('@/pages/Transactions'));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <ErrorBoundary>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
             <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }>
-                <Route index element={<Index />} />
-                <Route path="my-day" element={<MyDay />} />
-                <Route path="email" element={<Email />} />
-                <Route path="negocios" element={<Negocios />} />
-                <Route path="negocios/:id" element={<NegocioDetail />} />
-                <Route path="deals" element={<Deals />} />
-                <Route path="contacts" element={<Contacts />} />
-                <Route path="companies" element={<Companies />} />
-                <Route path="leads" element={<Leads />} />
-                <Route path="proposals" element={<Proposals />} />
-                <Route path="calendar" element={<Calendar />} />
-                <Route path="admin" element={<AdminPanel />} />
-                <Route path="user-management" element={<UserManagement />} />
-                <Route path="time-tracking" element={<TimeTracking />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              
+              <Route element={<DashboardLayout />}>
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Dashboard />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/leads" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Leads />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/contacts" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Contacts />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/companies" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Companies />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/deals" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Deals />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/negocios" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Negocios />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/proposals" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Proposals />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/operations" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Operations />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/sourcing" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Sourcing />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/pipelines" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Pipelines />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/time-tracking" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <TimeTracking />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/email" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Email />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/messages" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Messages />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/calendar" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <CalendarPage />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/documents" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Documents />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/reports" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Reports />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Settings />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/transactions" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Transactions />
+                    </Suspense>
+                  } 
+                />
               </Route>
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+          </div>
+          <Toaster />
+        </Router>
+      </ErrorBoundary>
     </QueryClientProvider>
   );
 }
