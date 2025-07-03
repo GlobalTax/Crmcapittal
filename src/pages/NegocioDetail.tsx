@@ -7,11 +7,7 @@ import { Negocio } from "@/types/Negocio";
 import { useNegocios } from "@/hooks/useNegocios";
 import { EditNegocioDialog } from "@/components/negocios/EditNegocioDialog";
 import { NegocioHeader } from "@/components/negocios/detail/NegocioHeader";
-import { NegocioInfoSection } from "@/components/negocios/detail/NegocioInfoSection";
-import { CompanyInfoSection } from "@/components/negocios/detail/CompanyInfoSection";
-import { ContactSidebar } from "@/components/negocios/detail/ContactSidebar";
-import { ActivityTimeline } from "@/components/negocios/detail/ActivityTimeline";
-import { MetricsPanel } from "@/components/negocios/detail/MetricsPanel";
+import { NegocioWorkPanel } from "@/components/negocios/detail/NegocioWorkPanel";
 
 const NegocioDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,21 +50,9 @@ const NegocioDetail = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <NegocioHeader negocio={negocio} onEdit={() => setEditingNegocio(true)} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Contenido Principal */}
-        <div className="lg:col-span-2 space-y-6">
-          <NegocioInfoSection negocio={negocio} />
-          <CompanyInfoSection negocio={negocio} />
-        </div>
-
-        {/* Sidebar Derecho */}
-        <div className="space-y-6">
-          <ContactSidebar negocio={negocio} />
-          <ActivityTimeline negocio={negocio} />
-          <MetricsPanel negocio={negocio} />
-        </div>
-      </div>
+      
+      {/* Panel de trabajo potente */}
+      <NegocioWorkPanel negocio={negocio} />
 
       {/* Edit Dialog */}
       {editingNegocio && (

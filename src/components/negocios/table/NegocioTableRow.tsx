@@ -1,31 +1,25 @@
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { TableCell, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash2, Euro, Building2, User, Calendar } from "lucide-react";
-import { Negocio } from "@/types/Negocio";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { TableCell, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal, Eye, Edit, Trash2, ExternalLink } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Negocio } from '@/types/Negocio';
+import { Link } from 'react-router-dom';
 
 interface NegocioTableRowProps {
   negocio: Negocio;
   onEdit: (negocio: Negocio) => void;
-  onDelete: (negocioId: string) => void;
+  onDelete: (id: string) => Promise<any>;
 }
 
 export const NegocioTableRow = ({ negocio, onEdit, onDelete }: NegocioTableRowProps) => {
-  const getPriorityColor = (prioridad: string) => {
-    switch (prioridad) {
-      case 'baja': return "bg-gray-100 text-gray-800";
-      case 'media': return "bg-yellow-100 text-yellow-800";
-      case 'alta': return "bg-orange-100 text-orange-800";
-      case 'urgente': return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const formatCurrency = (value?: number) => {
     if (!value) return '-';
     return new Intl.NumberFormat('es-ES', {
@@ -35,58 +29,52 @@ export const NegocioTableRow = ({ negocio, onEdit, onDelete }: NegocioTableRowPr
     }).format(value);
   };
 
-  const getDaysInPipeline = (createdAt: string) => {
-    const days = Math.floor((new Date().getTime() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
-    return days;
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES');
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este negocio?')) {
-      onDelete(negocio.id);
+  const getPriorityColor = (prioridad: string) => {
+    switch (prioridad) {
+      case 'baja': return "bg-gray-100 text-gray-800";
+      case 'media': return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case 'alta': return "bg-orange-100 text-orange-800 border-orange-200";
+      case 'urgente': return "bg-red-100 text-red-800 border-red-200";
+      default: return "bg-gray-100 text-gray-800";
     }
   };
 
   return (
     <TableRow className="hover:bg-gray-50">
-      <TableCell>
-        <div className="flex items-center space-x-2">
-          <div>
-            <Link 
-              to={`/negocios/${negocio.id}`}
-              className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
-            >
-              {negocio.nombre_negocio}
-            </Link>
-            <p className="text-sm text-gray-500 capitalize">{negocio.tipo_negocio}</p>
-          </div>
+      <TableCell className="font-medium">
+        <div className="flex items-center gap-2">
+          <Link 
+            to={`/negocios/${negocio.id}`}
+            className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+          >
+            {negocio.nombre_negocio}
+          </Link>
+          <Link to={`/negocios/${negocio.id}`}>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <ExternalLink className="h-3 w-3" />
+            </Button>
+          </Link>
         </div>
-      </TableCell>
-      
-      <TableCell>
-        {negocio.company ? (
-          <div className="flex items-center space-x-2">
-            <Building2 className="h-4 w-4 text-gray-400" />
-            <span>{negocio.company.name}</span>
-          </div>
-        ) : (
-          <span className="text-gray-400">-</span>
+        {negocio.company && (
+          <div className="text-sm text-gray-500">{negocio.company.name}</div>
         )}
       </TableCell>
       
       <TableCell>
-        {negocio.contact ? (
-          <div className="flex items-center space-x-2">
-            <User className="h-4 w-4 text-gray-400" />
-            <div>
-              <p className="font-medium">{negocio.contact.name}</p>
-              {negocio.contact.position && (
-                <p className="text-sm text-gray-500">{negocio.contact.position}</p>
-              )}
-            </div>
-          </div>
-        ) : (
-          <span className="text-gray-400">-</span>
-        )}
+        <div className="font-medium">
+          {formatCurrency(negocio.valor_negocio)}
+        </div>
+        <div className="text-sm text-gray-500">{negocio.moneda}</div>
+      </TableCell>
+      
+      <TableCell>
+        <Badge variant="outline" className="capitalize">
+          {negocio.tipo_negocio}
+        </Badge>
       </TableCell>
       
       <TableCell>
@@ -107,60 +95,51 @@ export const NegocioTableRow = ({ negocio, onEdit, onDelete }: NegocioTableRowPr
       </TableCell>
       
       <TableCell>
-        <Badge className={getPriorityColor(negocio.prioridad)} variant="outline">
+        <Badge variant="outline" className={getPriorityColor(negocio.prioridad)}>
           {negocio.prioridad}
         </Badge>
       </TableCell>
       
       <TableCell>
-        <div className="flex items-center space-x-1">
-          <Euro className="h-4 w-4 text-gray-400" />
-          <span className="font-medium">{formatCurrency(negocio.valor_negocio)}</span>
-        </div>
-      </TableCell>
-      
-      <TableCell>
-        {negocio.propietario_negocio ? (
-          <div className="flex items-center space-x-2">
-            <User className="h-4 w-4 text-gray-400" />
-            <span>{negocio.propietario_negocio}</span>
+        {negocio.contact ? (
+          <div>
+            <div className="font-medium">{negocio.contact.name}</div>
+            {negocio.contact.email && (
+              <div className="text-sm text-gray-500">{negocio.contact.email}</div>
+            )}
           </div>
         ) : (
-          <span className="text-gray-400">Sin asignar</span>
+          <span className="text-gray-400">Sin contacto</span>
         )}
       </TableCell>
       
       <TableCell>
-        <span className="text-sm">{negocio.sector || '-'}</span>
-      </TableCell>
-      
-      <TableCell>
-        <div className="flex items-center space-x-1">
-          <Calendar className="h-4 w-4 text-gray-400" />
-          <span>{getDaysInPipeline(negocio.created_at)} días</span>
-        </div>
-      </TableCell>
-      
-      <TableCell>
-        <span className="text-sm text-gray-500">
-          {format(new Date(negocio.created_at), 'dd/MM/yyyy', { locale: es })}
-        </span>
+        <div className="text-sm">{formatDate(negocio.created_at)}</div>
       </TableCell>
       
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link to={`/negocios/${negocio.id}`} className="flex items-center">
+                <Eye className="h-4 w-4 mr-2" />
+                Panel de Trabajo
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEdit(negocio)}>
-              <Edit className="mr-2 h-4 w-4" />
+              <Edit className="h-4 w-4 mr-2" />
               Editar
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDelete} className="text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
+            <DropdownMenuItem 
+              onClick={() => onDelete(negocio.id)}
+              className="text-red-600"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
               Eliminar
             </DropdownMenuItem>
           </DropdownMenuContent>

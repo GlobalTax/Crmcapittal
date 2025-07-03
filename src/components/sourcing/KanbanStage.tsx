@@ -1,79 +1,47 @@
 
-import { Droppable, Draggable } from "react-beautiful-dnd";
-import { TargetCompany } from "@/types/TargetCompany";
-import { Deal } from "@/types/Deal";
-import { Stage } from "@/types/Pipeline";
-import { KanbanCard } from "./KanbanCard";
-import { DealCard } from "@/components/deals/DealCard";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Negocio } from '@/types/Negocio';
 
 interface KanbanStageProps {
-  stage: Stage;
-  items: (Deal | TargetCompany)[];
-  draggedCardId: string | null;
-  pipelineType: 'DEAL' | 'TARGET_COMPANY' | 'LEAD' | 'OPERACION' | 'PROYECTO';
+  title: string;
+  negocios: Negocio[];
+  onNegocioClick?: (negocio: Negocio) => void;
 }
 
-export const KanbanStage = ({ stage, items, draggedCardId, pipelineType }: KanbanStageProps) => {
-  const renderCard = (item: Deal | TargetCompany, index: number) => {
-    const isDragging = draggedCardId === item.id;
-    
-    if (pipelineType === 'DEAL' && 'deal_name' in item) {
-      return (
-        <Draggable key={item.id} draggableId={item.id} index={index}>
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-            >
-              <DealCard deal={item} isDragging={isDragging} />
-            </div>
-          )}
-        </Draggable>
-      );
-    } else if ('name' in item) {
-      return (
-        <Draggable key={item.id} draggableId={item.id} index={index}>
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              {...provided.dragHandleProps}
-            >
-              <KanbanCard company={item} />
-            </div>
-          )}
-        </Draggable>
-      );
-    }
-    return null;
-  };
-
+export const KanbanStage: React.FC<KanbanStageProps> = ({ title, negocios, onNegocioClick }) => {
   return (
-    <div className="flex-shrink-0 w-80">
-      <div className="bg-gray-50 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-medium text-gray-900">{stage.name}</h4>
-          <div 
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: stage.color }}
-          />
-        </div>
-        
-        <Droppable droppableId={stage.id}>
-          {(provided, snapshot) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className={`min-h-[200px] ${
-                snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-blue-200 border-dashed' : ''
-              }`}
-            >
-              {items.map((item, index) => renderCard(item, index))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+    <div className="min-w-80 bg-gray-50 rounded-lg p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-medium text-gray-900">{title}</h3>
+        <Badge variant="secondary">{negocios.length}</Badge>
+      </div>
+      <div className="space-y-3">
+        {negocios.map((negocio) => (
+          <Card 
+            key={negocio.id} 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => onNegocioClick?.(negocio)}
+          >
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium truncate">
+                {negocio.nombre_negocio}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="text-sm font-semibold text-green-600">
+                  {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })
+                    .format(negocio.valor_negocio || 0)}
+                </div>
+                {negocio.company && (
+                  <p className="text-xs text-gray-500 truncate">{negocio.company.name}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

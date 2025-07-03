@@ -1,35 +1,32 @@
 
-import { TargetCompany, TargetStatus } from "@/types/TargetCompany";
-import { Deal } from "@/types/Deal";
-import { Stage } from "@/types/Pipeline";
-import { PipelineType } from "@/types/Pipeline";
+import { Negocio } from '@/types/Negocio';
 
-export const groupItemsByStage = (
-  stages: Stage[],
-  pipelineType: PipelineType,
-  deals: Deal[],
-  targetCompanies: TargetCompany[]
-): Record<string, (Deal | TargetCompany)[]> => {
-  return stages.reduce((acc, stage) => {
-    if (pipelineType === 'DEAL') {
-      acc[stage.id] = deals.filter(deal => deal.stage_id === stage.id);
-    } else if (pipelineType === 'TARGET_COMPANY') {
-      // For target companies, we still use the old status-based grouping
-      const statusColumns: { id: TargetStatus; stageId?: string }[] = [
-        { id: 'IDENTIFIED' },
-        { id: 'RESEARCHING' },
-        { id: 'OUTREACH_PLANNED' },
-        { id: 'CONTACTED' },
-        { id: 'IN_CONVERSATION' },
-        { id: 'ON_HOLD' },
-        { id: 'CONVERTED_TO_DEAL' }
-      ];
-      
-      const matchingStatus = statusColumns.find((_, index) => index === stage.order_index - 1);
-      if (matchingStatus) {
-        acc[stage.id] = targetCompanies.filter(company => company.status === matchingStatus.id);
-      }
+export const groupNegociosByStage = (negocios: Negocio[]) => {
+  return negocios.reduce((acc, negocio) => {
+    const stageId = negocio.stage_id || 'sin-etapa';
+    const stageName = negocio.stage?.name || 'Sin Etapa';
+    
+    if (!acc[stageId]) {
+      acc[stageId] = {
+        id: stageId,
+        name: stageName,
+        negocios: []
+      };
     }
+    acc[stageId].negocios.push(negocio);
     return acc;
-  }, {} as Record<string, (Deal | TargetCompany)[]>);
+  }, {} as Record<string, { id: string; name: string; negocios: Negocio[] }>);
+};
+
+export const calculateStageValue = (negocios: Negocio[]) => {
+  return negocios.reduce((total, negocio) => total + (negocio.valor_negocio || 0), 0);
+};
+
+export const formatCurrency = (amount: number, currency = 'EUR') => {
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };

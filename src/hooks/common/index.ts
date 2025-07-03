@@ -1,9 +1,9 @@
 
-export { useAsync, useCRUD, useAsyncWithCache } from './useAsync';
+// Common hooks exports
+export { useAsync } from './useAsync';
 export { useAsyncWithErrorBoundary } from './useAsyncWithErrorBoundary';
-export type { UseAsyncOptions } from './useAsync';
 
-// Re-export para facilitar migraciones
-export { useDealsWithAsync } from '../useDealsWithAsync';
-export { useOperationsEnhanced } from '../operations/useOperationsEnhanced';
-export { useContactsCRUD } from '../useContactsCRUD';
+// Performance hooks
+export { useAsyncOperation } from '../performance/useAsyncOperation';
+export { useOptimizedTable } from '../performance/useOptimizedTable';
+export { usePerformanceMonitor } from '../performance/usePerformanceMonitor';
