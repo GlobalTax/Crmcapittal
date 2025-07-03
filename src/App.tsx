@@ -1,3 +1,4 @@
+
 import { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,24 +8,16 @@ import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LazyPage } from '@/components/common/LazyPage';
 
-// Lazy load pages
-const Dashboard = LazyPage(() => import('@/pages/Dashboard'));
+// Lazy load existing pages
 const Leads = LazyPage(() => import('@/pages/Leads'));
 const Contacts = LazyPage(() => import('@/pages/Contacts'));
 const Companies = LazyPage(() => import('@/pages/Companies'));
 const Deals = LazyPage(() => import('@/pages/Deals'));
 const Negocios = LazyPage(() => import('@/pages/Negocios'));
 const Proposals = LazyPage(() => import('@/pages/Proposals'));
-const Operations = LazyPage(() => import('@/pages/Operations'));
-const Sourcing = LazyPage(() => import('@/pages/Sourcing'));
-const Pipelines = LazyPage(() => import('@/pages/Pipelines'));
 const TimeTracking = LazyPage(() => import('@/pages/TimeTracking'));
 const Email = LazyPage(() => import('@/pages/Email'));
-const Messages = LazyPage(() => import('@/pages/Messages'));
 const CalendarPage = LazyPage(() => import('@/pages/Calendar'));
-const Documents = LazyPage(() => import('@/pages/Documents'));
-const Reports = LazyPage(() => import('@/pages/Reports'));
-const Settings = LazyPage(() => import('@/pages/Settings'));
 const Transactions = LazyPage(() => import('@/pages/Transactions'));
 
 const queryClient = new QueryClient({
@@ -43,17 +36,9 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/leads" replace />} />
               
               <Route element={<DashboardLayout />}>
-                <Route 
-                  path="/dashboard" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Dashboard />
-                    </Suspense>
-                  } 
-                />
                 <Route 
                   path="/leads" 
                   element={
@@ -103,30 +88,6 @@ function App() {
                   } 
                 />
                 <Route 
-                  path="/operations" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Operations />
-                    </Suspense>
-                  } 
-                />
-                <Route 
-                  path="/sourcing" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Sourcing />
-                    </Suspense>
-                  } 
-                />
-                <Route 
-                  path="/pipelines" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Pipelines />
-                    </Suspense>
-                  } 
-                />
-                <Route 
                   path="/time-tracking" 
                   element={
                     <Suspense fallback={<LoadingSkeleton />}>
@@ -143,42 +104,10 @@ function App() {
                   } 
                 />
                 <Route 
-                  path="/messages" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Messages />
-                    </Suspense>
-                  } 
-                />
-                <Route 
                   path="/calendar" 
                   element={
                     <Suspense fallback={<LoadingSkeleton />}>
                       <CalendarPage />
-                    </Suspense>
-                  } 
-                />
-                <Route 
-                  path="/documents" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Documents />
-                    </Suspense>
-                  } 
-                />
-                <Route 
-                  path="/reports" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Reports />
-                    </Suspense>
-                  } 
-                />
-                <Route 
-                  path="/settings" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Settings />
                     </Suspense>
                   } 
                 />

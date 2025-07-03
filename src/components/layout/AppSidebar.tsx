@@ -14,15 +14,9 @@ import {
   Briefcase,
   DollarSign,
   ChevronRight,
-  Home,
   Phone,
-  Archive,
   Timer,
-  Search,
-  PieChart,
-  MessageSquare,
-  Folder,
-  ArrowLeftRight // ... keep existing code (imports)
+  ArrowLeftRight
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -41,11 +35,6 @@ const sidebarData: SidebarSection[] = [
   {
     title: "Principal",
     items: [
-      {
-        title: "Dashboard",
-        href: "/dashboard",
-        icon: Home,
-      },
       {
         title: "Leads",
         href: "/leads",
@@ -89,31 +78,6 @@ const sidebarData: SidebarSection[] = [
     ],
   },
   {
-    title: "Operaciones",
-    items: [
-      {
-        title: "Operaciones",
-        href: "/operations",
-        icon: Archive,
-      },
-      {
-        title: "Sourcing",
-        href: "/sourcing",
-        icon: Search,
-      },
-      {
-        title: "Pipelines",
-        href: "/pipelines",
-        icon: PieChart,
-      },
-      {
-        title: "Time Tracking",
-        href: "/time-tracking",
-        icon: Timer,
-      },
-    ],
-  },
-  {
     title: "Comunicación",
     items: [
       {
@@ -122,34 +86,14 @@ const sidebarData: SidebarSection[] = [
         icon: Mail,
       },
       {
-        title: "Mensajes",
-        href: "/messages",
-        icon: MessageSquare,
-      },
-      {
         title: "Calendario",
         href: "/calendar",
         icon: Calendar,
       },
-    ],
-  },
-  {
-    title: "Administración",
-    items: [
       {
-        title: "Documentos",
-        href: "/documents",
-        icon: Folder,
-      },
-      {
-        title: "Reportes",
-        href: "/reports",
-        icon: BarChart3,
-      },
-      {
-        title: "Configuración",
-        href: "/settings",
-        icon: Settings,
+        title: "Time Tracking",
+        href: "/time-tracking",
+        icon: Timer,
       },
     ],
   },
