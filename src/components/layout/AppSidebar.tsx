@@ -50,6 +50,11 @@ const sidebarData: SidebarSection[] = [
         href: "/companies",
         icon: Building,
       },
+      {
+        title: "Negocios",
+        href: "/negocios",
+        icon: DollarSign,
+      },
     ],
   },
   {
@@ -59,11 +64,6 @@ const sidebarData: SidebarSection[] = [
         title: "Deals",
         href: "/deals",
         icon: Briefcase,
-      },
-      {
-        title: "Negocios",
-        href: "/negocios",
-        icon: DollarSign,
       },
       {
         title: "Propuestas",

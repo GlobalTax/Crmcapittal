@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { TransactionsDashboard } from '@/components/transactions/TransactionsDashboard';
 import { TransactionsTable } from '@/components/transactions/TransactionsTable';
@@ -145,11 +144,11 @@ const Transactions: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Create Transaction Dialog */}
+      {/* Create Transaction Dialog - Fixed props */}
       <CreateTransactionDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onSuccess={handleCreateTransaction}
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onSubmit={handleCreateTransaction}
       />
     </div>
   );
