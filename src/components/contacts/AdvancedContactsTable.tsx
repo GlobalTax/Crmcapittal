@@ -322,10 +322,11 @@ export function AdvancedContactsTable({
     }
 
     if (column.editable && onUpdateContact && column.type !== 'badge') {
+      const editableType = column.type as 'text' | 'email' | 'phone' | 'select' | 'date' | undefined;
       return (
         <InlineEditCell
           value={value}
-          type={(column.type && column.type !== 'badge') ? column.type as 'text' | 'email' | 'phone' | 'select' | 'date' : 'text'}
+          type={editableType || 'text'}
           options={column.options}
           onSave={(newValue) => handleInlineEdit(contact.id, column.id, newValue)}
         />
