@@ -240,8 +240,7 @@ const Dashboard = () => {
           {paginationConfig.totalPages > 1 && (
             <div className="mt-4">
               <PaginationControls
-                currentPage={paginationConfig.page}
-                totalPages={paginationConfig.totalPages}
+                config={paginationConfig}
                 onPageChange={goToPage}
                 onNextPage={goToNextPage}
                 onPreviousPage={goToPreviousPage}
@@ -326,8 +325,7 @@ const Dashboard = () => {
               {paginationConfig.totalPages > 1 && (
                 <div className="mt-4">
                   <PaginationControls
-                    currentPage={paginationConfig.page}
-                    totalPages={paginationConfig.totalPages}
+                    config={paginationConfig}
                     onPageChange={goToPage}
                     onNextPage={goToNextPage}
                     onPreviousPage={goToPreviousPage}
