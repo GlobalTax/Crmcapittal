@@ -16,7 +16,7 @@ interface NegociosKanbanProps {
 }
 
 export const NegociosKanban = ({ negocios, onUpdateStage, onEdit }: NegociosKanbanProps) => {
-  const { stages } = useStages();
+  const { stages } = useStages('DEAL');
   const { pipelines } = usePipelines();
   const [isDragging, setIsDragging] = useState(false);
 
