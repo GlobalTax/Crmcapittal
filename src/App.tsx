@@ -14,7 +14,7 @@ const Auth = lazy(() => import('@/pages/Auth'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Leads = lazy(() => import('@/pages/Leads'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
-const Companies = lazy(() => import('@/pages/Companies'));
+const Companies = lazy(() => import('@/pages/MinimalCompanies'));
 const Negocios = lazy(() => import('@/pages/Negocios'));
 const NegocioDetail = lazy(() => import('@/pages/NegocioDetail'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));

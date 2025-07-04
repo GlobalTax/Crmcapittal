@@ -162,52 +162,54 @@ export default function MinimalEmail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Classic Email Layout */}
+      <div className="bg-white rounded-lg border">
         {/* Email List */}
-        <div className="bg-white rounded-lg border">
+        <div className="border-b">
           <div className="p-4 border-b">
             <h3 className="font-semibold">
-              {filteredEmails.length} emails
+              {filteredEmails.length} emails en {selectedFolder === 'inbox' ? 'Bandeja' : selectedFolder === 'sent' ? 'Enviados' : 'No leídos'}
               {searchQuery && ` (filtrados de ${emails?.length || 0})`}
             </h3>
           </div>
-          <div className="p-4">
+          <div className="max-h-96 overflow-y-auto">
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
                 <p className="mt-2 text-gray-600">Cargando emails...</p>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableHead>Destinatario</TableHead>
-                  <TableHead>Asunto</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Fecha</TableHead>
-                </TableHeader>
-                <TableBody>
-                  {filteredEmails.map((email) => (
-                    <TableRow 
-                      key={email.id} 
-                      className="cursor-pointer"
-                      onClick={() => handleEmailSelect(email)}
-                    >
-                      <TableCell>
-                        <div className="font-medium">{email.recipient_email}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="truncate max-w-xs">{email.subject}</div>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(email.status)}
-                      </TableCell>
-                      <TableCell>
+              <div className="divide-y">
+                {filteredEmails.map((email) => (
+                  <div 
+                    key={email.id}
+                    className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                      selectedEmail?.id === email.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                    }`}
+                    onClick={() => handleEmailSelect(email)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3">
+                          <span className="font-medium text-gray-900 truncate">
+                            {email.recipient_email}
+                          </span>
+                          {getStatusBadge(email.status)}
+                        </div>
+                        <div className="text-sm font-medium text-gray-800 mt-1 truncate">
+                          {email.subject}
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1 truncate">
+                          {email.content?.replace(/<[^>]*>/g, '').substring(0, 100) || 'Sin contenido'}...
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-500 ml-4 flex-shrink-0">
                         {formatDate(email.created_at)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
             
             {filteredEmails.length === 0 && !isLoading && (
@@ -227,47 +229,65 @@ export default function MinimalEmail() {
         </div>
 
         {/* Email Detail */}
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
-            <h3 className="font-semibold">Detalles del Email</h3>
-          </div>
-          <div className="p-4">
-            {selectedEmail ? (
-              <div className="space-y-4">
-                <div>
-                  <div className="text-sm text-gray-500">Destinatario</div>
-                  <div className="font-medium">{selectedEmail.recipient_email}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Asunto</div>
-                  <div className="font-medium">{selectedEmail.subject}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Estado</div>
-                  <div className="mt-1">{getStatusBadge(selectedEmail.status)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Fecha de envío</div>
-                  <div>{formatDate(selectedEmail.created_at)}</div>
-                </div>
-                {selectedEmail.opened_at && (
+        <div className="p-6">
+          {selectedEmail ? (
+            <div className="space-y-6">
+              <div className="border-b pb-4">
+                <div className="flex justify-between items-start">
                   <div>
-                    <div className="text-sm text-gray-500">Fecha de apertura</div>
-                    <div>{formatDate(selectedEmail.opened_at)}</div>
+                    <h2 className="text-xl font-semibold text-gray-900">{selectedEmail.subject}</h2>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-gray-600">Para: {selectedEmail.recipient_email}</span>
+                      {getStatusBadge(selectedEmail.status)}
+                    </div>
                   </div>
-                )}
-                <div className="pt-4 border-t">
-                  <Button variant="secondary" className="w-full">
-                    Responder
-                  </Button>
+                  <div className="text-sm text-gray-500">
+                    {formatDate(selectedEmail.created_at)}
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-12 text-gray-500">
-                <p>Selecciona un email para ver los detalles</p>
+              
+              <div className="prose max-w-none">
+                <div 
+                  className="text-gray-800 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: selectedEmail.content || 'Sin contenido' }}
+                />
               </div>
-            )}
-          </div>
+
+              {selectedEmail.opened_at && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-green-800">
+                      Email abierto el {formatDate(selectedEmail.opened_at)}
+                    </span>
+                  </div>
+                  <div className="text-sm text-green-700 mt-1">
+                    Veces abierto: {selectedEmail.open_count || 1}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4 border-t">
+                <Button variant="primary">
+                  Responder
+                </Button>
+                <Button variant="secondary">
+                  Reenviar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="text-lg font-medium text-gray-900 mb-1">Selecciona un email</p>
+              <p>Elige un email de la lista para ver su contenido completo</p>
+            </div>
+          )}
         </div>
       </div>
 
