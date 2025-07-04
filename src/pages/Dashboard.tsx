@@ -13,28 +13,37 @@ import { Label } from "@/components/ui/label";
 import { useLeads } from "@/hooks/useLeads";
 import { useUsers } from "@/hooks/useUsers";
 import { LeadsTable } from "@/components/leads/LeadsTable";
+import { OptimizedLeadsTable } from "@/components/leads/OptimizedLeadsTable";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadDetailDialog } from "@/components/leads/LeadDetailDialog";
 import { ExportLeadsDialog } from "@/components/leads/ExportLeadsDialog";
 import { LeadNurturingPipeline } from "@/components/leads/LeadNurturingPipeline";
+import { LeadAnalyticsDashboard } from "@/components/leads/LeadAnalyticsDashboard";
+import { AdvancedFiltersPanel } from "@/components/leads/AdvancedFiltersPanel";
 import { LeadStatus } from "@/types/Lead";
-import { Bell, Users, TrendingUp, UserCheck, Heart, CheckCircle, XCircle } from "lucide-react";
+import { useAdvancedLeadFilters } from "@/hooks/useAdvancedLeadFilters";
+import { useLeadsPagination } from "@/hooks/useLeadsPagination";
+import { useLeadsCache } from "@/hooks/useLeadsCache";
+import { Button } from "@/components/ui/button";
+import { PaginationControls } from "@/components/PaginationControls";
+import { Bell, Users, TrendingUp, UserCheck, Heart, CheckCircle, XCircle, BarChart3, Settings, Zap } from "lucide-react";
 
 const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   const [assignedFilter, setAssignedFilter] = useState<string>('all');
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [useOptimizedTable, setUseOptimizedTable] = useState(true);
 
   const { users } = useUsers();
 
-  const filters = {
+  const basicFilters = {
     ...(statusFilter !== 'all' && { status: statusFilter as LeadStatus }),
     ...(assignedFilter !== 'all' && { assigned_to_id: assignedFilter })
   };
 
   const {
-    leads,
+    leads: allLeads,
     isLoading,
     createLead,
     updateLead,
@@ -42,48 +51,71 @@ const Dashboard = () => {
     convertLead,
     isCreating,
     isConverting
-  } = useLeads(filters);
+  } = useLeads(basicFilters);
+
+  // Advanced filtering
+  const {
+    filters: advancedFilters,
+    filteredLeads,
+    updateFilter,
+    clearFilters,
+    hasActiveFilters,
+    filterStats
+  } = useAdvancedLeadFilters(allLeads);
+
+  // Pagination
+  const {
+    paginatedLeads,
+    paginationConfig,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    resetPagination
+  } = useLeadsPagination(filteredLeads, 50);
+
+  // Caching for performance
+  const { metrics: cachedMetrics, getCacheInfo } = useLeadsCache(filteredLeads);
 
   const stats = [
     {
       title: "Total Leads",
-      value: leads.length,
+      value: filterStats.total,
       description: "Leads en el sistema",
       icon: Bell,
     },
     {
-      title: "Nuevos",
-      value: leads.filter(l => l.status === 'NEW').length,
-      description: "Pendientes de contacto",
+      title: "Filtrados",
+      value: filterStats.filtered,
+      description: `${filterStats.percentage}% del total`,
       icon: Users,
     },
     {
-      title: "Contactados",
-      value: leads.filter(l => l.status === 'CONTACTED').length,
-      description: "En proceso",
+      title: "Nuevos",
+      value: filteredLeads.filter(l => l.status === 'NEW').length,
+      description: "Pendientes de contacto",
       icon: TrendingUp,
     },
     {
       title: "Calificados",
-      value: leads.filter(l => l.status === 'QUALIFIED').length,
+      value: filteredLeads.filter(l => l.status === 'QUALIFIED').length,
       description: "Listos para conversión",
       icon: UserCheck,
     },
     {
       title: "Nutriendo",
-      value: leads.filter(l => l.status === 'NURTURING').length,
+      value: filteredLeads.filter(l => l.status === 'NURTURING').length,
       description: "En seguimiento automatizado",
       icon: Heart,
     },
     {
       title: "Convertidos",
-      value: leads.filter(l => l.status === 'CONVERTED').length,
+      value: filteredLeads.filter(l => l.status === 'CONVERTED').length,
       description: "Transformados en clientes",
       icon: CheckCircle,
     },
     {
       title: "Perdidos",
-      value: leads.filter(l => l.status === 'LOST').length,
+      value: filteredLeads.filter(l => l.status === 'LOST').length,
       description: "Oportunidades perdidas",
       icon: XCircle,
     },
@@ -104,7 +136,7 @@ const Dashboard = () => {
   };
 
   const handleViewLead = (leadId: string) => {
-    const lead = leads.find(l => l.id === leadId);
+    const lead = filteredLeads.find(l => l.id === leadId);
     if (lead) {
       setSelectedLead(lead);
       setDetailDialogOpen(true);
@@ -121,7 +153,7 @@ const Dashboard = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportLeadsDialog leads={leads} />
+          <ExportLeadsDialog leads={filteredLeads} />
           <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
         </div>
       </div>
@@ -129,6 +161,8 @@ const Dashboard = () => {
       <Tabs defaultValue="dashboard" className="space-y-6">
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics Avanzados</TabsTrigger>
+          <TabsTrigger value="table">Lista Optimizada</TabsTrigger>
           <TabsTrigger value="nurturing">Nurturing & Automatización</TabsTrigger>
         </TabsList>
 
@@ -191,10 +225,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="p-6">
           <LeadsTable
-            leads={leads}
+            leads={paginatedLeads}
             onViewLead={handleViewLead}
             onDeleteLead={handleDeleteLead}
             onAssignLead={handleAssignLead}
@@ -202,6 +236,18 @@ const Dashboard = () => {
             isLoading={isLoading}
             isConverting={isConverting}
           />
+          
+          {paginationConfig.totalPages > 1 && (
+            <div className="mt-4">
+              <PaginationControls
+                currentPage={paginationConfig.page}
+                totalPages={paginationConfig.totalPages}
+                onPageChange={goToPage}
+                onNextPage={goToNextPage}
+                onPreviousPage={goToPreviousPage}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -210,6 +256,86 @@ const Dashboard = () => {
           onOpenChange={setDetailDialogOpen}
           lead={selectedLead}
         />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <LeadAnalyticsDashboard leads={filteredLeads} />
+        </TabsContent>
+
+        <TabsContent value="table" className="space-y-6">
+          {/* Advanced Filters */}
+          <AdvancedFiltersPanel
+            filters={advancedFilters}
+            onFilterChange={updateFilter}
+            onClearFilters={clearFilters}
+            hasActiveFilters={hasActiveFilters}
+            filterStats={filterStats}
+          />
+
+          {/* Table Options */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={useOptimizedTable ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUseOptimizedTable(true)}
+              >
+                <Settings className="h-4 w-4 mr-1" />
+                Vista Optimizada
+              </Button>
+              <Button
+                variant={!useOptimizedTable ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUseOptimizedTable(false)}
+              >
+                <BarChart3 className="h-4 w-4 mr-1" />
+                Vista Clásica
+              </Button>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Mostrando {paginatedLeads.length} de {filteredLeads.length} leads
+            </div>
+          </div>
+
+          {/* Optimized Table */}
+          <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+            <div className="p-6">
+              {useOptimizedTable ? (
+                <OptimizedLeadsTable
+                  leads={paginatedLeads}
+                  onViewLead={handleViewLead}
+                  onDeleteLead={handleDeleteLead}
+                  onAssignLead={handleAssignLead}
+                  onConvertLead={handleConvertLead}
+                  isLoading={isLoading}
+                  isConverting={isConverting}
+                  height={600}
+                />
+              ) : (
+                <LeadsTable
+                  leads={paginatedLeads}
+                  onViewLead={handleViewLead}
+                  onDeleteLead={handleDeleteLead}
+                  onAssignLead={handleAssignLead}
+                  onConvertLead={handleConvertLead}
+                  isLoading={isLoading}
+                  isConverting={isConverting}
+                />
+              )}
+              
+              {paginationConfig.totalPages > 1 && (
+                <div className="mt-4">
+                  <PaginationControls
+                    currentPage={paginationConfig.page}
+                    totalPages={paginationConfig.totalPages}
+                    onPageChange={goToPage}
+                    onNextPage={goToNextPage}
+                    onPreviousPage={goToPreviousPage}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="nurturing">
