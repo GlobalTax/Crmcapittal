@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Negocio } from "@/types/Negocio";
+import { useContacts } from "@/hooks/useContacts";
+import { useCompanies } from "@/hooks/useCompanies";
+import { usePipelines } from "@/hooks/usePipelines";
+import { useStages } from "@/hooks/useStages";
 
 interface CreateNegocioDialogProps {
   open: boolean;
@@ -30,12 +34,20 @@ const priorities = [
 ];
 
 export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNegocioDialogProps) => {
+  const { contacts } = useContacts();
+  const { companies } = useCompanies();
+  const { pipelines } = usePipelines();
+  const { stages } = useStages();
+  
   const [formData, setFormData] = useState({
     nombre_negocio: "",
+    company_id: "",
+    contact_id: "",
     valor_negocio: "",
     tipo_negocio: "venta",
     prioridad: "media",
     moneda: "EUR",
+    stage_id: "",
     sector: "",
     ubicacion: "",
     descripcion: "",
@@ -44,18 +56,28 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
     ingresos: "",
     multiplicador: "",
     empleados: "",
-    notas: ""
+    notas: "",
+    fuente_lead: "",
+    proxima_actividad: "",
+    fecha_cierre: ""
   });
+
+  // Get DEAL pipeline stages
+  const dealPipeline = pipelines.find(p => p.type === 'DEAL');
+  const dealStages = stages.filter(s => s.pipeline_id === dealPipeline?.id);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const negocioData = {
       nombre_negocio: formData.nombre_negocio,
+      company_id: formData.company_id || undefined,
+      contact_id: formData.contact_id || undefined,
       valor_negocio: formData.valor_negocio ? parseInt(formData.valor_negocio) : undefined,
       tipo_negocio: formData.tipo_negocio,
       prioridad: formData.prioridad,
       moneda: formData.moneda,
+      stage_id: formData.stage_id || undefined,
       sector: formData.sector || undefined,
       ubicacion: formData.ubicacion || undefined,
       descripcion: formData.descripcion || undefined,
@@ -65,6 +87,9 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
       multiplicador: formData.multiplicador ? parseFloat(formData.multiplicador) : undefined,
       empleados: formData.empleados ? parseInt(formData.empleados) : undefined,
       notas: formData.notas || undefined,
+      fuente_lead: formData.fuente_lead || undefined,
+      proxima_actividad: formData.proxima_actividad || undefined,
+      fecha_cierre: formData.fecha_cierre || undefined,
       is_active: true
     } as Omit<Negocio, 'id' | 'created_at' | 'updated_at'>;
 
@@ -73,10 +98,13 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
     // Reset form
     setFormData({
       nombre_negocio: "",
+      company_id: "",
+      contact_id: "",
       valor_negocio: "",
       tipo_negocio: "venta",
       prioridad: "media",
       moneda: "EUR",
+      stage_id: "",
       sector: "",
       ubicacion: "",
       descripcion: "",
@@ -85,7 +113,10 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
       ingresos: "",
       multiplicador: "",
       empleados: "",
-      notas: ""
+      notas: "",
+      fuente_lead: "",
+      proxima_actividad: "",
+      fecha_cierre: ""
     });
   };
 
@@ -105,6 +136,38 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
                 onChange={(e) => setFormData({ ...formData, nombre_negocio: e.target.value })}
                 required
               />
+            </div>
+            
+            <div>
+              <Label htmlFor="company_id">Empresa</Label>
+              <Select value={formData.company_id} onValueChange={(value) => setFormData({ ...formData, company_id: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar empresa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {companies.map(company => (
+                    <SelectItem key={company.id} value={company.id}>
+                      {company.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="contact_id">Contacto</Label>
+              <Select value={formData.contact_id} onValueChange={(value) => setFormData({ ...formData, contact_id: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar contacto" />
+                </SelectTrigger>
+                <SelectContent>
+                  {contacts.map(contact => (
+                    <SelectItem key={contact.id} value={contact.id}>
+                      {contact.name} {contact.email && `(${contact.email})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
@@ -143,6 +206,22 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
                   {priorities.map(priority => (
                     <SelectItem key={priority.value} value={priority.value}>
                       {priority.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="stage_id">Etapa</Label>
+              <Select value={formData.stage_id} onValueChange={(value) => setFormData({ ...formData, stage_id: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar etapa" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dealStages.map(stage => (
+                    <SelectItem key={stage.id} value={stage.id}>
+                      {stage.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -203,6 +282,34 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
                 type="number"
                 value={formData.ebitda}
                 onChange={(e) => setFormData({ ...formData, ebitda: e.target.value })}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="fuente_lead">Fuente del Lead</Label>
+              <Input
+                id="fuente_lead"
+                value={formData.fuente_lead}
+                onChange={(e) => setFormData({ ...formData, fuente_lead: e.target.value })}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="proxima_actividad">Próxima Actividad</Label>
+              <Input
+                id="proxima_actividad"
+                value={formData.proxima_actividad}
+                onChange={(e) => setFormData({ ...formData, proxima_actividad: e.target.value })}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="fecha_cierre">Fecha de Cierre Estimada</Label>
+              <Input
+                id="fecha_cierre"
+                type="date"
+                value={formData.fecha_cierre}
+                onChange={(e) => setFormData({ ...formData, fecha_cierre: e.target.value })}
               />
             </div>
           </div>

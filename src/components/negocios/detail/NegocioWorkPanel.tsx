@@ -16,6 +16,10 @@ import {
   Target
 } from 'lucide-react';
 import { Negocio } from '@/types/Negocio';
+import { NegocioDocuments } from './NegocioDocuments';
+import { NegocioTasks } from './NegocioTasks';
+import { NegocioBuyers } from './NegocioBuyers';
+import { NegocioCommunications } from './NegocioCommunications';
 
 interface NegocioWorkPanelProps {
   negocio: Negocio;
@@ -122,87 +126,19 @@ export const NegocioWorkPanel = ({ negocio }: NegocioWorkPanelProps) => {
         </TabsContent>
 
         <TabsContent value="documents" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Gestión Documental
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">No hay documentos</h3>
-                <p className="text-sm mb-4">Sube documentos relacionados con este negocio</p>
-                <Button>
-                  Subir Documento
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <NegocioDocuments negocio={negocio} />
         </TabsContent>
 
         <TabsContent value="buyers" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Gestión de Compradores
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">No hay compradores registrados</h3>
-                <p className="text-sm mb-4">Añade compradores potenciales para este negocio</p>
-                <Button>
-                  Añadir Comprador
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <NegocioBuyers negocio={negocio} />
         </TabsContent>
 
         <TabsContent value="tasks" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckSquare className="h-5 w-5" />
-                Lista de Tareas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <CheckSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">No hay tareas pendientes</h3>
-                <p className="text-sm mb-4">Crea tareas para organizar el proceso de venta</p>
-                <Button>
-                  Nueva Tarea
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <NegocioTasks negocio={negocio} />
         </TabsContent>
 
         <TabsContent value="communications" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                Historial de Comunicaciones
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">No hay comunicaciones registradas</h3>
-                <p className="text-sm mb-4">Las comunicaciones con compradores aparecerán aquí</p>
-                <Button>
-                  Nueva Comunicación
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <NegocioCommunications negocio={negocio} />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
