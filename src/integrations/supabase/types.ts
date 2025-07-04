@@ -422,6 +422,50 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_companies: {
         Row: {
           company_description: string | null
@@ -836,6 +880,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contact_views: {
+        Row: {
+          columns: Json
+          created_at: string
+          description: string | null
+          filters: Json
+          id: string
+          is_default: boolean | null
+          is_shared: boolean | null
+          name: string
+          sort_by: string | null
+          sort_order: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          columns?: Json
+          created_at?: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_default?: boolean | null
+          is_shared?: boolean | null
+          name: string
+          sort_by?: string | null
+          sort_order?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          columns?: Json
+          created_at?: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_default?: boolean | null
+          is_shared?: boolean | null
+          name?: string
+          sort_by?: string | null
+          sort_order?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       contacts: {
         Row: {
@@ -3045,6 +3134,33 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_table_preferences: {
+        Row: {
+          column_preferences: Json
+          created_at: string
+          id: string
+          table_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          column_preferences?: Json
+          created_at?: string
+          id?: string
+          table_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          column_preferences?: Json
+          created_at?: string
+          id?: string
+          table_name?: string
           updated_at?: string
           user_id?: string
         }
