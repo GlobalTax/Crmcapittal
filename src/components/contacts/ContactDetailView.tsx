@@ -23,9 +23,9 @@ import {
 } from 'lucide-react';
 import { Contact } from '@/types/Contact';
 import { useContactsCRUD } from '@/hooks/useContactsCRUD';
-import { usePersonalTasks } from '@/hooks/usePersonalTasks';
 import { useToast } from '@/hooks/use-toast';
-import { CreateTaskForm } from '@/components/personal/CreateTaskForm';
+import { ContactTasksTab } from '@/components/contacts/ContactTasksTab';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ContactDetailViewProps {
   contact: Contact;
@@ -36,11 +36,21 @@ interface ContactDetailViewProps {
 
 export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: ContactDetailViewProps) => {
   const [activeTab, setActiveTab] = useState('info');
-  const [showTaskForm, setShowTaskForm] = useState(false);
   const [newNote, setNewNote] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   const { updateContact } = useContactsCRUD();
-  const { createTask, getTodayTasks } = usePersonalTasks();
   const { toast } = useToast();
+
+  // Obtener el usuario actual
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+    };
+    getCurrentUser();
+  }, []);
 
   const getTypeBadge = (type: string) => {
     const typeConfig = {
@@ -86,27 +96,6 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
       toast({
         title: "Error",
         description: "No se pudo guardar la nota.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCreateTask = async (taskData: any) => {
-    try {
-      await createTask({
-        ...taskData,
-        title: `${taskData.title} - ${contact.name}`,
-        description: `${taskData.description || ''}\nContacto: ${contact.email}`,
-      });
-      setShowTaskForm(false);
-      toast({
-        title: "Tarea creada",
-        description: "La tarea ha sido creada correctamente.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo crear la tarea.",
         variant: "destructive",
       });
     }
@@ -293,31 +282,10 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
               </TabsContent>
 
               <TabsContent value="tasks" className="mt-0">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Tareas relacionadas</h3>
-                  <Button onClick={() => setShowTaskForm(!showTaskForm)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Tarea
-                  </Button>
-                </div>
-                
-                {showTaskForm && (
-                  <Card className="mb-6">
-                    <CardHeader>
-                      <CardTitle className="text-base">Crear Nueva Tarea</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <CreateTaskForm
-                        onSubmit={handleCreateTask}
-                        onCancel={() => setShowTaskForm(false)}
-                      />
-                    </CardContent>
-                  </Card>
-                )}
-                
-                <div className="text-muted-foreground">
-                  Las tareas relacionadas con este contacto aparecerán aquí.
-                </div>
+                <ContactTasksTab 
+                  contactId={contact.id} 
+                  currentUserId={currentUserId} 
+                />
               </TabsContent>
 
               <TabsContent value="notes" className="mt-0">
