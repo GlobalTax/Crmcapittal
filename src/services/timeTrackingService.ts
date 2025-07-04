@@ -1,7 +1,31 @@
 import { supabase } from "@/integrations/supabase/client";
 import { CreatePlannedTaskData, CreateTimeEntryData, PlannedTask, TimeEntry, DailyTimeData, TeamActivityData, TaskStatus } from "@/types/TimeTracking";
+import { logger } from "@/utils/logger";
 
 export class TimeTrackingService {
+  // Helper method to check if user has admin/manager permissions
+  private static async checkUserRole(): Promise<{ hasAdminAccess: boolean; error?: string }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        return { hasAdminAccess: false, error: 'User not authenticated' };
+      }
+
+      const { data: userRole, error } = await supabase
+        .rpc('get_user_highest_role', { _user_id: user.id });
+
+      if (error) {
+        logger.error('Error fetching user role', { userId: user.id }, error);
+        return { hasAdminAccess: false, error: 'Failed to fetch user permissions' };
+      }
+
+      const hasAdminAccess = userRole === 'admin' || userRole === 'superadmin';
+      return { hasAdminAccess };
+    } catch (error) {
+      logger.error('Error in checkUserRole', {}, error instanceof Error ? error : new Error(String(error)));
+      return { hasAdminAccess: false, error: 'Permission check failed' };
+    }
+  }
   // Planned Tasks Management
   static async createPlannedTask(data: CreatePlannedTaskData): Promise<{ data: PlannedTask | null; error: string | null }> {
     try {
@@ -20,7 +44,7 @@ export class TimeTrackingService {
       if (error) throw error;
       return { data: task, error: null };
     } catch (error) {
-      console.error('Error creating planned task:', error);
+      logger.error('Error creating planned task', {}, error instanceof Error ? error : new Error(String(error)));
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -40,7 +64,7 @@ export class TimeTrackingService {
       if (error) throw error;
       return { data: data || [], error: null };
     } catch (error) {
-      console.error('Error fetching planned tasks:', error);
+      logger.error('Error fetching planned tasks', {}, error instanceof Error ? error : new Error(String(error)));
       return { data: [], error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -55,7 +79,7 @@ export class TimeTrackingService {
       if (error) throw error;
       return { error: null };
     } catch (error) {
-      console.error('Error updating planned task status:', error);
+      logger.error('Error updating planned task status', { taskId }, error instanceof Error ? error : new Error(String(error)));
       return { error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -88,7 +112,7 @@ export class TimeTrackingService {
       if (error) throw error;
       return { data: timeEntry, error: null };
     } catch (error) {
-      console.error('Error starting timer:', error);
+      logger.error('Error starting timer', { plannedTaskId, activityType }, error instanceof Error ? error : new Error(String(error)));
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -123,7 +147,7 @@ export class TimeTrackingService {
       if (error) throw error;
       return { data: updatedEntry, error: null };
     } catch (error) {
-      console.error('Error stopping timer:', error);
+      logger.error('Error stopping timer', { timeEntryId }, error instanceof Error ? error : new Error(String(error)));
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -145,7 +169,7 @@ export class TimeTrackingService {
       if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
       return { data: data || null, error: null };
     } catch (error) {
-      console.error('Error fetching active timer:', error);
+      logger.error('Error fetching active timer', {}, error instanceof Error ? error : new Error(String(error)));
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -177,7 +201,7 @@ export class TimeTrackingService {
       if (error) throw error;
       return { data: timeEntry, error: null };
     } catch (error) {
-      console.error('Error creating manual time entry:', error);
+      logger.error('Error creating manual time entry', {}, error instanceof Error ? error : new Error(String(error)));
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -201,7 +225,7 @@ export class TimeTrackingService {
       if (error) throw error;
       return { data: data || [], error: null };
     } catch (error) {
-      console.error('Error fetching time entries for date:', error);
+      logger.error('Error fetching time entries for date', { date }, error instanceof Error ? error : new Error(String(error)));
       return { data: [], error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -227,7 +251,7 @@ export class TimeTrackingService {
         error: null
       };
     } catch (error) {
-      console.error('Error fetching daily time data:', error);
+      logger.error('Error fetching daily time data', { date }, error instanceof Error ? error : new Error(String(error)));
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -235,16 +259,101 @@ export class TimeTrackingService {
   // Team Activity for Manager View
   static async getTeamActivityData(date: string): Promise<{ data: TeamActivityData[]; error: string | null }> {
     try {
-      // This would require admin permissions - for now return empty array
-      // In a full implementation, you'd check user permissions first
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      // Check user permissions first
+      const { hasAdminAccess, error: roleError } = await this.checkUserRole();
+      if (roleError) {
+        return { data: [], error: roleError };
+      }
 
-      // TODO: Add permission check for admin/manager roles
-      // For now, return empty array as this needs manager permissions
-      return { data: [], error: null };
+      if (!hasAdminAccess) {
+        logger.warn('Unauthorized access attempt to team activity data');
+        return { data: [], error: 'Acceso denegado. Se requieren permisos de administrador.' };
+      }
+
+      const startOfDay = `${date}T00:00:00Z`;
+      const endOfDay = `${date}T23:59:59Z`;
+
+      // Fetch all team members' data
+      const { data: teamData, error } = await supabase
+        .from('time_entries')
+        .select(`
+          user_id,
+          start_time,
+          end_time,
+          duration_minutes,
+          activity_type,
+          planned_task_id,
+          planned_tasks!inner(
+            title,
+            status
+          )
+        `)
+        .gte('start_time', startOfDay)
+        .lte('start_time', endOfDay)
+        .order('start_time', { ascending: false });
+
+      if (error) throw error;
+
+      // Get user profiles for team members
+      const { data: profiles, error: profilesError } = await supabase
+        .from('user_profiles')
+        .select('id, first_name, last_name');
+
+      if (profilesError) throw profilesError;
+
+      // Group data by user and calculate metrics
+      const teamActivityMap = new Map<string, TeamActivityData>();
+
+      teamData?.forEach(entry => {
+        const userId = entry.user_id;
+        const profile = profiles?.find(p => p.id === userId);
+        const userName = profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'Usuario desconocido';
+
+        if (!teamActivityMap.has(userId)) {
+          teamActivityMap.set(userId, {
+            user_id: userId,
+            user_name: userName,
+            daily_hours: 0,
+            tasks_completed: 0,
+            last_activity: entry.start_time
+          });
+        }
+
+        const userData = teamActivityMap.get(userId)!;
+        
+        // Add hours if entry is completed
+        if (entry.duration_minutes) {
+          userData.daily_hours += entry.duration_minutes / 60;
+        }
+
+        // Count completed tasks
+        if (entry.planned_tasks?.status === 'COMPLETED') {
+          userData.tasks_completed += 1;
+        }
+
+        // Set active task if entry is ongoing
+        if (!entry.end_time) {
+          userData.active_timer = {
+            id: entry.user_id, // This would need proper time entry ID in real implementation
+            user_id: entry.user_id,
+            activity_type: entry.activity_type,
+            start_time: entry.start_time,
+            planned_task_id: entry.planned_task_id,
+            is_billable: true,
+            created_at: entry.start_time,
+            updated_at: entry.start_time
+          };
+        }
+
+        // Update last activity time
+        if (entry.start_time > (userData.last_activity || '')) {
+          userData.last_activity = entry.start_time;
+        }
+      });
+
+      return { data: Array.from(teamActivityMap.values()), error: null };
     } catch (error) {
-      console.error('Error fetching team activity data:', error);
+      logger.error('Error fetching team activity data', { date }, error instanceof Error ? error : new Error(String(error)));
       return { data: [], error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
