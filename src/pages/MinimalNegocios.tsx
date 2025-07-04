@@ -65,19 +65,19 @@ export default function MinimalNegocios() {
         <div className="bg-white rounded-lg p-6 border">
           <span className="text-gray-500 text-sm">En Proceso</span>
           <span className="text-3xl font-bold mt-2 block text-blue-600">
-            {negocios.filter(n => n.status === 'en_proceso').length}
+            {negocios.filter(n => n.stage?.name === 'En Proceso').length}
           </span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
           <span className="text-gray-500 text-sm">Ganados</span>
           <span className="text-3xl font-bold mt-2 block text-green-600">
-            {negocios.filter(n => n.status === 'ganado').length}
+            {negocios.filter(n => n.stage?.name === 'Ganado').length}
           </span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
           <span className="text-gray-500 text-sm">Valor Total</span>
           <span className="text-3xl font-bold mt-2 block">
-            €{negocios.reduce((sum, n) => sum + (n.amount || 0), 0).toLocaleString()}
+            €{negocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}
           </span>
         </div>
       </div>
@@ -102,16 +102,16 @@ export default function MinimalNegocios() {
                 {negocios.map((negocio) => (
                   <TableRow key={negocio.id}>
                     <TableCell>
-                      <div className="font-medium">{negocio.title}</div>
+                      <div className="font-medium">{negocio.nombre_negocio}</div>
                     </TableCell>
-                    <TableCell>{negocio.company_name || 'N/A'}</TableCell>
+                    <TableCell>{negocio.company?.name || 'N/A'}</TableCell>
                     <TableCell>
-                      {negocio.amount ? `€${negocio.amount.toLocaleString()}` : 'N/A'}
+                      {negocio.valor_negocio ? `€${negocio.valor_negocio.toLocaleString()}` : 'N/A'}
                     </TableCell>
                     <TableCell>
-                      <Badge color="blue">{negocio.status || 'nuevo'}</Badge>
+                      <Badge color="blue">{negocio.stage?.name || 'nuevo'}</Badge>
                     </TableCell>
-                    <TableCell>{negocio.assigned_to || 'Sin asignar'}</TableCell>
+                    <TableCell>{negocio.propietario_negocio || 'Sin asignar'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">
                         <button className="text-blue-600 hover:text-blue-800 text-sm">
@@ -134,15 +134,15 @@ export default function MinimalNegocios() {
               <div key={stage} className="bg-gray-50 rounded-lg p-4 min-w-[250px] flex-1">
                 <h3 className="font-semibold mb-4">{stage}</h3>
                 <div className="space-y-3">
-                  {negocios.filter(n => (n.status || 'nuevo') === stage.toLowerCase()).map((negocio) => (
+                  {negocios.filter(n => (n.stage?.name || 'Nuevo') === stage).map((negocio) => (
                     <div key={negocio.id} className="bg-white rounded p-3 border">
-                      <span className="font-medium">{negocio.title}</span>
-                      <div className="text-xs text-gray-500 mt-1">{negocio.company_name}</div>
+                      <span className="font-medium">{negocio.nombre_negocio}</span>
+                      <div className="text-xs text-gray-500 mt-1">{negocio.company?.name}</div>
                       <div className="text-xs text-blue-600 font-bold mt-1">
-                        {negocio.amount ? `€${negocio.amount.toLocaleString()}` : 'N/A'}
+                        {negocio.valor_negocio ? `€${negocio.valor_negocio.toLocaleString()}` : 'N/A'}
                       </div>
                       <div className="text-xs text-gray-400 mt-1">
-                        Responsable: {negocio.assigned_to || 'Sin asignar'}
+                        Responsable: {negocio.propietario_negocio || 'Sin asignar'}
                       </div>
                     </div>
                   ))}
