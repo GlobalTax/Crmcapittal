@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/minimal/Button';
+import { Badge } from '@/components/ui/minimal/Badge';
 
 import { useDocuments } from '@/hooks/useDocuments';
 import { Document } from '@/types/Document';
@@ -26,23 +22,14 @@ export const DocumentsList: React.FC = () => {
   });
 
   const getStatusBadge = (status: string) => {
-    const variants = {
-      draft: 'secondary',
-      published: 'default',
-      archived: 'outline',
-    } as const;
-
-    const labels = {
-      draft: 'Borrador',
-      published: 'Publicado',
-      archived: 'Archivado',
-    } as const;
-
-    return (
-      <Badge variant={variants[status as keyof typeof variants] || 'secondary'}>
-        {labels[status as keyof typeof labels] || status}
-      </Badge>
-    );
+    const config = {
+      draft: { label: 'Borrador', color: 'gray' as const },
+      published: { label: 'Publicado', color: 'green' as const },
+      archived: { label: 'Archivado', color: 'gray' as const },
+    };
+    
+    const statusConfig = config[status as keyof typeof config] || config.draft;
+    return <Badge color={statusConfig.color}>{statusConfig.label}</Badge>;
   };
 
   const getTypeBadge = (type: string) => {
@@ -61,10 +48,16 @@ export const DocumentsList: React.FC = () => {
     );
   };
 
+  const handleDelete = (id: string, title: string) => {
+    if (window.confirm(`¿Eliminar el documento "${title}"? Esta acción no se puede deshacer.`)) {
+      deleteDocument(id);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     );
   }
@@ -79,12 +72,12 @@ export const DocumentsList: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Link to="/documents/templates">
-            <Button variant="outline">
+            <Button variant="secondary">
               Plantillas
             </Button>
           </Link>
           <Link to="/documents/new">
-            <Button>
+            <Button variant="primary">
               Nuevo Documento
             </Button>
           </Link>
@@ -92,117 +85,89 @@ export const DocumentsList: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Buscar documentos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
-                <SelectItem value="general">General</SelectItem>
-                <SelectItem value="contrato">Contrato</SelectItem>
-                <SelectItem value="memorando">Memorando</SelectItem>
-                <SelectItem value="informe">Informe</SelectItem>
-                <SelectItem value="propuesta">Propuesta</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="draft">Borrador</SelectItem>
-                <SelectItem value="published">Publicado</SelectItem>
-                <SelectItem value="archived">Archivado</SelectItem>
-              </SelectContent>
-            </Select>
+      <div className="bg-white rounded-lg border p-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Buscar documentos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+          >
+            <option value="all">Todos los tipos</option>
+            <option value="general">General</option>
+            <option value="contrato">Contrato</option>
+            <option value="memorando">Memorando</option>
+            <option value="informe">Informe</option>
+            <option value="propuesta">Propuesta</option>
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+          >
+            <option value="all">Todos los estados</option>
+            <option value="draft">Borrador</option>
+            <option value="published">Publicado</option>
+            <option value="archived">Archivado</option>
+          </select>
+        </div>
+      </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{documents.length}</div>
-            <p className="text-xs text-gray-500">Total Documentos</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">
-              {documents.filter(d => d.status === 'draft').length}
-            </div>
-            <p className="text-xs text-gray-500">Borradores</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">
-              {documents.filter(d => d.status === 'published').length}
-            </div>
-            <p className="text-xs text-gray-500">Publicados</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{templates.length}</div>
-            <p className="text-xs text-gray-500">Plantillas</p>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-lg border p-6">
+          <div className="text-2xl font-bold">{documents.length}</div>
+          <p className="text-xs text-gray-500">Total Documentos</p>
+        </div>
+        <div className="bg-white rounded-lg border p-6">
+          <div className="text-2xl font-bold">
+            {documents.filter(d => d.status === 'draft').length}
+          </div>
+          <p className="text-xs text-gray-500">Borradores</p>
+        </div>
+        <div className="bg-white rounded-lg border p-6">
+          <div className="text-2xl font-bold">
+            {documents.filter(d => d.status === 'published').length}
+          </div>
+          <p className="text-xs text-gray-500">Publicados</p>
+        </div>
+        <div className="bg-white rounded-lg border p-6">
+          <div className="text-2xl font-bold">{templates.length}</div>
+          <p className="text-xs text-gray-500">Plantillas</p>
+        </div>
       </div>
 
       {/* Documents List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredDocuments.map((document) => (
-          <Card key={document.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
+          <div key={document.id} className="bg-white rounded-lg border hover:shadow-md transition-shadow">
+            <div className="p-4 border-b">
               <div className="flex items-start justify-between">
-                <CardTitle className="text-lg line-clamp-2">{document.title}</CardTitle>
-                <div className="flex gap-1">
+                <h3 className="text-lg font-semibold line-clamp-2">{document.title}</h3>
+                <div className="flex gap-1 ml-2">
                   <Link to={`/documents/${document.id}`}>
-                    <Button variant="ghost" size="sm">
+                    <button className="text-blue-600 hover:text-blue-800 text-sm px-2 py-1">
                       Editar
-                    </Button>
+                    </button>
                   </Link>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        Eliminar
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>¿Eliminar documento?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Esta acción no se puede deshacer. El documento será eliminado permanentemente.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => deleteDocument(document.id)}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
-                          Eliminar
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <button 
+                    onClick={() => handleDelete(document.id, document.title)}
+                    className="text-red-600 hover:text-red-800 text-sm px-2 py-1"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   {getTypeBadge(document.document_type)}
@@ -214,14 +179,14 @@ export const DocumentsList: React.FC = () => {
                   <p>Actualizado: {format(new Date(document.updated_at), 'dd/MM/yyyy', { locale: es })}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
       {filteredDocuments.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
+        <div className="bg-white rounded-lg border">
+          <div className="text-center py-8">
             <h3 className="text-lg font-medium text-gray-900 mb-2">No hay documentos</h3>
             <p className="text-gray-500 mb-4">
               {searchTerm || filterType !== 'all' || filterStatus !== 'all'
@@ -229,12 +194,12 @@ export const DocumentsList: React.FC = () => {
                 : 'Aún no has creado ningún documento'}
             </p>
             <Link to="/documents/new">
-              <Button>
+              <Button variant="primary">
                 Crear Primer Documento
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );
