@@ -13,12 +13,14 @@ const Leads = lazy(() => import('@/pages/Leads'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
 const Companies = lazy(() => import('@/pages/Companies'));
 const Negocios = lazy(() => import('@/pages/Negocios'));
+const NegocioDetail = lazy(() => import('@/pages/NegocioDetail'));
 const Proposals = lazy(() => import('@/pages/Proposals'));
 const TimeTracking = lazy(() => import('@/pages/TimeTracking'));
 const Email = lazy(() => import('@/pages/Email'));
 const CalendarPage = lazy(() => import('@/pages/Calendar'));
 const Transactions = lazy(() => import('@/pages/Transactions'));
 const Documents = lazy(() => import('@/pages/Documents'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +75,14 @@ function App() {
                     } 
                   />
                   <Route 
+                    path="/negocios/:id" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <NegocioDetail />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
                     path="/proposals" 
                     element={
                       <Suspense fallback={<LoadingSkeleton />}>
@@ -121,6 +131,16 @@ function App() {
                     } 
                   />
                 </Route>
+                
+                {/* Catch-all route for 404 */}
+                <Route 
+                  path="*" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <NotFound />
+                    </Suspense>
+                  } 
+                />
               </Routes>
             </div>
             <Toaster />
