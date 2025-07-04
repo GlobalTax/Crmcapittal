@@ -25,6 +25,7 @@ import { Contact } from '@/types/Contact';
 import { useContactsCRUD } from '@/hooks/useContactsCRUD';
 import { useToast } from '@/hooks/use-toast';
 import { ContactTasksTab } from '@/components/contacts/ContactTasksTab';
+import ContactFilesTab from '@/components/contacts/ContactFilesTab';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ContactDetailViewProps {
@@ -328,10 +329,10 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
               </TabsContent>
 
               <TabsContent value="files" className="mt-0">
-                <h3 className="text-lg font-semibold mb-4">Archivos</h3>
-                <div className="text-muted-foreground">
-                  Los archivos relacionados con este contacto aparecerán aquí.
-                </div>
+                <ContactFilesTab 
+                  contactId={contact.id} 
+                  currentUserId={currentUserId} 
+                />
               </TabsContent>
 
               <TabsContent value="emails" className="mt-0">
