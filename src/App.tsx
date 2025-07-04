@@ -17,16 +17,16 @@ const Contacts = lazy(() => import('@/pages/Contacts'));
 const Companies = lazy(() => import('@/pages/Companies'));
 const Negocios = lazy(() => import('@/pages/Negocios'));
 const NegocioDetail = lazy(() => import('@/pages/NegocioDetail'));
-const Proposals = lazy(() => import('@/pages/Proposals'));
-const TimeTracking = lazy(() => import('@/pages/TimeTracking'));
+const Proposals = lazy(() => import('@/pages/MinimalProposals'));
+const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
-const Email = lazy(() => import('@/pages/Email'));
-const CalendarPage = lazy(() => import('@/pages/Calendar'));
+const Email = lazy(() => import('@/pages/MinimalEmail'));
+const CalendarPage = lazy(() => import('@/pages/MinimalCalendar'));
 
-const Documents = lazy(() => import('@/pages/Documents'));
-const UserManagement = lazy(() => import('@/pages/UserManagement'));
-const Collaborators = lazy(() => import('@/pages/Collaborators'));
-const Integrations = lazy(() => import('@/pages/Integrations'));
+const Documents = lazy(() => import('@/pages/MinimalDocuments'));
+const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
+const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
+const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient({
