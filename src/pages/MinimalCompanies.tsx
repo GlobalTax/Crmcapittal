@@ -44,6 +44,32 @@ export default function MinimalCompanies() {
     { id: 'actions', label: 'Acciones', visible: true }
   ];
 
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      activa: { label: "Activa", color: "green" as const },
+      inactiva: { label: "Inactiva", color: "gray" as const },
+      prospecto: { label: "Prospecto", color: "blue" as const },
+      cliente: { label: "Cliente", color: "green" as const },
+      perdida: { label: "Perdida", color: "red" as const }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.prospecto;
+    return <Badge color={config.color}>{config.label}</Badge>;
+  };
+
+  const getTypeBadge = (type: string) => {
+    const typeConfig = {
+      prospect: { label: "Prospecto", color: "blue" as const },
+      cliente: { label: "Cliente", color: "green" as const },
+      partner: { label: "Socio", color: "blue" as const },
+      franquicia: { label: "Franquicia", color: "yellow" as const },
+      competidor: { label: "Competidor", color: "red" as const }
+    };
+    
+    const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.prospect;
+    return <Badge color={config.color}>{config.label}</Badge>;
+  };
+
   const filteredCompanies = companies.filter(company => {
     const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (company.industry || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -75,32 +101,6 @@ export default function MinimalCompanies() {
       </div>
     )
   }));
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      activa: { label: "Activa", color: "green" as const },
-      inactiva: { label: "Inactiva", color: "gray" as const },
-      prospecto: { label: "Prospecto", color: "blue" as const },
-      cliente: { label: "Cliente", color: "green" as const },
-      perdida: { label: "Perdida", color: "red" as const }
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.prospecto;
-    return <Badge color={config.color}>{config.label}</Badge>;
-  };
-
-  const getTypeBadge = (type: string) => {
-    const typeConfig = {
-      prospect: { label: "Prospecto", color: "blue" as const },
-      cliente: { label: "Cliente", color: "green" as const },
-      partner: { label: "Socio", color: "blue" as const },
-      franquicia: { label: "Franquicia", color: "yellow" as const },
-      competidor: { label: "Competidor", color: "red" as const }
-    };
-    
-    const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.prospect;
-    return <Badge color={config.color}>{config.label}</Badge>;
-  };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
