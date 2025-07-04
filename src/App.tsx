@@ -21,7 +21,7 @@ const Proposals = lazy(() => import('@/pages/Proposals'));
 const TimeTracking = lazy(() => import('@/pages/TimeTracking'));
 const Email = lazy(() => import('@/pages/Email'));
 const CalendarPage = lazy(() => import('@/pages/Calendar'));
-const Transactions = lazy(() => import('@/pages/Transactions'));
+
 const Documents = lazy(() => import('@/pages/Documents'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
@@ -132,14 +132,6 @@ function App() {
                     element={
                       <Suspense fallback={<LoadingSkeleton />}>
                         <CalendarPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/transactions" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Transactions />
                       </Suspense>
                     } 
                   />

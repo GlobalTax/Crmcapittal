@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { NDA, CreateNDAData } from '@/types/Transaction';
+import { NDA, CreateNDAData } from '@/types/NDA';
 import { useToast } from '@/hooks/use-toast';
 
 export const useNDAs = (transactionId?: string) => {

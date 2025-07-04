@@ -5,8 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Proposal } from '@/types/Proposal';
-import { MoreHorizontal, Eye, Edit, CheckCircle, ArrowRight, Building } from 'lucide-react';
-import { useTransactions } from '@/hooks/useTransactions';
+import { MoreHorizontal, Eye, Edit, CheckCircle, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
@@ -26,9 +25,7 @@ export const ProposalsTable: React.FC<ProposalsTableProps> = ({
   getStatusIcon,
   getStatusColor
 }) => {
-  const { createTransactionFromProposal } = useTransactions();
   const { toast } = useToast();
-  const [creatingTransaction, setCreatingTransaction] = useState<string | null>(null);
 
   const formatCurrency = (amount?: number, currency = 'EUR') => {
     if (!amount) return '-';
@@ -45,20 +42,6 @@ export const ProposalsTable: React.FC<ProposalsTableProps> = ({
     return new Date(dateString).toLocaleDateString('es-ES');
   };
 
-  const handleCreateTransaction = async (proposalId: string) => {
-    setCreatingTransaction(proposalId);
-    try {
-      await createTransactionFromProposal(proposalId);
-      toast({
-        title: "Transacción creada",
-        description: "La transacción M&A ha sido creada exitosamente desde la propuesta.",
-      });
-    } catch (error) {
-      console.error('Error creating transaction:', error);
-    } finally {
-      setCreatingTransaction(null);
-    }
-  };
 
   return (
     <Card>
@@ -154,26 +137,7 @@ export const ProposalsTable: React.FC<ProposalsTableProps> = ({
                     </TableCell>
                     
                     <TableCell>
-                      <div className="flex items-center space-x-2">
-                        {proposal.status === 'approved' && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleCreateTransaction(proposal.id)}
-                            disabled={creatingTransaction === proposal.id}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            {creatingTransaction === proposal.id ? (
-                              'Creando...'
-                            ) : (
-                              <>
-                                <ArrowRight className="h-4 w-4 mr-1" />
-                                Crear Transacción
-                              </>
-                            )}
-                          </Button>
-                        )}
-                        
-                        <DropdownMenu>
+                       <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">
                               <MoreHorizontal className="h-4 w-4" />
@@ -196,7 +160,6 @@ export const ProposalsTable: React.FC<ProposalsTableProps> = ({
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
