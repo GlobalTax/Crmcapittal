@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -150,6 +150,9 @@ export const EmailComposer = ({
           <DialogTitle>
             Redactar Email{recipientName ? ` para ${recipientName}` : ""}
           </DialogTitle>
+          <DialogDescription>
+            Redacta y envía un email con seguimiento automático
+          </DialogDescription>
           <Button variant="ghost" size="sm" onClick={handleClose}>
             <X className="h-4 w-4" />
           </Button>

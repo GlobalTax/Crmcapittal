@@ -37,14 +37,10 @@ serve(async (req: Request) => {
     const emailData: EmailRequest = await req.json();
     console.log('Processing email request:', emailData);
 
-    // Generate tracking ID
-    const trackingId = crypto.randomUUID();
-    
-    // Create email record in database first
+    // Create email record in database first (let DB generate tracking_id)
     const { data: trackedEmail, error: dbError } = await supabase
       .from('tracked_emails')
       .insert({
-        tracking_id: trackingId,
         recipient_email: emailData.recipient_email,
         subject: emailData.subject,
         content: emailData.content,
@@ -62,8 +58,8 @@ serve(async (req: Request) => {
       throw new Error(`Database error: ${dbError.message}`);
     }
 
-    // Build tracking pixel URL
-    const trackingPixelUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-email-open/${trackingId}`;
+    // Build tracking pixel URL using the generated tracking_id from database
+    const trackingPixelUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-email-open/${trackedEmail.tracking_id}`;
     
     // Create professional HTML email template
     const htmlContent = `
@@ -138,7 +134,7 @@ serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         email_id: trackedEmail.id,
-        tracking_id: trackingId,
+        tracking_id: trackedEmail.tracking_id,
         resend_id: emailResponse.data?.id
       }),
       {
