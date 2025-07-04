@@ -1,25 +1,13 @@
 import { useState, useMemo } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
+import { Button } from "@/components/ui/minimal/Button";
+import { Badge } from "@/components/ui/minimal/Badge";
 import { 
-  Search, 
-  Filter, 
-  Download, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  Phone,
   Mail,
-  Building2,
-  User,
-  Eye
+  Phone,
+  User
 } from "lucide-react";
 import { Contact, ContactType } from "@/types/Contact";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CreateContactDialog } from "./CreateContactDialog";
 
 interface ContactsTableProps {
@@ -60,31 +48,31 @@ export const ContactsTable = ({
 
   const getTypeBadge = (type: ContactType) => {
     const typeConfig = {
-      marketing: { label: "Marketing", color: "bg-pink-100 text-pink-800" },
-      sales: { label: "Ventas", color: "bg-blue-100 text-blue-800" },
-      franquicia: { label: "Franquicia", color: "bg-green-100 text-green-800" },
-      cliente: { label: "Cliente", color: "bg-purple-100 text-purple-800" },
-      prospect: { label: "Prospect", color: "bg-gray-100 text-gray-800" },
-      other: { label: "Otro", color: "bg-gray-100 text-gray-800" }
+      marketing: { label: "Marketing", color: "blue" as const },
+      sales: { label: "Ventas", color: "blue" as const },
+      franquicia: { label: "Franquicia", color: "green" as const },
+      cliente: { label: "Cliente", color: "red" as const },
+      prospect: { label: "Prospect", color: "gray" as const },
+      other: { label: "Otro", color: "gray" as const }
     };
     
     const config = typeConfig[type];
-    return <Badge variant="outline" className={config.color}>{config.label}</Badge>;
+    return <Badge color={config.color}>{config.label}</Badge>;
   };
 
   const getPriorityBadge = (priority?: string) => {
     if (!priority) return null;
     
     const priorityConfig = {
-      low: { label: "Baja", color: "bg-gray-100 text-gray-800" },
-      medium: { label: "Media", color: "bg-yellow-100 text-yellow-800" },
-      high: { label: "Alta", color: "bg-red-100 text-red-800" }
+      low: { label: "Baja", color: "gray" as const },
+      medium: { label: "Media", color: "yellow" as const },
+      high: { label: "Alta", color: "red" as const }
     };
     
     const config = priorityConfig[priority as keyof typeof priorityConfig];
     if (!config) return null;
     
-    return <Badge className={config.color}>{config.label}</Badge>;
+    return <Badge color={config.color}>{config.label}</Badge>;
   };
 
   const formatDate = (dateString?: string) => {
@@ -96,15 +84,11 @@ export const ContactsTable = ({
     });
   };
 
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n.charAt(0)).join('').toUpperCase().slice(0, 2);
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
           <p className="mt-2 text-gray-600">Cargando contactos...</p>
         </div>
       </div>
@@ -116,225 +100,174 @@ export const ContactsTable = ({
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Contactos</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Contactos</h1>
           <p className="text-gray-600 mt-1">Gestiona todos tus contactos y leads</p>
         </div>
         <div className="flex space-x-3">
-          <Button variant="outline" className="border-gray-300">
-            <Filter className="h-4 w-4 mr-2" />
-            Filtros
-          </Button>
-          <Button variant="outline" className="border-gray-300">
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
-          </Button>
+          <Button variant="secondary">Filtros</Button>
+          <Button variant="secondary">Exportar</Button>
           <CreateContactDialog onCreateContact={onCreateContact} isCreating={isCreating} />
         </div>
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Buscar contactos por nombre, email o empresa..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as ContactType | "all")}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-              >
-                <option value="all">Todos los tipos</option>
-                <option value="marketing">Marketing</option>
-                <option value="sales">Ventas</option>
-                <option value="franquicia">Franquicia</option>
-                <option value="cliente">Cliente</option>
-                <option value="prospect">Prospect</option>
-                <option value="other">Otro</option>
-              </select>
-            </div>
+      <div className="bg-white rounded-lg border p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Buscar contactos por nombre, email o empresa..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex gap-2">
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value as ContactType | "all")}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            >
+              <option value="all">Todos los tipos</option>
+              <option value="marketing">Marketing</option>
+              <option value="sales">Ventas</option>
+              <option value="franquicia">Franquicia</option>
+              <option value="cliente">Cliente</option>
+              <option value="prospect">Prospect</option>
+              <option value="other">Otro</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Contactos</p>
-                <p className="text-2xl font-semibold text-gray-900">{contacts.length}</p>
-              </div>
-              <User className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Clientes</p>
-                <p className="text-2xl font-semibold text-purple-600">
-                  {contacts.filter(c => c.contact_type === 'cliente').length}
-                </p>
-              </div>
-              <Building2 className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Franquicias</p>
-                <p className="text-2xl font-semibold text-green-600">
-                  {contacts.filter(c => c.contact_type === 'franquicia').length}
-                </p>
-              </div>
-              <Building2 className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Prospects</p>
-                <p className="text-2xl font-semibold text-blue-600">
-                  {contacts.filter(c => c.contact_type === 'prospect').length}
-                </p>
-              </div>
-              <User className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-lg p-6 border flex flex-col">
+          <span className="text-gray-500 text-sm">Total Contactos</span>
+          <span className="text-3xl font-bold mt-2">{contacts.length}</span>
+        </div>
+        <div className="bg-white rounded-lg p-6 border flex flex-col">
+          <span className="text-gray-500 text-sm">Clientes</span>
+          <span className="text-3xl font-bold mt-2 text-red-600">
+            {contacts.filter(c => c.contact_type === 'cliente').length}
+          </span>
+        </div>
+        <div className="bg-white rounded-lg p-6 border flex flex-col">
+          <span className="text-gray-500 text-sm">Franquicias</span>
+          <span className="text-3xl font-bold mt-2 text-green-600">
+            {contacts.filter(c => c.contact_type === 'franquicia').length}
+          </span>
+        </div>
+        <div className="bg-white rounded-lg p-6 border flex flex-col">
+          <span className="text-gray-500 text-sm">Prospects</span>
+          <span className="text-3xl font-bold mt-2 text-blue-600">
+            {contacts.filter(c => c.contact_type === 'prospect').length}
+          </span>
+        </div>
       </div>
 
       {/* Contacts Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <div className="bg-white rounded-lg border">
+        <div className="p-4 border-b">
+          <h3 className="font-semibold">
             {filteredContacts.length} contactos
             {searchTerm && ` (filtrados de ${contacts.length})`}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Contacto</TableHead>
-                  <TableHead>Empresa</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Prioridad</TableHead>
-                  <TableHead>Origen</TableHead>
-                  <TableHead>Creado</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredContacts.map((contact) => (
-                  <TableRow key={contact.id} className="hover:bg-gray-50">
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-orange-100 text-orange-700 text-xs">
-                            {getInitials(contact.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {contact.name}
-                          </div>
-                          {contact.email && (
-                            <div className="text-sm text-gray-500 flex items-center">
-                              <Mail className="h-3 w-3 mr-1" />
-                              {contact.email}
-                            </div>
-                          )}
-                          {contact.phone && (
-                            <div className="text-sm text-gray-500 flex items-center">
-                              <Phone className="h-3 w-3 mr-1" />
-                              {contact.phone}
-                            </div>
-                          )}
-                        </div>
+          </h3>
+        </div>
+        <div className="p-4">
+          <Table>
+            <TableHeader>
+              <TableHead>Contacto</TableHead>
+              <TableHead>Empresa</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Prioridad</TableHead>
+              <TableHead>Origen</TableHead>
+              <TableHead>Creado</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
+            </TableHeader>
+            <TableBody>
+              {filteredContacts.map((contact) => (
+                <TableRow key={contact.id}>
+                  <TableCell>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-700">
+                        {contact.name.charAt(0).toUpperCase()}
                       </div>
-                    </TableCell>
-                    
-                    <TableCell>
                       <div>
-                        <div className="font-medium text-gray-900">{contact.company || 'N/A'}</div>
-                        <div className="text-sm text-gray-500">{contact.position || 'N/A'}</div>
+                        <div className="font-medium text-gray-900">
+                          {contact.name}
+                        </div>
+                        {contact.email && (
+                          <div className="text-sm text-gray-500 flex items-center">
+                            <Mail className="h-3 w-3 mr-1" />
+                            {contact.email}
+                          </div>
+                        )}
+                        {contact.phone && (
+                          <div className="text-sm text-gray-500 flex items-center">
+                            <Phone className="h-3 w-3 mr-1" />
+                            {contact.phone}
+                          </div>
+                        )}
                       </div>
-                    </TableCell>
-                    
-                    <TableCell>
-                      {getTypeBadge(contact.contact_type)}
-                    </TableCell>
-                    
-                    <TableCell>
-                      {getPriorityBadge(contact.contact_priority)}
-                    </TableCell>
-                    
-                    <TableCell>
-                      <span className="text-sm text-gray-600">
-                        {contact.contact_source || 'N/A'}
-                      </span>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <div className="text-sm text-gray-900">
-                        {formatDate(contact.created_at)}
-                      </div>
-                    </TableCell>
-                    
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {onViewContact && (
-                            <DropdownMenuItem onClick={() => onViewContact(contact)}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Ver Detalles
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onClick={() => onEditContact?.(contact)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => onDeleteContact?.(contact.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Eliminar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div>
+                      <div className="font-medium text-gray-900">{contact.company || 'N/A'}</div>
+                      <div className="text-sm text-gray-500">{contact.position || 'N/A'}</div>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell>
+                    {getTypeBadge(contact.contact_type)}
+                  </TableCell>
+                  
+                  <TableCell>
+                    {getPriorityBadge(contact.contact_priority)}
+                  </TableCell>
+                  
+                  <TableCell>
+                    <span className="text-sm text-gray-600">
+                      {contact.contact_source || 'N/A'}
+                    </span>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="text-sm text-gray-900">
+                      {formatDate(contact.created_at)}
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell className="text-right">
+                    <div className="flex gap-2 justify-end">
+                      {onViewContact && (
+                        <button 
+                          onClick={() => onViewContact(contact)}
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          Ver
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => onEditContact?.(contact)}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        onClick={() => onDeleteContact?.(contact.id)}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
           
           {filteredContacts.length === 0 && (
             <div className="text-center py-12">
@@ -350,8 +283,8 @@ export const ContactsTable = ({
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

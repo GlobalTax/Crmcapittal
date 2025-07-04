@@ -1,4 +1,4 @@
 
-import { DashboardLayout } from "./layout/DashboardLayout";
+import { MinimalLayout } from "./layout/MinimalLayout";
 
-export const Layout = DashboardLayout;
+export const Layout = MinimalLayout;
