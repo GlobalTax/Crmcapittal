@@ -7,8 +7,10 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Lazy load pages with proper React.lazy
+const Auth = lazy(() => import('@/pages/Auth'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Leads = lazy(() => import('@/pages/Leads'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
@@ -40,7 +42,18 @@ function App() {
           <Router>
             <div className="min-h-screen bg-gray-50">
               <Routes>
-                <Route element={<DashboardLayout />}>
+                {/* Public auth route */}
+                <Route 
+                  path="/auth" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <Auth />
+                    </Suspense>
+                  } 
+                />
+                
+                {/* Protected routes */}
+                <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                   <Route 
                     path="/" 
                     element={
