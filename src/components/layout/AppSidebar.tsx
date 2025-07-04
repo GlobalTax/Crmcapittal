@@ -18,8 +18,8 @@ const sidebarData: SidebarSection[] = [
     title: "Principal",
     items: [
       {
-        title: "Leads",
-        href: "/leads",
+        title: "Control Leads",
+        href: "/",
       },
       {
         title: "Contactos",

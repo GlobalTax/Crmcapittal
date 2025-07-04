@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from '@/contexts/AuthContext';
 
 // Lazy load pages with proper React.lazy
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Leads = lazy(() => import('@/pages/Leads'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
 const Companies = lazy(() => import('@/pages/Companies'));
@@ -39,9 +40,15 @@ function App() {
           <Router>
             <div className="min-h-screen bg-gray-50">
               <Routes>
-                <Route path="/" element={<Navigate to="/leads" replace />} />
-                
                 <Route element={<DashboardLayout />}>
+                  <Route 
+                    path="/" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <Dashboard />
+                      </Suspense>
+                    } 
+                  />
                   <Route 
                     path="/leads" 
                     element={
