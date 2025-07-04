@@ -972,6 +972,90 @@ export type Database = {
           },
         ]
       }
+      document_templates: {
+        Row: {
+          content: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          template_type: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          template_type: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          template_type?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          content: Json
+          created_at: string
+          created_by: string | null
+          document_type: string
+          id: string
+          metadata: Json | null
+          published_at: string | null
+          status: string
+          template_id: string | null
+          title: string
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          document_type?: string
+          id?: string
+          metadata?: Json | null
+          published_at?: string | null
+          status?: string
+          template_id?: string | null
+          title: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          document_type?: string
+          id?: string
+          metadata?: Json | null
+          published_at?: string | null
+          status?: string
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       empresas: {
         Row: {
           codigo_interno: number | null

@@ -68,6 +68,11 @@ const sidebarData: SidebarSection[] = [
         href: "/transactions",
         icon: ArrowLeftRight,
       },
+      {
+        title: "Documentos",
+        href: "/documents",
+        icon: FileText,
+      },
     ],
   },
   {
