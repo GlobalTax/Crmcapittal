@@ -43,10 +43,6 @@ const sidebarData: SidebarSection[] = [
         href: "/proposals",
       },
       {
-        title: "Transacciones M&A",
-        href: "/transactions",
-      },
-      {
         title: "Documentos",
         href: "/documents",
       },
