@@ -23,7 +23,7 @@ export const DataPreview = ({ data }: DataPreviewProps) => {
           <tbody>
             {data.map((row, index) => (
               <tr key={index}>
-                {Object.values(row).slice(0, 6).map((value: any, i) => (
+                {Object.values(row).slice(0, 6).map((value: unknown, i) => (
                   <td key={i} className="px-4 py-2 text-sm border-b">
                     {value?.toString() || '-'}
                   </td>

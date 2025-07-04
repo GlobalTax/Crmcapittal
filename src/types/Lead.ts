@@ -30,19 +30,19 @@ export interface Lead {
   } | null;
   
   // Advanced nurturing fields
-  form_data?: {
-    form_type?: string;
-    utm_source?: string;
-    utm_medium?: string;
-    utm_campaign?: string;
-    landing_page?: string;
-    referrer_url?: string;
-    external_source?: string;
-    automation_triggered?: boolean;
-    import_date?: string;
-    automation_sequence?: string;
-    [key: string]: any; // Allow additional properties
-  };
+    form_data?: {
+      form_type?: string;
+      utm_source?: string;
+      utm_medium?: string;
+      utm_campaign?: string;
+      landing_page?: string;
+      referrer_url?: string;
+      external_source?: string;
+      automation_triggered?: boolean;
+      import_date?: string;
+      automation_sequence?: string;
+      [key: string]: unknown; // Allow additional properties
+    };
   first_contact_date?: string;
   last_contact_date?: string;
   last_activity_date?: string;
@@ -84,7 +84,7 @@ export interface CreateLeadData {
   priority?: LeadPriority;
   quality?: LeadQuality;
   lead_score?: number;
-  form_data?: Record<string, any>;
+  form_data?: Record<string, unknown>;
   tags?: string[];
 }
 
@@ -101,7 +101,7 @@ export interface UpdateLeadData {
   quality?: LeadQuality;
   lead_score?: number;
   assigned_to_id?: string;
-  form_data?: Record<string, any>;
+  form_data?: Record<string, unknown>;
   first_contact_date?: string;
   last_contact_date?: string;
   next_follow_up_date?: string;

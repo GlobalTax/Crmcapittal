@@ -5,8 +5,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 
+interface ContactFormData {
+  city?: string;
+  country?: string;
+  address?: string;
+  notes?: string;
+}
+
 interface AdditionalContactInfoProps {
-  contactData: any;
+  contactData: ContactFormData;
   updateField: (field: string, value: string) => void;
 }
 

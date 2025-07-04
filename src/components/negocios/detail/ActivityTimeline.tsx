@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +63,7 @@ export const ActivityTimeline = ({ negocio }: ActivityTimelineProps) => {
   });
   const { toast } = useToast();
 
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('negocio_activities')
@@ -78,7 +78,7 @@ export const ActivityTimeline = ({ negocio }: ActivityTimelineProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [negocio.id]);
 
   const addActivity = async () => {
     if (!newActivity.activity_type || !newActivity.title) {
@@ -135,7 +135,7 @@ export const ActivityTimeline = ({ negocio }: ActivityTimelineProps) => {
 
   useEffect(() => {
     fetchActivities();
-  }, [negocio.id]);
+  }, [negocio.id, fetchActivities]);
 
   if (loading) {
     return (

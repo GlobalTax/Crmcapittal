@@ -41,7 +41,7 @@ export const fetchLeads = async (filters?: {
     .map(lead => lead.assigned_to_id)
     .filter(Boolean);
 
-  let userProfiles: any[] = [];
+  let userProfiles: Array<{ id: string; first_name?: string; last_name?: string }> = [];
   if (assignedUserIds.length > 0) {
     const { data: profiles } = await supabase
       .from('user_profiles')
@@ -58,17 +58,17 @@ export const fetchLeads = async (filters?: {
     // Ensure source is properly typed
     source: (lead.source as LeadSource) || 'other',
     // Use actual database values or defaults for missing columns
-    lead_score: (lead as any).lead_score || 0,
-    priority: (lead as any).priority || 'MEDIUM',
-    quality: (lead as any).quality || 'FAIR',
-    follow_up_count: (lead as any).follow_up_count || 0,
-    email_opens: (lead as any).email_opens || 0,
-    email_clicks: (lead as any).email_clicks || 0,
-    website_visits: (lead as any).website_visits || 0,
-    content_downloads: (lead as any).content_downloads || 0,
-    tags: (lead as any).tags || [],
-    form_data: (lead as any).form_data || {},
-    job_title: (lead as any).job_title || '',
+    lead_score: (lead as { lead_score?: number }).lead_score || 0,
+    priority: ((lead as { priority?: string }).priority as LeadPriority) || 'MEDIUM',
+    quality: ((lead as { quality?: string }).quality as LeadQuality) || 'FAIR',
+    follow_up_count: (lead as { follow_up_count?: number }).follow_up_count || 0,
+    email_opens: (lead as { email_opens?: number }).email_opens || 0,
+    email_clicks: (lead as { email_clicks?: number }).email_clicks || 0,
+    website_visits: (lead as { website_visits?: number }).website_visits || 0,
+    content_downloads: (lead as { content_downloads?: number }).content_downloads || 0,
+    tags: (lead as { tags?: string[] }).tags || [],
+    form_data: (lead as { form_data?: Record<string, unknown> }).form_data || {},
+    job_title: (lead as { job_title?: string }).job_title || '',
     assigned_to: lead.assigned_to_id 
       ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
       : null,
@@ -109,17 +109,17 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
   const transformedData = {
     ...data,
     source: (data.source as LeadSource) || 'other',
-    lead_score: (data as any).lead_score || 0,
-    priority: (data as any).priority || 'MEDIUM',
-    quality: (data as any).quality || 'FAIR',
-    follow_up_count: (data as any).follow_up_count || 0,
-    email_opens: (data as any).email_opens || 0,
-    email_clicks: (data as any).email_clicks || 0,
-    website_visits: (data as any).website_visits || 0,
-    content_downloads: (data as any).content_downloads || 0,
-    tags: (data as any).tags || [],
-    form_data: (data as any).form_data || {},
-    job_title: (data as any).job_title || '',
+    lead_score: (data as { lead_score?: number }).lead_score || 0,
+    priority: ((data as { priority?: string }).priority as LeadPriority) || 'MEDIUM',
+    quality: ((data as { quality?: string }).quality as LeadQuality) || 'FAIR',
+    follow_up_count: (data as { follow_up_count?: number }).follow_up_count || 0,
+    email_opens: (data as { email_opens?: number }).email_opens || 0,
+    email_clicks: (data as { email_clicks?: number }).email_clicks || 0,
+    website_visits: (data as { website_visits?: number }).website_visits || 0,
+    content_downloads: (data as { content_downloads?: number }).content_downloads || 0,
+    tags: (data as { tags?: string[] }).tags || [],
+    form_data: (data as { form_data?: Record<string, unknown> }).form_data || {},
+    job_title: (data as { job_title?: string }).job_title || '',
     assigned_to: assignedTo
   };
 
@@ -183,8 +183,17 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
 export const updateLead = async (id: string, updates: UpdateLeadData): Promise<Lead> => {
   console.log('Updating lead:', id, updates);
 
-  // Only include fields that exist in the current database
-  const dbUpdates: any = {};
+    // Only include fields that exist in the current database
+    const dbUpdates: Partial<{
+      name: string;
+      email: string;
+      phone: string;
+      company_name: string;
+      message: string;
+      source: LeadSource;
+      status: 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED';
+      assigned_to_id: string;
+    }> = {};
   if (updates.name !== undefined) dbUpdates.name = updates.name;
   if (updates.email !== undefined) dbUpdates.email = updates.email;
   if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
@@ -193,7 +202,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
   if (updates.source !== undefined) dbUpdates.source = updates.source;
   // Only update status if it's supported by the database
   if (updates.status !== undefined && ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(updates.status)) {
-    dbUpdates.status = updates.status;
+    dbUpdates.status = updates.status as 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED';
   }
   if (updates.assigned_to_id !== undefined) dbUpdates.assigned_to_id = updates.assigned_to_id;
 
@@ -301,7 +310,7 @@ export const convertLeadToContact = async (
 };
 
 // New automation trigger function - updated to use DatabaseService
-export const triggerAutomation = async (triggerType: string, leadData: any) => {
+export const triggerAutomation = async (triggerType: string, leadData: Lead) => {
   try {
     console.log('Triggering automation for:', triggerType, leadData.id);
     
@@ -333,8 +342,19 @@ export const triggerAutomation = async (triggerType: string, leadData: any) => {
   }
 };
 
+interface AutomationCondition {
+  field: string;
+  operator: 'equals' | 'greater_than' | 'contains' | 'in';
+  value: unknown;
+}
+
+interface AutomationAction {
+  type: 'send_email' | 'create_task' | 'move_stage' | 'notify_user';
+  config: Record<string, unknown>;
+}
+
 // Helper function to evaluate conditions
-const evaluateConditions = (conditions: any[], leadData: any): boolean => {
+const evaluateConditions = (conditions: AutomationCondition[], leadData: Lead): boolean => {
   if (!conditions || conditions.length === 0) return true;
   
   return conditions.every(condition => {
@@ -359,7 +379,7 @@ const evaluateConditions = (conditions: any[], leadData: any): boolean => {
 };
 
 // Helper function to execute actions
-const executeActions = async (actions: any[], leadData: any) => {
+const executeActions = async (actions: AutomationAction[], leadData: Lead) => {
   for (const action of actions) {
     try {
       switch (action.type) {
@@ -370,7 +390,7 @@ const executeActions = async (actions: any[], leadData: any) => {
           await createFollowUpTask(leadData, action.config);
           break;
         case 'move_stage':
-          await updateLeadStatus(leadData.id, action.config.new_status);
+          await updateLeadStatus(leadData.id, String(action.config.new_status));
           break;
         case 'notify_user':
           console.log('Notification:', action.config.message);
@@ -385,23 +405,22 @@ const executeActions = async (actions: any[], leadData: any) => {
 };
 
 // Helper functions for actions
-const sendAutomatedEmail = async (leadData: any, config: any) => {
+const sendAutomatedEmail = async (leadData: Lead, config: Record<string, unknown>) => {
   // Implementation would integrate with email service
   console.log('Sending automated email to:', leadData.email, config);
 };
 
-const createFollowUpTask = async (leadData: any, config: any) => {
+const createFollowUpTask = async (leadData: Lead, config: Record<string, unknown>) => {
   try {
     const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + (config.due_days || 1));
+    dueDate.setDate(dueDate.getDate() + (Number(config.due_days) || 1));
     
-    await supabase.from('planned_tasks').insert({
-      title: config.description || 'Follow up with lead',
+    await supabase.from('contact_reminders').insert({
+      title: String(config.description) || 'Follow up with lead',
       description: `${config.description} - ${leadData.name} (${leadData.email})`,
-      date: dueDate.toISOString().split('T')[0],
-      lead_id: leadData.id,
-      user_id: leadData.assigned_to_id,
-      status: 'PENDING'
+      reminder_date: dueDate.toISOString(),
+      contact_id: leadData.id,
+      created_by: leadData.assigned_to_id
     });
   } catch (error) {
     console.error('Error creating follow-up task:', error);

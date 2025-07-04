@@ -17,8 +17,8 @@ interface BulkOperationUploadProps {
 export const BulkOperationUpload = ({ onBulkAdd }: BulkOperationUploadProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<any[]>([]);
-  const [validation, setValidation] = useState<any>(null);
+  const [preview, setPreview] = useState<Record<string, unknown>[]>([]);
+  const [validation, setValidation] = useState<{ valid: boolean; errors: string[]; warnings: string[] } | null>(null);
   
   const { isProcessing, validateExcelData, processBulkUpload } = useBulkOperations();
 
@@ -35,7 +35,7 @@ export const BulkOperationUpload = ({ onBulkAdd }: BulkOperationUploadProps) => 
           const workbook = new ExcelJS.Workbook();
           await workbook.xlsx.load(data);
           const worksheet = workbook.getWorksheet(1);
-          const jsonData: any[] = [];
+          const jsonData: Record<string, unknown>[] = [];
           
           if (worksheet) {
             const headers: string[] = [];
@@ -49,7 +49,7 @@ export const BulkOperationUpload = ({ onBulkAdd }: BulkOperationUploadProps) => 
             worksheet.eachRow((row, rowNumber) => {
               if (rowNumber === 1) return; // Skip header row
               
-              const rowData: any = {};
+              const rowData: Record<string, unknown> = {};
               row.eachCell((cell, colNumber) => {
                 const header = headers[colNumber - 1];
                 if (header) {

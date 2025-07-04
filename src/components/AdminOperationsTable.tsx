@@ -19,9 +19,9 @@ interface AdminOperationsTableProps {
   operations: Operation[];
   loading: boolean;
   error: string | null;
-  onUpdateOperation: (operationId: string, operationData: Partial<Operation>) => Promise<{ data: any; error: string | null }>;
+  onUpdateOperation: (operationId: string, operationData: Partial<Operation>) => Promise<{ data: Operation | null; error: string | null }>;
   onDeleteOperation: (operationId: string) => Promise<{ error: string | null }>;
-  onUpdateTeaserUrl: (operationId: string, teaserUrl: string) => Promise<{ data: any; error: string | null }>;
+  onUpdateTeaserUrl: (operationId: string, teaserUrl: string) => Promise<{ data: { teaserUrl: string } | null; error: string | null }>;
 }
 
 export const AdminOperationsTable = ({ 
