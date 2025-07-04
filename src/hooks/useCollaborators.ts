@@ -123,6 +123,11 @@ export const useCollaborators = () => {
 
   const generateAgreement = async (collaborator: Collaborator) => {
     try {
+      // Verificar que los templates estén cargados
+      if (!templates || templates.length === 0) {
+        throw new Error('Las plantillas aún no están cargadas. Por favor, espera un momento e inténtalo de nuevo.');
+      }
+
       // Buscar la plantilla del acuerdo de colaboración
       const agreementTemplate = templates.find(t => t.template_type === 'collaboration_agreement');
       

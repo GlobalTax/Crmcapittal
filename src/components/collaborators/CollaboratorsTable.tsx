@@ -94,7 +94,7 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
   };
 
   return (
-    <React.Fragment>
+    <>
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
@@ -243,5 +243,5 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
       isOpen={!!viewingAgreement}
       onClose={() => setViewingAgreement(null)}
     />
-  </React.Fragment>);
+  </>);
 };
