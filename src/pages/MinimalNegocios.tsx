@@ -15,7 +15,7 @@ export default function MinimalNegocios() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const { negocios, loading } = useNegocios();
+  const { negocios, loading, error } = useNegocios();
 
   if (loading) {
     return (
@@ -27,6 +27,54 @@ export default function MinimalNegocios() {
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleCompanyClick = (negocio: any) => {
+    if (negocio.company?.name) {
+      // Create a minimal company object for the dialog
+      const company: Company = {
+        id: negocio.company.id || 'temp-id',
+        name: negocio.company.name,
+        company_size: '11-50' as any,
+        company_type: 'cliente' as any,
+        company_status: 'activa' as any,
+        lifecycle_stage: 'customer' as any,
+        is_target_account: false,
+        is_key_account: false,
+        is_franquicia: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        industry: negocio.company.industry,
+        website: negocio.company.website
+      };
+      setSelectedCompany(company);
+    }
+  };
+
+  const handleContactClick = (negocio: any) => {
+    if (negocio.contact?.name) {
+      const contact: Contact = {
+        id: negocio.contact.id,
+        name: negocio.contact.name,
+        email: negocio.contact.email,
+        phone: negocio.contact.phone,
+        position: negocio.contact.position,
+        contact_type: 'other' as any,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      setSelectedContact(contact);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -112,9 +160,9 @@ export default function MinimalNegocios() {
                       <div className="font-medium">{negocio.nombre_negocio}</div>
                     </TableCell>
                     <TableCell>
-                      {negocio.company ? (
+                      {negocio.company?.name ? (
                         <button
-                          onClick={() => setSelectedCompany(negocio.company as Company)}
+                          onClick={() => handleCompanyClick(negocio)}
                           className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
                         >
                           <Building2 className="h-3 w-3" />
@@ -125,9 +173,9 @@ export default function MinimalNegocios() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {negocio.contact ? (
+                      {negocio.contact?.name ? (
                         <button
-                          onClick={() => setSelectedContact(negocio.contact as Contact)}
+                          onClick={() => handleContactClick(negocio)}
                           className="flex items-center gap-1 text-green-600 hover:text-green-800 hover:underline text-sm font-medium"
                         >
                           <Users className="h-3 w-3" />
@@ -170,10 +218,10 @@ export default function MinimalNegocios() {
                     <div key={negocio.id} className="bg-white rounded p-3 border">
                       <span className="font-medium">{negocio.nombre_negocio}</span>
                       
-                      {negocio.company && (
+                      {negocio.company?.name && (
                         <div className="mt-1">
                           <button
-                            onClick={() => setSelectedCompany(negocio.company as Company)}
+                            onClick={() => handleCompanyClick(negocio)}
                             className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline text-xs"
                           >
                             <Building2 className="h-3 w-3" />
@@ -182,10 +230,10 @@ export default function MinimalNegocios() {
                         </div>
                       )}
                       
-                      {negocio.contact && (
+                      {negocio.contact?.name && (
                         <div className="mt-1">
                           <button
-                            onClick={() => setSelectedContact(negocio.contact as Contact)}
+                            onClick={() => handleContactClick(negocio)}
                             className="flex items-center gap-1 text-green-600 hover:text-green-800 hover:underline text-xs"
                           >
                             <Users className="h-3 w-3" />
