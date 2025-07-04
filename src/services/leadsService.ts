@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource, LeadPriority, LeadQuality } from '@/types/Lead';
 import { DatabaseService } from './databaseService';
 
 export const fetchLeads = async (filters?: {

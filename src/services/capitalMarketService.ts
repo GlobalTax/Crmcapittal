@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { CreateLeadData, LeadSource } from '@/types/Lead';
+import { CreateLeadData, LeadSource, Lead } from '@/types/Lead';
 import { triggerAutomation } from './leadsService';
 import { DatabaseService } from './databaseService';
 
@@ -78,14 +78,33 @@ export class CapitalMarketService {
       throw error;
     }
 
+    // Transform data to match Lead interface before triggering automation
+    const transformedLead = {
+      ...data,
+      source: (data.source as LeadSource) || 'capittal_market',
+      lead_score: 10, // Default score for new leads
+      priority: 'MEDIUM' as const,
+      quality: 'FAIR' as const,
+      follow_up_count: 0,
+      email_opens: 0,
+      email_clicks: 0,
+      website_visits: 0,
+      content_downloads: 0,
+      tags: [] as string[],
+      form_data: {} as Record<string, unknown>,
+      job_title: '',
+      assigned_to: null,
+      lead_nurturing: []
+    };
+
     // Trigger automation workflows
-    await triggerAutomation('lead_created', data);
-    await triggerAutomation('capital_market_lead_imported', data);
+    await triggerAutomation('lead_created', transformedLead);
+    await triggerAutomation('capital_market_lead_imported', transformedLead);
 
     // Start nurturing sequence if applicable
-    await this.startNurturingSequence(data);
+    await this.startNurturingSequence(transformedLead);
 
-    return data;
+    return transformedLead;
   }
 
   private calculateLeadScore(leadData: CapitalMarketLead): number {
