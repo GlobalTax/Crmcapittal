@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -276,20 +275,20 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
               <TabsContent value="info" className="mt-0 space-y-6">
                 {/* Detalles Generales - Collapsible */}
                 <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-                  <Card>
+                  <div className="border-b border-border/50">
                     <CollapsibleTrigger asChild>
-                      <CardHeader className="hover:bg-muted/50 cursor-pointer transition-colors">
+                      <div className="hover:bg-muted/50 cursor-pointer transition-colors p-4">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-base flex items-center gap-2">
+                          <h3 className="text-base font-semibold flex items-center gap-2">
                             <User className="w-4 h-4" />
                             Detalles generales
-                          </CardTitle>
+                          </h3>
                           {isDetailsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                         </div>
-                      </CardHeader>
+                      </div>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
-                      <CardContent className="pt-0 space-y-4">
+                      <div className="px-4 pb-4 space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="text-sm text-muted-foreground">Nombre</label>
@@ -370,26 +369,24 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                             </Button>
                           )}
                         </div>
-                      </CardContent>
+                      </div>
                     </CollapsibleContent>
-                  </Card>
+                  </div>
                 </Collapsible>
 
                 {/* Etiquetas */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base flex items-center gap-2">
+                <div className="border-b border-border/50">
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-base font-semibold flex items-center gap-2">
                         <Tag className="w-4 h-4" />
                         Etiquetas
-                      </CardTitle>
+                      </h3>
                       <Button variant="outline" size="sm">
                         <Plus className="w-4 h-4" />
                         Introducir etiqueta
                       </Button>
                     </div>
-                  </CardHeader>
-                  <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {contact.sectors_of_interest?.map((sector, index) => (
                         <Badge key={index} variant="secondary" className="cursor-pointer hover:bg-secondary/80">
@@ -399,18 +396,16 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                       {getTypeBadge(contact.contact_type)}
                       {getPriorityBadge(contact.contact_priority)}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Listas */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
+                <div className="border-b border-border/50">
+                  <div className="p-4">
+                    <h3 className="text-base font-semibold flex items-center gap-2 mb-4">
                       <FileText className="w-4 h-4" />
                       Listas
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center gap-3">
@@ -432,19 +427,19 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                         Añadir
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Tareas Abiertas - Collapsible */}
                 <Collapsible open={isTasksOpen} onOpenChange={setIsTasksOpen}>
-                  <Card>
+                  <div className="border-b border-border/50">
                     <CollapsibleTrigger asChild>
-                      <CardHeader className="hover:bg-muted/50 cursor-pointer transition-colors">
+                      <div className="hover:bg-muted/50 cursor-pointer transition-colors p-4">
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-base flex items-center gap-2">
+                          <h3 className="text-base font-semibold flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             Tareas abiertas (0)
-                          </CardTitle>
+                          </h3>
                           <div className="flex items-center gap-2">
                             <Button variant="link" size="sm" className="text-primary">
                               Ver tareas completadas
@@ -456,32 +451,32 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                             {isTasksOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                           </div>
                         </div>
-                      </CardHeader>
+                      </div>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
-                      <CardContent className="pt-0">
+                      <div className="px-4 pb-4">
                         <div className="flex flex-col items-center justify-center py-8 text-center">
                           <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3">
                             <Calendar className="w-6 h-6 text-muted-foreground" />
                           </div>
                           <p className="text-sm text-muted-foreground">No hay tareas abiertas</p>
                         </div>
-                      </CardContent>
+                      </div>
                     </CollapsibleContent>
-                  </Card>
+                  </div>
                 </Collapsible>
 
                 {/* Notas - Collapsible */}
                 <Collapsible open={isNotesOpen} onOpenChange={setIsNotesOpen}>
-                  <Card>
+                  <div className="border-b border-border/50">
                     <CollapsibleTrigger asChild>
-                      <CardHeader className="hover:bg-muted/50 cursor-pointer transition-colors">
+                      <div className="hover:bg-muted/50 cursor-pointer transition-colors p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <CardTitle className="text-base flex items-center gap-2">
+                            <h3 className="text-base font-semibold flex items-center gap-2">
                               <MessageSquare className="w-4 h-4" />
                               Notas (0)
-                            </CardTitle>
+                            </h3>
                             <Badge variant="secondary" className="text-xs">Archivos (0)</Badge>
                             <Badge variant="secondary" className="text-xs">Emails (0)</Badge>
                             <Badge variant="secondary" className="text-xs">SMS (0)</Badge>
@@ -494,10 +489,10 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                             {isNotesOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                           </div>
                         </div>
-                      </CardHeader>
+                      </div>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
-                      <CardContent className="pt-0">
+                      <div className="px-4 pb-4">
                         {contact.notes ? (
                           <div className="space-y-4">
                             <div className="p-4 bg-muted/50 rounded-lg">
@@ -514,7 +509,7 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                         )}
                         
                         {/* Add note section */}
-                        <div className="mt-4 p-4 border-t space-y-3">
+                        <div className="mt-4 pt-4 border-t space-y-3">
                           <Textarea
                             placeholder="Escribe una nueva nota..."
                             value={newNote}
@@ -527,9 +522,9 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                             Agregar Nota
                           </Button>
                         </div>
-                      </CardContent>
+                      </div>
                     </CollapsibleContent>
-                  </Card>
+                  </div>
                 </Collapsible>
               </TabsContent>
 
