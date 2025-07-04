@@ -70,6 +70,10 @@ const sidebarData: SidebarSection[] = [
     title: "Administración",
     items: [
       {
+        title: "Colaboradores",
+        href: "/collaborators",
+      },
+      {
         title: "Gestión de Usuarios",
         href: "/users",
       },
