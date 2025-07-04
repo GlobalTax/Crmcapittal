@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Collaborator, CreateCollaboratorData } from '@/types/Collaborator';
 import { useToast } from '@/hooks/use-toast';
+import { useDocuments } from '@/hooks/useDocuments';
 
 export const useCollaborators = () => {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { createDocument, templates } = useDocuments();
 
   const fetchCollaborators = async () => {
     try {
@@ -119,6 +121,61 @@ export const useCollaborators = () => {
     fetchCollaborators();
   }, []);
 
+  const generateAgreement = async (collaborator: Collaborator) => {
+    try {
+      // Buscar la plantilla del acuerdo de colaboración
+      const agreementTemplate = templates.find(t => t.template_type === 'collaboration_agreement');
+      
+      if (!agreementTemplate) {
+        throw new Error('No se encontró la plantilla del acuerdo de colaboración');
+      }
+
+      // Crear variables para el documento
+      const variables = {
+        collaborator_name: collaborator.name,
+        collaborator_email: collaborator.email || '',
+        collaborator_phone: collaborator.phone || '',
+        agreement_date: new Date().toLocaleDateString('es-ES')
+      };
+
+      // Crear el documento del acuerdo
+      const agreementDoc = await createDocument({
+        title: `Acuerdo de Colaboración - ${collaborator.name}`,
+        content: agreementTemplate.content,
+        template_id: agreementTemplate.id,
+        document_type: 'collaboration_agreement',
+        variables,
+        status: 'draft'
+      });
+
+      if (!agreementDoc) {
+        throw new Error('Error al crear el documento del acuerdo');
+      }
+
+      // Actualizar el colaborador con la información del acuerdo
+      const updatedCollaborator = await updateCollaborator(collaborator.id, {
+        agreement_id: agreementDoc.id,
+        agreement_status: 'generated',
+        agreement_date: new Date().toISOString()
+      });
+
+      toast({
+        title: "Acuerdo generado",
+        description: `El acuerdo de colaboración para ${collaborator.name} ha sido generado correctamente.`,
+      });
+
+      return agreementDoc;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al generar el acuerdo';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      throw err;
+    }
+  };
+
   return {
     collaborators,
     loading,
@@ -126,6 +183,7 @@ export const useCollaborators = () => {
     createCollaborator,
     updateCollaborator,
     deleteCollaborator,
+    generateAgreement,
     refetch: fetchCollaborators
   };
 };

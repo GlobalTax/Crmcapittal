@@ -30,7 +30,7 @@ export const CreateCollaboratorDialog: React.FC<CreateCollaboratorDialogProps> =
     email: '',
     phone: '',
     collaborator_type: 'referente',
-    commission_percentage: 0,
+    commission_percentage: 15,
     base_commission: 0,
     notes: ''
   });
@@ -45,7 +45,7 @@ export const CreateCollaboratorDialog: React.FC<CreateCollaboratorDialogProps> =
         email: '',
         phone: '',
         collaborator_type: 'referente',
-        commission_percentage: 0,
+        commission_percentage: 15,
         base_commission: 0,
         notes: ''
       });

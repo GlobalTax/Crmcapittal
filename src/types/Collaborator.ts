@@ -14,6 +14,10 @@ export interface Collaborator {
   created_at: string;
   updated_at: string;
   created_by?: string;
+  agreement_id?: string;
+  agreement_status: 'pending' | 'generated' | 'sent' | 'signed';
+  agreement_date?: string;
+  agreement_signed_date?: string;
 }
 
 export interface CreateCollaboratorData {

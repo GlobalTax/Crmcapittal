@@ -1,21 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Collaborator, CollaboratorType } from '@/types/Collaborator';
-import { MoreHorizontal, Eye, Edit, Trash2, Users } from 'lucide-react';
+import { MoreHorizontal, Eye, Edit, Trash2, Users, FileText, Send } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { AgreementViewDialog } from './AgreementViewDialog';
 
 interface CollaboratorsTableProps {
   collaborators: Collaborator[];
   onEditCollaborator: (collaborator: Collaborator) => void;
   onDeleteCollaborator: (id: string) => void;
+  onGenerateAgreement: (collaborator: Collaborator) => void;
 }
 
 const collaboratorTypeLabels: Record<CollaboratorType, string> = {
@@ -40,6 +42,36 @@ const getTypeColor = (type: CollaboratorType) => {
   }
 };
 
+const getAgreementStatusColor = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'generated':
+      return 'bg-blue-100 text-blue-800';
+    case 'sent':
+      return 'bg-purple-100 text-purple-800';
+    case 'signed':
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const getAgreementStatusLabel = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'Pendiente';
+    case 'generated':
+      return 'Generado';
+    case 'sent':
+      return 'Enviado';
+    case 'signed':
+      return 'Firmado';
+    default:
+      return 'Desconocido';
+  }
+};
+
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('es-ES', {
     style: 'currency',
@@ -52,13 +84,17 @@ const formatCurrency = (amount: number) => {
 export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
   collaborators,
   onEditCollaborator,
-  onDeleteCollaborator
+  onDeleteCollaborator,
+  onGenerateAgreement
 }) => {
+  const [viewingAgreement, setViewingAgreement] = useState<Collaborator | null>(null);
+  
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES');
   };
 
   return (
+    <React.Fragment>
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
@@ -78,6 +114,7 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                   <TableHead>Comisión %</TableHead>
                   <TableHead>Comisión Base</TableHead>
                   <TableHead>Estado</TableHead>
+                  <TableHead>Acuerdo</TableHead>
                   <TableHead>Creado</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
@@ -131,6 +168,12 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                     </TableCell>
                     
                     <TableCell>
+                      <Badge className={getAgreementStatusColor(collaborator.agreement_status)}>
+                        {getAgreementStatusLabel(collaborator.agreement_status)}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
                       {formatDate(collaborator.created_at)}
                     </TableCell>
                     
@@ -146,6 +189,24 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                             <Eye className="h-4 w-4 mr-2" />
                             Ver detalles
                           </DropdownMenuItem>
+                          {collaborator.agreement_status === 'pending' && (
+                            <DropdownMenuItem onClick={() => onGenerateAgreement(collaborator)}>
+                              <FileText className="h-4 w-4 mr-2" />
+                              Generar Acuerdo
+                            </DropdownMenuItem>
+                          )}
+                          {collaborator.agreement_id && collaborator.agreement_status !== 'pending' && (
+                            <DropdownMenuItem onClick={() => setViewingAgreement(collaborator)}>
+                              <FileText className="h-4 w-4 mr-2" />
+                              Ver Acuerdo
+                            </DropdownMenuItem>
+                          )}
+                          {collaborator.agreement_status === 'generated' && (
+                            <DropdownMenuItem onClick={() => console.log('Enviar acuerdo', collaborator.id)}>
+                              <Send className="h-4 w-4 mr-2" />
+                              Enviar Acuerdo
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => onEditCollaborator(collaborator)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Editar
@@ -176,5 +237,11 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
         )}
       </CardContent>
     </Card>
-  );
+
+    <AgreementViewDialog
+      collaborator={viewingAgreement}
+      isOpen={!!viewingAgreement}
+      onClose={() => setViewingAgreement(null)}
+    />
+  </React.Fragment>);
 };

@@ -13,7 +13,8 @@ const Collaborators = () => {
     loading,
     createCollaborator,
     updateCollaborator,
-    deleteCollaborator
+    deleteCollaborator,
+    generateAgreement
   } = useCollaborators();
 
   const [editingCollaborator, setEditingCollaborator] = useState<Collaborator | null>(null);
@@ -27,6 +28,14 @@ const Collaborators = () => {
   const handleDeleteCollaborator = (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este colaborador?')) {
       deleteCollaborator(id);
+    }
+  };
+
+  const handleGenerateAgreement = async (collaborator: Collaborator) => {
+    try {
+      await generateAgreement(collaborator);
+    } catch (error) {
+      console.error('Error generating agreement:', error);
     }
   };
 
@@ -85,6 +94,7 @@ const Collaborators = () => {
         collaborators={collaborators}
         onEditCollaborator={handleEditCollaborator}
         onDeleteCollaborator={handleDeleteCollaborator}
+        onGenerateAgreement={handleGenerateAgreement}
       />
     </div>
   );

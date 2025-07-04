@@ -200,6 +200,10 @@ export type Database = {
       }
       collaborators: {
         Row: {
+          agreement_date: string | null
+          agreement_id: string | null
+          agreement_signed_date: string | null
+          agreement_status: string | null
           base_commission: number | null
           collaborator_type: Database["public"]["Enums"]["collaborator_type"]
           commission_percentage: number | null
@@ -214,6 +218,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          agreement_date?: string | null
+          agreement_id?: string | null
+          agreement_signed_date?: string | null
+          agreement_status?: string | null
           base_commission?: number | null
           collaborator_type?: Database["public"]["Enums"]["collaborator_type"]
           commission_percentage?: number | null
@@ -228,6 +236,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          agreement_date?: string | null
+          agreement_id?: string | null
+          agreement_signed_date?: string | null
+          agreement_status?: string | null
           base_commission?: number | null
           collaborator_type?: Database["public"]["Enums"]["collaborator_type"]
           commission_percentage?: number | null
@@ -241,7 +253,15 @@ export type Database = {
           phone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "collaborators_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       communication_templates: {
         Row: {
