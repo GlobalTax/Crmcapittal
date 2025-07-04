@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
@@ -186,8 +187,12 @@ export default function MinimalEmail() {
                 </TableHeader>
                 <TableBody>
                   {filteredEmails.map((email) => (
-                    <TableRow key={email.id} className="cursor-pointer">
-                      <TableCell onClick={() => handleEmailSelect(email)}>
+                    <TableRow 
+                      key={email.id} 
+                      className="cursor-pointer"
+                      onClick={() => handleEmailSelect(email)}
+                    >
+                      <TableCell>
                         <div className="font-medium">{email.recipient_email}</div>
                       </TableCell>
                       <TableCell>
