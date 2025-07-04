@@ -16,7 +16,7 @@ export const useNegocios = (pipelineId?: string) => {
       setError(null);
       
       let query = supabase
-        .from('negocios')
+        .from('deals')
         .select(`
           *,
           stages!stage_id (
@@ -25,12 +25,6 @@ export const useNegocios = (pipelineId?: string) => {
             color,
             order_index,
             pipeline_id
-          ),
-          companies!company_id (
-            id,
-            name,
-            industry,
-            website
           ),
           contacts!contact_id (
             id,
@@ -51,26 +45,50 @@ export const useNegocios = (pipelineId?: string) => {
 
       if (error) throw error;
       
-      const transformedData = (data || []).map(negocio => ({
-        ...negocio,
-        stage: negocio.stages ? {
-          id: negocio.stages.id,
-          name: negocio.stages.name,
-          color: negocio.stages.color,
-          order_index: negocio.stages.order_index
+      const transformedData = (data || []).map(deal => ({
+        id: deal.id,
+        nombre_negocio: deal.deal_name,
+        company_id: deal.company_name, // Using company_name as identifier for now
+        contact_id: deal.contact_id,
+        valor_negocio: deal.deal_value,
+        moneda: deal.currency || 'EUR',
+        tipo_negocio: deal.deal_type,
+        stage_id: deal.stage_id,
+        prioridad: deal.priority,
+        propietario_negocio: deal.deal_owner,
+        ebitda: deal.ebitda,
+        ingresos: deal.revenue,
+        multiplicador: deal.multiplier,
+        sector: deal.sector,
+        ubicacion: deal.location,
+        empleados: deal.employees,
+        descripcion: deal.description,
+        fuente_lead: deal.lead_source,
+        proxima_actividad: deal.next_activity,
+        notas: deal.notes,
+        created_by: deal.created_by,
+        created_at: deal.created_at,
+        updated_at: deal.updated_at,
+        fecha_cierre: deal.close_date,
+        is_active: deal.is_active,
+        stage: deal.stages ? {
+          id: deal.stages.id,
+          name: deal.stages.name,
+          color: deal.stages.color,
+          order_index: deal.stages.order_index
         } : undefined,
-        company: negocio.companies ? {
-          id: negocio.companies.id,
-          name: negocio.companies.name,
-          industry: negocio.companies.industry,
-          website: negocio.companies.website
+        company: deal.company_name ? {
+          id: deal.company_name,
+          name: deal.company_name,
+          industry: undefined,
+          website: undefined
         } : undefined,
-        contact: negocio.contacts ? {
-          id: negocio.contacts.id,
-          name: negocio.contacts.name,
-          email: negocio.contacts.email,
-          phone: negocio.contacts.phone,
-          position: negocio.contacts.position
+        contact: deal.contacts ? {
+          id: deal.contacts.id,
+          name: deal.contacts.name,
+          email: deal.contacts.email,
+          phone: deal.contacts.phone,
+          position: deal.contacts.position
         } : undefined
       }));
       
@@ -89,9 +107,28 @@ export const useNegocios = (pipelineId?: string) => {
       const { data: user } = await supabase.auth.getUser();
       
       const { data, error } = await supabase
-        .from('negocios')
+        .from('deals')
         .insert([{
-          ...negocioData,
+          deal_name: negocioData.nombre_negocio,
+          deal_value: negocioData.valor_negocio,
+          currency: negocioData.moneda,
+          deal_type: negocioData.tipo_negocio,
+          stage_id: negocioData.stage_id,
+          priority: negocioData.prioridad,
+          deal_owner: negocioData.propietario_negocio,
+          ebitda: negocioData.ebitda,
+          revenue: negocioData.ingresos,
+          multiplier: negocioData.multiplicador,
+          sector: negocioData.sector,
+          location: negocioData.ubicacion,
+          employees: negocioData.empleados,
+          description: negocioData.descripcion,
+          lead_source: negocioData.fuente_lead,
+          next_activity: negocioData.proxima_actividad,
+          notes: negocioData.notas,
+          contact_id: negocioData.contact_id,
+          company_name: negocioData.company_id,
+          close_date: negocioData.fecha_cierre,
           created_by: user?.user?.id
         }])
         .select()
@@ -119,9 +156,37 @@ export const useNegocios = (pipelineId?: string) => {
 
   const updateNegocio = async (id: string, updates: Partial<Negocio>) => {
     try {
+      const dealUpdates = {
+        deal_name: updates.nombre_negocio,
+        deal_value: updates.valor_negocio,
+        currency: updates.moneda,
+        deal_type: updates.tipo_negocio,
+        stage_id: updates.stage_id,
+        priority: updates.prioridad,
+        deal_owner: updates.propietario_negocio,
+        ebitda: updates.ebitda,
+        revenue: updates.ingresos,
+        multiplier: updates.multiplicador,
+        sector: updates.sector,
+        location: updates.ubicacion,
+        employees: updates.empleados,
+        description: updates.descripcion,
+        lead_source: updates.fuente_lead,
+        next_activity: updates.proxima_actividad,
+        notes: updates.notas,
+        contact_id: updates.contact_id,
+        company_name: updates.company_id,
+        close_date: updates.fecha_cierre
+      };
+      
+      // Remove undefined values
+      Object.keys(dealUpdates).forEach(key => 
+        dealUpdates[key] === undefined && delete dealUpdates[key]
+      );
+      
       const { data, error } = await supabase
-        .from('negocios')
-        .update(updates)
+        .from('deals')
+        .update(dealUpdates)
         .eq('id', id)
         .select()
         .single();
@@ -153,7 +218,7 @@ export const useNegocios = (pipelineId?: string) => {
   const deleteNegocio = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('negocios')
+        .from('deals')
         .update({ is_active: false })
         .eq('id', id);
 
