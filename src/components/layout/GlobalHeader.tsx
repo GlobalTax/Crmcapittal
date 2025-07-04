@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Settings, Bell, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const GlobalHeader = () => {
@@ -37,12 +36,12 @@ export const GlobalHeader = () => {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Search className="h-4 w-4" />
+        <Button variant="ghost" size="sm">
+          Buscar
         </Button>
         
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Bell className="h-4 w-4" />
+        <Button variant="ghost" size="sm">
+          Notificaciones
         </Button>
 
         <DropdownMenu>
@@ -63,11 +62,9 @@ export const GlobalHeader = () => {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
               <span>Configuración</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

@@ -7,7 +7,6 @@ import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialo
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
 import { Button } from "@/components/ui/button";
-import { Filter, Download } from "lucide-react";
 
 const Companies = () => {
   const [page, setPage] = useState(1);
@@ -85,11 +84,9 @@ const Companies = () => {
         </div>
         <div className="flex space-x-3">
           <Button variant="outline" className="border-gray-300">
-            <Filter className="h-4 w-4 mr-2" />
             Filtros
           </Button>
           <Button variant="outline" className="border-gray-300">
-            <Download className="h-4 w-4 mr-2" />
             Exportar
           </Button>
           <CreateCompanyDialog 

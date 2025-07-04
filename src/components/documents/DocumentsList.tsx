@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Search, FileText, Edit, Trash2, Download } from 'lucide-react';
+
 import { useDocuments } from '@/hooks/useDocuments';
 import { Document } from '@/types/Document';
 import { format } from 'date-fns';
@@ -79,14 +79,12 @@ export const DocumentsList: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Link to="/documents/templates">
-            <Button variant="outline" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
+            <Button variant="outline">
               Plantillas
             </Button>
           </Link>
           <Link to="/documents/new">
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
+            <Button>
               Nuevo Documento
             </Button>
           </Link>
@@ -98,15 +96,11 @@ export const DocumentsList: React.FC = () => {
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Buscar documentos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <Input
+                placeholder="Buscar documentos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-[180px]">
@@ -178,13 +172,13 @@ export const DocumentsList: React.FC = () => {
                 <div className="flex gap-1">
                   <Link to={`/documents/${document.id}`}>
                     <Button variant="ghost" size="sm">
-                      <Edit className="h-4 w-4" />
+                      Editar
                     </Button>
                   </Link>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4" />
+                        Eliminar
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -228,7 +222,6 @@ export const DocumentsList: React.FC = () => {
       {filteredDocuments.length === 0 && (
         <Card>
           <CardContent className="text-center py-8">
-            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No hay documentos</h3>
             <p className="text-gray-500 mb-4">
               {searchTerm || filterType !== 'all' || filterStatus !== 'all'
@@ -237,7 +230,6 @@ export const DocumentsList: React.FC = () => {
             </p>
             <Link to="/documents/new">
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
                 Crear Primer Documento
               </Button>
             </Link>

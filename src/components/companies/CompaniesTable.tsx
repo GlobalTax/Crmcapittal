@@ -7,21 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  Globe,
-  Building2,
-  Users,
-  TrendingUp,
-  Eye,
-  MapPin,
-  Calendar,
-  ChevronLeft,
-  ChevronRight
-} from "lucide-react";
 import { Company, CompanyStatus, CompanyType } from "@/types/Company";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -121,7 +106,7 @@ export const CompaniesTable = ({
     }).format(amount);
   };
 
-  const StatsCard = ({ title, value, icon: Icon, color }: { title: string; value: string | number; icon: any; color: string }) => (
+  const StatsCard = ({ title, value, color }: { title: string; value: string | number; color: string }) => (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
@@ -133,7 +118,6 @@ export const CompaniesTable = ({
               <p className={`text-2xl font-semibold ${color}`}>{value}</p>
             )}
           </div>
-          <Icon className={`h-8 w-8 ${color}`} />
         </div>
       </CardContent>
     </Card>
@@ -181,15 +165,11 @@ export const CompaniesTable = ({
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Buscar empresas por nombre, dominio, industria o ciudad..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <Input
+                placeholder="Buscar empresas por nombre, dominio, industria o ciudad..."
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+              />
             </div>
             <div className="flex gap-2">
               <select
@@ -227,25 +207,21 @@ export const CompaniesTable = ({
         <StatsCard
           title="Total Empresas"
           value={stats?.totalCompanies || 0}
-          icon={Building2}
           color="text-orange-600"
         />
         <StatsCard
           title="Clientes"
           value={stats?.clientCompanies || 0}
-          icon={Users}
           color="text-green-600"
         />
         <StatsCard
           title="Target Accounts"
           value={stats?.targetAccounts || 0}
-          icon={Calendar}
           color="text-purple-600"
         />
         <StatsCard
           title="Valor Total Deals"
           value={stats ? formatCurrency(stats.totalDealsValue) : "€0"}
-          icon={TrendingUp}
           color="text-orange-600"
         />
       </div>
@@ -283,13 +259,11 @@ export const CompaniesTable = ({
                         </Avatar>
                         <div>
                           <div className="font-medium text-gray-900">{company.name}</div>
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Globe className="h-3 w-3 mr-1" />
+                          <div className="text-sm text-gray-500">
                             {company.domain || 'Sin dominio'}
                           </div>
                           {company.city && (
-                            <div className="text-sm text-gray-500 flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" />
+                            <div className="text-sm text-gray-500">
                               {company.city}, {company.country}
                             </div>
                           )}
@@ -325,26 +299,23 @@ export const CompaniesTable = ({
                     </TableCell>
                     
                     <TableCell className="text-right">
-                      <DropdownMenu>
+                        <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
+                            •••
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => onViewCompany?.(company)}>
-                            <Eye className="h-4 w-4 mr-2" />
                             Ver Detalle
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onEditCompany?.(company)}>
-                            <Edit className="h-4 w-4 mr-2" />
                             Editar
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => onDeleteCompany?.(company.id)}
                             className="text-red-600"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
                             Eliminar
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -369,7 +340,6 @@ export const CompaniesTable = ({
                   onClick={() => onPageChange?.(currentPage - 1)}
                   disabled={currentPage <= 1}
                 >
-                  <ChevronLeft className="h-4 w-4" />
                   Anterior
                 </Button>
                 <span className="text-sm">
@@ -382,7 +352,6 @@ export const CompaniesTable = ({
                   disabled={currentPage >= totalPages}
                 >
                   Siguiente
-                  <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -390,7 +359,6 @@ export const CompaniesTable = ({
           
           {companies.length === 0 && !isLoading && (
             <div className="text-center py-12">
-              <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No se encontraron empresas
               </h3>

@@ -10,22 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { 
-  ExternalLink, 
-  Globe, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Building2,
-  Calendar,
-  TrendingUp,
-  Users,
-  Star,
-  Linkedin,
-  Twitter,
-  Facebook,
-  Edit2
-} from "lucide-react";
 
 interface CompanyDetailsDialogProps {
   company: Company;
@@ -88,12 +72,10 @@ export const CompanyDetailsDialog = ({
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
+            <DialogTitle>
               {company.name}
             </DialogTitle>
             <Button onClick={() => onEditCompany(company)} size="sm">
-              <Edit2 className="h-4 w-4 mr-2" />
               Editar
             </Button>
           </div>
@@ -135,7 +117,6 @@ export const CompanyDetailsDialog = ({
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-yellow-400" />
                   <span className="font-medium">{company.lead_score || 0}%</span>
                 </div>
               </CardContent>
@@ -163,36 +144,35 @@ export const CompanyDetailsDialog = ({
               <CardContent className="space-y-3">
                 {company.website && (
                   <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-gray-500" />
+                    <strong>Website:</strong>
                     <a 
                       href={company.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline flex items-center gap-1"
+                      className="text-blue-600 hover:underline"
                     >
                       {company.website}
-                      <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
                 )}
 
                 {company.domain && (
                   <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-gray-500" />
+                    <strong>Dominio:</strong>
                     <span className="text-sm">{company.domain}</span>
                   </div>
                 )}
 
                 {company.phone && (
                   <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-500" />
+                    <strong>Teléfono:</strong>
                     <span className="text-sm">{company.phone}</span>
                   </div>
                 )}
 
                 {(company.city || company.country) && (
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <strong>Ubicación:</strong>
                     <span className="text-sm">
                       {[company.city, company.state, company.country].filter(Boolean).join(', ')}
                     </span>
@@ -201,7 +181,7 @@ export const CompanyDetailsDialog = ({
 
                 {company.address && (
                   <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500 mt-0.5" />
+                    <strong>Dirección:</strong>
                     <span className="text-sm">{company.address}</span>
                   </div>
                 )}
@@ -216,7 +196,6 @@ export const CompanyDetailsDialog = ({
               <CardContent className="space-y-3">
                 {company.industry && (
                   <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-gray-500" />
                     <span className="text-sm font-medium">Industria:</span>
                     <span className="text-sm">{company.industry}</span>
                   </div>
@@ -224,7 +203,6 @@ export const CompanyDetailsDialog = ({
 
                 {company.annual_revenue && (
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-gray-500" />
                     <span className="text-sm font-medium">Ingresos Anuales:</span>
                     <span className="text-sm">{formatCurrency(company.annual_revenue)}</span>
                   </div>
@@ -232,14 +210,12 @@ export const CompanyDetailsDialog = ({
 
                 {company.founded_year && (
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-gray-500" />
                     <span className="text-sm font-medium">Fundada:</span>
                     <span className="text-sm">{company.founded_year}</span>
                   </div>
                 )}
 
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-gray-500" />
                   <span className="text-sm font-medium">Empleados:</span>
                   <span className="text-sm">{company.company_size}</span>
                 </div>
@@ -282,9 +258,8 @@ export const CompanyDetailsDialog = ({
                       href={company.linkedin_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:underline"
+                      className="text-blue-600 hover:underline"
                     >
-                      <Linkedin className="h-4 w-4" />
                       LinkedIn
                     </a>
                   )}
@@ -293,9 +268,8 @@ export const CompanyDetailsDialog = ({
                       href={company.twitter_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-400 hover:underline"
+                      className="text-blue-400 hover:underline"
                     >
-                      <Twitter className="h-4 w-4" />
                       Twitter
                     </a>
                   )}
@@ -304,9 +278,8 @@ export const CompanyDetailsDialog = ({
                       href={company.facebook_url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-800 hover:underline"
+                      className="text-blue-800 hover:underline"
                     >
-                      <Facebook className="h-4 w-4" />
                       Facebook
                     </a>
                   )}

@@ -1,26 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import {
-  BarChart3,
-  Users,
-  Building,
-  Calendar,
-  FileText,
-  Settings,
-  Mail,
-  Target,
-  DollarSign,
-  ChevronRight,
-  Phone,
-  Timer,
-  ArrowLeftRight
-} from 'lucide-react';
 
 interface SidebarItem {
   title: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
   badge?: string;
 }
 
@@ -36,22 +20,18 @@ const sidebarData: SidebarSection[] = [
       {
         title: "Leads",
         href: "/leads",
-        icon: Target,
       },
       {
         title: "Contactos",
         href: "/contacts",
-        icon: Users,
       },
       {
         title: "Empresas",
         href: "/companies",
-        icon: Building,
       },
       {
         title: "Negocios",
         href: "/negocios",
-        icon: DollarSign,
       },
     ],
   },
@@ -61,17 +41,14 @@ const sidebarData: SidebarSection[] = [
       {
         title: "Propuestas",
         href: "/proposals",
-        icon: FileText,
       },
       {
         title: "Transacciones M&A",
         href: "/transactions",
-        icon: ArrowLeftRight,
       },
       {
         title: "Documentos",
         href: "/documents",
-        icon: FileText,
       },
     ],
   },
@@ -81,17 +58,14 @@ const sidebarData: SidebarSection[] = [
       {
         title: "Email",
         href: "/email",
-        icon: Mail,
       },
       {
         title: "Calendario",
         href: "/calendar",
-        icon: Calendar,
       },
       {
         title: "Time Tracking",
         href: "/time-tracking",
-        icon: Timer,
       },
     ],
   },
@@ -105,7 +79,7 @@ export const AppSidebar = () => {
       <div className="p-4">
         <div className="flex items-center space-x-2 mb-8">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Building className="h-5 w-5 text-white" />
+            <span className="text-white font-bold">C</span>
           </div>
           <div>
             <h1 className="text-xl font-bold">CRM Pro</h1>
@@ -127,20 +101,18 @@ export const AppSidebar = () => {
                       <Link
                         to={item.href}
                         className={cn(
-                          "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                          "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                           isActive
                             ? "bg-blue-600 text-white"
                             : "text-gray-300 hover:bg-gray-800 hover:text-white"
                         )}
                       >
-                        <item.icon className="h-5 w-5 flex-shrink-0" />
                         <span className="flex-1">{item.title}</span>
                         {item.badge && (
                           <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
                             {item.badge}
                           </span>
                         )}
-                        {isActive && <ChevronRight className="h-4 w-4" />}
                       </Link>
                     </li>
                   );
