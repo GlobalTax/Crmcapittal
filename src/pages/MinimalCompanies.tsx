@@ -123,7 +123,7 @@ export default function MinimalCompanies() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Empresas</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Empresas - Minimal</h1>
           <p className="text-gray-600 mt-1">Gestiona todas las empresas de tu pipeline</p>
         </div>
         <Button variant="primary">
