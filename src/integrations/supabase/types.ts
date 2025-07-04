@@ -1083,6 +1083,45 @@ export type Database = {
         }
         Relationships: []
       }
+      empresas_integraloop: {
+        Row: {
+          cif: string | null
+          codigo_postal: string | null
+          companyId: string
+          datos_completos: Json | null
+          direccion: string | null
+          email: string | null
+          nombre: string | null
+          poblacion: string | null
+          telefono: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cif?: string | null
+          codigo_postal?: string | null
+          companyId: string
+          datos_completos?: Json | null
+          direccion?: string | null
+          email?: string | null
+          nombre?: string | null
+          poblacion?: string | null
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cif?: string | null
+          codigo_postal?: string | null
+          companyId?: string
+          datos_completos?: Json | null
+          direccion?: string | null
+          email?: string | null
+          nombre?: string | null
+          poblacion?: string | null
+          telefono?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       fee_history: {
         Row: {
           amount: number
