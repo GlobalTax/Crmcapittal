@@ -14,6 +14,7 @@ import { useUsers } from "@/hooks/useUsers";
 import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadDetailDialog } from "@/components/leads/LeadDetailDialog";
+import { ExportLeadsDialog } from "@/components/leads/ExportLeadsDialog";
 import { LeadStatus } from "@/types/Lead";
 import { Bell, Users, TrendingUp, UserCheck, Heart, CheckCircle, XCircle } from "lucide-react";
 
@@ -117,7 +118,10 @@ const Dashboard = () => {
             Gestiona y convierte tus leads en oportunidades de negocio.
           </p>
         </div>
-        <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
+        <div className="flex gap-2">
+          <ExportLeadsDialog leads={leads} />
+          <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

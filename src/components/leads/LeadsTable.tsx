@@ -14,12 +14,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, UserPlus, Trash2, ArrowRight, User, Building2, Briefcase } from "lucide-react";
+import { MoreHorizontal, Eye, UserPlus, Trash2, ArrowRight, User, Building2, Briefcase, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Lead } from "@/types/Lead";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 import { AssignLeadDialog } from "./AssignLeadDialog";
 import { ConvertLeadDialog } from "./ConvertLeadDialog";
+import { EmailTemplateDialog } from "./EmailTemplateDialog";
 import { LeadsTableSkeleton } from "@/components/LoadingSkeleton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -46,6 +47,7 @@ export const LeadsTable = ({
 }: LeadsTableProps) => {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string>('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
@@ -96,6 +98,11 @@ export const LeadsTable = ({
     }
     
     onConvertLead(leadId, options);
+  };
+
+  const handleEmailClick = (lead: Lead) => {
+    setSelectedLead(lead);
+    setEmailDialogOpen(true);
   };
 
   const isConverted = (lead: Lead) => {
@@ -215,6 +222,10 @@ export const LeadsTable = ({
                           <UserPlus className="mr-2 h-4 w-4" />
                           Reasignar
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEmailClick(lead)}>
+                          <Mail className="mr-2 h-4 w-4" />
+                          Enviar Email
+                        </DropdownMenuItem>
                         {!isConverted(lead) && (
                           <DropdownMenuItem onClick={() => handleConvertClick(lead)}>
                             <ArrowRight className="mr-2 h-4 w-4" />
@@ -250,6 +261,10 @@ export const LeadsTable = ({
         lead={selectedLead}
         onConvert={handleConvert}
         isConverting={isConverting}
+      />
+
+      <EmailTemplateDialog
+        lead={selectedLead}
       />
     </>
   );
