@@ -3,7 +3,6 @@ import { useContactFiles, ContactFile } from '@/hooks/useContactFiles';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Mail, 
   Trash2
@@ -130,16 +129,11 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Botón de subida */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
-            Subir Archivo
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="space-y-8">
+      {/* Sección de subida */}
+      <div className="border-b border-gray-200 pb-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Subir Archivo</h3>
+        <div className="flex items-center gap-4">
           <input
             type="file"
             ref={fileInput}
@@ -150,90 +144,83 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
           <Button
             onClick={() => fileInput.current?.click()}
             disabled={uploading}
-            className="w-full sm:w-auto"
+            variant="outline"
           >
-            <Mail className="h-4 w-4 mr-2" />
             {uploading ? 'Subiendo...' : 'Seleccionar Archivo'}
           </Button>
-          
-          <p className="text-xs text-muted-foreground mt-2">
-            Tamaño máximo: 10MB. Todos los tipos de archivo son compatibles.
-          </p>
-        </CardContent>
-      </Card>
+          <span className="text-sm text-gray-500">
+            Tamaño máximo: 10MB
+          </span>
+        </div>
+      </div>
 
       {/* Lista de archivos */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5" />
-            Archivos ({files.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {files.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Mail className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No hay archivos para este contacto.</p>
-              <p className="text-xs mt-1">Sube archivos usando el botón de arriba.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {files.map((file) => (
-                <div 
-                  key={file.id} 
-                  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-                >
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">Archivos</h3>
+          <span className="text-sm text-gray-500">({files.length})</span>
+        </div>
+
+        {files.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            <p>No hay archivos para este contacto.</p>
+            <p className="text-sm mt-1">Sube archivos usando el botón de arriba.</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {files.map((file) => (
+              <div 
+                key={file.id} 
+                className="flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded transition-colors"
+              >
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   {getFileIcon(file.file_name)}
-                  
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm truncate">
+                      <span className="text-sm font-medium text-gray-900 truncate">
                         {file.file_name}
                       </span>
                       {file.file_size && (
-                        <span className="text-xs text-muted-foreground">
-                          ({formatFileSize(file.file_size)})
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {formatFileSize(file.file_size)}
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Subido el {new Date(file.created_at).toLocaleDateString('es-ES', {
+                    <div className="text-xs text-gray-500">
+                      {new Date(file.created_at).toLocaleDateString('es-ES', {
                         day: '2-digit',
                         month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        year: 'numeric'
                       })}
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDownload(file)}
-                      title="Descargar"
-                    >
-                      <Mail className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(file)}
-                      title="Eliminar"
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                
+                <div className="flex items-center gap-1 ml-4">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDownload(file)}
+                    title="Descargar"
+                  >
+                    <Mail className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDelete(file)}
+                    title="Eliminar"
+                    className="text-gray-400 hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
