@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
+import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
 import { useProposals } from '@/hooks/useProposals';
 import { ProposalWizard } from '@/components/proposals/ProposalWizard';
 
@@ -11,6 +11,17 @@ export default function MinimalProposals() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isWizardOpen, setIsWizardOpen] = useState(false);
 
+  // Definir columnas para la tabla de propuestas
+  const proposalColumns = [
+    { id: 'title', label: 'Título', visible: true },
+    { id: 'client', label: 'Cliente', visible: true },
+    { id: 'company', label: 'Empresa', visible: true },
+    { id: 'value', label: 'Valor', visible: true },
+    { id: 'status', label: 'Estado', visible: true },
+    { id: 'date', label: 'Fecha', visible: true },
+    { id: 'actions', label: 'Acciones', visible: true }
+  ];
+
   const filteredProposals = proposals.filter(proposal => {
     const matchesSearch = proposal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          proposal.contact?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -18,6 +29,23 @@ export default function MinimalProposals() {
     const matchesStatus = statusFilter === 'all' || proposal.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Preparar datos para la tabla avanzada
+  const tableData = filteredProposals.map(proposal => ({
+    id: proposal.id,
+    title: <div className="font-medium">{proposal.title}</div>,
+    client: proposal.contact?.name || 'N/A',
+    company: <div className="text-sm text-gray-500">{proposal.company?.name || 'N/A'}</div>,
+    value: proposal.total_amount ? `€${proposal.total_amount.toLocaleString()}` : 'N/A',
+    status: getStatusBadge(proposal.status),
+    date: formatDate(proposal.created_at),
+    actions: (
+      <div className="flex gap-2 justify-end">
+        <button className="text-blue-600 hover:text-blue-800 text-sm">Ver</button>
+        <button className="text-blue-600 hover:text-blue-800 text-sm">Editar</button>
+      </div>
+    )
+  }));
 
   const handleCreateProposal = async (data: any) => {
     await createProposal(data);
@@ -137,64 +165,11 @@ export default function MinimalProposals() {
           </h3>
         </div>
         <div className="p-4">
-          <Table>
-            <TableHeader>
-              <TableHead>Título</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Valor</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Fecha</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableHeader>
-            <TableBody>
-              {filteredProposals.map((proposal) => (
-                <TableRow key={proposal.id}>
-                  <TableCell>
-                    <div className="font-medium">{proposal.title}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{proposal.contact?.name || 'N/A'}</div>
-                      <div className="text-sm text-gray-500">{proposal.company?.name || 'N/A'}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {proposal.total_amount ? `€${proposal.total_amount.toLocaleString()}` : 'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    {getStatusBadge(proposal.status)}
-                  </TableCell>
-                  <TableCell>
-                    {formatDate(proposal.created_at)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      <button className="text-blue-600 hover:text-blue-800 text-sm">
-                        Ver
-                      </button>
-                      <button className="text-blue-600 hover:text-blue-800 text-sm">
-                        Editar
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          {filteredProposals.length === 0 && (
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No se encontraron propuestas
-              </h3>
-              <p className="text-gray-500">
-                {searchQuery ? 
-                  "Intenta con otros términos de búsqueda" : 
-                  "Crea tu primera propuesta para comenzar"
-                }
-              </p>
-            </div>
-          )}
+          <AdvancedTable
+            data={tableData}
+            columns={proposalColumns}
+            className=""
+          />
         </div>
       </div>
 
