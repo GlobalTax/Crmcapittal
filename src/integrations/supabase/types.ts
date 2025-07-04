@@ -134,6 +134,115 @@ export type Database = {
         }
         Relationships: []
       }
+      collaborator_commissions: {
+        Row: {
+          collaborator_id: string
+          commission_amount: number
+          commission_percentage: number | null
+          created_at: string
+          deal_id: string | null
+          id: string
+          lead_id: string | null
+          notes: string | null
+          paid_at: string | null
+          status: Database["public"]["Enums"]["commission_status"]
+          updated_at: string
+        }
+        Insert: {
+          collaborator_id: string
+          commission_amount: number
+          commission_percentage?: number | null
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["commission_status"]
+          updated_at?: string
+        }
+        Update: {
+          collaborator_id?: string
+          commission_amount?: number
+          commission_percentage?: number | null
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["commission_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborator_commissions_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaborators: {
+        Row: {
+          base_commission: number | null
+          collaborator_type: Database["public"]["Enums"]["collaborator_type"]
+          commission_percentage: number | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          base_commission?: number | null
+          collaborator_type?: Database["public"]["Enums"]["collaborator_type"]
+          commission_percentage?: number | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          base_commission?: number | null
+          collaborator_type?: Database["public"]["Enums"]["collaborator_type"]
+          commission_percentage?: number | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       communication_templates: {
         Row: {
           content: string
@@ -1412,6 +1521,7 @@ export type Database = {
       leads: {
         Row: {
           assigned_to_id: string | null
+          collaborator_id: string | null
           company_name: string | null
           created_at: string
           email: string
@@ -1426,6 +1536,7 @@ export type Database = {
         }
         Insert: {
           assigned_to_id?: string | null
+          collaborator_id?: string | null
           company_name?: string | null
           created_at?: string
           email: string
@@ -1440,6 +1551,7 @@ export type Database = {
         }
         Update: {
           assigned_to_id?: string | null
+          collaborator_id?: string | null
           company_name?: string | null
           created_at?: string
           email?: string
@@ -1453,6 +1565,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "leads_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "leads_stage_id_fkey"
             columns: ["stage_id"]
@@ -2853,6 +2972,12 @@ export type Database = {
         | "WEBSITE_VISIT"
         | "DOCUMENT_DOWNLOADED"
       app_role: "superadmin" | "admin" | "user"
+      collaborator_type:
+        | "referente"
+        | "partner_comercial"
+        | "agente"
+        | "freelancer"
+      commission_status: "pending" | "paid" | "cancelled"
       company_size: "1-10" | "11-50" | "51-200" | "201-500" | "500+"
       company_status:
         | "activa"
@@ -3028,6 +3153,13 @@ export const Constants = {
         "DOCUMENT_DOWNLOADED",
       ],
       app_role: ["superadmin", "admin", "user"],
+      collaborator_type: [
+        "referente",
+        "partner_comercial",
+        "agente",
+        "freelancer",
+      ],
+      commission_status: ["pending", "paid", "cancelled"],
       company_size: ["1-10", "11-50", "51-200", "201-500", "500+"],
       company_status: ["activa", "inactiva", "prospecto", "cliente", "perdida"],
       company_type: [
