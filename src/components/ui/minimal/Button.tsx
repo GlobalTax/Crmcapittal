@@ -13,18 +13,18 @@ export function Button({
   size = 'md',
   ...props 
 }: ButtonProps) {
-  const baseStyles = 'rounded transition-colors font-medium';
+  const baseStyles = 'border-0 cursor-pointer transition-colors font-normal';
   
   const variants = {
-    primary: 'bg-gray-900 text-white hover:bg-gray-800',
-    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
-    ghost: 'text-gray-600 hover:bg-gray-100'
+    primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+    ghost: 'bg-transparent text-muted-foreground hover:bg-muted/50'
   };
   
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2',
-    lg: 'px-6 py-3 text-lg'
+    sm: 'px-2 py-1 text-sm',
+    md: 'px-3 py-1.5 text-sm',
+    lg: 'px-4 py-2'
   };
 
   return (
