@@ -19,6 +19,10 @@ const sidebarData: SidebarSection[] = [
     title: "Principal",
     items: [
       {
+        title: "Dashboard Personal",
+        href: "/personal",
+      },
+      {
         title: "Control Leads",
         href: "/",
       },

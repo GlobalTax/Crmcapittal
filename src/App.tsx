@@ -19,6 +19,7 @@ const Negocios = lazy(() => import('@/pages/Negocios'));
 const NegocioDetail = lazy(() => import('@/pages/NegocioDetail'));
 const Proposals = lazy(() => import('@/pages/Proposals'));
 const TimeTracking = lazy(() => import('@/pages/TimeTracking'));
+const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
 const Email = lazy(() => import('@/pages/Email'));
 const CalendarPage = lazy(() => import('@/pages/Calendar'));
 
@@ -56,6 +57,14 @@ function App() {
                 
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+                  <Route 
+                    path="/personal" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <PersonalDashboard />
+                      </Suspense>
+                    } 
+                  />
                   <Route 
                     path="/" 
                     element={
