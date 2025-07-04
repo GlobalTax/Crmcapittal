@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
 import { LeadDetailDialog } from "@/components/leads/LeadDetailDialog";
 import { ExportLeadsDialog } from "@/components/leads/ExportLeadsDialog";
+import { LeadNurturingPipeline } from "@/components/leads/LeadNurturingPipeline";
 import { LeadStatus } from "@/types/Lead";
 import { Bell, Users, TrendingUp, UserCheck, Heart, CheckCircle, XCircle } from "lucide-react";
 
@@ -124,6 +126,14 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <Tabs defaultValue="dashboard" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="nurturing">Nurturing & Automatización</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="space-y-6">
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.slice(0, 4).map((stat, index) => (
           <StatsCard key={index} {...stat} />
@@ -195,11 +205,17 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <LeadDetailDialog
-        open={detailDialogOpen}
-        onOpenChange={setDetailDialogOpen}
-        lead={selectedLead}
-      />
+        <LeadDetailDialog
+          open={detailDialogOpen}
+          onOpenChange={setDetailDialogOpen}
+          lead={selectedLead}
+        />
+        </TabsContent>
+
+        <TabsContent value="nurturing">
+          <LeadNurturingPipeline />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
