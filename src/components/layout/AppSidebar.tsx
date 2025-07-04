@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface SidebarItem {
   title: string;
@@ -65,10 +66,26 @@ const sidebarData: SidebarSection[] = [
       },
     ],
   },
+  {
+    title: "Administración",
+    items: [
+      {
+        title: "Gestión de Usuarios",
+        href: "/users",
+      },
+      {
+        title: "Transacciones",
+        href: "/transactions",
+      },
+    ],
+  },
 ];
 
 export const AppSidebar = () => {
   const location = useLocation();
+  const { role } = useUserRole();
+
+  const isAdmin = role === 'admin' || role === 'superadmin';
 
   return (
     <div className="w-64 bg-gray-900 text-white h-full overflow-y-auto">
@@ -84,38 +101,45 @@ export const AppSidebar = () => {
         </div>
 
         <nav className="space-y-6">
-          {sidebarData.map((section) => (
-            <div key={section.title}>
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                {section.title}
-              </h2>
-              <ul className="space-y-1">
-                {section.items.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                          isActive
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                        )}
-                      >
-                        <span className="flex-1">{item.title}</span>
-                        {item.badge && (
-                          <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+          {sidebarData.map((section) => {
+            // Hide admin section for non-admin users
+            if (section.title === "Administración" && !isAdmin) {
+              return null;
+            }
+
+            return (
+              <div key={section.title}>
+                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                  {section.title}
+                </h2>
+                <ul className="space-y-1">
+                  {section.items.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          to={item.href}
+                          className={cn(
+                            "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                            isActive
+                              ? "bg-blue-600 text-white"
+                              : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                          )}
+                        >
+                          <span className="flex-1">{item.title}</span>
+                          {item.badge && (
+                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
         </nav>
       </div>
     </div>

@@ -23,6 +23,7 @@ const Email = lazy(() => import('@/pages/Email'));
 const CalendarPage = lazy(() => import('@/pages/Calendar'));
 const Transactions = lazy(() => import('@/pages/Transactions'));
 const Documents = lazy(() => import('@/pages/Documents'));
+const UserManagement = lazy(() => import('@/pages/UserManagement'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient({
@@ -147,6 +148,14 @@ function App() {
                     element={
                       <Suspense fallback={<LoadingSkeleton />}>
                         <Documents />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/users" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <UserManagement />
                       </Suspense>
                     } 
                   />
