@@ -2,13 +2,14 @@
 import React, { useEffect, useState } from "react";
 import { ContactsTable } from "@/components/contacts/ContactsTable";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
-import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
+import { ContactDetailView } from "@/components/contacts/ContactDetailView";
 import { useContactsCRUD } from "@/hooks/useContactsCRUD";
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
 
 export default function Contacts() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [viewingContact, setViewingContact] = useState<Contact | null>(null);
+  const [showDetailView, setShowDetailView] = useState(false);
 
   const {
     fetchContacts,
@@ -63,7 +64,31 @@ export default function Contacts() {
 
   const handleViewContact = (contact: Contact) => {
     setViewingContact(contact);
+    setShowDetailView(true);
   };
+
+  const handleBackFromDetail = () => {
+    setShowDetailView(false);
+    setViewingContact(null);
+  };
+
+  if (showDetailView && viewingContact) {
+    return (
+      <ContactDetailView
+        contact={viewingContact}
+        onBack={handleBackFromDetail}
+        onEdit={(contact) => {
+          setShowDetailView(false);
+          setEditingContact(contact);
+        }}
+        onDelete={(contactId) => {
+          handleDeleteContact(contactId);
+          setShowDetailView(false);
+          setViewingContact(null);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -85,19 +110,6 @@ export default function Contacts() {
           onOpenChange={(open) => !open && setEditingContact(null)}
           onUpdateContact={handleUpdateContact}
           isUpdating={isUpdating}
-        />
-      )}
-
-      {/* Contact Details Dialog */}
-      {viewingContact && (
-        <ContactDetailsDialog
-          contact={viewingContact}
-          open={!!viewingContact}
-          onOpenChange={(open) => !open && setViewingContact(null)}
-          onEditContact={(contact) => {
-            setViewingContact(null);
-            setEditingContact(contact);
-          }}
         />
       )}
     </div>
