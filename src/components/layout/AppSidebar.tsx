@@ -81,6 +81,10 @@ const sidebarData: SidebarSection[] = [
         title: "Gestión de Usuarios",
         href: "/users",
       },
+      {
+        title: "Integraciones",
+        href: "/integrations",
+      },
     ],
   },
 ];

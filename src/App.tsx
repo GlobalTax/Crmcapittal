@@ -26,6 +26,7 @@ const CalendarPage = lazy(() => import('@/pages/Calendar'));
 const Documents = lazy(() => import('@/pages/Documents'));
 const UserManagement = lazy(() => import('@/pages/UserManagement'));
 const Collaborators = lazy(() => import('@/pages/Collaborators'));
+const Integrations = lazy(() => import('@/pages/Integrations'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient({
@@ -166,6 +167,14 @@ function App() {
                     element={
                       <Suspense fallback={<LoadingSkeleton />}>
                         <Collaborators />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/integrations" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <Integrations />
                       </Suspense>
                     } 
                   />
