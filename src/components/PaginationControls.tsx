@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
-import { PaginationConfig } from '@/hooks/operations/useOperationsPagination';
+import { PaginationConfig } from '@/types/common';
 
 interface PaginationControlsProps {
   config: PaginationConfig;

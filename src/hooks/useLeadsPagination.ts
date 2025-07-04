@@ -1,12 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Lead } from '@/types/Lead';
-
-export interface PaginationConfig {
-  page: number;
-  pageSize: number;
-  totalItems: number;
-  totalPages: number;
-}
+import { PaginationConfig } from '@/types/common';
 
 export const useLeadsPagination = (leads: Lead[], pageSize: number = 20) => {
   const [currentPage, setCurrentPage] = useState(1);

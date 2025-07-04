@@ -280,6 +280,12 @@ export const convertLeadToContact = async (
     throw new Error('Lead not found');
   }
 
+  // Get current user ID
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
+    throw new Error('User not authenticated');
+  }
+
   // Create contact
   const contactData = {
     name: lead.name,
@@ -288,7 +294,8 @@ export const convertLeadToContact = async (
     company: lead.company_name,
     contact_type: 'prospect',
     contact_source: lead.source,
-    notes: lead.message
+    notes: lead.message,
+    created_by: user.id
   };
 
   const { data: contact, error: contactError } = await supabase
