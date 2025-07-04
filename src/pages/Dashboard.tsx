@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CallBackProps } from 'react-joyride';
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { EmailStatsCard } from "@/components/dashboard/EmailStatsCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +21,9 @@ import { ExportLeadsDialog } from "@/components/leads/ExportLeadsDialog";
 import { LeadNurturingPipeline } from "@/components/leads/LeadNurturingPipeline";
 import { LeadAnalyticsDashboard } from "@/components/leads/LeadAnalyticsDashboard";
 import { AdvancedFiltersPanel } from "@/components/leads/AdvancedFiltersPanel";
+import { WelcomeBanner } from "@/components/leads/WelcomeBanner";
+import { GuidedTour } from "@/components/leads/GuidedTour";
+import { EmptyLeadsState } from "@/components/leads/EmptyLeadsState";
 import { LeadStatus } from "@/types/Lead";
 import { useAdvancedLeadFilters } from "@/hooks/useAdvancedLeadFilters";
 import { useLeadsPagination } from "@/hooks/useLeadsPagination";
@@ -34,6 +38,8 @@ const Dashboard = () => {
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [useOptimizedTable, setUseOptimizedTable] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [runTour, setRunTour] = useState(false);
 
   const { users } = useUsers();
 
@@ -143,8 +149,25 @@ const Dashboard = () => {
     }
   };
 
+  const handleTourCallback = (data: CallBackProps) => {
+    const { status } = data;
+    if (status === 'finished' || status === 'skipped') {
+      setRunTour(false);
+    }
+  };
+
+  const handleCreateLead = () => {
+    setCreateDialogOpen(true);
+  };
+
+  const handleShowGuide = () => {
+    setRunTour(true);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
+      <GuidedTour run={runTour} onCallback={handleTourCallback} />
+      
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Control Leads</h2>
@@ -154,11 +177,22 @@ const Dashboard = () => {
         </div>
         <div className="flex gap-2">
           <ExportLeadsDialog leads={filteredLeads} />
-          <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
+          <div data-tour="create-lead">
+            <CreateLeadDialog 
+              onCreateLead={createLead} 
+              isCreating={isCreating}
+            />
+          </div>
         </div>
       </div>
 
-      <Tabs defaultValue="dashboard" className="space-y-6">
+      <WelcomeBanner 
+        leadsCount={allLeads.length}
+        onCreateLead={handleCreateLead}
+        onShowGuide={handleShowGuide}
+      />
+
+      <Tabs defaultValue="dashboard" className="space-y-6" data-tour="tabs">
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="analytics">Analytics Avanzados</TabsTrigger>
@@ -167,12 +201,13 @@ const Dashboard = () => {
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.slice(0, 4).map((stat, index) => (
-          <StatsCard key={index} {...stat} />
-        ))}
-      </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" data-tour="stats-cards">
+            {stats.slice(0, 4).map((stat, index) => (
+              <div key={index} className="transform transition-all duration-200 hover:scale-105">
+                <StatsCard {...stat} />
+              </div>
+            ))}
+          </div>
 
       {/* Estadísticas adicionales */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -187,68 +222,75 @@ const Dashboard = () => {
         <EmailStatsCard />
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <Label htmlFor="status-filter">Estado</Label>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los estados" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="NEW">Nuevo</SelectItem>
-              <SelectItem value="CONTACTED">Contactado</SelectItem>
-              <SelectItem value="QUALIFIED">Calificado</SelectItem>
-              <SelectItem value="NURTURING">Nutriendo</SelectItem>
-              <SelectItem value="CONVERTED">Convertido</SelectItem>
-              <SelectItem value="LOST">Perdido</SelectItem>
-              <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex-1">
-          <Label htmlFor="assigned-filter">Asignado a</Label>
-          <Select value={assignedFilter} onValueChange={setAssignedFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Todos los usuarios" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los usuarios</SelectItem>
-              <SelectItem value="unassigned">Sin asignar</SelectItem>
-              {users.map((user) => (
-                <SelectItem key={user.user_id} value={user.user_id}>
-                  {user.first_name} {user.last_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+          <div className="flex flex-col sm:flex-row gap-4" data-tour="filters">
+            <div className="flex-1">
+              <Label htmlFor="status-filter">Estado</Label>
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos los estados" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  <SelectItem value="NEW">Nuevo</SelectItem>
+                  <SelectItem value="CONTACTED">Contactado</SelectItem>
+                  <SelectItem value="QUALIFIED">Calificado</SelectItem>
+                  <SelectItem value="NURTURING">Nutriendo</SelectItem>
+                  <SelectItem value="CONVERTED">Convertido</SelectItem>
+                  <SelectItem value="LOST">Perdido</SelectItem>
+                  <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="assigned-filter">Asignado a</Label>
+              <Select value={assignedFilter} onValueChange={setAssignedFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos los usuarios" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los usuarios</SelectItem>
+                  <SelectItem value="unassigned">Sin asignar</SelectItem>
+                  {users.map((user) => (
+                    <SelectItem key={user.user_id} value={user.user_id}>
+                      {user.first_name} {user.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6">
-          <LeadsTable
-            leads={paginatedLeads}
-            onViewLead={handleViewLead}
-            onDeleteLead={handleDeleteLead}
-            onAssignLead={handleAssignLead}
-            onConvertLead={handleConvertLead}
-            isLoading={isLoading}
-            isConverting={isConverting}
-          />
-          
-          {paginationConfig.totalPages > 1 && (
-            <div className="mt-4">
-              <PaginationControls
-                config={paginationConfig}
-                onPageChange={goToPage}
-                onNextPage={goToNextPage}
-                onPreviousPage={goToPreviousPage}
-              />
+          {filteredLeads.length === 0 && !isLoading ? (
+            <EmptyLeadsState 
+              onCreateLead={handleCreateLead}
+              onShowGuide={handleShowGuide}
+            />
+          ) : (
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm" data-tour="leads-table">
+              <div className="p-6">
+                <LeadsTable
+                  leads={paginatedLeads}
+                  onViewLead={handleViewLead}
+                  onDeleteLead={handleDeleteLead}
+                  onAssignLead={handleAssignLead}
+                  onConvertLead={handleConvertLead}
+                  isLoading={isLoading}
+                  isConverting={isConverting}
+                />
+                
+                {paginationConfig.totalPages > 1 && (
+                  <div className="mt-4">
+                    <PaginationControls
+                      config={paginationConfig}
+                      onPageChange={goToPage}
+                      onNextPage={goToNextPage}
+                      onPreviousPage={goToPreviousPage}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           )}
-        </div>
-      </div>
 
         <LeadDetailDialog
           open={detailDialogOpen}
