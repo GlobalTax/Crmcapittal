@@ -3,12 +3,18 @@ import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
 import { useNegocios } from "@/hooks/useNegocios";
-import { User, Briefcase } from "lucide-react";
+import { User, Briefcase, Building2, Users } from "lucide-react";
+import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
+import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
+import { Company } from "@/types/Company";
+import { Contact } from "@/types/Contact";
 
 const stages = ['Nuevo', 'En Proceso', 'Propuesta', 'Ganado', 'Perdido'];
 
 export default function MinimalNegocios() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const { negocios, loading } = useNegocios();
 
   if (loading) {
@@ -93,6 +99,7 @@ export default function MinimalNegocios() {
               <TableHeader>
                 <TableHead>Negocio</TableHead>
                 <TableHead>Empresa</TableHead>
+                <TableHead>Contacto</TableHead>
                 <TableHead>Valor</TableHead>
                 <TableHead>Etapa</TableHead>
                 <TableHead>Responsable</TableHead>
@@ -104,7 +111,32 @@ export default function MinimalNegocios() {
                     <TableCell>
                       <div className="font-medium">{negocio.nombre_negocio}</div>
                     </TableCell>
-                    <TableCell>{negocio.company?.name || 'N/A'}</TableCell>
+                    <TableCell>
+                      {negocio.company ? (
+                        <button
+                          onClick={() => setSelectedCompany(negocio.company as Company)}
+                          className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
+                        >
+                          <Building2 className="h-3 w-3" />
+                          {negocio.company.name}
+                        </button>
+                      ) : (
+                        <span className="text-gray-400">N/A</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {negocio.contact ? (
+                        <button
+                          onClick={() => setSelectedContact(negocio.contact as Contact)}
+                          className="flex items-center gap-1 text-green-600 hover:text-green-800 hover:underline text-sm font-medium"
+                        >
+                          <Users className="h-3 w-3" />
+                          {negocio.contact.name}
+                        </button>
+                      ) : (
+                        <span className="text-gray-400">N/A</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {negocio.valor_negocio ? `€${negocio.valor_negocio.toLocaleString()}` : 'N/A'}
                     </TableCell>
@@ -137,7 +169,31 @@ export default function MinimalNegocios() {
                   {negocios.filter(n => (n.stage?.name || 'Nuevo') === stage).map((negocio) => (
                     <div key={negocio.id} className="bg-white rounded p-3 border">
                       <span className="font-medium">{negocio.nombre_negocio}</span>
-                      <div className="text-xs text-gray-500 mt-1">{negocio.company?.name}</div>
+                      
+                      {negocio.company && (
+                        <div className="mt-1">
+                          <button
+                            onClick={() => setSelectedCompany(negocio.company as Company)}
+                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline text-xs"
+                          >
+                            <Building2 className="h-3 w-3" />
+                            {negocio.company.name}
+                          </button>
+                        </div>
+                      )}
+                      
+                      {negocio.contact && (
+                        <div className="mt-1">
+                          <button
+                            onClick={() => setSelectedContact(negocio.contact as Contact)}
+                            className="flex items-center gap-1 text-green-600 hover:text-green-800 hover:underline text-xs"
+                          >
+                            <Users className="h-3 w-3" />
+                            {negocio.contact.name}
+                          </button>
+                        </div>
+                      )}
+                      
                       <div className="text-xs text-blue-600 font-bold mt-1">
                         {negocio.valor_negocio ? `€${negocio.valor_negocio.toLocaleString()}` : 'N/A'}
                       </div>
@@ -150,6 +206,32 @@ export default function MinimalNegocios() {
               </div>
             ))}
         </div>
+      )}
+
+      {/* Company Details Modal */}
+      {selectedCompany && (
+        <CompanyDetailsDialog
+          company={selectedCompany}
+          open={!!selectedCompany}
+          onOpenChange={(open) => !open && setSelectedCompany(null)}
+          onEditCompany={(company) => {
+            setSelectedCompany(null);
+            // TODO: Implement edit company functionality
+          }}
+        />
+      )}
+
+      {/* Contact Details Modal */}
+      {selectedContact && (
+        <ContactDetailsDialog
+          contact={selectedContact}
+          open={!!selectedContact}
+          onOpenChange={(open) => !open && setSelectedContact(null)}
+          onEditContact={(contact) => {
+            setSelectedContact(null);
+            // TODO: Implement edit contact functionality
+          }}
+        />
       )}
     </div>
   );
