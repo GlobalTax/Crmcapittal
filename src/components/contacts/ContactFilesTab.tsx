@@ -5,13 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
-  Upload, 
-  File, 
-  Trash2, 
-  Download,
-  FileText,
-  Image,
-  Archive
+  Mail, 
+  Trash2
 } from 'lucide-react';
 
 interface Props {
@@ -26,18 +21,7 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
   const { toast } = useToast();
 
   const getFileIcon = (fileName: string) => {
-    const extension = fileName.split('.').pop()?.toLowerCase();
-    
-    if (['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'].includes(extension || '')) {
-      return <Image className="h-5 w-5 text-blue-500" />;
-    }
-    if (['pdf'].includes(extension || '')) {
-      return <FileText className="h-5 w-5 text-red-500" />;
-    }
-    if (['zip', 'rar', '7z'].includes(extension || '')) {
-      return <Archive className="h-5 w-5 text-yellow-500" />;
-    }
-    return <File className="h-5 w-5 text-muted-foreground" />;
+    return <Mail className="h-5 w-5 text-muted-foreground" />;
   };
 
   const formatFileSize = (bytes?: number) => {
@@ -151,7 +135,7 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+            <Mail className="h-5 w-5" />
             Subir Archivo
           </CardTitle>
         </CardHeader>
@@ -168,7 +152,7 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
             disabled={uploading}
             className="w-full sm:w-auto"
           >
-            <Upload className="h-4 w-4 mr-2" />
+            <Mail className="h-4 w-4 mr-2" />
             {uploading ? 'Subiendo...' : 'Seleccionar Archivo'}
           </Button>
           
@@ -182,14 +166,14 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <File className="h-5 w-5" />
+            <Mail className="h-5 w-5" />
             Archivos ({files.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {files.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <File className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <Mail className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p>No hay archivos para este contacto.</p>
               <p className="text-xs mt-1">Sube archivos usando el botón de arriba.</p>
             </div>
@@ -231,7 +215,7 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
                       onClick={() => handleDownload(file)}
                       title="Descargar"
                     >
-                      <Download className="h-4 w-4" />
+                      <Mail className="h-4 w-4" />
                     </Button>
                     
                     <Button
