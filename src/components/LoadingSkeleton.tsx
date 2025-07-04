@@ -143,7 +143,9 @@ export const TableLoadingSkeleton = ({ count = 5 }: { count?: number }) => (
 
 export const LeadsTableSkeleton = ({ count = 5 }: { count?: number }) => (
   <tbody>
-    <LoadingSkeleton type="lead-table-row" count={count} />
+    {Array.from({ length: count }).map((_, index) => (
+      <LoadingSkeleton key={index} type="lead-table-row" count={1} />
+    ))}
   </tbody>
 );
 

@@ -10,14 +10,20 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useLeads } from "@/hooks/useLeads";
+import { useUsers } from "@/hooks/useUsers";
 import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
+import { LeadDetailDialog } from "@/components/leads/LeadDetailDialog";
 import { LeadStatus } from "@/types/Lead";
-import { Bell, Users, TrendingUp, UserCheck } from "lucide-react";
+import { Bell, Users, TrendingUp, UserCheck, Heart, CheckCircle, XCircle } from "lucide-react";
 
 const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   const [assignedFilter, setAssignedFilter] = useState<string>('all');
+  const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+
+  const { users } = useUsers();
 
   const filters = {
     ...(statusFilter !== 'all' && { status: statusFilter as LeadStatus }),
@@ -60,6 +66,24 @@ const Dashboard = () => {
       description: "Listos para conversión",
       icon: UserCheck,
     },
+    {
+      title: "Nutriendo",
+      value: leads.filter(l => l.status === 'NURTURING').length,
+      description: "En seguimiento automatizado",
+      icon: Heart,
+    },
+    {
+      title: "Convertidos",
+      value: leads.filter(l => l.status === 'CONVERTED').length,
+      description: "Transformados en clientes",
+      icon: CheckCircle,
+    },
+    {
+      title: "Perdidos",
+      value: leads.filter(l => l.status === 'LOST').length,
+      description: "Oportunidades perdidas",
+      icon: XCircle,
+    },
   ];
 
   const handleAssignLead = (leadId: string, userId: string) => {
@@ -76,6 +100,14 @@ const Dashboard = () => {
     convertLead({ leadId, options });
   };
 
+  const handleViewLead = (leadId: string) => {
+    const lead = leads.find(l => l.id === leadId);
+    if (lead) {
+      setSelectedLead(lead);
+      setDetailDialogOpen(true);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -89,8 +121,15 @@ const Dashboard = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
+        {stats.slice(0, 4).map((stat, index) => (
           <StatsCard key={index} {...stat} />
+        ))}
+      </div>
+
+      {/* Estadísticas adicionales */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {stats.slice(4).map((stat, index) => (
+          <StatsCard key={index + 4} {...stat} />
         ))}
       </div>
 
@@ -108,11 +147,31 @@ const Dashboard = () => {
               <SelectValue placeholder="Todos los estados" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="all">Todos los estados</SelectItem>
               <SelectItem value="NEW">Nuevo</SelectItem>
               <SelectItem value="CONTACTED">Contactado</SelectItem>
               <SelectItem value="QUALIFIED">Calificado</SelectItem>
+              <SelectItem value="NURTURING">Nutriendo</SelectItem>
+              <SelectItem value="CONVERTED">Convertido</SelectItem>
+              <SelectItem value="LOST">Perdido</SelectItem>
               <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex-1">
+          <Label htmlFor="assigned-filter">Asignado a</Label>
+          <Select value={assignedFilter} onValueChange={setAssignedFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Todos los usuarios" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los usuarios</SelectItem>
+              <SelectItem value="unassigned">Sin asignar</SelectItem>
+              {users.map((user) => (
+                <SelectItem key={user.user_id} value={user.user_id}>
+                  {user.first_name} {user.last_name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -122,7 +181,7 @@ const Dashboard = () => {
         <div className="p-6">
           <LeadsTable
             leads={leads}
-            onViewLead={(leadId) => console.log('Ver lead:', leadId)}
+            onViewLead={handleViewLead}
             onDeleteLead={handleDeleteLead}
             onAssignLead={handleAssignLead}
             onConvertLead={handleConvertLead}
@@ -131,6 +190,12 @@ const Dashboard = () => {
           />
         </div>
       </div>
+
+      <LeadDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        lead={selectedLead}
+      />
     </div>
   );
 };
