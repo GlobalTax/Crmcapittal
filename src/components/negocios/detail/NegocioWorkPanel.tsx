@@ -20,6 +20,7 @@ import { NegocioDocuments } from './NegocioDocuments';
 import { NegocioTasks } from './NegocioTasks';
 import { NegocioBuyers } from './NegocioBuyers';
 import { NegocioCommunications } from './NegocioCommunications';
+import { ActivityTimeline } from './ActivityTimeline';
 
 interface NegocioWorkPanelProps {
   negocio: Negocio;
@@ -31,12 +32,13 @@ export const NegocioWorkPanel = ({ negocio }: NegocioWorkPanelProps) => {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="documents">Documentos</TabsTrigger>
           <TabsTrigger value="buyers">Compradores</TabsTrigger>
           <TabsTrigger value="tasks">Tareas</TabsTrigger>
           <TabsTrigger value="communications">Comunicación</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="analytics">Análisis</TabsTrigger>
         </TabsList>
 
@@ -139,6 +141,10 @@ export const NegocioWorkPanel = ({ negocio }: NegocioWorkPanelProps) => {
 
         <TabsContent value="communications" className="mt-6">
           <NegocioCommunications negocio={negocio} />
+        </TabsContent>
+
+        <TabsContent value="timeline" className="mt-6">
+          <ActivityTimeline negocio={negocio} />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">

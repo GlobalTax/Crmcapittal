@@ -3,16 +3,21 @@ import { useState } from 'react';
 import { useNegocios } from "@/hooks/useNegocios";
 import { CreateNegocioDialog } from "@/components/negocios/CreateNegocioDialog";
 import { NegociosTable } from "@/components/negocios/NegociosTable";
+import { NegociosKanban } from "@/components/negocios/NegociosKanban";
+import { NegociosViewToggle } from "@/components/negocios/NegociosViewToggle";
 import { NegociosStats } from "@/components/negocios/NegociosStats";
 import { NegociosHeader } from "@/components/negocios/NegociosHeader";
 import { FiltersSection } from "@/components/negocios/filters/FiltersSection";
 import { useNegociosFilters } from "@/hooks/negocios/useNegociosFilters";
+import { EditNegocioDialog } from "@/components/negocios/EditNegocioDialog";
 
 const Negocios = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showMetrics, setShowMetrics] = useState(true);
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
+  const [editingNegocio, setEditingNegocio] = useState<any>(null);
   
-  const { negocios, loading, error, createNegocio, updateNegocio, deleteNegocio } = useNegocios();
+  const { negocios, loading, error, createNegocio, updateNegocio, deleteNegocio, updateNegocioStage } = useNegocios();
   
   const {
     searchTerm,
@@ -58,28 +63,46 @@ const Negocios = () => {
       {showMetrics && <NegociosStats negocios={negocios} />}
 
       {/* Enhanced Filters */}
-      <FiltersSection
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        priorityFilter={priorityFilter}
-        setPriorityFilter={setPriorityFilter}
-        ownerFilter={ownerFilter}
-        setOwnerFilter={setOwnerFilter}
-        valueRangeFilter={valueRangeFilter}
-        setValueRangeFilter={setValueRangeFilter}
-        owners={owners}
-        filteredNegocios={filteredNegocios}
-        totalNegocios={negocios.length}
-      />
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
+          <FiltersSection
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            priorityFilter={priorityFilter}
+            setPriorityFilter={setPriorityFilter}
+            ownerFilter={ownerFilter}
+            setOwnerFilter={setOwnerFilter}
+            valueRangeFilter={valueRangeFilter}
+            setValueRangeFilter={setValueRangeFilter}
+            owners={owners}
+            filteredNegocios={filteredNegocios}
+            totalNegocios={negocios.length}
+          />
+        </div>
+        <NegociosViewToggle 
+          currentView={viewMode} 
+          onViewChange={setViewMode} 
+        />
+      </div>
 
-      {/* Negocios Table */}
-      <NegociosTable 
-        negocios={filteredNegocios} 
-        onUpdate={updateNegocio}
-        onDelete={deleteNegocio}
-      />
+      {/* Negocios Content */}
+      {viewMode === 'table' ? (
+        <NegociosTable 
+          negocios={filteredNegocios} 
+          onUpdate={updateNegocio}
+          onDelete={deleteNegocio}
+        />
+      ) : (
+        <div className="h-[600px]">
+          <NegociosKanban
+            negocios={filteredNegocios}
+            onUpdateStage={updateNegocioStage}
+            onEdit={setEditingNegocio}
+          />
+        </div>
+      )}
 
       {/* Create Negocio Dialog */}
       <CreateNegocioDialog
@@ -90,6 +113,19 @@ const Negocios = () => {
           setShowCreateDialog(false);
         }}
       />
+
+      {/* Edit Negocio Dialog */}
+      {editingNegocio && (
+        <EditNegocioDialog
+          negocio={editingNegocio}
+          open={true}
+          onOpenChange={(open) => !open && setEditingNegocio(null)}
+          onSuccess={async (updates) => {
+            await updateNegocio(editingNegocio.id, updates);
+            setEditingNegocio(null);
+          }}
+        />
+      )}
     </div>
   );
 };
