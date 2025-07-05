@@ -24,8 +24,19 @@ export const useConnectedAccounts = () => {
 
   const fetchAccounts = async () => {
     try {
+      console.log('useConnectedAccounts: Starting to fetch accounts...');
       setLoading(true);
       setError(null);
+
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('useConnectedAccounts: No authenticated user found');
+        setAccounts([]);
+        return;
+      }
+
+      console.log('useConnectedAccounts: User authenticated:', user.id);
 
       const { data, error } = await supabase
         .from('connected_accounts')
@@ -33,17 +44,23 @@ export const useConnectedAccounts = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
+      console.log('useConnectedAccounts: Query result:', { data, error });
+
       if (error) {
+        console.error('useConnectedAccounts: Database error:', error);
         throw error;
       }
 
-      setAccounts(data ? data.map(account => ({
+      const processedAccounts = data ? data.map(account => ({
         ...account,
         provider: account.provider as 'microsoft' | 'google'
-      })) : []);
+      })) : [];
+
+      console.log('useConnectedAccounts: Processed accounts:', processedAccounts);
+      setAccounts(processedAccounts);
     } catch (err) {
-      console.error('Error fetching connected accounts:', err);
-      setError('Failed to load connected accounts');
+      console.error('useConnectedAccounts: Error fetching connected accounts:', err);
+      setError(`Failed to load connected accounts: ${err.message || err}`);
     } finally {
       setLoading(false);
     }

@@ -28,11 +28,27 @@ export const useTimeEntries = () => {
     queryKey: ['timeEntries', selectedDate.toDateString()],
     queryFn: async (): Promise<TimeEntry[]> => {
       try {
+        console.log('useTimeEntries: Starting to fetch time entries...');
+        
+        // Check if user is authenticated first
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          console.log('useTimeEntries: No authenticated user found');
+          return [];
+        }
+
+        console.log('useTimeEntries: User authenticated:', user.id);
+
         const startOfDay = new Date(selectedDate);
         startOfDay.setHours(0, 0, 0, 0);
         
         const endOfDay = new Date(selectedDate);
         endOfDay.setHours(23, 59, 59, 999);
+
+        console.log('useTimeEntries: Querying time entries for date range:', {
+          start: startOfDay.toISOString(),
+          end: endOfDay.toISOString()
+        });
 
         const { data, error } = await supabase
           .from('time_entries')
@@ -44,23 +60,27 @@ export const useTimeEntries = () => {
             created_at,
             updated_at
           `)
+          .eq('user_id', user.id)  // Explicitly filter by user_id to satisfy RLS
           .gte('created_at', startOfDay.toISOString())
           .lte('created_at', endOfDay.toISOString())
           .order('created_at', { ascending: false });
 
+        console.log('useTimeEntries: Query result:', { data, error });
+
         if (error) {
-          console.error('Error fetching time entries:', error);
+          console.error('useTimeEntries: Database error:', error);
           throw error;
         }
         return data || [];
       } catch (err) {
-        console.error('Failed to fetch time entries:', err);
+        console.error('useTimeEntries: Failed to fetch time entries:', err);
         return [];
       }
     },
     retry: (failureCount, error: any) => {
       // Don't retry on 406 errors (likely RLS issues)
       if (error?.status === 406) {
+        console.log('useTimeEntries: 406 error detected, not retrying');
         return false;
       }
       return failureCount < 3;

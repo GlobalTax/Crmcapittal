@@ -10,18 +10,31 @@ export const usePipelines = () => {
 
   const fetchPipelines = async () => {
     try {
+      console.log('usePipelines: Starting to fetch pipelines...');
       setLoading(true);
       setError(null);
+
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('usePipelines: No authenticated user found');
+        setPipelines([]);
+        return;
+      }
+
+      console.log('usePipelines: User authenticated:', user.id);
       
       const { data, error } = await supabase
         .from('pipelines')
         .select('*')
         .eq('is_active', true)
-        .order('created_at'); // Remove ascending parameter to avoid 400 error
+        .order('created_at', { ascending: true });
+
+      console.log('usePipelines: Query result:', { data, error });
 
       if (error) {
-        console.error('Error fetching pipelines:', error);
-        // Don't throw error, just log it and return empty array
+        console.error('usePipelines: Database error:', error);
+        setError(`Error al cargar los pipelines: ${error.message}`);
         setPipelines([]);
         return;
       }
@@ -32,10 +45,11 @@ export const usePipelines = () => {
         type: item.type as PipelineType
       }));
       
+      console.log('usePipelines: Processed pipelines:', transformedData);
       setPipelines(transformedData);
     } catch (err) {
-      console.error('Error fetching pipelines:', err);
-      setError('Error al cargar los pipelines');
+      console.error('usePipelines: Error fetching pipelines:', err);
+      setError(`Error al cargar los pipelines: ${err.message || err}`);
       setPipelines([]);
     } finally {
       setLoading(false);
