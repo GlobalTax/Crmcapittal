@@ -10,6 +10,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  signInWithProvider: (provider: 'microsoft' | 'google') => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -112,6 +113,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('AuthProvider: Sign out complete');
   };
 
+  const signInWithProvider = async (provider: 'microsoft' | 'google') => {
+    console.log(`AuthProvider: Attempting OAuth sign in with ${provider}`);
+    
+    const redirectUrl = `${window.location.origin}/auth/callback`;
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: provider as any,
+      options: {
+        redirectTo: redirectUrl,
+        scopes: provider === 'microsoft' 
+          ? 'openid profile email Mail.Read Mail.Send Calendars.Read Calendars.ReadWrite offline_access'
+          : 'openid profile email https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly'
+      }
+    });
+    
+    if (error) {
+      console.error(`AuthProvider: ${provider} OAuth error`, error);
+    } else {
+      console.log(`AuthProvider: ${provider} OAuth initiated successfully`);
+    }
+    return { error };
+  };
+
   const value = {
     user,
     session,
@@ -119,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signUp,
     signOut,
+    signInWithProvider,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
