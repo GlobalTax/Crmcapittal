@@ -29,7 +29,7 @@ import {
   X
 } from 'lucide-react';
 import { Stage } from '@/types/Pipeline';
-import { useBulkOperations } from '@/hooks/useBulkOperations';
+import { useNegociosBulkOperations } from '@/hooks/useNegociosBulkOperations';
 import { Negocio } from '@/types/Negocio';
 
 interface BulkActionsBarProps {
@@ -58,7 +58,7 @@ export const BulkActionsBar: React.FC<BulkActionsBarProps> = ({
     bulkUpdatePriority,
     bulkAssignOwner,
     bulkDelete
-  } = useBulkOperations();
+  } = useNegociosBulkOperations(selectedIds);
 
   const allSelected = negocios.length > 0 && selectedIds.length === negocios.length;
   const someSelected = selectedIds.length > 0 && selectedIds.length < negocios.length;
