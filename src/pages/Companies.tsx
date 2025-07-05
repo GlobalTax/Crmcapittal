@@ -1,9 +1,9 @@
 
-import { useState } from "react";
-import { CompaniesTable } from "@/components/companies/CompaniesTable";
-import { CreateCompanyDialog } from "@/components/companies/CreateCompanyDialog";
+import { useState, useEffect } from "react";
+import { RecordTable } from "@/components/companies/RecordTable";
+import { CompanyModal } from "@/components/companies/CompanyModal";
+import { CompanyDrawer } from "@/components/companies/CompanyDrawer";
 import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
-import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,26 @@ const Companies = () => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Keyboard shortcut for new company
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'n' || e.key === 'N') {
+        if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+          const activeElement = document.activeElement;
+          if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            setIsCreateModalOpen(true);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const { 
     companies, 
@@ -55,6 +75,7 @@ const Companies = () => {
 
   const handleViewCompany = (company: Company) => {
     setViewingCompany(company);
+    setIsDrawerOpen(true);
   };
 
   const handleSearch = (term: string) => {
@@ -82,35 +103,41 @@ const Companies = () => {
             Gestiona todas las empresas de tu pipeline de ventas.
           </p>
         </div>
-        <div className="flex space-x-3">
-          <Button variant="outline" className="border-gray-300">
-            Filtros
-          </Button>
-          <Button variant="outline" className="border-gray-300">
-            Exportar
-          </Button>
-          <CreateCompanyDialog 
-            onCreateCompany={createCompany}
-            isCreating={isCreating}
-          />
-        </div>
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          + New company
+        </Button>
       </div>
       
-      <CompaniesTable 
+      <RecordTable
         companies={companies}
         totalCount={totalCount}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        stats={stats}
-        statsLoading={statsLoading}
-        onEditCompany={handleEditCompany}
-        onDeleteCompany={handleDeleteCompany}
-        onViewCompany={handleViewCompany}
+        onRowClick={handleViewCompany}
+        onCreateCompany={() => setIsCreateModalOpen(true)}
         onSearch={handleSearch}
-        onStatusFilter={handleStatusFilter}
-        onTypeFilter={handleTypeFilter}
-        onPageChange={setPage}
+        onFilter={() => {}} // Placeholder
         isLoading={isLoading}
+      />
+
+      {/* Create Company Modal */}
+      <CompanyModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onCreateCompany={createCompany}
+        isCreating={isCreating}
+      />
+
+      {/* Company Drawer */}
+      <CompanyDrawer
+        company={viewingCompany}
+        open={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setViewingCompany(null);
+        }}
+        onEdit={(company) => {
+          setIsDrawerOpen(false);
+          setEditingCompany(company);
+        }}
       />
 
       {/* Edit Company Dialog */}
@@ -121,19 +148,6 @@ const Companies = () => {
           onOpenChange={(open) => !open && setEditingCompany(null)}
           onUpdateCompany={handleUpdateCompany}
           isUpdating={isUpdating}
-        />
-      )}
-
-      {/* Company Details Dialog */}
-      {viewingCompany && (
-        <CompanyDetailsDialog
-          company={viewingCompany}
-          open={!!viewingCompany}
-          onOpenChange={(open) => !open && setViewingCompany(null)}
-          onEditCompany={(company) => {
-            setViewingCompany(null);
-            setEditingCompany(company);
-          }}
         />
       )}
     </div>
