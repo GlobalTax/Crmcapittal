@@ -29,7 +29,7 @@ export const PipelineSelector = ({
   pipelineType = 'DEAL',
   className = '' 
 }: PipelineSelectorProps) => {
-  const { pipelines, loading } = usePipelines();
+  const { pipelines, loading, authReady } = usePipelines();
   const [localSelectedId, setLocalSelectedId] = useState<string | undefined>(selectedPipelineId);
 
   /**
@@ -57,22 +57,27 @@ export const PipelineSelector = ({
    * Load saved pipeline selection from localStorage
    */
   useEffect(() => {
-    if (!selectedPipelineId && filteredPipelines.length > 0) {
-      const savedPipelineId = localStorage.getItem(`selected-pipeline-${pipelineType}`);
-      
-      if (savedPipelineId && filteredPipelines.some(p => p.id === savedPipelineId)) {
-        setLocalSelectedId(savedPipelineId);
-        onPipelineChange(savedPipelineId);
-      } else {
-        // Default to first available pipeline
-        const defaultPipeline = filteredPipelines[0];
-        setLocalSelectedId(defaultPipeline.id);
-        onPipelineChange(defaultPipeline.id);
-      }
+    // Only proceed if auth is ready and pipelines are loaded
+    if (!authReady || loading || filteredPipelines.length === 0) return;
+    
+    // Don't override if already selected
+    if (selectedPipelineId || localSelectedId) return;
+    
+    const savedPipelineId = localStorage.getItem(`selected-pipeline-${pipelineType}`);
+    
+    if (savedPipelineId && filteredPipelines.some(p => p.id === savedPipelineId)) {
+      setLocalSelectedId(savedPipelineId);
+      onPipelineChange(savedPipelineId);
+    } else if (filteredPipelines.length > 0) {
+      // Default to first available pipeline
+      const defaultPipeline = filteredPipelines[0];
+      setLocalSelectedId(defaultPipeline.id);
+      onPipelineChange(defaultPipeline.id);
     }
-  }, [filteredPipelines, selectedPipelineId, onPipelineChange, pipelineType]);
+  }, [filteredPipelines, selectedPipelineId, localSelectedId, onPipelineChange, pipelineType, authReady, loading]);
 
-  if (loading) {
+  // Show loading state while auth is not ready or while loading
+  if (!authReady || loading) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
         <Workflow className="h-4 w-4 text-muted-foreground animate-pulse" />

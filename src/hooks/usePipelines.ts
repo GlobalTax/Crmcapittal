@@ -1,29 +1,59 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Pipeline, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
+import { useSmartPolling } from './useSmartPolling';
 
 export const usePipelines = () => {
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
 
-  const fetchPipelines = async (retryCount = 0) => {
+  // Smart polling configuration
+  const smartPolling = useSmartPolling({
+    baseInterval: 30000, // 30 seconds
+    maxInterval: 300000, // 5 minutes
+    pauseWhenHidden: true,
+    pauseWhenInactive: true
+  });
+
+  const fetchPipelines = useCallback(async (retryCount = 0) => {
     try {
       console.log('usePipelines: Starting to fetch pipelines...', retryCount > 0 ? `(retry ${retryCount})` : '');
-      setLoading(true);
-      setError(null);
+      
+      if (retryCount === 0) {
+        setLoading(true);
+        setError(null);
+      }
 
-      // Check if user is authenticated
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.log('usePipelines: No authenticated user found');
+      // Wait for auth to be ready
+      if (!authReady) {
+        console.log('usePipelines: Waiting for auth to be ready...');
+        return;
+      }
+
+      // Check authentication with session validation
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('usePipelines: Session error:', sessionError);
+        throw sessionError;
+      }
+
+      if (!session?.user) {
+        console.log('usePipelines: No authenticated session found');
         setPipelines([]);
         setLoading(false);
         return;
       }
 
-      console.log('usePipelines: User authenticated:', user.id);
+      console.log('usePipelines: User authenticated:', session.user.id);
+      
+      // Add a small delay to ensure RLS context is ready
+      if (retryCount === 0) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
       
       const { data, error } = await supabase
         .from('pipelines')
@@ -36,17 +66,26 @@ export const usePipelines = () => {
       if (error) {
         console.error('usePipelines: Database error:', error);
         
-        // Retry on certain error codes
-        if ((error.code === 'PGRST116' || error.message?.includes('406') || error.message?.includes('400')) && retryCount < 2) {
-          console.log(`usePipelines: Retrying in ${Math.pow(2, retryCount)} seconds...`);
-          setTimeout(() => fetchPipelines(retryCount + 1), Math.pow(2, retryCount) * 1000);
+        // Handle authentication errors specifically
+        if (error.code === 'PGRST301' || error.message?.includes('JWT')) {
+          console.log('usePipelines: Authentication error, refreshing session...');
+          await supabase.auth.refreshSession();
+          if (retryCount < 2) {
+            setTimeout(() => fetchPipelines(retryCount + 1), 1000);
+            return;
+          }
+        }
+        
+        // Retry on certain error codes with exponential backoff
+        if ((error.code === 'PGRST116' || error.message?.includes('406') || error.message?.includes('400')) && retryCount < 3) {
+          const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+          console.log(`usePipelines: Retrying in ${delay}ms...`);
+          setTimeout(() => fetchPipelines(retryCount + 1), delay);
+          smartPolling.handleError();
           return;
         }
         
-        setError(`Error al cargar los pipelines: ${error.message}`);
-        setPipelines([]);
-        setLoading(false);
-        return;
+        throw error;
       }
       
       // Transform data to match Pipeline type
@@ -55,24 +94,34 @@ export const usePipelines = () => {
         type: item.type as PipelineType
       }));
       
-      console.log('usePipelines: Processed pipelines:', transformedData);
+      console.log('usePipelines: Successfully loaded', transformedData.length, 'pipelines');
       setPipelines(transformedData);
+      setError(null);
+      smartPolling.handleSuccess();
+      
     } catch (err) {
       console.error('usePipelines: Error fetching pipelines:', err);
       
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      
       // Retry on network errors with exponential backoff
-      if (retryCount < 2 && (err.message?.includes('fetch') || err.message?.includes('network'))) {
-        console.log(`usePipelines: Network error, retrying in ${Math.pow(2, retryCount)} seconds...`);
-        setTimeout(() => fetchPipelines(retryCount + 1), Math.pow(2, retryCount) * 1000);
+      if (retryCount < 3 && (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('Failed to'))) {
+        const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+        console.log(`usePipelines: Network error, retrying in ${delay}ms...`);
+        setTimeout(() => fetchPipelines(retryCount + 1), delay);
+        smartPolling.handleError();
         return;
       }
       
-      setError(`Error al cargar los pipelines: ${err.message || err}`);
+      setError(`Error al cargar los pipelines: ${errorMessage}`);
       setPipelines([]);
+      smartPolling.handleError();
     } finally {
-      setLoading(false);
+      if (retryCount === 0) {
+        setLoading(false);
+      }
     }
-  };
+  }, [authReady, smartPolling]);
 
   const getPipelinesByType = (type: PipelineType) => {
     return pipelines.filter(pipeline => pipeline.type === type);
@@ -150,14 +199,77 @@ export const usePipelines = () => {
     }
   };
 
+  // Set up auth state listener and initialize
   useEffect(() => {
-    fetchPipelines();
-  }, []);
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Check for existing session first
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted) {
+          setAuthReady(true);
+          console.log('usePipelines: Auth initialized, session exists:', !!session);
+        }
+      } catch (error) {
+        console.error('usePipelines: Auth initialization error:', error);
+        if (mounted) {
+          setAuthReady(true); // Still set ready to avoid hanging
+        }
+      }
+    };
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('usePipelines: Auth state changed:', event, !!session);
+      if (mounted) {
+        setAuthReady(true);
+        
+        // Refetch pipelines when auth state changes
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setTimeout(() => fetchPipelines(), 500);
+        } else if (event === 'SIGNED_OUT') {
+          setPipelines([]);
+          setError(null);
+          setLoading(false);
+        }
+      }
+    });
+
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchPipelines]);
+
+  // Fetch pipelines when auth is ready
+  useEffect(() => {
+    if (authReady) {
+      fetchPipelines();
+    }
+  }, [authReady, fetchPipelines]);
+
+  // Set up polling for real-time updates
+  useEffect(() => {
+    if (!authReady || loading || error) return;
+
+    const interval = setInterval(() => {
+      const pollingConfig = smartPolling.getPollingConfig();
+      if (pollingConfig.enabled) {
+        fetchPipelines();
+      }
+    }, smartPolling.currentInterval);
+
+    return () => clearInterval(interval);
+  }, [authReady, loading, error, smartPolling, fetchPipelines]);
 
   return {
     pipelines,
-    loading,
+    loading: loading && authReady, // Don't show loading if auth isn't ready
     error,
+    authReady,
     getPipelinesByType,
     createPipeline,
     updatePipeline,
