@@ -10,6 +10,11 @@ interface KpisData {
   estimatedRevenue: number;
 }
 
+interface RevenueData {
+  valor_negocio: number | null;
+  close_date: string | null;
+}
+
 export const useKpis = () => {
   const { user } = useAuth();
   const [kpis, setKpis] = useState<KpisData>({
@@ -49,20 +54,26 @@ export const useKpis = () => {
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        // For estimated revenue, make a separate query
+        // For estimated revenue, make a separate query with explicit typing
         const { data: revenueData } = await supabase
           .from('negocios')
           .select('valor_negocio, close_date')
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        // Calculate estimated revenue
+        // Calculate estimated revenue with explicit types
         const today = new Date().toISOString();
         let estimatedRevenue = 0;
-        if (revenueData) {
-          estimatedRevenue = revenueData
-            .filter((deal: any) => !deal.close_date || deal.close_date > today)
-            .reduce((sum: number, deal: any) => sum + (deal.valor_negocio || 0), 0);
+        
+        if (revenueData && Array.isArray(revenueData)) {
+          const typedRevenueData = revenueData as RevenueData[];
+          const validDeals = typedRevenueData.filter((deal) => 
+            !deal.close_date || deal.close_date > today
+          );
+          
+          estimatedRevenue = validDeals.reduce((sum, deal) => {
+            return sum + (deal.valor_negocio || 0);
+          }, 0);
         }
 
         setKpis({
