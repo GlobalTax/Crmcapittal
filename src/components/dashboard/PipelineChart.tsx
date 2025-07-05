@@ -40,9 +40,9 @@ export const PipelineChart = ({
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
+        <div className="bg-neutral-0 p-3 border border-border rounded-lg shadow-sm">
           <p className="font-semibold">{payload[0].name}</p>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             {payload[0].value} operaciones
           </p>
         </div>
@@ -52,10 +52,10 @@ export const PipelineChart = ({
   };
 
   return (
-    <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+    <Card className="bg-neutral-0 shadow-sm border-border">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
-          <TrendingUp className="mr-2 h-5 w-5 text-blue-600" />
+        <CardTitle className="text-lg font-semibold text-foreground flex items-center">
+          <TrendingUp className="mr-2 h-5 w-5 text-primary" />
           Distribución Pipeline
         </CardTitle>
       </CardHeader>
@@ -81,7 +81,7 @@ export const PipelineChart = ({
                 verticalAlign="bottom" 
                 height={36}
                 formatter={(value, entry) => (
-                  <span className="text-sm text-slate-700">{value}</span>
+                  <span className="text-sm text-muted-foreground">{value}</span>
                 )}
               />
             </PieChart>

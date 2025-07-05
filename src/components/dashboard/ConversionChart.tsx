@@ -30,13 +30,13 @@ export const ConversionChart = ({
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-lg">
+        <div className="bg-neutral-0 p-3 border border-border rounded-lg shadow-sm">
           <p className="font-semibold">{label}</p>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             {payload[0].value} leads
           </p>
           {label === 'Cualificados' && (
-            <p className="text-xs text-green-600 font-medium">
+            <p className="text-xs text-success font-medium">
               {conversionRate.toFixed(1)}% de conversión
             </p>
           )}
@@ -47,10 +47,10 @@ export const ConversionChart = ({
   };
 
   return (
-    <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+    <Card className="bg-neutral-0 shadow-sm border-border">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-slate-800 flex items-center">
-          <Users className="mr-2 h-5 w-5 text-green-600" />
+        <CardTitle className="text-lg font-semibold text-foreground flex items-center">
+          <Users className="mr-2 h-5 w-5 text-success" />
           Conversión de Leads
         </CardTitle>
       </CardHeader>
@@ -58,21 +58,21 @@ export const ConversionChart = ({
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis 
                 dataKey="name" 
-                tick={{ fontSize: 12, fill: '#64748B' }}
-                axisLine={{ stroke: '#E2E8F0' }}
+                tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                axisLine={{ stroke: 'hsl(var(--border))' }}
               />
               <YAxis 
-                tick={{ fontSize: 12, fill: '#64748B' }}
-                axisLine={{ stroke: '#E2E8F0' }}
+                tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                axisLine={{ stroke: 'hsl(var(--border))' }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar 
                 dataKey="value" 
                 radius={[4, 4, 0, 0]}
-                stroke="#E2E8F0"
+                stroke="hsl(var(--border))"
                 strokeWidth={1}
               />
             </BarChart>
@@ -80,10 +80,10 @@ export const ConversionChart = ({
         </div>
         
         <div className="mt-4 text-center">
-          <div className="text-2xl font-bold text-green-600">
+          <div className="text-2xl font-bold text-success">
             {conversionRate.toFixed(1)}%
           </div>
-          <div className="text-sm text-slate-600">
+          <div className="text-sm text-muted-foreground">
             Tasa de conversión actual
           </div>
         </div>
