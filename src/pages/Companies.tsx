@@ -17,6 +17,7 @@ const Companies = () => {
   const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [currentCompanyIndex, setCurrentCompanyIndex] = useState(0);
 
   // Keyboard shortcut for new company
   useEffect(() => {
@@ -74,8 +75,24 @@ const Companies = () => {
   };
 
   const handleViewCompany = (company: Company) => {
+    const index = companies.findIndex(c => c.id === company.id);
+    setCurrentCompanyIndex(index >= 0 ? index : 0);
     setViewingCompany(company);
     setIsDrawerOpen(true);
+  };
+
+  const handleNavigateCompany = (direction: 'prev' | 'next') => {
+    let newIndex = currentCompanyIndex;
+    if (direction === 'prev' && currentCompanyIndex > 0) {
+      newIndex = currentCompanyIndex - 1;
+    } else if (direction === 'next' && currentCompanyIndex < companies.length - 1) {
+      newIndex = currentCompanyIndex + 1;
+    }
+    
+    if (newIndex !== currentCompanyIndex) {
+      setCurrentCompanyIndex(newIndex);
+      setViewingCompany(companies[newIndex]);
+    }
   };
 
   const handleSearch = (term: string) => {
@@ -138,6 +155,10 @@ const Companies = () => {
           setIsDrawerOpen(false);
           setEditingCompany(company);
         }}
+        onDelete={handleDeleteCompany}
+        companies={companies}
+        currentIndex={currentCompanyIndex}
+        onNavigate={handleNavigateCompany}
       />
 
       {/* Edit Company Dialog */}

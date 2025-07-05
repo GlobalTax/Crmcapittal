@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Star, StarOff } from 'lucide-react';
+import { X, Star, StarOff, ChevronLeft, ChevronRight, Mail, Copy, FileText, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,19 +7,29 @@ import { Company } from '@/types/Company';
 import { CompanyOverviewTab } from './CompanyOverviewTab';
 import { CompanyActivityTab } from './CompanyActivityTab';
 import { CompanyRecordSidebar } from './CompanyRecordSidebar';
+import { toast } from 'sonner';
 
 interface CompanyDrawerProps {
   company: Company | null;
   open: boolean;
   onClose: () => void;
   onEdit?: (company: Company) => void;
+  onDelete?: (companyId: string) => void;
+  // Navigation props
+  companies?: Company[];
+  currentIndex?: number;
+  onNavigate?: (direction: 'prev' | 'next') => void;
 }
 
 export const CompanyDrawer = ({
   company,
   open,
   onClose,
-  onEdit
+  onEdit,
+  onDelete,
+  companies = [],
+  currentIndex = 0,
+  onNavigate
 }: CompanyDrawerProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -32,14 +42,46 @@ export const CompanyDrawer = ({
       if (e.key === 'Escape') {
         onClose();
       }
+      // Navigation with arrow keys
+      if (e.key === 'ArrowLeft' && onNavigate && currentIndex > 0) {
+        e.preventDefault();
+        onNavigate('prev');
+      }
+      if (e.key === 'ArrowRight' && onNavigate && currentIndex < companies.length - 1) {
+        e.preventDefault();
+        onNavigate('next');
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, onNavigate, currentIndex, companies.length]);
 
   const getInitials = (name: string) => {
     return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+  };
+
+  const handleAction = (action: string) => {
+    if (!company) return;
+    
+    switch (action) {
+      case 'compose-email':
+        toast.info('Opening email composer...');
+        break;
+      case 'copy-link':
+        navigator.clipboard.writeText(`${window.location.origin}/companies/${company.id}`);
+        toast.success('Company link copied to clipboard');
+        break;
+      case 'clone':
+        toast.info('Clone company functionality coming soon');
+        break;
+      case 'delete':
+        if (window.confirm(`¿Estás seguro de que deseas eliminar ${company.name}?`)) {
+          onDelete?.(company.id);
+          onClose();
+        }
+        break;
+    }
   };
 
   if (!company) return null;
@@ -56,25 +98,30 @@ export const CompanyDrawer = ({
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-[480px] bg-neutral-0 border-l border-border shadow-lg z-50 transform transition-transform duration-300 ${
-          open ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`fixed right-0 top-0 h-full bg-neutral-0 border-l border-border shadow-lg z-50 transform transition-transform duration-300 
+          ${open ? 'translate-x-0' : 'translate-x-full'}
+          w-[480px] max-w-[480px]
+          md:w-[480px]
+          max-md:w-full max-md:left-0
+        `}
+        role="dialog"
+        aria-modal="true"
       >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarFallback className="bg-muted text-xs">
                   {getInitials(company.name)}
                 </AvatarFallback>
               </Avatar>
-              <h2 className="font-semibold text-lg">{company.name}</h2>
+              <h2 className="font-semibold text-lg truncate">{company.name}</h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsFavorite(!isFavorite)}
-                className="h-6 w-6 p-0"
+                className="h-6 w-6 p-0 flex-shrink-0"
               >
                 {isFavorite ? (
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -82,10 +129,78 @@ export const CompanyDrawer = ({
                   <StarOff className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
+              
+              {/* Navigation */}
+              {companies.length > 1 && onNavigate && (
+                <div className="flex items-center gap-1 ml-auto">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onNavigate('prev')}
+                    disabled={currentIndex <= 0}
+                    className="h-6 w-6 p-0"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-xs text-muted-foreground px-2">
+                    {currentIndex + 1} / {companies.length}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onNavigate('next')}
+                    disabled={currentIndex >= companies.length - 1}
+                    className="h-6 w-6 p-0"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
+            
+            {/* Global Actions */}
+            <div className="flex items-center gap-1 ml-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleAction('compose-email')}
+                className="h-8 w-8 p-0"
+                title="Compose email"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleAction('copy-link')}
+                className="h-8 w-8 p-0"
+                title="Copy link"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleAction('clone')}
+                className="h-8 w-8 p-0"
+                title="Clone company"
+              >
+                <FileText className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleAction('delete')}
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                title="Delete company"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <div className="w-px h-4 bg-border mx-1" />
+              <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Navigation Tabs */}
