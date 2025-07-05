@@ -3,7 +3,7 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
-import { MinimalLayout } from '@/components/layout/MinimalLayout';
+import { AttioLayout } from '@/components/layout/AttioLayout';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -57,7 +57,7 @@ function App() {
                 />
                 
                 {/* Protected routes */}
-                <Route element={<ProtectedRoute><MinimalLayout /></ProtectedRoute>}>
+                <Route element={<ProtectedRoute><AttioLayout /></ProtectedRoute>}>
                   <Route 
                     path="/personal" 
                     element={
