@@ -15,14 +15,14 @@ export const PlaceholderPage = ({ title, description }: PlaceholderPageProps) =>
       </div>
 
       <SettingSection 
-        title="Coming Soon"
-        description="This feature is currently under development."
+        title="Próximamente"
+        description="Esta funcionalidad está actualmente en desarrollo."
       >
         <div className="text-center py-12">
           <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">Feature in Development</h3>
+          <h3 className="text-lg font-medium mb-2">Funcionalidad en Desarrollo</h3>
           <p className="text-muted-foreground max-w-md mx-auto">
-            We're working hard to bring you this feature. Check back soon for updates!
+            Estamos trabajando duro para ofrecerte esta funcionalidad. ¡Vuelve pronto para actualizaciones!
           </p>
         </div>
       </SettingSection>

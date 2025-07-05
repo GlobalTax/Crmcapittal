@@ -25,9 +25,9 @@ const Deals = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-border">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">Deals</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Oportunidades</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage your sales pipeline
+            Gestiona tu pipeline de ventas
           </p>
         </div>
       </div>

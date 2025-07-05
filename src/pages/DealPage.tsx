@@ -30,12 +30,12 @@ export default function DealPage() {
     }
   }, [location.search, id, navigate]);
 
-  // Find the deal and set document title
+  // Encontrar la oportunidad y establecer título del documento
   useEffect(() => {
     if (deal) {
-      document.title = `Deal • ${deal.title}`;
+      document.title = `Oportunidad • ${deal.title}`;
     } else if (!isLoading && id) {
-      // Deal not found, redirect to deals list
+      // Oportunidad no encontrada, redirigir a lista de oportunidades
       navigate('/deals', { replace: true });
     }
   }, [deal, id, navigate, isLoading]);
@@ -48,7 +48,7 @@ export default function DealPage() {
   // Clean up document title on unmount
   useEffect(() => {
     return () => {
-      document.title = 'Deals';
+      document.title = 'Oportunidades';
     };
   }, []);
 
@@ -80,7 +80,7 @@ export default function DealPage() {
   const hasPrevious = currentIndex > 0;
   const hasNext = deals ? currentIndex < deals.length - 1 : false;
 
-  // Check if deal has been won
+  // Verificar si la oportunidad ha sido ganada
   const isWon = deal?.stage === 'Won';
 
   if (isLoading) {
@@ -90,7 +90,7 @@ export default function DealPage() {
   if (!deal) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Deal not found</p>
+        <p className="text-muted-foreground">Oportunidad no encontrada</p>
       </div>
     );
   }
@@ -116,31 +116,31 @@ export default function DealPage() {
                   value="overview"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Overview
+                  Resumen
                 </TabsTrigger>
                 <TabsTrigger 
                   value="activity"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Activity
+                  Actividad
                 </TabsTrigger>
                 <TabsTrigger 
                   value="documents"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Documents
+                  Documentos
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tasks"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Tasks
+                  Tareas
                 </TabsTrigger>
                 <TabsTrigger 
                   value="people"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  People
+                  Personas
                 </TabsTrigger>
                 {/* Conditional Negocio tab if deal is won */}
                 {isWon && (
@@ -168,26 +168,26 @@ export default function DealPage() {
                 
                 <TabsContent value="documents" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">Document management coming soon</p>
+                    <p className="text-muted-foreground">Gestión de documentos próximamente</p>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="tasks" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">Task management coming soon</p>
+                    <p className="text-muted-foreground">Gestión de tareas próximamente</p>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="people" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">People management coming soon</p>
+                    <p className="text-muted-foreground">Gestión de personas próximamente</p>
                   </div>
                 </TabsContent>
 
                 {isWon && (
                   <TabsContent value="negocio" className="mt-0 p-6">
                     <div className="text-center py-12">
-                      <p className="text-muted-foreground">M&A transaction management coming soon</p>
+                      <p className="text-muted-foreground">Gestión de transacciones M&A próximamente</p>
                     </div>
                   </TabsContent>
                 )}
@@ -208,7 +208,7 @@ export default function DealPage() {
           onClick={() => setActiveTab(activeTab === 'details' ? 'overview' : 'details')}
           className="rounded-full shadow-lg"
         >
-          {activeTab === 'details' ? 'Close Details' : 'Show Details'}
+          {activeTab === 'details' ? 'Cerrar Detalles' : 'Mostrar Detalles'}
         </Button>
       </div>
 
@@ -216,7 +216,7 @@ export default function DealPage() {
       {activeTab === 'details' && (
         <div className="fixed inset-0 bg-background z-50 lg:hidden overflow-y-auto">
           <div className="flex items-center justify-between p-4 border-b border-border">
-            <h2 className="text-lg font-semibold">Deal Details</h2>
+            <h2 className="text-lg font-semibold">Detalles de la Oportunidad</h2>
             <Button
               variant="ghost"
               size="sm"

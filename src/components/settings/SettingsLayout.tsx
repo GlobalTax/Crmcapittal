@@ -43,12 +43,12 @@ interface SettingsGroup {
 const settingsGroups: SettingsGroup[] = [
   {
     id: 'account',
-    label: 'Account',
+    label: 'Cuenta',
     defaultOpen: true,
     items: [
-      { id: 'profile', label: 'Profile', icon: User, path: '/settings/profile' },
-      { id: 'appearance', label: 'Appearance', icon: Palette, path: '/settings/appearance' },
-      { id: 'email-calendar', label: 'Email & calendar accounts', icon: Mail, path: '/settings/email-calendar' },
+      { id: 'profile', label: 'Perfil', icon: User, path: '/settings/profile' },
+      { id: 'appearance', label: 'Apariencia', icon: Palette, path: '/settings/appearance' },
+      { id: 'email-calendar', label: 'Email y calendario', icon: Mail, path: '/settings/email-calendar' },
     ],
   },
   {
@@ -56,39 +56,39 @@ const settingsGroups: SettingsGroup[] = [
     label: 'Workspace',
     items: [
       { id: 'general', label: 'General', icon: Settings, path: '/settings/general' },
-      { id: 'members-teams', label: 'Members & teams', icon: Users, path: '/settings/members-teams' },
-      { id: 'call-intelligence', label: 'Call Intelligence', icon: Phone, path: '/settings/call-intelligence' },
-      { id: 'plans', label: 'Plans', icon: Building, path: '/settings/plans' },
-      { id: 'billing', label: 'Billing', icon: CreditCard, path: '/settings/billing' },
-      { id: 'developers', label: 'Developers', icon: Key, path: '/settings/developers' },
-      { id: 'security', label: 'Security', icon: Shield, path: '/settings/security' },
-      { id: 'support', label: 'Support requests', icon: HelpCircle, path: '/settings/support' },
-      { id: 'expert-access', label: 'Expert access grants', icon: UserCheck, path: '/settings/expert-access' },
-      { id: 'migrate-crm', label: 'Migrate CRM', icon: Database, path: '/settings/migrate-crm' },
-      { id: 'apps', label: 'Apps', icon: Zap, path: '/settings/apps' },
+      { id: 'members-teams', label: 'Miembros y equipos', icon: Users, path: '/settings/members-teams' },
+      { id: 'call-intelligence', label: 'Inteligencia de llamadas', icon: Phone, path: '/settings/call-intelligence' },
+      { id: 'plans', label: 'Planes', icon: Building, path: '/settings/plans' },
+      { id: 'billing', label: 'Facturación', icon: CreditCard, path: '/settings/billing' },
+      { id: 'developers', label: 'Desarrolladores', icon: Key, path: '/settings/developers' },
+      { id: 'security', label: 'Seguridad', icon: Shield, path: '/settings/security' },
+      { id: 'support', label: 'Solicitudes de soporte', icon: HelpCircle, path: '/settings/support' },
+      { id: 'expert-access', label: 'Accesos expertos', icon: UserCheck, path: '/settings/expert-access' },
+      { id: 'migrate-crm', label: 'Migrar CRM', icon: Database, path: '/settings/migrate-crm' },
+      { id: 'apps', label: 'Aplicaciones', icon: Zap, path: '/settings/apps' },
     ],
   },
   {
     id: 'data',
-    label: 'Data',
+    label: 'Datos',
     items: [
-      { id: 'objects', label: 'Objects', icon: Database, path: '/settings/objects' },
-      { id: 'lists', label: 'Lists', icon: BarChart3, path: '/settings/lists' },
+      { id: 'objects', label: 'Objetos', icon: Database, path: '/settings/objects' },
+      { id: 'lists', label: 'Listas', icon: BarChart3, path: '/settings/lists' },
     ],
   },
   {
     id: 'reports',
-    label: 'Reports',
+    label: 'Informes',
     items: [
       { id: 'dashboards', label: 'Dashboards', icon: BarChart3, path: '/settings/dashboards' },
     ],
   },
   {
     id: 'automations',
-    label: 'Automations',
+    label: 'Automatizaciones',
     items: [
-      { id: 'sequences', label: 'Sequences', icon: Workflow, path: '/settings/sequences' },
-      { id: 'workflows', label: 'Workflows', icon: Workflow, path: '/settings/workflows' },
+      { id: 'sequences', label: 'Secuencias', icon: Workflow, path: '/settings/sequences' },
+      { id: 'workflows', label: 'Flujos de trabajo', icon: Workflow, path: '/settings/workflows' },
     ],
   },
 ];
@@ -98,6 +98,10 @@ export const SettingsLayout = () => {
   const location = useLocation();
   const { filter, setFilter } = useSettingsStore();
   const [openGroups, setOpenGroups] = useState<string[]>(['account']);
+
+  const handleBackToDashboard = () => {
+    navigate('/');
+  };
 
   // Filter items based on search
   const filteredGroups = settingsGroups.map(group => ({
@@ -125,12 +129,20 @@ export const SettingsLayout = () => {
     <div className="flex h-screen bg-neutral-0">
       {/* Sidebar */}
       <div className="w-60 border-r border-border bg-neutral-0 flex flex-col">
-        {/* Search */}
+        {/* Header with back button */}
         <div className="p-4 border-b border-border">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBackToDashboard}
+            className="w-full justify-start mb-3 text-muted-foreground hover:text-foreground"
+          >
+            ← Volver al Dashboard
+          </Button>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search settings..."
+              placeholder="Buscar configuración..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="pl-9 h-9"

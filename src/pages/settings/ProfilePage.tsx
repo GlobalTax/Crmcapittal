@@ -66,9 +66,9 @@ export default function ProfilePage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Profile</h1>
+        <h1 className="text-2xl font-semibold">Perfil</h1>
         <p className="text-muted-foreground mt-1">
-          Manage your personal information and preferences.
+          Gestiona tu información personal y preferencias.
         </p>
       </div>
 
@@ -76,13 +76,13 @@ export default function ProfilePage() {
       <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <Info className="h-4 w-4 text-blue-600" />
         <p className="text-sm text-neutral-600">
-          Changes are automatically saved when you move to another field.
+          Los cambios se guardan automáticamente al cambiar de campo.
         </p>
       </div>
 
       <SettingSection 
-        title="Personal Information"
-        description="Update your personal details and contact information."
+        title="Información Personal"
+        description="Actualiza tus datos personales e información de contacto."
       >
         <div className="space-y-6">
           {/* Avatar */}
@@ -95,10 +95,10 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Button variant="secondary" size="sm" className="h-8">
                 <Upload className="h-4 w-4 mr-2" />
-                Upload image
+                Subir imagen
               </Button>
               <p className="text-xs text-muted-foreground">
-                JPG, GIF or PNG. Max size 1MB.
+                JPG, GIF o PNG. Tamaño máximo 1MB.
               </p>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function ProfilePage() {
           {/* Form fields */}
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name *</Label>
+              <Label htmlFor="firstName">Nombre *</Label>
               <Input
                 id="firstName"
                 value={profile.firstName}
@@ -116,7 +116,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name *</Label>
+              <Label htmlFor="lastName">Apellidos *</Label>
               <Input
                 id="lastName"
                 value={profile.lastName}
@@ -138,13 +138,13 @@ export default function ProfilePage() {
                 autoComplete="email"
               />
               <Button variant="outline" size="sm">
-                Edit
+                Editar
               </Button>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Teléfono</Label>
             <Input
               id="phone"
               value={profile.phone}
@@ -158,13 +158,13 @@ export default function ProfilePage() {
       </SettingSection>
 
       <SettingSection
-        title="Time preferences"
-        description="Configure your timezone and calendar preferences."
+        title="Preferencias de Tiempo"
+        description="Configura tu zona horaria y preferencias de calendario."
       >
         <div className="space-y-6">
           <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="timezone">Preferred Timezone</Label>
+              <Label htmlFor="timezone">Zona Horaria Preferida</Label>
               <Select 
                 value={profile.timezone} 
                 onValueChange={(value) => {
@@ -190,7 +190,7 @@ export default function ProfilePage() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="weekStart">Start week on</Label>
+              <Label htmlFor="weekStart">Comenzar semana en</Label>
               <Select 
                 value={profile.weekStart} 
                 onValueChange={(value) => {
@@ -202,8 +202,8 @@ export default function ProfilePage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="monday">Monday</SelectItem>
-                  <SelectItem value="sunday">Sunday</SelectItem>
+                  <SelectItem value="monday">Lunes</SelectItem>
+                  <SelectItem value="sunday">Domingo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -213,21 +213,21 @@ export default function ProfilePage() {
       </SettingSection>
 
       <SettingSection 
-        title="Danger Zone"
-        description="Irreversible and destructive actions."
+        title="Zona de Peligro"
+        description="Acciones irreversibles y destructivas."
       >
         <div className="space-y-4">
           <div className="p-4 border border-destructive/20 rounded-md bg-destructive/5">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium text-destructive">Delete Account</h4>
+                <h4 className="text-sm font-medium text-destructive">Eliminar Cuenta</h4>
                 <p className="text-sm text-muted-foreground">
-                  Once you delete your account, there is no going back.
+                  Una vez que elimines tu cuenta, no hay vuelta atrás.
                 </p>
               </div>
               <Button variant="destructive" size="sm">
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete my account
+                Eliminar mi cuenta
               </Button>
             </div>
           </div>

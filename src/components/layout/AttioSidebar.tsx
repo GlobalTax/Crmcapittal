@@ -39,7 +39,7 @@ const navigationSections: NavSection[] = [
   {
     title: "Ventas & Negocios",
     items: [
-      { to: '/deals', label: 'Deals', icon: TrendingUp },
+      { to: '/deals', label: 'Oportunidades', icon: TrendingUp },
       { to: '/negocios', label: 'Negocios', icon: Briefcase },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
       { to: '/documents', label: 'Documentos', icon: FileText },
@@ -50,7 +50,7 @@ const navigationSections: NavSection[] = [
     items: [
       { to: '/email', label: 'Email', icon: Mail },
       { to: '/calendar', label: 'Calendario', icon: Calendar },
-      { to: '/time-tracking', label: 'Time Tracking', icon: Clock },
+      { to: '/time-tracking', label: 'Control de Tiempo', icon: Clock },
     ]
   }
 ];
@@ -134,7 +134,7 @@ export function AttioSidebar() {
           }
         >
           <Settings className="w-4 h-4" />
-          <span>Settings</span>
+          <span>Configuración</span>
         </NavLink>
       </div>
     </aside>

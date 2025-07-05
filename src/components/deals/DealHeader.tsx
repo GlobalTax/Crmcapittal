@@ -56,11 +56,11 @@ export const DealHeader = ({
 
   const handleQuickAction = (type: 'contact' | 'negocio' | 'proposal') => {
     const messages = {
-      contact: 'Quick convert to contact',
-      negocio: 'Create M&A transaction',
-      proposal: 'Generate proposal'
+      contact: 'Conversión rápida a contacto',
+      negocio: 'Crear transacción M&A',
+      proposal: 'Generar propuesta'
     };
-    toast.info(messages[type] + ' - Feature coming soon');
+    toast.info(messages[type] + ' - Funcionalidad próximamente');
   };
 
   return (
@@ -181,7 +181,7 @@ export const DealHeader = ({
 
           <Button variant="outline" size="sm" onClick={handleComposeEmail}>
             <Mail className="h-4 w-4 mr-2" />
-            Compose email
+            Escribir email
           </Button>
         </div>
       </div>
@@ -191,23 +191,23 @@ export const DealHeader = ({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-background rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Compose Email</h3>
+              <h3 className="text-lg font-semibold">Escribir Email</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowComposeEmail(false)}>
                 ×
               </Button>
             </div>
             <p className="text-muted-foreground mb-4">
-              Email integration coming soon. This will open your default email client.
+              Integración de email próximamente. Esto abrirá tu cliente de email predeterminado.
             </p>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowComposeEmail(false)}>
-                Close
+                Cerrar
               </Button>
               <Button onClick={() => {
                 window.location.href = `mailto:`;
                 setShowComposeEmail(false);
               }}>
-                Open Email Client
+                Abrir Cliente de Email
               </Button>
             </div>
           </div>

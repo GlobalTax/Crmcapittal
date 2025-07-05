@@ -101,7 +101,7 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
                 onClick={() => handleFieldSave(fieldName)}
                 className="h-6 px-2 text-xs"
               >
-                Save
+                Guardar
               </Button>
               <Button 
                 variant="outline" 
@@ -109,7 +109,7 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
                 onClick={handleFieldCancel}
                 className="h-6 px-2 text-xs"
               >
-                Cancel
+                Cancelar
               </Button>
             </div>
           </div>
@@ -119,7 +119,7 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
             onClick={() => handleFieldEdit(fieldName, value)}
           >
             <span className="text-sm">
-              {value || <span className="text-muted-foreground">Not set</span>}
+              {value || <span className="text-muted-foreground">No establecido</span>}
             </span>
             <Edit2 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
@@ -135,12 +135,12 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Target className="h-4 w-4" />
-            Quick Info
+            Info Rápida
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Stage</span>
+            <span className="text-xs text-muted-foreground">Etapa</span>
             <Badge 
               variant="outline"
               style={{ 
@@ -153,13 +153,13 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
             </Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Value</span>
+            <span className="text-xs text-muted-foreground">Valor</span>
             <span className="text-xs font-medium text-success">
               {formatCurrency(deal.amount)}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Probability</span>
+            <span className="text-xs text-muted-foreground">Probabilidad</span>
             <span className="text-xs font-medium">{deal.probability}%</span>
           </div>
         </CardContent>
@@ -171,7 +171,7 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
           onClick={() => setIsDetailsOpen(!isDetailsOpen)}
           className="flex items-center justify-between w-full p-2 hover:bg-neutral-100 rounded transition-colors"
         >
-          <span className="text-sm font-medium">Deal Details</span>
+          <span className="text-sm font-medium">Detalles de la Oportunidad</span>
           {isDetailsOpen ? (
             <ChevronDown className="h-4 w-4" />
           ) : (
@@ -181,24 +181,24 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
 
         {isDetailsOpen && (
           <div className="mt-3 space-y-4">
-            {renderEditableField('title', 'Deal Name', deal.title)}
+            {renderEditableField('title', 'Nombre de la Oportunidad', deal.title)}
             
-            {renderEditableField('amount', 'Deal Value (€)', deal.amount, 'number')}
+            {renderEditableField('amount', 'Valor de la Oportunidad (€)', deal.amount, 'number')}
             
             {renderEditableField(
               'stage',
-              'Stage',
+              'Etapa',
               deal.stage,
               'select',
               [
                 { value: 'Lead', label: 'Lead' },
-                { value: 'In Progress', label: 'In Progress' },
-                { value: 'Won', label: 'Won' },
-                { value: 'Lost', label: 'Lost' }
+                { value: 'In Progress', label: 'En Progreso' },
+                { value: 'Won', label: 'Ganada' },
+                { value: 'Lost', label: 'Perdida' }
               ]
             )}
 
-            {renderEditableField('probability', 'Probability (%)', deal.probability, 'number')}
+            {renderEditableField('probability', 'Probabilidad (%)', deal.probability, 'number')}
           </div>
         )}
       </div>
@@ -207,25 +207,25 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
       {deal.company && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              Company
-            </CardTitle>
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Building2 className="h-4 w-4" />
+            Empresa
+          </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div>
-              <span className="text-xs text-muted-foreground">Name</span>
+              <span className="text-xs text-muted-foreground">Nombre</span>
               <p className="text-sm font-medium">{deal.company.name}</p>
             </div>
             {deal.company.industry && (
               <div>
-                <span className="text-xs text-muted-foreground">Industry</span>
+                <span className="text-xs text-muted-foreground">Industria</span>
                 <p className="text-sm">{deal.company.industry}</p>
               </div>
             )}
             {deal.company.website && (
               <div>
-                <span className="text-xs text-muted-foreground">Website</span>
+                <span className="text-xs text-muted-foreground">Sitio Web</span>
                 <p className="text-sm">
                   <a 
                     href={deal.company.website} 
@@ -248,7 +248,7 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
           onClick={() => setIsMetricsOpen(!isMetricsOpen)}
           className="flex items-center justify-between w-full p-2 hover:bg-neutral-100 rounded transition-colors"
         >
-          <span className="text-sm font-medium">Metrics</span>
+          <span className="text-sm font-medium">Métricas</span>
           {isMetricsOpen ? (
             <ChevronDown className="h-4 w-4" />
           ) : (
@@ -263,11 +263,11 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
                 <p className="text-lg font-bold text-primary">
                   {Math.ceil((new Date().getTime() - new Date(deal.createdAt).getTime()) / (1000 * 60 * 60 * 24))}
                 </p>
-                <p className="text-xs text-muted-foreground">Days Active</p>
+                <p className="text-xs text-muted-foreground">Días Activo</p>
               </div>
               <div className="text-center p-3 border rounded-lg">
                 <p className="text-lg font-bold text-primary">2</p>
-                <p className="text-xs text-muted-foreground">Activities</p>
+                <p className="text-xs text-muted-foreground">Actividades</p>
               </div>
             </div>
           </div>
@@ -279,11 +279,11 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
         <div className="text-xs text-muted-foreground space-y-1">
           <div className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            <span>Created: {new Date(deal.createdAt).toLocaleDateString('es-ES')}</span>
+            <span>Creado: {new Date(deal.createdAt).toLocaleDateString('es-ES')}</span>
           </div>
           <div className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
-            <span>Updated: {new Date(deal.updatedAt).toLocaleDateString('es-ES')}</span>
+            <span>Actualizado: {new Date(deal.updatedAt).toLocaleDateString('es-ES')}</span>
           </div>
         </div>
       </div>
@@ -292,7 +292,7 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
       <div className="space-y-2">
         <Button variant="outline" size="sm" className="w-full justify-start text-xs">
           <Plus className="h-3 w-3 mr-2" />
-          Add to list
+          Añadir a lista
         </Button>
       </div>
     </div>

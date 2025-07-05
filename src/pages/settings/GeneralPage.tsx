@@ -4,7 +4,7 @@ export default function GeneralPage() {
   return (
     <PlaceholderPage
       title="General"
-      description="Manage your workspace settings and preferences."
+      description="Gestiona la configuración de tu workspace y preferencias."
     />
   );
 }

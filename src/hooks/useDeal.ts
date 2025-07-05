@@ -66,7 +66,7 @@ export const useDeal = (dealId: string) => {
         setDeal(transformedDeal);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al cargar el deal';
+      const errorMessage = err instanceof Error ? err.message : 'Error al cargar la oportunidad';
       setError(errorMessage);
       console.error('Error fetching deal:', err);
     } finally {
@@ -105,11 +105,11 @@ export const useDeal = (dealId: string) => {
       }
       
       toast({
-        title: "Deal updated",
-        description: "Deal has been updated successfully.",
+        title: "Oportunidad actualizada",
+        description: "La oportunidad ha sido actualizada exitosamente.",
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar el deal';
+      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar la oportunidad';
       toast({
         title: "Error",
         description: errorMessage,
