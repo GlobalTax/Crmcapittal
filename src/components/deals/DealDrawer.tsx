@@ -22,6 +22,7 @@ import { DealTasksTab } from './tabs/DealTasksTab';
 import { DealPeopleTab } from './tabs/DealPeopleTab';
 import { DealRecordSidebar } from './DealRecordSidebar';
 import { toast } from 'sonner';
+import './deals-styles.css';
 
 interface DealDrawerProps {
   deal: Deal | null;
@@ -63,15 +64,35 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
     }
   };
 
+  // Handle body scroll when drawer is open
+  useEffect(() => {
+    if (open) {
+      document.body.classList.add('drawer-open');
+    } else {
+      document.body.classList.remove('drawer-open');
+    }
+    
+    return () => {
+      document.body.classList.remove('drawer-open');
+    };
+  }, [open]);
+
   if (!deal) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[480px] max-w-[480px] p-0 gap-0 bg-neutral-0 border-l border-neutral-100">
+      <SheetContent 
+        className="drawer-deal p-0 gap-0 bg-background border-l border-border"
+        aria-labelledby="deal-drawer-title"
+      >
         {/* Header with title and actions */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-100">
+        <div className="header-deal flex items-center justify-between border-b border-border">
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-foreground truncate">
+            <h2 
+              id="deal-drawer-title"
+              className="text-lg font-semibold text-foreground truncate"
+              tabIndex={-1}
+            >
               {deal.title}
             </h2>
             <div className="flex items-center gap-2 mt-1">
@@ -91,7 +112,8 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('compose-email')}
-              className="h-8 w-8 p-0"
+              className="btn-icon"
+              aria-label="Compose email"
             >
               <Mail className="h-4 w-4" />
             </Button>
@@ -99,7 +121,8 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('copy-link')}
-              className="h-8 w-8 p-0"
+              className="btn-icon"
+              aria-label="Copy deal link"
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -107,7 +130,8 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('clone')}
-              className="h-8 w-8 p-0"
+              className="btn-icon"
+              aria-label="Clone deal"
             >
               <FileText className="h-4 w-4" />
             </Button>
@@ -115,7 +139,8 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('delete')}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              className="btn-icon text-destructive hover:text-destructive"
+              aria-label="Delete deal"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -123,7 +148,8 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
               variant="ghost"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0 ml-2"
+              className="btn-icon ml-2"
+              aria-label="Close drawer"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -133,10 +159,10 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
         {/* Main content area with two columns */}
         <div className="flex h-[calc(100vh-89px)]">
           {/* Main content column (70%) */}
-          <div className="flex-[0.7] border-r border-neutral-100">
+          <div className="flex-[0.7] border-r border-border">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
               {/* Tabs navigation */}
-              <div className="border-b border-neutral-100 px-6">
+              <div className="tablist-deal border-b border-border">
                 <TabsList className="bg-transparent h-auto p-0 gap-6">
                   <TabsTrigger 
                     value="overview"
@@ -193,7 +219,7 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
 
               {/* Tab content with scroll */}
               <div className="flex-1 overflow-y-auto">
-                <div className="p-6">
+                <div className="section-main flex flex-col">
                   <TabsContent value="overview" className="mt-0">
                     <DealOverviewTab deal={deal} />
                   </TabsContent>
@@ -219,8 +245,8 @@ export const DealDrawer = ({ deal, open, onOpenChange, onStageUpdate }: DealDraw
           </div>
 
           {/* Sidebar column (30%) */}
-          <div className="flex-[0.3] bg-neutral-50">
-            <div className="p-4">
+          <div className="flex-[0.3] bg-muted/50">
+            <div className="sidebar-details">
               <DealRecordSidebar deal={deal} />
             </div>
           </div>

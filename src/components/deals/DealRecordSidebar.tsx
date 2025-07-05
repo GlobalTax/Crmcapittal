@@ -32,8 +32,59 @@ export const DealRecordSidebar = ({ deal, className = "" }: DealRecordSidebarPro
     return colors[stage] || '#6B7280';
   };
 
+  const highlights = [
+    {
+      icon: Euro,
+      label: 'Value',
+      value: formatCurrency(deal.amount),
+      className: 'text-success'
+    },
+    {
+      icon: User,
+      label: 'Owner',
+      value: deal.owner?.name || 'Unassigned',
+      subvalue: deal.owner?.email
+    },
+    {
+      icon: Building2,
+      label: 'Company',
+      value: deal.company?.name || 'No company',
+      subvalue: deal.company?.industry
+    },
+    {
+      icon: TrendingUp,
+      label: 'Probability',
+      value: `${deal.probability}%`
+    }
+  ];
+
   return (
-    <div className={`w-full space-y-4 ${className}`}>
+    <div className={`w-full space-y-6 ${className}`}>
+      {/* Quick Highlights Grid */}
+      <div className="highlights-grid">
+        {highlights.map((highlight, index) => (
+          <div key={index} className="space-y-2 p-3 bg-background rounded-lg border border-border/50">
+            <div className="flex items-center gap-2">
+              <highlight.icon className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground">
+                {highlight.label}
+              </span>
+            </div>
+            <div className="space-y-1">
+              <p className={`text-sm font-semibold ${highlight.className || 'text-foreground'}`}>
+                {highlight.value}
+              </p>
+              {highlight.subvalue && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {highlight.subvalue}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Accordion Details */}
       <Accordion type="single" defaultValue="record-details" collapsible>
         <AccordionItem value="record-details">
           <AccordionTrigger className="text-sm font-medium">
@@ -61,65 +112,20 @@ export const DealRecordSidebar = ({ deal, className = "" }: DealRecordSidebarPro
                 </div>
               </div>
 
-              {/* Value */}
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                  <Euro className="h-3 w-3" />
-                  Value
-                </p>
-                <p className="text-sm font-semibold text-success">
-                  {formatCurrency(deal.amount)}
-                </p>
-              </div>
-
-              {/* Owner */}
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  Owner
-                </p>
+              {/* Company Details */}
+              {deal.company?.website && (
                 <div className="space-y-1">
-                  <p className="text-sm font-medium">{deal.owner?.name || 'Unassigned'}</p>
-                  {deal.owner?.email && (
-                    <p className="text-xs text-muted-foreground">{deal.owner.email}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Company */}
-              {deal.company && (
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                    <Building2 className="h-3 w-3" />
-                    Company
-                  </p>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{deal.company.name}</p>
-                    {deal.company.industry && (
-                      <p className="text-xs text-muted-foreground">{deal.company.industry}</p>
-                    )}
-                    {deal.company.website && (
-                      <a 
-                        href={deal.company.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary hover:underline"
-                      >
-                        {deal.company.website}
-                      </a>
-                    )}
-                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">Website</p>
+                  <a 
+                    href={deal.company.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline truncate block"
+                  >
+                    {deal.company.website}
+                  </a>
                 </div>
               )}
-
-              {/* Probability */}
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3" />
-                  Probability
-                </p>
-                <p className="text-sm">{deal.probability}%</p>
-              </div>
 
               {/* Dates */}
               <div className="space-y-2">

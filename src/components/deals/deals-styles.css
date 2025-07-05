@@ -5,3 +5,53 @@
 .deal-card:active {
   @apply cursor-grabbing;
 }
+
+/* Deal Drawer Styles */
+.drawer-deal {
+  @apply w-full sm:w-[480px] xl:w-[640px] 2xl:w-[768px];
+  @apply fixed right-0 top-0 bottom-0 overflow-y-auto;
+}
+
+.drawer-overlay {
+  @apply bg-neutral-900/25 backdrop-blur-sm;
+}
+
+body.drawer-open {
+  @apply overflow-hidden;
+}
+
+.header-deal {
+  @apply px-6 py-6 gap-2;
+}
+
+.tablist-deal {
+  @apply px-6;
+}
+
+.section-main {
+  @apply px-6 pt-4 pb-8 gap-6;
+}
+
+.sidebar-details {
+  @apply px-6 py-4 gap-4;
+}
+
+.highlights-grid {
+  @apply grid grid-cols-1 gap-4;
+}
+
+@screen md {
+  .highlights-grid {
+    @apply grid-cols-2;
+  }
+}
+
+@screen xl {
+  .highlights-grid {
+    @apply grid-cols-3;
+  }
+}
+
+.btn-icon {
+  @apply h-8 w-8 hover:bg-neutral-100 rounded transition-colors;
+}
