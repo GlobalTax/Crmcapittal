@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { ContactsTable } from "@/components/contacts/ContactsTable";
+import { PersonRecordTable } from "@/components/contacts/PersonRecordTable";
+import { PersonModal } from "@/components/contacts/PersonModal";
+import { PersonDrawer } from "@/components/contacts/PersonDrawer";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
-import { ContactDetailView } from "@/components/contacts/ContactDetailView";
-import { ContactTimeline } from "@/components/contacts/ContactTimeline";
 import { useContactsCRUD } from "@/hooks/useContactsCRUD";
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
+import { Button } from "@/components/ui/button";
 
 export default function Contacts() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [viewingContact, setViewingContact] = useState<Contact | null>(null);
-  const [showDetailView, setShowDetailView] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const {
     fetchContacts,
@@ -26,6 +28,24 @@ export default function Contacts() {
   // Fetch contacts on mount
   useEffect(() => {
     fetchContacts();
+  }, []);
+
+  // Keyboard shortcut for new person
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'n' || e.key === 'N') {
+        if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+          const activeElement = document.activeElement;
+          if (activeElement?.tagName !== 'INPUT' && activeElement?.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            setIsCreateModalOpen(true);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleCreateContact = (contactData: CreateContactData) => {
@@ -64,52 +84,65 @@ export default function Contacts() {
 
   const handleViewContact = (contact: Contact) => {
     setViewingContact(contact);
-    setShowDetailView(true);
+    setIsDrawerOpen(true);
   };
 
-  const handleBackFromDetail = () => {
-    setShowDetailView(false);
-    setViewingContact(null);
+  const handleSearch = (term: string) => {
+    // TODO: Implement search functionality
+    console.log('Searching for:', term);
   };
 
-  if (showDetailView && viewingContact) {
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-        <div className="lg:col-span-2">
-          <ContactDetailView
-            contact={viewingContact}
-            onBack={handleBackFromDetail}
-            onEdit={(contact) => {
-              setShowDetailView(false);
-              setEditingContact(contact);
-            }}
-            onDelete={(contactId) => {
-              handleDeleteContact(contactId);
-              setShowDetailView(false);
-              setViewingContact(null);
-            }}
-          />
-        </div>
-        <div className="lg:col-span-1">
-          <ContactTimeline 
-            contact={viewingContact}
-            className="h-full"
-          />
-        </div>
-      </div>
-    );
-  }
+  const handleFilter = () => {
+    // TODO: Implement filter functionality
+    console.log('Opening filters');
+  };
+
 
   return (
     <div className="space-y-6">
-      <ContactsTable 
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Contactos</h2>
+          <p className="text-muted-foreground">
+            Gestiona todas las personas de tu red de contactos.
+          </p>
+        </div>
+        <Button onClick={() => setIsCreateModalOpen(true)}>
+          + New person
+        </Button>
+      </div>
+
+      <PersonRecordTable
         contacts={contacts || []}
-        onCreateContact={handleCreateContact}
-        onEditContact={handleEditContact}
-        onDeleteContact={handleDeleteContact}
-        onViewContact={handleViewContact}
+        totalCount={contacts?.length || 0}
+        onRowClick={handleViewContact}
+        onCreateContact={() => setIsCreateModalOpen(true)}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
         isLoading={isFetching}
+      />
+
+      {/* Create Person Modal */}
+      <PersonModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onCreateContact={handleCreateContact}
         isCreating={isCreating}
+      />
+
+      {/* Person Drawer */}
+      <PersonDrawer
+        contact={viewingContact}
+        open={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setViewingContact(null);
+        }}
+        onEdit={(contact) => {
+          setIsDrawerOpen(false);
+          setEditingContact(contact);
+        }}
       />
 
       {/* Edit Contact Dialog */}
