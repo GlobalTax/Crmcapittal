@@ -997,12 +997,14 @@ export type Database = {
           is_active: boolean | null
           language_preference: string | null
           last_interaction_date: string | null
+          lifecycle_stage: string | null
           linkedin_url: string | null
           name: string
           notes: string | null
           phone: string | null
           position: string | null
           preferred_contact_method: string | null
+          roles: string[] | null
           sectors_of_interest: string[] | null
           time_zone: string | null
           updated_at: string
@@ -1024,12 +1026,14 @@ export type Database = {
           is_active?: boolean | null
           language_preference?: string | null
           last_interaction_date?: string | null
+          lifecycle_stage?: string | null
           linkedin_url?: string | null
           name: string
           notes?: string | null
           phone?: string | null
           position?: string | null
           preferred_contact_method?: string | null
+          roles?: string[] | null
           sectors_of_interest?: string[] | null
           time_zone?: string | null
           updated_at?: string
@@ -1051,12 +1055,14 @@ export type Database = {
           is_active?: boolean | null
           language_preference?: string | null
           last_interaction_date?: string | null
+          lifecycle_stage?: string | null
           linkedin_url?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
           position?: string | null
           preferred_contact_method?: string | null
+          roles?: string[] | null
           sectors_of_interest?: string[] | null
           time_zone?: string | null
           updated_at?: string

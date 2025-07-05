@@ -28,27 +28,31 @@ export const useKpisLeads = () => {
         setLoading(true);
         setError(null);
         
-        // Get leads data from deals table
-        const [activeQuery, closedQuery] = await Promise.all([
+        // Get active leads from contacts table  
+        const [activeLeadsQuery, closedDealsQuery] = await Promise.all([
           supabase
-            .from('deals')
-            .select('deal_value')
+            .from('contacts')
+            .select('investment_capacity_max, investment_capacity_min')
             .eq('created_by', user.id)
             .eq('is_active', true)
-            .eq('deal_type', 'venta'),
+            .eq('lifecycle_stage', 'lead'),
           supabase
             .from('deals')
-            .select('id')
+            .select('id, deal_value')
             .eq('created_by', user.id)
             .eq('is_active', false)
+            .eq('deal_type', 'venta')
             .gte('close_date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
         ]);
         
-        const activeLeads = activeQuery.data?.length || 0;
-        const leadsValue = activeQuery.data?.reduce((sum, deal) => sum + (deal.deal_value || 0), 0) || 0;
-        const closedThisMonth = closedQuery.data?.length || 0;
+        const activeLeads = activeLeadsQuery.data?.length || 0;
+        const leadsValue = activeLeadsQuery.data?.reduce((sum, contact) => {
+          // Use max capacity as estimated value, fallback to min, then 0
+          return sum + (contact.investment_capacity_max || contact.investment_capacity_min || 0);
+        }, 0) || 0;
+        const closedThisMonth = closedDealsQuery.data?.length || 0;
         
-        // Calculate conversion rate (demo calculation)
+        // Calculate conversion rate (closed deals vs total leads)
         const totalLeads = activeLeads + closedThisMonth;
         const conversionRate = totalLeads > 0 ? (closedThisMonth / totalLeads) * 100 : 0;
 

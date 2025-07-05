@@ -60,6 +60,9 @@ const DEFAULT_COLUMNS: Column[] = [
     options: ['lead', 'prospect', 'customer', 'partner', 'other'] },
   { id: 'contact_priority', label: 'Prioridad', visible: true, editable: true, type: 'select',
     options: ['low', 'medium', 'high'] },
+  { id: 'lifecycle_stage', label: 'Etapa', visible: true, editable: true, type: 'select',
+    options: ['lead', 'cliente', 'suscriptor', 'proveedor'] },
+  { id: 'roles', label: 'Roles', visible: true, editable: false, type: 'badge' },
   { id: 'created_at', label: 'Fecha creación', visible: true, sortable: true, type: 'date' },
   { id: 'last_interaction_date', label: 'Última interacción', visible: false, sortable: true, type: 'date' },
   { id: 'actions', label: 'Acciones', visible: true, sortable: false }
@@ -261,6 +264,30 @@ export function AdvancedContactsTable({
 
   const visibleColumns = columns.filter(col => col.visible);
 
+  const getLifecycleBadge = (stage: string) => {
+    const colors = {
+      lead: 'bg-blue-100 text-blue-800',
+      cliente: 'bg-green-100 text-green-800',
+      suscriptor: 'bg-purple-100 text-purple-800',
+      proveedor: 'bg-orange-100 text-orange-800'
+    };
+    return <Badge className={colors[stage as keyof typeof colors] || colors.lead}>{stage}</Badge>;
+  };
+
+  const getRolesBadges = (roles: string[]) => {
+    if (!roles || roles.length === 0) return null;
+    return (
+      <div className="flex gap-1 flex-wrap">
+        {roles.slice(0, 2).map(role => (
+          <Badge key={role} variant="outline" className="text-xs">{role}</Badge>
+        ))}
+        {roles.length > 2 && (
+          <Badge variant="outline" className="text-xs">+{roles.length - 2}</Badge>
+        )}
+      </div>
+    );
+  };
+
   const getPriorityBadge = (priority: string) => {
     const colors = {
       low: 'bg-green-100 text-green-800',
@@ -318,6 +345,12 @@ export function AdvancedContactsTable({
       }
       if (column.id === 'contact_type') {
         return getTypeBadge(String(value));
+      }
+      if (column.id === 'lifecycle_stage') {
+        return getLifecycleBadge(String(value));
+      }
+      if (column.id === 'roles') {
+        return getRolesBadges(value as string[]);
       }
     }
 

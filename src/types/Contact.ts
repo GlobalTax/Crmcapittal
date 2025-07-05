@@ -28,6 +28,8 @@ export interface Contact {
   time_zone?: string;
   language_preference?: string;
   company_id?: string;
+  lifecycle_stage?: 'lead' | 'cliente' | 'suscriptor' | 'proveedor';
+  roles?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -51,6 +53,8 @@ export interface CreateContactData {
   notes?: string;
   time_zone?: string;
   language_preference?: string;
+  lifecycle_stage?: 'lead' | 'cliente' | 'suscriptor' | 'proveedor';
+  roles?: string[];
 }
 
 export interface UpdateContactData extends Partial<CreateContactData> {

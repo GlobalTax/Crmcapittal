@@ -3,7 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
 import { CreateContactData, ContactType } from '@/types/Contact';
 
 interface PersonModalProps {
@@ -29,8 +32,12 @@ export const PersonModal = ({
     contact_priority: 'medium',
     contact_source: 'manual',
     preferred_contact_method: 'email',
-    language_preference: 'es'
+    language_preference: 'es',
+    lifecycle_stage: 'lead',
+    roles: []
   });
+
+  const [newRole, setNewRole] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +59,8 @@ export const PersonModal = ({
       contact_source: formData.contact_source || 'manual',
       preferred_contact_method: formData.preferred_contact_method || 'email',
       language_preference: formData.language_preference || 'es',
+      lifecycle_stage: formData.lifecycle_stage || 'lead',
+      roles: formData.roles || [],
       linkedin_url: '',
       website_url: '',
       sectors_of_interest: [],
@@ -73,7 +82,9 @@ export const PersonModal = ({
       contact_priority: 'medium',
       contact_source: 'manual',
       preferred_contact_method: 'email',
-      language_preference: 'es'
+      language_preference: 'es',
+      lifecycle_stage: 'lead',
+      roles: []
     });
     onOpenChange(false);
   };
@@ -81,6 +92,25 @@ export const PersonModal = ({
   const updateField = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  const addRole = (role: string) => {
+    if (role && !formData.roles?.includes(role)) {
+      updateField('roles', [...(formData.roles || []), role]);
+    }
+  };
+
+  const removeRole = (role: string) => {
+    updateField('roles', formData.roles?.filter(r => r !== role) || []);
+  };
+
+  const handleAddCustomRole = () => {
+    if (newRole.trim()) {
+      addRole(newRole.trim());
+      setNewRole('');
+    }
+  };
+
+  const predefinedRoles = ['colaborador', 'inversor', 'board', 'advisor', 'proveedor', 'cliente'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -150,6 +180,72 @@ export const PersonModal = ({
                     onChange={(e) => updateField('company', e.target.value)}
                   />
                 </div>
+
+                <div>
+                  <Label htmlFor="lifecycle_stage">Etapa del Ciclo</Label>
+                  <Select value={formData.lifecycle_stage || 'lead'} onValueChange={(value) => updateField('lifecycle_stage', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona la etapa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lead">Lead - Primer contacto</SelectItem>
+                      <SelectItem value="cliente">Cliente - Transacción cerrada</SelectItem>
+                      <SelectItem value="suscriptor">Suscriptor - Solo contenidos</SelectItem>
+                      <SelectItem value="proveedor">Proveedor - Nos vende servicios</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Roles Section */}
+              <div className="space-y-2">
+                <Label>Roles</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {predefinedRoles.map(role => (
+                    <Button
+                      key={role}
+                      type="button"
+                      variant={formData.roles?.includes(role) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => formData.roles?.includes(role) ? removeRole(role) : addRole(role)}
+                    >
+                      {role}
+                    </Button>
+                  ))}
+                </div>
+                
+                {/* Custom role input */}
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Agregar rol personalizado..."
+                    value={newRole}
+                    onChange={(e) => setNewRole(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddCustomRole())}
+                  />
+                  <Button type="button" variant="outline" onClick={handleAddCustomRole}>
+                    Agregar
+                  </Button>
+                </div>
+
+                {/* Selected roles display */}
+                {formData.roles && formData.roles.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mt-2">
+                    {formData.roles.map(role => (
+                      <Badge key={role} variant="secondary" className="pr-1">
+                        {role}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="ml-1 h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => removeRole(role)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-4">

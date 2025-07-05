@@ -40,38 +40,20 @@ export const useMiniPipeline = () => {
           console.error('Error fetching deals:', dealsError);
         }
 
-        // Fetch negocios as backup/additional data - using correct column names
-        const { data: negociosData, error: negociosError } = await supabase
-          .from('negocios')
-          .select('id, nombre_negocio, empresa, valor_negocio, stage')
-          .eq('created_by', user.id)
-          .in('stage', ['Lead', 'Qualifying', 'Proposal'])
-          .limit(20);
-
-        if (negociosError) {
-          console.error('Error fetching negocios:', negociosError);
-        }
-
-        // Transform negocios data to match Deal interface
-        const negociosAsDeals: Deal[] = (negociosData || []).map((negocio: any) => ({
-          id: negocio.id,
-          deal_name: negocio.nombre_negocio || 'Sin nombre',
-          company_name: negocio.empresa,
-          deal_value: negocio.valor_negocio,
-          stage: negocio.stage
-        }));
-
-        // Combine both datasets
-        const allDeals = [
-          ...(dealsData || []),
-          ...negociosAsDeals
-        ];
+        // Simple array transformation without complex typing issues
+        const allDeals: Deal[] = dealsData ? dealsData.map(deal => ({
+          id: deal.id,
+          deal_name: deal.deal_name,
+          company_name: deal.company_name,
+          deal_value: deal.deal_value,
+          stage: 'Lead' // Default stage for deals table
+        })) : [];
 
         // Group deals by stage (for mini pipeline, we only show first 3 stages)
         const stageNames = ['Lead', 'Qualifying', 'Proposal'];
         const groupedStages: PipelineStage[] = stageNames.map(stageName => ({
           name: stageName,
-          deals: allDeals.filter((deal: any) => {
+          deals: allDeals.filter(deal => {
             // For deals without explicit stage, assume they're leads
             if (!deal.stage) return stageName === 'Lead';
             return deal.stage === stageName;
