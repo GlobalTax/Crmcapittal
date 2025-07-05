@@ -12,20 +12,10 @@ import { AdditionalContactInfo } from "./forms/AdditionalContactInfo";
 interface CreateContactDialogProps {
   onCreateContact: (contactData: CreateContactData) => void;
   isCreating?: boolean;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 }
 
-export const CreateContactDialog = ({ 
-  onCreateContact, 
-  isCreating = false, 
-  open: externalOpen, 
-  onOpenChange: externalOnOpenChange 
-}: CreateContactDialogProps) => {
-  const [internalOpen, setInternalOpen] = useState(false);
-  
-  const open = externalOpen !== undefined ? externalOpen : internalOpen;
-  const setOpen = externalOnOpenChange || setInternalOpen;
+export const CreateContactDialog = ({ onCreateContact, isCreating = false }: CreateContactDialogProps) => {
+  const [open, setOpen] = useState(false);
   
   const [contactData, setContactData] = useState({
     name: "",
@@ -89,18 +79,16 @@ export const CreateContactDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {externalOpen === undefined && (
-        <DialogTrigger asChild>
-          <Button className="bg-primary hover:bg-primary/90">
-            <Plus className="h-4 w-4 mr-2" />
-            Crear Contacto
-          </Button>
-        </DialogTrigger>
-      )}
+      <DialogTrigger asChild>
+        <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+          <Plus className="h-4 w-4 mr-2" />
+          Crear Contacto
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-foreground flex items-center">
-            <User className="h-5 w-5 mr-2 text-primary" />
+          <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
+            <User className="h-5 w-5 mr-2 text-orange-600" />
             Crear Nuevo Contacto
           </DialogTitle>
           <DialogDescription>
@@ -125,7 +113,7 @@ export const CreateContactDialog = ({
             </Button>
             <Button 
               type="submit" 
-              className="bg-primary hover:bg-primary/90"
+              className="bg-orange-600 hover:bg-orange-700 text-white"
               disabled={isCreating}
             >
               {isCreating ? "Creando..." : "Crear Contacto"}
