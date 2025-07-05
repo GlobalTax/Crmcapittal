@@ -10,11 +10,6 @@ interface KpisData {
   estimatedRevenue: number;
 }
 
-interface RevenueData {
-  valor_negocio: number | null;
-  close_date: string | null;
-}
-
 export const useKpis = () => {
   const { user } = useAuth();
   const [kpis, setKpis] = useState<KpisData>({
@@ -33,53 +28,50 @@ export const useKpis = () => {
       try {
         setLoading(true);
         
-        // Pending tasks
-        const { count: pendingTasks } = await supabase
+        // Pending tasks - simplified query
+        const pendingTasksQuery = await supabase
           .from('user_tasks')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('completed', false);
 
-        // Leads assigned (using deals table for now)
-        const { count: leadsAssigned } = await supabase
+        // Leads assigned - simplified query  
+        const leadsQuery = await supabase
           .from('deals')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('created_by', user.id)
           .eq('is_active', true);
 
-        // Active deals (negocios) - using correct column names
-        const { count: activeDeals } = await supabase
+        // Active deals - simplified query
+        const activeDealsQuery = await supabase
           .from('negocios')
-          .select('*', { count: 'exact', head: true })
+          .select('id', { count: 'exact', head: true })
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        // For estimated revenue, make a separate query with explicit typing
-        const { data: revenueData } = await supabase
+        // Revenue data - using correct column name fecha_cierre
+        const revenueQuery = await supabase
           .from('negocios')
-          .select('valor_negocio, close_date')
+          .select('valor_negocio, fecha_cierre')
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        // Calculate estimated revenue with explicit types
+        // Calculate estimated revenue
         const today = new Date().toISOString();
         let estimatedRevenue = 0;
         
-        if (revenueData && Array.isArray(revenueData)) {
-          const typedRevenueData = revenueData as RevenueData[];
-          const validDeals = typedRevenueData.filter((deal) => 
-            !deal.close_date || deal.close_date > today
-          );
-          
-          estimatedRevenue = validDeals.reduce((sum, deal) => {
-            return sum + (deal.valor_negocio || 0);
-          }, 0);
+        if (revenueQuery.data) {
+          for (const deal of revenueQuery.data) {
+            if (!deal.fecha_cierre || deal.fecha_cierre > today) {
+              estimatedRevenue += deal.valor_negocio || 0;
+            }
+          }
         }
 
         setKpis({
-          pendingTasks: pendingTasks || 0,
-          leadsAssigned: leadsAssigned || 0,
-          activeDeals: activeDeals || 0,
+          pendingTasks: pendingTasksQuery.count || 0,
+          leadsAssigned: leadsQuery.count || 0,
+          activeDeals: activeDealsQuery.count || 0,
           estimatedRevenue,
         });
       } catch (err) {
