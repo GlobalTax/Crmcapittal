@@ -36,10 +36,10 @@ export const DealPeopleTab = ({ deal }: DealPeopleTabProps) => {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="font-medium">Associated People</h3>
+        <h3 className="font-medium">Personas Asociadas</h3>
         <Button size="sm" variant="outline">
           <Plus className="h-4 w-4 mr-1" />
-          Add Person
+          Agregar Persona
         </Button>
       </div>
 
@@ -49,8 +49,8 @@ export const DealPeopleTab = ({ deal }: DealPeopleTabProps) => {
           {people.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No people associated</p>
-              <p className="text-xs">Add contacts to track stakeholders</p>
+              <p>No hay personas asociadas</p>
+              <p className="text-xs">Agrega contactos para hacer seguimiento de los interesados</p>
             </div>
           ) : (
             people.map((person) => (
@@ -71,7 +71,7 @@ export const DealPeopleTab = ({ deal }: DealPeopleTabProps) => {
                         <h4 className="font-medium text-sm">{person.name}</h4>
                         {person.is_primary && (
                           <Badge variant="outline" className="text-xs">
-                            Primary
+                            Principal
                           </Badge>
                         )}
                       </div>
@@ -82,7 +82,7 @@ export const DealPeopleTab = ({ deal }: DealPeopleTabProps) => {
                       
                       {person.company && (
                         <p className="text-xs text-muted-foreground">
-                          at {person.company}
+                          en {person.company}
                         </p>
                       )}
                       

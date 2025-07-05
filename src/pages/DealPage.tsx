@@ -6,6 +6,10 @@ import { DealHeader } from '@/components/deals/DealHeader';
 import { DealOverviewTab } from '@/components/deals/DealOverviewTab';
 import { DealActivityTab } from '@/components/deals/DealActivityTab';
 import { DealDetailsSidebar } from '@/components/deals/DealDetailsSidebar';
+import { DealTasksTab } from '@/components/deals/tabs/DealTasksTab';
+import { DealPeopleTab } from '@/components/deals/tabs/DealPeopleTab';
+import { DealNotesTab } from '@/components/deals/tabs/DealNotesTab';
+import { DealDocumentsTab } from '@/components/deals/tabs/DealDocumentsTab';
 import { useDeal } from '@/hooks/useDeal';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { useDeals } from '@/hooks/useDeals';
@@ -142,6 +146,12 @@ export default function DealPage() {
                 >
                   Personas
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="notes"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                >
+                  Notas
+                </TabsTrigger>
                 {/* Conditional Negocio tab if deal is won */}
                 {isWon && (
                   <TabsTrigger 
@@ -167,21 +177,19 @@ export default function DealPage() {
                 </TabsContent>
                 
                 <TabsContent value="documents" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Gestión de documentos próximamente</p>
-                  </div>
+                  <DealDocumentsTab deal={deal} />
                 </TabsContent>
                 
                 <TabsContent value="tasks" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Gestión de tareas próximamente</p>
-                  </div>
+                  <DealTasksTab deal={deal} />
                 </TabsContent>
                 
                 <TabsContent value="people" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Gestión de personas próximamente</p>
-                  </div>
+                  <DealPeopleTab deal={deal} />
+                </TabsContent>
+                
+                <TabsContent value="notes" className="mt-0 p-6">
+                  <DealNotesTab deal={deal} />
                 </TabsContent>
 
                 {isWon && (

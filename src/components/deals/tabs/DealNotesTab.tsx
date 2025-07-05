@@ -44,11 +44,11 @@ export const DealNotesTab = ({ deal }: DealNotesTabProps) => {
       {/* Add Note Section */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <h3 className="font-medium">Notes</h3>
+          <h3 className="font-medium">Notas</h3>
           {!isAdding && (
             <Button size="sm" variant="outline" onClick={() => setIsAdding(true)}>
               <Plus className="h-4 w-4 mr-1" />
-              Add Note
+              Agregar Nota
             </Button>
           )}
         </div>
@@ -56,7 +56,7 @@ export const DealNotesTab = ({ deal }: DealNotesTabProps) => {
         {isAdding && (
           <div className="space-y-2">
             <Textarea
-              placeholder="Write a note about this deal..."
+              placeholder="Escribe una nota sobre esta oportunidad..."
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
               className="min-h-[80px]"
@@ -64,13 +64,13 @@ export const DealNotesTab = ({ deal }: DealNotesTabProps) => {
             />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleAddNote} disabled={!newNote.trim()}>
-                Save Note
+                Guardar Nota
               </Button>
               <Button size="sm" variant="outline" onClick={() => {
                 setIsAdding(false);
                 setNewNote('');
               }}>
-                Cancel
+                Cancelar
               </Button>
             </div>
           </div>
@@ -83,8 +83,8 @@ export const DealNotesTab = ({ deal }: DealNotesTabProps) => {
           {notes.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <StickyNote className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No notes yet</p>
-              <p className="text-xs">Add notes to keep track of important information</p>
+              <p>Aún no hay notas</p>
+              <p className="text-xs">Agrega notas para mantener registro de información importante</p>
             </div>
           ) : (
             notes.map((note) => (
@@ -96,7 +96,7 @@ export const DealNotesTab = ({ deal }: DealNotesTabProps) => {
                   {note.content}
                 </p>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
-                  <span>By you</span>
+                  <span>Por ti</span>
                   <span>
                     {formatDistanceToNow(new Date(note.created_at), { 
                       addSuffix: true, 

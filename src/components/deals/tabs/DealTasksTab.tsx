@@ -71,11 +71,11 @@ export const DealTasksTab = ({ deal }: DealTasksTabProps) => {
       {/* Add Task Section */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <h3 className="font-medium">Tasks</h3>
+          <h3 className="font-medium">Tareas</h3>
           {!isAdding && (
             <Button size="sm" variant="outline" onClick={() => setIsAdding(true)}>
               <Plus className="h-4 w-4 mr-1" />
-              Add Task
+              Agregar Tarea
             </Button>
           )}
         </div>
@@ -83,7 +83,7 @@ export const DealTasksTab = ({ deal }: DealTasksTabProps) => {
         {isAdding && (
           <div className="flex gap-2">
             <Input
-              placeholder="Enter task title..."
+              placeholder="Ingresa el título de la tarea..."
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               onKeyDown={(e) => {
@@ -97,13 +97,13 @@ export const DealTasksTab = ({ deal }: DealTasksTabProps) => {
               autoFocus
             />
             <Button size="sm" onClick={handleAddTask} disabled={!newTaskTitle.trim()}>
-              Add
+              Agregar
             </Button>
             <Button size="sm" variant="outline" onClick={() => {
               setIsAdding(false);
               setNewTaskTitle('');
             }}>
-              Cancel
+              Cancelar
             </Button>
           </div>
         )}
@@ -115,8 +115,8 @@ export const DealTasksTab = ({ deal }: DealTasksTabProps) => {
           {tasks.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <CheckSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No tasks yet</p>
-              <p className="text-xs">Create tasks to track your deal progress</p>
+              <p>Aún no hay tareas</p>
+              <p className="text-xs">Crea tareas para hacer seguimiento del progreso</p>
             </div>
           ) : (
             <>
@@ -124,7 +124,7 @@ export const DealTasksTab = ({ deal }: DealTasksTabProps) => {
               {pendingTasks.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-foreground">
-                    Pending ({pendingTasks.length})
+                    Pendientes ({pendingTasks.length})
                   </h4>
                   {pendingTasks.map((task) => (
                     <div
@@ -150,8 +150,8 @@ export const DealTasksTab = ({ deal }: DealTasksTabProps) => {
                                 <span className={`text-xs ${
                                   isOverdue(task) ? 'text-red-600' : 'text-muted-foreground'
                                 }`}>
-                                  Due {format(new Date(task.due_date), 'PPP', { locale: es })}
-                                  {isOverdue(task) && ' (Overdue)'}
+                                  Vence {format(new Date(task.due_date), 'PPP', { locale: es })}
+                                  {isOverdue(task) && ' (Vencida)'}
                                 </span>
                               </div>
                             )}
@@ -173,7 +173,7 @@ export const DealTasksTab = ({ deal }: DealTasksTabProps) => {
               {completedTasks.length > 0 && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium text-muted-foreground">
-                    Completed ({completedTasks.length})
+                    Completadas ({completedTasks.length})
                   </h4>
                   {completedTasks.map((task) => (
                     <div
