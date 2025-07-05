@@ -34,6 +34,14 @@ export const useDeal = (dealId: string) => {
             name,
             industry,
             website
+          ),
+          contacts!contact_id (
+            id,
+            name,
+            email,
+            phone,
+            position,
+            company
           )
         `)
         .eq('id', dealId)
@@ -60,6 +68,14 @@ export const useDeal = (dealId: string) => {
             name: data.companies.name,
             industry: data.companies.industry,
             website: data.companies.website
+          } : undefined,
+          contact: data.contacts ? {
+            id: data.contacts.id,
+            name: data.contacts.name,
+            email: data.contacts.email,
+            phone: data.contacts.phone,
+            position: data.contacts.position,
+            company: data.contacts.company
           } : undefined
         };
         

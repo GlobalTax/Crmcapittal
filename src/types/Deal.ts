@@ -22,6 +22,15 @@ export interface Deal {
     name: string;
     email?: string;
   };
+  
+  contact?: {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    position?: string;
+    company?: string;
+  };
 }
 
 export type DealStage = 'Lead' | 'In Progress' | 'Won' | 'Lost';

@@ -21,16 +21,35 @@ interface DealPeopleTabProps {
 }
 
 export const DealPeopleTab = ({ deal }: DealPeopleTabProps) => {
-  const [people, setPeople] = useState<AssociatedPerson[]>([
-    // Mock data - in real implementation, this would come from database
-    ...(deal.owner ? [{
-      id: deal.ownerId || '1',
-      name: deal.owner.name,
-      email: deal.owner.email,
-      role: 'Deal Owner',
-      is_primary: true
-    }] : [])
-  ]);
+  const [people, setPeople] = useState<AssociatedPerson[]>(() => {
+    const initialPeople: AssociatedPerson[] = [];
+    
+    // Add main contact if exists
+    if (deal.contact) {
+      initialPeople.push({
+        id: deal.contact.id,
+        name: deal.contact.name,
+        email: deal.contact.email,
+        phone: deal.contact.phone,
+        role: deal.contact.position || 'Contacto Principal',
+        company: deal.contact.company,
+        is_primary: true
+      });
+    }
+    
+    // Add deal owner if exists and different from contact
+    if (deal.owner && (!deal.contact || deal.owner.id !== deal.contact.id)) {
+      initialPeople.push({
+        id: deal.ownerId || '1',
+        name: deal.owner.name,
+        email: deal.owner.email,
+        role: 'Responsable de la Oportunidad',
+        is_primary: false
+      });
+    }
+    
+    return initialPeople;
+  });
 
   return (
     <div className="space-y-4">

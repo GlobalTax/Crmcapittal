@@ -102,6 +102,50 @@ export const DealOverviewTab = ({ deal }: DealOverviewTabProps) => {
         />
       </div>
 
+      {/* Contact Information */}
+      {deal.contact && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-foreground">Información del Contacto</h3>
+          <div className="bg-neutral-0 border border-border rounded-lg p-4 space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Contacto Principal</label>
+                <p className="text-sm mt-1 font-medium">{deal.contact.name}</p>
+                {deal.contact.position && (
+                  <p className="text-xs text-muted-foreground">{deal.contact.position}</p>
+                )}
+              </div>
+              {deal.contact.email && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Email</label>
+                  <p className="text-sm mt-1">
+                    <a 
+                      href={`mailto:${deal.contact.email}`}
+                      className="text-primary hover:underline"
+                    >
+                      {deal.contact.email}
+                    </a>
+                  </p>
+                </div>
+              )}
+              {deal.contact.phone && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Teléfono</label>
+                  <p className="text-sm mt-1">
+                    <a 
+                      href={`tel:${deal.contact.phone}`}
+                      className="text-primary hover:underline"
+                    >
+                      {deal.contact.phone}
+                    </a>
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Recent Activity Summary */}
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-foreground">Recent Activity</h3>
