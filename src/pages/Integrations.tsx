@@ -127,8 +127,13 @@ export default function Integrations() {
   } = useConnectedAccounts();
 
   const getIntegrationStatus = (integration: Integration) => {
+    console.log('Getting status for integration:', integration.name, 'provider:', integration.provider);
+    console.log('Accounts:', accounts);
+    console.log('Loading:', loading);
+    
     if (integration.provider) {
       const connected = isConnected(integration.provider);
+      console.log('Is connected:', connected);
       if (!connected) return 'disconnected';
       
       const account = accounts.find(acc => acc.provider === integration.provider);

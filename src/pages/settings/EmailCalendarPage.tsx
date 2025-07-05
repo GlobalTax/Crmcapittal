@@ -6,7 +6,7 @@ import { SettingSection } from '@/components/settings/SettingSection';
 import { ConnectButton } from '@/components/settings/ConnectButton';
 import { StatusPill } from '@/components/settings/StatusPill';
 import { Chrome, MoreHorizontal, Inbox, RefreshCw, Unlink } from 'lucide-react';
-import { useToast } from '@/hooks/useToast';
+import { useToast } from '@/hooks/use-toast';
 import { useConnectedAccounts } from '@/hooks/useConnectedAccounts';
 
 export default function EmailCalendarPage() {
