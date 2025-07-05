@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { OperacionCard } from "./OperacionCard";
 
 // Mock data siguiendo tu guía

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { useTargetCompanies } from "@/hooks/useTargetCompanies";
 import { TargetCompany, TargetStatus } from "@/types/TargetCompany";
 import { KanbanColumn } from "./KanbanColumn";

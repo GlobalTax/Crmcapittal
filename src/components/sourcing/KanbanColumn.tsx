@@ -1,5 +1,5 @@
 
-import { Droppable, Draggable } from "react-beautiful-dnd";
+import { Droppable, Draggable } from "@hello-pangea/dnd";
 import { TargetCompany, TargetStatus } from "@/types/TargetCompany";
 import { KanbanCard } from "./KanbanCard";
 import { Badge } from "@/components/ui/badge";

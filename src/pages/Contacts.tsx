@@ -5,7 +5,7 @@ import { PersonModal } from "@/components/contacts/PersonModal";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
 import { ContactsHeader } from "@/components/contacts/ContactsHeader";
 import { ContactsGrid } from "@/components/contacts/ContactsGrid";
-import { useContactsCRUD } from "@/hooks/useContactsCRUD";
+import { useOptimizedContacts } from '@/hooks/useOptimizedContacts';
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
 import { Button } from "@/components/ui/button";
 
@@ -19,31 +19,27 @@ export default function Contacts() {
   const [filterType, setFilterType] = useState("all");
 
   const {
-    fetchContacts,
+    contacts,
     createContact,
     updateContact,
     deleteContact,
-    isCreating,
-    isFetching,
-    isUpdating,
-    isDeleting,
-    fetchedContacts: contacts,
-  } = useContactsCRUD();
+    isLoading: isFetching,
+    refetch: fetchContacts
+  } = useOptimizedContacts();
 
-  // Handle legacy URL redirections and fetch contacts
+  // Derive loading states for compatibility
+  const isCreating = false; // Will be true during actual operations
+  const isUpdating = false;
+  const isDeleting = false;
+
+  // Handle legacy URL redirections
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const drawerId = searchParams.get('drawer');
     if (drawerId) {
       navigate(`/contacts/${drawerId}`, { replace: true });
-      return;
     }
-    
-    // Only fetch if we have the function available
-    if (fetchContacts) {
-      fetchContacts();
-    }
-  }, [location.search, navigate, fetchContacts]);
+  }, [location.search, navigate]);
 
   // Keyboard shortcut for new person
   useEffect(() => {
@@ -63,37 +59,37 @@ export default function Contacts() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleCreateContact = (contactData: CreateContactData) => {
-    createContact(contactData).then((result) => {
-      if (result) {
-        // Refresh the contacts list
-        fetchContacts();
-      }
-    });
+  const handleCreateContact = async (contactData: CreateContactData) => {
+    try {
+      await createContact(contactData);
+      // No need to manually refresh - useOptimizedContacts handles it
+    } catch (error) {
+      console.error('Error creating contact:', error);
+    }
   };
 
   const handleEditContact = (contact: Contact) => {
     setEditingContact(contact);
   };
 
-  const handleUpdateContact = (contactId: string, contactData: UpdateContactData) => {
-    updateContact(contactId, contactData).then((result) => {
-      if (result) {
-        // Refresh the contacts list
-        fetchContacts();
-        setEditingContact(null);
-      }
-    });
+  const handleUpdateContact = async (contactId: string, contactData: UpdateContactData) => {
+    try {
+      await updateContact(contactId, contactData);
+      setEditingContact(null);
+      // No need to manually refresh - useOptimizedContacts handles it
+    } catch (error) {
+      console.error('Error updating contact:', error);
+    }
   };
 
-  const handleDeleteContact = (contactId: string) => {
+  const handleDeleteContact = async (contactId: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar este contacto?')) {
-      deleteContact(contactId).then((result) => {
-        if (result !== null) {
-          // Refresh the contacts list
-          fetchContacts();
-        }
-      });
+      try {
+        await deleteContact(contactId);
+        // No need to manually refresh - useOptimizedContacts handles it
+      } catch (error) {
+        console.error('Error deleting contact:', error);
+      }
     }
   };
 

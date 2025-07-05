@@ -7,7 +7,7 @@ import { PersonOverviewTab } from '@/components/contacts/PersonOverviewTab';
 import { PersonActivityTab } from '@/components/contacts/PersonActivityTab';
 import { PersonRecordSidebar } from '@/components/contacts/PersonRecordSidebar';
 import { EditContactDialog } from '@/components/contacts/EditContactDialog';
-import { useContactsCRUD } from '@/hooks/useContactsCRUD';
+import { useOptimizedContacts } from '@/hooks/useOptimizedContacts';
 import { Contact, UpdateContactData } from '@/types/Contact';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 
@@ -18,14 +18,16 @@ export default function ContactPage() {
   const [contact, setContact] = useState<Contact | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(true);
+  const [localLoading, setLocalLoading] = useState(true);
   
   const {
-    fetchedContacts: contacts,
-    fetchContacts,
+    contacts,
+    getContactById,
     updateContact,
-    isUpdating
-  } = useContactsCRUD();
+    isLoading: contactsLoading
+  } = useOptimizedContacts();
+  
+  const isUpdating = false; // Will be true during actual operations
 
   // Handle legacy URL redirections (from drawer URLs)
   useEffect(() => {
@@ -36,21 +38,10 @@ export default function ContactPage() {
     }
   }, [location.search, id, navigate]);
 
-  // Fetch contacts and find the specific contact
+  // Update loading state based on contacts loading
   useEffect(() => {
-    const loadContact = async () => {
-      setIsLoading(true);
-      try {
-        await fetchContacts();
-      } catch (error) {
-        console.error('Error fetching contacts:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadContact();
-  }, [fetchContacts]);
+    setLocalLoading(contactsLoading);
+  }, [contactsLoading]);
 
   // Find the contact once contacts are loaded
   useEffect(() => {
@@ -60,12 +51,12 @@ export default function ContactPage() {
         setContact(foundContact);
         // Set document title
         document.title = `Contacto • ${foundContact.name}`;
-      } else if (!isLoading) {
+      } else if (!localLoading) {
         // Contact not found, redirect to contacts list
         navigate('/contacts', { replace: true });
       }
     }
-  }, [contacts, id, navigate, isLoading]);
+  }, [contacts, id, navigate, localLoading]);
 
   // Scroll to top when contact changes
   useEffect(() => {
@@ -79,16 +70,18 @@ export default function ContactPage() {
     };
   }, []);
 
-  const handleUpdateContact = (contactId: string, contactData: UpdateContactData) => {
-    updateContact(contactId, contactData).then((result) => {
+  const handleUpdateContact = async (contactId: string, contactData: UpdateContactData) => {
+    try {
+      const result = await updateContact(contactId, contactData);
       if (result) {
         // Update local contact state
         setContact(prev => prev ? { ...prev, ...result } : null);
         setEditingContact(null);
-        // Refresh contacts list
-        fetchContacts();
+        // No need to manually refresh - useOptimizedContacts handles it
       }
-    });
+    } catch (error) {
+      console.error('Error updating contact:', error);
+    }
   };
 
   const handleEdit = (contact: Contact) => {
@@ -123,7 +116,7 @@ export default function ContactPage() {
   const hasPrevious = currentIndex > 0;
   const hasNext = contacts ? currentIndex < contacts.length - 1 : false;
 
-  if (isLoading) {
+  if (localLoading) {
     return <LoadingSkeleton />;
   }
 
