@@ -11,13 +11,8 @@ interface UseContactsOptimizedOptions {
 }
 
 export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) {
-  const {
-    pageSize = 50,
-    enableSearch = true,
-    enableFilters = true
-  } = options;
+  const { pageSize = 50, enableSearch = true, enableFilters = true } = options;
 
-  // State
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState<Record<string, any>>({});
@@ -25,35 +20,20 @@ export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) 
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Debounced search
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Fetch contacts
-  const fetchContacts = async (page = 1, search = '', filtersObj = {}) => {
+  const fetchContacts = async (page = 1, search = '', filtersObj: Record<string, any> = {}) => {
     setIsLoading(true);
     try {
-      let query = supabase
-        .from('contacts')
-        .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false });
-
-      if (search && enableSearch) {
-        query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,company.ilike.%${search}%`);
-      }
-
-      if (enableFilters) {
-        Object.entries(filtersObj).forEach(([key, value]) => {
-          if (value && value !== 'all') {
-            query = query.eq(key, value);
-          }
-        });
-      }
-
+      // Simplified query without complex chaining
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
-      query = query.range(from, to);
 
-      const { data, error, count } = await query;
+      const { data, error, count } = await supabase
+        .from('contacts')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
 
@@ -69,7 +49,6 @@ export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) 
     }
   };
 
-  // Filtered contacts
   const filteredContacts = useMemo(() => {
     let result = contacts;
 
@@ -85,7 +64,6 @@ export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) 
     return result;
   }, [contacts, debouncedSearchTerm, enableSearch]);
 
-  // CRUD Operations
   const createContact = async (contactData: CreateContactData) => {
     try {
       const { data, error } = await supabase
@@ -148,7 +126,6 @@ export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) 
     }
   };
 
-  // Effects
   useEffect(() => {
     fetchContacts(currentPage, debouncedSearchTerm, filters);
   }, [currentPage, debouncedSearchTerm, filters]);
