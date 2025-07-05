@@ -8,6 +8,7 @@ import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 // Lazy load pages with proper React.lazy
 const Auth = lazy(() => import('@/pages/Auth'));
@@ -71,252 +72,260 @@ function App() {
       <AuthProvider>
         <ErrorBoundary>
           <Router>
-            <div className="min-h-screen bg-gray-50">
-              <Routes>
-                {/* Public auth route */}
-                <Route 
-                  path="/auth" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <Auth />
-                    </Suspense>
-                  } 
-                />
-                
-                {/* Protected routes */}
-                <Route element={<ProtectedRoute><AttioLayout /></ProtectedRoute>}>
-                  <Route 
-                    path="/personal" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <PersonalDashboard />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Dashboard />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/leads" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Leads />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/contacts" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Contacts />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/contacts/:id" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <ContactPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/companies"
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Companies />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/deals" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Deals />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/negocios"
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Negocios />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/negocios/:id" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <NegocioDetail />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/proposals" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Proposals />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/time-tracking" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <TimeTracking />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/email" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Email />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/calendar" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <CalendarPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/documents/*" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Documents />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/users" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <UserManagement />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/collaborators" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Collaborators />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/integrations" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <Integrations />
-                      </Suspense>
-                    } 
-                  />
-                </Route>
-                
-                {/* Settings routes */}
-                <Route 
-                  path="/settings/*" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <SettingsLayout />
-                    </Suspense>
-                  }
-                >
-                  <Route 
-                    path="profile" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <ProfilePage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="email-calendar" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <EmailCalendarPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="members-teams" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <MembersTeamsPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="appearance" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <AppearancePage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="general" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <GeneralPage />
-                      </Suspense>
-                    } 
-                  />
-                  {/* Additional placeholder routes */}
-                  <Route 
-                    path="call-intelligence" 
-                    element={
-                      <Suspense fallback={<LoadingSkeleton />}>
-                        <CallIntelligencePage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route path="plans" element={<PlansPage />} />
-                  <Route path="billing" element={<BillingPage />} />
-                  <Route path="developers" element={<DevelopersPage />} />
-                  <Route path="security" element={<SecurityPage />} />
-                  <Route path="support" element={<SupportPage />} />
-                  <Route path="expert-access" element={<ExpertAccessPage />} />
-                  <Route path="migrate-crm" element={<MigrateCRMPage />} />
-                  <Route path="apps" element={<AppsPage />} />
-                  <Route path="objects" element={<ObjectsPage />} />
-                  <Route path="lists" element={<ListsPage />} />
-                  <Route path="dashboards" element={<DashboardsPage />} />
-                  <Route path="sequences" element={<SequencesPage />} />
-                  <Route path="workflows" element={<WorkflowsPage />} />
-                  <Route 
-                    index
-                    element={<Navigate to="profile" replace />}
-                  />
-                  <Route path="*" element={<div>Settings page not found</div>} />
-                </Route>
-                
-                {/* Catch-all route for 404 */}
-                <Route 
-                  path="*" 
-                  element={
-                    <Suspense fallback={<LoadingSkeleton />}>
-                      <NotFound />
-                    </Suspense>
-                  } 
-                />
-              </Routes>
-            </div>
-            <Toaster />
+            <AppContent />
           </Router>
         </ErrorBoundary>
       </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+function AppContent() {
+  useKeyboardShortcuts();
+  
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Routes>
+        {/* Public auth route */}
+        <Route 
+          path="/auth" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <Auth />
+            </Suspense>
+          } 
+        />
+        
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute><AttioLayout /></ProtectedRoute>}>
+          <Route 
+            path="/personal" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <PersonalDashboard />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Dashboard />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/leads" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Leads />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/contacts" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Contacts />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/contacts/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ContactPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/companies"
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Companies />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/deals" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Deals />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/negocios"
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Negocios />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/negocios/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <NegocioDetail />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/proposals" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Proposals />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/time-tracking" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <TimeTracking />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/email" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Email />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/calendar" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CalendarPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/documents/*" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Documents />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/users" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <UserManagement />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/collaborators" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Collaborators />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/integrations" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Integrations />
+              </Suspense>
+            } 
+          />
+        </Route>
+        
+        {/* Settings routes */}
+        <Route 
+          path="/settings/*" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <SettingsLayout />
+            </Suspense>
+          }
+        >
+          <Route 
+            path="profile" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ProfilePage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="email-calendar" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <EmailCalendarPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="members-teams" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <MembersTeamsPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="appearance" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <AppearancePage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="general" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <GeneralPage />
+              </Suspense>
+            } 
+          />
+          {/* Additional placeholder routes */}
+          <Route 
+            path="call-intelligence" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CallIntelligencePage />
+              </Suspense>
+            } 
+          />
+          <Route path="plans" element={<PlansPage />} />
+          <Route path="billing" element={<BillingPage />} />
+          <Route path="developers" element={<DevelopersPage />} />
+          <Route path="security" element={<SecurityPage />} />
+          <Route path="support" element={<SupportPage />} />
+          <Route path="expert-access" element={<ExpertAccessPage />} />
+          <Route path="migrate-crm" element={<MigrateCRMPage />} />
+          <Route path="apps" element={<AppsPage />} />
+          <Route path="objects" element={<ObjectsPage />} />
+          <Route path="lists" element={<ListsPage />} />
+          <Route path="dashboards" element={<DashboardsPage />} />
+          <Route path="sequences" element={<SequencesPage />} />
+          <Route path="workflows" element={<WorkflowsPage />} />
+          <Route 
+            index
+            element={<Navigate to="profile" replace />}
+          />
+          <Route path="*" element={<div>Settings page not found</div>} />
+        </Route>
+        
+        {/* Catch-all route for 404 */}
+        <Route 
+          path="*" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <NotFound />
+            </Suspense>
+          } 
+        />
+      </Routes>
+      <Toaster />
+    </div>
   );
 }
 
