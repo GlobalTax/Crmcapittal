@@ -14,6 +14,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 const Auth = lazy(() => import('@/pages/Auth'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Leads = lazy(() => import('@/pages/Leads'));
+const LeadPage = lazy(() => import('@/pages/LeadPage'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const Companies = lazy(() => import('@/pages/MinimalCompanies'));
@@ -119,6 +120,14 @@ function AppContent() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <Leads />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/leads/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadPage />
               </Suspense>
             } 
           />

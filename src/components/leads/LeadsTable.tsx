@@ -214,7 +214,7 @@ export const LeadsTable = ({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onViewLead(lead.id)}>
+                        <DropdownMenuItem onClick={() => window.location.href = `/leads/${lead.id}`}>
                           <Eye className="mr-2 h-4 w-4" />
                           Ver detalles
                         </DropdownMenuItem>
