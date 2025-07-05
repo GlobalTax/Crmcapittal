@@ -14,6 +14,7 @@ const Auth = lazy(() => import('@/pages/Auth'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Leads = lazy(() => import('@/pages/Leads'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
+const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const Companies = lazy(() => import('@/pages/MinimalCompanies'));
 const Deals = lazy(() => import('@/pages/Deals'));
 const Negocios = lazy(() => import('@/pages/Negocios'));
@@ -117,7 +118,15 @@ function App() {
                     } 
                   />
                   <Route 
-                    path="/companies" 
+                    path="/contacts/:id" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <ContactPage />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="/companies"
                     element={
                       <Suspense fallback={<LoadingSkeleton />}>
                         <Companies />

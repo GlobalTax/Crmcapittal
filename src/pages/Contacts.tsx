@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PersonRecordTable } from "@/components/contacts/PersonRecordTable";
 import { PersonModal } from "@/components/contacts/PersonModal";
-import { PersonDrawer } from "@/components/contacts/PersonDrawer";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
 import { useContactsCRUD } from "@/hooks/useContactsCRUD";
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
@@ -9,9 +8,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Contacts() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [viewingContact, setViewingContact] = useState<Contact | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const {
     fetchContacts,
@@ -83,8 +80,8 @@ export default function Contacts() {
   };
 
   const handleViewContact = (contact: Contact) => {
-    setViewingContact(contact);
-    setIsDrawerOpen(true);
+    // Navigation is now handled by PersonRecordTable
+    console.log('Viewing contact:', contact.name);
   };
 
   const handleSearch = (term: string) => {
@@ -129,20 +126,6 @@ export default function Contacts() {
         onOpenChange={setIsCreateModalOpen}
         onCreateContact={handleCreateContact}
         isCreating={isCreating}
-      />
-
-      {/* Person Drawer */}
-      <PersonDrawer
-        contact={viewingContact}
-        open={isDrawerOpen}
-        onClose={() => {
-          setIsDrawerOpen(false);
-          setViewingContact(null);
-        }}
-        onEdit={(contact) => {
-          setIsDrawerOpen(false);
-          setEditingContact(contact);
-        }}
       />
 
       {/* Edit Contact Dialog */}

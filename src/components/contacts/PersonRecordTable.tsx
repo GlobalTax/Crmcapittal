@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -27,8 +28,14 @@ export const PersonRecordTable = ({
   onFilter,
   isLoading
 }: PersonRecordTableProps) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [savedView, setSavedView] = useState('Recently Contacted People');
+
+  const handleRowClick = (contact: Contact) => {
+    navigate(`/contacts/${contact.id}`);
+    onRowClick?.(contact);
+  };
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -151,7 +158,7 @@ export const PersonRecordTable = ({
                 <tr
                   key={contact.id}
                   className="border-b border-border hover:bg-neutral-50 cursor-pointer"
-                  onClick={() => onRowClick?.(contact)}
+                  onClick={() => handleRowClick(contact)}
                 >
                   <td className="p-3">
                     <div className="flex items-center gap-3">
