@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/minimal/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
 import { useNegocios } from "@/hooks/useNegocios";
 import { User, Briefcase, Building2, Users } from "lucide-react";
+import { NegociosKanban } from "@/components/negocios/NegociosKanban";
 import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
 import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
 import { CreateNegocioDialog } from "@/components/negocios/CreateNegocioDialog";
@@ -13,7 +14,7 @@ import { Company } from "@/types/Company";
 import { Contact } from "@/types/Contact";
 import { Negocio } from "@/types/Negocio";
 
-const stages = ['Nuevo', 'En Proceso', 'Propuesta', 'Ganado', 'Perdido'];
+
 
 export default function MinimalNegocios() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
@@ -22,7 +23,7 @@ export default function MinimalNegocios() {
   const [selectedNegocio, setSelectedNegocio] = useState<Negocio | null>(null);
   const [editingNegocio, setEditingNegocio] = useState<Negocio | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const { negocios, loading, error, createNegocio, updateNegocio } = useNegocios();
+  const { negocios, loading, error, createNegocio, updateNegocio, updateNegocioStage } = useNegocios();
 
   if (loading) {
     return (
@@ -138,15 +139,15 @@ export default function MinimalNegocios() {
           <span className="text-sm font-bold mt-2 block">{negocios.length}</span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">En Proceso</span>
+          <span className="text-gray-500 text-sm">Activos</span>
           <span className="text-sm font-bold mt-2 block text-blue-600">
-            {negocios.filter(n => n.stage?.name === 'En Proceso').length}
+            {negocios.filter(n => n.is_active).length}
           </span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Ganados</span>
-          <span className="text-sm font-bold mt-2 block text-green-600">
-            {negocios.filter(n => n.stage?.name === 'Ganado').length}
+          <span className="text-gray-500 text-sm">Alta Prioridad</span>
+          <span className="text-sm font-bold mt-2 block text-orange-600">
+            {negocios.filter(n => n.prioridad === 'alta' || n.prioridad === 'urgente').length}
           </span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
@@ -236,50 +237,18 @@ export default function MinimalNegocios() {
           </div>
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto">
-            {stages.map((stage) => (
-              <div key={stage} className="bg-gray-50 rounded-lg p-4 min-w-[250px] flex-1">
-                <h3 className="font-semibold mb-4">{stage}</h3>
-                <div className="space-y-3">
-                  {negocios.filter(n => (n.stage?.name || 'Nuevo') === stage).map((negocio) => (
-                    <div key={negocio.id} className="bg-white rounded p-3 border">
-                      <span className="font-medium">{negocio.nombre_negocio}</span>
-                      
-                      {negocio.company?.name && (
-                        <div className="mt-1">
-                          <button
-                            onClick={() => handleCompanyClick(negocio)}
-                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline text-xs"
-                          >
-                            <Building2 className="h-3 w-3" />
-                            {negocio.company.name}
-                          </button>
-                        </div>
-                      )}
-                      
-                      {negocio.contact?.name && (
-                        <div className="mt-1">
-                          <button
-                            onClick={() => handleContactClick(negocio)}
-                            className="flex items-center gap-1 text-green-600 hover:text-green-800 hover:underline text-xs"
-                          >
-                            <Users className="h-3 w-3" />
-                            {negocio.contact.name}
-                          </button>
-                        </div>
-                      )}
-                      
-                      <div className="text-xs text-blue-600 font-bold mt-1">
-                        {negocio.valor_negocio ? `€${negocio.valor_negocio.toLocaleString()}` : 'N/A'}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        Responsable: {negocio.propietario_negocio || 'Sin asignar'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+        <div className="bg-white rounded-lg border">
+          <div className="p-4 border-b">
+            <h3 className="font-semibold">Vista Kanban</h3>
+          </div>
+          <div className="p-4">
+            <NegociosKanban
+              negocios={negocios}
+              onUpdateStage={updateNegocioStage}
+              onEdit={setEditingNegocio}
+              onView={setSelectedNegocio}
+            />
+          </div>
         </div>
       )}
 

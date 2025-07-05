@@ -4,7 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Euro, Calendar, Users, Building2, MapPin, Phone, Mail } from 'lucide-react';
+import { Euro, Calendar, Users, Building2, MapPin, Eye, Edit, MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Negocio } from '@/types/Negocio';
 import { useStages } from '@/hooks/useStages';
 import { usePipelines } from '@/hooks/usePipelines';
@@ -13,9 +19,10 @@ interface NegociosKanbanProps {
   negocios: Negocio[];
   onUpdateStage: (negocioId: string, stageId: string) => Promise<any>;
   onEdit: (negocio: Negocio) => void;
+  onView?: (negocio: Negocio) => void;
 }
 
-export const NegociosKanban = ({ negocios, onUpdateStage, onEdit }: NegociosKanbanProps) => {
+export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: NegociosKanbanProps) => {
   const { stages } = useStages('DEAL');
   const { pipelines } = usePipelines();
   const [isDragging, setIsDragging] = useState(false);
@@ -85,7 +92,7 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit }: NegociosKanb
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 
-                      className="font-semibold text-lg flex items-center gap-2"
+                      className="text-sm font-semibold flex items-center gap-2"
                       style={{ color: stage.color }}
                     >
                       <div 
@@ -121,26 +128,51 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit }: NegociosKanb
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`cursor-pointer transition-all hover:shadow-md ${
+                              className={`transition-all hover:shadow-md ${
                                 snapshot.isDragging ? 'shadow-lg rotate-2' : ''
                               }`}
-                              onClick={() => onEdit(negocio)}
                             >
                               <CardHeader className="pb-3">
                                 <div className="flex items-start justify-between">
-                                  <CardTitle className="text-base line-clamp-2">
+                                  <CardTitle className="text-sm line-clamp-2">
                                     {negocio.nombre_negocio}
                                   </CardTitle>
-                                  <Badge 
-                                    variant="outline" 
-                                    className={`ml-2 ${getPriorityColor(negocio.prioridad)}`}
-                                  >
-                                    {negocio.prioridad}
-                                  </Badge>
+                                  <div className="flex items-center gap-2">
+                                    <Badge 
+                                      variant="outline" 
+                                      className={`text-xs ${getPriorityColor(negocio.prioridad)}`}
+                                    >
+                                      {negocio.prioridad}
+                                    </Badge>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button 
+                                          variant="ghost" 
+                                          size="sm" 
+                                          className="h-6 w-6 p-0"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <MoreHorizontal className="h-3 w-3" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        {onView && (
+                                          <DropdownMenuItem onClick={() => onView(negocio)}>
+                                            <Eye className="h-4 w-4 mr-2" />
+                                            Ver Detalles
+                                          </DropdownMenuItem>
+                                        )}
+                                        <DropdownMenuItem onClick={() => onEdit(negocio)}>
+                                          <Edit className="h-4 w-4 mr-2" />
+                                          Editar
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
                                 </div>
                                 {negocio.company && (
-                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <Building2 className="h-4 w-4" />
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Building2 className="h-3 w-3" />
                                     <span className="truncate">{negocio.company.name}</span>
                                   </div>
                                 )}
@@ -148,8 +180,8 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit }: NegociosKanb
                               <CardContent className="pt-0">
                                 <div className="space-y-2">
                                   {negocio.valor_negocio && (
-                                    <div className="flex items-center gap-2 text-sm">
-                                      <Euro className="h-4 w-4 text-green-600" />
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <Euro className="h-3 w-3 text-green-600" />
                                       <span className="font-medium text-green-600">
                                         {new Intl.NumberFormat('es-ES', { 
                                           style: 'currency', 
@@ -161,22 +193,22 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit }: NegociosKanb
                                   )}
                                   
                                   {negocio.contact && (
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                      <Users className="h-4 w-4" />
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      <Users className="h-3 w-3" />
                                       <span className="truncate">{negocio.contact.name}</span>
                                     </div>
                                   )}
 
                                   {negocio.ubicacion && (
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                      <MapPin className="h-4 w-4" />
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      <MapPin className="h-3 w-3" />
                                       <span className="truncate">{negocio.ubicacion}</span>
                                     </div>
                                   )}
 
                                   {negocio.fecha_cierre && (
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                      <Calendar className="h-4 w-4" />
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      <Calendar className="h-3 w-3" />
                                       <span>
                                         {new Date(negocio.fecha_cierre).toLocaleDateString('es-ES')}
                                       </span>
@@ -189,7 +221,7 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit }: NegociosKanb
                                     </Badge>
                                     
                                     {negocio.propietario_negocio && (
-                                      <Avatar className="h-6 w-6">
+                                      <Avatar className="h-5 w-5">
                                         <AvatarFallback className="text-xs">
                                           {negocio.propietario_negocio.split(' ').map(n => n[0]).join('').substring(0, 2)}
                                         </AvatarFallback>
