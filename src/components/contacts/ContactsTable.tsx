@@ -1,18 +1,22 @@
-import { useState, useMemo } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
-import { Button } from "@/components/ui/minimal/Button";
-import { Badge } from "@/components/ui/minimal/Badge";
-import { 
-  Mail,
-  Phone,
-  User
-} from "lucide-react";
-import { Contact, ContactType } from "@/types/Contact";
+import React, { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Phone, Mail, Eye, Users } from "lucide-react";
+import { Contact, ContactType, CreateContactData } from "@/types/Contact";
 import { CreateContactDialog } from "./CreateContactDialog";
+import { OptimizedContactsTable } from "./OptimizedContactsTable";
+import { usePerformanceMonitor } from "@/hooks/performance/usePerformanceMonitor";
+import { toast } from "sonner";
 
 interface ContactsTableProps {
   contacts: Contact[];
-  onCreateContact: (contactData: any) => void;
+  onCreateContact: (contactData: CreateContactData) => void;
   onEditContact?: (contact: Contact) => void;
   onDeleteContact?: (contactId: string) => void;
   onViewContact?: (contact: Contact) => void;
@@ -20,17 +24,19 @@ interface ContactsTableProps {
   isCreating?: boolean;
 }
 
-export const ContactsTable = ({ 
-  contacts = [], 
+export function ContactsTable({
+  contacts,
   onCreateContact,
   onEditContact,
   onDeleteContact,
   onViewContact,
-  isLoading = false,
-  isCreating = false
-}: ContactsTableProps) => {
+  isLoading,
+  isCreating
+}: ContactsTableProps) {
+  const { renderCount } = usePerformanceMonitor('ContactsTable');
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<ContactType | "all">("all");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const filteredContacts = useMemo(() => {
     return contacts.filter(contact => {
@@ -271,7 +277,7 @@ export const ContactsTable = ({
           
           {filteredContacts.length === 0 && (
             <div className="text-center py-12">
-              <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No se encontraron contactos
               </h3>
