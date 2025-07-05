@@ -13,44 +13,46 @@ import {
   Settings,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  RefreshCw,
+  Unlink
 } from 'lucide-react';
+import { useConnectedAccounts } from '@/hooks/useConnectedAccounts';
+import { useToast } from '@/hooks/use-toast';
 
 interface Integration {
   id: string;
   name: string;
   description: string;
   icon: React.ComponentType<any>;
-  status: 'connected' | 'disconnected' | 'error';
   category: string;
   configurable: boolean;
+  provider?: 'microsoft' | 'google';
 }
 
-const integrations: Integration[] = [
+const staticIntegrations: Integration[] = [
   {
     id: 'resend',
     name: 'Resend',
     description: 'Servicio de email transaccional para notificaciones y seguimiento',
     icon: Mail,
-    status: 'connected',
     category: 'Email & Comunicación',
     configurable: true
   },
   {
-    id: 'microsoft-outlook',
-    name: 'Microsoft Outlook',
-    description: 'Sincronización de calendarios y envío de emails corporativos',
+    id: 'microsoft-365',
+    name: 'Microsoft 365',
+    description: 'Sincronización de calendarios, emails y documentos corporativos',
     icon: Calendar,
-    status: 'disconnected',
     category: 'Microsoft 365',
-    configurable: true
+    configurable: true,
+    provider: 'microsoft'
   },
   {
     id: 'microsoft-teams',
     name: 'Microsoft Teams',
     description: 'Notificaciones de leads y creación automática de reuniones',
     icon: Users,
-    status: 'disconnected',
     category: 'Microsoft 365',
     configurable: true
   },
@@ -59,7 +61,6 @@ const integrations: Integration[] = [
     name: 'SharePoint',
     description: 'Almacenamiento y sincronización de documentos y propuestas',
     icon: FileText,
-    status: 'disconnected',
     category: 'Microsoft 365',
     configurable: true
   },
@@ -68,7 +69,6 @@ const integrations: Integration[] = [
     name: 'Zapier',
     description: 'Automatización de workflows con miles de aplicaciones',
     icon: Zap,
-    status: 'disconnected',
     category: 'Automatización',
     configurable: true
   },
@@ -77,7 +77,6 @@ const integrations: Integration[] = [
     name: 'Webhooks',
     description: 'Endpoints personalizados para integraciones custom',
     icon: Webhook,
-    status: 'connected',
     category: 'APIs & Webhooks',
     configurable: true
   },
@@ -86,7 +85,6 @@ const integrations: Integration[] = [
     name: 'OneDrive',
     description: 'Almacenamiento en la nube de Microsoft',
     icon: Cloud,
-    status: 'disconnected',
     category: 'Almacenamiento',
     configurable: true
   }
@@ -114,9 +112,86 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-const categories = [...new Set(integrations.map(i => i.category))];
+const categories = [...new Set(staticIntegrations.map(i => i.category))];
 
 export default function Integrations() {
+  const { toast } = useToast();
+  const {
+    accounts,
+    loading,
+    connectAccount,
+    disconnectAccount,
+    syncAccount,
+    isConnected,
+    isTokenExpired,
+  } = useConnectedAccounts();
+
+  const getIntegrationStatus = (integration: Integration) => {
+    if (integration.provider) {
+      const connected = isConnected(integration.provider);
+      if (!connected) return 'disconnected';
+      
+      const account = accounts.find(acc => acc.provider === integration.provider);
+      if (account && isTokenExpired(account)) return 'error';
+      
+      return 'connected';
+    }
+    
+    // Static status for non-connected integrations
+    if (integration.id === 'resend' || integration.id === 'webhooks') {
+      return 'connected';
+    }
+    return 'disconnected';
+  };
+
+  const getLastSyncInfo = (integration: Integration) => {
+    if (integration.provider) {
+      const account = accounts.find(acc => acc.provider === integration.provider);
+      if (account?.last_sync_at) {
+        const lastSync = new Date(account.last_sync_at);
+        const now = new Date();
+        const diffMinutes = Math.floor((now.getTime() - lastSync.getTime()) / (1000 * 60));
+        
+        if (diffMinutes < 60) {
+          return `hace ${diffMinutes} minutos`;
+        } else if (diffMinutes < 1440) {
+          return `hace ${Math.floor(diffMinutes / 60)} horas`;
+        } else {
+          return `hace ${Math.floor(diffMinutes / 1440)} días`;
+        }
+      }
+    }
+    return 'hace 5 minutos'; // Default for static integrations
+  };
+
+  const handleConnect = async (integration: Integration) => {
+    if (integration.provider) {
+      await connectAccount(integration.provider);
+    } else {
+      toast({
+        title: "Configuración pendiente",
+        description: `La configuración de ${integration.name} estará disponible pronto`,
+      });
+    }
+  };
+
+  const handleDisconnect = async (integration: Integration) => {
+    if (integration.provider) {
+      const account = accounts.find(acc => acc.provider === integration.provider);
+      if (account) {
+        await disconnectAccount(account.id);
+      }
+    }
+  };
+
+  const handleSync = async (integration: Integration) => {
+    if (integration.provider) {
+      const account = accounts.find(acc => acc.provider === integration.provider);
+      if (account) {
+        await syncAccount(account.id);
+      }
+    }
+  };
   return (
     <div className="space-y-8 p-8">
       <div className="flex items-center justify-between">
@@ -136,10 +211,13 @@ export default function Integrations() {
         <div key={category} className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">{category}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {integrations
+            {staticIntegrations
               .filter(integration => integration.category === category)
               .map(integration => {
                 const Icon = integration.icon;
+                const status = getIntegrationStatus(integration);
+                const account = integration.provider ? accounts.find(acc => acc.provider === integration.provider) : null;
+                
                 return (
                   <Card key={integration.id} className="hover-lift">
                     <CardHeader className="pb-4">
@@ -150,9 +228,12 @@ export default function Integrations() {
                           </div>
                           <div>
                             <CardTitle className="text-lg">{integration.name}</CardTitle>
+                            {account && (
+                              <p className="text-xs text-muted-foreground">{account.email}</p>
+                            )}
                           </div>
                         </div>
-                        {getStatusIcon(integration.status)}
+                        {getStatusIcon(status)}
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -161,29 +242,77 @@ export default function Integrations() {
                       </CardDescription>
                       
                       <div className="flex items-center justify-between">
-                        {getStatusBadge(integration.status)}
+                        {getStatusBadge(status)}
                         <div className="flex space-x-2">
-                          {integration.configurable && (
+                          {status === 'disconnected' && integration.provider && (
                             <Button 
                               variant="outline" 
                               size="sm"
-                              disabled={!integration.configurable}
+                              onClick={() => handleConnect(integration)}
+                              disabled={loading}
+                            >
+                              <Settings className="h-4 w-4 mr-1" />
+                              Conectar
+                            </Button>
+                          )}
+                          
+                          {status === 'connected' && integration.provider && (
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleSync(integration)}
+                                disabled={loading}
+                              >
+                                <RefreshCw className="h-4 w-4 mr-1" />
+                                Sincronizar
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleDisconnect(integration)}
+                                disabled={loading}
+                              >
+                                <Unlink className="h-4 w-4 mr-1" />
+                                Desconectar
+                              </Button>
+                            </>
+                          )}
+                          
+                          {status === 'error' && integration.provider && (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleConnect(integration)}
+                              disabled={loading}
+                            >
+                              <Settings className="h-4 w-4 mr-1" />
+                              Reconectar
+                            </Button>
+                          )}
+                          
+                          {!integration.provider && integration.configurable && (
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleConnect(integration)}
                             >
                               <Settings className="h-4 w-4 mr-1" />
                               Configurar
                             </Button>
                           )}
-                          {integration.status === 'connected' && (
-                            <Button variant="outline" size="sm">
-                              Test
-                            </Button>
-                          )}
                         </div>
                       </div>
                       
-                      {integration.status === 'connected' && (
+                      {status === 'connected' && (
                         <div className="text-xs text-muted-foreground">
-                          Última sincronización: hace 5 minutos
+                          Última sincronización: {getLastSyncInfo(integration)}
+                        </div>
+                      )}
+                      
+                      {status === 'error' && (
+                        <div className="text-xs text-red-600">
+                          Token expirado. Reconecta tu cuenta.
                         </div>
                       )}
                     </CardContent>
@@ -206,13 +335,13 @@ export default function Integrations() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-foreground">
-                {integrations.filter(i => i.status === 'connected').length}
+                {staticIntegrations.filter(i => getIntegrationStatus(i) === 'connected').length}
               </div>
               <div className="text-sm text-muted-foreground">Conectadas</div>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-foreground">
-                {integrations.filter(i => i.status === 'error').length}
+                {staticIntegrations.filter(i => getIntegrationStatus(i) === 'error').length}
               </div>
               <div className="text-sm text-muted-foreground">Con errores</div>
             </div>
