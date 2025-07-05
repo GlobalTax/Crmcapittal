@@ -49,19 +49,29 @@ export const useKpis = () => {
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        // Revenue data - using correct column name fecha_cierre
-        const revenueQuery = await supabase
+        // Revenue data - explicit typing to avoid type inference issues
+        const { data: rawRevenueData, error: revenueError } = await supabase
           .from('negocios')
           .select('valor_negocio, fecha_cierre')
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        // Calculate estimated revenue
+        if (revenueError) {
+          console.error('Revenue query error:', revenueError);
+        }
+
+        // Calculate estimated revenue with explicit typing
         const today = new Date().toISOString();
         let estimatedRevenue = 0;
         
-        if (revenueQuery.data) {
-          for (const deal of revenueQuery.data) {
+        if (rawRevenueData) {
+          // Type assertion to avoid complex inference
+          const revenueData = rawRevenueData as Array<{
+            valor_negocio: number | null;
+            fecha_cierre: string | null;
+          }>;
+          
+          for (const deal of revenueData) {
             if (!deal.fecha_cierre || deal.fecha_cierre > today) {
               estimatedRevenue += deal.valor_negocio || 0;
             }
