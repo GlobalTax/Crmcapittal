@@ -19,4 +19,20 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    __DEV__: mode === 'development',
+    __PROD__: mode === 'production',
+  },
+  build: {
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-select'],
+          dnd: ['@dnd-kit/core', '@dnd-kit/sortable'],
+        },
+      },
+    },
+  },
 }));

@@ -102,7 +102,9 @@ export const useNegocios = (pipelineId?: string) => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar los negocios';
       setError(errorMessage);
-      console.error('Error fetching negocios:', err);
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.error('Error fetching negocios:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -155,7 +157,9 @@ export const useNegocios = (pipelineId?: string) => {
         description: errorMessage,
         variant: "destructive",
       });
-      console.error('Error creating negocio:', err);
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.error('Error creating negocio:', err);
+      }
       return { data: null, error: errorMessage };
     }
   };
@@ -212,7 +216,9 @@ export const useNegocios = (pipelineId?: string) => {
         description: errorMessage,
         variant: "destructive",
       });
-      console.error('Error updating negocio:', err);
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.error('Error updating negocio:', err);
+      }
       return { data: null, error: errorMessage };
     }
   };
@@ -243,7 +249,9 @@ export const useNegocios = (pipelineId?: string) => {
         description: errorMessage,
         variant: "destructive",
       });
-      console.error('Error deleting negocio:', err);
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.error('Error deleting negocio:', err);
+      }
       return { error: errorMessage };
     }
   };

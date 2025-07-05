@@ -156,7 +156,9 @@ export const OptimizedNegociosKanban = React.memo(({
         variant: "destructive",
       });
       
-      console.error('Error updating stage:', error);
+      if (typeof __DEV__ !== 'undefined' && __DEV__) {
+        console.error('Error updating stage:', error);
+      }
     }
   }, [filteredStages, onUpdateStage, toast]);
 
