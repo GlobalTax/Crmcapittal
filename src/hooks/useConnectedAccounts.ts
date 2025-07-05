@@ -33,6 +33,7 @@ export const useConnectedAccounts = () => {
       if (!user) {
         console.log('useConnectedAccounts: No authenticated user found');
         setAccounts([]);
+        setLoading(false);
         return;
       }
 

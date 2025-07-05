@@ -19,6 +19,7 @@ export const usePipelines = () => {
       if (!user) {
         console.log('usePipelines: No authenticated user found');
         setPipelines([]);
+        setLoading(false);
         return;
       }
 
@@ -30,13 +31,13 @@ export const usePipelines = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: true });
 
-      console.log('usePipelines: Query result:', { data, error });
+      console.log('usePipelines: Query result:', { data, error, count: data?.length });
 
       if (error) {
         console.error('usePipelines: Database error:', error);
         
-        // Retry on 400 errors with exponential backoff
-        if (error.code === 'PGRST116' || error.message.includes('400') && retryCount < 3) {
+        // Retry on certain error codes
+        if ((error.code === 'PGRST116' || error.message?.includes('406') || error.message?.includes('400')) && retryCount < 2) {
           console.log(`usePipelines: Retrying in ${Math.pow(2, retryCount)} seconds...`);
           setTimeout(() => fetchPipelines(retryCount + 1), Math.pow(2, retryCount) * 1000);
           return;
@@ -44,6 +45,7 @@ export const usePipelines = () => {
         
         setError(`Error al cargar los pipelines: ${error.message}`);
         setPipelines([]);
+        setLoading(false);
         return;
       }
       
@@ -59,7 +61,7 @@ export const usePipelines = () => {
       console.error('usePipelines: Error fetching pipelines:', err);
       
       // Retry on network errors with exponential backoff
-      if (retryCount < 3 && (err.message?.includes('fetch') || err.message?.includes('network'))) {
+      if (retryCount < 2 && (err.message?.includes('fetch') || err.message?.includes('network'))) {
         console.log(`usePipelines: Network error, retrying in ${Math.pow(2, retryCount)} seconds...`);
         setTimeout(() => fetchPipelines(retryCount + 1), Math.pow(2, retryCount) * 1000);
         return;
