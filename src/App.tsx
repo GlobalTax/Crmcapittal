@@ -19,6 +19,7 @@ const Contacts = lazy(() => import('@/pages/Contacts'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const Companies = lazy(() => import('@/pages/MinimalCompanies'));
 const Deals = lazy(() => import('@/pages/Deals'));
+const DealPage = lazy(() => import('@/pages/DealPage'));
 const Negocios = lazy(() => import('@/pages/Negocios'));
 const NegocioDetail = lazy(() => import('@/pages/NegocioDetail'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));
@@ -160,6 +161,14 @@ function AppContent() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <Deals />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/deals/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <DealPage />
               </Suspense>
             } 
           />
