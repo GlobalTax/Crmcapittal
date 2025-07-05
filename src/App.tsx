@@ -38,7 +38,7 @@ const AppearancePage = lazy(() => import('@/pages/settings/AppearancePage'));
 const GeneralPage = lazy(() => import('@/pages/settings/GeneralPage'));
 
 // Placeholder settings pages
-const CallRecorderPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.CallRecorderPage })));
+const CallIntelligencePage = lazy(() => import('@/pages/settings/CallIntelligencePage'));
 const PlansPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.PlansPage })));
 const BillingPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.BillingPage })));
 const DevelopersPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.DevelopersPage })));
@@ -264,7 +264,14 @@ function App() {
                     } 
                   />
                   {/* Additional placeholder routes */}
-                  <Route path="call-recorder" element={<CallRecorderPage />} />
+                  <Route 
+                    path="call-intelligence" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <CallIntelligencePage />
+                      </Suspense>
+                    } 
+                  />
                   <Route path="plans" element={<PlansPage />} />
                   <Route path="billing" element={<BillingPage />} />
                   <Route path="developers" element={<DevelopersPage />} />

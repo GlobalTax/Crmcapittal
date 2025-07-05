@@ -57,7 +57,7 @@ const settingsGroups: SettingsGroup[] = [
     items: [
       { id: 'general', label: 'General', icon: Settings, path: '/settings/general' },
       { id: 'members-teams', label: 'Members & teams', icon: Users, path: '/settings/members-teams' },
-      { id: 'call-recorder', label: 'Call recorder', icon: Phone, path: '/settings/call-recorder' },
+      { id: 'call-intelligence', label: 'Call Intelligence', icon: Phone, path: '/settings/call-intelligence' },
       { id: 'plans', label: 'Plans', icon: Building, path: '/settings/plans' },
       { id: 'billing', label: 'Billing', icon: CreditCard, path: '/settings/billing' },
       { id: 'developers', label: 'Developers', icon: Key, path: '/settings/developers' },

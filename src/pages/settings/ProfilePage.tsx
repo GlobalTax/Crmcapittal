@@ -5,43 +5,62 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { SettingSection } from '@/components/settings/SettingSection';
-import { Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2, Info } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 interface ProfileData {
-  name: string;
-  jobTitle: string;
+  firstName: string;
+  lastName: string;
+  email: string;
   phone: string;
   timezone: string;
-  locale: string;
+  weekStart: string;
 }
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData>({
-    name: 'John Doe',
-    jobTitle: 'Sales Manager',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@company.com',
     phone: '+1 (555) 123-4567',
     timezone: 'America/New_York',
-    locale: 'en-US',
+    weekStart: 'monday',
   });
 
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const { toast } = useToast();
 
   const handleChange = (field: keyof ProfileData, value: string) => {
     setProfile(prev => ({ ...prev, [field]: value }));
     setHasChanges(true);
   };
 
-  const handleSave = async () => {
+  const handleBlur = async (field: keyof ProfileData) => {
+    if (!hasChanges) return;
+    
     setIsSaving(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    setHasChanges(false);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      toast({
+        title: "Saved ✓",
+        description: "Profile updated successfully"
+      });
+      setHasChanges(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save changes",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const getInitials = (name: string) => {
-    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
   return (
@@ -53,6 +72,14 @@ export default function ProfilePage() {
         </p>
       </div>
 
+      {/* Info Banner */}
+      <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <Info className="h-4 w-4 text-blue-600" />
+        <p className="text-sm text-neutral-600">
+          Changes are automatically saved when you move to another field.
+        </p>
+      </div>
+
       <SettingSection 
         title="Personal Information"
         description="Update your personal details and contact information."
@@ -60,15 +87,15 @@ export default function ProfilePage() {
         <div className="space-y-6">
           {/* Avatar */}
           <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
+            <Avatar className="h-20 w-20 hover:opacity-75 transition-opacity cursor-pointer">
               <AvatarFallback className="text-lg">
-                {getInitials(profile.name)}
+                {getInitials(profile.firstName, profile.lastName)}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-2">
-              <Button size="sm" className="h-8">
+              <Button variant="secondary" size="sm" className="h-8">
                 <Upload className="h-4 w-4 mr-2" />
-                Upload photo
+                Upload image
               </Button>
               <p className="text-xs text-muted-foreground">
                 JPG, GIF or PNG. Max size 1MB.
@@ -77,22 +104,42 @@ export default function ProfilePage() {
           </div>
 
           {/* Form fields */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Full name</Label>
+              <Label htmlFor="firstName">First Name *</Label>
               <Input
-                id="name"
-                value={profile.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                id="firstName"
+                value={profile.firstName}
+                onChange={(e) => handleChange('firstName', e.target.value)}
+                onBlur={() => handleBlur('firstName')}
+                autoComplete="given-name"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="jobTitle">Job title</Label>
+              <Label htmlFor="lastName">Last Name *</Label>
               <Input
-                id="jobTitle"
-                value={profile.jobTitle}
-                onChange={(e) => handleChange('jobTitle', e.target.value)}
+                id="lastName"
+                value={profile.lastName}
+                onChange={(e) => handleChange('lastName', e.target.value)}
+                onBlur={() => handleBlur('lastName')}
+                autoComplete="family-name"
               />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <div className="flex gap-2">
+              <Input
+                id="email"
+                value={profile.email}
+                readOnly
+                className="bg-muted cursor-not-allowed"
+                autoComplete="email"
+              />
+              <Button variant="outline" size="sm">
+                Edit
+              </Button>
             </div>
           </div>
 
@@ -102,52 +149,66 @@ export default function ProfilePage() {
               id="phone"
               value={profile.phone}
               onChange={(e) => handleChange('phone', e.target.value)}
+              onBlur={() => handleBlur('phone')}
+              autoComplete="tel"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+        </div>
+      </SettingSection>
+
+      <SettingSection
+        title="Time preferences"
+        description="Configure your timezone and calendar preferences."
+      >
+        <div className="space-y-6">
+          <div className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="timezone">Timezone</Label>
-              <Select value={profile.timezone} onValueChange={(value) => handleChange('timezone', value)}>
+              <Label htmlFor="timezone">Preferred Timezone</Label>
+              <Select 
+                value={profile.timezone} 
+                onValueChange={(value) => {
+                  handleChange('timezone', value);
+                  handleBlur('timezone');
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                  <SelectItem value="America/Chicago">Central Time</SelectItem>
-                  <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                  <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
-                  <SelectItem value="Europe/London">London</SelectItem>
-                  <SelectItem value="Europe/Paris">Paris</SelectItem>
-                  <SelectItem value="Asia/Tokyo">Tokyo</SelectItem>
+                  <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
+                  <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
+                  <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
+                  <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
+                  <SelectItem value="Europe/London">London (GMT)</SelectItem>
+                  <SelectItem value="Europe/Paris">Paris (CET)</SelectItem>
+                  <SelectItem value="Europe/Berlin">Berlin (CET)</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
+                  <SelectItem value="Asia/Shanghai">Shanghai (CST)</SelectItem>
+                  <SelectItem value="Australia/Sydney">Sydney (AEDT)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="locale">Locale</Label>
-              <Select value={profile.locale} onValueChange={(value) => handleChange('locale', value)}>
+              <Label htmlFor="weekStart">Start week on</Label>
+              <Select 
+                value={profile.weekStart} 
+                onValueChange={(value) => {
+                  handleChange('weekStart', value);
+                  handleBlur('weekStart');
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en-US">English (US)</SelectItem>
-                  <SelectItem value="en-GB">English (UK)</SelectItem>
-                  <SelectItem value="es-ES">Español</SelectItem>
-                  <SelectItem value="fr-FR">Français</SelectItem>
-                  <SelectItem value="de-DE">Deutsch</SelectItem>
+                  <SelectItem value="monday">Monday</SelectItem>
+                  <SelectItem value="sunday">Sunday</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          <div className="flex justify-end">
-            <Button 
-              onClick={handleSave}
-              disabled={!hasChanges || isSaving}
-            >
-              {isSaving ? 'Saving...' : 'Save changes'}
-            </Button>
-          </div>
         </div>
       </SettingSection>
 

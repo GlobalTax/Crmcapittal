@@ -1,20 +1,43 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SettingSection } from '@/components/settings/SettingSection';
-import { Chrome, Mail, MoreHorizontal, Inbox } from 'lucide-react';
+import { ConnectButton } from '@/components/settings/ConnectButton';
+import { StatusPill } from '@/components/settings/StatusPill';
+import { OAuthStubModal } from '@/components/settings/OAuthStubModal';
+import { Chrome, MoreHorizontal, Inbox } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 export default function EmailCalendarPage() {
   const [attioWatermark, setAttioWatermark] = useState(true);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
+  const [oauthModal, setOauthModal] = useState<{ open: boolean; provider: 'google' | 'microsoft' | null }>({
+    open: false,
+    provider: null
+  });
+  const { toast } = useToast();
 
-  const handleConnect = async (provider: string) => {
-    setIsConnecting(provider);
-    // Simulate connection process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsConnecting(null);
+  const handleConnect = (provider: 'google' | 'microsoft') => {
+    setOauthModal({ open: true, provider });
+  };
+
+  const handleWatermarkChange = async (checked: boolean) => {
+    setAttioWatermark(checked);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      toast({
+        title: "Saved ✓",
+        description: "Watermark preference updated"
+      });
+    } catch (error) {
+      setAttioWatermark(!checked);
+      toast({
+        title: "Error",
+        description: "Failed to save changes",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -32,30 +55,20 @@ export default function EmailCalendarPage() {
       >
         <div className="space-y-4">
           <div className="flex gap-3">
-            <Button 
-              size="lg" 
-              variant="outline"
+            <ConnectButton
+              provider="google"
               onClick={() => handleConnect('google')}
               disabled={isConnecting === 'google'}
-              className="flex-1 max-w-xs"
-            >
-              <Chrome className="h-4 w-4 mr-2" />
-              {isConnecting === 'google' ? 'Connecting...' : 'Connect Google Account'}
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
+            />
+            <ConnectButton
+              provider="microsoft"
               onClick={() => handleConnect('microsoft')}
               disabled={isConnecting === 'microsoft'}
-              className="flex-1 max-w-xs"
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              {isConnecting === 'microsoft' ? 'Connecting...' : 'Connect Microsoft Account'}
-            </Button>
+            />
           </div>
           
           {/* Connected account example */}
-          <div className="border border-border rounded-md p-4">
+          <div className="border border-border rounded-lg p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Chrome className="h-5 w-5 text-muted-foreground" />
@@ -65,9 +78,7 @@ export default function EmailCalendarPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-success border-success">
-                  Connected
-                </Badge>
+                <StatusPill status="Connected" variant="success" />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -91,56 +102,56 @@ export default function EmailCalendarPage() {
         description="Send emails to your contacts using your personal forwarding address."
       >
         <div className="space-y-4">
-          <div className="border border-border rounded-md p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-neutral-100 rounded-md">
-                  <Inbox className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <div className="font-medium">john.doe@mail.attio.com</div>
-                  <div className="text-sm text-muted-foreground">Personal forwarding address</div>
-                </div>
+          <div className="flex items-center justify-between px-4 py-3 border border-border rounded-lg shadow-sm">
+            <div className="flex items-center gap-3">
+              <Inbox className="h-6 w-6 text-muted-foreground" />
+              <div>
+                <div className="font-medium font-mono">capital@tuapp.email</div>
+                <div className="text-sm text-muted-foreground">Personal forwarding address</div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-primary border-primary">
-                  In Sync
-                </Badge>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Copy address</DropdownMenuItem>
-                    <DropdownMenuItem>Reset address</DropdownMenuItem>
-                    <DropdownMenuItem>View logs</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <StatusPill status="In Sync" variant="info" />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>Disable</DropdownMenuItem>
+                  <DropdownMenuItem>Regenerate alias</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
       </SettingSection>
 
       <SettingSection 
-        title="Attio watermark"
-        description="Control whether Attio branding appears in your outbound emails."
+        title="App watermark"
+        description="Control whether branding appears in your outbound emails."
       >
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-medium">Show Attio watermark</div>
+            <div className="font-medium">Show app watermark</div>
             <div className="text-sm text-muted-foreground">
-              Include "Sent via Attio" in your email signatures
+              Include "Sent via CRM Pro" in your email signatures
             </div>
           </div>
           <Switch
             checked={attioWatermark}
-            onCheckedChange={setAttioWatermark}
+            onCheckedChange={handleWatermarkChange}
+            aria-labelledby="watermark-label"
           />
         </div>
       </SettingSection>
+
+      <OAuthStubModal
+        open={oauthModal.open}
+        onOpenChange={(open) => setOauthModal({ open, provider: null })}
+        provider={oauthModal.provider!}
+      />
     </div>
   );
 }

@@ -8,7 +8,7 @@ interface SettingSectionProps {
 
 export const SettingSection = ({ title, description, children }: SettingSectionProps) => {
   return (
-    <div className="bg-neutral-0 border border-border rounded-md shadow-sm p-6 space-y-4">
+    <div className="bg-neutral-0 border border-border rounded-md shadow-sm p-6 space-y-4 pb-8 border-b border-neutral-100">
       <div className="space-y-1">
         <h3 className="text-base font-medium">{title}</h3>
         {description && (
