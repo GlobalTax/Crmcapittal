@@ -21,26 +21,40 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Manrope', 'system-ui', 'sans-serif'],
+				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
-				sm: '10px',
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
+				DEFAULT: '6px',
+				sm: '4px',
+				lg: '8px',
+				xl: '12px',
 			},
 			borderWidth: {
 				'0.5': '0.5px',
 			},
+			boxShadow: {
+				sm: '0 2px 6px rgba(0, 0, 0, 0.05)',
+			},
 			colors: {
+				primary: {
+					DEFAULT: 'hsl(222, 100%, 58%)',
+					hover: 'hsl(222, 75%, 44%)',
+					foreground: 'hsl(0, 0%, 100%)'
+				},
+				neutral: {
+					0: 'hsl(0, 0%, 100%)',
+					100: 'hsl(240, 9%, 96%)',
+					900: 'hsl(0, 0%, 12%)',
+				},
+				success: {
+					DEFAULT: 'hsl(164, 100%, 38%)',
+					foreground: 'hsl(0, 0%, 100%)'
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
-				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
-				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
 					foreground: 'hsl(var(--secondary-foreground))'
@@ -100,5 +114,9 @@ export default {
 			}
 		}
 	},
-	plugins: [tailwindAnimate],
+	plugins: [
+		tailwindAnimate,
+		require('@tailwindcss/forms'),
+		require('@tailwindcss/typography'),
+	],
 } satisfies Config;
