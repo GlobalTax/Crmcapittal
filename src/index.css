@@ -91,12 +91,12 @@
 
   /* Font size restrictions */
   html {
-    font-size: 14px;
-    max-font-size: 14px;
+    font-size: 15px;
+    max-font-size: 15px;
   }
   
   .text-base, .text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl {
-    font-size: 14px !important;
+    font-size: 15px !important;
   }
 
   #root {
