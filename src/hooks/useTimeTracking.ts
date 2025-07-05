@@ -7,6 +7,15 @@ export const useTimeTracking = (date: string) => {
   const queryClient = useQueryClient();
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
+  // Clear any potentially cached problematic queries on mount
+  useEffect(() => {
+    // Clear all time-tracking related queries to force fresh data
+    queryClient.removeQueries({ queryKey: ['dailyTimeData'] });
+    queryClient.removeQueries({ queryKey: ['timeEntries'] });
+    queryClient.removeQueries({ queryKey: ['activeTimer'] });
+    console.log('useTimeTracking: Cleared all cached time tracking queries');
+  }, [queryClient]);
+
   // Fetch daily time data with proper error handling and caching
   const { data: dailyData, isLoading, error } = useQuery({
     queryKey: ['dailyTimeData', date],

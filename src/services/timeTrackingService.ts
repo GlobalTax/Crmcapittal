@@ -51,20 +51,20 @@ export class TimeTrackingService {
 
   static async getPlannedTasksForDate(date: string): Promise<{ data: PlannedTask[]; error: string | null }> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      console.log('getPlannedTasksForDate: Fetching tasks for date (RLS filtering):', date);
 
       const { data, error } = await supabase
         .from('planned_tasks')
         .select('*')
-        .eq('user_id', user.id)
         .eq('date', date)
         .order('created_at', { ascending: true });
+
+      console.log('getPlannedTasksForDate: Query result:', { data, error, count: data?.length });
 
       if (error) throw error;
       return { data: data || [], error: null };
     } catch (error) {
-      logger.error('Error fetching planned tasks', {}, error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error fetching planned tasks', { date }, error instanceof Error ? error : new Error(String(error)));
       return { data: [], error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -154,10 +154,7 @@ export class TimeTrackingService {
 
   static async getActiveTimer(): Promise<{ data: TimeEntry | null; error: string | null }> {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      console.log('getActiveTimer: Fetching active timer for user:', user.id);
+      console.log('getActiveTimer: Fetching active timer (RLS filtering)...');
 
       const { data, error } = await supabase
         .from('time_entries')
