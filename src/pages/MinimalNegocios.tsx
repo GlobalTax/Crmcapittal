@@ -6,6 +6,7 @@ import { useNegocios } from "@/hooks/useNegocios";
 import { useStages } from "@/hooks/useStages";
 import { User, Briefcase, Building2, Users } from "lucide-react";
 import { NegociosKanban } from "@/components/negocios/NegociosKanban";
+import { OptimizedNegociosKanban } from "@/components/negocios/OptimizedNegociosKanban";
 import { MetricCard } from "@/components/negocios/MetricCard";
 import { MetricsBar } from "@/components/negocios/MetricsBar";
 import { FilterBar } from "@/components/negocios/FilterBar";
@@ -248,11 +249,14 @@ export default function MinimalNegocios() {
             <h3 className="font-semibold">Vista Kanban</h3>
           </div>
           <div className="p-4">
-            <NegociosKanban
+            <OptimizedNegociosKanban
               negocios={displayNegocios}
               onUpdateStage={updateNegocioStage}
               onEdit={setEditingNegocio}
               onView={setSelectedNegocio}
+              onAddNegocio={() => setIsCreateDialogOpen(true)}
+              isLoading={loading}
+              onRefresh={() => window.location.reload()}
             />
           </div>
         </div>
