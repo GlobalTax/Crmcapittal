@@ -64,13 +64,13 @@ Saludos,
 
 Sabemos que estás evaluando opciones para {{#if company_name}}{{company_name}}{{/if}} y queremos apoyarte en este proceso compartiendo algunos recursos que pueden ser de gran valor:
 
-📊 **Caso de Éxito Reciente**
+⚡ **Caso de Éxito Reciente**
 Cómo ayudamos a una empresa similar a incrementar sus resultados en un 40%
 
-📈 **Guía Práctica**
+⚡ **Guía Práctica**
 Las 5 claves para optimizar tu estrategia empresarial
 
-🎯 **Herramienta Gratuita**
+⚡ **Herramienta Gratuita**
 Checklist de evaluación de procesos empresariales
 
 Estos recursos están diseñados específicamente para empresas como la tuya y pueden proporcionarte insights valiosos independientemente de si decidimos trabajar juntos.

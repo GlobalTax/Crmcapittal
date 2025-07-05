@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/minimal/Button";
 import { useEmailTracking } from '@/hooks/useEmailTracking';
+import { Mail } from 'lucide-react';
 import { TrackedEmail } from '@/types/EmailTracking';
 import { EmailComposer } from '@/components/email/EmailComposer';
 
@@ -231,9 +232,7 @@ export default function MinimalEmail() {
             <div className="flex items-center justify-center h-96 text-gray-500">
               <div className="text-center">
                 <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
+                  <Mail className="w-6 h-6 text-gray-400" strokeWidth={1.5} />
                 </div>
                 <p className="text-sm">Selecciona un email</p>
               </div>

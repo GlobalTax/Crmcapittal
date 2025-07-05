@@ -18,7 +18,8 @@ import {
   Calendar,
   User,
   Building,
-  AlertCircle
+  AlertCircle,
+  Mail
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -51,7 +52,9 @@ export const EmailViewer: React.FC<EmailViewerProps> = ({
         <div className="email-panel-content">
           <div className="h-full flex items-center justify-center text-muted-foreground">
             <div className="text-center">
-              <div className="text-6xl mb-4">📧</div>
+              <div className="text-6xl mb-4">
+                <Mail className="h-16 w-16 text-muted-foreground" strokeWidth={1.5} />
+              </div>
               <h3 className="text-lg font-medium mb-2">Selecciona un email</h3>
               <p className="text-sm">Elige un email de la lista para ver su contenido</p>
             </div>

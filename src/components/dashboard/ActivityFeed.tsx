@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { Activity, TrendingUp, Users, AlertCircle } from "lucide-react";
+import { Activity, TrendingUp, Users, AlertCircle, Clock } from "lucide-react";
 
 interface Activity {
   id: string;
@@ -107,7 +107,7 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
                       </p>
                       
                       <p className="text-xs text-muted-foreground flex items-center">
-                        <span className="mr-1">🕒</span>
+                        <Clock className="h-3 w-3 mr-1" strokeWidth={1.5} />
                         {formatDistanceToNow(activity.timestamp, { 
                           addSuffix: true, 
                           locale: es 
