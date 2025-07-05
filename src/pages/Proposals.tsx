@@ -67,7 +67,7 @@ export default function Proposals() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Sistema de Propuestas Profesional</h1>
+          <h1 className="text-sm font-bold text-gray-900">Sistema de Propuestas Profesional</h1>
           <p className="text-gray-600 mt-1">Gestiona, crea y analiza propuestas de honorarios con herramientas avanzadas</p>
         </div>
         <Button 
@@ -107,17 +107,17 @@ export default function Proposals() {
 
         <TabsContent value="proposals" className="mt-6 space-y-6">
           {/* Filtros y búsqueda */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
+          <div className="border border-gray-200 bg-white p-4">
+            <div className="pb-2">
+              <div className="flex items-center space-x-2 text-sm font-semibold text-black">
                 <Filter className="h-5 w-5" />
                 <span>Filtros y Búsqueda</span>
-              </CardTitle>
-              <CardDescription>
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
                 Encuentra rápidamente las propuestas que necesitas
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </p>
+            </div>
+            <div className="pt-0">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <Input
@@ -142,8 +142,8 @@ export default function Proposals() {
                   </SelectContent>
                 </Select>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Lista de propuestas */}
           <ProposalsTable 
@@ -154,17 +154,17 @@ export default function Proposals() {
         </TabsContent>
 
         <TabsContent value="templates" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Plantillas de Propuestas</CardTitle>
-              <CardDescription>
+          <div className="border border-gray-200 bg-white p-4">
+            <div className="pb-2">
+              <h3 className="text-sm font-semibold text-black">Plantillas de Propuestas</h3>
+              <p className="text-sm text-gray-600 mt-1">
                 Gestiona y crea plantillas reutilizables para tus propuestas
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </p>
+            </div>
+            <div className="pt-0">
               <div className="text-center py-12 text-gray-500">
                 <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">Sistema de Plantillas</h3>
+                <h3 className="text-sm font-medium mb-2">Sistema de Plantillas</h3>
                 <p className="text-sm mb-4">
                   Funcionalidad próximamente disponible
                 </p>
@@ -173,22 +173,22 @@ export default function Proposals() {
                   Crear Primera Plantilla
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analytics Avanzado</CardTitle>
-              <CardDescription>
+          <div className="border border-gray-200 bg-white p-4">
+            <div className="pb-2">
+              <h3 className="text-sm font-semibold text-black">Analytics Avanzado</h3>
+              <p className="text-sm text-gray-600 mt-1">
                 Análisis detallado del rendimiento de tus propuestas
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </p>
+            </div>
+            <div className="pt-0">
               <div className="text-center py-12 text-gray-500">
                 <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">Analytics Profesional</h3>
+                <h3 className="text-sm font-medium mb-2">Analytics Profesional</h3>
                 <p className="text-sm mb-4">
                   Reportes detallados y predicciones próximamente
                 </p>
@@ -197,8 +197,8 @@ export default function Proposals() {
                   Ver Demo
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 

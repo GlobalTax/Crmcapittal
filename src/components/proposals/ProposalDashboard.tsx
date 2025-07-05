@@ -184,17 +184,17 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {kpiCards.map((card, index) => (
-          <Card key={index} className="hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+          <div key={index} className="border border-gray-200 bg-white p-4 hover:shadow-md transition-shadow">
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="text-sm font-medium text-gray-600">
                 {card.title}
-              </CardTitle>
+              </div>
               <div className={`p-2 rounded-lg ${card.bgColor}`}>
                 <card.icon className={`h-4 w-4 ${card.color}`} />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${card.color}`}>
+            </div>
+            <div className="pt-0">
+              <div className={`text-sm font-bold ${card.color}`}>
                 {card.value}
               </div>
               {card.subtitle && (
@@ -208,8 +208,8 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                   </span>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -224,12 +224,12 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Pipeline de Propuestas</CardTitle>
-                <CardDescription>Estado actual de todas las propuestas</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <div className="border border-gray-200 bg-white p-4">
+              <div className="pb-2">
+                <h3 className="text-sm font-semibold text-black">Pipeline de Propuestas</h3>
+                <p className="text-sm text-gray-600 mt-1">Estado actual de todas las propuestas</p>
+              </div>
+              <div className="pt-0">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Borradores</span>
@@ -260,15 +260,15 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Métricas Clave</CardTitle>
-                <CardDescription>Indicadores de rendimiento</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <div className="border border-gray-200 bg-white p-4">
+              <div className="pb-2">
+                <h3 className="text-sm font-semibold text-black">Métricas Clave</h3>
+                <p className="text-sm text-gray-600 mt-1">Indicadores de rendimiento</p>
+              </div>
+              <div className="pt-0">
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                     <div>
@@ -276,7 +276,7 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                       <p className="text-xs text-gray-500">Propuestas aprobadas</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-green-600">{metrics.conversionRate.toFixed(1)}%</p>
+                      <p className="text-sm font-bold text-green-600">{metrics.conversionRate.toFixed(1)}%</p>
                       <Progress value={metrics.conversionRate} className="w-16 mt-1" />
                     </div>
                   </div>
@@ -287,7 +287,7 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                       <p className="text-xs text-gray-500">Desde envío a cierre</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-blue-600">12 días</p>
+                      <p className="text-sm font-bold text-blue-600">12 días</p>
                       <Badge variant="outline" className="text-xs">Mejorado</Badge>
                     </div>
                   </div>
@@ -298,23 +298,23 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                       <p className="text-xs text-gray-500">Visualizaciones promedio</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-purple-600">{(metrics.totalViews / Math.max(metrics.totalProposals, 1)).toFixed(1)}</p>
+                      <p className="text-sm font-bold text-purple-600">{(metrics.totalViews / Math.max(metrics.totalProposals, 1)).toFixed(1)}</p>
                       <Badge variant="outline" className="text-xs">Por propuesta</Badge>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="timeline" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Actividad de los Últimos 30 Días</CardTitle>
-              <CardDescription>Propuestas creadas y valor generado</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="border border-gray-200 bg-white p-4">
+            <div className="pb-2">
+              <h3 className="text-sm font-semibold text-black">Actividad de los Últimos 30 Días</h3>
+              <p className="text-sm text-gray-600 mt-1">Propuestas creadas y valor generado</p>
+            </div>
+            <div className="pt-0">
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={chartData.timeline}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -325,18 +325,18 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                   <Area type="monotone" dataKey="approved" stackId="1" stroke="#10B981" fill="#10B981" fillOpacity={0.6} />
                 </AreaChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="distribution" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Distribución por Estado</CardTitle>
-                <CardDescription>Proporción de propuestas por estado</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <div className="border border-gray-200 bg-white p-4">
+              <div className="pb-2">
+                <h3 className="text-sm font-semibold text-black">Distribución por Estado</h3>
+                <p className="text-sm text-gray-600 mt-1">Proporción de propuestas por estado</p>
+              </div>
+              <div className="pt-0">
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
@@ -356,15 +356,15 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Valor por Estado</CardTitle>
-                <CardDescription>Distribución del valor monetario</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <div className="border border-gray-200 bg-white p-4">
+              <div className="pb-2">
+                <h3 className="text-sm font-semibold text-black">Valor por Estado</h3>
+                <p className="text-sm text-gray-600 mt-1">Distribución del valor monetario</p>
+              </div>
+              <div className="pt-0">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Pipeline (€{(metrics.pipelineValue / 1000).toFixed(0)}K)</span>
@@ -375,18 +375,18 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                     <Progress value={(metrics.totalValue / (metrics.totalValue + metrics.pipelineValue)) * 100} className="w-32" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance por Área de Práctica</CardTitle>
-              <CardDescription>Rendimiento y conversión por especialidad</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div className="border border-gray-200 bg-white p-4">
+            <div className="pb-2">
+              <h3 className="text-sm font-semibold text-black">Performance por Área de Práctica</h3>
+              <p className="text-sm text-gray-600 mt-1">Rendimiento y conversión por especialidad</p>
+            </div>
+            <div className="pt-0">
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={chartData.practiceAreas}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -397,8 +397,8 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                   <Bar dataKey="approved" fill="#10B981" name="Aprobadas" />
                 </BarChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
