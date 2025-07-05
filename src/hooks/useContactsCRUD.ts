@@ -3,6 +3,7 @@ import { useCRUD } from '@/hooks/common';
 import { Contact, CreateContactData } from '@/types/Contact';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCallback } from 'react';
 
 export const useContactsCRUD = () => {
   const { toast } = useToast();
@@ -22,7 +23,7 @@ export const useContactsCRUD = () => {
     retryDelay: 1000
   });
 
-  const createContact = async (contactData: CreateContactData) => {
+  const createContact = useCallback(async (contactData: CreateContactData) => {
     return contactsCRUD.create.execute(async () => {
       const { data: user } = await supabase.auth.getUser();
       
@@ -44,9 +45,9 @@ export const useContactsCRUD = () => {
       
       return data as Contact;
     });
-  };
+  }, [contactsCRUD.create, toast]);
 
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     return contactsCRUD.read.execute(async () => {
       const { data, error } = await supabase
         .from('contacts')
@@ -57,9 +58,9 @@ export const useContactsCRUD = () => {
       if (error) throw new Error(error.message);
       return (data || []) as Contact[];
     });
-  };
+  }, [contactsCRUD.read]);
 
-  const updateContact = async (id: string, updates: Partial<Contact>) => {
+  const updateContact = useCallback(async (id: string, updates: Partial<Contact>) => {
     return contactsCRUD.update.execute(async () => {
       const { data, error } = await supabase
         .from('contacts')
@@ -77,9 +78,9 @@ export const useContactsCRUD = () => {
       
       return data as Contact;
     });
-  };
+  }, [contactsCRUD.update, toast]);
 
-  const deleteContact = async (id: string) => {
+  const deleteContact = useCallback(async (id: string) => {
     return contactsCRUD.remove.execute(async () => {
       const { error } = await supabase
         .from('contacts')
@@ -93,7 +94,7 @@ export const useContactsCRUD = () => {
         description: "El contacto ha sido eliminado correctamente.",
       });
     });
-  };
+  }, [contactsCRUD.remove, toast]);
 
   return {
     createContact,
