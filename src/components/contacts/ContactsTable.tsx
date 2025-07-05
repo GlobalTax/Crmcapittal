@@ -1,16 +1,8 @@
 import React, { useState, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Phone, Mail, Eye, Users } from "lucide-react";
 import { Contact, ContactType, CreateContactData } from "@/types/Contact";
+import { ContactsHeader } from "./ContactsHeader";
+import { ContactsGrid } from "./ContactsGrid";
 import { CreateContactDialog } from "./CreateContactDialog";
-import { OptimizedContactsTable } from "./OptimizedContactsTable";
 import { usePerformanceMonitor } from "@/hooks/performance/usePerformanceMonitor";
 import { toast } from "sonner";
 
@@ -37,6 +29,7 @@ export function ContactsTable({
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<ContactType | "all">("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredContacts = useMemo(() => {
     return contacts.filter(contact => {
@@ -52,87 +45,33 @@ export function ContactsTable({
     });
   }, [contacts, searchTerm, filterType]);
 
-  const getTypeBadge = (type: ContactType) => {
-    const typeConfig = {
-      marketing: { label: "Marketing", color: "blue" as const },
-      sales: { label: "Ventas", color: "blue" as const },
-      franquicia: { label: "Franquicia", color: "green" as const },
-      cliente: { label: "Cliente", color: "red" as const },
-      prospect: { label: "Prospect", color: "gray" as const },
-      other: { label: "Otro", color: "gray" as const }
-    };
-    
-    const config = typeConfig[type];
-    return <Badge color={config.color}>{config.label}</Badge>;
+  const handleCreateContact = () => {
+    setShowCreateDialog(true);
   };
 
-  const getPriorityBadge = (priority?: string) => {
-    if (!priority) return null;
-    
-    const priorityConfig = {
-      low: { label: "Baja", color: "gray" as const },
-      medium: { label: "Media", color: "yellow" as const },
-      high: { label: "Alta", color: "red" as const }
-    };
-    
-    const config = priorityConfig[priority as keyof typeof priorityConfig];
-    if (!config) return null;
-    
-    return <Badge color={config.color}>{config.label}</Badge>;
+  const handleCreateContactSubmit = (contactData: CreateContactData) => {
+    onCreateContact(contactData);
+    setShowCreateDialog(false);
   };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Cargando contactos...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-sm font-bold text-gray-900">Contactos</h1>
-          <p className="text-gray-600 mt-1">Gestiona todos tus contactos y leads</p>
-        </div>
-        <div className="flex space-x-3">
-          <Button variant="secondary">Filtros</Button>
-          <Button variant="secondary">Exportar</Button>
-          <CreateContactDialog onCreateContact={onCreateContact} isCreating={isCreating} />
-        </div>
-      </div>
+      <ContactsHeader
+        contacts={contacts}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onCreateContact={handleCreateContact}
+        onFilterToggle={() => setShowFilters(!showFilters)}
+      />
 
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg border p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Buscar contactos por nombre, email o empresa..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            />
-          </div>
-          <div className="flex gap-2">
+      {/* Filter Panel - collapsible */}
+      {showFilters && (
+        <div className="bg-card border rounded-lg p-4">
+          <div className="flex flex-col md:flex-row gap-4">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as ContactType | "all")}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="px-3 py-2 border border-input rounded-md text-sm bg-background"
             >
               <option value="all">Todos los tipos</option>
               <option value="marketing">Marketing</option>
@@ -144,155 +83,33 @@ export function ContactsTable({
             </select>
           </div>
         </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Total Contactos</span>
-          <span className="text-sm font-bold mt-2">{contacts.length}</span>
-        </div>
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Clientes</span>
-          <span className="text-sm font-bold mt-2 text-red-600">
-            {contacts.filter(c => c.contact_type === 'cliente').length}
-          </span>
-        </div>
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Franquicias</span>
-          <span className="text-sm font-bold mt-2 text-green-600">
-            {contacts.filter(c => c.contact_type === 'franquicia').length}
-          </span>
-        </div>
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Prospects</span>
-          <span className="text-sm font-bold mt-2 text-blue-600">
-            {contacts.filter(c => c.contact_type === 'prospect').length}
-          </span>
-        </div>
-      </div>
-
-      {/* Contacts Table */}
-      <div className="bg-white border border-gray-200">
-        <div className="p-4 border-b">
-          <h3 className="text-sm font-semibold">
+      )}
+      
+      <div className="bg-card border rounded-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-semibold text-foreground">
             {filteredContacts.length} contactos
             {searchTerm && ` (filtrados de ${contacts.length})`}
           </h3>
         </div>
-        <div className="p-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contacto</TableHead>
-                <TableHead>Empresa</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Prioridad</TableHead>
-                <TableHead>Origen</TableHead>
-                <TableHead>Creado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredContacts.map((contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-700">
-                        {contact.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {contact.name}
-                        </div>
-                        {contact.email && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {contact.email}
-                          </div>
-                        )}
-                        {contact.phone && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {contact.phone}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div>
-                      <div className="font-medium text-gray-900">{contact.company || 'N/A'}</div>
-                      <div className="text-sm text-gray-500">{contact.position || 'N/A'}</div>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    {getTypeBadge(contact.contact_type)}
-                  </TableCell>
-                  
-                  <TableCell>
-                    {getPriorityBadge(contact.contact_priority)}
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className="text-sm text-gray-600">
-                      {contact.contact_source || 'N/A'}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="text-sm text-gray-900">
-                      {formatDate(contact.created_at)}
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      {onViewContact && (
-                        <button 
-                          onClick={() => onViewContact(contact)}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          Ver
-                        </button>
-                      )}
-                      <button 
-                        onClick={() => onEditContact?.(contact)}
-                        className="text-blue-600 hover:text-blue-800 text-sm"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => onDeleteContact?.(contact.id)}
-                        className="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          {filteredContacts.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-sm font-medium text-gray-900 mb-2">
-                No se encontraron contactos
-              </h3>
-              <p className="text-gray-500">
-                {searchTerm ? 
-                  "Intenta con otros términos de búsqueda" : 
-                  "Crea tu primer contacto para comenzar"
-                }
-              </p>
-            </div>
-          )}
-        </div>
+        
+        <ContactsGrid
+          contacts={filteredContacts}
+          onViewContact={onViewContact}
+          onEditContact={onEditContact}
+          onDeleteContact={onDeleteContact}
+          onCreateContact={handleCreateContact}
+          isLoading={isLoading}
+          searchTerm={searchTerm}
+        />
       </div>
+
+      <CreateContactDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreateContact={handleCreateContactSubmit}
+        isCreating={isCreating}
+      />
     </div>
   );
 };
