@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DashboardCard } from './DashboardCard';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Building2, Euro, Clock, User } from 'lucide-react';
@@ -92,31 +92,24 @@ export const RecentDeals = ({ operations, negocios, role }: RecentDealsProps) =>
   };
 
   return (
-    <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl font-semibold text-slate-800 flex items-center">
-          <Building2 className="mr-2 h-6 w-6 text-blue-600" />
-          Deals Recientes
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <DashboardCard title="Deals Recientes" icon={Building2}>
         {recentDeals.length === 0 ? (
           <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building2 className="h-8 w-8 text-gray-400" />
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+              <Building2 className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-gray-500">No hay deals recientes</p>
+            <p className="text-muted-foreground">No hay deals recientes</p>
           </div>
         ) : (
           <div className="space-y-4">
             {recentDeals.map((deal) => (
               <div 
                 key={`${deal.type}-${deal.id}`}
-                className="group p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50/50 transition-all duration-200"
+                className="group p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-accent/50 transition-all duration-200"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-slate-800 truncate">
+                    <h4 className="font-semibold text-foreground truncate">
                       {deal.title}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
@@ -135,19 +128,19 @@ export const RecentDeals = ({ operations, negocios, role }: RecentDealsProps) =>
                   </div>
                   
                   <div className="text-right">
-                    <div className="flex items-center text-green-600 font-bold">
+                    <div className="flex items-center text-success font-bold">
                       <Euro className="h-4 w-4 mr-1" />
                       {formatCurrency(deal.value, deal.currency)}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm text-slate-600">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center gap-3">
                     {deal.manager && (
                       <div className="flex items-center">
                         <Avatar className="h-6 w-6 mr-2">
-                          <AvatarFallback className="bg-slate-200 text-slate-700 text-xs">
+                          <AvatarFallback className="bg-muted text-muted-foreground text-xs">
                             {deal.manager.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
@@ -174,13 +167,12 @@ export const RecentDeals = ({ operations, negocios, role }: RecentDealsProps) =>
         )}
         
         {recentDeals.length > 0 && (role === 'admin' || role === 'superadmin') && (
-          <div className="mt-6 pt-4 border-t border-slate-200">
-            <button className="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors">
+          <div className="mt-6 pt-4 border-t border-border">
+            <button className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 px-4 rounded-lg hover:bg-accent transition-colors">
               Ver todos los deals →
             </button>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </DashboardCard>
   );
 };

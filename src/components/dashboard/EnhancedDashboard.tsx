@@ -5,6 +5,7 @@ import { useNegocios } from '@/hooks/useNegocios';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { DashboardHeader } from './DashboardHeader';
+import { DashboardCard } from './DashboardCard';
 import { KPIMetrics } from './KPIMetrics';
 import { ActivityFeed } from './ActivityFeed';
 import { QuickActions } from './QuickActions';
@@ -195,41 +196,36 @@ export const EnhancedDashboard = () => {
             {/* Portfolio Summary - Admin Only */}
             {(role === 'admin' || role === 'superadmin') && (
               <div className="animate-fade-in delay-700">
-                <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 p-6 shadow-xl">
-                  <div className="flex items-center mb-4">
-                    <BarChart3 className="h-5 w-5 text-blue-600 mr-2" />
-                    <h3 className="text-lg font-semibold text-slate-800">Resumen Portfolio</h3>
-                  </div>
-                  
+                <DashboardCard title="Resumen Portfolio" icon={BarChart3}>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Valor Total</span>
-                      <span className="font-bold text-green-600">
+                      <span className="text-sm text-muted-foreground">Valor Total</span>
+                      <span className="font-bold text-success">
                         €{(dashboardData.totalPortfolioValue / 1000000).toFixed(1)}M
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Operaciones Activas</span>
-                      <span className="font-semibold text-blue-600">
+                      <span className="text-sm text-muted-foreground">Operaciones Activas</span>
+                      <span className="font-semibold text-primary">
                         {dashboardData.availableOperations.length}
                       </span>
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">En Proceso</span>
-                      <span className="font-semibold text-orange-600">
+                      <span className="text-sm text-muted-foreground">En Proceso</span>
+                      <span className="font-semibold text-warning">
                         {dashboardData.inProcessOperations.length}
                       </span>
                     </div>
                     
-                    <div className="pt-3 border-t border-slate-200">
-                      <div className="text-xs text-slate-500 text-center">
+                    <div className="pt-3 border-t border-border">
+                      <div className="text-xs text-muted-foreground text-center">
                         Tasa de conversión: {dashboardData.conversionRate.toFixed(1)}%
                       </div>
                     </div>
                   </div>
-                </div>
+                </DashboardCard>
               </div>
             )}
           </div>

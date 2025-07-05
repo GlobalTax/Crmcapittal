@@ -18,12 +18,12 @@ export const ConversionChart = ({
     {
       name: 'Leads Totales',
       value: totalLeads,
-      fill: '#E5E7EB'
+      fill: 'hsl(var(--muted))'
     },
     {
       name: 'Cualificados',
       value: qualifiedLeads,
-      fill: '#10B981'
+      fill: 'hsl(var(--primary))'
     }
   ];
 
@@ -80,10 +80,10 @@ export const ConversionChart = ({
         </div>
         
         <div className="mt-4 text-center">
-          <div className="text-2xl font-bold text-success">
+          <div className="text-2xl font-bold text-primary">
             {conversionRate.toFixed(1)}%
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             Tasa de conversión actual
           </div>
         </div>

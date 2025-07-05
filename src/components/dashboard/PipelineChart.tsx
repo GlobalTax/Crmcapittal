@@ -18,24 +18,21 @@ export const PipelineChart = ({
     {
       name: 'Disponibles',
       value: availableOperations.length,
-      color: '#3B82F6',
-      fill: '#3B82F6'
+      fill: 'hsl(var(--primary))'
     },
     {
       name: 'En Proceso',
       value: inProcessOperations.length,
-      color: '#F59E0B',
-      fill: '#F59E0B'
+      fill: 'hsl(var(--primary))'
     },
     {
       name: 'Cerradas',
       value: soldOperations.length,
-      color: '#10B981',
-      fill: '#10B981'
+      fill: 'hsl(var(--primary))'
     }
   ];
 
-  const COLORS = ['#3B82F6', '#F59E0B', '#10B981'];
+  const COLORS = ['hsl(var(--primary))', 'hsl(var(--primary))', 'hsl(var(--primary))'];
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -81,7 +78,7 @@ export const PipelineChart = ({
                 verticalAlign="bottom" 
                 height={36}
                 formatter={(value, entry) => (
-                  <span className="text-sm text-muted-foreground">{value}</span>
+                  <span className="text-xs text-muted-foreground">{value}</span>
                 )}
               />
             </PieChart>
