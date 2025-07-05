@@ -157,16 +157,19 @@ export class TimeTrackingService {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      console.log('getActiveTimer: Fetching active timer for user:', user.id);
+
       const { data, error } = await supabase
         .from('time_entries')
         .select('*')
-        .eq('user_id', user.id)
         .is('end_time', null)
         .order('start_time', { ascending: false })
         .limit(1)
-        .maybeSingle(); // Use maybeSingle instead of single to avoid 406
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
+      console.log('getActiveTimer: Query result:', { data, error });
+
+      if (error && error.code !== 'PGRST116') throw error;
       return { data: data || null, error: null };
     } catch (error) {
       logger.error('Error fetching active timer', {}, error instanceof Error ? error : new Error(String(error)));
@@ -214,13 +217,16 @@ export class TimeTrackingService {
       const startOfDay = `${date}T00:00:00Z`;
       const endOfDay = `${date}T23:59:59Z`;
 
+      console.log('getTimeEntriesForDate: Fetching entries for date:', date, 'user:', user.id);
+
       const { data, error } = await supabase
         .from('time_entries')
         .select('*')
-        .eq('user_id', user.id)
         .gte('start_time', startOfDay)
         .lte('start_time', endOfDay)
         .order('start_time', { ascending: false });
+
+      console.log('getTimeEntriesForDate: Query result:', { data, error, count: data?.length });
 
       if (error) throw error;
       return { data: data || [], error: null };
