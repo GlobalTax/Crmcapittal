@@ -183,13 +183,15 @@ export function ContactsTable({
         <div className="p-4">
           <Table>
             <TableHeader>
-              <TableHead>Contacto</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Prioridad</TableHead>
-              <TableHead>Origen</TableHead>
-              <TableHead>Creado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableRow>
+                <TableHead>Contacto</TableHead>
+                <TableHead>Empresa</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Prioridad</TableHead>
+                <TableHead>Origen</TableHead>
+                <TableHead>Creado</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody>
               {filteredContacts.map((contact) => (

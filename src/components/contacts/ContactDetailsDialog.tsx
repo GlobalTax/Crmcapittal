@@ -1,14 +1,13 @@
-
 import { Contact } from "@/types/Contact";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   User, 
   Mail, 
@@ -17,8 +16,6 @@ import {
   MapPin, 
   Linkedin, 
   Globe,
-  Calendar,
-  Star,
   Edit2
 } from "lucide-react";
 
@@ -87,53 +84,42 @@ export const ContactDetailsDialog = ({
               Editar
             </Button>
           </div>
+          <DialogDescription>
+            Información detallada del contacto
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Información Principal */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Tipo</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white border border-gray-200 p-4">
+              <div className="pb-2">
+                <h3 className="text-sm font-semibold text-black">Tipo</h3>
+              </div>
+              <div>
                 {getTypeBadge(contact.contact_type)}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {contact.contact_priority && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Prioridad</CardTitle>
-                </CardHeader>
-                <CardContent>
+              <div className="bg-white border border-gray-200 p-4">
+                <div className="pb-2">
+                  <h3 className="text-sm font-semibold text-black">Prioridad</h3>
+                </div>
+                <div>
                   {getPriorityBadge(contact.contact_priority)}
-                </CardContent>
-              </Card>
-            )}
-
-            {contact.lead_score !== undefined && (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Lead Score</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-yellow-400" />
-                    <span className="font-medium">{contact.lead_score}%</span>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Información de Contacto */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Información de Contacto</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            <div className="bg-white border border-gray-200 p-4">
+              <div className="pb-4">
+                <h3 className="text-sm font-semibold text-black">Información de Contacto</h3>
+              </div>
+              <div className="space-y-3">
                 {contact.email && (
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-gray-500" />
@@ -154,19 +140,6 @@ export const ContactDetailsDialog = ({
                       className="text-blue-600 hover:underline"
                     >
                       {contact.phone}
-                    </a>
-                  </div>
-                )}
-
-                {contact.mobile && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Móvil:</span>
-                    <a 
-                      href={`tel:${contact.mobile}`} 
-                      className="text-blue-600 hover:underline"
-                    >
-                      {contact.mobile}
                     </a>
                   </div>
                 )}
@@ -198,31 +171,15 @@ export const ContactDetailsDialog = ({
                     </a>
                   </div>
                 )}
-
-                {(contact.city || contact.country) && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm">
-                      {[contact.city, contact.country].filter(Boolean).join(', ')}
-                    </span>
-                  </div>
-                )}
-
-                {contact.address && (
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500 mt-0.5" />
-                    <span className="text-sm">{contact.address}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Información Profesional */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Información Profesional</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
+            <div className="bg-white border border-gray-200 p-4">
+              <div className="pb-4">
+                <h3 className="text-sm font-semibold text-black">Información Profesional</h3>
+              </div>
+              <div className="space-y-3">
                 {contact.company && (
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-gray-500" />
@@ -239,22 +196,6 @@ export const ContactDetailsDialog = ({
                   </div>
                 )}
 
-                {contact.job_title && (
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm font-medium">Título:</span>
-                    <span className="text-sm">{contact.job_title}</span>
-                  </div>
-                )}
-
-                {contact.company_size && (
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm font-medium">Tamaño empresa:</span>
-                    <span className="text-sm">{contact.company_size}</span>
-                  </div>
-                )}
-
                 {contact.contact_source && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Origen:</span>
@@ -268,44 +209,44 @@ export const ContactDetailsDialog = ({
                     <span className="text-sm">{contact.preferred_contact_method}</span>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Sectores de Interés */}
           {contact.sectors_of_interest && contact.sectors_of_interest.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Sectores de Interés</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="bg-white border border-gray-200 p-4">
+              <div className="pb-4">
+                <h3 className="text-sm font-semibold text-black">Sectores de Interés</h3>
+              </div>
+              <div>
                 <div className="flex flex-wrap gap-2">
                   {contact.sectors_of_interest.map((sector, index) => (
                     <Badge key={index} variant="outline">{sector}</Badge>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Notas */}
           {contact.notes && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Notas</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="bg-white border border-gray-200 p-4">
+              <div className="pb-4">
+                <h3 className="text-sm font-semibold text-black">Notas</h3>
+              </div>
+              <div>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{contact.notes}</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Fechas Importantes */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Información del Sistema</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
+          <div className="bg-white border border-gray-200 p-4">
+            <div className="pb-4">
+              <h3 className="text-sm font-semibold text-black">Información del Sistema</h3>
+            </div>
+            <div className="space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="font-medium">Creado:</span> {formatDate(contact.created_at)}
@@ -318,16 +259,9 @@ export const ContactDetailsDialog = ({
                     <span className="font-medium">Última interacción:</span> {formatDate(contact.last_interaction_date)}
                   </div>
                 )}
-                {contact.next_follow_up_date && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-orange-500" />
-                    <span className="font-medium">Próximo seguimiento:</span> 
-                    <span className="text-orange-600">{formatDate(contact.next_follow_up_date)}</span>
-                  </div>
-                )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end pt-4">

@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { Contact, UpdateContactData } from "@/types/Contact";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
 import { PersonalInfo } from "./forms/PersonalInfo";
@@ -26,56 +25,46 @@ export const EditContactDialog = ({
 }: EditContactDialogProps) => {
   const [contactData, setContactData] = useState({
     name: contact.name || "",
-    first_name: contact.first_name || "",
-    last_name: contact.last_name || "",
     email: contact.email || "",
     phone: contact.phone || "",
-    mobile: contact.mobile || "",
     company: contact.company || "",
     position: contact.position || "",
-    job_title: contact.job_title || "",
-    company_size: contact.company_size || "",
-    address: contact.address || "",
-    city: contact.city || "",
-    country: contact.country || "España",
     contact_type: contact.contact_type,
     contact_priority: contact.contact_priority || "medium",
-    contact_source: contact.contact_source || "web",
+    contact_source: contact.contact_source || "website_form",
     linkedin_url: contact.linkedin_url || "",
     website_url: contact.website_url || "",
     preferred_contact_method: contact.preferred_contact_method || "email",
     sectors_of_interest: contact.sectors_of_interest || [],
+    investment_capacity_min: contact.investment_capacity_min || undefined,
+    investment_capacity_max: contact.investment_capacity_max || undefined,
+    deal_preferences: contact.deal_preferences || null,
     notes: contact.notes || "",
-    lead_score: contact.lead_score || 0,
-    next_follow_up_date: contact.next_follow_up_date || "",
+    time_zone: contact.time_zone || "",
+    language_preference: contact.language_preference || "es",
   });
 
   useEffect(() => {
     if (contact) {
       setContactData({
         name: contact.name || "",
-        first_name: contact.first_name || "",
-        last_name: contact.last_name || "",
         email: contact.email || "",
         phone: contact.phone || "",
-        mobile: contact.mobile || "",
         company: contact.company || "",
         position: contact.position || "",
-        job_title: contact.job_title || "",
-        company_size: contact.company_size || "",
-        address: contact.address || "",
-        city: contact.city || "",
-        country: contact.country || "España",
         contact_type: contact.contact_type,
         contact_priority: contact.contact_priority || "medium",
-        contact_source: contact.contact_source || "web",
+        contact_source: contact.contact_source || "website_form",
         linkedin_url: contact.linkedin_url || "",
         website_url: contact.website_url || "",
         preferred_contact_method: contact.preferred_contact_method || "email",
         sectors_of_interest: contact.sectors_of_interest || [],
+        investment_capacity_min: contact.investment_capacity_min || undefined,
+        investment_capacity_max: contact.investment_capacity_max || undefined,
+        deal_preferences: contact.deal_preferences || null,
         notes: contact.notes || "",
-        lead_score: contact.lead_score || 0,
-        next_follow_up_date: contact.next_follow_up_date || "",
+        time_zone: contact.time_zone || "",
+        language_preference: contact.language_preference || "es",
       });
     }
   }, [contact]);
@@ -83,13 +72,10 @@ export const EditContactDialog = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create the full name from first_name and last_name if they exist
-    const fullName = `${contactData.first_name} ${contactData.last_name}`.trim();
-    
     const updateData: UpdateContactData = {
       id: contact.id,
       ...contactData,
-      name: fullName || contactData.first_name || contactData.name || "Sin nombre",
+      name: contactData.name || "Sin nombre",
     };
     
     onUpdateContact(contact.id, updateData);
@@ -110,6 +96,9 @@ export const EditContactDialog = ({
             <User className="h-5 w-5 mr-2 text-orange-600" />
             Editar Contacto
           </DialogTitle>
+          <DialogDescription>
+            Actualiza la información del contacto
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus, User } from "lucide-react";
 import { CreateContactData } from "@/types/Contact";
@@ -19,58 +19,58 @@ export const CreateContactDialog = ({ onCreateContact, isCreating = false }: Cre
   
   const [contactData, setContactData] = useState({
     name: "",
-    first_name: "",
-    last_name: "",
     email: "",
     phone: "",
-    mobile: "",
     company: "",
     position: "",
-    company_size: "",
-    address: "",
-    city: "",
-    country: "España",
     contact_type: "other" as const,
     contact_priority: "medium" as const,
-    contact_source: "web" as const,
+    contact_source: "website_form",
     linkedin_url: "",
+    website_url: "",
+    preferred_contact_method: "email",
+    sectors_of_interest: [] as string[],
+    investment_capacity_min: undefined as number | undefined,
+    investment_capacity_max: undefined as number | undefined,
+    deal_preferences: null,
     notes: "",
+    time_zone: "",
+    language_preference: "es",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create the full name from first_name and last_name
-    const fullName = `${contactData.first_name} ${contactData.last_name}`.trim();
-    
     const newContact: CreateContactData = {
       ...contactData,
-      name: fullName || contactData.first_name || "Sin nombre",
+      name: contactData.name || "Sin nombre",
     };
     
     onCreateContact(newContact);
     setOpen(false);
     
     // Reset form
-    setContactData({
+    const initialState = {
       name: "",
-      first_name: "",
-      last_name: "",
       email: "",
       phone: "",
-      mobile: "",
       company: "",
       position: "",
-      company_size: "",
-      address: "",
-      city: "",
-      country: "España",
       contact_type: "other" as const,
       contact_priority: "medium" as const,
-      contact_source: "web" as const,
+      contact_source: "website_form",
       linkedin_url: "",
+      website_url: "",
+      preferred_contact_method: "email",
+      sectors_of_interest: [] as string[],
+      investment_capacity_min: undefined as number | undefined,
+      investment_capacity_max: undefined as number | undefined,
+      deal_preferences: null,
       notes: "",
-    });
+      time_zone: "",
+      language_preference: "es",
+    };
+    setContactData(initialState);
   };
 
   const updateField = (field: string, value: any) => {
@@ -91,6 +91,9 @@ export const CreateContactDialog = ({ onCreateContact, isCreating = false }: Cre
             <User className="h-5 w-5 mr-2 text-orange-600" />
             Crear Nuevo Contacto
           </DialogTitle>
+          <DialogDescription>
+            Completa la información para agregar un nuevo contacto al sistema.
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
