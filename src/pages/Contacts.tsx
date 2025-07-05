@@ -43,7 +43,7 @@ export default function Contacts() {
     if (fetchContacts) {
       fetchContacts();
     }
-  }, [location.search, navigate]); // Fixed dependencies
+  }, [location.search, navigate, fetchContacts]);
 
   // Keyboard shortcut for new person
   useEffect(() => {

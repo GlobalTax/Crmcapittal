@@ -39,7 +39,7 @@ export const useCRUD = <T>(config: CRUDConfig = {}) => {
       } finally {
         setLoading(false);
       }
-    }, []);
+    }, [config]);
 
     const cancel = useCallback(() => {
       setLoading(false);
