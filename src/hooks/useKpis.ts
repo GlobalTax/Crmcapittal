@@ -28,60 +28,52 @@ export const useKpis = () => {
       try {
         setLoading(true);
         
-        // Pending tasks - simplified query
-        const pendingTasksQuery = await supabase
+        // Pending tasks - count only
+        const { count: pendingTasksCount } = await supabase
           .from('user_tasks')
-          .select('id', { count: 'exact', head: true })
+          .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
           .eq('completed', false);
 
-        // Leads assigned - simplified query  
-        const leadsQuery = await supabase
+        // Leads assigned - count only  
+        const { count: leadsCount } = await supabase
           .from('deals')
-          .select('id', { count: 'exact', head: true })
+          .select('*', { count: 'exact', head: true })
           .eq('created_by', user.id)
           .eq('is_active', true);
 
-        // Active deals - simplified query
-        const activeDealsQuery = await supabase
+        // Active deals - count only
+        const { count: activeDealsCount } = await supabase
           .from('negocios')
-          .select('id', { count: 'exact', head: true })
+          .select('*', { count: 'exact', head: true })
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        // Revenue data - explicit typing to avoid type inference issues
-        const { data: rawRevenueData, error: revenueError } = await supabase
+        // Revenue calculation - separate simple query
+        let estimatedRevenue = 0;
+        const revenueResult = await supabase
           .from('negocios')
           .select('valor_negocio, fecha_cierre')
           .eq('created_by', user.id)
           .neq('stage', 'Cerrado');
 
-        if (revenueError) {
-          console.error('Revenue query error:', revenueError);
-        }
-
-        // Calculate estimated revenue with explicit typing
-        const today = new Date().toISOString();
-        let estimatedRevenue = 0;
-        
-        if (rawRevenueData) {
-          // Type assertion to avoid complex inference
-          const revenueData = rawRevenueData as Array<{
-            valor_negocio: number | null;
-            fecha_cierre: string | null;
-          }>;
+        if (revenueResult.data) {
+          const today = new Date().toISOString();
           
-          for (const deal of revenueData) {
-            if (!deal.fecha_cierre || deal.fecha_cierre > today) {
-              estimatedRevenue += deal.valor_negocio || 0;
+          for (const deal of revenueResult.data) {
+            const dealValue = deal.valor_negocio;
+            const closeDate = deal.fecha_cierre;
+            
+            if (dealValue && (!closeDate || closeDate > today)) {
+              estimatedRevenue += dealValue;
             }
           }
         }
 
         setKpis({
-          pendingTasks: pendingTasksQuery.count || 0,
-          leadsAssigned: leadsQuery.count || 0,
-          activeDeals: activeDealsQuery.count || 0,
+          pendingTasks: pendingTasksCount || 0,
+          leadsAssigned: leadsCount || 0,
+          activeDeals: activeDealsCount || 0,
           estimatedRevenue,
         });
       } catch (err) {
