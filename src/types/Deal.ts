@@ -29,8 +29,9 @@ export type DealStage = 'Lead' | 'In Progress' | 'Won' | 'Lost';
 export interface CreateDealData {
   title: string;
   amount?: number;
-  stage?: DealStage;
+  stage: DealStage;
   probability?: number;
   companyId?: string;
-  ownerId?: string;
+  ownerId: string;
+  associatedPeople?: string[];
 }
