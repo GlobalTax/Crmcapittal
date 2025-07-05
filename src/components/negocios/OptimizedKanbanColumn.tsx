@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Droppable } from 'react-beautiful-dnd';
+import { useDroppable } from '@dnd-kit/core';
 import { Badge } from '@/components/ui/badge';
 import { OptimizedKanbanTask } from './OptimizedKanbanTask';
 import { Negocio } from '@/types/Negocio';
@@ -65,6 +65,10 @@ const OptimizedKanbanColumn = memo(({
     }).format(value);
   };
 
+  const { setNodeRef, isOver } = useDroppable({
+    id: stage.id,
+  });
+
   return (
     <div className="min-w-[350px] flex-shrink-0">
       {/* Column Header */}
@@ -98,20 +102,17 @@ const OptimizedKanbanColumn = memo(({
       </div>
 
       {/* Droppable Area */}
-      <Droppable droppableId={stage.id}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={`
-              min-h-[400px] space-y-3 p-2 rounded-lg transition-all duration-200
-              ${snapshot.isDraggingOver 
-                ? 'bg-primary/5 border-2 border-dashed border-primary/30 scale-[1.02]' 
-                : ''
-              }
-              ${isLoading ? 'opacity-50' : ''}
-            `}
-          >
+      <div
+        ref={setNodeRef}
+        className={`
+          min-h-[400px] space-y-3 p-2 rounded-lg transition-all duration-200
+          ${isOver 
+            ? 'bg-primary/5 border-2 border-dashed border-primary/30 scale-[1.02]' 
+            : ''
+          }
+          ${isLoading ? 'opacity-50' : ''}
+        `}
+      >
             {/* Loading State */}
             {isLoading && (
               <div className="flex items-center justify-center py-8">
@@ -153,19 +154,15 @@ const OptimizedKanbanColumn = memo(({
               </div>
             )}
 
-            {/* Drop Indicator */}
-            {snapshot.isDraggingOver && (
-              <div className="border-2 border-dashed border-primary/50 rounded-lg p-4 bg-primary/5 text-center">
-                <p className="text-sm text-primary font-medium">
-                  Soltar aquí para mover a {stage.name}
-                </p>
-              </div>
-            )}
-
-            {provided.placeholder}
+        {/* Drop Indicator */}
+        {isOver && (
+          <div className="border-2 border-dashed border-primary/50 rounded-lg p-4 bg-primary/5 text-center">
+            <p className="text-sm text-primary font-medium">
+              Soltar aquí para mover a {stage.name}
+            </p>
           </div>
         )}
-      </Droppable>
+      </div>
     </div>
   );
 });

@@ -1,5 +1,13 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { 
+  DndContext, 
+  DragEndEvent, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  closestCenter
+} from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { OptimizedKanbanColumn } from './OptimizedKanbanColumn';
 import { PipelineSelector } from './PipelineSelector';
 import { Negocio } from '@/types/Negocio';
@@ -58,6 +66,12 @@ export const OptimizedNegociosKanban = React.memo(({
   const { pipelines } = usePipelines();
   const { toast } = useToast();
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 }
+    })
+  );
+
   /**
    * Get filtered stages for the selected pipeline
    */
@@ -101,17 +115,20 @@ export const OptimizedNegociosKanban = React.memo(({
   /**
    * Handle drag end with validation and error handling
    */
-  const handleDragEnd = useCallback(async (result: DropResult) => {
+  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     setIsDragging(false);
     
-    if (!result.destination) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    const { draggableId: negocioId, destination, source } = result;
-    const newStageId = destination.droppableId;
-    const oldStageId = source.droppableId;
+    const negocioId = active.id as string;
+    const newStageId = over.id as string;
+    const oldStageId = filteredStages.find(stage => 
+      negociosByStage[stage.id]?.some(negocio => negocio.id === negocioId)
+    )?.id;
     
-    // Skip if dropped in the same position
-    if (newStageId === oldStageId && destination.index === source.index) {
+    // Skip if dropped in the same stage
+    if (newStageId === oldStageId) {
       return;
     }
 
@@ -246,23 +263,34 @@ export const OptimizedNegociosKanban = React.memo(({
 
       {/* Kanban Board */}
       <div className="h-full">
-        <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext 
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart} 
+          onDragEnd={handleDragEnd}
+        >
           <div className="flex gap-6 h-full overflow-x-auto pb-4 min-h-[600px]">
             {filteredStages.map((stage) => (
-              <OptimizedKanbanColumn
+              <SortableContext
                 key={stage.id}
-                stage={stage}
-                negocios={negociosByStage[stage.id] || []}
-                onEdit={onEdit}
-                onView={onView}
-                onAddNegocio={handleAddNegocio}
-                isLoading={isDragging}
-                selectedIds={selectedIds}
-                onSelectItem={onSelectItem}
-              />
+                id={stage.id}
+                items={negociosByStage[stage.id]?.map(n => n.id) || []}
+                strategy={verticalListSortingStrategy}
+              >
+                <OptimizedKanbanColumn
+                  stage={stage}
+                  negocios={negociosByStage[stage.id] || []}
+                  onEdit={onEdit}
+                  onView={onView}
+                  onAddNegocio={handleAddNegocio}
+                  isLoading={isDragging}
+                  selectedIds={selectedIds}
+                  onSelectItem={onSelectItem}
+                />
+              </SortableContext>
             ))}
           </div>
-        </DragDropContext>
+        </DndContext>
       </div>
 
       {/* Mobile Responsive Message */}

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { Draggable } from 'react-beautiful-dnd';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -82,40 +83,47 @@ const OptimizedKanbanTask = memo(({
       .toUpperCase();
   };
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: sortableIsDragging
+  } = useSortable({ id: negocio.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <Draggable key={negocio.id} draggableId={negocio.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          onClick={() => onSelectItem?.(negocio.id)}
-          className={`
-            group relative bg-background border border-border rounded-lg p-4 
-            transition-all duration-200 ease-in-out cursor-pointer
-            hover:shadow-md hover:border-primary/20
-            focus-within:ring-2 focus-within:ring-primary/20
-            ${isSelected ? 'ring-2 ring-primary/50 bg-primary/5' : ''}
-            ${snapshot.isDragging 
-              ? 'shadow-2xl rotate-2 scale-105 ring-2 ring-primary/30 z-50' 
-              : 'hover:scale-[1.02]'
-            }
-            ${isDragging ? 'opacity-50' : ''}
-          `}
-          style={{
-            ...provided.draggableProps.style,
-            transform: snapshot.isDragging 
-              ? `${provided.draggableProps.style?.transform} rotate(2deg)`
-              : provided.draggableProps.style?.transform,
-          }}
-        >
-          {/* Drag Handle */}
-          <div 
-            {...provided.dragHandleProps}
-            className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
-            aria-label="Arrastrar negocio"
-          >
-            <Grip className="h-4 w-4 text-muted-foreground" />
-          </div>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      onClick={() => onSelectItem?.(negocio.id)}
+      className={`
+        group relative bg-background border border-border rounded-lg p-4 
+        transition-all duration-200 ease-in-out cursor-grab active:cursor-grabbing
+        hover:shadow-md hover:border-primary/20
+        focus-within:ring-2 focus-within:ring-primary/20
+        ${isSelected ? 'ring-2 ring-primary/50 bg-primary/5' : ''}
+        ${sortableIsDragging 
+          ? 'shadow-2xl rotate-2 scale-105 ring-2 ring-primary/30 z-50 opacity-50' 
+          : 'hover:scale-[1.02]'
+        }
+        ${isDragging ? 'opacity-50' : ''}
+      `}
+    >
+      {/* Drag Handle */}
+      <div 
+        {...listeners}
+        className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+        aria-label="Arrastrar negocio"
+      >
+        <Grip className="h-4 w-4 text-muted-foreground" />
+      </div>
 
           {/* Header */}
           <div className="pl-6 pb-3">
@@ -227,13 +235,11 @@ const OptimizedKanbanTask = memo(({
             </div>
           </div>
 
-          {/* Dragging Overlay */}
-          {snapshot.isDragging && (
-            <div className="absolute inset-0 bg-primary/5 rounded-lg pointer-events-none" />
-          )}
-        </div>
+      {/* Dragging Overlay */}
+      {sortableIsDragging && (
+        <div className="absolute inset-0 bg-primary/5 rounded-lg pointer-events-none" />
       )}
-    </Draggable>
+    </div>
   );
 });
 

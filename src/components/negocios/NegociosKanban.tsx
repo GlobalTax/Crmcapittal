@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { 
+  DndContext, 
+  DragEndEvent, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  closestCenter
+} from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanColumn } from './KanbanColumn';
 import { Negocio } from '@/types/Negocio';
 import { useStages } from '@/hooks/useStages';
@@ -49,22 +57,29 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: Nego
 
   /**
    * Handles the end of a drag operation and updates the stage
-   * @param result - Drag and drop result object
+   * @param event - Drag and drop event object
    */
-  const handleDragEnd = async (result: DropResult) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     setIsDragging(false);
     
-    if (!result.destination) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    const { draggableId, destination } = result;
-    const newStageId = destination.droppableId;
+    const negocioId = active.id as string;
+    const newStageId = over.id as string;
     
     try {
-      await onUpdateStage(draggableId, newStageId);
+      await onUpdateStage(negocioId, newStageId);
     } catch (error) {
       console.error('Error updating stage:', error);
     }
   };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 }
+    })
+  );
 
   /**
    * Filters negocios by stage ID
@@ -87,23 +102,34 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: Nego
 
   return (
     <div className="h-full">
-      <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <DndContext 
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart} 
+        onDragEnd={handleDragEnd}
+      >
         <div className="flex gap-6 h-full overflow-x-auto pb-4">
           {dealStages.map((stage) => {
             const stageNegocios = getNegociosByStage(stage.id);
 
             return (
-              <KanbanColumn
+              <SortableContext
                 key={stage.id}
-                stage={stage}
-                negocios={stageNegocios}
-                onEdit={onEdit}
-                onView={onView}
-              />
+                id={stage.id}
+                items={stageNegocios.map(n => n.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <KanbanColumn
+                  stage={stage}
+                  negocios={stageNegocios}
+                  onEdit={onEdit}
+                  onView={onView}
+                />
+              </SortableContext>
             );
           })}
         </div>
-      </DragDropContext>
+      </DndContext>
     </div>
   );
 };

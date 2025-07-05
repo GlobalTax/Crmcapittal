@@ -1,4 +1,5 @@
-import { Draggable } from 'react-beautiful-dnd';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -45,17 +46,30 @@ export const KanbanTask = ({ negocio, index, onEdit, onView }: KanbanTaskProps) 
     }
   };
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: negocio.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <Draggable key={negocio.id} draggableId={negocio.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          className={`bg-background border border-border rounded-lg p-4 transition-all hover:shadow-md ${
-            snapshot.isDragging ? 'shadow-lg rotate-2' : ''
-          }`}
-        >
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`bg-background border border-border rounded-lg p-4 transition-all hover:shadow-md cursor-grab active:cursor-grabbing ${
+        isDragging ? 'shadow-lg rotate-2 opacity-50' : ''
+      }`}
+    >
           {/* Header */}
           <div className="pb-3">
             <div className="flex items-start justify-between">
@@ -154,9 +168,7 @@ export const KanbanTask = ({ negocio, index, onEdit, onView }: KanbanTaskProps) 
                 </Avatar>
               )}
             </div>
-          </div>
         </div>
-      )}
-    </Draggable>
+    </div>
   );
 };

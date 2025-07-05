@@ -1,4 +1,4 @@
-import { Droppable } from 'react-beautiful-dnd';
+import { useDroppable } from '@dnd-kit/core';
 import { Badge } from '@/components/ui/badge';
 import { KanbanTask } from './KanbanTask';
 import { Negocio } from '@/types/Negocio';
@@ -31,6 +31,10 @@ export const KanbanColumn = ({ stage, negocios, onEdit, onView }: KanbanColumnPr
     return negocios.reduce((total, negocio) => total + (negocio.valor_negocio || 0), 0);
   };
 
+  const { setNodeRef, isOver } = useDroppable({
+    id: stage.id,
+  });
+
   const totalValue = getTotalValue();
 
   return (
@@ -60,28 +64,22 @@ export const KanbanColumn = ({ stage, negocios, onEdit, onView }: KanbanColumnPr
       </div>
 
       {/* Droppable Area */}
-      <Droppable droppableId={stage.id}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={`min-h-[200px] space-y-3 p-2 rounded-lg transition-colors ${
-              snapshot.isDraggingOver ? 'bg-muted/50' : ''
-            }`}
-          >
-            {negocios.map((negocio, index) => (
-              <KanbanTask
-                key={negocio.id}
-                negocio={negocio}
-                index={index}
-                onEdit={onEdit}
-                onView={onView}
-              />
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
+      <div
+        ref={setNodeRef}
+        className={`min-h-[200px] space-y-3 p-2 rounded-lg transition-colors ${
+          isOver ? 'bg-muted/50' : ''
+        }`}
+      >
+        {negocios.map((negocio, index) => (
+          <KanbanTask
+            key={negocio.id}
+            negocio={negocio}
+            index={index}
+            onEdit={onEdit}
+            onView={onView}
+          />
+        ))}
+      </div>
     </div>
   );
 };
