@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { PersonRecordTable } from "@/components/contacts/PersonRecordTable";
 import { PersonModal } from "@/components/contacts/PersonModal";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
@@ -7,6 +8,8 @@ import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
 import { Button } from "@/components/ui/button";
 
 export default function Contacts() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -22,9 +25,22 @@ export default function Contacts() {
     fetchedContacts: contacts,
   } = useContactsCRUD();
 
-  // Fetch contacts on mount
+  // Handle legacy URL redirections on load
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const drawerId = searchParams.get('drawer');
+    if (drawerId) {
+      navigate(`/contacts/${drawerId}`, { replace: true });
+      return;
+    }
     fetchContacts();
+  }, [location.search]);
+
+  // Fetch contacts on mount when no redirect is needed
+  useEffect(() => {
+    if (!location.search.includes('drawer=')) {
+      fetchContacts();
+    }
   }, []);
 
   // Keyboard shortcut for new person
@@ -80,8 +96,7 @@ export default function Contacts() {
   };
 
   const handleViewContact = (contact: Contact) => {
-    // Navigation is now handled by PersonRecordTable
-    console.log('Viewing contact:', contact.name);
+    navigate(`/contacts/${contact.id}`);
   };
 
   const handleSearch = (term: string) => {

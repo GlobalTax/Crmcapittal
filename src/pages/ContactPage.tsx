@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ContactHeader } from '@/components/contacts/ContactHeader';
@@ -14,6 +14,7 @@ import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 export default function ContactPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [contact, setContact] = useState<Contact | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -25,6 +26,15 @@ export default function ContactPage() {
     updateContact,
     isUpdating
   } = useContactsCRUD();
+
+  // Handle legacy URL redirections (from drawer URLs)
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const drawerId = searchParams.get('drawer');
+    if (drawerId && drawerId !== id) {
+      navigate(`/contacts/${drawerId}`, { replace: true });
+    }
+  }, [location.search, id, navigate]);
 
   // Fetch contacts and find the specific contact
   useEffect(() => {
