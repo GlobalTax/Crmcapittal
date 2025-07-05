@@ -106,7 +106,7 @@ export function ContactsTable({
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Contactos</h1>
+          <h1 className="text-sm font-bold text-gray-900">Contactos</h1>
           <p className="text-gray-600 mt-1">Gestiona todos tus contactos y leads</p>
         </div>
         <div className="flex space-x-3">
@@ -148,34 +148,34 @@ export function ContactsTable({
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-6 border flex flex-col">
+        <div className="bg-white border border-gray-200 p-4 flex flex-col">
           <span className="text-gray-500 text-sm">Total Contactos</span>
-          <span className="text-3xl font-bold mt-2">{contacts.length}</span>
+          <span className="text-sm font-bold mt-2">{contacts.length}</span>
         </div>
-        <div className="bg-white rounded-lg p-6 border flex flex-col">
+        <div className="bg-white border border-gray-200 p-4 flex flex-col">
           <span className="text-gray-500 text-sm">Clientes</span>
-          <span className="text-3xl font-bold mt-2 text-red-600">
+          <span className="text-sm font-bold mt-2 text-red-600">
             {contacts.filter(c => c.contact_type === 'cliente').length}
           </span>
         </div>
-        <div className="bg-white rounded-lg p-6 border flex flex-col">
+        <div className="bg-white border border-gray-200 p-4 flex flex-col">
           <span className="text-gray-500 text-sm">Franquicias</span>
-          <span className="text-3xl font-bold mt-2 text-green-600">
+          <span className="text-sm font-bold mt-2 text-green-600">
             {contacts.filter(c => c.contact_type === 'franquicia').length}
           </span>
         </div>
-        <div className="bg-white rounded-lg p-6 border flex flex-col">
+        <div className="bg-white border border-gray-200 p-4 flex flex-col">
           <span className="text-gray-500 text-sm">Prospects</span>
-          <span className="text-3xl font-bold mt-2 text-blue-600">
+          <span className="text-sm font-bold mt-2 text-blue-600">
             {contacts.filter(c => c.contact_type === 'prospect').length}
           </span>
         </div>
       </div>
 
       {/* Contacts Table */}
-      <div className="bg-white rounded-lg border">
+      <div className="bg-white border border-gray-200">
         <div className="p-4 border-b">
-          <h3 className="font-semibold">
+          <h3 className="text-sm font-semibold">
             {filteredContacts.length} contactos
             {searchTerm && ` (filtrados de ${contacts.length})`}
           </h3>
@@ -278,7 +278,7 @@ export function ContactsTable({
           {filteredContacts.length === 0 && (
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">
                 No se encontraron contactos
               </h3>
               <p className="text-gray-500">

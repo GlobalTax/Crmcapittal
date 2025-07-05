@@ -33,31 +33,31 @@ export const ManagersList = () => {
     <div className="space-y-8">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border-black hover:shadow-md transition-shadow">
+        <div className="bg-white p-4 border border-gray-200 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black">Total Gestores</p>
-              <p className="text-2xl font-bold text-black">{totalManagers}</p>
+              <p className="text-sm font-bold text-black">{totalManagers}</p>
             </div>
             <Users className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border-black hover:shadow-md transition-shadow">
+        <div className="bg-white p-4 border border-gray-200 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black">Gestores Activos</p>
-              <p className="text-2xl font-bold text-black">{activeManagers}</p>
+              <p className="text-sm font-bold text-black">{activeManagers}</p>
             </div>
             <Briefcase className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border-black hover:shadow-md transition-shadow">
+        <div className="bg-white p-4 border border-gray-200 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-black">Departamentos</p>
-              <p className="text-2xl font-bold text-black">
+              <p className="text-sm font-bold text-black">
                 {Array.from(new Set(managers.map(m => m.position).filter(Boolean))).length}
               </p>
             </div>
@@ -68,7 +68,7 @@ export const ManagersList = () => {
 
       {/* Action Button */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-black">Equipo de Gestores</h2>
+        <h2 className="text-sm font-semibold text-black">Equipo de Gestores</h2>
         <Button 
           onClick={() => setShowAddForm(true)}
           className="bg-blue-600 hover:bg-blue-700"
@@ -81,7 +81,7 @@ export const ManagersList = () => {
       {/* Managers Grid */}
       {managers.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border-black p-12 text-center">
-          <h3 className="text-lg font-medium text-black mb-2">No hay gestores registrados</h3>
+          <h3 className="text-sm font-medium text-black mb-2">No hay gestores registrados</h3>
           <p className="text-muted-foreground mb-4">Añade tu primer gestor al equipo</p>
           <Button 
             onClick={() => setShowAddForm(true)}
@@ -101,7 +101,7 @@ export const ManagersList = () => {
                   managerName={manager.name}
                   currentPhoto={manager.photo}
                 />
-                <CardTitle className="text-lg text-black">{manager.name}</CardTitle>
+                <CardTitle className="text-sm text-black">{manager.name}</CardTitle>
                 {manager.position && (
                   <div className="flex items-center justify-center text-sm text-muted-foreground">
                     <Briefcase className="h-3 w-3 mr-1" />

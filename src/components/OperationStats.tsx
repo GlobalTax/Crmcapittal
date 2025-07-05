@@ -42,7 +42,7 @@ export const OperationStats = ({ stats, isFiltered }: OperationStatsProps) => {
           <Eye className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-sm font-bold">
             {isFiltered ? stats.filtered : stats.total}
           </div>
           {isFiltered && (
@@ -59,7 +59,7 @@ export const OperationStats = ({ stats, isFiltered }: OperationStatsProps) => {
           <Building2 className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.available}</div>
+          <div className="text-sm font-bold">{stats.available}</div>
           <p className="text-xs text-muted-foreground">
             {((stats.available / stats.total) * 100).toFixed(1)}% del total
           </p>
@@ -72,7 +72,7 @@ export const OperationStats = ({ stats, isFiltered }: OperationStatsProps) => {
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-sm font-bold">
             €{formatLargeNumber(stats.totalValue)}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -87,7 +87,7 @@ export const OperationStats = ({ stats, isFiltered }: OperationStatsProps) => {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-sm font-bold">
             €{formatLargeNumber(stats.avgValue)}
           </div>
           <p className="text-xs text-muted-foreground">

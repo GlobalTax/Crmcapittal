@@ -34,7 +34,7 @@ export const StatsCard = ({
     (isGradient ? "text-white/90" : "text-red-600");
 
   return (
-    <Card className={`${bgColor} hover:shadow-xl transition-all duration-300 transform hover:scale-105 border-0 shadow-lg`}>
+    <Card className={`${bgColor} border border-gray-200 p-4`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className={`text-sm font-medium ${titleColor}`}>{title}</CardTitle>
         <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
@@ -42,7 +42,7 @@ export const StatsCard = ({
         </div>
       </CardHeader>
       <CardContent>
-        <div className={`text-3xl font-bold ${textColor} mb-1`}>{value}</div>
+        <div className={`text-sm font-bold ${textColor} mb-1`}>{value}</div>
         {description && (
           <p className={`text-sm ${descriptionColor} mb-2`}>{description}</p>
         )}
