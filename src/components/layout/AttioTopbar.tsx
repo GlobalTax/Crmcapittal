@@ -63,11 +63,29 @@ export function AttioTopbar() {
     <>
       <header className="sticky top-0 z-40 w-full border-b bg-neutral-0/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-0/60 shadow-sm">
         <div className="flex h-16 items-center justify-between px-6 py-3">
-          {/* Left: Breadcrumb/Title */}
-          <div className="flex items-center">
+          {/* Left: Breadcrumb/Title + Search */}
+          <div className="flex items-center gap-4">
             <h1 className="text-lg font-semibold text-neutral-900">
               {currentTitle}
             </h1>
+            
+            {/* Negocios Search Bar */}
+            {location.pathname === '/negocios' && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar negocios..."
+                  className="h-10 w-[360px] border border-neutral-100 rounded-[var(--radius)] bg-neutral-0 placeholder:text-neutral-400 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30"
+                  onChange={(e) => {
+                    // Dispatch custom event for search
+                    window.dispatchEvent(new CustomEvent('negociosSearch', { 
+                      detail: { query: e.target.value } 
+                    }));
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Center: Global Search */}

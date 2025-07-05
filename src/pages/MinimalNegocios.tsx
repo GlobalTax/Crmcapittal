@@ -41,6 +41,7 @@ export default function MinimalNegocios() {
   const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
   const { negocios, loading, error, createNegocio, updateNegocio, updateNegocioStage } = useNegocios();
   const { stages } = useStages('DEAL');
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Selection handlers
   const handleSelectItem = (id: string) => {
@@ -58,6 +59,16 @@ export default function MinimalNegocios() {
   const handleClearSelection = () => {
     setSelectedIds([]);
   };
+
+  // Search from topbar
+  useEffect(() => {
+    const handleSearch = (e: CustomEvent<{ query: string }>) => {
+      setSearchQuery(e.detail.query);
+    };
+
+    window.addEventListener('negociosSearch', handleSearch as EventListener);
+    return () => window.removeEventListener('negociosSearch', handleSearch as EventListener);
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -77,8 +88,20 @@ export default function MinimalNegocios() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Use filtered negocios for display, fallback to all negocios if not filtered yet
-  const displayNegocios = filteredNegocios.length > 0 || negocios.length === 0 ? filteredNegocios : negocios;
+  // Apply search and filtering
+  const searchFilteredNegocios = negocios.filter(negocio => {
+    if (!searchQuery) return true;
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      negocio.nombre_negocio?.toLowerCase().includes(searchLower) ||
+      negocio.company?.name?.toLowerCase().includes(searchLower) ||
+      negocio.contact?.name?.toLowerCase().includes(searchLower) ||
+      negocio.descripcion?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Use filtered negocios for display, fallback to search filtered if not filtered yet
+  const displayNegocios = filteredNegocios.length > 0 || negocios.length === 0 ? filteredNegocios : searchFilteredNegocios;
 
   if (loading) {
     return (
@@ -161,19 +184,7 @@ export default function MinimalNegocios() {
           <h1 className="text-sm font-bold text-gray-900">Negocios</h1>
           <p className="text-gray-600 mt-1">Gestiona tus oportunidades de negocio</p>
         </div>
-        <div className="flex space-x-3">
-          <Button 
-            variant={viewMode === 'table' ? 'primary' : 'secondary'}
-            onClick={() => setViewMode('table')}
-          >
-            Tabla
-          </Button>
-          <Button 
-            variant={viewMode === 'kanban' ? 'primary' : 'secondary'}
-            onClick={() => setViewMode('kanban')}
-          >
-            Kanban
-          </Button>
+        <div className="flex items-center space-x-3">
           <Button variant="secondary" onClick={() => setShowActionHistory(true)}>
             Historial
           </Button>
@@ -184,30 +195,64 @@ export default function MinimalNegocios() {
         </div>
       </div>
 
-      {/* Advanced Metrics Bar - Only show in Kanban mode */}
+      {/* View Tabs */}
+      <div className="flex justify-center mb-4">
+        <div className="border-b border-border">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                viewMode === 'table'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+              }`}
+            >
+              Tabla
+            </button>
+            <button
+              onClick={() => setViewMode('kanban')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                viewMode === 'kanban'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+              }`}
+            >
+              Kanban
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Metrics Bar - Only show in Kanban mode */}
       {viewMode === 'kanban' && (
-        <MetricsBar negocios={displayNegocios} stages={stages} />
+        <div className="py-6">
+          <MetricsBar negocios={displayNegocios} stages={stages} />
+        </div>
       )}
 
       {/* Advanced Filter Bar */}
       <FilterBar negocios={negocios} onFilteredChange={setFilteredNegocios} />
 
-      {/* Bulk Actions Bar - Only show in Kanban mode */}
-      {viewMode === 'kanban' && (
-        <BulkActionsBar
-          negocios={displayNegocios}
-          stages={stages}
-          onRefresh={() => window.location.reload()}
-          selectedIds={selectedIds}
-          onSelectItem={handleSelectItem}
-          onSelectAll={handleSelectAll}
-          onClearSelection={handleClearSelection}
-        />
+      {/* Select All Button - Only show in Kanban mode when deals exist */}
+      {viewMode === 'kanban' && displayNegocios.length > 0 && (
+        <div className="flex justify-start py-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSelectAll}
+            className="flex items-center gap-2"
+          >
+            <div className="h-4 w-4 border border-muted-foreground rounded flex items-center justify-center">
+              <div className="h-2 w-2 bg-muted-foreground rounded-sm opacity-50" />
+            </div>
+            Select all
+          </Button>
+        </div>
       )}
 
       {/* Basic Stats - Only show in Table mode */}
       {viewMode === 'table' && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6">
           <MetricCard
             label="Total Negocios"
             value={displayNegocios.length}

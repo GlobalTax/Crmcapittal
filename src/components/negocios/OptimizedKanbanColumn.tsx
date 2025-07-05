@@ -68,19 +68,19 @@ const OptimizedKanbanColumn = memo(({
   return (
     <div className="min-w-[350px] flex-shrink-0">
       {/* Column Header */}
-      <div className="mb-4 bg-background border border-border rounded-lg p-4">
+      <div className="mb-4 p-2">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div 
-              className="w-3 h-3 rounded-full"
+              className="w-2 h-2 rounded-full"
               style={{ backgroundColor: stage.color || '#6B7280' }}
             />
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="text-sm font-medium text-foreground">
               {stage.name}
             </h3>
-            <Badge variant="secondary" className="text-xs">
+            <div className="rounded bg-neutral-100 px-2 text-xs font-medium">
               {negocios.length}
-            </Badge>
+            </div>
           </div>
           
           {onAddNegocio && (
@@ -95,35 +95,6 @@ const OptimizedKanbanColumn = memo(({
             </Button>
           )}
         </div>
-
-        {/* Stage Statistics */}
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="flex items-center gap-1">
-            <TrendingUp className="h-3 w-3 text-green-600" />
-            <span className="text-muted-foreground">Total:</span>
-            <span className="font-medium text-green-600">
-              {formatCurrency(totalValue)}
-            </span>
-          </div>
-          
-          {negocios.length > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground">Promedio:</span>
-              <span className="font-medium text-foreground">
-                {formatCurrency(averageValue)}
-              </span>
-            </div>
-          )}
-          
-          {highPriorityCount > 0 && (
-            <div className="col-span-2 flex items-center gap-1">
-              <span className="text-muted-foreground">Alta prioridad:</span>
-              <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
-                {highPriorityCount}
-              </Badge>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Droppable Area */}
@@ -136,7 +107,7 @@ const OptimizedKanbanColumn = memo(({
               min-h-[400px] space-y-3 p-2 rounded-lg transition-all duration-200
               ${snapshot.isDraggingOver 
                 ? 'bg-primary/5 border-2 border-dashed border-primary/30 scale-[1.02]' 
-                : 'bg-muted/20 border-2 border-dashed border-transparent'
+                : ''
               }
               ${isLoading ? 'opacity-50' : ''}
             `}
@@ -163,25 +134,20 @@ const OptimizedKanbanColumn = memo(({
 
             {/* Empty State */}
             {!isLoading && negocios.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                  <div 
-                    className="w-6 h-6 rounded-full"
-                    style={{ backgroundColor: stage.color || '#6B7280' }}
-                  />
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="mb-3 text-primary">
+                  <Plus className="w-5 h-5" />
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  No hay negocios en esta etapa
+                <p className="text-sm text-muted-foreground mb-3">
+                  Añade tu primer deal
                 </p>
                 {onAddNegocio && (
                   <Button
-                    variant="outline"
                     size="sm"
                     onClick={() => onAddNegocio(stage.id)}
                     className="text-xs"
                   >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Añadir negocio
+                    + New deal
                   </Button>
                 )}
               </div>

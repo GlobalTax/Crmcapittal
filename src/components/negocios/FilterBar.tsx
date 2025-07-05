@@ -145,19 +145,8 @@ export const FilterBar = ({ negocios, onFilteredChange }: FilterBarProps) => {
 
   return (
     <div className="bg-background border border-border rounded-lg p-4 space-y-4">
-      {/* Main Search Bar */}
-      <div className="flex items-center space-x-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar negocios por nombre, descripción, empresa, contacto..."
-            value={filters.search}
-            onChange={(e) => updateFilter('search', e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        
-        {/* Filter Toggle Button */}
+      {/* Filter Toggle Button and Actions */}
+      <div className="flex items-center justify-between">
         <Button
           variant={isFiltersOpen ? "default" : "outline"}
           onClick={() => setIsFiltersOpen(!isFiltersOpen)}
