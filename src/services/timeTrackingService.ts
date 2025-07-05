@@ -154,23 +154,34 @@ export class TimeTrackingService {
 
   static async getActiveTimer(): Promise<{ data: TimeEntry | null; error: string | null }> {
     try {
-      console.log('getActiveTimer: Fetching active timer (RLS filtering)...');
+      console.log('getActiveTimer: Fetching active timer with improved RLS handling...');
+
+      // Check authentication first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('getActiveTimer: No authenticated user found');
+        return { data: null, error: 'Usuario no autenticado' };
+      }
 
       const { data, error } = await supabase
         .from('time_entries')
         .select('*')
         .is('end_time', null)
+        .eq('user_id', user.id)
         .order('start_time', { ascending: false })
         .limit(1)
         .maybeSingle();
 
       console.log('getActiveTimer: Query result:', { data, error });
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('getActiveTimer: Database error:', error);
+        throw error;
+      }
       return { data: data || null, error: null };
     } catch (error) {
       logger.error('Error fetching active timer', {}, error instanceof Error ? error : new Error(String(error)));
-      return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
+      return { data: null, error: error instanceof Error ? error.message : 'Error desconocido' };
     }
   }
 

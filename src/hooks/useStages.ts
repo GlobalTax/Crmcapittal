@@ -29,6 +29,15 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
         return;
       }
 
+      // Check authentication first to prevent RLS issues
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('useStages: No authenticated user found');
+        setError('Usuario no autenticado');
+        setStages([]);
+        return;
+      }
+
       let query = supabase
         .from('stages')
         .select(`
