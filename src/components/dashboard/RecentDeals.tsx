@@ -1,5 +1,6 @@
 import React from 'react';
 import { DashboardCard } from './DashboardCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Building2, Euro, Clock, User } from 'lucide-react';
@@ -94,12 +95,11 @@ export const RecentDeals = ({ operations, negocios, role }: RecentDealsProps) =>
   return (
     <DashboardCard title="Deals Recientes" icon={Building2}>
         {recentDeals.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building2 className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <p className="text-muted-foreground">No hay deals recientes</p>
-          </div>
+          <EmptyState
+            icon={Building2}
+            title="No hay deals recientes"
+            subtitle="Los deals aparecerán aquí cuando se creen"
+          />
         ) : (
           <div className="space-y-4">
             {recentDeals.map((deal) => (

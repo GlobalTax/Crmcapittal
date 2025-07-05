@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLeads } from "@/hooks/useLeads";
 import { usePersonalTasks } from "@/hooks/usePersonalTasks";
@@ -63,9 +64,11 @@ export default function MinimalPersonalDashboard() {
             
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {todayTasks.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>¡No hay tareas pendientes!</p>
-                </div>
+                <EmptyState
+                  icon={CheckCircle}
+                  title="¡No hay tareas pendientes!"
+                  subtitle="Disfruta de tu día libre de tareas"
+                />
               ) : (
                 todayTasks.map((task) => (
                   <div key={task.id} className="flex items-center gap-3 p-3 border rounded">
@@ -92,10 +95,11 @@ export default function MinimalPersonalDashboard() {
         <DashboardCard title="Leads Asignados" icon={User}>
           <div className="space-y-3">
             {leads.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <User className="h-8 w-8 mx-auto mb-2" />
-                <p>No tienes leads asignados</p>
-              </div>
+              <EmptyState
+                icon={User}
+                title="No tienes leads asignados"
+                subtitle="Los leads aparecerán aquí cuando te los asignen"
+              />
             ) : (
               <div className="space-y-2">
                 {leads.slice(0, 5).map((lead) => (

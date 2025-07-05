@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { Task, usePersonalTasks } from '@/hooks/usePersonalTasks';
 import { 
   Calendar, 
@@ -157,9 +158,11 @@ export const PersonalTasksList = ({ contactId, showCreateForm = false }: Persona
         </CardHeader>
         <CardContent>
           {pendingTasks.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">
-              No hay tareas pendientes
-            </p>
+            <EmptyState
+              icon={Clock}
+              title="No hay tareas pendientes"
+              subtitle="¡Perfecto! No tienes tareas por completar"
+            />
           ) : (
             <div className="space-y-3">
               {pendingTasks.map((task) => (

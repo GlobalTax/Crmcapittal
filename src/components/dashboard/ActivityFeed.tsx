@@ -1,5 +1,6 @@
 
 import { DashboardCard } from "./DashboardCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
@@ -63,13 +64,11 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
     <DashboardCard title="Actividad Reciente" icon={Activity}>
         <div className="space-y-4 max-h-96 overflow-y-auto">
           {activities.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <Activity className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground text-lg">No hay actividad reciente</p>
-              <p className="text-muted-foreground text-sm mt-1">Las actividades aparecerán aquí cuando ocurran</p>
-            </div>
+            <EmptyState
+              icon={Activity}
+              title="No hay actividad reciente"
+              subtitle="Las actividades aparecerán aquí cuando ocurran"
+            />
           ) : (
             activities.map((activity, index) => {
               const ActivityIcon = getActivityIcon(activity.type);
