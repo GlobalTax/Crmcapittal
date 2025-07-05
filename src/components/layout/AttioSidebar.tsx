@@ -11,7 +11,8 @@ import {
   Clock, 
   UserPlus, 
   Settings, 
-  Zap 
+  Zap,
+  TrendingUp
 } from 'lucide-react';
 
 interface NavItem {
@@ -33,12 +34,13 @@ const navigationSections: NavSection[] = [
       { to: '/', label: 'Control Leads', icon: LayoutDashboard },
       { to: '/contacts', label: 'Contactos', icon: Users },
       { to: '/companies', label: 'Empresas', icon: Building2 },
-      { to: '/negocios', label: 'Negocios', icon: Briefcase },
     ]
   },
   {
     title: "Ventas & Negocios",
     items: [
+      { to: '/deals', label: 'Deals', icon: TrendingUp },
+      { to: '/negocios', label: 'Negocios', icon: Briefcase },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
       { to: '/documents', label: 'Documentos', icon: FileText },
     ]
