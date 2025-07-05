@@ -422,33 +422,6 @@ export type Database = {
         }
         Relationships: []
       }
-      "Companies Hb": {
-        Row: {
-          attrs: Json | null
-          created_at: string | null
-          domain: string | null
-          id: string | null
-          name: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          attrs?: Json | null
-          created_at?: string | null
-          domain?: string | null
-          id?: string | null
-          name?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          attrs?: Json | null
-          created_at?: string | null
-          domain?: string | null
-          id?: string | null
-          name?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       contact_activities: {
         Row: {
           activity_data: Json | null
@@ -950,36 +923,6 @@ export type Database = {
           sort_order?: string | null
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      "Contactos Hb": {
-        Row: {
-          attrs: Json | null
-          created_at: string | null
-          email: string | null
-          firstname: string | null
-          id: string | null
-          lastname: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          attrs?: Json | null
-          created_at?: string | null
-          email?: string | null
-          firstname?: string | null
-          id?: string | null
-          lastname?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          attrs?: Json | null
-          created_at?: string | null
-          email?: string | null
-          firstname?: string | null
-          id?: string | null
-          lastname?: string | null
-          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1840,27 +1783,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      "Leads Hb": {
-        Row: {
-          attrs: Json | null
-          created_at: string | null
-          id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          attrs?: Json | null
-          created_at?: string | null
-          id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          attrs?: Json | null
-          created_at?: string | null
-          id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       ndas: {
         Row: {
