@@ -28,6 +28,31 @@ const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
+
+// Settings pages
+const SettingsLayout = lazy(() => import('@/components/settings/SettingsLayout').then(m => ({ default: m.SettingsLayout })));
+const ProfilePage = lazy(() => import('@/pages/settings/ProfilePage'));
+const EmailCalendarPage = lazy(() => import('@/pages/settings/EmailCalendarPage'));
+const MembersTeamsPage = lazy(() => import('@/pages/settings/MembersTeamsPage'));
+const AppearancePage = lazy(() => import('@/pages/settings/AppearancePage'));
+const GeneralPage = lazy(() => import('@/pages/settings/GeneralPage'));
+
+// Placeholder settings pages
+const CallRecorderPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.CallRecorderPage })));
+const PlansPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.PlansPage })));
+const BillingPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.BillingPage })));
+const DevelopersPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.DevelopersPage })));
+const SecurityPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.SecurityPage })));
+const SupportPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.SupportPage })));
+const ExpertAccessPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.ExpertAccessPage })));
+const MigrateCRMPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.MigrateCRMPage })));
+const AppsPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.AppsPage })));
+const ObjectsPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.ObjectsPage })));
+const ListsPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.ListsPage })));
+const DashboardsPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.DashboardsPage })));
+const SequencesPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.SequencesPage })));
+const WorkflowsPage = lazy(() => import('@/pages/settings/PlaceholderPages').then(m => ({ default: m.WorkflowsPage })));
+
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient({
@@ -187,6 +212,77 @@ function App() {
                       </Suspense>
                     } 
                   />
+                </Route>
+                
+                {/* Settings routes */}
+                <Route 
+                  path="/settings/*" 
+                  element={
+                    <Suspense fallback={<LoadingSkeleton />}>
+                      <SettingsLayout />
+                    </Suspense>
+                  }
+                >
+                  <Route 
+                    path="profile" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <ProfilePage />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="email-calendar" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <EmailCalendarPage />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="members-teams" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <MembersTeamsPage />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="appearance" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <AppearancePage />
+                      </Suspense>
+                    } 
+                  />
+                  <Route 
+                    path="general" 
+                    element={
+                      <Suspense fallback={<LoadingSkeleton />}>
+                        <GeneralPage />
+                      </Suspense>
+                    } 
+                  />
+                  {/* Additional placeholder routes */}
+                  <Route path="call-recorder" element={<CallRecorderPage />} />
+                  <Route path="plans" element={<PlansPage />} />
+                  <Route path="billing" element={<BillingPage />} />
+                  <Route path="developers" element={<DevelopersPage />} />
+                  <Route path="security" element={<SecurityPage />} />
+                  <Route path="support" element={<SupportPage />} />
+                  <Route path="expert-access" element={<ExpertAccessPage />} />
+                  <Route path="migrate-crm" element={<MigrateCRMPage />} />
+                  <Route path="apps" element={<AppsPage />} />
+                  <Route path="objects" element={<ObjectsPage />} />
+                  <Route path="lists" element={<ListsPage />} />
+                  <Route path="dashboards" element={<DashboardsPage />} />
+                  <Route path="sequences" element={<SequencesPage />} />
+                  <Route path="workflows" element={<WorkflowsPage />} />
+                  <Route 
+                    index
+                    element={<Navigate to="profile" replace />}
+                  />
+                  <Route path="*" element={<div>Settings page not found</div>} />
                 </Route>
                 
                 {/* Catch-all route for 404 */}

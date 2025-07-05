@@ -123,10 +123,19 @@ export function AttioSidebar() {
 
       {/* Footer with user info or additional actions */}
       <div className="p-4 border-t border-neutral-100">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-neutral-0 transition-colors cursor-pointer">
-          <Settings className="w-4 h-4 text-gray-500" />
-          <span className="text-sm text-gray-600">Configuración</span>
-        </div>
+        <NavLink 
+          to="/settings"
+          className={({ isActive }) =>
+            `flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+              isActive
+                ? 'bg-neutral-0 text-neutral-900 shadow-sm'
+                : 'hover:bg-neutral-0 text-gray-600 hover:text-neutral-900'
+            }`
+          }
+        >
+          <Settings className="w-4 h-4" />
+          <span>Settings</span>
+        </NavLink>
       </div>
     </aside>
   );
