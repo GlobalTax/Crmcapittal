@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Pipeline, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
-import { useSmartPolling } from './useSmartPolling';
+import { supabaseQuery } from '@/services/requestManager';
 
 export const usePipelines = () => {
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
@@ -10,84 +10,31 @@ export const usePipelines = () => {
   const [error, setError] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
 
-  // Smart polling configuration
-  const smartPolling = useSmartPolling({
-    baseInterval: 30000, // 30 seconds
-    maxInterval: 300000, // 5 minutes
-    pauseWhenHidden: true,
-    pauseWhenInactive: true
-  });
+  // Optimized polling with much longer intervals to reduce rate limiting
+  const [lastFetch, setLastFetch] = useState<number>(0);
+  const pollingInterval = 300000; // 5 minutes - much more conservative
 
-  const fetchPipelines = useCallback(async (retryCount = 0) => {
+  const fetchPipelines = useCallback(async () => {
+    if (!authReady) {
+      console.log('usePipelines: Waiting for auth to be ready...');
+      return;
+    }
+
     try {
-      console.log('usePipelines: Starting to fetch pipelines...', retryCount > 0 ? `(retry ${retryCount})` : '');
-      
-      if (retryCount === 0) {
-        setLoading(true);
-        setError(null);
-      }
+      setLoading(true);
+      setError(null);
 
-      // Wait for auth to be ready
-      if (!authReady) {
-        console.log('usePipelines: Waiting for auth to be ready...');
-        return;
-      }
+      const data = await supabaseQuery<Pipeline[]>(
+        'pipelines',
+        (query) => query
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: true }),
+        'pipelines_active',
+        'medium',
+        180000 // 3 minutes cache
+      );
 
-      // Check authentication with session validation
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('usePipelines: Session error:', sessionError);
-        throw sessionError;
-      }
-
-      if (!session?.user) {
-        console.log('usePipelines: No authenticated session found');
-        setPipelines([]);
-        setLoading(false);
-        return;
-      }
-
-      console.log('usePipelines: User authenticated:', session.user.id);
-      
-      // Add a small delay to ensure RLS context is ready
-      if (retryCount === 0) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      
-      const { data, error } = await supabase
-        .from('pipelines')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: true });
-
-      console.log('usePipelines: Query result:', { data, error, count: data?.length });
-
-      if (error) {
-        console.error('usePipelines: Database error:', error);
-        
-        // Handle authentication errors specifically
-        if (error.code === 'PGRST301' || error.message?.includes('JWT')) {
-          console.log('usePipelines: Authentication error, refreshing session...');
-          await supabase.auth.refreshSession();
-          if (retryCount < 2) {
-            setTimeout(() => fetchPipelines(retryCount + 1), 1000);
-            return;
-          }
-        }
-        
-        // Retry on certain error codes with exponential backoff
-        if ((error.code === 'PGRST116' || error.message?.includes('406') || error.message?.includes('400')) && retryCount < 3) {
-          const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
-          console.log(`usePipelines: Retrying in ${delay}ms...`);
-          setTimeout(() => fetchPipelines(retryCount + 1), delay);
-          smartPolling.handleError();
-          return;
-        }
-        
-        throw error;
-      }
-      
       // Transform data to match Pipeline type
       const transformedData = (data || []).map(item => ({
         ...item,
@@ -97,31 +44,16 @@ export const usePipelines = () => {
       console.log('usePipelines: Successfully loaded', transformedData.length, 'pipelines');
       setPipelines(transformedData);
       setError(null);
-      smartPolling.handleSuccess();
+      setLastFetch(Date.now());
       
     } catch (err) {
       console.error('usePipelines: Error fetching pipelines:', err);
-      
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      
-      // Retry on network errors with exponential backoff
-      if (retryCount < 3 && (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('Failed to'))) {
-        const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
-        console.log(`usePipelines: Network error, retrying in ${delay}ms...`);
-        setTimeout(() => fetchPipelines(retryCount + 1), delay);
-        smartPolling.handleError();
-        return;
-      }
-      
-      setError(`Error al cargar los pipelines: ${errorMessage}`);
+      setError(`Error al cargar los pipelines: ${err instanceof Error ? err.message : String(err)}`);
       setPipelines([]);
-      smartPolling.handleError();
     } finally {
-      if (retryCount === 0) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  }, [authReady, smartPolling]);
+  }, [authReady]);
 
   const getPipelinesByType = (type: PipelineType) => {
     return pipelines.filter(pipeline => pipeline.type === type);
@@ -251,19 +183,20 @@ export const usePipelines = () => {
     }
   }, [authReady, fetchPipelines]);
 
-  // Set up polling for real-time updates
+  // Set up optimized polling with longer intervals
   useEffect(() => {
-    if (!authReady || loading || error) return;
+    if (!authReady || loading) return;
 
     const interval = setInterval(() => {
-      const pollingConfig = smartPolling.getPollingConfig();
-      if (pollingConfig.enabled) {
+      // Only fetch if data is stale (older than polling interval)
+      const isStale = Date.now() - lastFetch > pollingInterval;
+      if (isStale && !document.hidden) {
         fetchPipelines();
       }
-    }, smartPolling.currentInterval);
+    }, pollingInterval);
 
     return () => clearInterval(interval);
-  }, [authReady, loading, error, smartPolling, fetchPipelines]);
+  }, [authReady, loading, fetchPipelines, lastFetch, pollingInterval]);
 
   return {
     pipelines,

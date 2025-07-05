@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useOptimizedPolling } from './useOptimizedPolling';
 
 export interface Task {
   id: string;
@@ -17,16 +18,18 @@ export interface Task {
 
 export const usePersonalTasks = () => {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Cargar tareas del usuario
-  const loadTasks = async () => {
-    if (!user) return;
-
-    try {
-      setLoading(true);
+  
+  // Use optimized polling with longer intervals for personal tasks
+  const {
+    data: rawTasks,
+    loading,
+    error: pollingError,
+    refetch
+  } = useOptimizedPolling({
+    queryKey: `user_tasks_${user?.id}`,
+    queryFn: async () => {
+      if (!user) return [];
+      
       const { data, error } = await supabase
         .from('user_tasks')
         .select('*')
@@ -34,16 +37,26 @@ export const usePersonalTasks = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTasks((data || []).map(task => ({
-        ...task,
-        priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
-        category: task.category as 'lead' | 'meeting' | 'follow-up' | 'admin'
-      })));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar tareas');
-    } finally {
-      setLoading(false);
-    }
+      return data || [];
+    },
+    interval: 300000, // 5 minutes for personal tasks
+    priority: 'low', // Personal tasks have lower priority
+    cacheTtl: 240000, // 4 minutes cache
+    enabled: !!user
+  });
+
+  // Transform tasks
+  const tasks = (rawTasks || []).map(task => ({
+    ...task,
+    priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
+    category: task.category as 'lead' | 'meeting' | 'follow-up' | 'admin'
+  }));
+
+  const error = pollingError?.message || null;
+
+  // Manual refresh function that clears cache
+  const loadTasks = () => {
+    refetch();
   };
 
   // Crear nueva tarea
@@ -66,17 +79,11 @@ export const usePersonalTasks = () => {
 
       if (error) throw error;
       
-      const typedData = {
-        ...data,
-        priority: data.priority as 'low' | 'medium' | 'high' | 'urgent',
-        category: data.category as 'lead' | 'meeting' | 'follow-up' | 'admin'
-      };
-      
-      setTasks(prev => [typedData, ...prev]);
+      loadTasks(); // Refresh tasks after creation
       return data;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al crear tarea');
-      return null;
+      console.error('Error al crear tarea:', err);
+      throw err;
     }
   };
 
@@ -92,17 +99,11 @@ export const usePersonalTasks = () => {
 
       if (error) throw error;
       
-      const typedData = {
-        ...data,
-        priority: data.priority as 'low' | 'medium' | 'high' | 'urgent',
-        category: data.category as 'lead' | 'meeting' | 'follow-up' | 'admin'
-      };
-      
-      setTasks(prev => prev.map(task => task.id === taskId ? typedData : task));
+      loadTasks(); // Refresh tasks after update
       return data;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al actualizar tarea');
-      return null;
+      console.error('Error al actualizar tarea:', err);
+      throw err;
     }
   };
 
@@ -121,18 +122,13 @@ export const usePersonalTasks = () => {
 
       if (error) throw error;
       
-      setTasks(prev => prev.filter(task => task.id !== taskId));
+      loadTasks(); // Refresh tasks after deletion
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al eliminar tarea');
-      return false;
+      console.error('Error al eliminar tarea:', err);
+      throw err;
     }
   };
-
-  // Cargar tareas al montar el componente
-  useEffect(() => {
-    loadTasks();
-  }, [user]);
 
   // Obtener tareas filtradas
   const getTodayTasks = () => tasks.filter(task => !task.completed);
