@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { PersonRecordTable } from "@/components/contacts/PersonRecordTable";
 import { PersonModal } from "@/components/contacts/PersonModal";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
+import { ContactsHeader } from "@/components/contacts/ContactsHeader";
+import { ContactsGrid } from "@/components/contacts/ContactsGrid";
 import { useContactsCRUD } from "@/hooks/useContactsCRUD";
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
 import { Button } from "@/components/ui/button";
@@ -12,6 +14,9 @@ export default function Contacts() {
   const location = useLocation();
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
 
   const {
     fetchContacts,
@@ -97,40 +102,64 @@ export default function Contacts() {
   };
 
   const handleSearch = (term: string) => {
-    // TODO: Implement search functionality
-    console.log('Searching for:', term);
+    setSearchTerm(term);
   };
 
-  const handleFilter = () => {
-    // TODO: Implement filter functionality
-    console.log('Opening filters');
+  const handleFilterChange = (filter: string) => {
+    setFilterType(filter);
   };
+
+  const handleFilterClick = () => {
+    // Simple toggle for PersonRecordTable compatibility
+    setFilterType(current => current === 'all' ? 'cliente' : 'all');
+  };
+
+  // Filter contacts based on search term and filter type
+  const filteredContacts = contacts?.filter(contact => {
+    const matchesSearch = !searchTerm || 
+      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = filterType === 'all' || contact.contact_type === filterType;
+    
+    return matchesSearch && matchesFilter;
+  }) || [];
 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Contactos</h2>
-          <p className="text-muted-foreground">
-            Gestiona todas las personas de tu red de contactos.
-          </p>
-        </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          + New person
-        </Button>
-      </div>
-
-      <PersonRecordTable
-        contacts={contacts || []}
-        totalCount={contacts?.length || 0}
-        onRowClick={handleViewContact}
-        onCreateContact={() => setIsCreateModalOpen(true)}
-        onSearch={handleSearch}
-        onFilter={handleFilter}
-        isLoading={isFetching}
+      <ContactsHeader
+        title="Contactos"
+        description="Gestiona todas las personas de tu red de contactos"
+        searchValue={searchTerm}
+        onSearchChange={handleSearch}
+        onFilterChange={handleFilterChange}
+        onNewContact={() => setIsCreateModalOpen(true)}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        totalCount={filteredContacts.length}
       />
+
+      {viewMode === 'grid' ? (
+        <ContactsGrid
+          contacts={filteredContacts}
+          loading={isFetching}
+          onView={handleViewContact}
+          onEdit={handleEditContact}
+          onDelete={handleDeleteContact}
+        />
+      ) : (
+        <PersonRecordTable
+          contacts={filteredContacts}
+          totalCount={filteredContacts.length}
+          onRowClick={handleViewContact}
+          onCreateContact={() => setIsCreateModalOpen(true)}
+          onSearch={handleSearch}
+          onFilter={handleFilterClick}
+          isLoading={isFetching}
+        />
+      )}
 
       {/* Create Person Modal */}
       <PersonModal
