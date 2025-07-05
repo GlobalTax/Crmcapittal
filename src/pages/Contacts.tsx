@@ -1,8 +1,8 @@
-
 import React, { useEffect, useState } from "react";
 import { ContactsTable } from "@/components/contacts/ContactsTable";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
 import { ContactDetailView } from "@/components/contacts/ContactDetailView";
+import { ContactTimeline } from "@/components/contacts/ContactTimeline";
 import { useContactsCRUD } from "@/hooks/useContactsCRUD";
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
 
@@ -74,19 +74,29 @@ export default function Contacts() {
 
   if (showDetailView && viewingContact) {
     return (
-      <ContactDetailView
-        contact={viewingContact}
-        onBack={handleBackFromDetail}
-        onEdit={(contact) => {
-          setShowDetailView(false);
-          setEditingContact(contact);
-        }}
-        onDelete={(contactId) => {
-          handleDeleteContact(contactId);
-          setShowDetailView(false);
-          setViewingContact(null);
-        }}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+        <div className="lg:col-span-2">
+          <ContactDetailView
+            contact={viewingContact}
+            onBack={handleBackFromDetail}
+            onEdit={(contact) => {
+              setShowDetailView(false);
+              setEditingContact(contact);
+            }}
+            onDelete={(contactId) => {
+              handleDeleteContact(contactId);
+              setShowDetailView(false);
+              setViewingContact(null);
+            }}
+          />
+        </div>
+        <div className="lg:col-span-1">
+          <ContactTimeline 
+            contact={viewingContact}
+            className="h-full"
+          />
+        </div>
+      </div>
     );
   }
 
