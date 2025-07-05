@@ -1,7 +1,7 @@
-import MinimalDashboard from './MinimalDashboard';
+import { EnhancedDashboard } from '@/components/dashboard/EnhancedDashboard';
 
 const Dashboard = () => {
-  return <MinimalDashboard />;
+  return <EnhancedDashboard />;
 };
 
 export default Dashboard;

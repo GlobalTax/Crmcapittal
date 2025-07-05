@@ -150,7 +150,77 @@ export const LeadsTableSkeleton = ({ count = 5 }: { count?: number }) => (
 );
 
 export const DashboardLoadingSkeleton = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <LoadingSkeleton type="dashboard-card" count={4} />
+  <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* KPI Skeletons */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <LoadingSkeleton type="dashboard-card" count={4} />
+      </div>
+      
+      {/* Main Content Grid Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Charts */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <Skeleton className="h-6 w-32 mb-4" />
+              <Skeleton className="h-48 w-full" />
+            </div>
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <Skeleton className="h-6 w-32 mb-4" />
+              <Skeleton className="h-48 w-full" />
+            </div>
+          </div>
+          
+          {/* Recent Deals Skeleton */}
+          <div className="bg-white rounded-lg p-6 border border-gray-200">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-4 border border-gray-100 rounded">
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div>
+                      <Skeleton className="h-4 w-32 mb-1" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-5 w-16" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        {/* Right Column - Activity & Actions */}
+        <div className="space-y-6">
+          {/* Activity Feed Skeleton */}
+          <div className="bg-white rounded-lg p-6 border border-gray-200">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <div className="space-y-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-start space-x-3">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <div className="flex-1">
+                    <Skeleton className="h-4 w-3/4 mb-1" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Quick Actions Skeleton */}
+          <div className="bg-white rounded-lg p-6 border border-gray-200">
+            <Skeleton className="h-6 w-32 mb-4" />
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full rounded" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 );
