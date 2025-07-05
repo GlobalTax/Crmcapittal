@@ -60,7 +60,6 @@ export const useTimeEntries = () => {
             created_at,
             updated_at
           `)
-          .eq('user_id', user.id)  // Explicitly filter by user_id to satisfy RLS
           .gte('created_at', startOfDay.toISOString())
           .lte('created_at', endOfDay.toISOString())
           .order('created_at', { ascending: false });

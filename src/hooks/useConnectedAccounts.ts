@@ -22,9 +22,9 @@ export const useConnectedAccounts = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchAccounts = async () => {
+  const fetchAccounts = async (retryCount = 0) => {
     try {
-      console.log('useConnectedAccounts: Starting to fetch accounts...');
+      console.log('useConnectedAccounts: Starting to fetch accounts...', retryCount > 0 ? `(retry ${retryCount})` : '');
       setLoading(true);
       setError(null);
 
@@ -37,6 +37,7 @@ export const useConnectedAccounts = () => {
       }
 
       console.log('useConnectedAccounts: User authenticated:', user.id);
+      console.log('useConnectedAccounts: Attempting to query connected_accounts table...');
 
       const { data, error } = await supabase
         .from('connected_accounts')
@@ -44,10 +45,30 @@ export const useConnectedAccounts = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      console.log('useConnectedAccounts: Query result:', { data, error });
+      console.log('useConnectedAccounts: Raw query result:', { 
+        data, 
+        error, 
+        count: data?.length || 0,
+        errorCode: error?.code,
+        errorMessage: error?.message,
+        errorDetails: error?.details 
+      });
 
       if (error) {
-        console.error('useConnectedAccounts: Database error:', error);
+        console.error('useConnectedAccounts: Database error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // Retry on certain error codes
+        if ((error.code === 'PGRST116' || error.message?.includes('406') || error.message?.includes('400')) && retryCount < 2) {
+          console.log(`useConnectedAccounts: Retrying in ${Math.pow(2, retryCount)} seconds...`);
+          setTimeout(() => fetchAccounts(retryCount + 1), Math.pow(2, retryCount) * 1000);
+          return;
+        }
+        
         throw error;
       }
 
@@ -56,10 +77,35 @@ export const useConnectedAccounts = () => {
         provider: account.provider as 'microsoft' | 'google'
       })) : [];
 
-      console.log('useConnectedAccounts: Processed accounts:', processedAccounts);
+      console.log('useConnectedAccounts: Processed accounts:', {
+        count: processedAccounts.length,
+        providers: processedAccounts.map(acc => acc.provider),
+        accounts: processedAccounts.map(acc => ({
+          id: acc.id,
+          provider: acc.provider,
+          email: acc.email,
+          isActive: acc.is_active,
+          lastSync: acc.last_sync_at,
+          expiresAt: acc.expires_at
+        }))
+      });
+      
       setAccounts(processedAccounts);
     } catch (err) {
-      console.error('useConnectedAccounts: Error fetching connected accounts:', err);
+      console.error('useConnectedAccounts: Error fetching connected accounts:', {
+        error: err,
+        message: err.message,
+        stack: err.stack,
+        retryCount
+      });
+      
+      // Retry on network errors
+      if (retryCount < 2 && (err.message?.includes('fetch') || err.message?.includes('network'))) {
+        console.log(`useConnectedAccounts: Network error, retrying in ${Math.pow(2, retryCount)} seconds...`);
+        setTimeout(() => fetchAccounts(retryCount + 1), Math.pow(2, retryCount) * 1000);
+        return;
+      }
+      
       setError(`Failed to load connected accounts: ${err.message || err}`);
     } finally {
       setLoading(false);

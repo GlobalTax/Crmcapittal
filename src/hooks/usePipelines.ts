@@ -8,9 +8,9 @@ export const usePipelines = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPipelines = async () => {
+  const fetchPipelines = async (retryCount = 0) => {
     try {
-      console.log('usePipelines: Starting to fetch pipelines...');
+      console.log('usePipelines: Starting to fetch pipelines...', retryCount > 0 ? `(retry ${retryCount})` : '');
       setLoading(true);
       setError(null);
 
@@ -34,6 +34,14 @@ export const usePipelines = () => {
 
       if (error) {
         console.error('usePipelines: Database error:', error);
+        
+        // Retry on 400 errors with exponential backoff
+        if (error.code === 'PGRST116' || error.message.includes('400') && retryCount < 3) {
+          console.log(`usePipelines: Retrying in ${Math.pow(2, retryCount)} seconds...`);
+          setTimeout(() => fetchPipelines(retryCount + 1), Math.pow(2, retryCount) * 1000);
+          return;
+        }
+        
         setError(`Error al cargar los pipelines: ${error.message}`);
         setPipelines([]);
         return;
@@ -49,6 +57,14 @@ export const usePipelines = () => {
       setPipelines(transformedData);
     } catch (err) {
       console.error('usePipelines: Error fetching pipelines:', err);
+      
+      // Retry on network errors with exponential backoff
+      if (retryCount < 3 && (err.message?.includes('fetch') || err.message?.includes('network'))) {
+        console.log(`usePipelines: Network error, retrying in ${Math.pow(2, retryCount)} seconds...`);
+        setTimeout(() => fetchPipelines(retryCount + 1), Math.pow(2, retryCount) * 1000);
+        return;
+      }
+      
       setError(`Error al cargar los pipelines: ${err.message || err}`);
       setPipelines([]);
     } finally {
