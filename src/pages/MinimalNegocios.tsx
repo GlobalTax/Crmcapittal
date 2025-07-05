@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
 import { useNegocios } from "@/hooks/useNegocios";
+import { useStages } from "@/hooks/useStages";
 import { User, Briefcase, Building2, Users } from "lucide-react";
 import { NegociosKanban } from "@/components/negocios/NegociosKanban";
 import { MetricCard } from "@/components/negocios/MetricCard";
+import { MetricsBar } from "@/components/negocios/MetricsBar";
 import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
 import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
 import { CreateNegocioDialog } from "@/components/negocios/CreateNegocioDialog";
@@ -18,13 +20,14 @@ import { Negocio } from "@/types/Negocio";
 
 
 export default function MinimalNegocios() {
-  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban'); // Default to kanban
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [selectedNegocio, setSelectedNegocio] = useState<Negocio | null>(null);
   const [editingNegocio, setEditingNegocio] = useState<Negocio | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { negocios, loading, error, createNegocio, updateNegocio, updateNegocioStage } = useNegocios();
+  const { stages } = useStages('DEAL');
 
   if (loading) {
     return (
@@ -124,6 +127,11 @@ export default function MinimalNegocios() {
         </div>
       </div>
 
+      {/* Advanced Metrics Bar - Only show in Kanban mode */}
+      {viewMode === 'kanban' && (
+        <MetricsBar negocios={negocios} stages={stages} />
+      )}
+
       {/* Search */}
       <div className="bg-white rounded-lg border p-4">
         <input
@@ -133,27 +141,29 @@ export default function MinimalNegocios() {
         />
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard
-          label="Total Negocios"
-          value={negocios.length}
-        />
-        <MetricCard
-          label="Activos"
-          value={negocios.filter(n => n.is_active).length}
-          color="text-blue-600"
-        />
-        <MetricCard
-          label="Alta Prioridad"
-          value={negocios.filter(n => n.prioridad === 'alta' || n.prioridad === 'urgente').length}
-          color="text-orange-600"
-        />
-        <MetricCard
-          label="Valor Total"
-          value={`€${negocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}`}
-        />
-      </div>
+      {/* Basic Stats - Only show in Table mode */}
+      {viewMode === 'table' && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <MetricCard
+            label="Total Negocios"
+            value={negocios.length}
+          />
+          <MetricCard
+            label="Activos"
+            value={negocios.filter(n => n.is_active).length}
+            color="text-blue-600"
+          />
+          <MetricCard
+            label="Alta Prioridad"
+            value={negocios.filter(n => n.prioridad === 'alta' || n.prioridad === 'urgente').length}
+            color="text-orange-600"
+          />
+          <MetricCard
+            label="Valor Total"
+            value={`€${negocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}`}
+          />
+        </div>
+      )}
 
       {/* Content */}
       {viewMode === 'table' ? (
