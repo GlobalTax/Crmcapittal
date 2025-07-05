@@ -37,10 +37,10 @@ const navigationSections: NavSection[] = [
     ]
   },
   {
-    title: "Ventas & Negocios",
+    title: "Ventas & Transacciones",
     items: [
       { to: '/deals', label: 'Oportunidades', icon: TrendingUp },
-      { to: '/negocios', label: 'Negocios', icon: Briefcase },
+      { to: '/transacciones', label: 'Transacciones', icon: Briefcase },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
       { to: '/documents', label: 'Documentos', icon: FileText },
     ]

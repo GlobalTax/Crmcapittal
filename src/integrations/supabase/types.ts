@@ -3040,6 +3040,112 @@ export type Database = {
           },
         ]
       }
+      transacciones: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          descripcion: string | null
+          ebitda: number | null
+          empleados: number | null
+          fecha_cierre: string | null
+          fuente_lead: string | null
+          id: string
+          ingresos: number | null
+          is_active: boolean
+          moneda: string | null
+          multiplicador: number | null
+          nombre_transaccion: string
+          notas: string | null
+          prioridad: string | null
+          propietario_transaccion: string | null
+          proxima_actividad: string | null
+          sector: string | null
+          stage_id: string | null
+          tipo_transaccion: string
+          ubicacion: string | null
+          updated_at: string
+          valor_transaccion: number | null
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          ebitda?: number | null
+          empleados?: number | null
+          fecha_cierre?: string | null
+          fuente_lead?: string | null
+          id?: string
+          ingresos?: number | null
+          is_active?: boolean
+          moneda?: string | null
+          multiplicador?: number | null
+          nombre_transaccion: string
+          notas?: string | null
+          prioridad?: string | null
+          propietario_transaccion?: string | null
+          proxima_actividad?: string | null
+          sector?: string | null
+          stage_id?: string | null
+          tipo_transaccion?: string
+          ubicacion?: string | null
+          updated_at?: string
+          valor_transaccion?: number | null
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          ebitda?: number | null
+          empleados?: number | null
+          fecha_cierre?: string | null
+          fuente_lead?: string | null
+          id?: string
+          ingresos?: number | null
+          is_active?: boolean
+          moneda?: string | null
+          multiplicador?: number | null
+          nombre_transaccion?: string
+          notas?: string | null
+          prioridad?: string | null
+          propietario_transaccion?: string | null
+          proxima_actividad?: string | null
+          sector?: string | null
+          stage_id?: string | null
+          tipo_transaccion?: string
+          ubicacion?: string | null
+          updated_at?: string
+          valor_transaccion?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacciones_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           company_id: string | null

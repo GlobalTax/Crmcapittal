@@ -20,8 +20,8 @@ const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const Companies = lazy(() => import('@/pages/MinimalCompanies'));
 const Deals = lazy(() => import('@/pages/Deals'));
 const DealPage = lazy(() => import('@/pages/DealPage'));
-const Negocios = lazy(() => import('@/pages/Negocios'));
-const NegocioDetail = lazy(() => import('@/pages/NegocioDetail'));
+const Transacciones = lazy(() => import('@/pages/Transacciones'));
+const TransaccionPage = lazy(() => import('@/pages/TransaccionPage'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));
 const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
@@ -173,18 +173,18 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/negocios"
+            path="/transacciones"
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <Negocios />
+                <Transacciones />
               </Suspense>
             } 
           />
           <Route 
-            path="/negocios/:id" 
+            path="/transacciones/:id" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <NegocioDetail />
+                <TransaccionPage />
               </Suspense>
             } 
           />
