@@ -2,47 +2,62 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/minimal/Badge';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { PersonalKpiCards } from '@/components/personal/PersonalKpiCards';
-import { PersonalTasksPanel } from '@/components/personal/PersonalTasksPanel';
-import { PersonalCalendarPanel } from '@/components/personal/PersonalCalendarPanel';
-import { PersonalPipelinePanel } from '@/components/personal/PersonalPipelinePanel';
-import { PersonalActivityPanel } from '@/components/personal/PersonalActivityPanel';
-import { PersonalQuickActionsPanel } from '@/components/personal/PersonalQuickActionsPanel';
+import { DividedKpiRow } from '@/components/dashboard/DividedKpiRow';
+import { AreaChartRevenueLeads } from '@/components/dashboard/charts/AreaChartRevenueLeads';
+import { AreaChartRevenueTx } from '@/components/dashboard/charts/AreaChartRevenueTx';
+import { DonutLeadsByStage } from '@/components/dashboard/charts/DonutLeadsByStage';
+import { DonutTxByStage } from '@/components/dashboard/charts/DonutTxByStage';
+import { RecentLeads } from '@/components/dashboard/RecentLeads';
+import { RecentTx } from '@/components/dashboard/RecentTx';
+import { ActivityTimeline } from '@/components/dashboard/ActivityTimeline';
+import { QuickActionsPanel } from '@/components/dashboard/QuickActionsPanel';
 
 export default function DashboardPersonal() {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            ¡Hola, {user?.user_metadata?.first_name || 'Usuario'}!
+            Dashboard Captación & Venta
           </h1>
           <p className="text-muted-foreground">
             {format(new Date(), 'EEEE, d MMMM yyyy', { locale: es })}
           </p>
         </div>
-        <Badge color="green">
-          Dashboard Personal
+        <Badge color="blue">
+          ¡Hola, {user?.user_metadata?.first_name || 'Usuario'}!
         </Badge>
       </div>
 
-      {/* KPI Cards */}
-      <PersonalKpiCards />
+      {/* KPI Row */}
+      <DividedKpiRow />
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <PersonalTasksPanel />
-        <PersonalCalendarPanel />
-        <PersonalPipelinePanel />
+      {/* Charts Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <AreaChartRevenueLeads />
+        <AreaChartRevenueTx />
       </div>
 
-      {/* Bottom Section */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <PersonalActivityPanel />
-        <PersonalQuickActionsPanel />
+      <div className="grid gap-6 lg:grid-cols-2">
+        <DonutLeadsByStage />
+        <DonutTxByStage />
+      </div>
+
+      {/* Recent Lists */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <RecentLeads />
+        <RecentTx />
+      </div>
+
+      {/* Timeline and Quick Actions */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ActivityTimeline />
+        </div>
+        <QuickActionsPanel />
       </div>
     </div>
   );
