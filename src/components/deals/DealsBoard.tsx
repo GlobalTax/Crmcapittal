@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { 
+  DndContext, 
+  DragEndEvent, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  closestCenter
+} from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Deal } from '@/types/Deal';
 import { StageColumn } from './StageColumn';
 import { useDeals } from '@/hooks/useDeals';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { VisuallyHidden } from '@/components/ui/visually-hidden';
 
 interface DealsBoardProps {
   onNewDeal: (stageName?: string) => void;
@@ -23,6 +32,12 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 }
+    })
+  );
+
   const getDealsByStage = (stageName: string) => {
     return deals.filter(deal => deal.stage === stageName);
   };
@@ -31,14 +46,17 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
     setIsDragging(true);
   };
 
-  const handleDragEnd = async (result: DropResult) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     setIsDragging(false);
     
-    if (!result.destination) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    const { draggableId: dealId, destination, source } = result;
-    const newStage = destination.droppableId;
-    const oldStage = source.droppableId;
+    const dealId = active.id as string;
+    const newStage = over.id as string;
+    const oldStage = STAGES.find(stage => 
+      getDealsByStage(stage.name).some(deal => deal.id === dealId)
+    )?.name;
     
     if (newStage === oldStage) return;
 
@@ -97,19 +115,33 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
 
   return (
     <div className="h-full">
-      <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <VisuallyHidden id="DndDescribedBy">
+        Arrastra para mover el deal entre columnas
+      </VisuallyHidden>
+      <DndContext 
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart} 
+        onDragEnd={handleDragEnd}
+      >
         <div className="grid auto-cols-[280px] grid-flow-col gap-6 overflow-x-auto px-8 py-6 h-full">
           {STAGES.map((stage) => (
-            <StageColumn
+            <SortableContext
               key={stage.name}
-              stage={stage}
-              deals={getDealsByStage(stage.name)}
-              onNewDeal={onNewDeal}
-              onDealClick={onDealClick}
-            />
+              id={stage.name}
+              items={getDealsByStage(stage.name).map(d => d.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <StageColumn
+                stage={stage}
+                deals={getDealsByStage(stage.name)}
+                onNewDeal={onNewDeal}
+                onDealClick={onDealClick}
+              />
+            </SortableContext>
           ))}
         </div>
-      </DragDropContext>
+      </DndContext>
     </div>
   );
 };

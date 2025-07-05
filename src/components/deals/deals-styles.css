@@ -1,0 +1,7 @@
+.deal-card {
+  @apply bg-background rounded-lg shadow-sm p-4 cursor-grab;
+}
+
+.deal-card:active {
+  @apply cursor-grabbing;
+}

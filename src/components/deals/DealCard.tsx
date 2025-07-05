@@ -1,5 +1,6 @@
 import React from 'react';
-import { Draggable } from 'react-beautiful-dnd';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Deal } from '@/types/Deal';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Building2, User } from 'lucide-react';
@@ -11,6 +12,20 @@ interface DealCardProps {
 }
 
 export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: deal.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const formatCurrency = (amount?: number) => {
     if (!amount) return '';
     return new Intl.NumberFormat('es-ES', {
@@ -23,24 +38,23 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
   };
 
   return (
-    <Draggable draggableId={deal.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          onClick={() => onClick?.(deal)}
-          className={`
-            bg-background rounded-lg shadow-sm p-4 flex flex-col gap-3 cursor-pointer
-            border border-border
-            hover:shadow-md hover:-translate-y-0.5 transition-all duration-200
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
-            ${snapshot.isDragging ? 'rotate-2 shadow-lg' : ''}
-          `}
-          tabIndex={0}
-          role="button"
-          aria-label={`Deal: ${deal.title}`}
-        >
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={() => onClick?.(deal)}
+      className={`
+        bg-background rounded-lg shadow-sm p-4 flex flex-col gap-3 cursor-grab active:cursor-grabbing
+        border border-border
+        hover:shadow-md hover:-translate-y-0.5 transition-all duration-200
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
+        ${isDragging ? 'rotate-2 shadow-lg opacity-50' : ''}
+      `}
+      tabIndex={0}
+      role="button"
+      aria-label={`Deal: ${deal.title}`}
+    >
           {/* Title */}
           <h3 className="font-medium text-foreground truncate text-sm">
             {deal.title}
@@ -69,9 +83,7 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
                 <User className="h-3 w-3" />
               </AvatarFallback>
             </Avatar>
-          </div>
         </div>
-      )}
-    </Draggable>
+    </div>
   );
 };

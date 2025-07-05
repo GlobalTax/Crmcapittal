@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droppable } from 'react-beautiful-dnd';
+import { useDroppable } from '@dnd-kit/core';
 import { Deal } from '@/types/Deal';
 import { DealCard } from './DealCard';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,10 @@ interface StageColumnProps {
 }
 
 export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColumnProps) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id: stage.name,
+  });
+
   return (
     <div className="min-w-[280px] flex-shrink-0">
       {/* Header */}
@@ -46,38 +50,32 @@ export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColum
       </div>
 
       {/* Droppable Area */}
-      <Droppable droppableId={stage.name}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={`
-              min-h-[600px] space-y-3 p-2 rounded-lg transition-all duration-200
-              ${snapshot.isDraggingOver 
-                ? 'bg-accent/50 border-2 border-dashed border-primary/30' 
-                : 'bg-muted/20'
-              }
-            `}
-          >
-            {deals.map((deal, index) => (
-              <DealCard
-                key={deal.id}
-                deal={deal}
-                index={index}
-                onClick={onDealClick}
-              />
-            ))}
-            {provided.placeholder}
-            
-            {/* Empty State */}
-            {deals.length === 0 && !snapshot.isDraggingOver && (
-              <div className="text-center py-8 text-muted-foreground">
-                <p className="text-sm">No deals in this stage</p>
-              </div>
-            )}
+      <div
+        ref={setNodeRef}
+        className={`
+          min-h-[600px] space-y-3 p-2 rounded-lg transition-all duration-200
+          ${isOver 
+            ? 'bg-accent/50 border-2 border-dashed border-primary/30' 
+            : 'bg-muted/20'
+          }
+        `}
+      >
+        {deals.map((deal, index) => (
+          <DealCard
+            key={deal.id}
+            deal={deal}
+            index={index}
+            onClick={onDealClick}
+          />
+        ))}
+        
+        {/* Empty State */}
+        {deals.length === 0 && !isOver && (
+          <div className="text-center py-8 text-muted-foreground">
+            <p className="text-sm">No deals in this stage</p>
           </div>
         )}
-      </Droppable>
+      </div>
     </div>
   );
 };
