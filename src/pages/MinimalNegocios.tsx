@@ -6,8 +6,12 @@ import { useNegocios } from "@/hooks/useNegocios";
 import { User, Briefcase, Building2, Users } from "lucide-react";
 import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
 import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
+import { CreateNegocioDialog } from "@/components/negocios/CreateNegocioDialog";
+import { NegocioDetailsDialog } from "@/components/negocios/NegocioDetailsDialog";
+import { EditNegocioDialog } from "@/components/negocios/EditNegocioDialog";
 import { Company } from "@/types/Company";
 import { Contact } from "@/types/Contact";
+import { Negocio } from "@/types/Negocio";
 
 const stages = ['Nuevo', 'En Proceso', 'Propuesta', 'Ganado', 'Perdido'];
 
@@ -15,7 +19,10 @@ export default function MinimalNegocios() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const { negocios, loading, error } = useNegocios();
+  const [selectedNegocio, setSelectedNegocio] = useState<Negocio | null>(null);
+  const [editingNegocio, setEditingNegocio] = useState<Negocio | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const { negocios, loading, error, createNegocio, updateNegocio } = useNegocios();
 
   if (loading) {
     return (
@@ -76,12 +83,26 @@ export default function MinimalNegocios() {
     }
   };
 
+  const handleCreateNegocio = async (negocioData: Omit<Negocio, 'id' | 'created_at' | 'updated_at'>) => {
+    await createNegocio(negocioData);
+    setIsCreateDialogOpen(false);
+  };
+
+  const handleEditNegocio = async (id: string, updates: Partial<Negocio>) => {
+    await updateNegocio(id, updates);
+    setEditingNegocio(null);
+  };
+
+  const handleViewNegocio = (negocio: Negocio) => {
+    setSelectedNegocio(negocio);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Negocios</h1>
+          <h1 className="text-sm font-bold text-gray-900">Negocios</h1>
           <p className="text-gray-600 mt-1">Gestiona tus oportunidades de negocio</p>
         </div>
         <div className="flex space-x-3">
@@ -97,7 +118,7 @@ export default function MinimalNegocios() {
           >
             Kanban
           </Button>
-          <Button variant="primary">Nuevo Negocio</Button>
+          <Button variant="primary" onClick={() => setIsCreateDialogOpen(true)}>Nuevo Negocio</Button>
         </div>
       </div>
 
@@ -114,23 +135,23 @@ export default function MinimalNegocios() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg p-6 border">
           <span className="text-gray-500 text-sm">Total Negocios</span>
-          <span className="text-3xl font-bold mt-2 block">{negocios.length}</span>
+          <span className="text-sm font-bold mt-2 block">{negocios.length}</span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
           <span className="text-gray-500 text-sm">En Proceso</span>
-          <span className="text-3xl font-bold mt-2 block text-blue-600">
+          <span className="text-sm font-bold mt-2 block text-blue-600">
             {negocios.filter(n => n.stage?.name === 'En Proceso').length}
           </span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
           <span className="text-gray-500 text-sm">Ganados</span>
-          <span className="text-3xl font-bold mt-2 block text-green-600">
+          <span className="text-sm font-bold mt-2 block text-green-600">
             {negocios.filter(n => n.stage?.name === 'Ganado').length}
           </span>
         </div>
         <div className="bg-white rounded-lg p-6 border">
           <span className="text-gray-500 text-sm">Valor Total</span>
-          <span className="text-3xl font-bold mt-2 block">
+          <span className="text-sm font-bold mt-2 block">
             €{negocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}
           </span>
         </div>
@@ -194,10 +215,16 @@ export default function MinimalNegocios() {
                     <TableCell>{negocio.propietario_negocio || 'Sin asignar'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-2 justify-end">
-                        <button className="text-blue-600 hover:text-blue-800 text-sm">
+                        <button 
+                          onClick={() => handleViewNegocio(negocio)}
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
                           Ver
                         </button>
-                        <button className="text-blue-600 hover:text-blue-800 text-sm">
+                        <button 
+                          onClick={() => setEditingNegocio(negocio)}
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
                           Editar
                         </button>
                       </div>
@@ -279,6 +306,33 @@ export default function MinimalNegocios() {
             setSelectedContact(null);
             // TODO: Implement edit contact functionality
           }}
+        />
+      )}
+
+      {/* Create Negocio Dialog */}
+      <CreateNegocioDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onSuccess={handleCreateNegocio}
+      />
+
+      {/* Negocio Details Dialog */}
+      {selectedNegocio && (
+        <NegocioDetailsDialog
+          negocio={selectedNegocio}
+          open={!!selectedNegocio}
+          onOpenChange={(open) => !open && setSelectedNegocio(null)}
+          onEdit={setEditingNegocio}
+        />
+      )}
+
+      {/* Edit Negocio Dialog */}
+      {editingNegocio && (
+        <EditNegocioDialog
+          negocio={editingNegocio}
+          open={!!editingNegocio}
+          onOpenChange={(open) => !open && setEditingNegocio(null)}
+          onSuccess={(updates) => handleEditNegocio(editingNegocio.id, updates)}
         />
       )}
     </div>

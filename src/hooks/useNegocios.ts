@@ -16,7 +16,7 @@ export const useNegocios = (pipelineId?: string) => {
       setError(null);
       
       let query = supabase
-        .from('deals')
+        .from('negocios')
         .select(`
           *,
           stages!stage_id (
@@ -32,6 +32,12 @@ export const useNegocios = (pipelineId?: string) => {
             email,
             phone,
             position
+          ),
+          companies!company_id (
+            id,
+            name,
+            industry,
+            website
           )
         `)
         .eq('is_active', true)
@@ -45,50 +51,50 @@ export const useNegocios = (pipelineId?: string) => {
 
       if (error) throw error;
       
-      const transformedData = (data || []).map(deal => ({
-        id: deal.id,
-        nombre_negocio: deal.deal_name,
-        company_id: deal.company_name, // Using company_name as identifier for now
-        contact_id: deal.contact_id,
-        valor_negocio: deal.deal_value,
-        moneda: deal.currency || 'EUR',
-        tipo_negocio: deal.deal_type,
-        stage_id: deal.stage_id,
-        prioridad: deal.priority,
-        propietario_negocio: deal.deal_owner,
-        ebitda: deal.ebitda,
-        ingresos: deal.revenue,
-        multiplicador: deal.multiplier,
-        sector: deal.sector,
-        ubicacion: deal.location,
-        empleados: deal.employees,
-        descripcion: deal.description,
-        fuente_lead: deal.lead_source,
-        proxima_actividad: deal.next_activity,
-        notas: deal.notes,
-        created_by: deal.created_by,
-        created_at: deal.created_at,
-        updated_at: deal.updated_at,
-        fecha_cierre: deal.close_date,
-        is_active: deal.is_active,
-        stage: deal.stages ? {
-          id: deal.stages.id,
-          name: deal.stages.name,
-          color: deal.stages.color,
-          order_index: deal.stages.order_index
+      const transformedData = (data || []).map(negocio => ({
+        id: negocio.id,
+        nombre_negocio: negocio.nombre_negocio,
+        company_id: negocio.company_id,
+        contact_id: negocio.contact_id,
+        valor_negocio: negocio.valor_negocio,
+        moneda: negocio.moneda || 'EUR',
+        tipo_negocio: negocio.tipo_negocio,
+        stage_id: negocio.stage_id,
+        prioridad: negocio.prioridad,
+        propietario_negocio: negocio.propietario_negocio,
+        ebitda: negocio.ebitda,
+        ingresos: negocio.ingresos,
+        multiplicador: negocio.multiplicador,
+        sector: negocio.sector,
+        ubicacion: negocio.ubicacion,
+        empleados: negocio.empleados,
+        descripcion: negocio.descripcion,
+        fuente_lead: negocio.fuente_lead,
+        proxima_actividad: negocio.proxima_actividad,
+        notas: negocio.notas,
+        created_by: negocio.created_by,
+        created_at: negocio.created_at,
+        updated_at: negocio.updated_at,
+        fecha_cierre: negocio.fecha_cierre,
+        is_active: negocio.is_active,
+        stage: negocio.stages ? {
+          id: negocio.stages.id,
+          name: negocio.stages.name,
+          color: negocio.stages.color,
+          order_index: negocio.stages.order_index
         } : undefined,
-        company: deal.company_name ? {
-          id: deal.company_name,
-          name: deal.company_name,
-          industry: undefined,
-          website: undefined
+        company: negocio.companies ? {
+          id: negocio.companies.id,
+          name: negocio.companies.name,
+          industry: negocio.companies.industry,
+          website: negocio.companies.website
         } : undefined,
-        contact: deal.contacts ? {
-          id: deal.contacts.id,
-          name: deal.contacts.name,
-          email: deal.contacts.email,
-          phone: deal.contacts.phone,
-          position: deal.contacts.position
+        contact: negocio.contacts ? {
+          id: negocio.contacts.id,
+          name: negocio.contacts.name,
+          email: negocio.contacts.email,
+          phone: negocio.contacts.phone,
+          position: negocio.contacts.position
         } : undefined
       }));
       
@@ -107,28 +113,28 @@ export const useNegocios = (pipelineId?: string) => {
       const { data: user } = await supabase.auth.getUser();
       
       const { data, error } = await supabase
-        .from('deals')
+        .from('negocios')
         .insert([{
-          deal_name: negocioData.nombre_negocio,
-          deal_value: negocioData.valor_negocio,
-          currency: negocioData.moneda,
-          deal_type: negocioData.tipo_negocio,
+          nombre_negocio: negocioData.nombre_negocio,
+          valor_negocio: negocioData.valor_negocio,
+          moneda: negocioData.moneda,
+          tipo_negocio: negocioData.tipo_negocio,
           stage_id: negocioData.stage_id,
-          priority: negocioData.prioridad,
-          deal_owner: negocioData.propietario_negocio,
+          prioridad: negocioData.prioridad,
+          propietario_negocio: negocioData.propietario_negocio,
           ebitda: negocioData.ebitda,
-          revenue: negocioData.ingresos,
-          multiplier: negocioData.multiplicador,
+          ingresos: negocioData.ingresos,
+          multiplicador: negocioData.multiplicador,
           sector: negocioData.sector,
-          location: negocioData.ubicacion,
-          employees: negocioData.empleados,
-          description: negocioData.descripcion,
-          lead_source: negocioData.fuente_lead,
-          next_activity: negocioData.proxima_actividad,
-          notes: negocioData.notas,
+          ubicacion: negocioData.ubicacion,
+          empleados: negocioData.empleados,
+          descripcion: negocioData.descripcion,
+          fuente_lead: negocioData.fuente_lead,
+          proxima_actividad: negocioData.proxima_actividad,
+          notas: negocioData.notas,
           contact_id: negocioData.contact_id,
-          company_name: negocioData.company_id,
-          close_date: negocioData.fecha_cierre,
+          company_id: negocioData.company_id,
+          fecha_cierre: negocioData.fecha_cierre,
           created_by: user?.user?.id
         }])
         .select()
@@ -156,37 +162,37 @@ export const useNegocios = (pipelineId?: string) => {
 
   const updateNegocio = async (id: string, updates: Partial<Negocio>) => {
     try {
-      const dealUpdates = {
-        deal_name: updates.nombre_negocio,
-        deal_value: updates.valor_negocio,
-        currency: updates.moneda,
-        deal_type: updates.tipo_negocio,
+      const negocioUpdates = {
+        nombre_negocio: updates.nombre_negocio,
+        valor_negocio: updates.valor_negocio,
+        moneda: updates.moneda,
+        tipo_negocio: updates.tipo_negocio,
         stage_id: updates.stage_id,
-        priority: updates.prioridad,
-        deal_owner: updates.propietario_negocio,
+        prioridad: updates.prioridad,
+        propietario_negocio: updates.propietario_negocio,
         ebitda: updates.ebitda,
-        revenue: updates.ingresos,
-        multiplier: updates.multiplicador,
+        ingresos: updates.ingresos,
+        multiplicador: updates.multiplicador,
         sector: updates.sector,
-        location: updates.ubicacion,
-        employees: updates.empleados,
-        description: updates.descripcion,
-        lead_source: updates.fuente_lead,
-        next_activity: updates.proxima_actividad,
-        notes: updates.notas,
+        ubicacion: updates.ubicacion,
+        empleados: updates.empleados,
+        descripcion: updates.descripcion,
+        fuente_lead: updates.fuente_lead,
+        proxima_actividad: updates.proxima_actividad,
+        notas: updates.notas,
         contact_id: updates.contact_id,
-        company_name: updates.company_id,
-        close_date: updates.fecha_cierre
+        company_id: updates.company_id,
+        fecha_cierre: updates.fecha_cierre
       };
       
       // Remove undefined values
-      Object.keys(dealUpdates).forEach(key => 
-        dealUpdates[key] === undefined && delete dealUpdates[key]
+      Object.keys(negocioUpdates).forEach(key => 
+        negocioUpdates[key] === undefined && delete negocioUpdates[key]
       );
       
       const { data, error } = await supabase
-        .from('deals')
-        .update(dealUpdates)
+        .from('negocios')
+        .update(negocioUpdates)
         .eq('id', id)
         .select()
         .single();
@@ -218,7 +224,7 @@ export const useNegocios = (pipelineId?: string) => {
   const deleteNegocio = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('deals')
+        .from('negocios')
         .update({ is_active: false })
         .eq('id', id);
 
