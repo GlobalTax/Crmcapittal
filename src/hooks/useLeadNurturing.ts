@@ -216,7 +216,12 @@ export const useLeadScoring = () => {
 
       return transformedData;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: (query) => {
+      // Smart polling for lead nurturing data
+      if (document.hidden) return 600000; // 10 minutes when hidden
+      return 120000; // 2 minutes when active
+    },
+    refetchIntervalInBackground: false
   });
 
   return {

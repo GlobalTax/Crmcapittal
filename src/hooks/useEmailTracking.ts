@@ -123,7 +123,12 @@ export const useEmailTracking = (filters?: {
       // Siempre devolvemos los datos de prueba para que funcione
       return SAMPLE_EMAILS;
     },
-    refetchInterval: 30000
+    refetchInterval: (query) => {
+      // Smart polling: only refetch if tab is active and user is active
+      if (document.hidden) return 300000; // 5 minutes when hidden
+      return 60000; // 1 minute when active
+    },
+    refetchIntervalInBackground: false
   });
 
   const {
@@ -139,7 +144,11 @@ export const useEmailTracking = (filters?: {
         recentEmails: SAMPLE_EMAILS.slice(0, 3)
       };
     },
-    refetchInterval: 30000
+    refetchInterval: (query) => {
+      if (document.hidden) return 300000; // 5 minutes when hidden
+      return 120000; // 2 minutes when active (less frequent for stats)
+    },
+    refetchIntervalInBackground: false
   });
 
   const createEmailMutation = useMutation({
