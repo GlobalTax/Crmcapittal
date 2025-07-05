@@ -14,6 +14,8 @@ interface OptimizedKanbanColumnProps {
   onView?: (negocio: Negocio) => void;
   onAddNegocio?: (stageId: string) => void;
   isLoading?: boolean;
+  selectedIds?: string[];
+  onSelectItem?: (id: string) => void;
 }
 
 /**
@@ -39,7 +41,9 @@ const OptimizedKanbanColumn = memo(({
   onEdit, 
   onView, 
   onAddNegocio,
-  isLoading = false 
+  isLoading = false,
+  selectedIds = [],
+  onSelectItem
 }: OptimizedKanbanColumnProps) => {
   /**
    * Calculate column statistics
@@ -152,6 +156,8 @@ const OptimizedKanbanColumn = memo(({
                 index={index}
                 onEdit={onEdit}
                 onView={onView}
+                isSelected={selectedIds.includes(negocio.id)}
+                onSelectItem={onSelectItem}
               />
             ))}
 

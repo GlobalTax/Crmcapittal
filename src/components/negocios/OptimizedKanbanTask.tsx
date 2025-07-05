@@ -18,6 +18,8 @@ interface OptimizedKanbanTaskProps {
   onEdit: (negocio: Negocio) => void;
   onView?: (negocio: Negocio) => void;
   isDragging?: boolean;
+  isSelected?: boolean;
+  onSelectItem?: (id: string) => void;
 }
 
 /**
@@ -40,7 +42,9 @@ const OptimizedKanbanTask = memo(({
   index, 
   onEdit, 
   onView, 
-  isDragging 
+  isDragging,
+  isSelected = false,
+  onSelectItem
 }: OptimizedKanbanTaskProps) => {
   /**
    * Gets priority-based color classes for badge styling
@@ -84,11 +88,13 @@ const OptimizedKanbanTask = memo(({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
+          onClick={() => onSelectItem?.(negocio.id)}
           className={`
             group relative bg-background border border-border rounded-lg p-4 
-            transition-all duration-200 ease-in-out
+            transition-all duration-200 ease-in-out cursor-pointer
             hover:shadow-md hover:border-primary/20
             focus-within:ring-2 focus-within:ring-primary/20
+            ${isSelected ? 'ring-2 ring-primary/50 bg-primary/5' : ''}
             ${snapshot.isDragging 
               ? 'shadow-2xl rotate-2 scale-105 ring-2 ring-primary/30 z-50' 
               : 'hover:scale-[1.02]'

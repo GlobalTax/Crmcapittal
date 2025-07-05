@@ -11,6 +11,7 @@ import { useContacts } from "@/hooks/useContacts";
 import { useCompanies } from "@/hooks/useCompanies";
 import { usePipelines } from "@/hooks/usePipelines";
 import { useStages } from "@/hooks/useStages";
+import { NegocioTemplates, NegocioTemplate } from "./NegocioTemplates";
 
 interface CreateNegocioDialogProps {
   open: boolean;
@@ -39,6 +40,8 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
   const { pipelines } = usePipelines();
   const { stages } = useStages();
   
+  const [showTemplates, setShowTemplates] = useState(false);
+  
   const [formData, setFormData] = useState({
     nombre_negocio: "",
     company_id: "",
@@ -65,6 +68,19 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
   // Get DEAL pipeline stages
   const dealPipeline = pipelines.find(p => p.type === 'DEAL');
   const dealStages = stages.filter(s => s.pipeline_id === dealPipeline?.id);
+
+  const handleCreateFromTemplate = (template: NegocioTemplate) => {
+    setFormData(prev => ({
+      ...prev,
+      ...template.defaults,
+      valor_negocio: template.defaults.valor_negocio?.toString() || '',
+      ebitda: template.defaults.ebitda?.toString() || '',
+      ingresos: template.defaults.ingresos?.toString() || '',
+      multiplicador: template.defaults.multiplicador?.toString() || '',
+      empleados: template.defaults.empleados?.toString() || ''
+    }));
+    setShowTemplates(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,7 +140,12 @@ export const CreateNegocioDialog = ({ open, onOpenChange, onSuccess }: CreateNeg
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Crear Nuevo Negocio</DialogTitle>
+          <DialogTitle className="flex items-center justify-between">
+            Crear Nuevo Negocio
+            <div className="flex gap-2">
+              <NegocioTemplates onCreateFromTemplate={handleCreateFromTemplate} />
+            </div>
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

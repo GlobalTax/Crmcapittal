@@ -36,8 +36,46 @@ export default function MinimalNegocios() {
   const [editingNegocio, setEditingNegocio] = useState<Negocio | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [filteredNegocios, setFilteredNegocios] = useState<Negocio[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showActionHistory, setShowActionHistory] = useState(false);
+  const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
   const { negocios, loading, error, createNegocio, updateNegocio, updateNegocioStage } = useNegocios();
   const { stages } = useStages('DEAL');
+  
+  // Selection handlers
+  const handleSelectItem = (id: string) => {
+    setSelectedIds(prev => 
+      prev.includes(id) 
+        ? prev.filter(selectedId => selectedId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSelectedIds(displayNegocios.map(n => n.id));
+  };
+
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey)) {
+        if (e.key === 'z' && !e.shiftKey) {
+          e.preventDefault();
+          // Undo functionality would be implemented here
+        } else if (e.key === 'y' || (e.key === 'z' && e.shiftKey)) {
+          e.preventDefault();
+          // Redo functionality would be implemented here
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Use filtered negocios for display, fallback to all negocios if not filtered yet
   const displayNegocios = filteredNegocios.length > 0 || negocios.length === 0 ? filteredNegocios : negocios;
@@ -136,6 +174,12 @@ export default function MinimalNegocios() {
           >
             Kanban
           </Button>
+          <Button variant="secondary" onClick={() => setShowActionHistory(true)}>
+            Historial
+          </Button>
+          <Button variant="secondary" onClick={() => setShowAdvancedAnalytics(true)}>
+            Analytics
+          </Button>
           <Button variant="primary" onClick={() => setIsCreateDialogOpen(true)}>Nuevo Negocio</Button>
         </div>
       </div>
@@ -147,6 +191,19 @@ export default function MinimalNegocios() {
 
       {/* Advanced Filter Bar */}
       <FilterBar negocios={negocios} onFilteredChange={setFilteredNegocios} />
+
+      {/* Bulk Actions Bar - Only show in Kanban mode */}
+      {viewMode === 'kanban' && (
+        <BulkActionsBar
+          negocios={displayNegocios}
+          stages={stages}
+          onRefresh={() => window.location.reload()}
+          selectedIds={selectedIds}
+          onSelectItem={handleSelectItem}
+          onSelectAll={handleSelectAll}
+          onClearSelection={handleClearSelection}
+        />
+      )}
 
       {/* Basic Stats - Only show in Table mode */}
       {viewMode === 'table' && (
@@ -264,6 +321,8 @@ export default function MinimalNegocios() {
               onAddNegocio={() => setIsCreateDialogOpen(true)}
               isLoading={loading}
               onRefresh={() => window.location.reload()}
+              selectedIds={selectedIds}
+              onSelectItem={handleSelectItem}
             />
           </div>
         </div>
@@ -320,6 +379,36 @@ export default function MinimalNegocios() {
           onOpenChange={(open) => !open && setEditingNegocio(null)}
           onSuccess={(updates) => handleEditNegocio(editingNegocio.id, updates)}
         />
+      )}
+
+      {/* Action History Modal */}
+      {showActionHistory && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Historial de Acciones</h2>
+              <Button variant="secondary" onClick={() => setShowActionHistory(false)}>
+                Cerrar
+              </Button>
+            </div>
+            <ActionHistory />
+          </div>
+        </div>
+      )}
+
+      {/* Advanced Analytics Modal */}
+      {showAdvancedAnalytics && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-6xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Analytics Avanzados</h2>
+              <Button variant="secondary" onClick={() => setShowAdvancedAnalytics(false)}>
+                Cerrar
+              </Button>
+            </div>
+            <AdvancedAnalyticsDashboard negocios={displayNegocios} stages={stages} />
+          </div>
+        </div>
       )}
     </div>
   );

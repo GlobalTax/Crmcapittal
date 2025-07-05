@@ -18,6 +18,8 @@ interface OptimizedNegociosKanbanProps {
   onAddNegocio?: (stageId?: string) => void;
   isLoading?: boolean;
   onRefresh?: () => void;
+  selectedIds?: string[];
+  onSelectItem?: (id: string) => void;
 }
 
 /**
@@ -45,7 +47,9 @@ export const OptimizedNegociosKanban = React.memo(({
   onView, 
   onAddNegocio,
   isLoading = false,
-  onRefresh
+  onRefresh,
+  selectedIds = [],
+  onSelectItem
 }: OptimizedNegociosKanbanProps) => {
   const [selectedPipelineId, setSelectedPipelineId] = useState<string>();
   const [isDragging, setIsDragging] = useState(false);
@@ -253,6 +257,8 @@ export const OptimizedNegociosKanban = React.memo(({
                 onView={onView}
                 onAddNegocio={handleAddNegocio}
                 isLoading={isDragging}
+                selectedIds={selectedIds}
+                onSelectItem={onSelectItem}
               />
             ))}
           </div>
