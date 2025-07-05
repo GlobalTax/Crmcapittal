@@ -8,6 +8,7 @@ import { User, Briefcase, Building2, Users } from "lucide-react";
 import { NegociosKanban } from "@/components/negocios/NegociosKanban";
 import { MetricCard } from "@/components/negocios/MetricCard";
 import { MetricsBar } from "@/components/negocios/MetricsBar";
+import { FilterBar } from "@/components/negocios/FilterBar";
 import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
 import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
 import { CreateNegocioDialog } from "@/components/negocios/CreateNegocioDialog";
@@ -20,14 +21,18 @@ import { Negocio } from "@/types/Negocio";
 
 
 export default function MinimalNegocios() {
-  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban'); // Default to kanban
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [selectedNegocio, setSelectedNegocio] = useState<Negocio | null>(null);
   const [editingNegocio, setEditingNegocio] = useState<Negocio | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [filteredNegocios, setFilteredNegocios] = useState<Negocio[]>([]);
   const { negocios, loading, error, createNegocio, updateNegocio, updateNegocioStage } = useNegocios();
   const { stages } = useStages('DEAL');
+
+  // Use filtered negocios for display, fallback to all negocios if not filtered yet
+  const displayNegocios = filteredNegocios.length > 0 || negocios.length === 0 ? filteredNegocios : negocios;
 
   if (loading) {
     return (
@@ -129,38 +134,32 @@ export default function MinimalNegocios() {
 
       {/* Advanced Metrics Bar - Only show in Kanban mode */}
       {viewMode === 'kanban' && (
-        <MetricsBar negocios={negocios} stages={stages} />
+        <MetricsBar negocios={displayNegocios} stages={stages} />
       )}
 
-      {/* Search */}
-      <div className="bg-white rounded-lg border p-4">
-        <input
-          type="text"
-          placeholder="Buscar negocios..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-        />
-      </div>
+      {/* Advanced Filter Bar */}
+      <FilterBar negocios={negocios} onFilteredChange={setFilteredNegocios} />
 
       {/* Basic Stats - Only show in Table mode */}
       {viewMode === 'table' && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <MetricCard
             label="Total Negocios"
-            value={negocios.length}
+            value={displayNegocios.length}
           />
           <MetricCard
             label="Activos"
-            value={negocios.filter(n => n.is_active).length}
+            value={displayNegocios.filter(n => n.is_active).length}
             color="text-blue-600"
           />
           <MetricCard
             label="Alta Prioridad"
-            value={negocios.filter(n => n.prioridad === 'alta' || n.prioridad === 'urgente').length}
+            value={displayNegocios.filter(n => n.prioridad === 'alta' || n.prioridad === 'urgente').length}
             color="text-orange-600"
           />
           <MetricCard
             label="Valor Total"
-            value={`€${negocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}`}
+            value={`€${displayNegocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}`}
           />
         </div>
       )}
@@ -169,7 +168,7 @@ export default function MinimalNegocios() {
       {viewMode === 'table' ? (
         <div className="bg-white rounded-lg border">
           <div className="p-4 border-b">
-            <h3 className="font-semibold">{negocios.length} negocios</h3>
+            <h3 className="font-semibold">{displayNegocios.length} negocios</h3>
           </div>
           <div className="p-4">
             <Table>
@@ -183,7 +182,7 @@ export default function MinimalNegocios() {
                 <TableHead className="text-right">Acciones</TableHead>
               </TableHeader>
               <TableBody>
-                {negocios.map((negocio) => (
+                {displayNegocios.map((negocio) => (
                   <TableRow key={negocio.id}>
                     <TableCell>
                       <div className="font-medium">{negocio.nombre_negocio}</div>
@@ -250,7 +249,7 @@ export default function MinimalNegocios() {
           </div>
           <div className="p-4">
             <NegociosKanban
-              negocios={negocios}
+              negocios={displayNegocios}
               onUpdateStage={updateNegocioStage}
               onEdit={setEditingNegocio}
               onView={setSelectedNegocio}
