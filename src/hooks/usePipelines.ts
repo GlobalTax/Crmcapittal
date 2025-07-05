@@ -17,7 +17,7 @@ export const usePipelines = () => {
         .from('pipelines')
         .select('*')
         .eq('is_active', true)
-        .order('created_at', { ascending: true });
+        .order('created_at'); // Remove ascending parameter to avoid 400 error
 
       if (error) {
         console.error('Error fetching pipelines:', error);

@@ -25,7 +25,7 @@ export default function Contacts() {
     fetchedContacts: contacts,
   } = useContactsCRUD();
 
-  // Handle legacy URL redirections on load
+  // Handle legacy URL redirections and fetch contacts
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const drawerId = searchParams.get('drawer');
@@ -33,15 +33,12 @@ export default function Contacts() {
       navigate(`/contacts/${drawerId}`, { replace: true });
       return;
     }
-    fetchContacts();
-  }, [location.search]);
-
-  // Fetch contacts on mount when no redirect is needed
-  useEffect(() => {
-    if (!location.search.includes('drawer=')) {
+    
+    // Only fetch if we have the function available
+    if (fetchContacts) {
       fetchContacts();
     }
-  }, []);
+  }, [location.search, navigate]); // Fixed dependencies
 
   // Keyboard shortcut for new person
   useEffect(() => {

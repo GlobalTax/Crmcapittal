@@ -9,7 +9,7 @@ export const useContactsCRUD = () => {
 
   const contactsCRUD = useCRUD<Contact>({
     onSuccess: (data) => {
-      console.log('Contact operation successful:', data);
+      // Remove console.log to prevent spam
     },
     onError: (error) => {
       toast({

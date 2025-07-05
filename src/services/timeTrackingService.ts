@@ -164,7 +164,7 @@ export class TimeTrackingService {
         .is('end_time', null)
         .order('start_time', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to avoid 406
 
       if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows returned
       return { data: data || null, error: null };
