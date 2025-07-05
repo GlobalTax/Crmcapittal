@@ -24,7 +24,6 @@ export default defineConfig(({ mode }) => ({
     __PROD__: mode === 'production',
   },
   build: {
-    minify: 'terser',
     rollupOptions: {
       output: {
         manualChunks: {
