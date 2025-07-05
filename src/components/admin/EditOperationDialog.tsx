@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Operation } from "@/types/Operation";
 import { useManagers } from "@/hooks/useManagers";
 import { useEditOperationForm } from "@/hooks/admin/useEditOperationForm";
@@ -45,6 +45,9 @@ export const EditOperationDialog = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Operación</DialogTitle>
+          <DialogDescription>
+            Actualice la información de la operación. Todos los cambios se guardarán automáticamente.
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">

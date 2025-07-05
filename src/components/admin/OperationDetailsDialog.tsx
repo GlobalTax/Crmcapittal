@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Operation } from "@/types/Operation";
 import { getStatusLabel, getOperationTypeLabel, formatFinancialValue } from "@/utils/operationHelpers";
@@ -25,6 +25,9 @@ export const OperationDetailsDialog = ({
           <DialogTitle className="text-xl font-semibold">
             Detalles de la Operación
           </DialogTitle>
+          <DialogDescription>
+            Información completa y detallada de la operación seleccionada, incluyendo datos financieros y de contacto.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

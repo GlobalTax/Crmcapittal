@@ -38,6 +38,8 @@ const AlertDialogContent = React.forwardRef<
         className
       )}
       style={{ border: '0.5px solid black' }}
+      role="alertdialog"
+      aria-modal="true"
       {...props}
     />
   </AlertDialogPortal>

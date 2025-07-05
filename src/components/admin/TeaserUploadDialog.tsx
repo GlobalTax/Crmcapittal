@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, XCircle } from "lucide-react";
 import { Operation } from "@/types/Operation";
@@ -43,6 +43,11 @@ export const TeaserUploadDialog = ({
           <DialogTitle className="text-xl font-semibold">
             {isReplacingTeaser ? 'Cambiar Teaser' : 'Subir Teaser'}
           </DialogTitle>
+          <DialogDescription>
+            {isReplacingTeaser 
+              ? 'Seleccione un nuevo archivo PDF para reemplazar el teaser actual de esta operación.' 
+              : 'Seleccione un archivo PDF para subir como teaser de esta operación.'}
+          </DialogDescription>
         </DialogHeader>
 
         {operation && (

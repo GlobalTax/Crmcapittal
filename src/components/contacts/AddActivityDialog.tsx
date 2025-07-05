@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon, Phone, Mail, MessageSquare, Calendar as CalendarIconLucide, Users, Target } from "lucide-react";
@@ -183,6 +183,9 @@ export function AddActivityDialog({ open, onOpenChange, contact, onActivityAdded
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Añadir Actividad - {contact.name}</DialogTitle>
+          <DialogDescription>
+            Registre una nueva actividad relacionada con este contacto. Seleccione el tipo de actividad y complete la información correspondiente.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

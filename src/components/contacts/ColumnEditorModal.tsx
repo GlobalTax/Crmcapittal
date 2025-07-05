@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -122,6 +122,9 @@ export function ColumnEditorModal({ open, onOpenChange, columns, onColumnsChange
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>Editar columnas</DialogTitle>
+          <DialogDescription>
+            Personalice qué columnas mostrar en la tabla arrastrando propiedades entre los paneles. Use el orden de arrastre para reorganizar las columnas.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-6 h-96">

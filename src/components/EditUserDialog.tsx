@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -325,6 +325,9 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Editar Usuario</DialogTitle>
+          <DialogDescription>
+            Modifique el rol del usuario y configure su perfil de gestor si es necesario. Los administradores requieren información adicional.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

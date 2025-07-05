@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Operation } from "@/types/Operation";
 import { useManagers } from "@/hooks/useManagers";
 
@@ -98,6 +98,9 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Añadir Nueva Operación</DialogTitle>
+          <DialogDescription>
+            Complete los campos requeridos para crear una nueva operación en el sistema. Los campos marcados con * son obligatorios.
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
