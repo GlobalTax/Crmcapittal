@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useNegocios } from "@/hooks/useNegocios";
 import { User, Briefcase, Building2, Users } from "lucide-react";
 import { NegociosKanban } from "@/components/negocios/NegociosKanban";
+import { MetricCard } from "@/components/negocios/MetricCard";
 import { CompanyDetailsDialog } from "@/components/companies/CompanyDetailsDialog";
 import { ContactDetailsDialog } from "@/components/contacts/ContactDetailsDialog";
 import { CreateNegocioDialog } from "@/components/negocios/CreateNegocioDialog";
@@ -134,28 +135,24 @@ export default function MinimalNegocios() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Total Negocios</span>
-          <span className="text-sm font-bold mt-2 block">{negocios.length}</span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Activos</span>
-          <span className="text-sm font-bold mt-2 block text-blue-600">
-            {negocios.filter(n => n.is_active).length}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Alta Prioridad</span>
-          <span className="text-sm font-bold mt-2 block text-orange-600">
-            {negocios.filter(n => n.prioridad === 'alta' || n.prioridad === 'urgente').length}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Valor Total</span>
-          <span className="text-sm font-bold mt-2 block">
-            €{negocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}
-          </span>
-        </div>
+        <MetricCard
+          label="Total Negocios"
+          value={negocios.length}
+        />
+        <MetricCard
+          label="Activos"
+          value={negocios.filter(n => n.is_active).length}
+          color="text-blue-600"
+        />
+        <MetricCard
+          label="Alta Prioridad"
+          value={negocios.filter(n => n.prioridad === 'alta' || n.prioridad === 'urgente').length}
+          color="text-orange-600"
+        />
+        <MetricCard
+          label="Valor Total"
+          value={`€${negocios.reduce((sum, n) => sum + (n.valor_negocio || 0), 0).toLocaleString()}`}
+        />
       </div>
 
       {/* Content */}
