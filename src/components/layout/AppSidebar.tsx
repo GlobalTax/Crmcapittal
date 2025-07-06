@@ -71,6 +71,15 @@ const sidebarData: SidebarSection[] = [
     ],
   },
   {
+    title: "Análisis & Data",
+    items: [
+      {
+        title: "eInforma Dashboard",
+        href: "/einforma",
+      },
+    ],
+  },
+  {
     title: "Administración",
     items: [
       {
