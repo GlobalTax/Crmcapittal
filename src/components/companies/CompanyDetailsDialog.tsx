@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { CompanyEnrichmentButton } from './CompanyEnrichmentButton';
 
 interface CompanyDetailsDialogProps {
   company: Company;
@@ -75,9 +76,12 @@ export const CompanyDetailsDialog = ({
             <DialogTitle>
               {company.name}
             </DialogTitle>
-            <Button onClick={() => onEditCompany(company)} size="sm">
-              Editar
-            </Button>
+            <div className="flex items-center space-x-2">
+              <CompanyEnrichmentButton company={company} />
+              <Button onClick={() => onEditCompany(company)} size="sm">
+                Editar
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 

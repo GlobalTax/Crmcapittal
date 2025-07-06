@@ -106,15 +106,49 @@ class EInformaService {
   }
 
   async saveEnrichmentResult(companyId: string, enrichmentData: EInformaEnrichmentResult): Promise<boolean> {
-    // Will be implemented after database migration
-    console.log('Enrichment data ready to save:', { companyId, enrichmentData });
-    return true;
+    try {
+      const { error } = await supabase
+        .from('company_enrichments')
+        .upsert({
+          company_id: companyId,
+          source: 'einforma',
+          enrichment_data: enrichmentData as any,
+          confidence_score: enrichmentData.confidence_score,
+          enrichment_date: enrichmentData.enrichment_date,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('Error saving enrichment result:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Failed to save enrichment result:', error);
+      return false;
+    }
   }
 
   async getEnrichmentHistory(companyId: string): Promise<any[]> {
-    // Will be implemented after database migration
-    console.log('Getting enrichment history for company:', companyId);
-    return [];
+    try {
+      const { data, error } = await supabase
+        .from('company_enrichments')
+        .select('*')
+        .eq('company_id', companyId)
+        .eq('source', 'einforma')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error getting enrichment history:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Failed to get enrichment history:', error);
+      return [];
+    }
   }
 }
 
