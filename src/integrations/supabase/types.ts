@@ -422,6 +422,39 @@ export type Database = {
         }
         Relationships: []
       }
+      company_enrichments: {
+        Row: {
+          company_id: string
+          confidence_score: number | null
+          created_at: string
+          enrichment_data: Json
+          enrichment_date: string
+          id: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          confidence_score?: number | null
+          created_at?: string
+          enrichment_data: Json
+          enrichment_date?: string
+          id?: string
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          enrichment_data?: Json
+          enrichment_date?: string
+          id?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       connected_accounts: {
         Row: {
           access_token: string | null
