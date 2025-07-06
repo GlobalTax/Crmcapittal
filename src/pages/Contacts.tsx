@@ -111,54 +111,18 @@ export default function Contacts() {
     setFilterType(current => current === 'all' ? 'cliente' : 'all');
   };
 
-  // SIMPLIFIED FILTERING for debugging - be very permissive
   const filteredContacts = contacts?.filter(contact => {
-    if (!contact) {
-      console.log('⚠️ Found null/undefined contact in filter');
-      return false;
-    }
+    if (!contact) return false;
     
     const matchesSearch = !searchTerm || 
       contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // SIMPLIFIED: Show all contacts when filter is 'all' or empty
     const matchesFilter = !filterType || filterType === 'all' || contact.contact_type === filterType;
     
-    const shouldInclude = matchesSearch && matchesFilter;
-    
-    console.log('🔍 FILTERING CONTACT:', {
-      name: contact.name,
-      contact_type: contact.contact_type,
-      filterType,
-      searchTerm,
-      matchesSearch,
-      matchesFilter,
-      shouldInclude
-    });
-    
-    return shouldInclude;
+    return matchesSearch && matchesFilter;
   }) || [];
-
-  // Enhanced debug logging
-  console.log('🔍 SIMPLIFIED CONTACTS PAGE DEBUG:', {
-    totalContacts: contacts?.length || 0,
-    filteredContacts: filteredContacts.length,
-    searchTerm,
-    filterType,
-    isLoading: isFetching,
-    error: error,
-    contactTypes: contacts?.map(c => c?.contact_type).filter(Boolean),
-    firstFewContacts: contacts?.slice(0, 3).map(c => ({
-      name: c?.name,
-      email: c?.email,
-      type: c?.contact_type,
-      active: c?.is_active
-    })),
-    rawContactsData: contacts?.slice(0, 2) // Show first 2 contacts completely
-  });
-
 
   return (
     <div className="space-y-6">
@@ -173,24 +137,6 @@ export default function Contacts() {
         onViewModeChange={setViewMode}
         totalCount={filteredContacts.length}
       />
-      
-      {/* Debug button for testing */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-        <Button 
-          onClick={() => {
-            console.log('🔄 FORCE REFRESH: Clearing cache and refetching...');
-            fetchContacts();
-          }}
-          variant="outline"
-          size="sm"
-          disabled={isFetching}
-        >
-          {isFetching ? '⏳ Loading...' : '🔄 Force Refresh'} ({filteredContacts.length})
-        </Button>
-        <div className="text-xs text-center text-muted-foreground">
-          {isFetching ? 'Fetching...' : 'Ready'}
-        </div>
-      </div>
 
       {viewMode === 'grid' ? (
         <ContactsGrid

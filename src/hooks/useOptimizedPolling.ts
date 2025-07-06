@@ -15,10 +15,10 @@ interface UseOptimizedPollingOptions {
 export const useOptimizedPolling = ({
   queryKey,
   queryFn,
-  interval = 10000, // 10 seconds for debugging - very aggressive
+  interval = 60000, // 1 minute for production
   priority = 'medium',
   enabled = true,
-  cacheTtl = 10000, // 10 seconds cache for debugging
+  cacheTtl = 300000, // 5 minutes cache
   retryOnError = true,
   maxRetries = 3
 }: UseOptimizedPollingOptions) => {
