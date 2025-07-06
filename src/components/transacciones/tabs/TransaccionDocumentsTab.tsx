@@ -7,17 +7,7 @@ import { Plus, FileText, Download, Eye, MoreVertical, Upload } from 'lucide-reac
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useTransaccionDocuments } from '@/hooks/useTransaccionDocuments';
-
-interface Document {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  uploaded_at: string;
-  uploaded_by: string;
-  category: 'contract' | 'presentation' | 'financial' | 'legal' | 'other';
-}
+import { useTransaccionDocuments, TransaccionDocument } from '@/hooks/useTransaccionDocuments';
 
 interface TransaccionDocumentsTabProps {
   transaccion: Transaccion;
@@ -58,18 +48,17 @@ export const TransaccionDocumentsTab = ({ transaccion }: TransaccionDocumentsTab
     input.click();
   };
 
-  const handleDownload = (document: Document) => {
-    // Mock download - in real implementation, this would download the file
-    console.log('Downloading:', document.name);
+  const handleDownload = (document: TransaccionDocument) => {
+    downloadDocument(document);
   };
 
-  const handleView = (document: Document) => {
+  const handleView = (document: TransaccionDocument) => {
     // Mock view - in real implementation, this would open/preview the file
     console.log('Viewing:', document.name);
   };
 
   const handleDelete = (documentId: string) => {
-    setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+    deleteDocument(documentId);
   };
 
   return (
@@ -117,7 +106,7 @@ export const TransaccionDocumentsTab = ({ transaccion }: TransaccionDocumentsTab
                           {DOCUMENT_CATEGORIES[document.category].label}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {formatFileSize(document.size)}
+                          {formatFileSize(document.file_size)}
                         </span>
                       </div>
                       

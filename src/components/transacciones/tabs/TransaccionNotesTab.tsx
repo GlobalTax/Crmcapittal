@@ -6,14 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Plus, StickyNote } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useTransaccionNotes } from '@/hooks/useTransaccionNotes';
-
-interface Note {
-  id: string;
-  content: string;
-  created_at: string;
-  created_by: string;
-}
+import { useTransaccionNotes, TransaccionNote } from '@/hooks/useTransaccionNotes';
 
 interface TransaccionNotesTabProps {
   transaccion: Transaccion;
@@ -91,7 +84,7 @@ export const TransaccionNotesTab = ({ transaccion }: TransaccionNotesTabProps) =
                 className="bg-neutral-0 border border-border rounded-lg p-4 space-y-2"
               >
                 <p className="text-sm text-foreground whitespace-pre-wrap">
-                  {note.content}
+                  {note.note}
                 </p>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
                   <span>Por ti</span>

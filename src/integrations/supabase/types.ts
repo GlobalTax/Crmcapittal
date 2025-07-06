@@ -1428,6 +1428,33 @@ export type Database = {
         }
         Relationships: []
       }
+      embeddings: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          embedding: string | null
+          id: string
+          object_id: string | null
+          object_type: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          object_id?: string | null
+          object_type?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          embedding?: string | null
+          id?: string
+          object_id?: string | null
+          object_type?: string | null
+        }
+        Relationships: []
+      }
       empresas: {
         Row: {
           codigo_interno: number | null
