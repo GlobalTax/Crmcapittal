@@ -8,7 +8,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SearchIcon, TrendingUpIcon, BuildingIcon, AlertTriangleIcon, DollarSignIcon, UsersIcon, BarChart3Icon, RefreshCwIcon, CheckCircleIcon, XCircleIcon, WifiIcon } from 'lucide-react';
 import { EInformaMetricsCard } from '@/components/einforma/EInformaMetricsCard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { useCompanyEInforma } from '@/hooks/useCompanyEInforma';
+import { useCompanyLookup } from '@/hooks/useCompanyLookup';
+import { NifLookup } from '@/components/companies/NifLookup';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -19,7 +20,7 @@ export default function EInformaDashboard() {
   const [searchResults, setSearchResults] = useState<any>(null);
   const [searchError, setSearchError] = useState<string>('');
   
-  const { searchByNif, validateNif, isSearching } = useCompanyEInforma();
+  const { lookupCompany, validateNIF, isLoading: isSearching } = useCompanyLookup();
   
   // Mock data for now
   const metrics = {
@@ -74,58 +75,12 @@ export default function EInformaDashboard() {
     }
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!searchTerm.trim()) {
-      toast.error('Por favor ingrese un NIF/CIF');
-      return;
-    }
-
-    // Validar formato NIF/CIF
-    const isValid = await validateNif(searchTerm.trim());
-    if (!isValid) {
-      setSearchError('Formato de NIF/CIF inválido');
-      toast.error('Formato de NIF/CIF inválido');
-      return;
-    }
-
+  const handleCompanyFound = (company: any) => {
+    setSearchResults({
+      companyData: company,
+      source: 'lookup'
+    });
     setSearchError('');
-    setSearchResults(null);
-
-    try {
-      const result = await searchByNif(searchTerm.trim());
-      
-      if (result.success && result.data) {
-        setSearchResults(result.data);
-        toast.success('Empresa encontrada y enriquecida exitosamente');
-      } else {
-        const errorMessage = result.error === 'INVALID_NIF_FORMAT' 
-          ? 'Formato de NIF/CIF inválido'
-          : result.error === 'COMPANY_NOT_FOUND'
-          ? 'Empresa no encontrada en eInforma'
-          : result.error === 'EINFORMA_API_FAILED'
-          ? 'Error de conexión con eInforma. Verifique las credenciales.'
-          : 'No se encontraron datos para este NIF/CIF';
-        
-        setSearchError(errorMessage);
-        toast.error(errorMessage);
-      }
-    } catch (error) {
-      console.error('Error searching:', error);
-      let errorMessage = 'Error al conectar con eInforma';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('Authentication failed')) {
-          errorMessage = 'Error de autenticación con eInforma. Verifique las credenciales.';
-        } else if (error.message.includes('404')) {
-          errorMessage = 'Servicio eInforma no disponible. Verifique la configuración.';
-        }
-      }
-      
-      setSearchError(errorMessage);
-      toast.error(errorMessage);
-    }
   };
 
   if (isLoading) {
@@ -147,27 +102,6 @@ export default function EInformaDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Buscar empresa por NIF/CIF..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-            <Button type="submit" variant="outline" disabled={isSearching}>
-              {isSearching ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                  Buscando...
-                </>
-              ) : (
-                'Buscar'
-              )}
-            </Button>
-          </form>
           <Button onClick={testConnection} variant="outline" size="sm">
             <WifiIcon className="h-4 w-4 mr-2" />
             Probar Conexión
@@ -175,92 +109,21 @@ export default function EInformaDashboard() {
         </div>
       </div>
 
-      {/* Search Results */}
-      {searchError && (
-        <Alert variant="destructive">
-          <XCircleIcon className="h-4 w-4" />
-          <AlertDescription>{searchError}</AlertDescription>
-        </Alert>
-      )}
-
-      {searchResults && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircleIcon className="h-5 w-5 text-green-600" />
-              Resultado de Búsqueda
-            </CardTitle>
-            <CardDescription>
-              Información obtenida de eInforma para el NIF: {searchTerm}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-2">DATOS DE LA EMPRESA</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Nombre:</span>
-                      <span className="text-sm font-medium">{searchResults.companyName}</span>
-                    </div>
-                    {searchResults.extractedData?.sector && (
-                      <div className="flex justify-between">
-                        <span className="text-sm">Sector:</span>
-                        <span className="text-sm font-medium">{searchResults.extractedData.sector}</span>
-                      </div>
-                    )}
-                    {searchResults.extractedData?.city && (
-                      <div className="flex justify-between">
-                        <span className="text-sm">Ciudad:</span>
-                        <span className="text-sm font-medium">{searchResults.extractedData.city}</span>
-                      </div>
-                    )}
-                    {searchResults.extractedData?.founded_year && (
-                      <div className="flex justify-between">
-                        <span className="text-sm">Año Fundación:</span>
-                        <span className="text-sm font-medium">{searchResults.extractedData.founded_year}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-2">DATOS FINANCIEROS</h4>
-                  <div className="space-y-2">
-                    {searchResults.extractedData?.revenue && (
-                      <div className="flex justify-between">
-                        <span className="text-sm">Ingresos:</span>
-                        <span className="text-sm font-medium">
-                          {new Intl.NumberFormat('es-ES', { 
-                            style: 'currency', 
-                            currency: 'EUR',
-                            minimumFractionDigits: 0 
-                          }).format(searchResults.extractedData.revenue)}
-                        </span>
-                      </div>
-                    )}
-                    {searchResults.extractedData?.employees && (
-                      <div className="flex justify-between">
-                        <span className="text-sm">Empleados:</span>
-                        <span className="text-sm font-medium">{searchResults.extractedData.employees}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-sm">Puntuación Confianza:</span>
-                      <Badge variant="secondary">
-                        {Math.round((searchResults.confidenceScore || 0) * 100)}%
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Company Lookup Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <SearchIcon className="h-5 w-5" />
+            Búsqueda de Empresas
+          </CardTitle>
+          <CardDescription>
+            Busca información oficial de empresas en el Registro Mercantil
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <NifLookup onCompanyFound={handleCompanyFound} />
+        </CardContent>
+      </Card>
 
       {/* Métricas principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
