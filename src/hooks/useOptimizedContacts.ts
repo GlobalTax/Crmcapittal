@@ -8,7 +8,7 @@ import { supabaseQuery } from '@/services/requestManager';
 export const useOptimizedContacts = () => {
   const { toast } = useToast();
 
-  // Use optimized polling for contacts with longer intervals to reduce rate limiting
+  // Use optimized polling for contacts with much longer intervals to reduce React errors
   const {
     data: contacts = [],
     loading: isLoading,
@@ -17,48 +17,70 @@ export const useOptimizedContacts = () => {
   } = useOptimizedPolling({
     queryKey: 'contacts_optimized',
     queryFn: async () => {
-      return supabaseQuery<Contact[]>(
+      console.log('🔄 Fetching contacts...');
+      const result = await supabaseQuery<Contact[]>(
         'contacts',
         (query) => query
           .select('*')
           .eq('is_active', true)
           .order('created_at', { ascending: false }),
         'contacts_list',
-        'medium',
-        240000 // 4 minutes cache
+        'low', // Lower priority to reduce conflicts
+        300000 // 5 minutes cache
       );
+      console.log('✅ Contacts fetched:', result?.length || 0);
+      return result;
     },
-    interval: 300000, // 5 minutes polling - much more conservative
-    priority: 'medium',
-    cacheTtl: 240000, // 4 minutes cache
-    enabled: true
+    interval: 600000, // 10 minutes polling - very conservative to avoid React errors
+    priority: 'low',
+    cacheTtl: 300000, // 5 minutes cache
+    enabled: true,
+    retryOnError: false // Disable retries to avoid error loops
   });
 
   const createContact = useCallback(async (contactData: CreateContactData) => {
     try {
+      console.log('📝 Creating contact:', contactData.name);
       const { data: user } = await supabase.auth.getUser();
+      
+      if (!user?.user?.id) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      const insertData = {
+        ...contactData,
+        created_by: user.user.id
+      };
+      
+      console.log('💾 Inserting contact data:', insertData);
       
       const { data, error } = await supabase
         .from('contacts')
-        .insert([{
-          ...contactData,
-          created_by: user?.user?.id
-        }])
+        .insert([insertData])
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('❌ Supabase error:', error);
+        throw new Error(error.message);
+      }
+      
+      console.log('✅ Contact created successfully:', data);
       
       toast({
         title: "Contacto creado",
         description: `${contactData.name} ha sido creado correctamente.`,
       });
       
-      // Refresh contacts after creation
-      refetch();
+      // Force immediate refresh to show new contact
+      console.log('🔄 Forcing contacts refresh...');
+      setTimeout(() => {
+        refetch();
+      }, 500); // Small delay to ensure DB consistency
       
       return data as Contact;
     } catch (err) {
+      console.error('❌ Create contact error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Error al crear contacto';
       toast({
         title: "Error",

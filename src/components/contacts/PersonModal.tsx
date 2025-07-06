@@ -39,54 +39,57 @@ export const PersonModal = ({
 
   const [newRole, setNewRole] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email) return;
 
-    // Split name into first/last if provided as full name
-    const nameParts = formData.name.split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
+    console.log('📝 Submitting contact form:', formData);
 
-    onCreateContact({
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone || '',
-      company: formData.company || '',
-      position: formData.position || '',
-      contact_type: formData.contact_type as ContactType || 'other',
-      contact_priority: formData.contact_priority || 'medium',
-      contact_source: formData.contact_source || 'manual',
-      preferred_contact_method: formData.preferred_contact_method || 'email',
-      language_preference: formData.language_preference || 'es',
-      lifecycle_stage: formData.lifecycle_stage || 'lead',
-      roles: formData.roles || [],
-      linkedin_url: '',
-      website_url: '',
-      sectors_of_interest: [],
-      investment_capacity_min: undefined,
-      investment_capacity_max: undefined,
-      deal_preferences: null,
-      notes: '',
-      time_zone: ''
-    });
+    try {
+      await onCreateContact({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || '',
+        company: formData.company || '',
+        position: formData.position || '',
+        contact_type: formData.contact_type as ContactType || 'other',
+        contact_priority: formData.contact_priority || 'medium',
+        contact_source: formData.contact_source || 'manual',
+        preferred_contact_method: formData.preferred_contact_method || 'email',
+        language_preference: formData.language_preference || 'es',
+        lifecycle_stage: formData.lifecycle_stage || 'lead',
+        roles: formData.roles || [],
+        linkedin_url: '',
+        website_url: '',
+        sectors_of_interest: [],
+        investment_capacity_min: undefined,
+        investment_capacity_max: undefined,
+        deal_preferences: null,
+        notes: '',
+        time_zone: ''
+      });
 
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
-      position: '',
-      contact_type: 'other',
-      contact_priority: 'medium',
-      contact_source: 'manual',
-      preferred_contact_method: 'email',
-      language_preference: 'es',
-      lifecycle_stage: 'lead',
-      roles: []
-    });
-    onOpenChange(false);
+      // Reset form on success
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        position: '',
+        contact_type: 'other',
+        contact_priority: 'medium',
+        contact_source: 'manual',
+        preferred_contact_method: 'email',
+        language_preference: 'es',
+        lifecycle_stage: 'lead',
+        roles: []
+      });
+      onOpenChange(false);
+      console.log('✅ Contact created and form closed');
+    } catch (error) {
+      console.error('❌ Error creating contact:', error);
+      // Keep form open on error so user can retry
+    }
   };
 
   const updateField = (field: string, value: any) => {
@@ -261,7 +264,7 @@ export const PersonModal = ({
                   disabled={isCreating || !formData.name || !formData.email}
                   className="relative"
                 >
-                  Create person
+                  {isCreating ? 'Creating...' : 'Create person'}
                   <span className="ml-2 text-xs text-muted opacity-60">⌘⇧↩</span>
                 </Button>
               </div>

@@ -112,8 +112,10 @@ export default function Contacts() {
 
   // Filter contacts based on search term and filter type
   const filteredContacts = contacts?.filter(contact => {
+    if (!contact) return false;
+    
     const matchesSearch = !searchTerm || 
-      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -121,6 +123,15 @@ export default function Contacts() {
     
     return matchesSearch && matchesFilter;
   }) || [];
+
+  // Debug logging
+  console.log('🔍 Contacts filter debug:', {
+    totalContacts: contacts?.length || 0,
+    filteredContacts: filteredContacts.length,
+    searchTerm,
+    filterType,
+    isLoading: isFetching
+  });
 
 
   return (
