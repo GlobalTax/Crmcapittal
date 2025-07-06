@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { X, Star, StarOff, ChevronLeft, ChevronRight, Mail, Copy, FileText, Trash2 } from 'lucide-react';
+import { X, Star, StarOff, ChevronLeft, ChevronRight, Mail, Copy, FileText, Trash2, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Company } from '@/types/Company';
 import { CompanyOverviewTab } from './CompanyOverviewTab';
 import { CompanyActivityTab } from './CompanyActivityTab';
 import { CompanyRecordSidebar } from './CompanyRecordSidebar';
+import { einformaService } from '@/services/einformaService';
 import { toast } from 'sonner';
 
 interface CompanyDrawerProps {
@@ -33,6 +35,8 @@ export const CompanyDrawer = ({
 }: CompanyDrawerProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showEinformaDialog, setShowEinformaDialog] = useState(false);
+  const [isEnrichingFromEinforma, setIsEnrichingFromEinforma] = useState(false);
 
   // Focus trap and escape key handler
   useEffect(() => {
@@ -81,6 +85,32 @@ export const CompanyDrawer = ({
           onClose();
         }
         break;
+    }
+  };
+
+  const handleEinformaEnrichment = async () => {
+    if (!company || !(company as any).nif) return;
+    
+    setIsEnrichingFromEinforma(true);
+    setShowEinformaDialog(false);
+    
+    try {
+      const result = await einformaService.enrichCompanyWithEInforma((company as any).nif);
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Trigger a refresh of the company data
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        toast.error(result.message || 'Error al consultar eInforma');
+      }
+    } catch (error) {
+      console.error('Error enriching company:', error);
+      toast.error('Error inesperado al consultar eInforma');
+    } finally {
+      setIsEnrichingFromEinforma(false);
     }
   };
 
@@ -160,6 +190,26 @@ export const CompanyDrawer = ({
             
             {/* Global Actions */}
             <div className="flex items-center gap-1 ml-4">
+              {/* eInforma Button - Only show if company has NIF */}
+              {(company as any).nif && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowEinformaDialog(true)}
+                    disabled={isEnrichingFromEinforma}
+                    className="h-8 w-8 p-0"
+                    title="Actualizar desde eInforma"
+                  >
+                    {isEnrichingFromEinforma ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    ) : (
+                      <Building2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <div className="w-px h-4 bg-border mx-1" />
+                </>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -317,6 +367,27 @@ export const CompanyDrawer = ({
           </div>
         </div>
       </div>
+
+      {/* eInforma Confirmation Dialog */}
+      <AlertDialog open={showEinformaDialog} onOpenChange={setShowEinformaDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Consultar eInforma</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Deseas usar un crédito para consultar eInforma para esta empresa?
+              <br />
+              <br />
+              Esto actualizará la información de <strong>{company.name}</strong> con datos del registro mercantil.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleEinformaEnrichment}>
+              {isEnrichingFromEinforma ? 'Consultando...' : 'Confirmar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

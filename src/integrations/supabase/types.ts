@@ -331,6 +331,7 @@ export type Database = {
           linkedin_url: string | null
           name: string
           next_follow_up_date: string | null
+          nif: string | null
           notes: string | null
           owner_id: string | null
           owner_name: string | null
@@ -370,6 +371,7 @@ export type Database = {
           linkedin_url?: string | null
           name: string
           next_follow_up_date?: string | null
+          nif?: string | null
           notes?: string | null
           owner_id?: string | null
           owner_name?: string | null
@@ -409,6 +411,7 @@ export type Database = {
           linkedin_url?: string | null
           name?: string
           next_follow_up_date?: string | null
+          nif?: string | null
           notes?: string | null
           owner_id?: string | null
           owner_name?: string | null
