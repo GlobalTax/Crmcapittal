@@ -88,6 +88,60 @@ serve(async (req) => {
       console.log('Financial data not available:', error.message);
     }
 
+    // Get balance sheet data
+    let balanceSheetData = [];
+    try {
+      const balanceResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/balance`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (balanceResponse.ok) {
+        balanceSheetData = await balanceResponse.json();
+      }
+    } catch (error) {
+      console.log('Balance sheet data not available:', error.message);
+    }
+
+    // Get income statement data
+    let incomeStatementData = [];
+    try {
+      const incomeResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/income-statement`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (incomeResponse.ok) {
+        incomeStatementData = await incomeResponse.json();
+      }
+    } catch (error) {
+      console.log('Income statement data not available:', error.message);
+    }
+
+    // Get credit info
+    let creditInfoData = null;
+    try {
+      const creditResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/credit-info`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (creditResponse.ok) {
+        creditInfoData = await creditResponse.json();
+      }
+    } catch (error) {
+      console.log('Credit info not available:', error.message);
+    }
+
     // Get directors data
     let directorsData = [];
     try {
@@ -106,16 +160,29 @@ serve(async (req) => {
       console.log('Directors data not available:', error.message);
     }
 
+    // Calculate financial ratios if we have the data
+    let financialRatios = [];
+    if (balanceSheetData.length > 0 && incomeStatementData.length > 0) {
+      financialRatios = calculateFinancialRatios(balanceSheetData, incomeStatementData);
+    }
+
     // Calculate confidence score based on available data
-    let confidenceScore = 0.5;
+    let confidenceScore = 0.3;
     if (companyData.razon_social) confidenceScore += 0.1;
     if (companyData.actividad_principal) confidenceScore += 0.1;
-    if (financialData.length > 0) confidenceScore += 0.2;
-    if (directorsData.length > 0) confidenceScore += 0.1;
+    if (financialData.length > 0) confidenceScore += 0.15;
+    if (balanceSheetData.length > 0) confidenceScore += 0.15;
+    if (incomeStatementData.length > 0) confidenceScore += 0.15;
+    if (creditInfoData) confidenceScore += 0.1;
+    if (directorsData.length > 0) confidenceScore += 0.05;
     
     const enrichmentResult = {
       company_data: companyData,
       financial_data: financialData,
+      balance_sheet: balanceSheetData,
+      income_statement: incomeStatementData,
+      financial_ratios: financialRatios,
+      credit_info: creditInfoData,
       directors: directorsData,
       enrichment_date: new Date().toISOString(),
       source: 'einforma',
@@ -145,3 +212,40 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function to calculate financial ratios
+function calculateFinancialRatios(balanceData: any[], incomeData: any[]) {
+  const ratios = [];
+  
+  for (let i = 0; i < Math.min(balanceData.length, incomeData.length); i++) {
+    const balance = balanceData[i];
+    const income = incomeData[i];
+    
+    if (balance.ejercicio === income.ejercicio) {
+      const ratio = {
+        cif: balance.cif,
+        ejercicio: balance.ejercicio,
+        rentabilidad: {
+          roe: balance.patrimonio_neto > 0 ? (income.resultado_ejercicio / balance.patrimonio_neto) * 100 : null,
+          roa: balance.activo_total > 0 ? (income.resultado_ejercicio / balance.activo_total) * 100 : null,
+          margen_bruto: income.ingresos_explotacion > 0 ? ((income.ingresos_explotacion - (income.consumos_materias_primas || 0)) / income.ingresos_explotacion) * 100 : null,
+          margen_neto: income.ingresos_explotacion > 0 ? (income.resultado_ejercicio / income.ingresos_explotacion) * 100 : null,
+        },
+        liquidez: {
+          ratio_corriente: balance.pasivo_corriente > 0 ? balance.activo_corriente / balance.pasivo_corriente : null,
+          capital_trabajo: balance.activo_corriente - balance.pasivo_corriente,
+        },
+        endeudamiento: {
+          ratio_endeudamiento: balance.activo_total > 0 ? (balance.pasivo_total / balance.activo_total) * 100 : null,
+          ratio_autonomia: balance.activo_total > 0 ? (balance.patrimonio_neto / balance.activo_total) * 100 : null,
+        },
+        eficiencia: {
+          rotacion_activos: balance.activo_total > 0 ? income.ingresos_explotacion / balance.activo_total : null,
+        }
+      };
+      
+      ratios.push(ratio);
+    }
+  }
+  
+  return ratios;

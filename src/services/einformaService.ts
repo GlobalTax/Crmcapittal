@@ -81,6 +81,60 @@ class EInformaService {
     }
   }
 
+  async getBalanceSheet(cif: string, years?: number[]): Promise<any[]> {
+    try {
+      const { data, error } = await supabase.functions.invoke('einforma-balance-sheet', {
+        body: { cif, years }
+      });
+
+      if (error) {
+        console.error('Error getting balance sheet:', error);
+        return [];
+      }
+
+      return data?.balance_sheet || [];
+    } catch (error) {
+      console.error('EInforma balance sheet failed:', error);
+      return [];
+    }
+  }
+
+  async getIncomeStatement(cif: string, years?: number[]): Promise<any[]> {
+    try {
+      const { data, error } = await supabase.functions.invoke('einforma-income-statement', {
+        body: { cif, years }
+      });
+
+      if (error) {
+        console.error('Error getting income statement:', error);
+        return [];
+      }
+
+      return data?.income_statement || [];
+    } catch (error) {
+      console.error('EInforma income statement failed:', error);
+      return [];
+    }
+  }
+
+  async getCreditInfo(cif: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('einforma-credit-info', {
+        body: { cif }
+      });
+
+      if (error) {
+        console.error('Error getting credit info:', error);
+        return null;
+      }
+
+      return data?.credit_info || null;
+    } catch (error) {
+      console.error('EInforma credit info failed:', error);
+      return null;
+    }
+  }
+
   async getDirectors(cif: string): Promise<any[]> {
     try {
       const { data, error } = await supabase.functions.invoke('einforma-directors', {

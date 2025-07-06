@@ -7,6 +7,10 @@ import { einformaService } from '@/services/einformaService';
 import { Building2, CheckCircle, AlertCircle, Loader2, Eye } from 'lucide-react';
 import { Company } from '@/types/Company';
 import { EInformaEnrichmentResult } from '@/types/EInforma';
+import { FinancialBalanceSection } from './enrichment/FinancialBalanceSection';
+import { IncomeStatementSection } from './enrichment/IncomeStatementSection';
+import { FinancialRatiosSection } from './enrichment/FinancialRatiosSection';
+import { CreditInfoSection } from './enrichment/CreditInfoSection';
 
 interface CompanyEnrichmentButtonProps {
   company: Company;
@@ -211,6 +215,26 @@ export const CompanyEnrichmentButton: React.FC<CompanyEnrichmentButtonProps> = (
                     ))}
                   </div>
                 </div>
+              )}
+
+              {/* Balance General */}
+              {enrichmentData.balance_sheet && enrichmentData.balance_sheet.length > 0 && (
+                <FinancialBalanceSection balanceData={enrichmentData.balance_sheet} />
+              )}
+
+              {/* Cuenta de Resultados */}
+              {enrichmentData.income_statement && enrichmentData.income_statement.length > 0 && (
+                <IncomeStatementSection incomeData={enrichmentData.income_statement} />
+              )}
+
+              {/* Ratios Financieros */}
+              {enrichmentData.financial_ratios && enrichmentData.financial_ratios.length > 0 && (
+                <FinancialRatiosSection ratiosData={enrichmentData.financial_ratios} />
+              )}
+
+              {/* Información Crediticia */}
+              {enrichmentData.credit_info && (
+                <CreditInfoSection creditInfo={enrichmentData.credit_info} />
               )}
 
               {/* Directivos */}

@@ -36,6 +36,103 @@ export interface EInformaFinancialData {
   scoring?: number;
 }
 
+export interface EInformaBalanceSheet {
+  cif: string;
+  ejercicio: number;
+  fecha_cierre: string;
+  activo_corriente?: number;
+  activo_no_corriente?: number;
+  activo_total?: number;
+  pasivo_corriente?: number;
+  pasivo_no_corriente?: number;
+  pasivo_total?: number;
+  patrimonio_neto?: number;
+  fondos_propios?: number;
+  capital_social?: number;
+  reservas?: number;
+  resultado_ejercicio?: number;
+}
+
+export interface EInformaIncomeStatement {
+  cif: string;
+  ejercicio: number;
+  fecha_cierre: string;
+  ingresos_explotacion?: number;
+  consumos_materias_primas?: number;
+  gastos_personal?: number;
+  otros_gastos_explotacion?: number;
+  amortizaciones?: number;
+  resultado_explotacion?: number;
+  ingresos_financieros?: number;
+  gastos_financieros?: number;
+  resultado_financiero?: number;
+  resultado_antes_impuestos?: number;
+  impuesto_sociedades?: number;
+  resultado_ejercicio?: number;
+  ebitda?: number;
+}
+
+export interface EInformaRatios {
+  cif: string;
+  ejercicio: number;
+  rentabilidad: {
+    roe?: number; // Return on Equity
+    roa?: number; // Return on Assets
+    roi?: number; // Return on Investment
+    margen_bruto?: number;
+    margen_neto?: number;
+  };
+  liquidez: {
+    ratio_corriente?: number;
+    ratio_rapido?: number;
+    ratio_tesoreria?: number;
+    capital_trabajo?: number;
+  };
+  endeudamiento: {
+    ratio_endeudamiento?: number;
+    ratio_autonomia?: number;
+    cobertura_intereses?: number;
+    deuda_corto_plazo?: number;
+    deuda_largo_plazo?: number;
+  };
+  eficiencia: {
+    rotacion_activos?: number;
+    rotacion_inventarios?: number;
+    periodo_medio_cobro?: number;
+    periodo_medio_pago?: number;
+  };
+}
+
+export interface EInformaCreditInfo {
+  cif: string;
+  fecha_consulta: string;
+  rating_crediticio?: string;
+  scoring_crediticio?: number;
+  limite_credito_recomendado?: number;
+  nivel_riesgo?: 'bajo' | 'medio' | 'alto' | 'muy_alto';
+  incidencias: {
+    protestos?: number;
+    impagados?: number;
+    concursos?: number;
+    embargos?: number;
+    fecha_ultima_incidencia?: string;
+  };
+  historial_consultas?: {
+    total_consultas_6m?: number;
+    total_consultas_12m?: number;
+    consultas_recientes?: Array<{
+      fecha: string;
+      tipo_consulta: string;
+      entidad_consultante?: string;
+    }>;
+  };
+  evolucion_rating?: Array<{
+    fecha: string;
+    rating: string;
+    scoring: number;
+  }>;
+}
+
 export interface EInformaDirector {
   nombre: string;
   apellidos: string;
@@ -82,6 +179,10 @@ export interface EInformaApiResponse<T> {
 export interface EInformaEnrichmentResult {
   company_data?: EInformaCompanyFull;
   financial_data?: EInformaFinancialData[];
+  balance_sheet?: EInformaBalanceSheet[];
+  income_statement?: EInformaIncomeStatement[];
+  financial_ratios?: EInformaRatios[];
+  credit_info?: EInformaCreditInfo;
   directors?: EInformaDirector[];
   enrichment_date: string;
   source: 'einforma';
