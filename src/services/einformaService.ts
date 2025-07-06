@@ -47,8 +47,8 @@ class EInformaService {
 
   async enrichCompany(cif: string): Promise<EInformaEnrichmentResult | null> {
     try {
-      const { data, error } = await supabase.functions.invoke('einforma-enrich-company', {
-        body: { cif }
+      const { data, error } = await supabase.functions.invoke('company-lookup-einforma', {
+        body: { nif: cif }
       });
 
       if (error) {
@@ -56,7 +56,26 @@ class EInformaService {
         return null;
       }
 
-      return data || null;
+      // Transform the simple company data into enrichment format
+      if (data?.success && data?.data) {
+        return {
+          confidence_score: 0.8,
+          enrichment_date: new Date().toISOString(),
+          source: 'einforma',
+          company_data: {
+            cif: data.data.nif,
+            razon_social: data.data.name,
+            direccion: data.data.address_street,
+            poblacion: data.data.address_city,
+            codigo_postal: data.data.address_postal_code,
+            provincia: data.data.address_city, // Using city as province for now
+            actividad_principal: data.data.business_sector,
+            situacion_juridica: data.data.status === 'activo' ? 'activa' : 'inactiva'
+          }
+        };
+      }
+
+      return null;
     } catch (error) {
       console.error('EInforma enrichment failed:', error);
       return null;
