@@ -33,6 +33,7 @@ const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
+const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 
 // Settings pages
 const SettingsLayout = lazy(() => import('@/components/settings/SettingsLayout').then(m => ({ default: m.SettingsLayout })));
@@ -258,6 +259,14 @@ function AppContent() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <Integrations />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/einforma" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <EInformaDashboard />
               </Suspense>
             } 
           />
