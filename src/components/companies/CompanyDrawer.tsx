@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { X, Star, StarOff, ChevronLeft, ChevronRight, Mail, Copy, FileText, Trash2, Building2 } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Building2, Edit, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Company } from '@/types/Company';
-import { CompanyOverviewTab } from './CompanyOverviewTab';
-import { CompanyActivityTab } from './CompanyActivityTab';
-import { CompanyEinformaTab } from './CompanyEinformaTab';
-import { CompanyRecordSidebar } from './CompanyRecordSidebar';
+import { CompanyDataPanel } from './CompanyDataPanel';
+import { CompanyCRMPanel } from './CompanyCRMPanel';
+import { CompanyProfileScore } from './CompanyProfileScore';
+import { useCompanyEnrichments } from '@/hooks/useCompanyEnrichments';
+import { useCompanyStats } from '@/hooks/useCompanyStats';
+import { useCompanyProfileScore } from '@/hooks/useCompanyProfileScore';
 import { einformaService } from '@/services/einformaService';
 import { toast } from 'sonner';
 
@@ -34,10 +36,13 @@ export const CompanyDrawer = ({
   currentIndex = 0,
   onNavigate
 }: CompanyDrawerProps) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
   const [showEinformaDialog, setShowEinformaDialog] = useState(false);
   const [isEnrichingFromEinforma, setIsEnrichingFromEinforma] = useState(false);
+
+  // Hooks for data
+  const { enrichmentData, isLoading: enrichmentLoading } = useCompanyEnrichments(company?.id || '');
+  const stats = useCompanyStats(company?.id || '', company?.name);
+  const profileScore = useCompanyProfileScore(company, enrichmentData);
 
   // Focus trap and escape key handler
   useEffect(() => {
@@ -61,33 +66,6 @@ export const CompanyDrawer = ({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, onClose, onNavigate, currentIndex, companies.length]);
-
-  const getInitials = (name: string) => {
-    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
-  };
-
-  const handleAction = (action: string) => {
-    if (!company) return;
-    
-    switch (action) {
-      case 'compose-email':
-        toast.info('Opening email composer...');
-        break;
-      case 'copy-link':
-        navigator.clipboard.writeText(`${window.location.origin}/companies/${company.id}`);
-        toast.success('Company link copied to clipboard');
-        break;
-      case 'clone':
-        toast.info('Clone company functionality coming soon');
-        break;
-      case 'delete':
-        if (window.confirm(`¿Estás seguro de que deseas eliminar ${company.name}?`)) {
-          onDelete?.(company.id);
-          onClose();
-        }
-        break;
-    }
-  };
 
   const handleEinformaEnrichment = async () => {
     if (!company || !(company as any).nif) return;
@@ -115,6 +93,37 @@ export const CompanyDrawer = ({
     }
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'No disponible';
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const getCompanyStatusBadge = (status: string) => {
+    const variants: Record<string, any> = {
+      'activa': 'default',
+      'cliente': 'default',
+      'prospecto': 'secondary',
+      'inactiva': 'outline',
+      'perdida': 'destructive',
+    };
+    return variants[status] || 'secondary';
+  };
+
+  const getCompanyTypeBadge = (type: string) => {
+    const variants: Record<string, any> = {
+      'cliente': 'default',
+      'prospect': 'secondary',
+      'partner': 'outline',
+      'franquicia': 'outline',
+      'competidor': 'destructive',
+    };
+    return variants[type] || 'secondary';
+  };
+
   if (!company) return null;
 
   return (
@@ -129,10 +138,10 @@ export const CompanyDrawer = ({
 
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full bg-neutral-0 border-l border-border shadow-lg z-50 transform transition-transform duration-300 
+        className={`fixed right-0 top-0 h-full bg-background border-l border-border shadow-lg z-50 transform transition-transform duration-300 
           ${open ? 'translate-x-0' : 'translate-x-full'}
-          w-[480px] max-w-[480px]
-          md:w-[480px]
+          w-[800px] max-w-[800px]
+          md:w-[800px]
           max-md:w-full max-md:left-0
         `}
         role="dialog"
@@ -140,241 +149,133 @@ export const CompanyDrawer = ({
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarFallback className="bg-muted text-xs">
-                  {getInitials(company.name)}
-                </AvatarFallback>
-              </Avatar>
-              <h2 className="font-semibold text-lg truncate">{company.name}</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsFavorite(!isFavorite)}
-                className="h-6 w-6 p-0 flex-shrink-0"
-              >
-                {isFavorite ? (
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                ) : (
-                  <StarOff className="h-4 w-4 text-muted-foreground" />
-                )}
-              </Button>
-              
-              {/* Navigation */}
-              {companies.length > 1 && onNavigate && (
-                <div className="flex items-center gap-1 ml-auto">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onNavigate('prev')}
-                    disabled={currentIndex <= 0}
-                    className="h-6 w-6 p-0"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="text-xs text-muted-foreground px-2">
-                    {currentIndex + 1} / {companies.length}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onNavigate('next')}
-                    disabled={currentIndex >= companies.length - 1}
-                    className="h-6 w-6 p-0"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+          <div className="p-6 border-b border-border">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-2xl font-bold truncate">{company.name}</h1>
+                  {/* Navigation */}
+                  {companies.length > 1 && onNavigate && (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onNavigate('prev')}
+                        disabled={currentIndex <= 0}
+                        className="h-8 w-8 p-0"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm text-muted-foreground px-2">
+                        {currentIndex + 1} / {companies.length}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onNavigate('next')}
+                        disabled={currentIndex >= companies.length - 1}
+                        className="h-8 w-8 p-0"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            
-            {/* Global Actions */}
-            <div className="flex items-center gap-1 ml-4">
-              {/* eInforma Button - Only show if company has NIF */}
-              {(company as any).nif && (
-                <>
+                
+                {/* Sector line */}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-muted-foreground">
+                    {enrichmentData?.sector || company.industry || 'Sector no especificado'}
+                  </span>
+                  {enrichmentData?.sector && (
+                    <Badge variant="outline" className="text-xs">eInforma</Badge>
+                  )}
+                </div>
+
+                {/* Status badges */}
+                <div className="flex items-center gap-2">
+                  <Badge variant={getCompanyStatusBadge(company.company_status)}>
+                    {company.company_status}
+                  </Badge>
+                  <Badge variant={getCompanyTypeBadge(company.company_type)}>
+                    {company.company_type}
+                  </Badge>
+                </div>
+              </div>
+              
+              {/* Header Actions */}
+              <div className="flex items-center gap-2 ml-4">
+                <Button
+                  onClick={() => onEdit?.(company)}
+                  className="gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  Editar Empresa
+                </Button>
+                
+                {/* eInforma Button - Only show if company has NIF */}
+                {(company as any).nif && (
                   <Button
-                    variant="ghost"
-                    size="sm"
+                    variant="outline"
                     onClick={() => setShowEinformaDialog(true)}
                     disabled={isEnrichingFromEinforma}
-                    className="h-8 w-8 p-0"
-                    title="Actualizar desde eInforma"
+                    className="gap-2"
                   >
                     {isEnrichingFromEinforma ? (
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     ) : (
                       <Building2 className="h-4 w-4" />
                     )}
+                    Actualizar desde eInforma
                   </Button>
-                  <div className="w-px h-4 bg-border mx-1" />
-                </>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleAction('compose-email')}
-                className="h-8 w-8 p-0"
-                title="Compose email"
-              >
-                <Mail className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleAction('copy-link')}
-                className="h-8 w-8 p-0"
-                title="Copy link"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleAction('clone')}
-                className="h-8 w-8 p-0"
-                title="Clone company"
-              >
-                <FileText className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleAction('delete')}
-                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                title="Delete company"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              <div className="w-px h-4 bg-border mx-1" />
-              <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
-                <X className="h-4 w-4" />
-              </Button>
+                )}
+                
+                <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="border-b border-border">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="h-auto p-0 bg-transparent">
-                <div className="flex overflow-x-auto">
-                  <TabsTrigger 
-                    value="overview"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Overview
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="activity"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Activity
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="einforma"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    eInforma
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="emails"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Emails
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="calls"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Calls
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="team"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Team
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="notes"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Notes
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="tasks"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Tasks
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="files"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-                  >
-                    Files
-                  </TabsTrigger>
-                </div>
-              </TabsList>
+          {/* Main Content */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-8">
+            {/* Profile Score */}
+            <CompanyProfileScore profileScore={profileScore} />
 
-              {/* Content Area */}
-              <div className="flex-1 flex overflow-hidden">
-                {/* Main Content */}
-                <div className="flex-1 overflow-y-auto">
-                  <TabsContent value="overview" className="mt-0 p-6">
-                    <CompanyOverviewTab company={company} />
-                  </TabsContent>
-                  
-                  <TabsContent value="activity" className="mt-0 p-6">
-                    <CompanyActivityTab company={company} />
-                  </TabsContent>
-                  
-                  <TabsContent value="einforma" className="mt-0 p-6">
-                    <CompanyEinformaTab company={company} />
-                  </TabsContent>
-                  
-                  <TabsContent value="emails" className="mt-0 p-6">
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">Email integration coming soon</p>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="calls" className="mt-0 p-6">
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">Call logging coming soon</p>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="team" className="mt-0 p-6">
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">Team management coming soon</p>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="notes" className="mt-0 p-6">
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">Notes coming soon</p>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="tasks" className="mt-0 p-6">
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">Task management coming soon</p>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="files" className="mt-0 p-6">
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">File management coming soon</p>
-                    </div>
-                  </TabsContent>
-                </div>
+            {/* Data Panel */}
+            <CompanyDataPanel 
+              company={company} 
+              enrichmentData={enrichmentData} 
+            />
 
-                {/* Sidebar */}
-                <div className="w-64 border-l border-border bg-neutral-50 overflow-y-auto">
-                  <CompanyRecordSidebar company={company} onEdit={onEdit} />
+            {/* CRM Panel */}
+            <CompanyCRMPanel
+              companyId={company.id}
+              companyName={company.name}
+              stats={stats}
+            />
+          </div>
+
+          {/* Footer */}
+          <div className="p-6 border-t border-border bg-muted/30">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Creado: {formatDate(company.created_at)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>Actualizado: {formatDate(company.updated_at)}</span>
                 </div>
               </div>
-            </Tabs>
+              {enrichmentData?.fechaActualizacion && (
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  <span>eInforma: {formatDate(enrichmentData.fechaActualizacion)}</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
