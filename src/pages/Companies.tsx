@@ -61,6 +61,7 @@ const Companies = () => {
   const { data: stats, isLoading: statsLoading } = useCompanyStats();
 
   const handleEditCompany = (company: Company) => {
+    console.log('✏️ handleEditCompany called with:', company.name);
     setEditingCompany(company);
   };
 
@@ -75,10 +76,12 @@ const Companies = () => {
   };
 
   const handleViewCompany = (company: Company) => {
+    console.log('🔍 handleViewCompany called with:', company.name);
     const index = companies.findIndex(c => c.id === company.id);
     setCurrentCompanyIndex(index >= 0 ? index : 0);
     setViewingCompany(company);
     setIsDrawerOpen(true);
+    console.log('🚪 CompanyDrawer should open now. isDrawerOpen:', true);
   };
 
   const handleNavigateCompany = (direction: 'prev' | 'next') => {
