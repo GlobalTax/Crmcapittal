@@ -31,7 +31,7 @@ interface ContactActivity {
   activity_type: string;
   title: string;
   description?: string;
-  activity_data?: Record<string, any>;
+  activity_data?: Record<string, string | number | boolean | null>;
   created_by?: string;
   created_at: string;
   updated_at: string;
@@ -90,7 +90,7 @@ export function ContactTimeline({ contact, className = "" }: ContactTimelineProp
       if (error) throw error;
       setActivities((data || []).map(activity => ({
         ...activity,
-        activity_data: typeof activity.activity_data === 'object' ? activity.activity_data as Record<string, any> : {}
+        activity_data: typeof activity.activity_data === 'object' ? activity.activity_data as Record<string, string | number | boolean | null> : {}
       })));
     } catch (error) {
       console.error('Error loading activities:', error);
@@ -129,7 +129,7 @@ export function ContactTimeline({ contact, className = "" }: ContactTimelineProp
         <div className="mt-2 p-2 bg-muted rounded text-xs">
           <strong>Cambios realizados:</strong>
           <ul className="mt-1 space-y-1">
-            {Object.entries(data.changes).map(([field, change]: [string, any]) => (
+            {Object.entries(data.changes).map(([field, change]: [string, { from?: string; to?: string }]) => (
               <li key={field} className="flex items-center gap-2">
                 <span className="font-medium">{field}:</span>
                 <span className="text-muted-foreground">{change.from || 'vacío'}</span>

@@ -76,7 +76,7 @@ export function AddActivityDialog({ open, onOpenChange, contact, onActivityAdded
     setIsLoading(true);
     try {
       // Create activity data based on type
-      const activityData: Record<string, any> = {
+      const activityData: Record<string, unknown> = {
         activity_date: formData.activity_date.toISOString()
       };
 
@@ -107,7 +107,7 @@ export function AddActivityDialog({ open, onOpenChange, contact, onActivityAdded
           activity_type: formData.activity_type,
           title: formData.title,
           description: formData.description || null,
-          activity_data: activityData,
+          activity_data: activityData as any,
           created_by: user.id
         });
 
@@ -174,7 +174,7 @@ export function AddActivityDialog({ open, onOpenChange, contact, onActivityAdded
     });
   };
 
-  const updateFormData = (field: string, value: any) => {
+  const updateFormData = (field: string, value: string | Date) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

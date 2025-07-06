@@ -123,7 +123,11 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
           if (existingManager) {
             // Update existing manager
             console.log('Step 2: Updating existing manager...');
-            const updateData: any = {};
+            const updateData: Partial<{
+              name: string;
+              position: string;
+              phone: string;
+            }> = {};
             if (userData.managerName) updateData.name = userData.managerName;
             if (userData.managerPosition) updateData.position = userData.managerPosition;
             if (userData.managerPhone) updateData.phone = userData.managerPhone;
@@ -201,9 +205,9 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
 
         console.log('User update completed successfully');
         return true;
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error in updateUser mutation:', error);
-        throw error;
+        throw error instanceof Error ? error : new Error('Unknown error occurred');
       }
     },
     onSuccess: () => {
@@ -215,7 +219,7 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
       onClose();
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('User update mutation failed:', error);
       let errorMessage = "Error al actualizar el usuario";
       

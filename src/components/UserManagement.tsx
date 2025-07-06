@@ -172,9 +172,9 @@ const UserManagement = () => {
 
         console.log('User creation completed successfully');
         return authData;
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error in createUser mutation:', error);
-        throw error;
+        throw error instanceof Error ? error : new Error('Unknown error occurred');
       }
     },
     onSuccess: () => {
@@ -189,7 +189,7 @@ const UserManagement = () => {
       setPhotoPreview(null);
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('User creation mutation failed:', error);
       let errorMessage = "Error al crear el usuario";
       
@@ -228,7 +228,7 @@ const UserManagement = () => {
       });
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Delete role mutation failed:', error);
       toast({
         title: "Error",
@@ -336,7 +336,7 @@ const UserManagement = () => {
     deleteUserRoleMutation.mutate(userId);
   };
 
-  const handleEditUser = (user: any) => {
+  const handleEditUser = (user: User) => {
     setEditingUser(user);
     setIsEditDialogOpen(true);
   };

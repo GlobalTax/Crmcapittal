@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface PendingOperationsManagerProps {
   operations: Operation[];
-  onStatusUpdate: (operationId: string, newStatus: Operation['status']) => Promise<{ data: any; error: string | null }>;
+  onStatusUpdate: (operationId: string, newStatus: Operation['status']) => Promise<{ data: Operation | null; error: string | null }>;
 }
 
 export const PendingOperationsManager = ({ operations, onStatusUpdate }: PendingOperationsManagerProps) => {

@@ -4,11 +4,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Check, X, Edit } from "lucide-react";
 
+import { DealPreferences } from '@/types/Contact';
+
+type CellValue = string | number | boolean | string[] | DealPreferences | null | undefined;
+
 interface InlineEditCellProps {
-  value: any;
+  value: CellValue;
   type?: 'text' | 'email' | 'phone' | 'select' | 'date';
   options?: string[];
-  onSave: (value: any) => void;
+  onSave: (value: CellValue) => Promise<void> | void;
   className?: string;
 }
 
@@ -20,7 +24,7 @@ export function InlineEditCell({
   className = ""
 }: InlineEditCellProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value || '');
+  const [editValue, setEditValue] = useState<string>(String(value || ''));
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,25 +36,33 @@ export function InlineEditCell({
   }, [isEditing]);
 
   const handleSave = async () => {
-    if (editValue === value) {
+    if (String(editValue) === String(value)) {
       setIsEditing(false);
       return;
     }
 
     setIsLoading(true);
     try {
-      await onSave(editValue);
+      // Convert back to appropriate type based on original value type
+      let convertedValue: CellValue = editValue;
+      if (typeof value === 'number' && !isNaN(Number(editValue))) {
+        convertedValue = Number(editValue);
+      } else if (typeof value === 'boolean') {
+        convertedValue = editValue === 'true';
+      }
+      
+      await onSave(convertedValue);
       setIsEditing(false);
     } catch (error) {
       console.error('Error saving inline edit:', error);
-      setEditValue(value || '');
+      setEditValue(String(value || ''));
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setEditValue(value || '');
+    setEditValue(String(value || ''));
     setIsEditing(false);
   };
 
@@ -65,17 +77,25 @@ export function InlineEditCell({
   };
 
   const renderDisplayValue = () => {
-    if (!value) return <span className="text-muted-foreground">-</span>;
+    if (!value && value !== 0) return <span className="text-muted-foreground">-</span>;
+    
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    }
+    
+    if (typeof value === 'object' && value !== null) {
+      return <span className="text-muted-foreground">Objeto complejo</span>;
+    }
     
     if (type === 'email') {
-      return <a href={`mailto:${value}`} className="text-blue-600 hover:underline">{value}</a>;
+      return <a href={`mailto:${value}`} className="text-blue-600 hover:underline">{String(value)}</a>;
     }
     
     if (type === 'phone') {
-      return <a href={`tel:${value}`} className="text-blue-600 hover:underline">{value}</a>;
+      return <a href={`tel:${value}`} className="text-blue-600 hover:underline">{String(value)}</a>;
     }
     
-    if (type === 'date') {
+    if (type === 'date' && typeof value === 'string') {
       return new Date(value).toLocaleDateString();
     }
     

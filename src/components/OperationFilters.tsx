@@ -47,7 +47,7 @@ export const OperationFilters = ({ onFiltersChange, operations }: OperationFilte
     { value: 'ipo', label: 'IPO' }
   ];
 
-  const updateFilter = (key: keyof FilterState, value: any) => {
+  const updateFilter = (key: keyof FilterState, value: string | number | number[]) => {
     // Convert "all" back to empty string for the filter logic
     const filterValue = value === 'all' ? '' : value;
     const newFilters = { ...filters, [key]: filterValue };

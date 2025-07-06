@@ -7,10 +7,10 @@ interface LazyPageProps {
   fallback?: React.ReactNode
 }
 
-export const LazyPage: React.FC<LazyPageProps> = ({ 
+export const LazyPage = ({ 
   children, 
   fallback = <LoadingSkeleton type="table-row" count={3} /> 
-}) => {
+}: LazyPageProps) => {
   return (
     <Suspense fallback={fallback}>
       {children}
@@ -26,7 +26,7 @@ export function withLazyLoading<P extends object>(
     Promise.resolve({ default: Component })
   )
 
-  return React.forwardRef<any, P>((props, ref) => (
+  return React.forwardRef<React.ComponentRef<React.ComponentType<P>>, P>((props, ref) => (
     <LazyPage>
       <LazyComponent {...props} ref={ref} />
     </LazyPage>
