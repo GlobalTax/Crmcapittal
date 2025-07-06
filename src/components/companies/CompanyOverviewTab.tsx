@@ -31,10 +31,10 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
     if (company.description) strength += 20;
     if (company.contacts_count && company.contacts_count > 0) strength += 20;
     
-    if (strength >= 80) return { label: 'Strong', color: 'text-green-600' };
-    if (strength >= 60) return { label: 'Medium', color: 'text-yellow-600' };
-    if (strength >= 40) return { label: 'Weak', color: 'text-orange-600' };
-    return { label: 'Very weak', color: 'text-red-600' };
+    if (strength >= 80) return { label: 'Fuerte', color: 'text-green-600' };
+    if (strength >= 60) return { label: 'Media', color: 'text-yellow-600' };
+    if (strength >= 40) return { label: 'Débil', color: 'text-orange-600' };
+    return { label: 'Muy débil', color: 'text-red-600' };
   };
 
   const connectionStrength = getConnectionStrength();
@@ -44,53 +44,53 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
       {/* Highlight Cards Grid 3x2 */}
       <div className="grid grid-cols-3 gap-4">
         <DealHighlightCard
-          title="Connection strength"
+          title="Fuerza de Conexión"
           icon={Building2}
           value={
             <span className={connectionStrength.color}>
               {connectionStrength.label}
             </span>
           }
-          subtitle={`${company.contacts_count || 0} contacts`}
+          subtitle={`${company.contacts_count || 0} contactos`}
         />
 
         <DealHighlightCard
-          title="Next calendar interaction"
+          title="Próxima Interacción"
           icon={Calendar}
-          value="No meetings scheduled"
-          subtitle="Schedule a meeting"
+          value="No hay reuniones programadas"
+          subtitle="Programar una reunión"
         />
 
         <DealHighlightCard
-          title="Team"
+          title="Equipo"
           icon={Users}
-          value={`${stats.contactsCount} people`}
-          subtitle="View all contacts"
+          value={`${stats.contactsCount} personas`}
+          subtitle="Ver todos los contactos"
         />
 
         <DealHighlightCard
-          title="Estimated ARR"
+          title="ARR Estimado"
           icon={TrendingUp}
           value={
             <span className="text-success">
-              {company.annual_revenue ? formatCurrency(company.annual_revenue) : 'Not set'}
+              {company.annual_revenue ? formatCurrency(company.annual_revenue) : 'No establecido'}
             </span>
           }
-          subtitle={company.annual_revenue ? 'Annual recurring revenue' : 'Set ARR estimate'}
+          subtitle={company.annual_revenue ? 'Ingresos anuales recurrentes' : 'Establecer estimación ARR'}
         />
 
         <DealHighlightCard
-          title="Active Deals"
+          title="Oportunidades Activas"
           icon={Building2}
           value={`${stats.activeDealsCount}`}
           subtitle={`${formatCurrency(stats.totalPipelineValue)} pipeline`}
         />
 
         <DealHighlightCard
-          title="Employee range"
+          title="Rango de Empleados"
           icon={Users}
           value={company.company_size}
-          subtitle="Company size"
+          subtitle="Tamaño de empresa"
         />
       </div>
 
@@ -99,12 +99,12 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
 
       {/* Recent Activity Summary */}
       <div className="space-y-3">
-        <h3 className="text-sm font-medium">Recent Activity</h3>
+        <h3 className="text-sm font-medium">Actividad Reciente</h3>
         <div className="space-y-3">
           <div className="flex items-start gap-3 p-3 bg-neutral-50 rounded-lg">
             <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
             <div className="flex-1">
-              <p className="text-sm">Company created</p>
+              <p className="text-sm">Empresa creada</p>
               <p className="text-xs text-muted-foreground">
                 {new Date(company.created_at).toLocaleDateString('es-ES', {
                   year: 'numeric',
@@ -119,7 +119,7 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
             <div className="flex items-start gap-3 p-3 bg-neutral-50 rounded-lg">
               <div className="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
               <div className="flex-1">
-                <p className="text-sm">Company updated</p>
+                <p className="text-sm">Empresa actualizada</p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(company.updated_at).toLocaleDateString('es-ES', {
                     year: 'numeric',
@@ -135,7 +135,7 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
             <div className="flex items-start gap-3 p-3 bg-neutral-50 rounded-lg">
               <div className="w-2 h-2 rounded-full bg-purple-500 mt-2"></div>
               <div className="flex-1">
-                <p className="text-sm">Last activity</p>
+                <p className="text-sm">Última actividad</p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(company.last_activity_date).toLocaleDateString('es-ES', {
                     year: 'numeric',
@@ -149,8 +149,8 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
 
           {(!company.last_activity_date && company.updated_at === company.created_at) && (
             <div className="text-center py-6">
-              <p className="text-sm text-muted-foreground">No recent activity</p>
-              <p className="text-xs text-muted-foreground">Activity will appear here as it happens</p>
+              <p className="text-sm text-muted-foreground">Sin actividad reciente</p>
+              <p className="text-xs text-muted-foreground">La actividad aparecerá aquí cuando ocurra</p>
             </div>
           )}
         </div>

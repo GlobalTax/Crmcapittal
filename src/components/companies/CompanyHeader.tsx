@@ -58,7 +58,7 @@ export const CompanyHeader = ({
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Companies
+              Volver a Empresas
             </Button>
             
             {/* Navigation between companies */}
@@ -86,7 +86,7 @@ export const CompanyHeader = ({
 
           <Button onClick={() => onEdit(company)} className="gap-2">
             <Edit className="h-4 w-4" />
-            Edit Company
+            Editar Empresa
           </Button>
         </div>
 
@@ -100,7 +100,7 @@ export const CompanyHeader = ({
             
             {/* Company info line */}
             <div className="flex items-center gap-2 mb-4 text-muted-foreground">
-              <span>{company.industry || 'No industry specified'}</span>
+              <span>{company.industry || 'Industria no especificada'}</span>
               {company.city && (
                 <>
                   <span>•</span>
@@ -131,10 +131,10 @@ export const CompanyHeader = ({
                 {company.company_type}
               </Badge>
               {company.is_target_account && (
-                <Badge variant="outline">Target Account</Badge>
+                <Badge variant="outline">Cuenta Objetivo</Badge>
               )}
               {company.is_key_account && (
-                <Badge variant="outline">Key Account</Badge>
+                <Badge variant="outline">Cuenta Clave</Badge>
               )}
             </div>
           </div>

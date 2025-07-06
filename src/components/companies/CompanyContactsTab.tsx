@@ -30,10 +30,10 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
     return (
       <EmptyState
         icon={Users}
-        title="No contacts yet"
-        subtitle="Add contacts from this company to start building relationships"
+        title="Aún no hay contactos"
+        subtitle="Añade contactos de esta empresa para empezar a construir relaciones"
         action={{
-          label: "Add Contact",
+          label: "Añadir Contacto",
           onClick: () => console.log('Add contact clicked')
         }}
       />
@@ -44,11 +44,11 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">
-          Company Contacts ({companyContacts.length})
+          Contactos de la Empresa ({companyContacts.length})
         </h3>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Add Contact
+          Añadir Contacto
         </Button>
       </div>
 
@@ -98,17 +98,17 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
 
                 {contact.last_interaction_date && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    Last contact: {new Date(contact.last_interaction_date).toLocaleDateString('es-ES')}
+                    Último contacto: {new Date(contact.last_interaction_date).toLocaleDateString('es-ES')}
                   </p>
                 )}
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
-                  View
+                  Ver
                 </Button>
                 <Button variant="outline" size="sm">
-                  Edit
+                  Editar
                 </Button>
               </div>
             </div>

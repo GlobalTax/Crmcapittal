@@ -61,10 +61,10 @@ export const CompanyNotesTab = ({ company }: CompanyNotesTabProps) => {
     return (
       <EmptyState
         icon={StickyNote}
-        title="No notes yet"
-        subtitle="Add notes about this company to keep track of important information"
+        title="Aún no hay notas"
+        subtitle="Añade notas sobre esta empresa para hacer seguimiento de información importante"
         action={{
-          label: "Add Note",
+          label: "Añadir Nota",
           onClick: () => setIsAddingNote(true)
         }}
       />
@@ -75,12 +75,12 @@ export const CompanyNotesTab = ({ company }: CompanyNotesTabProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">
-          Company Notes ({notes.length})
+          Notas de la Empresa ({notes.length})
         </h3>
         {!isAddingNote && (
           <Button onClick={() => setIsAddingNote(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Note
+            Añadir Nota
           </Button>
         )}
       </div>
@@ -89,18 +89,18 @@ export const CompanyNotesTab = ({ company }: CompanyNotesTabProps) => {
       {isAddingNote && (
         <Card>
           <CardHeader className="pb-3">
-            <h4 className="text-sm font-medium">Add New Note</h4>
+            <h4 className="text-sm font-medium">Añadir Nueva Nota</h4>
           </CardHeader>
           <CardContent className="space-y-3">
             <Textarea
-              placeholder="Write your note about this company..."
+              placeholder="Escribe tu nota sobre esta empresa..."
               value={newNoteContent}
               onChange={(e) => setNewNoteContent(e.target.value)}
               className="min-h-[100px]"
             />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleAddNote}>
-                Save Note
+                Guardar Nota
               </Button>
               <Button
                 variant="outline"
@@ -110,7 +110,7 @@ export const CompanyNotesTab = ({ company }: CompanyNotesTabProps) => {
                   setNewNoteContent('');
                 }}
               >
-                Cancel
+                Cancelar
               </Button>
             </div>
           </CardContent>
@@ -130,7 +130,7 @@ export const CompanyNotesTab = ({ company }: CompanyNotesTabProps) => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">
-                      {note.created_by_name || 'Unknown User'}
+                      {note.created_by_name || 'Usuario Desconocido'}
                     </span>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />

@@ -121,7 +121,7 @@ export default function CompanyPage() {
   if (!company) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Company not found</p>
+        <p className="text-muted-foreground">Empresa no encontrada</p>
       </div>
     );
   }
@@ -148,37 +148,37 @@ export default function CompanyPage() {
                   value="overview"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Overview
+                  Resumen
                 </TabsTrigger>
                 <TabsTrigger 
                   value="activity"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Activity
+                  Actividad
                 </TabsTrigger>
                 <TabsTrigger 
                   value="contacts"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Contacts
+                  Contactos
                 </TabsTrigger>
                 <TabsTrigger 
                   value="deals"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Deals
+                  Oportunidades
                 </TabsTrigger>
                 <TabsTrigger 
                   value="notes"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Notes
+                  Notas
                 </TabsTrigger>
                 <TabsTrigger 
                   value="documents"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Documents
+                  Documentos
                 </TabsTrigger>
               </div>
             </TabsList>
@@ -209,7 +209,7 @@ export default function CompanyPage() {
                 
                 <TabsContent value="documents" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">Document management coming soon</p>
+                    <p className="text-muted-foreground">Gestión de documentos próximamente</p>
                   </div>
                 </TabsContent>
               </div>
@@ -229,7 +229,7 @@ export default function CompanyPage() {
           onClick={() => setActiveTab(activeTab === 'details' ? 'overview' : 'details')}
           className="rounded-full shadow-lg"
         >
-          {activeTab === 'details' ? 'Close Details' : 'Show Details'}
+          {activeTab === 'details' ? 'Cerrar Detalles' : 'Mostrar Detalles'}
         </Button>
       </div>
 
@@ -237,7 +237,7 @@ export default function CompanyPage() {
       {activeTab === 'details' && (
         <div className="fixed inset-0 bg-background z-50 lg:hidden overflow-y-auto">
           <div className="flex items-center justify-between p-4 border-b border-border">
-            <h2 className="text-lg font-semibold">Company Details</h2>
+            <h2 className="text-lg font-semibold">Detalles de la Empresa</h2>
             <Button
               variant="ghost"
               size="sm"

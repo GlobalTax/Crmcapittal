@@ -47,10 +47,10 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
     return (
       <EmptyState
         icon={Briefcase}
-        title="No deals yet"
-        subtitle="Create deals for this company to track opportunities"
+        title="Aún no hay oportunidades"
+        subtitle="Crea oportunidades para esta empresa para hacer seguimiento"
         action={{
-          label: "Create Deal",
+          label: "Crear Oportunidad",
           onClick: () => console.log('Create deal clicked')
         }}
       />
@@ -67,7 +67,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
         <div className="p-4 bg-neutral-50 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
             <Briefcase className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Total Deals</span>
+            <span className="text-sm font-medium">Total Oportunidades</span>
           </div>
           <span className="text-2xl font-bold">{companyDeals.length}</span>
         </div>
@@ -75,7 +75,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
         <div className="p-4 bg-neutral-50 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium">Active Deals</span>
+            <span className="text-sm font-medium">Oportunidades Activas</span>
           </div>
           <span className="text-2xl font-bold text-green-600">{activeDealsCount}</span>
         </div>
@@ -83,7 +83,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
         <div className="p-4 bg-neutral-50 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
             <Euro className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium">Total Value</span>
+            <span className="text-sm font-medium">Valor Total</span>
           </div>
           <span className="text-2xl font-bold text-blue-600">
             {formatCurrency(totalValue)}
@@ -94,10 +94,10 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
       {/* Deals List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Deals</h3>
+          <h3 className="text-lg font-medium">Oportunidades</h3>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Create Deal
+            Crear Oportunidad
           </Button>
         </div>
 
@@ -120,23 +120,23 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
                         <span>{formatCurrency(deal.amount)}</span>
                       </div>
                     )}
-                    <span>Probability: {deal.probability}%</span>
+                    <span>Probabilidad: {deal.probability}%</span>
                     {deal.company?.name && (
-                      <span>Company: {deal.company.name}</span>
+                      <span>Empresa: {deal.company.name}</span>
                     )}
                   </div>
 
                   <p className="text-xs text-muted-foreground mt-2">
-                    Created: {new Date(deal.createdAt).toLocaleDateString('es-ES')}
+                    Creado: {new Date(deal.createdAt).toLocaleDateString('es-ES')}
                   </p>
                 </div>
 
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm">
-                    View
+                    Ver
                   </Button>
                   <Button variant="outline" size="sm">
-                    Edit
+                    Editar
                   </Button>
                 </div>
               </div>
