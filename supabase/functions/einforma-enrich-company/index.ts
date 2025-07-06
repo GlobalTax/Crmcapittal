@@ -249,3 +249,4 @@ function calculateFinancialRatios(balanceData: any[], incomeData: any[]) {
   }
   
   return ratios;
+}
