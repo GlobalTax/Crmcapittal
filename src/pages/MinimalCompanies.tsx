@@ -1,19 +1,19 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
 import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
-import { CompanyDrawer } from "@/components/companies/CompanyDrawer";
+import { CompanyModal } from "@/components/companies/CompanyModal";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
 
 export default function MinimalCompanies() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [currentCompanyIndex, setCurrentCompanyIndex] = useState(0);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { 
     companies, 
@@ -24,6 +24,7 @@ export default function MinimalCompanies() {
     createCompany, 
     updateCompany, 
     deleteCompany,
+    isCreating,
     useCompanyStats
   } = useCompanies({ 
     page, 
@@ -95,12 +96,11 @@ export default function MinimalCompanies() {
     actions: (
       <div className="flex gap-2 justify-end">
         <button 
-          onClick={() => handleViewCompany(company)}
+          onClick={() => navigate(`/companies/${company.id}`)}
           className="text-blue-600 hover:text-blue-800 text-sm"
         >
           Ver
         </button>
-        <button className="text-blue-600 hover:text-blue-800 text-sm">Editar</button>
       </div>
     )
   }));
@@ -111,26 +111,7 @@ export default function MinimalCompanies() {
   };
 
   const handleViewCompany = (company: Company) => {
-    console.log('🔍 handleViewCompany called with:', company.name);
-    const index = companies.findIndex(c => c.id === company.id);
-    setCurrentCompanyIndex(index >= 0 ? index : 0);
-    setViewingCompany(company);
-    setIsDrawerOpen(true);
-    console.log('🚪 CompanyDrawer should open now. isDrawerOpen:', true);
-  };
-
-  const handleNavigateCompany = (direction: 'prev' | 'next') => {
-    let newIndex = currentCompanyIndex;
-    if (direction === 'prev' && currentCompanyIndex > 0) {
-      newIndex = currentCompanyIndex - 1;
-    } else if (direction === 'next' && currentCompanyIndex < companies.length - 1) {
-      newIndex = currentCompanyIndex + 1;
-    }
-    
-    if (newIndex !== currentCompanyIndex) {
-      setCurrentCompanyIndex(newIndex);
-      setViewingCompany(companies[newIndex]);
-    }
+    navigate(`/companies/${company.id}`);
   };
 
   if (isLoading) {
@@ -152,7 +133,7 @@ export default function MinimalCompanies() {
           <h1 className="text-2xl font-bold text-gray-900">Empresas - Minimal</h1>
           <p className="text-gray-600 mt-1">Gestiona todas las empresas de tu pipeline</p>
         </div>
-        <Button variant="primary">
+        <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
           Nueva Empresa
         </Button>
       </div>
@@ -235,34 +216,19 @@ export default function MinimalCompanies() {
             data={tableData}
             columns={companyColumns}
             onRowClick={(row) => {
-              const company = companies.find(c => c.id === row.id);
-              if (company) handleViewCompany(company);
+              navigate(`/companies/${row.id}`);
             }}
             className=""
           />
         </div>
       </div>
 
-      {/* Company Drawer */}
-      <CompanyDrawer
-        company={viewingCompany}
-        open={isDrawerOpen}
-        onClose={() => {
-          setIsDrawerOpen(false);
-          setViewingCompany(null);
-        }}
-        onEdit={(company) => {
-          setIsDrawerOpen(false);
-          // TODO: Implementar edición si es necesario
-          console.log('Editar empresa:', company.name);
-        }}
-        onDelete={(companyId) => {
-          // TODO: Implementar eliminación si es necesario
-          console.log('Eliminar empresa:', companyId);
-        }}
-        companies={companies}
-        currentIndex={currentCompanyIndex}
-        onNavigate={handleNavigateCompany}
+      {/* Create Company Modal */}
+      <CompanyModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onCreateCompany={createCompany}
+        isCreating={isCreating}
       />
     </div>
   );

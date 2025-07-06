@@ -18,6 +18,7 @@ const LeadPage = lazy(() => import('@/pages/LeadPage'));
 const Contacts = lazy(() => import('@/pages/Contacts'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const Companies = lazy(() => import('@/pages/MinimalCompanies'));
+const CompanyPage = lazy(() => import('@/pages/CompanyPage'));
 const Deals = lazy(() => import('@/pages/Deals'));
 const DealPage = lazy(() => import('@/pages/DealPage'));
 const Transacciones = lazy(() => import('@/pages/Transacciones'));
@@ -153,6 +154,14 @@ function AppContent() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <Companies />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/companies/:id"
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CompanyPage />
               </Suspense>
             } 
           />
