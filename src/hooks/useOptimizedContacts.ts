@@ -17,33 +17,35 @@ export const useOptimizedContacts = () => {
   } = useOptimizedPolling({
     queryKey: 'contacts_optimized',
     queryFn: async () => {
-      console.log('🔄 Fetching contacts...');
-      const result = await supabaseQuery<Contact[]>(
-        'contacts',
-        (query) => query
-          .select('*')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false }),
-        'contacts_list',
-        'medium', // Increased priority for better responsiveness
-        60000 // 1 minute cache for testing
-      );
-      console.log('✅ Contacts fetched:', result?.length || 0);
-      if (result && result.length > 0) {
-        console.log('📋 First contact sample:', {
-          id: result[0].id,
-          name: result[0].name,
-          contact_type: result[0].contact_type,
-          is_active: result[0].is_active
+      console.log('🚀 DIRECT FETCH: Fetching contacts...');
+      // SIMPLIFIED: Direct Supabase call for debugging
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('❌ DIRECT FETCH ERROR:', error);
+        throw error;
+      }
+      
+      console.log('✅ DIRECT FETCH SUCCESS:', data?.length || 0, 'contacts');
+      if (data && data.length > 0) {
+        console.log('📋 SAMPLE CONTACT:', {
+          id: data[0].id,
+          name: data[0].name,
+          contact_type: data[0].contact_type,
+          is_active: data[0].is_active
         });
       }
-      return result;
+      return data as Contact[];
     },
-    interval: 30000, // 30 seconds for testing - much more responsive
-    priority: 'medium',
-    cacheTtl: 60000, // 1 minute cache for testing
+    interval: 10000, // 10 seconds - VERY aggressive for debugging
+    priority: 'high', // High priority for immediate debugging
+    cacheTtl: 10000, // 10 seconds cache - very short
     enabled: true,
-    retryOnError: true // Enable retries but with backoff
+    retryOnError: true
   });
 
   const createContact = useCallback(async (contactData: CreateContactData) => {

@@ -15,10 +15,10 @@ interface UseOptimizedPollingOptions {
 export const useOptimizedPolling = ({
   queryKey,
   queryFn,
-  interval = 180000, // 3 minutes default (much more conservative)
+  interval = 10000, // 10 seconds for debugging - very aggressive
   priority = 'medium',
   enabled = true,
-  cacheTtl = 120000, // 2 minutes cache
+  cacheTtl = 10000, // 10 seconds cache for debugging
   retryOnError = true,
   maxRetries = 3
 }: UseOptimizedPollingOptions) => {
@@ -69,14 +69,13 @@ export const useOptimizedPolling = ({
     
     let newInterval = interval;
     
-    // Increase interval when tab is hidden
-    if (!isTabVisible) {
-      newInterval = interval * 3; // 3x slower when hidden
-    }
-    // Increase interval when user is inactive (>5 minutes)
-    else if (inactiveTime > 300000) {
-      newInterval = interval * 2; // 2x slower when inactive
-    }
+    // DISABLED: Keep aggressive polling for debugging
+    // if (!isTabVisible) {
+    //   newInterval = interval * 3; // 3x slower when hidden
+    // }
+    // else if (inactiveTime > 300000) {
+    //   newInterval = interval * 2; // 2x slower when inactive
+    // }
     
     setCurrentInterval(newInterval);
   }, [isTabVisible, lastActivity, interval]);

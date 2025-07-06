@@ -110,7 +110,7 @@ export default function Contacts() {
     setFilterType(current => current === 'all' ? 'cliente' : 'all');
   };
 
-  // Filter contacts based on search term and filter type
+  // SIMPLIFIED FILTERING for debugging - be very permissive
   const filteredContacts = contacts?.filter(contact => {
     if (!contact) {
       console.log('⚠️ Found null/undefined contact in filter');
@@ -122,20 +122,20 @@ export default function Contacts() {
       contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Fix filter logic - 'all' should show everything, specific types should match exactly
-    const matchesFilter = filterType === 'all' || contact.contact_type === filterType;
+    // SIMPLIFIED: Show all contacts when filter is 'all' or empty
+    const matchesFilter = !filterType || filterType === 'all' || contact.contact_type === filterType;
     
     const shouldInclude = matchesSearch && matchesFilter;
     
-    if (!shouldInclude && contact.name) {
-      console.log('🚫 Contact filtered out:', {
-        name: contact.name,
-        contact_type: contact.contact_type,
-        filterType,
-        matchesSearch,
-        matchesFilter
-      });
-    }
+    console.log('🔍 FILTERING CONTACT:', {
+      name: contact.name,
+      contact_type: contact.contact_type,
+      filterType,
+      searchTerm,
+      matchesSearch,
+      matchesFilter,
+      shouldInclude
+    });
     
     return shouldInclude;
   }) || [];
@@ -171,17 +171,21 @@ export default function Contacts() {
       />
       
       {/* Debug button for testing */}
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
         <Button 
           onClick={() => {
-            console.log('🔄 Manual refetch triggered');
+            console.log('🔄 FORCE REFRESH: Clearing cache and refetching...');
             fetchContacts();
           }}
           variant="outline"
           size="sm"
+          disabled={isFetching}
         >
-          🔄 Force Refresh ({filteredContacts.length})
+          {isFetching ? '⏳ Loading...' : '🔄 Force Refresh'} ({filteredContacts.length})
         </Button>
+        <div className="text-xs text-center text-muted-foreground">
+          {isFetching ? 'Fetching...' : 'Ready'}
+        </div>
       </div>
 
       {viewMode === 'grid' ? (
