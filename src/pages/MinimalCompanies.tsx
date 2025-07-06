@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
 import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
+import { CompanyDrawer } from "@/components/companies/CompanyDrawer";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
 
@@ -10,7 +11,9 @@ export default function MinimalCompanies() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [currentCompanyIndex, setCurrentCompanyIndex] = useState(0);
 
   const { 
     companies, 
@@ -92,7 +95,7 @@ export default function MinimalCompanies() {
     actions: (
       <div className="flex gap-2 justify-end">
         <button 
-          onClick={() => setSelectedCompany(company)}
+          onClick={() => handleViewCompany(company)}
           className="text-blue-600 hover:text-blue-800 text-sm"
         >
           Ver
@@ -105,6 +108,29 @@ export default function MinimalCompanies() {
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     setPage(1);
+  };
+
+  const handleViewCompany = (company: Company) => {
+    console.log('🔍 handleViewCompany called with:', company.name);
+    const index = companies.findIndex(c => c.id === company.id);
+    setCurrentCompanyIndex(index >= 0 ? index : 0);
+    setViewingCompany(company);
+    setIsDrawerOpen(true);
+    console.log('🚪 CompanyDrawer should open now. isDrawerOpen:', true);
+  };
+
+  const handleNavigateCompany = (direction: 'prev' | 'next') => {
+    let newIndex = currentCompanyIndex;
+    if (direction === 'prev' && currentCompanyIndex > 0) {
+      newIndex = currentCompanyIndex - 1;
+    } else if (direction === 'next' && currentCompanyIndex < companies.length - 1) {
+      newIndex = currentCompanyIndex + 1;
+    }
+    
+    if (newIndex !== currentCompanyIndex) {
+      setCurrentCompanyIndex(newIndex);
+      setViewingCompany(companies[newIndex]);
+    }
   };
 
   if (isLoading) {
@@ -210,61 +236,34 @@ export default function MinimalCompanies() {
             columns={companyColumns}
             onRowClick={(row) => {
               const company = companies.find(c => c.id === row.id);
-              if (company) setSelectedCompany(company);
+              if (company) handleViewCompany(company);
             }}
             className=""
           />
         </div>
       </div>
 
-      {/* Company Details Modal */}
-      {selectedCompany && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold">{selectedCompany.name}</h3>
-              <p className="text-gray-600 text-sm">{selectedCompany.industry}</p>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-sm text-gray-500">Estado</span>
-                  <div className="mt-1">{getStatusBadge(selectedCompany.company_status)}</div>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Tipo</span>
-                  <div className="mt-1">{getTypeBadge(selectedCompany.company_type)}</div>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Ciudad</span>
-                  <div className="font-medium">{selectedCompany.city || 'N/A'}</div>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Puntuación</span>
-                  <div className="font-medium">{selectedCompany.lead_score || 0}</div>
-                </div>
-              </div>
-              {selectedCompany.description && (
-                <div>
-                  <span className="text-sm text-gray-500">Descripción</span>
-                  <p className="mt-1">{selectedCompany.description}</p>
-                </div>
-              )}
-            </div>
-            <div className="p-6 border-t flex justify-end gap-3">
-              <Button 
-                variant="secondary" 
-                onClick={() => setSelectedCompany(null)}
-              >
-                Cerrar
-              </Button>
-              <Button variant="primary">
-                Editar Empresa
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Company Drawer */}
+      <CompanyDrawer
+        company={viewingCompany}
+        open={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setViewingCompany(null);
+        }}
+        onEdit={(company) => {
+          setIsDrawerOpen(false);
+          // TODO: Implementar edición si es necesario
+          console.log('Editar empresa:', company.name);
+        }}
+        onDelete={(companyId) => {
+          // TODO: Implementar eliminación si es necesario
+          console.log('Eliminar empresa:', companyId);
+        }}
+        companies={companies}
+        currentIndex={currentCompanyIndex}
+        onNavigate={handleNavigateCompany}
+      />
     </div>
   );
 }
