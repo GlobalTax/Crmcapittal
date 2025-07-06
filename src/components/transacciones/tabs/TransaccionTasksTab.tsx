@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Plus, CheckSquare, Calendar } from 'lucide-react';
+import { Plus, CheckSquare, Calendar, AlertCircle } from 'lucide-react';
 import { format, isAfter, isBefore } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useTransaccionTasks } from '@/hooks/useTransaccionTasks';
 
 interface Task {
   id: string;
@@ -30,38 +31,32 @@ const PRIORITY_COLORS = {
 };
 
 export const TransaccionTasksTab = ({ transaccion }: TransaccionTasksTabProps) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, loading, createTask, toggleTaskCompletion } = useTransaccionTasks(transaccion.id);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
     
-    const task: Task = {
-      id: Date.now().toString(),
+    await createTask({
+      transaccion_id: transaccion.id,
       title: newTaskTitle.trim(),
       completed: false,
-      priority: 'medium',
-      created_at: new Date().toISOString()
-    };
+      priority: 'medium'
+    });
     
-    setTasks(prev => [task, ...prev]);
     setNewTaskTitle('');
     setIsAdding(false);
   };
 
-  const handleToggleTask = (taskId: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId 
-        ? { ...task, completed: !task.completed }
-        : task
-    ));
+  const handleToggleTask = async (taskId: string) => {
+    await toggleTaskCompletion(taskId);
   };
 
   const pendingTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
 
-  const isOverdue = (task: Task) => {
+  const isOverdue = (task: any) => {
     if (!task.due_date || task.completed) return false;
     return isBefore(new Date(task.due_date), new Date());
   };
@@ -112,7 +107,12 @@ export const TransaccionTasksTab = ({ transaccion }: TransaccionTasksTabProps) =
       {/* Tasks List */}
       <ScrollArea className="h-[400px]">
         <div className="space-y-4">
-          {tasks.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Cargando tareas...</p>
+            </div>
+          ) : tasks.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <CheckSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Aún no hay tareas</p>
@@ -151,7 +151,12 @@ export const TransaccionTasksTab = ({ transaccion }: TransaccionTasksTabProps) =
                                   isOverdue(task) ? 'text-red-600' : 'text-muted-foreground'
                                 }`}>
                                   Vence {format(new Date(task.due_date), 'PPP', { locale: es })}
-                                  {isOverdue(task) && ' (Vencida)'}
+                                  {isOverdue(task) && (
+                                    <>
+                                      <AlertCircle className="h-3 w-3 ml-1 text-red-600" />
+                                      <span className="text-red-600"> (Vencida)</span>
+                                    </>
+                                  )}
                                 </span>
                               </div>
                             )}

@@ -3,10 +3,11 @@ import { Transaccion } from '@/types/Transaccion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FileText, Download, Eye, MoreVertical } from 'lucide-react';
+import { Plus, FileText, Download, Eye, MoreVertical, Upload } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useTransaccionDocuments } from '@/hooks/useTransaccionDocuments';
 
 interface Document {
   id: string;
@@ -39,31 +40,22 @@ const formatFileSize = (bytes: number) => {
 };
 
 export const TransaccionDocumentsTab = ({ transaccion }: TransaccionDocumentsTabProps) => {
-  const [documents, setDocuments] = useState<Document[]>([
-    // Mock data - in real implementation, this would come from database
-    {
-      id: '1',
-      name: 'Contrato de Adquisición.pdf',
-      type: 'application/pdf',
-      size: 2048576,
-      uploaded_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      uploaded_by: 'current-user',
-      category: 'contract'
-    },
-    {
-      id: '2',
-      name: 'Estados Financieros.xlsx',
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      size: 5242880,
-      uploaded_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      uploaded_by: 'current-user',
-      category: 'financial'
-    }
-  ]);
+  const { documents, loading, uploadDocument, deleteDocument, downloadDocument, uploading } = useTransaccionDocuments(transaccion.id);
 
   const handleFileUpload = () => {
-    // Mock file upload - in real implementation, this would handle file upload
-    console.log('File upload functionality would be implemented here');
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png';
+    input.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files) {
+        for (const file of Array.from(files)) {
+          await uploadDocument(file);
+        }
+      }
+    };
+    input.click();
   };
 
   const handleDownload = (document: Document) => {

@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Plus, StickyNote } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useTransaccionNotes } from '@/hooks/useTransaccionNotes';
 
 interface Note {
   id: string;
@@ -19,22 +20,19 @@ interface TransaccionNotesTabProps {
 }
 
 export const TransaccionNotesTab = ({ transaccion }: TransaccionNotesTabProps) => {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const { notes, loading, createNote } = useTransaccionNotes(transaccion.id);
   const [newNote, setNewNote] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
     
-    // Mock note creation - in real implementation, this would save to database
-    const note: Note = {
-      id: Date.now().toString(),
-      content: newNote.trim(),
-      created_at: new Date().toISOString(),
-      created_by: transaccion.created_by || 'current-user'
-    };
+    await createNote({
+      transaccion_id: transaccion.id,
+      note: newNote.trim(),
+      note_type: 'general'
+    });
     
-    setNotes(prev => [note, ...prev]);
     setNewNote('');
     setIsAdding(false);
   };

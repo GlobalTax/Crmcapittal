@@ -1,48 +1,45 @@
 import React from 'react';
 import { Transaccion } from '@/types/Transaccion';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MessageSquare, FileText, Phone, Mail, Calendar } from 'lucide-react';
+import { Clock, MessageSquare, FileText, Phone, Mail, Calendar, TrendingUp, CheckCircle, Upload } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useTransaccionActivities } from '@/hooks/useTransaccionActivities';
 
 interface TransaccionActivityTabProps {
   transaccion: Transaccion;
 }
 
-// Mock data - en implementación real esto vendría de la base de datos
-const mockActivities = [
-  {
-    id: '1',
-    type: 'creation',
-    title: 'Transacción creada',
-    description: 'Se creó la transacción en el sistema',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    user: 'Sistema',
-    icon: FileText
-  },
-  {
-    id: '2',
-    type: 'note',
-    title: 'Nota añadida',
-    description: 'Se añadió información adicional sobre el cliente',
-    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    user: 'Usuario',
-    icon: MessageSquare
-  }
-];
-
 export const TransaccionActivityTab = ({ transaccion }: TransaccionActivityTabProps) => {
+  const { activities, loading, error } = useTransaccionActivities(transaccion.id);
+
   const getActivityColor = (type: string) => {
     const colors: Record<string, string> = {
-      creation: 'bg-blue-100 text-blue-600',
-      note: 'bg-green-100 text-green-600',
-      email: 'bg-purple-100 text-purple-600',
-      call: 'bg-orange-100 text-orange-600',
-      meeting: 'bg-indigo-100 text-indigo-600'
+      created: 'bg-blue-100 text-blue-600',
+      updated: 'bg-yellow-100 text-yellow-600', 
+      stage_changed: 'bg-purple-100 text-purple-600',
+      note_added: 'bg-green-100 text-green-600',
+      task_created: 'bg-indigo-100 text-indigo-600',
+      task_completed: 'bg-green-100 text-green-600',
+      document_uploaded: 'bg-orange-100 text-orange-600',
+      contact_interaction: 'bg-pink-100 text-pink-600'
     };
     return colors[type] || 'bg-gray-100 text-gray-600';
+  };
+
+  const getActivityIcon = (type: string) => {
+    const icons: Record<string, any> = {
+      created: FileText,
+      updated: TrendingUp,
+      stage_changed: TrendingUp,
+      note_added: MessageSquare,
+      task_created: Calendar,
+      task_completed: CheckCircle,
+      document_uploaded: Upload,
+      contact_interaction: Phone
+    };
+    return icons[type] || MessageSquare;
   };
 
   return (
@@ -55,7 +52,16 @@ export const TransaccionActivityTab = ({ transaccion }: TransaccionActivityTabPr
       {/* Activity Timeline */}
       <ScrollArea className="h-[500px]">
         <div className="space-y-4">
-          {mockActivities.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Cargando actividades...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-destructive">
+              <p>Error al cargar las actividades: {error}</p>
+            </div>
+          ) : activities.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No hay actividad registrada</p>
@@ -66,8 +72,8 @@ export const TransaccionActivityTab = ({ transaccion }: TransaccionActivityTabPr
               {/* Timeline line */}
               <div className="absolute left-4 top-0 bottom-0 w-px bg-border"></div>
               
-              {mockActivities.map((activity, index) => {
-                const Icon = activity.icon;
+              {activities.map((activity, index) => {
+                const Icon = getActivityIcon(activity.activity_type);
                 return (
                   <div key={activity.id} className="relative flex items-start gap-4 pb-6">
                     {/* Timeline dot */}
@@ -85,19 +91,21 @@ export const TransaccionActivityTab = ({ transaccion }: TransaccionActivityTabPr
                             </h4>
                             <Badge 
                               variant="outline" 
-                              className={`text-xs ${getActivityColor(activity.type)}`}
+                              className={`text-xs ${getActivityColor(activity.activity_type)}`}
                             >
-                              {activity.type}
+                              {activity.activity_type.replace('_', ' ')}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {activity.description}
-                          </p>
+                          {activity.description && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {activity.description}
+                            </p>
+                          )}
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>Por {activity.user}</span>
+                            <span>Por sistema</span>
                             <span>•</span>
                             <span>
-                              {formatDistanceToNow(new Date(activity.timestamp), { 
+                              {formatDistanceToNow(new Date(activity.created_at), { 
                                 addSuffix: true, 
                                 locale: es 
                               })}
