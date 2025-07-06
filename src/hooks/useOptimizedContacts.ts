@@ -25,17 +25,25 @@ export const useOptimizedContacts = () => {
           .eq('is_active', true)
           .order('created_at', { ascending: false }),
         'contacts_list',
-        'low', // Lower priority to reduce conflicts
-        300000 // 5 minutes cache
+        'medium', // Increased priority for better responsiveness
+        60000 // 1 minute cache for testing
       );
       console.log('✅ Contacts fetched:', result?.length || 0);
+      if (result && result.length > 0) {
+        console.log('📋 First contact sample:', {
+          id: result[0].id,
+          name: result[0].name,
+          contact_type: result[0].contact_type,
+          is_active: result[0].is_active
+        });
+      }
       return result;
     },
-    interval: 600000, // 10 minutes polling - very conservative to avoid React errors
-    priority: 'low',
-    cacheTtl: 300000, // 5 minutes cache
+    interval: 30000, // 30 seconds for testing - much more responsive
+    priority: 'medium',
+    cacheTtl: 60000, // 1 minute cache for testing
     enabled: true,
-    retryOnError: false // Disable retries to avoid error loops
+    retryOnError: true // Enable retries but with backoff
   });
 
   const createContact = useCallback(async (contactData: CreateContactData) => {
@@ -73,10 +81,9 @@ export const useOptimizedContacts = () => {
       });
       
       // Force immediate refresh to show new contact
-      console.log('🔄 Forcing contacts refresh...');
-      setTimeout(() => {
-        refetch();
-      }, 500); // Small delay to ensure DB consistency
+      console.log('🔄 Forcing immediate contacts refresh...');
+      // Immediate refetch without delay
+      refetch();
       
       return data as Contact;
     } catch (err) {

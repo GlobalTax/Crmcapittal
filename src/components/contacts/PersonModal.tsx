@@ -12,7 +12,7 @@ import { CreateContactData, ContactType } from '@/types/Contact';
 interface PersonModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateContact: (data: CreateContactData) => void;
+  onCreateContact: (data: CreateContactData) => Promise<void>;
   isCreating?: boolean;
 }
 
@@ -41,9 +41,17 @@ export const PersonModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email) return;
+    if (!formData.name || !formData.email) {
+      console.log('❌ Form validation failed - missing name or email');
+      return;
+    }
 
-    console.log('📝 Submitting contact form:', formData);
+    console.log('📝 Submitting contact form:', {
+      name: formData.name,
+      email: formData.email,
+      contact_type: formData.contact_type,
+      lifecycle_stage: formData.lifecycle_stage
+    });
 
     try {
       await onCreateContact({
@@ -68,6 +76,8 @@ export const PersonModal = ({
         notes: '',
         time_zone: ''
       });
+
+      console.log('✅ Contact creation completed successfully');
 
       // Reset form on success
       setFormData({

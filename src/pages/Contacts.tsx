@@ -112,25 +112,47 @@ export default function Contacts() {
 
   // Filter contacts based on search term and filter type
   const filteredContacts = contacts?.filter(contact => {
-    if (!contact) return false;
+    if (!contact) {
+      console.log('⚠️ Found null/undefined contact in filter');
+      return false;
+    }
     
     const matchesSearch = !searchTerm || 
       contact.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
+    // Fix filter logic - 'all' should show everything, specific types should match exactly
     const matchesFilter = filterType === 'all' || contact.contact_type === filterType;
     
-    return matchesSearch && matchesFilter;
+    const shouldInclude = matchesSearch && matchesFilter;
+    
+    if (!shouldInclude && contact.name) {
+      console.log('🚫 Contact filtered out:', {
+        name: contact.name,
+        contact_type: contact.contact_type,
+        filterType,
+        matchesSearch,
+        matchesFilter
+      });
+    }
+    
+    return shouldInclude;
   }) || [];
 
-  // Debug logging
+  // Enhanced debug logging
   console.log('🔍 Contacts filter debug:', {
     totalContacts: contacts?.length || 0,
     filteredContacts: filteredContacts.length,
     searchTerm,
     filterType,
-    isLoading: isFetching
+    isLoading: isFetching,
+    contactTypes: contacts?.map(c => c?.contact_type).filter(Boolean),
+    firstFewContacts: contacts?.slice(0, 3).map(c => ({
+      name: c?.name,
+      type: c?.contact_type,
+      active: c?.is_active
+    }))
   });
 
 
@@ -147,6 +169,20 @@ export default function Contacts() {
         onViewModeChange={setViewMode}
         totalCount={filteredContacts.length}
       />
+      
+      {/* Debug button for testing */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <Button 
+          onClick={() => {
+            console.log('🔄 Manual refetch triggered');
+            fetchContacts();
+          }}
+          variant="outline"
+          size="sm"
+        >
+          🔄 Force Refresh ({filteredContacts.length})
+        </Button>
+      </div>
 
       {viewMode === 'grid' ? (
         <ContactsGrid
