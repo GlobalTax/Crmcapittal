@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
 };
 
 interface EInformaTokenResponse {
@@ -13,15 +14,45 @@ interface EInformaTokenResponse {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      status: 200,
+      headers: corsHeaders 
+    });
   }
 
   try {
-    const { cif } = await req.json();
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (jsonError) {
+      console.error('Invalid JSON in request:', jsonError);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Invalid JSON in request body'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    const { cif } = requestBody;
     
     if (!cif) {
-      throw new Error('CIF is required');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'CIF is required'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const clientId = Deno.env.get('EINFORMA_CLIENT_ID');
@@ -44,15 +75,25 @@ serve(async (req) => {
       if (!baseUrl) missingFields.push('EINFORMA_BASE_URL');
       
       console.error('Missing eInforma configuration:', missingFields);
-      throw new Error(`Missing eInforma credentials: ${missingFields.join(', ')}`);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `Missing eInforma credentials: ${missingFields.join(', ')}`
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     console.log('Enriching company with CIF:', cif);
     console.log('Using baseUrl:', baseUrl);
     console.log('Client ID configured:', !!clientId);
     
-    // Get OAuth2 token
-    const tokenUrl = `${baseUrl}/oauth/token`;
+    // Get OAuth2 token - ensure no double slashes
+    const cleanBaseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    const tokenUrl = `${cleanBaseUrl}/oauth/token`;
     console.log('Attempting authentication with URL:', tokenUrl);
     
     const tokenResponse = await fetch(tokenUrl, {
@@ -81,7 +122,7 @@ serve(async (req) => {
     console.log('Authentication successful, token type:', tokenData.token_type);
 
     // Get company data
-    const companyUrl = `${baseUrl}/api/v1/companies/${cif}`;
+    const companyUrl = `${cleanBaseUrl}/api/v1/companies/${cif}`;
     console.log('Fetching company data from:', companyUrl);
     
     const companyResponse = await fetch(companyUrl, {
@@ -106,7 +147,7 @@ serve(async (req) => {
     // Get financial data
     let financialData = [];
     try {
-      const financialResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/financial`, {
+      const financialResponse = await fetch(`${cleanBaseUrl}/api/v1/companies/${cif}/financial`, {
         method: 'GET',
         headers: {
           'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
@@ -124,7 +165,7 @@ serve(async (req) => {
     // Get balance sheet data
     let balanceSheetData = [];
     try {
-      const balanceResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/balance`, {
+      const balanceResponse = await fetch(`${cleanBaseUrl}/api/v1/companies/${cif}/balance`, {
         method: 'GET',
         headers: {
           'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
@@ -142,7 +183,7 @@ serve(async (req) => {
     // Get income statement data
     let incomeStatementData = [];
     try {
-      const incomeResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/income-statement`, {
+      const incomeResponse = await fetch(`${cleanBaseUrl}/api/v1/companies/${cif}/income-statement`, {
         method: 'GET',
         headers: {
           'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
@@ -160,7 +201,7 @@ serve(async (req) => {
     // Get credit info
     let creditInfoData = null;
     try {
-      const creditResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/credit-info`, {
+      const creditResponse = await fetch(`${cleanBaseUrl}/api/v1/companies/${cif}/credit-info`, {
         method: 'GET',
         headers: {
           'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
@@ -178,7 +219,7 @@ serve(async (req) => {
     // Get directors data
     let directorsData = [];
     try {
-      const directorsResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}/directors`, {
+      const directorsResponse = await fetch(`${cleanBaseUrl}/api/v1/companies/${cif}/directors`, {
         method: 'GET',
         headers: {
           'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,

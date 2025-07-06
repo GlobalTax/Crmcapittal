@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
 };
 
 interface EInformaTokenResponse {
@@ -12,8 +13,12 @@ interface EInformaTokenResponse {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      status: 200,
+      headers: corsHeaders 
+    });
   }
 
   try {
@@ -69,8 +74,9 @@ serve(async (req) => {
       status: 'passed'
     });
 
-    // Test OAuth2 token endpoint
-    const tokenUrl = `${baseUrl}/oauth/token`;
+    // Test OAuth2 token endpoint - ensure no double slashes
+    const cleanBaseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
+    const tokenUrl = `${cleanBaseUrl}/oauth/token`;
     console.log('Testing authentication with URL:', tokenUrl);
     
     try {
@@ -112,7 +118,7 @@ serve(async (req) => {
 
         // Test a simple API call with the token
         try {
-          const testApiUrl = `${baseUrl}/api/v1/companies/A12345678`; // Test with a dummy CIF
+          const testApiUrl = `${cleanBaseUrl}/api/v1/companies/A12345678`; // Test with a dummy CIF
           const testResponse = await fetch(testApiUrl, {
             method: 'GET',
             headers: {
