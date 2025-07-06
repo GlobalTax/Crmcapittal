@@ -12,7 +12,8 @@ import {
   UserPlus, 
   Settings, 
   Zap,
-  TrendingUp
+  TrendingUp,
+  Database
 } from 'lucide-react';
 
 interface NavItem {
@@ -51,6 +52,12 @@ const navigationSections: NavSection[] = [
       { to: '/email', label: 'Email', icon: Mail },
       { to: '/calendar', label: 'Calendario', icon: Calendar },
       { to: '/time-tracking', label: 'Control de Tiempo', icon: Clock },
+    ]
+  },
+  {
+    title: "Análisis & Data",
+    items: [
+      { to: '/einforma', label: 'eInforma Dashboard', icon: Database },
     ]
   }
 ];
