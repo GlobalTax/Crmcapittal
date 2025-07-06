@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Edit2, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit2, Plus, Search, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Company } from '@/types/Company';
+import { einformaService } from '@/services/einformaService';
+import { toast } from 'sonner';
 
 interface CompanyRecordSidebarProps {
   company: Company;
@@ -18,6 +20,7 @@ export const CompanyRecordSidebar = ({ company, onEdit }: CompanyRecordSidebarPr
   const [isListsOpen, setIsListsOpen] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
+  const [isEnriching, setIsEnriching] = useState(false);
 
   const handleFieldEdit = (fieldName: string, currentValue: any) => {
     setEditingField(fieldName);
@@ -33,6 +36,31 @@ export const CompanyRecordSidebar = ({ company, onEdit }: CompanyRecordSidebarPr
   const handleFieldCancel = () => {
     setEditingField(null);
     setFieldValues({});
+  };
+
+  const handleEnrichWithEInforma = async () => {
+    if (!company.nif) {
+      toast.error('La empresa debe tener un NIF/CIF para enriquecer con eInforma');
+      return;
+    }
+
+    setIsEnriching(true);
+    try {
+      const result = await einformaService.enrichCompanyWithEInforma(company.nif);
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Refresh the page or trigger a data reload
+        window.location.reload();
+      } else {
+        toast.error(result.message || 'Error al enriquecer con eInforma');
+      }
+    } catch (error) {
+      console.error('Error enriching company:', error);
+      toast.error('Error al conectar con eInforma');
+    } finally {
+      setIsEnriching(false);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -190,7 +218,38 @@ export const CompanyRecordSidebar = ({ company, onEdit }: CompanyRecordSidebarPr
             
             {renderEditableField('description', 'Description', company.description, 'textarea')}
             
+            {renderEditableField('nif', 'NIF/CIF', company.nif)}
+            
             {renderEditableField('notes', 'Notes', company.notes, 'textarea')}
+
+            {/* eInforma Enrichment Button */}
+            <div className="pt-3 border-t border-border">
+              <Label className="text-xs text-muted-foreground">Enriquecimiento de datos</Label>
+              <Button
+                onClick={handleEnrichWithEInforma}
+                disabled={isEnriching || !company.nif}
+                className="w-full mt-2"
+                variant="outline"
+                size="sm"
+              >
+                {isEnriching ? (
+                  <>
+                    <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                    Enriqueciendo...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-3 w-3 mr-2" />
+                    Enriquecer con eInforma
+                  </>
+                )}
+              </Button>
+              {!company.nif && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Se requiere NIF/CIF para usar eInforma
+                </p>
+              )}
+            </div>
 
             {/* Special Classifications */}
             <div className="space-y-2">

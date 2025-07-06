@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Building2, Globe, Phone, MapPin, Users, TrendingUp, Tag, Link, Award } from "lucide-react";
+import { Plus, Building2, Globe, Phone, MapPin, Users, TrendingUp, Tag, Link, Award, Search, Loader2, CheckCircle } from "lucide-react";
 import { CompanySize, CompanyType, CompanyStatus, LifecycleStage, CreateCompanyData } from "@/types/Company";
+import { einformaService } from "@/services/einformaService";
+import { toast } from "sonner";
 
 interface CreateCompanyDialogProps {
   onCreateCompany: (companyData: CreateCompanyData) => void;
@@ -19,6 +21,9 @@ interface CreateCompanyDialogProps {
 
 export const CreateCompanyDialog = ({ onCreateCompany, isCreating }: CreateCompanyDialogProps) => {
   const [open, setOpen] = useState(false);
+  const [nifSearch, setNifSearch] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchCompleted, setSearchCompleted] = useState(false);
   
   const [companyData, setCompanyData] = useState<CreateCompanyData>({
     name: "",
@@ -47,8 +52,55 @@ export const CreateCompanyDialog = ({ onCreateCompany, isCreating }: CreateCompa
     lead_score: 0,
     linkedin_url: "",
     twitter_url: "",
-    facebook_url: ""
+    facebook_url: "",
+    nif: ""
   });
+
+  const searchByNIF = async () => {
+    if (!nifSearch) {
+      toast.error('Ingrese un NIF/CIF válido');
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const result = await einformaService.enrichCompanyWithEInforma(nifSearch);
+      
+      if (result.success && result.data) {
+        const { extractedData } = result.data;
+        
+        // Update form with eInforma data
+        setCompanyData(prev => ({
+          ...prev,
+          name: result.data.companyName || prev.name,
+          nif: nifSearch.toUpperCase(),
+          industry: extractedData.sector || prev.industry,
+          city: extractedData.city || prev.city,
+          state: extractedData.province || prev.state,
+          annual_revenue: extractedData.revenue || prev.annual_revenue,
+          founded_year: extractedData.founded_year || prev.founded_year,
+          company_size: extractedData.employees ? 
+            einformaService['estimateCompanySize'](extractedData.employees) : prev.company_size,
+        }));
+        
+        setSearchCompleted(true);
+        toast.success(`Datos cargados desde eInforma (Confianza: ${Math.round(result.data.confidenceScore * 100)}%)`);
+      } else {
+        toast.error(result.message || 'No se encontraron datos para este NIF');
+      }
+    } catch (error) {
+      console.error('Error searching by NIF:', error);
+      toast.error('Error al buscar en eInforma');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const resetSearch = () => {
+    setNifSearch("");
+    setSearchCompleted(false);
+    setCompanyData(prev => ({ ...prev, nif: "" }));
+  };
 
   const companySizes = [
     { value: "1-10", label: "1-10 empleados" },
@@ -133,8 +185,10 @@ export const CreateCompanyDialog = ({ onCreateCompany, isCreating }: CreateCompa
       lead_score: 0,
       linkedin_url: "",
       twitter_url: "",
-      facebook_url: ""
+      facebook_url: "",
+      nif: ""
     });
+    resetSearch();
   };
 
   const updateField = (field: keyof CreateCompanyData, value: any) => {
@@ -158,6 +212,67 @@ export const CreateCompanyDialog = ({ onCreateCompany, isCreating }: CreateCompa
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Búsqueda por NIF */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-gray-700 flex items-center">
+                <Search className="h-4 w-4 mr-2" />
+                Búsqueda por NIF/CIF (eInforma)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ej: A12345678 o 12345678Z"
+                  value={nifSearch}
+                  onChange={(e) => setNifSearch(e.target.value)}
+                  disabled={searchCompleted}
+                  className="flex-1"
+                />
+                {!searchCompleted ? (
+                  <Button
+                    type="button"
+                    onClick={searchByNIF}
+                    disabled={isSearching || !nifSearch}
+                    variant="outline"
+                  >
+                    {isSearching ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Buscando...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-4 w-4 mr-2" />
+                        Buscar
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={resetSearch}
+                    variant="outline"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                    Buscar otro
+                  </Button>
+                )}
+              </div>
+              
+              {searchCompleted && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                    <span className="text-sm text-green-800">
+                      Datos cargados desde eInforma. Revise y modifique según sea necesario.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Información Básica */}
           <Card>
             <CardHeader>
@@ -175,6 +290,16 @@ export const CreateCompanyDialog = ({ onCreateCompany, isCreating }: CreateCompa
                   value={companyData.name}
                   onChange={(e) => updateField("name", e.target.value)}
                   required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="nif">NIF/CIF</Label>
+                <Input
+                  id="nif"
+                  placeholder="ej: A12345678"
+                  value={companyData.nif}
+                  onChange={(e) => updateField("nif", e.target.value)}
                 />
               </div>
               

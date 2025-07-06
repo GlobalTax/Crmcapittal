@@ -8,6 +8,7 @@ import { CompanyActivityTab } from '@/components/companies/CompanyActivityTab';
 import { CompanyContactsTab } from '@/components/companies/CompanyContactsTab';
 import { CompanyDealsTab } from '@/components/companies/CompanyDealsTab';
 import { CompanyNotesTab } from '@/components/companies/CompanyNotesTab';
+import { CompanyEinformaTab } from '@/components/companies/CompanyEinformaTab';
 import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
 import { useCompanies } from '@/hooks/useCompanies';
@@ -175,6 +176,12 @@ export default function CompanyPage() {
                   Notas
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="einforma"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                >
+                  Datos eInforma
+                </TabsTrigger>
+                <TabsTrigger 
                   value="documents"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
@@ -205,6 +212,10 @@ export default function CompanyPage() {
                 
                 <TabsContent value="notes" className="mt-0 p-6">
                   <CompanyNotesTab company={company} />
+                </TabsContent>
+                
+                <TabsContent value="einforma" className="mt-0 p-6">
+                  <CompanyEinformaTab company={company} />
                 </TabsContent>
                 
                 <TabsContent value="documents" className="mt-0 p-6">

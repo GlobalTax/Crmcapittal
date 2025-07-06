@@ -71,6 +71,9 @@ export interface Company {
   linkedin_url?: string;
   twitter_url?: string;
   facebook_url?: string;
+  
+  // Identificación fiscal
+  nif?: string;
 }
 
 export interface CreateCompanyData {
@@ -102,6 +105,7 @@ export interface CreateCompanyData {
   linkedin_url?: string;
   twitter_url?: string;
   facebook_url?: string;
+  nif?: string;
 }
 
 export interface UpdateCompanyData extends Partial<CreateCompanyData> {
