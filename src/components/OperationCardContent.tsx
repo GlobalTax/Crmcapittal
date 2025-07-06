@@ -9,7 +9,7 @@ interface OperationCardContentProps {
 }
 
 export const OperationCardContent = ({ operation }: OperationCardContentProps) => {
-  console.log('OperationCardContent - operation.manager:', operation.manager);
+  console.log('OperationCardContent - Rendering manager info:', operation.manager);
   
   // Simulamos datos de analytics (en una implementación real vendrían de la base de datos)
   const views = Math.floor(Math.random() * 500) + 50;

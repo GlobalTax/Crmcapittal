@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       setHasChecked(true);
       
       if (!user) {
-        console.log('ProtectedRoute: No user found, redirecting to auth');
+        // Silent redirect to auth
         // Store the current location to redirect back after login
         navigate("/auth", { 
           state: { from: location.pathname },

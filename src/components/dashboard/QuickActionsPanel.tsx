@@ -1,26 +1,43 @@
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
 import { Button } from '@/components/ui/minimal/Button';
 import { User, RefreshCw, Phone, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 export const QuickActionsPanel = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const handleNewLead = () => {
-    // TODO: Implement new lead creation
-    console.log('Creating new lead...');
+    navigate('/leads');
+    toast({
+      title: "Navegando a Leads",
+      description: "Crea un nuevo lead desde la página de Leads",
+    });
   };
 
   const handleConvertToTransaction = () => {
-    // TODO: Implement lead to transaction conversion
-    console.log('Converting to transaction...');
+    navigate('/transacciones');
+    toast({
+      title: "Navegando a Transacciones", 
+      description: "Convierte leads a transacciones desde el pipeline",
+    });
   };
 
   const handleRegisterCall = () => {
-    // TODO: Implement call registration
-    console.log('Registering call...');
+    navigate('/contacts');
+    toast({
+      title: "Registrar Llamada",
+      description: "Registra actividades desde la página de contactos",
+    });
   };
 
   const handleNewMeeting = () => {
-    // TODO: Implement meeting creation
-    console.log('Creating new meeting...');
+    navigate('/calendar');
+    toast({
+      title: "Nueva Reunión",
+      description: "Programa reuniones desde tu calendario",
+    });
   };
 
   return (

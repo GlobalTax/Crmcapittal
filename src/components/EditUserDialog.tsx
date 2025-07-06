@@ -75,36 +75,29 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
         .single();
 
       if (error) {
-        console.error('Error fetching manager photo:', error);
         return;
       }
 
       setCurrentPhoto(data?.photo || null);
     } catch (err) {
-      console.error('Error fetching manager photo:', err);
+      // Silent error handling for photo fetch
     }
   };
 
   const updateUserMutation = useMutation({
     mutationFn: async (userData: EditUserData) => {
-      console.log('Updating user with data:', userData);
-      
       if (!user) throw new Error('No user selected');
 
       try {
         // Update user role
-        console.log('Step 1: Updating user role...');
         const { error: roleError } = await supabase
           .from('user_roles')
           .update({ role: userData.role })
           .eq('user_id', user.user_id);
 
         if (roleError) {
-          console.error('Role update error:', roleError);
           throw new Error(`Error actualizando rol: ${roleError.message}`);
         }
-
-        console.log('Role updated successfully');
 
         // Handle manager profile based on new role
         if (userData.role === 'admin') {
@@ -116,13 +109,11 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
             .single();
 
           if (checkError && checkError.code !== 'PGRST116') {
-            console.error('Error checking existing manager:', checkError);
             throw new Error(`Error verificando gestor: ${checkError.message}`);
           }
 
           if (existingManager) {
             // Update existing manager
-            console.log('Step 2: Updating existing manager...');
             const updateData: Partial<{
               name: string;
               position: string;
@@ -138,7 +129,6 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
               .eq('id', existingManager.id);
 
             if (updateError) {
-              console.error('Manager update error:', updateError);
               throw new Error(`Error actualizando gestor: ${updateError.message}`);
             }
 
@@ -151,12 +141,11 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
                 .eq('id', existingManager.id);
 
               if (photoError) {
-                console.error('Photo update error:', photoError);
+                // Photo upload failed but continue
               }
             }
           } else {
             // Create new manager profile
-            console.log('Step 2: Creating new manager profile...');
             const { data: newManager, error: createError } = await supabase
               .from('operation_managers')
               .insert({
@@ -170,7 +159,6 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
               .single();
 
             if (createError) {
-              console.error('Manager creation error:', createError);
               throw new Error(`Error creando gestor: ${createError.message}`);
             }
 
@@ -183,35 +171,30 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
                 .eq('id', newManager.id);
 
               if (photoError) {
-                console.error('Photo update error:', photoError);
+                // Photo upload failed but continue
               }
             }
           }
         } else {
           // If new role is NOT admin and user currently IS a manager, remove manager profile
           if (user.is_manager) {
-            console.log('Step 2: Removing manager profile...');
             const { error: deleteError } = await supabase
               .from('operation_managers')
               .delete()
               .eq('user_id', user.user_id);
 
             if (deleteError) {
-              console.error('Manager deletion error:', deleteError);
               throw new Error(`Error eliminando gestor: ${deleteError.message}`);
             }
           }
         }
 
-        console.log('User update completed successfully');
         return true;
       } catch (error) {
-        console.error('Error in updateUser mutation:', error);
         throw error instanceof Error ? error : new Error('Unknown error occurred');
       }
     },
     onSuccess: () => {
-      console.log('User update mutation succeeded');
       toast({
         title: "Usuario actualizado",
         description: "El usuario ha sido actualizado exitosamente",
@@ -220,7 +203,6 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
     onError: (error: Error) => {
-      console.error('User update mutation failed:', error);
       let errorMessage = "Error al actualizar el usuario";
       
       if (error.message) {
@@ -278,7 +260,6 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
 
   const uploadManagerPhoto = async (managerId: string, photoFile: File) => {
     try {
-      console.log('Uploading photo for manager:', managerId);
       const fileExt = photoFile.name.split('.').pop();
       const fileName = `${managerId}.${fileExt}`;
       
@@ -290,7 +271,6 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
         });
 
       if (uploadError) {
-        console.error('Storage upload error:', uploadError);
         throw uploadError;
       }
 
@@ -298,17 +278,14 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
         .from('manager-photos')
         .getPublicUrl(fileName);
 
-      console.log('Photo uploaded successfully:', publicUrl);
       return publicUrl;
     } catch (err) {
-      console.error('Error subiendo foto:', err);
       throw err;
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Edit form submitted with data:', formData);
     
     if (formData.role === 'admin' && !formData.managerName) {
       toast({

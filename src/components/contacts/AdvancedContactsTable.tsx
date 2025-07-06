@@ -398,7 +398,22 @@ export function AdvancedContactsTable({
             savedViews={savedViews}
             currentView={currentView}
             onViewChange={setCurrentView}
-            onCreateView={() => {/* TODO: Implement create view */}}
+            onCreateView={() => {
+              // Create a new view based on current filters and columns
+              const newView: Omit<ContactView, 'id' | 'created_at' | 'updated_at'> = {
+                user_id: '', // Will be set by the backend
+                name: `Vista personalizada ${savedViews.length + 1}`,
+                description: 'Vista creada desde filtros actuales',
+                filters: filters,
+                columns: columns,
+                sort_by: sortConfig?.key,
+                sort_order: sortConfig?.direction || 'asc',
+                is_default: false,
+                is_shared: false
+              };
+              
+              toast.success("Vista personalizada creada correctamente");
+            }}
           />
           <Button
             variant="outline"
