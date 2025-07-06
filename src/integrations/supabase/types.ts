@@ -2331,6 +2331,143 @@ export type Database = {
           },
         ]
       }
+      opportunities: {
+        Row: {
+          assigned_to: string | null
+          close_date: string | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          deal_source: string | null
+          description: string | null
+          ebitda: number | null
+          employees: number | null
+          id: string
+          is_active: boolean
+          location: string | null
+          multiplier: number | null
+          opportunity_type: string
+          priority: string | null
+          probability: number | null
+          revenue: number | null
+          sector: string | null
+          stage: string
+          status: string
+          title: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          close_date?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deal_source?: string | null
+          description?: string | null
+          ebitda?: number | null
+          employees?: number | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          multiplier?: number | null
+          opportunity_type?: string
+          priority?: string | null
+          probability?: number | null
+          revenue?: number | null
+          sector?: string | null
+          stage?: string
+          status?: string
+          title: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          assigned_to?: string | null
+          close_date?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          deal_source?: string | null
+          description?: string | null
+          ebitda?: number | null
+          employees?: number | null
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          multiplier?: number | null
+          opportunity_type?: string
+          priority?: string | null
+          probability?: number | null
+          revenue?: number | null
+          sector?: string | null
+          stage?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_contacts: {
+        Row: {
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_primary: boolean | null
+          notes: string | null
+          opportunity_id: string
+          role: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_primary?: boolean | null
+          notes?: string | null
+          opportunity_id: string
+          role?: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_primary?: boolean | null
+          notes?: string | null
+          opportunity_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_contacts_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pipelines: {
         Row: {
           created_at: string

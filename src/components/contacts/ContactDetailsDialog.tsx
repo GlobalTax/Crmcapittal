@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { useContactOpportunities } from "@/hooks/useOpportunities";
 import { 
   User, 
   Mail, 
@@ -16,7 +18,10 @@ import {
   MapPin, 
   Linkedin, 
   Globe,
-  Edit2
+  Edit2,
+  Briefcase,
+  TrendingUp,
+  ExternalLink
 } from "lucide-react";
 
 interface ContactDetailsDialogProps {
@@ -32,6 +37,7 @@ export const ContactDetailsDialog = ({
   onOpenChange, 
   onEditContact 
 }: ContactDetailsDialogProps) => {
+  const { data: contactOpportunities, isLoading: isLoadingOpportunities } = useContactOpportunities(contact.id);
   const getTypeBadge = (type: string) => {
     const typeConfig = {
       marketing: { label: "Marketing", color: "bg-pink-100 text-pink-800" },
@@ -239,6 +245,107 @@ export const ContactDetailsDialog = ({
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{contact.notes}</p>
               </div>
             </div>
+          )}
+
+          {/* Oportunidades Relacionadas */}
+          {!isLoadingOpportunities && contactOpportunities && contactOpportunities.length > 0 && (
+            <>
+              <Separator />
+              <div className="bg-white border border-gray-200 p-4">
+                <div className="pb-4">
+                  <h3 className="text-sm font-semibold text-black flex items-center gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    Oportunidades Relacionadas ({contactOpportunities.length})
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {contactOpportunities.map((opportunityContact) => {
+                    const opportunity = opportunityContact.opportunity;
+                    if (!opportunity) return null;
+                    
+                    const getStageColor = (stage: string) => {
+                      const stageColors = {
+                        prospecting: "bg-gray-100 text-gray-800",
+                        qualification: "bg-blue-100 text-blue-800",
+                        proposal: "bg-yellow-100 text-yellow-800",
+                        negotiation: "bg-orange-100 text-orange-800",
+                        closed_won: "bg-green-100 text-green-800",
+                        closed_lost: "bg-red-100 text-red-800",
+                        in_progress: "bg-purple-100 text-purple-800"
+                      };
+                      return stageColors[stage as keyof typeof stageColors] || "bg-gray-100 text-gray-800";
+                    };
+
+                    const getRoleColor = (role: string) => {
+                      const roleColors = {
+                        decision_maker: "bg-red-100 text-red-800",
+                        influencer: "bg-blue-100 text-blue-800",
+                        champion: "bg-green-100 text-green-800",
+                        advisor: "bg-purple-100 text-purple-800",
+                        legal: "bg-yellow-100 text-yellow-800",
+                        contact: "bg-gray-100 text-gray-800"
+                      };
+                      return roleColors[role as keyof typeof roleColors] || "bg-gray-100 text-gray-800";
+                    };
+                    
+                    return (
+                      <div key={opportunityContact.id} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-medium text-sm">{opportunity.title}</h4>
+                              {opportunityContact.is_primary && (
+                                <Badge variant="outline" className="text-xs">Principal</Badge>
+                              )}
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <Badge className={getStageColor(opportunity.stage)}>
+                                {opportunity.stage}
+                              </Badge>
+                              <Badge variant="outline" className={getRoleColor(opportunityContact.role)}>
+                                {opportunityContact.role}
+                              </Badge>
+                              {opportunity.opportunity_type && (
+                                <Badge variant="secondary">
+                                  {opportunity.opportunity_type}
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <div className="flex items-center gap-4 text-xs text-gray-600">
+                              {opportunity.value && (
+                                <div className="flex items-center gap-1">
+                                  <TrendingUp className="h-3 w-3" />
+                                  {new Intl.NumberFormat('es-ES', {
+                                    style: 'currency',
+                                    currency: opportunity.currency || 'EUR'
+                                  }).format(opportunity.value)}
+                                </div>
+                              )}
+                              {opportunity.company && (
+                                <div className="flex items-center gap-1">
+                                  <Building2 className="h-3 w-3" />
+                                  {opportunity.company.name}
+                                </div>
+                              )}
+                            </div>
+                            
+                            {opportunityContact.notes && (
+                              <p className="text-xs text-gray-500 mt-2">{opportunityContact.notes}</p>
+                            )}
+                          </div>
+                          
+                          <Button size="sm" variant="ghost">
+                            <ExternalLink className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
           )}
 
           {/* Fechas Importantes */}
