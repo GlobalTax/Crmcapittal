@@ -1,12 +1,18 @@
 import { Building2, Users, TrendingUp, Calendar, Globe, MapPin } from 'lucide-react';
 import { DealHighlightCard } from '@/components/deals/DealHighlightCard';
+import { CompanyProfileScore } from '@/components/companies/CompanyProfileScore';
 import { Company } from '@/types/Company';
+import { useCompanyStats } from '@/hooks/useCompanyStats';
+import { useCompanyProfileScore } from '@/hooks/useCompanyProfileScore';
 
 interface CompanyOverviewTabProps {
   company: Company;
 }
 
 export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
+  const stats = useCompanyStats(company.id, company.name);
+  const profileScore = useCompanyProfileScore(company);
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
@@ -58,7 +64,7 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
         <DealHighlightCard
           title="Team"
           icon={Users}
-          value={`${company.contacts_count || 0} people`}
+          value={`${stats.contactsCount} people`}
           subtitle="View all contacts"
         />
 
@@ -74,10 +80,10 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
         />
 
         <DealHighlightCard
-          title="Funding raised"
+          title="Active Deals"
           icon={Building2}
-          value="Unknown"
-          subtitle="Research funding status"
+          value={`${stats.activeDealsCount}`}
+          subtitle={`${formatCurrency(stats.totalPipelineValue)} pipeline`}
         />
 
         <DealHighlightCard
@@ -87,6 +93,9 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
           subtitle="Company size"
         />
       </div>
+
+      {/* Profile Score */}
+      <CompanyProfileScore profileScore={profileScore} />
 
       {/* Recent Activity Summary */}
       <div className="space-y-3">

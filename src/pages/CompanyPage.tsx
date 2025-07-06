@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { CompanyHeader } from '@/components/companies/CompanyHeader';
 import { CompanyOverviewTab } from '@/components/companies/CompanyOverviewTab';
 import { CompanyActivityTab } from '@/components/companies/CompanyActivityTab';
+import { CompanyContactsTab } from '@/components/companies/CompanyContactsTab';
+import { CompanyDealsTab } from '@/components/companies/CompanyDealsTab';
+import { CompanyNotesTab } from '@/components/companies/CompanyNotesTab';
 import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
 import { useCompanies } from '@/hooks/useCompanies';
@@ -166,16 +169,16 @@ export default function CompanyPage() {
                   Deals
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="documents"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Documents
-                </TabsTrigger>
-                <TabsTrigger 
                   value="notes"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
                   Notes
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="documents"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                >
+                  Documents
                 </TabsTrigger>
               </div>
             </TabsList>
@@ -193,26 +196,20 @@ export default function CompanyPage() {
                 </TabsContent>
                 
                 <TabsContent value="contacts" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Company contacts coming soon</p>
-                  </div>
+                  <CompanyContactsTab company={company} />
                 </TabsContent>
                 
                 <TabsContent value="deals" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Company deals coming soon</p>
-                  </div>
+                  <CompanyDealsTab company={company} />
+                </TabsContent>
+                
+                <TabsContent value="notes" className="mt-0 p-6">
+                  <CompanyNotesTab company={company} />
                 </TabsContent>
                 
                 <TabsContent value="documents" className="mt-0 p-6">
                   <div className="text-center py-12">
                     <p className="text-muted-foreground">Document management coming soon</p>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="notes" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Notes coming soon</p>
                   </div>
                 </TabsContent>
               </div>
