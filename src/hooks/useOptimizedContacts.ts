@@ -1,52 +1,79 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Contact, CreateContactData, UpdateContactData } from '@/types/Contact';
 import { supabase } from '@/integrations/supabase/client';
-import { useOptimizedPolling } from './useOptimizedPolling';
 import { useToast } from '@/hooks/use-toast';
-import { supabaseQuery } from '@/services/requestManager';
 
 export const useOptimizedContacts = () => {
   const { toast } = useToast();
+  
+  // SIMPLIFIED: Direct state management without complex polling
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Use optimized polling for contacts with much longer intervals to reduce React errors
-  const {
-    data: contacts = [],
-    loading: isLoading,
-    error,
-    refetch
-  } = useOptimizedPolling({
-    queryKey: 'contacts_optimized',
-    queryFn: async () => {
-      console.log('🚀 DIRECT FETCH: Fetching contacts...');
-      // SIMPLIFIED: Direct Supabase call for debugging
-      const { data, error } = await supabase
+  console.log('🔄 SIMPLIFIED CONTACTS HOOK: Initializing...');
+
+  const fetchContacts = useCallback(async () => {
+    console.log('🚀 SIMPLIFIED FETCH: Starting direct Supabase call...');
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error: fetchError } = await supabase
         .from('contacts')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
       
-      if (error) {
-        console.error('❌ DIRECT FETCH ERROR:', error);
-        throw error;
+      if (fetchError) {
+        console.error('❌ SIMPLIFIED FETCH ERROR:', fetchError);
+        setError(fetchError.message);
+        setContacts([]);
+        return;
       }
       
-      console.log('✅ DIRECT FETCH SUCCESS:', data?.length || 0, 'contacts');
-      if (data && data.length > 0) {
-        console.log('📋 SAMPLE CONTACT:', {
-          id: data[0].id,
-          name: data[0].name,
-          contact_type: data[0].contact_type,
-          is_active: data[0].is_active
-        });
-      }
-      return data as Contact[];
-    },
-    interval: 10000, // 10 seconds - VERY aggressive for debugging
-    priority: 'high', // High priority for immediate debugging
-    cacheTtl: 10000, // 10 seconds cache - very short
-    enabled: true,
-    retryOnError: true
-  });
+      console.log('✅ SIMPLIFIED FETCH SUCCESS:', data?.length || 0, 'contacts');
+      console.log('📋 FIRST 3 CONTACTS:', data?.slice(0, 3).map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        contact_type: c.contact_type,
+        is_active: c.is_active
+      })));
+      
+      setContacts(data as Contact[] || []);
+    } catch (err) {
+      console.error('❌ SIMPLIFIED FETCH EXCEPTION:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setContacts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Simple polling every 10 seconds
+  useEffect(() => {
+    console.log('🔄 SIMPLIFIED CONTACTS: Setting up polling...');
+    
+    // Initial fetch
+    fetchContacts();
+    
+    // Set up interval
+    const interval = setInterval(() => {
+      console.log('⏰ SIMPLIFIED CONTACTS: Interval fetch...');
+      fetchContacts();
+    }, 10000); // 10 seconds
+
+    return () => {
+      console.log('🔄 SIMPLIFIED CONTACTS: Cleaning up polling...');
+      clearInterval(interval);
+    };
+  }, [fetchContacts]);
+
+  const refetch = useCallback(() => {
+    console.log('🔄 SIMPLIFIED CONTACTS: Manual refetch triggered...');
+    return fetchContacts();
+  }, [fetchContacts]);
 
   const createContact = useCallback(async (contactData: CreateContactData) => {
     try {
@@ -167,7 +194,7 @@ export const useOptimizedContacts = () => {
   return {
     contacts,
     isLoading,
-    error: error?.message || null,
+    error,
     createContact,
     updateContact,
     deleteContact,

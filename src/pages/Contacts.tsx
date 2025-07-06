@@ -24,6 +24,7 @@ export default function Contacts() {
     updateContact,
     deleteContact,
     isLoading: isFetching,
+    error,
     refetch: fetchContacts
   } = useOptimizedContacts();
 
@@ -141,18 +142,21 @@ export default function Contacts() {
   }) || [];
 
   // Enhanced debug logging
-  console.log('🔍 Contacts filter debug:', {
+  console.log('🔍 SIMPLIFIED CONTACTS PAGE DEBUG:', {
     totalContacts: contacts?.length || 0,
     filteredContacts: filteredContacts.length,
     searchTerm,
     filterType,
     isLoading: isFetching,
+    error: error,
     contactTypes: contacts?.map(c => c?.contact_type).filter(Boolean),
     firstFewContacts: contacts?.slice(0, 3).map(c => ({
       name: c?.name,
+      email: c?.email,
       type: c?.contact_type,
       active: c?.is_active
-    }))
+    })),
+    rawContactsData: contacts?.slice(0, 2) // Show first 2 contacts completely
   });
 
 
