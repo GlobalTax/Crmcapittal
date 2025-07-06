@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Company } from '@/types/Company';
 import { CompanyOverviewTab } from './CompanyOverviewTab';
 import { CompanyActivityTab } from './CompanyActivityTab';
+import { CompanyEinformaTab } from './CompanyEinformaTab';
 import { CompanyRecordSidebar } from './CompanyRecordSidebar';
 import { einformaService } from '@/services/einformaService';
 import { toast } from 'sonner';
@@ -271,6 +272,12 @@ export const CompanyDrawer = ({
                     Activity
                   </TabsTrigger>
                   <TabsTrigger 
+                    value="einforma"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
+                  >
+                    eInforma
+                  </TabsTrigger>
+                  <TabsTrigger 
                     value="emails"
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
                   >
@@ -319,6 +326,10 @@ export const CompanyDrawer = ({
                   
                   <TabsContent value="activity" className="mt-0 p-6">
                     <CompanyActivityTab company={company} />
+                  </TabsContent>
+                  
+                  <TabsContent value="einforma" className="mt-0 p-6">
+                    <CompanyEinformaTab company={company} />
                   </TabsContent>
                   
                   <TabsContent value="emails" className="mt-0 p-6">
