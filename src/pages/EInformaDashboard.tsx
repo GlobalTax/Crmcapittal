@@ -5,10 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { SearchIcon, TrendingUpIcon, BuildingIcon, AlertTriangleIcon, DollarSignIcon, UsersIcon, BarChart3Icon, RefreshCwIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import { SearchIcon, TrendingUpIcon, BuildingIcon, AlertTriangleIcon, DollarSignIcon, UsersIcon, BarChart3Icon, RefreshCwIcon, CheckCircleIcon, XCircleIcon, WifiIcon } from 'lucide-react';
 import { EInformaMetricsCard } from '@/components/einforma/EInformaMetricsCard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useCompanyEInforma } from '@/hooks/useCompanyEInforma';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function EInformaDashboard() {
@@ -47,9 +48,30 @@ export default function EInformaDashboard() {
     }
   ];
 
-  const refreshData = () => {
+  const testConnection = async () => {
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1000);
+    try {
+      const { data, error } = await supabase.functions.invoke('einforma-test-connection');
+      
+      if (error) {
+        console.error('Test connection error:', error);
+        toast.error('Error al probar la conexión con eInforma');
+        return;
+      }
+      
+      if (data?.success) {
+        toast.success('Conexión con eInforma exitosa');
+        console.log('Connection test results:', data.results);
+      } else {
+        toast.error(`Prueba de conexión falló: ${data?.message || 'Error desconocido'}`);
+        console.error('Connection test failed:', data);
+      }
+    } catch (error) {
+      console.error('Connection test exception:', error);
+      toast.error('Error al ejecutar la prueba de conexión');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -146,9 +168,9 @@ export default function EInformaDashboard() {
               )}
             </Button>
           </form>
-          <Button onClick={refreshData} variant="outline" size="sm">
-            <RefreshCwIcon className="h-4 w-4 mr-2" />
-            Actualizar
+          <Button onClick={testConnection} variant="outline" size="sm">
+            <WifiIcon className="h-4 w-4 mr-2" />
+            Probar Conexión
           </Button>
         </div>
       </div>

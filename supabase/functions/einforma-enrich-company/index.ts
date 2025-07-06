@@ -30,8 +30,21 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+    // Enhanced logging for configuration check
+    console.log('Configuration check:');
+    console.log('- Client ID configured:', !!clientId);
+    console.log('- Client Secret configured:', !!clientSecret); 
+    console.log('- Base URL configured:', !!baseUrl);
+    console.log('- Base URL value:', baseUrl);
+
     if (!clientId || !clientSecret || !baseUrl) {
-      throw new Error('Missing eInforma credentials');
+      const missingFields = [];
+      if (!clientId) missingFields.push('EINFORMA_CLIENT_ID');
+      if (!clientSecret) missingFields.push('EINFORMA_CLIENT_SECRET');
+      if (!baseUrl) missingFields.push('EINFORMA_BASE_URL');
+      
+      console.error('Missing eInforma configuration:', missingFields);
+      throw new Error(`Missing eInforma credentials: ${missingFields.join(', ')}`);
     }
 
     console.log('Enriching company with CIF:', cif);
@@ -220,10 +233,22 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in einforma-enrich-company:', error);
+    
+    // Enhanced error reporting
+    let errorDetails = {
+      message: error.message || 'Unknown error',
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+      requestBody: { cif }
+    };
+    
+    console.error('Full error details:', JSON.stringify(errorDetails, null, 2));
+    
     return new Response(
       JSON.stringify({
         success: false,
         error: error.message,
+        details: errorDetails
       }),
       {
         status: 500,

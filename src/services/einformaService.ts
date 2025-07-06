@@ -154,9 +154,19 @@ class EInformaService {
   }
 
   async validateCIF(cif: string): Promise<boolean> {
-    // Validación básica de formato de CIF español
+    // Enhanced NIF/CIF validation for Spanish tax identifiers
+    if (!cif || typeof cif !== 'string') return false;
+    
+    const cleanCif = cif.trim().toUpperCase();
+    
+    // Validate format: Letter + 7 digits + Letter/Digit for CIF
     const cifRegex = /^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
-    return cifRegex.test(cif.toUpperCase());
+    // Standard Spanish NIF: 8 digits + letter
+    const nifRegex = /^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$/;
+    // NIE format: X/Y/Z + 7 digits + letter
+    const nieRegex = /^[XYZ]\d{7}[TRWAGMYFPDXBNJZSQVHLCKE]$/;
+    
+    return cifRegex.test(cleanCif) || nifRegex.test(cleanCif) || nieRegex.test(cleanCif);
   }
 
   async saveEnrichmentResult(companyId: string, enrichmentData: EInformaEnrichmentResult): Promise<boolean> {
