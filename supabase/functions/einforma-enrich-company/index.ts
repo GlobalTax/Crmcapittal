@@ -35,9 +35,14 @@ serve(async (req) => {
     }
 
     console.log('Enriching company with CIF:', cif);
+    console.log('Using baseUrl:', baseUrl);
+    console.log('Client ID configured:', !!clientId);
     
     // Get OAuth2 token
-    const tokenResponse = await fetch(`${baseUrl}/oauth/token`, {
+    const tokenUrl = `${baseUrl}/oauth/token`;
+    console.log('Attempting authentication with URL:', tokenUrl);
+    
+    const tokenResponse = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -49,14 +54,24 @@ serve(async (req) => {
       }),
     });
 
+    console.log('Token response status:', tokenResponse.status);
+    console.log('Token response headers:', Object.fromEntries(tokenResponse.headers));
+
     if (!tokenResponse.ok) {
-      throw new Error(`Authentication failed: ${tokenResponse.status}`);
+      const errorText = await tokenResponse.text();
+      console.error('Authentication failed. Status:', tokenResponse.status);
+      console.error('Error response:', errorText);
+      throw new Error(`Authentication failed: ${tokenResponse.status} - ${errorText}`);
     }
 
     const tokenData: EInformaTokenResponse = await tokenResponse.json();
+    console.log('Authentication successful, token type:', tokenData.token_type);
 
     // Get company data
-    const companyResponse = await fetch(`${baseUrl}/api/v1/companies/${cif}`, {
+    const companyUrl = `${baseUrl}/api/v1/companies/${cif}`;
+    console.log('Fetching company data from:', companyUrl);
+    
+    const companyResponse = await fetch(companyUrl, {
       method: 'GET',
       headers: {
         'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
@@ -64,8 +79,13 @@ serve(async (req) => {
       },
     });
 
+    console.log('Company response status:', companyResponse.status);
+
     if (!companyResponse.ok) {
-      throw new Error(`Company not found: ${companyResponse.status}`);
+      const errorText = await companyResponse.text();
+      console.error('Company fetch failed. Status:', companyResponse.status);
+      console.error('Error response:', errorText);
+      throw new Error(`Company not found: ${companyResponse.status} - ${errorText}`);
     }
 
     const companyData = await companyResponse.json();

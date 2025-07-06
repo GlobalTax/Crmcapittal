@@ -78,13 +78,31 @@ export default function EInformaDashboard() {
         setSearchResults(result.data);
         toast.success('Empresa encontrada y enriquecida exitosamente');
       } else {
-        setSearchError('No se encontraron datos para este NIF/CIF');
-        toast.error('No se encontraron datos para este NIF/CIF');
+        const errorMessage = result.error === 'INVALID_NIF_FORMAT' 
+          ? 'Formato de NIF/CIF inválido'
+          : result.error === 'COMPANY_NOT_FOUND'
+          ? 'Empresa no encontrada en eInforma'
+          : result.error === 'EINFORMA_API_FAILED'
+          ? 'Error de conexión con eInforma. Verifique las credenciales.'
+          : 'No se encontraron datos para este NIF/CIF';
+        
+        setSearchError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error('Error searching:', error);
-      setSearchError('Error al conectar con eInforma');
-      toast.error('Error al conectar con eInforma');
+      let errorMessage = 'Error al conectar con eInforma';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Authentication failed')) {
+          errorMessage = 'Error de autenticación con eInforma. Verifique las credenciales.';
+        } else if (error.message.includes('404')) {
+          errorMessage = 'Servicio eInforma no disponible. Verifique la configuración.';
+        }
+      }
+      
+      setSearchError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
