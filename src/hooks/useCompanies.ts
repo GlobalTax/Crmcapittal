@@ -22,15 +22,10 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
   } = useQuery({
     queryKey: ["companies", page, limit, searchTerm, statusFilter, typeFilter],
     queryFn: async () => {
-      // Base query for companies with counts
+      // Base query for companies
       let query = supabase
         .from("companies")
-        .select(`
-          *,
-          company_enrichments(enrichment_data),
-          contacts(count),
-          opportunities(count)
-        `)
+        .select("*", { count: "exact" })
         .order("created_at", { ascending: false });
 
       // Apply filters
@@ -58,20 +53,60 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
         throw error;
       }
 
-      // Process the data to include enrichment info and counts
-      const processedCompanies = (data as any[])?.map((company) => {
-        const enrichmentData = company.company_enrichments?.[0]?.enrichment_data;
-        return {
-          ...company,
-          enrichment_data: enrichmentData,
-          contacts_count: Array.isArray(company.contacts) ? company.contacts.length : 0,
-          opportunities_count: Array.isArray(company.opportunities) ? company.opportunities.length : 0,
-          sector: enrichmentData?.company_data?.actividad_principal || company.industry,
-        };
-      }) || [];
+      // Enrich companies with additional data
+      const enrichedCompanies = await Promise.all(
+        (data || []).map(async (company) => {
+          // Get enrichment data
+          const { data: enrichmentData } = await supabase
+            .from("company_enrichments")
+            .select("enrichment_data")
+            .eq("company_id", company.id)
+            .limit(1)
+            .maybeSingle();
+
+          // Count contacts
+          const { count: contactsCount } = await supabase
+            .from("contacts")
+            .select("*", { count: "exact", head: true })
+            .eq("company_id", company.id);
+
+          // Count active opportunities
+          const { count: opportunitiesCount } = await supabase
+            .from("opportunities")
+            .select("*", { count: "exact", head: true })
+            .eq("company_id", company.id)
+            .eq("is_active", true);
+
+          const enrichment = enrichmentData?.enrichment_data as any;
+
+          // Calculate profile score (0-100)
+          let profileScore = 0;
+          if (company.name) profileScore += 15;
+          if (company.domain) profileScore += 10;
+          if (company.city) profileScore += 10;
+          if (company.industry || enrichment?.sector) profileScore += 15;
+          if (company.annual_revenue || enrichment?.revenue) profileScore += 15;
+          if (company.phone) profileScore += 10;
+          if (contactsCount > 0) profileScore += 15;
+          if (opportunitiesCount > 0) profileScore += 10;
+
+          // Determine profile status
+          const profileStatus = profileScore >= 70 ? 'high' : profileScore >= 40 ? 'medium' : 'low';
+
+          return {
+            ...company,
+            enrichment_data: enrichment,
+            contacts_count: contactsCount || 0,
+            opportunities_count: opportunitiesCount || 0,
+            profile_score: profileScore,
+            profile_status: profileStatus,
+            sector: enrichment?.company_data?.actividad_principal || enrichment?.sector || company.industry,
+          };
+        })
+      );
 
       return {
-        companies: processedCompanies as Company[],
+        companies: enrichedCompanies as Company[],
         totalCount: count || 0,
         currentPage: page,
         totalPages: Math.ceil((count || 0) / limit)
