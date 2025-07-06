@@ -7,14 +7,14 @@ interface AsyncState<T> {
   error: string | null;
 }
 
-export interface UseAsyncOptions {
-  onSuccess?: (data: any) => void;
+export interface UseAsyncOptions<T = unknown> {
+  onSuccess?: (data: T) => void;
   onError?: (error: string) => void;
   retryCount?: number;
   retryDelay?: number;
 }
 
-export const useAsync = <T = any>(options: UseAsyncOptions = {}) => {
+export const useAsync = <T = unknown>(options: UseAsyncOptions<T> = {}) => {
   const [state, setState] = useState<AsyncState<T>>({
     data: null,
     loading: false,
@@ -107,11 +107,11 @@ export const useAsync = <T = any>(options: UseAsyncOptions = {}) => {
 };
 
 // Hook especializado para operaciones CRUD
-export const useCRUD = <T = any>(options: UseAsyncOptions = {}) => {
-  const create = useAsync<T>(options);
-  const read = useAsync<T[]>(options);
-  const update = useAsync<T>(options);
-  const remove = useAsync<void>(options);
+export const useCRUD = <T = unknown>() => {
+  const create = useAsync<T>();
+  const read = useAsync<T[]>();
+  const update = useAsync<T>();
+  const remove = useAsync<void>();
 
   return {
     create,
@@ -122,10 +122,10 @@ export const useCRUD = <T = any>(options: UseAsyncOptions = {}) => {
 };
 
 // Hook para operaciones con cache (corregido)
-export const useAsyncWithCache = <T = any>(
+export const useAsyncWithCache = <T = unknown>(
   key: string,
   asyncFunction: () => Promise<T>,
-  options: UseAsyncOptions & { cacheTime?: number } = {}
+  options: UseAsyncOptions<T> & { cacheTime?: number } = {}
 ) => {
   const cache = useRef<Map<string, { data: T; timestamp: number }>>(new Map());
   const asyncHook = useAsync<T>(options);

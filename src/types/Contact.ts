@@ -1,4 +1,16 @@
 
+export interface DealPreferences {
+  preferred_sectors?: string[];
+  investment_range_min?: number;
+  investment_range_max?: number;
+  deal_types?: string[];
+  geographic_preferences?: string[];
+  risk_tolerance?: 'low' | 'medium' | 'high';
+  timeline_preference?: string;
+  involvement_level?: 'passive' | 'active' | 'advisory';
+  [key: string]: string | string[] | number | undefined;
+}
+
 export type ContactType = 'marketing' | 'sales' | 'franquicia' | 'cliente' | 'prospect' | 'other';
 export type ContactPriority = 'low' | 'medium' | 'high';
 export type ContactStatus = 'active' | 'inactive';
@@ -22,7 +34,7 @@ export interface Contact {
   sectors_of_interest?: string[];
   investment_capacity_min?: number;
   investment_capacity_max?: number;
-  deal_preferences?: any;
+  deal_preferences?: DealPreferences | null;
   last_interaction_date?: string;
   notes?: string;
   time_zone?: string;
@@ -49,7 +61,7 @@ export interface CreateContactData {
   sectors_of_interest?: string[];
   investment_capacity_min?: number;
   investment_capacity_max?: number;
-  deal_preferences?: any;
+  deal_preferences?: DealPreferences | null;
   notes?: string;
   time_zone?: string;
   language_preference?: string;

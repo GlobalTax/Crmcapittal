@@ -9,14 +9,14 @@ interface AsyncOperation<T> {
   cancel: () => void;
 }
 
-interface CRUDConfig {
-  onSuccess?: (data: any) => void;
+interface CRUDConfig<T = unknown> {
+  onSuccess?: (data: T) => void;
   onError?: (error: string) => void;
   retryCount?: number;
   retryDelay?: number;
 }
 
-export const useCRUD = <T>(config: CRUDConfig = {}) => {
+export const useCRUD = <T>(config: CRUDConfig<T> = {}) => {
   const createAsyncOperation = <K>(): AsyncOperation<K> => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<K | null>(null);
@@ -29,7 +29,7 @@ export const useCRUD = <T>(config: CRUDConfig = {}) => {
       try {
         const result = await fn();
         setData(result);
-        config.onSuccess?.(result);
+        config.onSuccess?.(result as any);
         return result;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An error occurred';

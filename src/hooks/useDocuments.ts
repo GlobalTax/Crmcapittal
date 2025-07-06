@@ -17,7 +17,7 @@ export const useDocuments = () => {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      setDocuments(data || []);
+      setDocuments((data || []) as Document[]);
     } catch (error) {
       console.error('Error fetching documents:', error);
       toast({
@@ -37,7 +37,7 @@ export const useDocuments = () => {
         .order('name');
 
       if (error) throw error;
-      setTemplates(data || []);
+      setTemplates((data || []) as DocumentTemplate[]);
     } catch (error) {
       console.error('Error fetching templates:', error);
       toast({
@@ -56,12 +56,12 @@ export const useDocuments = () => {
         .from('documents')
         .insert({
           title: documentData.title || '',
-          content: documentData.content,
+          content: documentData.content as any,
           template_id: documentData.template_id,
           document_type: documentData.document_type || 'general',
           status: documentData.status || 'draft',
-          variables: documentData.variables,
-          metadata: documentData.metadata,
+          variables: documentData.variables as any,
+          metadata: documentData.metadata as any,
           created_by: user?.id,
         })
         .select()
@@ -69,7 +69,7 @@ export const useDocuments = () => {
 
       if (error) throw error;
 
-      setDocuments(prev => [data, ...prev]);
+      setDocuments(prev => [data as Document, ...prev]);
       toast({
         title: "Éxito",
         description: "Documento creado correctamente",
@@ -91,7 +91,12 @@ export const useDocuments = () => {
     try {
       const { data, error } = await supabase
         .from('documents')
-        .update(updates)
+        .update({
+          ...updates,
+          variables: updates.variables as any,
+          content: updates.content as any,
+          metadata: updates.metadata as any
+        })
         .eq('id', id)
         .select()
         .single();
@@ -99,7 +104,7 @@ export const useDocuments = () => {
       if (error) throw error;
 
       setDocuments(prev => 
-        prev.map(doc => doc.id === id ? { ...doc, ...data } : doc)
+        prev.map(doc => doc.id === id ? { ...doc, ...data as Document } : doc)
       );
 
       toast({

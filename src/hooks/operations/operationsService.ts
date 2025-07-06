@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
+import { CreateOperationData, BulkOperationData } from '@/types/OperationData';
 
 export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]> => {
   console.log('Iniciando consulta optimizada de operaciones con join de managers...');
@@ -63,7 +64,7 @@ export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]>
   return typedOperations;
 };
 
-export const insertOperation = async (operationData: any, userId: string) => {
+export const insertOperation = async (operationData: CreateOperationData, userId: string) => {
   console.log('Añadiendo operación con datos:', operationData);
   console.log('Usuario actual:', userId);
 
@@ -110,7 +111,7 @@ export const insertOperation = async (operationData: any, userId: string) => {
   return data;
 };
 
-export const insertBulkOperations = async (operationsData: any[], userId: string) => {
+export const insertBulkOperations = async (operationsData: BulkOperationData[], userId: string) => {
   console.log('Añadiendo operaciones masivas:', operationsData.length, 'operaciones');
   console.log('Usuario actual:', userId);
 
