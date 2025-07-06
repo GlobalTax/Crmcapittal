@@ -204,6 +204,174 @@ class EInformaService {
       return [];
     }
   }
+
+  async enrichCompanyWithEInforma(nif: string): Promise<{
+    success: boolean;
+    message: string;
+    data?: any;
+    error?: string;
+  }> {
+    try {
+      // Validar formato del NIF/CIF
+      if (!await this.validateCIF(nif)) {
+        return {
+          success: false,
+          message: 'Formato de NIF/CIF inválido',
+          error: 'INVALID_NIF_FORMAT'
+        };
+      }
+
+      console.log('Enriqueciendo empresa con NIF:', nif);
+
+      // Llamar a la API de eInforma
+      const enrichmentResult = await this.enrichCompany(nif);
+      
+      if (!enrichmentResult) {
+        return {
+          success: false,
+          message: 'No se pudo obtener información de eInforma para este NIF',
+          error: 'EINFORMA_API_FAILED'
+        };
+      }
+
+      const companyData = enrichmentResult.company_data;
+      const financialData = enrichmentResult.financial_data?.[0];
+
+      if (!companyData) {
+        return {
+          success: false,
+          message: 'Empresa no encontrada en eInforma',
+          error: 'COMPANY_NOT_FOUND'
+        };
+      }
+
+      // Extraer datos específicos de eInforma
+      const extractedData = {
+        sector: companyData.actividad_principal || null,
+        employees: financialData?.empleados || null,
+        cnae: companyData.cnae || null,
+        city: companyData.poblacion || null,
+        province: companyData.provincia || null,
+        revenue: financialData?.ingresos_explotacion || null,
+        founded_year: companyData.fecha_constitucion ? 
+          new Date(companyData.fecha_constitucion).getFullYear() : null,
+        nif: nif.toUpperCase()
+      };
+
+      // Buscar si la empresa ya existe en nuestra base de datos
+      const { data: existingCompany } = await supabase
+        .from('companies')
+        .select('id, name')
+        .ilike('name', `%${companyData.razon_social}%`)
+        .limit(1)
+        .maybeSingle();
+
+      let companyId: string;
+
+      if (existingCompany) {
+        // Actualizar empresa existente con datos de eInforma
+        const { data: updatedCompany, error: updateError } = await supabase
+          .from('companies')
+          .update({
+            industry: extractedData.sector,
+            city: extractedData.city,
+            state: extractedData.province,
+            annual_revenue: extractedData.revenue,
+            founded_year: extractedData.founded_year,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingCompany.id)
+          .select('id')
+          .single();
+
+        if (updateError) {
+          console.error('Error updating company:', updateError);
+          return {
+            success: false,
+            message: 'Error al actualizar los datos de la empresa',
+            error: 'DATABASE_UPDATE_FAILED'
+          };
+        }
+
+        companyId = updatedCompany.id;
+      } else {
+        // Crear nueva empresa con datos de eInforma
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        const { data: newCompany, error: createError } = await supabase
+          .from('companies')
+          .insert({
+            name: companyData.razon_social,
+            industry: extractedData.sector,
+            city: extractedData.city,
+            state: extractedData.province,
+            annual_revenue: extractedData.revenue,
+            founded_year: extractedData.founded_year,
+            company_size: this.estimateCompanySize(extractedData.employees),
+            company_type: 'prospect',
+            company_status: 'prospecto',
+            lifecycle_stage: 'lead',
+            country: 'España',
+            created_by: user?.id,
+            is_target_account: false,
+            is_key_account: false,
+            is_franquicia: false
+          })
+          .select('id')
+          .single();
+
+        if (createError) {
+          console.error('Error creating company:', createError);
+          return {
+            success: false,
+            message: 'Error al crear la empresa en la base de datos',
+            error: 'DATABASE_CREATE_FAILED'
+          };
+        }
+
+        companyId = newCompany.id;
+      }
+
+      // Guardar datos de enriquecimiento completos
+      const saveResult = await this.saveEnrichmentResult(companyId, enrichmentResult);
+      
+      if (!saveResult) {
+        return {
+          success: false,
+          message: 'Error al guardar los datos de enriquecimiento',
+          error: 'ENRICHMENT_SAVE_FAILED'
+        };
+      }
+
+      return {
+        success: true,
+        message: `Empresa ${companyData.razon_social} enriquecida exitosamente`,
+        data: {
+          companyId,
+          companyName: companyData.razon_social,
+          extractedData,
+          confidenceScore: enrichmentResult.confidence_score
+        }
+      };
+
+    } catch (error) {
+      console.error('Error in enrichCompanyWithEInforma:', error);
+      return {
+        success: false,
+        message: 'Error interno al procesar el enriquecimiento',
+        error: 'INTERNAL_ERROR'
+      };
+    }
+  }
+
+  private estimateCompanySize(employees?: number): '1-10' | '11-50' | '51-200' | '201-500' | '500+' {
+    if (!employees) return '11-50';
+    if (employees <= 10) return '1-10';
+    if (employees <= 50) return '11-50';
+    if (employees <= 200) return '51-200';
+    if (employees <= 500) return '201-500';
+    return '500+';
+  }
 }
 
 export const einformaService = new EInformaService();
