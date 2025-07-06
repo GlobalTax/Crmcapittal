@@ -3,13 +3,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Building2, ChevronDown, Filter, Settings, Plus } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Building2, ChevronDown, Filter, Settings, Plus, Users, Briefcase } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Company } from '@/types/Company';
 import { EmptyStateSmall } from '@/components/ui/EmptyStateSmall';
+import { calculateProfileScore, formatRevenue, formatLocation } from '@/utils/profileScore';
 
 interface RecordTableProps {
-  companies: Company[];
+  companies: (Company & { 
+    enrichment_data?: any; 
+    contacts_count?: number; 
+    opportunities_count?: number;
+    sector?: string;
+  })[];
   totalCount: number;
   onRowClick?: (company: Company) => void;
   onCreateCompany?: () => void;
@@ -120,69 +127,96 @@ export const RecordTable = ({
           <thead>
             <tr className="border-b border-border">
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Company</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Stage</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Owner</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">ARR</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Employees</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">+ Add column</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Sector</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Location</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Revenue</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Contacts</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Opportunities</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Profile</th>
             </tr>
           </thead>
           <tbody>
-            {companies.map((company) => (
-              <tr
-                key={company.id}
-                className="border-b border-border hover:bg-neutral-50 cursor-pointer"
-                onClick={() => onRowClick?.(company)}
-              >
-                <td className="p-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-muted text-xs">
-                        {getInitials(company.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium text-sm">{company.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {company.domain || 'No domain'}
+            {companies.map((company) => {
+              const profileScore = calculateProfileScore(
+                company, 
+                company.enrichment_data, 
+                company.contacts_count || 0, 
+                company.opportunities_count || 0
+              );
+              
+              return (
+                <tr
+                  key={company.id}
+                  className="border-b border-border hover:bg-neutral-50 cursor-pointer"
+                  onClick={() => onRowClick?.(company)}
+                >
+                  <td className="p-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-muted text-xs">
+                          {getInitials(company.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium text-sm">{company.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {company.domain || 'No domain'}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="p-3">
-                  <Badge 
-                    variant="outline"
-                    style={{ 
-                      borderColor: getStatusBadge(company.company_status),
-                      color: getStatusBadge(company.company_status)
-                    }}
-                  >
-                    {company.company_status === 'prospecto' ? 'Prospect' : 
-                     company.company_status === 'cliente' ? 'Customer' : 
-                     company.company_status === 'perdida' ? 'Churned' : company.company_status}
-                  </Badge>
-                </td>
-                <td className="p-3">
-                  <div className="text-sm">{company.owner_name || 'Unassigned'}</div>
-                </td>
-                <td className="p-3">
-                  <div className="text-sm">
-                    {company.annual_revenue 
-                      ? `€${(company.annual_revenue / 1000).toFixed(0)}K`
-                      : '—'
-                    }
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className="text-sm">{company.company_size}</div>
-                </td>
-                <td className="p-3">
-                  <Button variant="ghost" size="sm" className="h-6 px-2">
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="p-3">
+                    <div className="text-sm">
+                      {company.sector || company.industry || '—'}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className="text-sm">
+                      {formatLocation(company.city, company.state)}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className="text-sm">
+                      {formatRevenue(company.annual_revenue || company.enrichment_data?.company_data?.revenue)}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-1 text-sm">
+                      <Users className="h-3 w-3 text-muted-foreground" />
+                      {company.contacts_count || 0}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-1 text-sm">
+                      <Briefcase className="h-3 w-3 text-muted-foreground" />
+                      {company.opportunities_count || 0}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">{profileScore.icon}</span>
+                            <span className={`text-xs font-medium ${profileScore.color}`}>
+                              {profileScore.score}%
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="space-y-1 text-xs">
+                            <div>Basic Info: {profileScore.details.basicInfo}/25</div>
+                            <div>Contact Info: {profileScore.details.contactInfo}/20</div>
+                            <div>Business Info: {profileScore.details.businessInfo}/30</div>
+                            <div>Relationships: {profileScore.details.relationshipData}/25</div>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

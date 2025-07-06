@@ -22,9 +22,15 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
   } = useQuery({
     queryKey: ["companies", page, limit, searchTerm, statusFilter, typeFilter],
     queryFn: async () => {
+      // Base query for companies with counts
       let query = supabase
         .from("companies")
-        .select("*")
+        .select(`
+          *,
+          company_enrichments(enrichment_data),
+          contacts(count),
+          opportunities(count)
+        `)
         .order("created_at", { ascending: false });
 
       // Apply filters
@@ -52,8 +58,20 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
         throw error;
       }
 
+      // Process the data to include enrichment info and counts
+      const processedCompanies = (data as any[])?.map((company) => {
+        const enrichmentData = company.company_enrichments?.[0]?.enrichment_data;
+        return {
+          ...company,
+          enrichment_data: enrichmentData,
+          contacts_count: Array.isArray(company.contacts) ? company.contacts.length : 0,
+          opportunities_count: Array.isArray(company.opportunities) ? company.opportunities.length : 0,
+          sector: enrichmentData?.company_data?.actividad_principal || company.industry,
+        };
+      }) || [];
+
       return {
-        companies: data as Company[],
+        companies: processedCompanies as Company[],
         totalCount: count || 0,
         currentPage: page,
         totalPages: Math.ceil((count || 0) / limit)
