@@ -16,7 +16,7 @@ interface ContactsHeaderProps {
   totalCount?: number;
 }
 
-export const ContactsHeader = ({
+export const ContactsHeader = React.memo(({
   title = "Contactos",
   description = "Gestiona tu red de contactos",
   searchValue = "",
@@ -109,4 +109,4 @@ export const ContactsHeader = ({
       </div>
     </div>
   );
-};
+});

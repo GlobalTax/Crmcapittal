@@ -11,7 +11,7 @@ interface ContactsGridProps {
   onDelete?: (contactId: string) => void;
 }
 
-export const ContactsGrid = ({ 
+export const ContactsGrid = React.memo(({ 
   contacts, 
   loading = false, 
   onView, 
@@ -54,4 +54,4 @@ export const ContactsGrid = ({
       ))}
     </div>
   );
-};
+});
