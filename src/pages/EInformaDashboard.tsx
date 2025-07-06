@@ -4,31 +4,50 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { SearchIcon, TrendingUpIcon, BuildingIcon, AlertTriangleIcon, DollarSignIcon, UsersIcon, BarChart3Icon, RefreshCwIcon } from 'lucide-react';
 import { EInformaMetricsCard } from '@/components/einforma/EInformaMetricsCard';
-import { EInformaUsageChart } from '@/components/einforma/EInformaUsageChart';
-import { EInformaQueryQueue } from '@/components/einforma/EInformaQueryQueue';
-import { EInformaCompanyInsights } from '@/components/einforma/EInformaCompanyInsights';
-import { EInformaRiskAnalysis } from '@/components/einforma/EInformaRiskAnalysis';
-import { useEInformaDashboard } from '@/hooks/useEInformaDashboard';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function EInformaDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
-  const {
-    metrics,
-    usageData,
-    recentQueries,
-    companyInsights,
-    riskAlerts,
-    isLoading,
-    refreshData
-  } = useEInformaDashboard();
+  // Mock data for now
+  const metrics = {
+    totalQueries: 247,
+    queriesChange: 15,
+    companiesEnriched: 189,
+    companiesChange: 12,
+    totalCost: 37,
+    costChange: 8,
+    riskAlerts: 5,
+    riskChange: -2
+  };
+
+  const recentQueries = [
+    {
+      companyName: "ESTRAPEY FINANZA SL",
+      nif: "B12345678",
+      status: "success" as const,
+      timestamp: new Date().toISOString()
+    },
+    {
+      companyName: "TECNOLOGÍA AVANZADA SA", 
+      nif: "A87654321",
+      status: "success" as const,
+      timestamp: new Date().toISOString()
+    }
+  ];
+
+  const refreshData = () => {
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 1000);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementar búsqueda
     console.log('Searching for:', searchTerm);
   };
 
@@ -112,7 +131,7 @@ export default function EInformaDashboard() {
 
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Gráfico de uso */}
+            {/* Placeholder para gráfico de uso */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -124,7 +143,12 @@ export default function EInformaDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <EInformaUsageChart data={usageData} />
+                <div className="flex items-center justify-center h-48 bg-muted/50 rounded-lg">
+                  <div className="text-center">
+                    <BarChart3Icon className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Gráfico de uso mensual</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -184,19 +208,71 @@ export default function EInformaDashboard() {
         </TabsContent>
 
         <TabsContent value="usage">
-          <EInformaUsageChart data={usageData} detailed />
+          <Card>
+            <CardHeader>
+              <CardTitle>Análisis de Uso y Costes</CardTitle>
+              <CardDescription>Información detallada sobre el uso del servicio eInforma</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center h-64 bg-muted/50 rounded-lg">
+                <div className="text-center">
+                  <BarChart3Icon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">Gráficos de uso detallado</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="queue">
-          <EInformaQueryQueue />
+          <Card>
+            <CardHeader>
+              <CardTitle>Cola de Consultas</CardTitle>
+              <CardDescription>Gestión de consultas pendientes y en proceso</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center h-64 bg-muted/50 rounded-lg">
+                <div className="text-center">
+                  <UsersIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">Cola de procesamiento de consultas</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="insights">
-          <EInformaCompanyInsights data={companyInsights} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Insights Empresariales</CardTitle>
+              <CardDescription>Análisis e insights de las empresas consultadas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center h-64 bg-muted/50 rounded-lg">
+                <div className="text-center">
+                  <TrendingUpIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">Insights y análisis empresariales</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="risk">
-          <EInformaRiskAnalysis alerts={riskAlerts} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Análisis de Riesgo</CardTitle>
+              <CardDescription>Evaluación de riesgos empresariales</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center h-64 bg-muted/50 rounded-lg">
+                <div className="text-center">
+                  <AlertTriangleIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">Análisis de riesgo empresarial</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

@@ -1,17 +1,33 @@
 import { useState } from 'react';
-import { Briefcase, Plus, Euro, Calendar, TrendingUp } from 'lucide-react';
+import { Briefcase, Plus, Euro, Calendar, TrendingUp, AlertTriangle as AlertTriangleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDeals } from '@/hooks/useDeals';
 import { Company } from '@/types/Company';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface CompanyDealsTabProps {
   company: Company;
 }
 
 export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
-  const { deals, loading } = useDeals();
+  const { deals, loading, error } = useDeals();
+
+  // Add error handling
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertTriangleIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+          <p className="text-muted-foreground">Error al cargar las oportunidades</p>
+          <Button variant="outline" className="mt-2" onClick={() => window.location.reload()}>
+            Reintentar
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const companyDeals = deals?.filter(deal => 
     deal.company?.name?.toLowerCase().includes(company.name.toLowerCase())
