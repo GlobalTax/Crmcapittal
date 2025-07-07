@@ -144,7 +144,23 @@ export const TableLoadingSkeleton = ({ count = 5 }: { count?: number }) => (
 export const LeadsTableSkeleton = ({ count = 5 }: { count?: number }) => (
   <tbody>
     {Array.from({ length: count }).map((_, index) => (
-      <LoadingSkeleton key={index} type="lead-table-row" count={1} />
+      <tr key={index} className="border-b border-gray-100">
+        <td className="p-4"><Skeleton className="h-4 w-32" /></td>
+        <td className="p-4"><Skeleton className="h-4 w-40" /></td>
+        <td className="p-4"><Skeleton className="h-4 w-24" /></td>
+        <td className="p-4"><Skeleton className="h-4 w-20" /></td>
+        <td className="p-4"><Skeleton className="h-6 w-16 rounded-full" /></td>
+        <td className="p-4"><Skeleton className="h-8 w-20 rounded" /></td>
+        <td className="p-4">
+          <div className="flex gap-1">
+            <Skeleton className="h-8 w-8 rounded" />
+            <Skeleton className="h-8 w-8 rounded" />
+            <Skeleton className="h-8 w-8 rounded" />
+          </div>
+        </td>
+        <td className="p-4"><Skeleton className="h-4 w-16" /></td>
+        <td className="p-4"><Skeleton className="h-8 w-8 rounded" /></td>
+      </tr>
     ))}
   </tbody>
 );
