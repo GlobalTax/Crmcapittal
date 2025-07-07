@@ -12,6 +12,7 @@ import { es } from 'date-fns/locale';
 import { useDealDocuments } from '@/hooks/useDealDocuments';
 import { DealDocumentUploader } from '../DealDocumentUploader';
 import { DocumentGeneratorDialog } from '../DocumentGeneratorDialog';
+import { ClientConversionButton } from '../ClientConversionButton';
 import { DOCUMENT_CATEGORIES, DOCUMENT_STATUSES, DocumentCategory } from '@/types/DealDocument';
 
 interface DealDocumentsTabProps {
@@ -80,6 +81,12 @@ export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
           </Tabs>
         </div>
         <div className="flex gap-2">
+          <ClientConversionButton 
+            deal={deal} 
+            variant="outline"
+            size="sm"
+            showBadge={false}
+          />
           <Button 
             variant="outline" 
             size="sm" 

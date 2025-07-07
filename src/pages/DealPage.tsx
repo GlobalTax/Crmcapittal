@@ -109,6 +109,7 @@ export default function DealPage() {
           onNext={handleNext}
           hasPrevious={hasPrevious}
           hasNext={hasNext}
+          onUpdate={() => window.location.reload()}
         />
 
         {/* Tabs Navigation */}

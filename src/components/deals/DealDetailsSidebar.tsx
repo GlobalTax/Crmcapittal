@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Deal } from '@/types/Deal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClientConversionButton } from './ClientConversionButton';
 
 interface DealDetailsSidebarProps {
   deal: Deal;
@@ -286,6 +287,17 @@ export const DealDetailsSidebar = ({ deal, onUpdate }: DealDetailsSidebarProps) 
             <span>Actualizado: {new Date(deal.updatedAt).toLocaleDateString('es-ES')}</span>
           </div>
         </div>
+      </div>
+
+      {/* Client Conversion */}
+      <div className="space-y-2">
+        <ClientConversionButton 
+          deal={deal} 
+          variant="outline"
+          size="sm"
+          showBadge={true}
+          onSuccess={onUpdate ? () => onUpdate(deal.id, { stage: 'Won' }) : undefined}
+        />
       </div>
 
       {/* Quick Actions */}

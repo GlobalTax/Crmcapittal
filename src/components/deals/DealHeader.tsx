@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Deal } from '@/types/Deal';
 import { toast } from 'sonner';
+import { ClientConversionButton } from './ClientConversionButton';
 
 interface DealHeaderProps {
   deal: Deal;
@@ -12,6 +13,7 @@ interface DealHeaderProps {
   onNext?: () => void;
   hasPrevious?: boolean;
   hasNext?: boolean;
+  onUpdate?: () => void;
 }
 
 export const DealHeader = ({ 
@@ -19,7 +21,8 @@ export const DealHeader = ({
   onPrevious, 
   onNext, 
   hasPrevious, 
-  hasNext 
+  hasNext,
+  onUpdate 
 }: DealHeaderProps) => {
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -122,6 +125,14 @@ export const DealHeader = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Client Conversion Button */}
+          <ClientConversionButton 
+            deal={deal} 
+            variant="default"
+            size="sm"
+            onSuccess={onUpdate}
+          />
+
           {/* Navigation arrows */}
           {(hasPrevious || hasNext) && (
             <div className="flex items-center gap-1 mr-2">
