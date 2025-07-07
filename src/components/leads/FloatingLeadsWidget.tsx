@@ -50,7 +50,7 @@ export const FloatingLeadsWidget = () => {
           variant="primary" 
           size="sm" 
           className="w-full"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/leads')}
         >
           <Eye className="h-3 w-3 mr-1" />
           Ver Todos

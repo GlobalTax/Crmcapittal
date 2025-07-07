@@ -20,9 +20,9 @@ export const useOptimizedLeads = (filters?: {
   } = useOptimizedPolling({
     queryKey: cacheKey,
     queryFn: () => leadsService.fetchLeads(filters),
-    interval: 240000, // 4 minutes - more conservative
-    priority: 'medium',
-    cacheTtl: 180000, // 3 minutes cache
+    interval: 30000, // 30 seconds for lead control center
+    priority: 'high',
+    cacheTtl: 60000, // 1 minute cache
     enabled: true
   });
 
@@ -66,6 +66,21 @@ export const useOptimizedLeads = (filters?: {
     },
   });
 
+  const convertMutation = useMutation({
+    mutationFn: ({ leadId, options }: { leadId: string; options: { createCompany: boolean; createDeal: boolean } }) =>
+      leadsService.convertLeadToContact(leadId, options),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      refetch(); // Refresh our data
+      toast.success('Lead convertido a contacto exitosamente');
+    },
+    onError: (error) => {
+      console.error('Error converting lead:', error);
+      toast.error('Error al convertir el lead');
+    },
+  });
+
   return {
     leads,
     isLoading,
@@ -74,8 +89,10 @@ export const useOptimizedLeads = (filters?: {
     createLead: createMutation.mutate,
     updateLead: updateMutation.mutate,
     deleteLead: deleteMutation.mutate,
+    convertLead: convertMutation.mutate,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    isConverting: convertMutation.isPending,
   };
 };

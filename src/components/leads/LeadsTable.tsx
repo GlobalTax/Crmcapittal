@@ -34,6 +34,8 @@ interface LeadsTableProps {
   onConvertLead?: (leadId: string, options: { createCompany: boolean; createDeal: boolean }) => void;
   isLoading?: boolean;
   isConverting?: boolean;
+  selectedLeads?: string[];
+  onSelectionChange?: (selectedIds: string[]) => void;
 }
 
 export const LeadsTable = ({
@@ -43,13 +45,29 @@ export const LeadsTable = ({
   onAssignLead,
   onConvertLead,
   isLoading,
-  isConverting = false
+  isConverting = false,
+  selectedLeads = [],
+  onSelectionChange
 }: LeadsTableProps) => {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [selectedLeadId, setSelectedLeadId] = useState<string>('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (!onSelectionChange) return;
+    onSelectionChange(checked ? leads.map(lead => lead.id) : []);
+  };
+
+  const handleSelectLead = (leadId: string, checked: boolean) => {
+    if (!onSelectionChange) return;
+    if (checked) {
+      onSelectionChange([...selectedLeads, leadId]);
+    } else {
+      onSelectionChange(selectedLeads.filter(id => id !== leadId));
+    }
+  };
 
   const handleAssignClick = (leadId: string) => {
     setSelectedLeadId(leadId);
@@ -106,7 +124,7 @@ export const LeadsTable = ({
   };
 
   const isConverted = (lead: Lead) => {
-    return lead.status === 'QUALIFIED'; // Assuming QUALIFIED means converted
+    return lead.status === 'QUALIFIED';
   };
 
   if (leads.length === 0 && !isLoading) {
@@ -123,6 +141,16 @@ export const LeadsTable = ({
         <Table>
           <TableHeader>
             <TableRow>
+              {onSelectionChange && (
+                <TableHead className="w-12">
+                  <input
+                    type="checkbox"
+                    checked={selectedLeads.length === leads.length && leads.length > 0}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                </TableHead>
+              )}
               <TableHead>Nombre</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Compañía</TableHead>
@@ -139,7 +167,22 @@ export const LeadsTable = ({
           ) : (
             <TableBody>
               {leads.map((lead) => (
-                <TableRow key={lead.id}>
+                <TableRow 
+                  key={lead.id} 
+                  className={`${lead.status === 'NEW' ? 'bg-red-50' : ''} ${
+                    selectedLeads.includes(lead.id) ? 'bg-blue-50' : ''
+                  }`}
+                >
+                  {onSelectionChange && (
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        checked={selectedLeads.includes(lead.id)}
+                        onChange={(e) => handleSelectLead(lead.id, e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                    </TableCell>
+                  )}
                   <TableCell className="font-medium">{lead.name}</TableCell>
                   <TableCell>{lead.email}</TableCell>
                   <TableCell>{lead.company_name || '-'}</TableCell>
