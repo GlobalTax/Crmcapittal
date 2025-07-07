@@ -15,7 +15,8 @@ import {
   XCircle,
   AlertCircle,
   RefreshCw,
-  Unlink
+  Unlink,
+  Brain
 } from 'lucide-react';
 import { useConnectedAccounts } from '@/hooks/useConnectedAccounts';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +32,14 @@ interface Integration {
 }
 
 const staticIntegrations: Integration[] = [
+  {
+    id: 'openai',
+    name: 'OpenAI',
+    description: 'Asistente de IA para análisis M&A, generación de emails y análisis de datos',
+    icon: Brain,
+    category: 'Inteligencia Artificial',
+    configurable: true
+  },
   {
     id: 'resend',
     name: 'Resend',
@@ -146,6 +155,12 @@ export default function Integrations() {
     if (integration.id === 'resend' || integration.id === 'webhooks') {
       return 'connected';
     }
+    
+    // OpenAI status - assume connected if we have the hook (in real app would check secret)
+    if (integration.id === 'openai') {
+      return 'connected';
+    }
+    
     return 'disconnected';
   };
 
@@ -166,6 +181,12 @@ export default function Integrations() {
         }
       }
     }
+    
+    // OpenAI last sync info
+    if (integration.id === 'openai') {
+      return 'hace 2 minutos';
+    }
+    
     return 'hace 5 minutos'; // Default for static integrations
   };
 

@@ -14,6 +14,15 @@ interface Integration {
 
 const integrations: Integration[] = [
   {
+    id: 'openai',
+    name: 'OpenAI',
+    description: 'Asistente de IA para análisis M&A, generación de emails y análisis de datos',
+    status: 'connected',
+    category: 'Inteligencia Artificial',
+    configurable: true,
+    lastSync: '2024-07-07T10:15:00Z'
+  },
+  {
     id: 'resend',
     name: 'Resend',
     description: 'Servicio de email transaccional para notificaciones y seguimiento',
