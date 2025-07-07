@@ -99,7 +99,8 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
     }
     
     if (sourceFilter !== 'all' && lead.source !== sourceFilter) return false;
-    if (priorityFilter !== 'all' && lead.priority !== priorityFilter) return false;
+    // Only filter by priority if it's not 'all' and lead has a priority value
+    if (priorityFilter !== 'all' && lead.priority && lead.priority !== priorityFilter) return false;
     
     return true;
   });

@@ -21,7 +21,12 @@ export const useOptimizedLeads = (filters?: {
     refetch
   } = useOptimizedPolling({
     queryKey: cacheKey,
-    queryFn: () => leadsService.fetchLeads(filters),
+    queryFn: async () => {
+      console.log('Fetching leads with filters:', filters);
+      const result = await leadsService.fetchLeads(filters);
+      console.log('Fetched leads result:', result?.length, 'leads');
+      return result;
+    },
     interval: 120000, // 2 minutes for lead control center (reduced from 30s)
     priority: 'medium', // reduced from high
     cacheTtl: 300000, // 5 minute cache (increased from 1m)

@@ -56,13 +56,13 @@ export const fetchLeads = async (filters?: {
   const transformedData = (data || []).map(lead => ({
     ...lead,
     // Ensure source is properly typed
-    source: (lead.source as LeadSource) || 'other',
+    source: (lead.source as LeadSource) || 'website_form',
     // Handle lead_origin field
     lead_origin: ((lead as { lead_origin?: string }).lead_origin as LeadOrigin) || 'manual',
     // Use actual database values or defaults for missing columns
-    lead_score: (lead as { lead_score?: number }).lead_score || 0,
-    priority: ((lead as { priority?: string }).priority as LeadPriority) || 'MEDIUM',
-    quality: ((lead as { quality?: string }).quality as LeadQuality) || 'FAIR',
+    lead_score: (lead as { lead_score?: number }).lead_score || 10,
+    priority: ((lead as { priority?: string }).priority as LeadPriority) || 'HIGH',
+    quality: ((lead as { quality?: string }).quality as LeadQuality) || 'GOOD',
     follow_up_count: (lead as { follow_up_count?: number }).follow_up_count || 0,
     email_opens: (lead as { email_opens?: number }).email_opens || 0,
     email_clicks: (lead as { email_clicks?: number }).email_clicks || 0,
