@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { DealsBoard } from '@/components/deals/DealsBoard';
+import { OpportunitiesTable } from '@/components/deals/OpportunitiesTable';
+import { DealsViewToggle } from '@/components/deals/DealsViewToggle';
 import { NewDealModal } from '@/components/deals/NewDealModal';
 import { DealDrawer } from '@/components/deals/DealDrawer';
 import { Deal, DealStage } from '@/types/Deal';
+import { useDeals } from '@/hooks/useDeals';
 
 const Deals = () => {
   const [newDealModalOpen, setNewDealModalOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [defaultStage, setDefaultStage] = useState<DealStage>('Lead');
+  const [view, setView] = useState<'board' | 'table'>('board');
+  const { deals, loading } = useDeals();
 
   const handleNewDeal = (stageName?: string) => {
     if (stageName && ['Lead', 'In Progress', 'Won', 'Lost'].includes(stageName)) {
@@ -30,14 +35,25 @@ const Deals = () => {
             Gestiona tu pipeline de ventas
           </p>
         </div>
+        <DealsViewToggle view={view} onViewChange={setView} />
       </div>
 
-      {/* Board */}
+      {/* Content */}
       <div className="flex-1 overflow-hidden">
-        <DealsBoard 
-          onNewDeal={handleNewDeal}
-          onDealClick={handleDealClick}
-        />
+        {view === 'board' ? (
+          <DealsBoard 
+            onNewDeal={handleNewDeal}
+            onDealClick={handleDealClick}
+          />
+        ) : (
+          <div className="p-6">
+            <OpportunitiesTable 
+              deals={deals}
+              loading={loading}
+              onDealClick={handleDealClick}
+            />
+          </div>
+        )}
       </div>
 
       {/* Modals */}
