@@ -32,6 +32,7 @@ const CalendarPage = lazy(() => import('@/pages/MinimalCalendar'));
 const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
+const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 
@@ -255,7 +256,15 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/integrations" 
+            path="/buying-mandates" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <BuyingMandates />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/integrations"
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <Integrations />

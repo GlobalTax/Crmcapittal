@@ -9,6 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      buying_mandates: {
+        Row: {
+          client_contact: string
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          id: string
+          mandate_name: string
+          max_ebitda: number | null
+          max_revenue: number | null
+          min_ebitda: number | null
+          min_revenue: number | null
+          other_criteria: string | null
+          start_date: string
+          status: string
+          target_locations: string[] | null
+          target_sectors: string[]
+          updated_at: string
+        }
+        Insert: {
+          client_contact: string
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          mandate_name: string
+          max_ebitda?: number | null
+          max_revenue?: number | null
+          min_ebitda?: number | null
+          min_revenue?: number | null
+          other_criteria?: string | null
+          start_date?: string
+          status?: string
+          target_locations?: string[] | null
+          target_sectors?: string[]
+          updated_at?: string
+        }
+        Update: {
+          client_contact?: string
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          mandate_name?: string
+          max_ebitda?: number | null
+          max_revenue?: number | null
+          min_ebitda?: number | null
+          min_revenue?: number | null
+          other_criteria?: string | null
+          start_date?: string
+          status?: string
+          target_locations?: string[] | null
+          target_sectors?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cases: {
         Row: {
           actual_hours: number | null
@@ -1903,6 +1969,77 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mandate_targets: {
+        Row: {
+          company_name: string
+          contact_date: string | null
+          contact_email: string | null
+          contact_method: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contacted: boolean | null
+          created_at: string | null
+          created_by: string | null
+          ebitda: number | null
+          id: string
+          location: string | null
+          mandate_id: string
+          notes: string | null
+          revenues: number | null
+          sector: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_name: string
+          contact_date?: string | null
+          contact_email?: string | null
+          contact_method?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contacted?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          ebitda?: number | null
+          id?: string
+          location?: string | null
+          mandate_id: string
+          notes?: string | null
+          revenues?: number | null
+          sector?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_name?: string
+          contact_date?: string | null
+          contact_email?: string | null
+          contact_method?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contacted?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          ebitda?: number | null
+          id?: string
+          location?: string | null
+          mandate_id?: string
+          notes?: string | null
+          revenues?: number | null
+          sector?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mandate_targets_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
             referencedColumns: ["id"]
           },
         ]

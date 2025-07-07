@@ -83,6 +83,10 @@ const sidebarData: SidebarSection[] = [
     title: "Administración",
     items: [
       {
+        title: "Mandatos Compra",
+        href: "/buying-mandates",
+      },
+      {
         title: "Colaboradores",
         href: "/collaborators",
       },
