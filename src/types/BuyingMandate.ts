@@ -71,3 +71,64 @@ export interface CreateMandateTargetData {
   contact_method?: string;
   notes?: string;
 }
+
+export interface MandateDocument {
+  id: string;
+  mandate_id: string;
+  target_id?: string;
+  document_name: string;
+  document_type: 'nda' | 'loi' | 'info_sheet' | 'presentation' | 'general' | 'other';
+  file_url: string;
+  file_size?: number;
+  content_type?: string;
+  uploaded_by?: string;
+  uploaded_at: string;
+  notes?: string;
+  is_confidential: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MandateClientAccess {
+  id: string;
+  mandate_id: string;
+  access_token: string;
+  client_email: string;
+  expires_at: string;
+  is_active: boolean;
+  last_accessed_at?: string;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MandateComment {
+  id: string;
+  mandate_id: string;
+  target_id?: string;
+  comment_text: string;
+  comment_type: 'client_feedback' | 'internal_note' | 'status_update';
+  is_client_visible: boolean;
+  created_by?: string;
+  client_access_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateMandateDocumentData {
+  mandate_id: string;
+  target_id?: string;
+  document_name: string;
+  document_type: MandateDocument['document_type'];
+  file_url: string;
+  file_size?: number;
+  content_type?: string;
+  notes?: string;
+  is_confidential?: boolean;
+}
+
+export interface CreateClientAccessData {
+  mandate_id: string;
+  client_email: string;
+  expires_at: string;
+}

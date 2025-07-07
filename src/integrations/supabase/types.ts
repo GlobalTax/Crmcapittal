@@ -1973,6 +1973,180 @@ export type Database = {
           },
         ]
       }
+      mandate_client_access: {
+        Row: {
+          access_token: string
+          client_email: string
+          created_at: string | null
+          created_by: string | null
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          last_accessed_at: string | null
+          mandate_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_token: string
+          client_email: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          last_accessed_at?: string | null
+          mandate_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          client_email?: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_accessed_at?: string | null
+          mandate_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mandate_client_access_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mandate_comments: {
+        Row: {
+          client_access_id: string | null
+          comment_text: string
+          comment_type: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_client_visible: boolean | null
+          mandate_id: string
+          target_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_access_id?: string | null
+          comment_text: string
+          comment_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_client_visible?: boolean | null
+          mandate_id: string
+          target_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_access_id?: string | null
+          comment_text?: string
+          comment_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_client_visible?: boolean | null
+          mandate_id?: string
+          target_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mandate_comments_client_access_id_fkey"
+            columns: ["client_access_id"]
+            isOneToOne: false
+            referencedRelation: "mandate_client_access"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mandate_comments_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mandate_comments_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "mandate_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mandate_documents: {
+        Row: {
+          content_type: string | null
+          created_at: string | null
+          document_name: string
+          document_type: string
+          file_size: number | null
+          file_url: string
+          id: string
+          is_confidential: boolean | null
+          mandate_id: string
+          notes: string | null
+          target_id: string | null
+          updated_at: string | null
+          uploaded_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string | null
+          document_name: string
+          document_type?: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          is_confidential?: boolean | null
+          mandate_id: string
+          notes?: string | null
+          target_id?: string | null
+          updated_at?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string | null
+          document_name?: string
+          document_type?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          is_confidential?: boolean | null
+          mandate_id?: string
+          notes?: string | null
+          target_id?: string | null
+          updated_at?: string | null
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mandate_documents_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mandate_documents_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "mandate_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mandate_targets: {
         Row: {
           company_name: string
