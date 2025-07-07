@@ -8,8 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOptimizedLeads } from "@/hooks/useOptimizedLeads";
 import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
+import { IntelligentAlerts } from "@/components/leads/IntelligentAlerts";
 import { LeadStatus, LeadSource, LeadPriority } from "@/types/Lead";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { AlertData } from "@/hooks/useIntelligentAlerts";
 import { 
   AlertCircle, 
   Users, 
@@ -212,6 +214,27 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
     }
   };
 
+  const handleAlertAction = (alert: AlertData) => {
+    // Apply filters based on alert type
+    switch (alert.type) {
+      case 'lead_not_contacted':
+        setStatusFilter('NEW');
+        setDateFilter('all');
+        setSearchQuery('');
+        break;
+      case 'lead_stagnant':
+        setStatusFilter('all');
+        setDateFilter('all');
+        setSearchQuery('');
+        // Additional filter logic for stagnant leads
+        break;
+      case 'deal_inactive':
+        // This would require navigation to deals page or separate handling
+        console.log('Navigate to deals with inactive filter');
+        break;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -235,6 +258,9 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
           <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
         </div>
       </div>
+
+      {/* Intelligent Alerts */}
+      <IntelligentAlerts onAlertAction={handleAlertAction} />
 
       {/* Critical Alerts Panel */}
       {(newLeadsToday.length > 0 || unassignedOldLeads.length > 0) && (
