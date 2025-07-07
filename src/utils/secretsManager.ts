@@ -59,6 +59,20 @@ const SECRET_CONFIGS: Record<string, SecretConfig> = {
 };
 
 /**
+ * Obtiene una variable de entorno de forma segura
+ * @param key - Clave de la variable de entorno
+ * @returns Valor de la variable de entorno
+ */
+const getEnvVar = (key: string): string | undefined => {
+  // En el cliente, usar import.meta.env para variables VITE_
+  if (typeof window !== 'undefined') {
+    return (import.meta.env as any)[key];
+  }
+  // En el servidor, usar process.env
+  return (process?.env as any)?.[key];
+};
+
+/**
  * Obtiene un secreto de forma segura
  * @param key - Clave del secreto
  * @returns Valor del secreto
@@ -71,7 +85,7 @@ export const getSecret = (key: string): string => {
     throw new Error(`Secret ${key} not configured in SECRET_CONFIGS`);
   }
 
-  let value = import.meta.env[key] || config.defaultValue;
+  let value = getEnvVar(key) || config.defaultValue;
 
   if (config.required && !value) {
     secureLogger.security('missing_required_secret', 'high', { secretKey: key });
