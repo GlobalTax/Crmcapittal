@@ -34,6 +34,7 @@ const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
 const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
 const MandatoDeCompraView = lazy(() => import('@/pages/MandatoDeCompraView'));
+const ClientMandateView = lazy(() => import('@/pages/ClientMandateView'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 
@@ -98,6 +99,16 @@ function AppContent() {
           element={
             <Suspense fallback={<LoadingSkeleton />}>
               <Auth />
+            </Suspense>
+          } 
+        />
+
+        {/* Public client mandate access route */}
+        <Route 
+          path="/mandato/:mandateId/cliente" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <ClientMandateView />
             </Suspense>
           } 
         />
