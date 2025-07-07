@@ -5,7 +5,8 @@ interface ValidationResultsProps {
   validation: {
     valid: boolean;
     errors: string[];
-    warnings: string[];
+    warnings?: string[];
+    data?: any;
   } | null;
 }
 
@@ -36,7 +37,7 @@ export const ValidationResults = ({ validation }: ValidationResultsProps) => {
         </div>
       )}
 
-      {validation.warnings.length > 0 && (
+      {validation.warnings && validation.warnings.length > 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <h4 className="font-medium text-yellow-800 mb-2">Advertencias:</h4>
           <ul className="text-sm text-yellow-700 space-y-1 max-h-32 overflow-y-auto">

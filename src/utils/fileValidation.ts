@@ -33,6 +33,8 @@ export const FILE_VALIDATION_CONFIGS: Record<string, FileValidationConfig> = {
   }
 };
 
+import { validateFile } from './validation';
+
 export const validateFiles = (files: File[], config: FileValidationConfig): ValidationResult => {
   const errors: ValidationError[] = [];
 
@@ -46,7 +48,17 @@ export const validateFiles = (files: File[], config: FileValidationConfig): Vali
 
   // Validar cada archivo
   files.forEach(file => {
-    // Validar tamaño
+    const fileValidation = validateFile(file);
+    
+    if (!fileValidation.valid) {
+      errors.push({
+        file: file.name,
+        error: fileValidation.error || 'Error de validación'
+      });
+      return;
+    }
+
+    // Validar tamaño específico del config
     if (file.size > config.maxSize) {
       errors.push({
         file: file.name,
@@ -54,7 +66,7 @@ export const validateFiles = (files: File[], config: FileValidationConfig): Vali
       });
     }
 
-    // Validar tipo
+    // Validar tipo específico del config
     if (!config.allowedTypes.includes(file.type)) {
       errors.push({
         file: file.name,
