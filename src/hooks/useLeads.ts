@@ -22,10 +22,45 @@ export const useLeads = (filters?: {
   });
 
   const createMutation = useMutation({
-    mutationFn: leadsService.createLead,
-    onSuccess: () => {
+    mutationFn: async (leadData: CreateLeadData) => {
+      // Create the lead first
+      const lead = await leadsService.createLead(leadData);
+      
+      // Auto-convert to contact, company, and deal
+      try {
+        const result = await leadsService.convertLeadToContact(lead.id, {
+          createCompany: Boolean(leadData.company_name),
+          createDeal: true
+        });
+        
+        return { lead, conversion: result };
+      } catch (error) {
+        console.warn('Auto-conversion failed:', error);
+        return { lead, conversion: null };
+      }
+    },
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
-      toast.success('Lead creado exitosamente');
+      queryClient.invalidateQueries({ queryKey: ['contacts'] }); 
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+      
+      const { lead, conversion } = result;
+      const notifications = ['✅ Lead creado exitosamente'];
+      
+      if (conversion) {
+        notifications.push('✅ Contacto creado automáticamente');
+        if (conversion.companyId) {
+          notifications.push('✅ Empresa creada automáticamente');
+        }
+        if (conversion.dealId) {
+          notifications.push('✅ Oportunidad creada automáticamente');
+        }
+      }
+      
+      toast.success(notifications.join('\n'), {
+        duration: 5000,
+      });
     },
     onError: (error) => {
       console.error('Error creating lead:', error);

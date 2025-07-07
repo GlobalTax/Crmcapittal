@@ -93,6 +93,7 @@ export class CapitalMarketService {
       tags: [] as string[],
       form_data: {} as Record<string, unknown>,
       job_title: '',
+      lead_origin: 'import' as const,
       assigned_to: null,
       lead_nurturing: []
     };

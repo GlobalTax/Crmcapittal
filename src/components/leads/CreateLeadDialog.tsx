@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
-import { CreateLeadData, LeadSource } from "@/types/Lead";
+import { CreateLeadData, LeadSource, LeadOrigin } from "@/types/Lead";
 
 interface CreateLeadDialogProps {
   onCreateLead: (data: CreateLeadData) => void;
@@ -50,7 +50,14 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogP
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onCreateLead(formData);
+    
+    // Add lead_origin for manual creation
+    const leadDataWithOrigin: CreateLeadData = {
+      ...formData,
+      lead_origin: 'manual' as LeadOrigin
+    };
+    
+    onCreateLead(leadDataWithOrigin);
     setFormData({
       name: '',
       email: '',

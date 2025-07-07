@@ -3,6 +3,8 @@ export type LeadStatus = 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED' | 'N
 
 export type LeadSource = 'website_form' | 'lead_marker' | 'capittal_market' | 'linkedin' | 'referral' | 'email_campaign' | 'social_media' | 'cold_outreach' | 'event' | 'other';
 
+export type LeadOrigin = 'manual' | 'webform' | 'import';
+
 export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
 export type LeadQuality = 'POOR' | 'FAIR' | 'GOOD' | 'EXCELLENT';
@@ -16,6 +18,7 @@ export interface Lead {
   job_title?: string;
   message?: string;
   source: LeadSource;
+  lead_origin?: LeadOrigin;
   status: LeadStatus;
   priority?: LeadPriority;
   quality?: LeadQuality;
@@ -81,6 +84,7 @@ export interface CreateLeadData {
   job_title?: string;
   message?: string;
   source: LeadSource;
+  lead_origin?: LeadOrigin;
   priority?: LeadPriority;
   quality?: LeadQuality;
   lead_score?: number;

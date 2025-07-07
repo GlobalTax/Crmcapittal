@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource, LeadPriority, LeadQuality } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource, LeadOrigin, LeadPriority, LeadQuality } from '@/types/Lead';
 import { DatabaseService } from './databaseService';
 
 export const fetchLeads = async (filters?: {
@@ -57,6 +57,8 @@ export const fetchLeads = async (filters?: {
     ...lead,
     // Ensure source is properly typed
     source: (lead.source as LeadSource) || 'other',
+    // Handle lead_origin field
+    lead_origin: ((lead as { lead_origin?: string }).lead_origin as LeadOrigin) || 'manual',
     // Use actual database values or defaults for missing columns
     lead_score: (lead as { lead_score?: number }).lead_score || 0,
     priority: ((lead as { priority?: string }).priority as LeadPriority) || 'MEDIUM',
@@ -109,6 +111,7 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
   const transformedData = {
     ...data,
     source: (data.source as LeadSource) || 'other',
+    lead_origin: ((data as { lead_origin?: string }).lead_origin as LeadOrigin) || 'manual',
     lead_score: (data as { lead_score?: number }).lead_score || 0,
     priority: ((data as { priority?: string }).priority as LeadPriority) || 'MEDIUM',
     quality: ((data as { quality?: string }).quality as LeadQuality) || 'FAIR',
@@ -138,6 +141,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     company_name: leadData.company_name,
     message: leadData.message,
     source: leadData.source,
+    lead_origin: leadData.lead_origin || 'manual',
     status: 'NEW' as const
     // Note: other fields like priority, quality, lead_score, etc. are not included
     // because they don't exist in the current database schema
@@ -158,6 +162,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   const transformedData = {
     ...data,
     source: (data.source as LeadSource) || 'other',
+    lead_origin: (data.lead_origin as LeadOrigin) || 'manual',
     lead_score: leadData.lead_score || 10,
     priority: leadData.priority || 'MEDIUM',
     quality: leadData.quality || 'FAIR',
@@ -234,6 +239,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
   const transformedData = {
     ...data,
     source: (data.source as LeadSource) || 'other',
+    lead_origin: ((data as { lead_origin?: string }).lead_origin as LeadOrigin) || 'manual',
     lead_score: updates.lead_score || 0,
     priority: updates.priority || 'MEDIUM',
     quality: updates.quality || 'FAIR',
@@ -271,7 +277,7 @@ export const deleteLead = async (id: string): Promise<void> => {
 export const convertLeadToContact = async (
   leadId: string,
   options: { createCompany: boolean; createDeal: boolean; }
-): Promise<{ contactId: string }> => {
+): Promise<{ contactId: string; companyId?: string; dealId?: string }> => {
   console.log('Converting lead to contact:', leadId, options);
 
   // First get the lead data
@@ -286,12 +292,38 @@ export const convertLeadToContact = async (
     throw new Error('User not authenticated');
   }
 
+  let companyId: string | undefined;
+
+  // Create company if requested and company_name exists
+  if (options.createCompany && lead.company_name) {
+    const companyData = {
+      name: lead.company_name,
+      created_by: user.id,
+      company_type: 'prospect' as const,
+      company_status: 'prospecto' as const,
+      lifecycle_stage: 'lead' as const
+    };
+
+    const { data: company, error: companyError } = await supabase
+      .from('companies')
+      .insert([companyData])
+      .select()
+      .single();
+
+    if (companyError) {
+      console.warn('Error creating company:', companyError);
+    } else {
+      companyId = company.id;
+    }
+  }
+
   // Create contact
   const contactData = {
     name: lead.name,
     email: lead.email,
     phone: lead.phone,
     company: lead.company_name,
+    company_id: companyId,
     contact_type: 'prospect',
     contact_source: lead.source,
     notes: lead.message,
@@ -309,11 +341,51 @@ export const convertLeadToContact = async (
     throw contactError;
   }
 
+  let dealId: string | undefined;
+
+  // Always create deal when converting lead
+  if (options.createDeal || true) { // Force creation for now
+    const dealData = {
+      deal_name: `Oportunidad - ${lead.name}`,
+      company_name: lead.company_name,
+      contact_name: lead.name,
+      contact_email: lead.email,
+      contact_phone: lead.phone,
+      contact_id: contact.id,
+      lead_source: lead.source,
+      deal_type: 'venta',
+      priority: 'media',
+      description: lead.message,
+      created_by: user.id
+    };
+
+    const { data: deal, error: dealError } = await supabase
+      .from('deals')
+      .insert([dealData])
+      .select()
+      .single();
+
+    if (dealError) {
+      console.error('Error creating deal:', dealError);
+    } else {
+      dealId = deal.id;
+    }
+  }
+
   // Update lead status to QUALIFIED (since CONVERTED isn't supported in DB)
   await updateLead(leadId, { status: 'QUALIFIED' });
 
-  console.log('Lead converted successfully to contact:', contact.id);
-  return { contactId: contact.id };
+  console.log('Lead converted successfully:', { 
+    contactId: contact.id, 
+    companyId, 
+    dealId 
+  });
+  
+  return { 
+    contactId: contact.id, 
+    companyId, 
+    dealId 
+  };
 };
 
 // New automation trigger function - updated to use DatabaseService
