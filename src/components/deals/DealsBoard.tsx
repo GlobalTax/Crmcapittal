@@ -14,23 +14,20 @@ import { useDeals } from '@/hooks/useDeals';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
+import { usePipelineConfiguration } from '@/hooks/usePipelineConfiguration';
 
 interface DealsBoardProps {
   onNewDeal: (stageName?: string) => void;
   onDealClick?: (deal: Deal) => void;
 }
 
-const STAGES = [
-  { name: 'Lead', color: '#1E88E5' },
-  { name: 'In Progress', color: '#FFB300' },
-  { name: 'Won', color: '#00C48C' },
-  { name: 'Lost', color: '#EF5350' }
-];
-
 export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
   const { deals, loading, updateDealStage } = useDeals();
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Use pipeline configuration to get dynamic stages
+  const { visibleStages, loading: configLoading } = usePipelineConfiguration();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -38,8 +35,9 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
     })
   );
 
-  const getDealsByStage = (stageName: string) => {
-    return deals.filter(deal => deal.stage === stageName);
+  const getDealsByStage = (stageId: string, stageName: string) => {
+    // Filter by stage_id first, then fallback to stage name for backward compatibility
+    return deals.filter(deal => deal.stage_id === stageId || deal.stage === stageName);
   };
 
   const handleDragStart = () => {
@@ -53,20 +51,26 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
     if (!over || active.id === over.id) return;
 
     const dealId = active.id as string;
-    const newStage = over.id as string;
-    const oldStage = STAGES.find(stage => 
-      getDealsByStage(stage.name).some(deal => deal.id === dealId)
-    )?.name;
+    const newStageId = over.id as string;
+    const newStage = visibleStages.find(s => s.id === newStageId);
     
-    if (newStage === oldStage) return;
+    if (!newStage) return;
+
+    // Find old stage
+    const deal = deals.find(d => d.id === dealId);
+    const oldStage = visibleStages.find(s => 
+      getDealsByStage(s.id, s.name).some(deal => deal.id === dealId)
+    );
+    
+    if (newStageId === oldStage?.id) return;
 
     try {
-      await updateDealStage(dealId, newStage);
+      // Update deal with new stage_id and stage name for backward compatibility
+      await updateDealStage(dealId, newStage.name);
       
       // Announce the move for accessibility
-      const deal = deals.find(d => d.id === dealId);
       if (deal) {
-        const announcement = `Deal '${deal.title}' moved to ${newStage}`;
+        const announcement = `Deal '${deal.title}' moved to ${newStage.name}`;
         
         // Create aria-live announcement
         const liveRegion = document.createElement('div');
@@ -92,19 +96,19 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
     }
   };
 
-  if (loading) {
+  if (loading || configLoading) {
     return (
       <div className="grid auto-cols-[280px] grid-flow-col gap-6 overflow-x-auto px-8 py-6">
-        {STAGES.map((stage) => (
-          <div key={stage.name} className="space-y-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-4">
             <div className="flex items-center gap-2">
               <Skeleton className="w-2 h-2 rounded-full" />
               <Skeleton className="h-4 w-20" />
               <Skeleton className="h-5 w-8" />
             </div>
             <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-24 w-full rounded-lg" />
+              {[1, 2, 3].map((j) => (
+                <Skeleton key={j} className="h-24 w-full rounded-lg" />
               ))}
             </div>
           </div>
@@ -125,16 +129,20 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
         onDragEnd={handleDragEnd}
       >
         <div className="grid auto-cols-[280px] grid-flow-col gap-6 overflow-x-auto px-8 py-6 h-full">
-          {STAGES.map((stage) => (
+          {visibleStages.map((stage) => (
             <SortableContext
-              key={stage.name}
-              id={stage.name}
-              items={getDealsByStage(stage.name).map(d => d.id)}
+              key={stage.id}
+              id={stage.id}
+              items={getDealsByStage(stage.id, stage.name).map(d => d.id)}
               strategy={verticalListSortingStrategy}
             >
               <StageColumn
-                stage={stage}
-                deals={getDealsByStage(stage.name)}
+                stage={{
+                  id: stage.id,
+                  name: stage.name,
+                  color: stage.color
+                }}
+                deals={getDealsByStage(stage.id, stage.name)}
                 onNewDeal={onNewDeal}
                 onDealClick={onDealClick}
               />

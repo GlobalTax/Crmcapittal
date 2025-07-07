@@ -3,6 +3,7 @@ export interface Deal {
   title: string;
   amount?: number;
   stage: string;
+  stage_id?: string; // Add stage_id for pipeline support
   probability: number;
   companyId?: string;
   ownerId?: string;

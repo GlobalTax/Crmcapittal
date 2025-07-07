@@ -8,6 +8,7 @@ import { Plus } from 'lucide-react';
 
 interface StageColumnProps {
   stage: {
+    id: string;
     name: string;
     color: string;
   };
@@ -18,7 +19,7 @@ interface StageColumnProps {
 
 export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({
-    id: stage.name,
+    id: stage.id,
   });
 
   return (
