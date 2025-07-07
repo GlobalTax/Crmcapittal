@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, FileText, Download, Eye, MoreVertical, Upload } from 'lucide-react';
+import { Plus, FileText, Download, Eye, MoreVertical, Upload, Wand2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useDealDocuments } from '@/hooks/useDealDocuments';
 import { DealDocumentUploader } from '../DealDocumentUploader';
+import { DocumentGeneratorDialog } from '../DocumentGeneratorDialog';
 import { DOCUMENT_CATEGORIES, DOCUMENT_STATUSES, DocumentCategory } from '@/types/DealDocument';
 
 interface DealDocumentsTabProps {
@@ -27,6 +28,7 @@ const formatFileSize = (bytes: number) => {
 
 export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [generatorDialogOpen, setGeneratorDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | 'all'>('all');
   
   const {
@@ -77,10 +79,21 @@ export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
             </TabsList>
           </Tabs>
         </div>
-        <Button size="sm" onClick={() => setUploadDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" />
-          Subir
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setGeneratorDialogOpen(true)}
+            className="flex items-center gap-2"
+          >
+            <Wand2 className="h-4 w-4" />
+            Generar Documento
+          </Button>
+          <Button size="sm" onClick={() => setUploadDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            Subir
+          </Button>
+        </div>
       </div>
 
       {/* Documents List */}
@@ -200,6 +213,13 @@ export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Document Generator Dialog */}
+      <DocumentGeneratorDialog
+        deal={deal}
+        open={generatorDialogOpen}
+        onOpenChange={setGeneratorDialogOpen}
+      />
     </div>
   );
 };
