@@ -30,7 +30,7 @@ export const useOptimizedLeads = (filters?: {
 
   // Process lead changes for notifications when leads data changes
   useEffect(() => {
-    if (leads.length > 0) {
+    if (leads && Array.isArray(leads) && leads.length > 0) {
       processLeadChanges(leads);
     }
   }, [leads, processLeadChanges]);

@@ -25,7 +25,7 @@ serve(async (req) => {
 
     const clientId = Deno.env.get('EINFORMA_CLIENT_ID');
     const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
-    const baseUrl = Deno.env.get('EINFORMA_BASE_URL');
+    const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://api.einforma.com';
 
     if (!clientId || !clientSecret || !baseUrl) {
       throw new Error('Missing eInforma credentials');
