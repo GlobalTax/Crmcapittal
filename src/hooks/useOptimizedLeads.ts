@@ -22,9 +22,9 @@ export const useOptimizedLeads = (filters?: {
   } = useOptimizedPolling({
     queryKey: cacheKey,
     queryFn: () => leadsService.fetchLeads(filters),
-    interval: 30000, // 30 seconds for lead control center
-    priority: 'high',
-    cacheTtl: 60000, // 1 minute cache
+    interval: 120000, // 2 minutes for lead control center (reduced from 30s)
+    priority: 'medium', // reduced from high
+    cacheTtl: 300000, // 5 minute cache (increased from 1m)
     enabled: true
   });
 
