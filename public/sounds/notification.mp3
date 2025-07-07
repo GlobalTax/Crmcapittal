@@ -1,0 +1,8 @@
+# This is a placeholder for notification sounds
+# In a real implementation, you would place actual audio files here:
+# - critical.mp3 (for critical notifications)
+# - important.mp3 (for important notifications) 
+# - info.mp3 (for informational notifications)
+# - success.mp3 (for success notifications)
+
+# For now, the system will gracefully handle missing sound files

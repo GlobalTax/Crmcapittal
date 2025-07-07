@@ -4,12 +4,14 @@ import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
 import * as leadsService from '@/services/leadsService';
 import { toast } from 'sonner';
 import { useOptimizedPolling } from './useOptimizedPolling';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 export const useOptimizedLeads = (filters?: {
   status?: LeadStatus;
   assigned_to_id?: string;
 }) => {
   const queryClient = useQueryClient();
+  const { processLeadChanges } = useNotifications();
   const cacheKey = `leads_${JSON.stringify(filters || {})}`;
 
   const {
@@ -25,6 +27,13 @@ export const useOptimizedLeads = (filters?: {
     cacheTtl: 60000, // 1 minute cache
     enabled: true
   });
+
+  // Process lead changes for notifications when leads data changes
+  useEffect(() => {
+    if (leads.length > 0) {
+      processLeadChanges(leads);
+    }
+  }, [leads, processLeadChanges]);
 
   const createMutation = useMutation({
     mutationFn: leadsService.createLead,

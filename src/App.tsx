@@ -7,6 +7,7 @@ import { AttioLayout } from '@/components/layout/AttioLayout';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
@@ -77,11 +78,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ErrorBoundary>
-          <Router>
-            <AppContent />
-          </Router>
-        </ErrorBoundary>
+        <NotificationProvider>
+          <ErrorBoundary>
+            <Router>
+              <AppContent />
+            </Router>
+          </ErrorBoundary>
+        </NotificationProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

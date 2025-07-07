@@ -11,6 +11,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 export const GlobalHeader = () => {
   const { user, signOut } = useAuth();
@@ -40,9 +41,7 @@ export const GlobalHeader = () => {
           Buscar
         </Button>
         
-        <Button variant="ghost" size="sm">
-          Notificaciones
-        </Button>
+        <NotificationCenter />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

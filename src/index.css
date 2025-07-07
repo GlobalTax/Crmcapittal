@@ -109,6 +109,18 @@
     animation: scaleIn 0.3s ease-out;
   }
 
+  .animate-notification-enter {
+    animation: notificationEnter 0.4s ease-out;
+  }
+
+  .animate-notification-exit {
+    animation: notificationExit 0.3s ease-in;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
   .hover-lift {
     transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   }
@@ -129,6 +141,23 @@
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Notification colors */
+  .notification-critical {
+    @apply border-l-destructive bg-destructive/5;
+  }
+
+  .notification-important {
+    @apply border-l-orange-500 bg-orange-50;
+  }
+
+  .notification-success {
+    @apply border-l-success bg-success/5;
+  }
+
+  .notification-info {
+    @apply border-l-primary bg-primary/5;
   }
 }
 
@@ -151,6 +180,39 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes notificationEnter {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes notificationExit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
   }
 }
 
