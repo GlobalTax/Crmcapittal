@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_configurations: {
+        Row: {
+          api_name: string
+          base_url: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_name: string
+          base_url: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_name?: string
+          base_url?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       buying_mandates: {
         Row: {
           client_contact: string
@@ -3134,6 +3164,42 @@ export type Database = {
           },
         ]
       }
+      security_logs: {
+        Row: {
+          created_at: string | null
+          description: string
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          severity: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       stages: {
         Row: {
           color: string | null
@@ -3926,31 +3992,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
-      obtener_token_integraloop: {
-        Args: Record<PropertyKey, never>
+      log_security_event: {
+        Args: {
+          p_event_type: string
+          p_severity: string
+          p_description: string
+          p_metadata?: Json
+          p_user_id?: string
+        }
         Returns: string
       }
-      sincronizar_clientes_quantum: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      sincronizar_cuentas_quantum: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      sincronizar_cuentas_quantum_final: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      sincronizar_empresas_quantum: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      sincronizar_impuestos_quantum: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      sincronizar_proveedores_quantum: {
+      sincronizar_cuentas_quantum_segura: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
