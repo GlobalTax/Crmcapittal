@@ -42,6 +42,7 @@ const navigationSections: NavSection[] = [
     items: [
       { to: '/deals', label: 'Oportunidades', icon: TrendingUp },
       { to: '/transacciones', label: 'Transacciones', icon: Briefcase },
+      { to: '/buying-mandates', label: 'Mandatos de Compra', icon: FileText },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
       { to: '/documents', label: 'Documentos', icon: FileText },
     ]
