@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useEmailTracking } from "@/hooks/useEmailTracking";
+import { useOpenAIAssistant } from "@/hooks/useOpenAIAssistant";
+import { useToast } from "@/hooks/use-toast";
 import { CreateTrackedEmailData } from "@/types/EmailTracking";
-import { Send, X } from "lucide-react";
+import { Send, X, Bot, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
@@ -61,6 +63,8 @@ export const EmailComposer = ({
 }: EmailComposerProps) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [formError, setFormError] = useState<string>('');
+  const [useAI, setUseAI] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
   const [formData, setFormData] = useState({
     recipient_email: recipientEmail,
     subject: "",
@@ -70,6 +74,8 @@ export const EmailComposer = ({
   });
 
   const { sendTrackedEmail, isSending } = useEmailTracking();
+  const { generateEmailWithAI, isLoading: isAILoading } = useOpenAIAssistant();
+  const { toast } = useToast();
 
   const handleTemplateSelect = (templateId: string) => {
     const template = emailTemplates.find(t => t.id === templateId);
@@ -81,6 +87,55 @@ export const EmailComposer = ({
       }));
     }
     setSelectedTemplate(templateId);
+  };
+
+  const handleGenerateWithAI = async () => {
+    if (!aiPrompt.trim()) {
+      setFormError('Describe qué tipo de email quieres generar');
+      return;
+    }
+
+    try {
+      const context = {
+        recipientName: recipientName || formData.recipient_email,
+        recipientEmail: formData.recipient_email,
+        lead_id,
+        contact_id,
+        target_company_id,
+        operation_id,
+        currentSubject: formData.subject,
+        currentContent: formData.content,
+        prompt: aiPrompt
+      };
+
+      const result = await generateEmailWithAI(aiPrompt, recipientName || 'Cliente', context);
+      
+      if (result.success && result.result) {
+        // Extraer asunto y contenido del resultado
+        const lines = result.result.split('\n');
+        const subjectLine = lines.find(line => line.toLowerCase().includes('asunto:'));
+        let subject = formData.subject;
+        let content = result.result;
+
+        if (subjectLine) {
+          subject = subjectLine.replace(/asunto:\s*/i, '').trim();
+          content = result.result.replace(subjectLine, '').trim();
+        }
+
+        setFormData(prev => ({
+          ...prev,
+          subject: subject || prev.subject,
+          content: content
+        }));
+
+        toast({
+          title: "🤖 Email generado con IA",
+          description: "El contenido ha sido generado automáticamente"
+        });
+      }
+    } catch (error) {
+      setFormError('Error generando email con IA');
+    }
   };
 
   const validateForm = () => {
@@ -165,22 +220,71 @@ export const EmailComposer = ({
         )}
         
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 space-y-4 overflow-hidden">
-          {/* Template Selector */}
-          <div>
-            <Label htmlFor="template">Plantilla</Label>
-            <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar plantilla (opcional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {emailTemplates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* AI vs Template Toggle */}
+          <div className="flex gap-2 mb-4">
+            <Button
+              type="button"
+              variant={useAI ? "default" : "outline"}
+              onClick={() => setUseAI(true)}
+              size="sm"
+            >
+              <Bot className="h-4 w-4 mr-2" />
+              Generar con IA
+            </Button>
+            <Button
+              type="button"
+              variant={!useAI ? "default" : "outline"}
+              onClick={() => setUseAI(false)}
+              size="sm"
+            >
+              Usar Plantilla
+            </Button>
           </div>
+
+          {useAI ? (
+            /* AI Email Generation */
+            <div className="space-y-3">
+              <Label htmlFor="ai-prompt">Describe el email que quieres generar</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="ai-prompt"
+                  placeholder="Ej: Email de seguimiento profesional para cerrar una operación M&A"
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleGenerateWithAI}
+                  disabled={isAILoading || !aiPrompt.trim()}
+                  size="sm"
+                >
+                  {isAILoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            /* Template Selector */
+            <div>
+              <Label htmlFor="template">Plantilla</Label>
+              <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar plantilla (opcional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {emailTemplates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>

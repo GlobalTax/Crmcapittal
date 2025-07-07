@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Send, Upload, AlertCircle, CheckCircle2, FileImage } from "lucide-react";
+import { Send, Upload, AlertCircle, CheckCircle2, FileImage, Bot, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Operation } from "@/types/Operation";
 import { useCSVProcessor } from "@/hooks/useCSVProcessor";
+import { useOpenAIAssistant } from "@/hooks/useOpenAIAssistant";
 import { OCRProcessor } from "./OCRProcessor";
 
 interface QuickDataChatProps {
@@ -21,10 +22,13 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [processingErrors, setProcessingErrors] = useState<string[]>([]);
   const [showOCR, setShowOCR] = useState(false);
+  const [useAI, setUseAI] = useState(true);
+  const [aiConfidence, setAiConfidence] = useState(0);
   const { toast } = useToast();
   const { processCSVText } = useCSVProcessor();
+  const { parseOperationsWithAI, isLoading: isAILoading } = useOpenAIAssistant();
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
     if (!input.trim()) {
       toast({
         title: "Error",
@@ -36,23 +40,47 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
 
     setIsProcessing(true);
     setProcessingErrors([]);
+    setAiConfidence(0);
     
     try {
-      const { operations, errors } = processCSVText(input);
+      let operations: Omit<Operation, "id" | "created_at" | "updated_at" | "created_by">[] = [];
+      let errors: string[] = [];
+
+      if (useAI) {
+        // Usar IA para procesamiento inteligente
+        const aiResult = await parseOperationsWithAI(input);
+        operations = aiResult.operations;
+        errors = aiResult.errors;
+        setAiConfidence(aiResult.confidence);
+
+        if (operations.length === 0 && errors.length === 0) {
+          // Fallback al procesamiento tradicional si IA no funciona
+          const csvResult = processCSVText(input);
+          operations = csvResult.operations;
+          errors = csvResult.errors;
+          errors.push("IA no disponible, usando procesamiento básico");
+        }
+      } else {
+        // Usar procesamiento tradicional
+        const csvResult = processCSVText(input);
+        operations = csvResult.operations;
+        errors = csvResult.errors;
+      }
       
       setProcessingErrors(errors);
       
       if (operations.length === 0) {
         toast({
           title: "No se detectaron operaciones",
-          description: "Verifica que el formato de los datos sea correcto",
+          description: useAI ? "Intenta describir las operaciones en texto libre o usa el formato CSV tradicional" : "Verifica que el formato de los datos sea correcto",
           variant: "destructive",
         });
       } else {
         setDetectedOperations(operations);
+        const successMessage = `Se detectaron ${operations.length} operaciones${useAI ? ` (confianza IA: ${Math.round(aiConfidence * 100)}%)` : ''}${errors.length > 0 ? ` (${errors.length} advertencias)` : ''}`;
         toast({
-          title: "Datos procesados",
-          description: `Se detectaron ${operations.length} operaciones${errors.length > 0 ? ` (${errors.length} errores)` : ''}`,
+          title: useAI ? "🤖 Procesado con IA" : "Datos procesados",
+          description: successMessage,
           variant: errors.length > 0 ? "destructive" : "default",
         });
       }
@@ -148,15 +176,27 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-            <Send className="h-4 w-4 sm:h-5 sm:w-5" />
-            Chat de Carga Rápida
+            {useAI ? <Bot className="h-4 w-4 sm:h-5 sm:w-5" /> : <Send className="h-4 w-4 sm:h-5 sm:w-5" />}
+            Chat de Carga Rápida {useAI && <Badge variant="secondary" className="text-xs">IA</Badge>}
           </CardTitle>
           <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-            Formato: Nombre Empresa, CIF, Sector, Tipo Operación, Importe, Moneda, Fecha, Comprador, Vendedor, Estado, Descripción, Ubicación, Email, Teléfono, Facturación, EBITDA, Nombre Proyecto
+            {useAI 
+              ? "Describe las operaciones en texto libre. La IA extraerá automáticamente los datos estructurados."
+              : "Formato CSV: Nombre Empresa, CIF, Sector, Tipo Operación, Importe, Moneda, Fecha, Comprador, Vendedor, Estado, Descripción, Ubicación, Email, Teléfono, Facturación, EBITDA, Nombre Proyecto"
+            }
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 flex-wrap mb-4">
+            <Button
+              variant={useAI ? "default" : "outline"}
+              onClick={() => setUseAI(!useAI)}
+              className="text-sm"
+              size="sm"
+            >
+              <Bot className="h-4 w-4 mr-2" />
+              {useAI ? 'IA Activada' : 'Activar IA'}
+            </Button>
             <Button
               variant="outline"
               onClick={() => setShowOCR(!showOCR)}
@@ -169,7 +209,10 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           </div>
 
           <Textarea
-            placeholder="Ejemplo: TechCorp SL, B12345678, Tecnología, sale, 5000000, EUR, 2024-01-15, Buyer Corp, TechCorp, available, Venta de empresa tech, Madrid, contact@tech.com, +34600123456, 3000000, 600000, Proyecto Alpha"
+            placeholder={useAI 
+              ? "Ejemplo IA: 'Hemos identificado tres operaciones interesantes este mes. TechCorp, una startup de inteligencia artificial en Madrid con 5M de facturación, busca vender el 70% por 25 millones. También Pharma Solutions está en proceso de fusión con una empresa alemana por 50M. Por último, RetailGroup quiere adquirir competidores en el sector textil con presupuesto de hasta 15M.'"
+              : "Ejemplo CSV: TechCorp SL, B12345678, Tecnología, sale, 5000000, EUR, 2024-01-15, Buyer Corp, TechCorp, available, Venta de empresa tech, Madrid, contact@tech.com, +34600123456, 3000000, 600000, Proyecto Alpha"
+            }
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="min-h-[100px] sm:min-h-[120px] font-mono text-xs sm:text-sm resize-none"
@@ -178,15 +221,17 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
           <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               onClick={handleProcess}
-              disabled={isProcessing || !input.trim()}
+              disabled={isProcessing || !input.trim() || (useAI && isAILoading)}
               className="flex-1 text-sm"
             >
-              {isProcessing ? (
+              {isProcessing || (useAI && isAILoading) ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+              ) : useAI ? (
+                <Zap className="h-4 w-4 mr-2" />
               ) : (
                 <Send className="h-4 w-4 mr-2" />
               )}
-              Procesar Datos
+              {useAI ? 'Procesar con IA' : 'Procesar Datos'}
             </Button>
             
             {detectedOperations.length > 0 && (
