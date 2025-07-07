@@ -3962,6 +3962,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_integraloop_config: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_quantum_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_highest_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -4002,7 +4010,27 @@ export type Database = {
         }
         Returns: string
       }
+      obtener_token_integraloop: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      set_environment_variables: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      sincronizar_clientes_quantum: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_cuentas_quantum: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       sincronizar_cuentas_quantum_segura: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      sincronizar_impuestos_quantum: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
