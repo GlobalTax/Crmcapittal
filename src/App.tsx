@@ -33,6 +33,7 @@ const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
 const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
+const MandatoDeCompraView = lazy(() => import('@/pages/MandatoDeCompraView'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 
@@ -260,6 +261,14 @@ function AppContent() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <BuyingMandates />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/buying-mandates/:mandateId" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <MandatoDeCompraView />
               </Suspense>
             } 
           />

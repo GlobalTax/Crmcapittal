@@ -14,7 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ImportFromCRMDialogProps {
   mandateId: string;
-  onImported: () => void;
+  onImported?: () => void;
+  trigger?: React.ReactNode;
 }
 
 interface Contact {
@@ -37,8 +38,12 @@ interface Company {
   company_size: string;
 }
 
-export const ImportFromCRMDialog = ({ mandateId, onImported }: ImportFromCRMDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const ImportFromCRMDialog = ({ 
+  mandateId, 
+  onImported = () => {},
+  trigger 
+}: ImportFromCRMDialogProps) => {
+  const [open, setOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [activeTab, setActiveTab] = useState('contacts');
   
@@ -86,11 +91,11 @@ export const ImportFromCRMDialog = ({ mandateId, onImported }: ImportFromCRMDial
   };
 
   useEffect(() => {
-    if (isOpen) {
+    if (open) {
       fetchContacts();
       fetchCompanies();
     }
-  }, [isOpen]);
+  }, [open]);
 
   const handleImport = async () => {
     if (selectedContacts.length === 0 && selectedCompanies.length === 0) {
@@ -111,7 +116,7 @@ export const ImportFromCRMDialog = ({ mandateId, onImported }: ImportFromCRMDial
         await importFromCompanies(mandateId, selectedCompanies);
       }
       
-      setIsOpen(false);
+      setOpen(false);
       setSelectedContacts([]);
       setSelectedCompanies([]);
       onImported();
@@ -145,13 +150,8 @@ export const ImportFromCRMDialog = ({ mandateId, onImported }: ImportFromCRMDial
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Download className="h-4 w-4 mr-2" />
-          Importar desde CRM
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Importar desde CRM</DialogTitle>
@@ -299,7 +299,7 @@ export const ImportFromCRMDialog = ({ mandateId, onImported }: ImportFromCRMDial
             Total seleccionados: {selectedContacts.length + selectedCompanies.length}
           </div>
           <div className="flex space-x-2">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
             <Button 

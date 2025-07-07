@@ -114,9 +114,13 @@ export const MandatesTable = ({ mandates, onViewTargets }: MandatesTableProps) =
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => window.location.href = `/buying-mandates/${mandate.id}`}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      Ver Detalle
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onViewTargets(mandate)}>
                       <Eye className="mr-2 h-4 w-4" />
-                      Ver Targets
+                      Ver Targets (Modal)
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => updateMandateStatus(mandate.id, 
