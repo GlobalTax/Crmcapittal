@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLeads } from "@/hooks/useLeads";
 import { usePersonalTasks } from "@/hooks/usePersonalTasks";
+import { FloatingLeadsWidget } from '@/components/leads/FloatingLeadsWidget';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { User, Briefcase, Mail, CheckCircle } from "lucide-react";
@@ -145,6 +146,9 @@ export default function MinimalPersonalDashboard() {
           </div>
         </div>
       </DashboardCard>
+      
+      {/* Floating Leads Widget */}
+      <FloatingLeadsWidget />
     </div>
   );
 }

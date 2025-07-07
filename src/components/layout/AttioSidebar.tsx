@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useLeads } from '@/hooks/useLeads';
 import { 
   LayoutDashboard, 
   Users, 
@@ -75,7 +76,16 @@ const adminSection: NavSection = {
 export function AttioSidebar() {
   const location = useLocation();
   const { role } = useUserRole();
+  const { leads } = useLeads();
   const isAdmin = role === 'admin' || role === 'superadmin';
+
+  // Count new leads that need attention
+  const newLeadsCount = leads.filter(lead => lead.status === 'NEW').length;
+  const todayLeadsCount = leads.filter(lead => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(lead.created_at) >= today;
+  }).length;
 
   const allSections = [...navigationSections, ...(isAdmin ? [adminSection] : [])];
 
@@ -117,10 +127,25 @@ export function AttioSidebar() {
                             : 'text-gray-600 hover:bg-neutral-0 hover:text-neutral-900'
                         }`
                       }
-                    >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">{item.label}</span>
-                    </NavLink>
+                     >
+                       <Icon className="w-4 h-4 flex-shrink-0" />
+                       <span className="truncate">{item.label}</span>
+                       {/* Show leads counter for Control Leads */}
+                       {item.to === '/' && (newLeadsCount > 0 || todayLeadsCount > 0) && (
+                         <div className="ml-auto flex gap-1">
+                           {newLeadsCount > 0 && (
+                             <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                               {newLeadsCount}
+                             </span>
+                           )}
+                           {todayLeadsCount > 0 && newLeadsCount !== todayLeadsCount && (
+                             <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                               {todayLeadsCount}
+                             </span>
+                           )}
+                         </div>
+                       )}
+                     </NavLink>
                   </li>
                 );
               })}
