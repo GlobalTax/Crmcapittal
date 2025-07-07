@@ -3,32 +3,19 @@ import { Deal } from '@/types/Deal';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FileText, Download, Eye, MoreVertical } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, FileText, Download, Eye, MoreVertical, Upload } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-
-interface Document {
-  id: string;
-  name: string;
-  type: string;
-  size: number;
-  uploaded_at: string;
-  uploaded_by: string;
-  category: 'contract' | 'presentation' | 'financial' | 'legal' | 'other';
-}
+import { useDealDocuments } from '@/hooks/useDealDocuments';
+import { DealDocumentUploader } from '../DealDocumentUploader';
+import { DOCUMENT_CATEGORIES, DOCUMENT_STATUSES, DocumentCategory } from '@/types/DealDocument';
 
 interface DealDocumentsTabProps {
   deal: Deal;
 }
-
-const DOCUMENT_CATEGORIES = {
-  contract: { label: 'Contrato', color: 'bg-blue-100 text-blue-600' },
-  presentation: { label: 'Presentación', color: 'bg-green-100 text-green-600' },
-  financial: { label: 'Financiero', color: 'bg-yellow-100 text-yellow-600' },
-  legal: { label: 'Legal', color: 'bg-purple-100 text-purple-600' },
-  other: { label: 'Otro', color: 'bg-gray-100 text-gray-600' }
-};
 
 const formatFileSize = (bytes: number) => {
   if (bytes === 0) return '0 Bytes';
@@ -39,69 +26,84 @@ const formatFileSize = (bytes: number) => {
 };
 
 export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
-  const [documents, setDocuments] = useState<Document[]>([
-    // Mock data - in real implementation, this would come from database
-    {
-      id: '1',
-      name: 'Contrato de Compraventa.pdf',
-      type: 'application/pdf',
-      size: 2048576,
-      uploaded_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-      uploaded_by: 'current-user',
-      category: 'contract'
-    },
-    {
-      id: '2',
-      name: 'Presentación Empresa.pptx',
-      type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      size: 5242880,
-      uploaded_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      uploaded_by: 'current-user',
-      category: 'presentation'
-    }
-  ]);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | 'all'>('all');
+  
+  const {
+    documents,
+    loading,
+    uploading,
+    uploadDocument,
+    updateDocumentStatus,
+    deleteDocument,
+    downloadDocument,
+    getDocumentsByCategory,
+    getDocumentCounts
+  } = useDealDocuments(deal.id);
 
-  const handleFileUpload = () => {
-    // Mock file upload - in real implementation, this would handle file upload
-    console.log('File upload functionality would be implemented here');
+  const documentCounts = getDocumentCounts();
+  const filteredDocuments = selectedCategory === 'all' 
+    ? documents 
+    : getDocumentsByCategory(selectedCategory);
+
+  const handleUpload = async (file: File, data: any) => {
+    await uploadDocument(file, data);
   };
 
-  const handleDownload = (document: Document) => {
-    // Mock download - in real implementation, this would download the file
-    console.log('Downloading:', document.name);
-  };
-
-  const handleView = (document: Document) => {
-    // Mock view - in real implementation, this would open/preview the file
-    console.log('Viewing:', document.name);
-  };
-
-  const handleDelete = (documentId: string) => {
-    setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h3 className="font-medium">Documentos</h3>
-        <Button size="sm" variant="outline" onClick={handleFileUpload}>
+      {/* Header with category filters */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h3 className="font-medium mb-2">Documentos</h3>
+          <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as DocumentCategory | 'all')}>
+            <TabsList className="grid grid-cols-4 lg:grid-cols-7 w-full">
+              <TabsTrigger value="all" className="text-xs">
+                Todos ({documents.length})
+              </TabsTrigger>
+              {Object.entries(DOCUMENT_CATEGORIES).map(([key, { label, icon }]) => (
+                <TabsTrigger key={key} value={key} className="text-xs">
+                  {icon} {label} ({documentCounts[key] || 0})
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+        <Button size="sm" onClick={() => setUploadDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-1" />
-          Subir Documento
+          Subir
         </Button>
       </div>
 
       {/* Documents List */}
       <ScrollArea className="h-[400px]">
         <div className="space-y-3">
-          {documents.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Cargando documentos...</p>
+            </div>
+          ) : filteredDocuments.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No hay documentos</p>
-              <p className="text-xs">Sube documentos relacionados con esta oportunidad</p>
+              <p className="text-xs">
+                {selectedCategory === 'all' 
+                  ? 'Sube documentos relacionados con esta oportunidad'
+                  : `No hay documentos de tipo ${DOCUMENT_CATEGORIES[selectedCategory as DocumentCategory]?.label}`
+                }
+              </p>
             </div>
           ) : (
-            documents.map((document) => (
+            filteredDocuments.map((document) => (
               <div
                 key={document.id}
                 className="flex items-start gap-3 p-4 rounded-lg border border-border bg-neutral-0 hover:bg-muted/50 transition-colors"
@@ -114,23 +116,35 @@ export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-medium text-sm text-foreground truncate">
-                        {document.name}
+                        {document.file_name}
                       </h4>
                       
                       <div className="flex items-center gap-2 mt-1">
                         <Badge 
                           variant="outline" 
-                          className={`text-xs ${DOCUMENT_CATEGORIES[document.category].color}`}
+                          className={`text-xs ${DOCUMENT_CATEGORIES[document.document_category].color}`}
                         >
-                          {DOCUMENT_CATEGORIES[document.category].label}
+                          {DOCUMENT_CATEGORIES[document.document_category].icon} {DOCUMENT_CATEGORIES[document.document_category].label}
+                        </Badge>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs ${DOCUMENT_STATUSES[document.document_status].color}`}
+                        >
+                          {DOCUMENT_STATUSES[document.document_status].label}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {formatFileSize(document.size)}
+                          {formatFileSize(document.file_size)}
                         </span>
                       </div>
                       
+                      {document.notes && (
+                        <p className="text-xs text-muted-foreground mt-1 italic">
+                          {document.notes}
+                        </p>
+                      )}
+                      
                       <p className="text-xs text-muted-foreground mt-1">
-                        Subido {formatDistanceToNow(new Date(document.uploaded_at), { 
+                        Subido {formatDistanceToNow(new Date(document.created_at), { 
                           addSuffix: true, 
                           locale: es 
                         })}
@@ -144,16 +158,20 @@ export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleView(document)}>
-                          <Eye className="h-4 w-4 mr-2" />
-                          Ver
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDownload(document)}>
+                        <DropdownMenuItem onClick={() => downloadDocument(document)}>
                           <Download className="h-4 w-4 mr-2" />
                           Descargar
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateDocumentStatus(document.id, 'sent')}>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Marcar como Enviado
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => updateDocumentStatus(document.id, 'signed')}>
+                          <FileText className="h-4 w-4 mr-2" />
+                          Marcar como Firmado
+                        </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={() => handleDelete(document.id)}
+                          onClick={() => deleteDocument(document.id)}
                           className="text-destructive"
                         >
                           <FileText className="h-4 w-4 mr-2" />
@@ -168,6 +186,20 @@ export const DealDocumentsTab = ({ deal }: DealDocumentsTabProps) => {
           )}
         </div>
       </ScrollArea>
+
+      {/* Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Subir Documento</DialogTitle>
+          </DialogHeader>
+          <DealDocumentUploader
+            onUpload={handleUpload}
+            uploading={uploading}
+            onClose={() => setUploadDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1326,6 +1326,54 @@ export type Database = {
         }
         Relationships: []
       }
+      deal_documents: {
+        Row: {
+          content_type: string | null
+          created_at: string
+          deal_id: string
+          document_category: string
+          document_status: string
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          notes: string | null
+          order_position: number | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          content_type?: string | null
+          created_at?: string
+          deal_id: string
+          document_category?: string
+          document_status?: string
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          notes?: string | null
+          order_position?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          content_type?: string | null
+          created_at?: string
+          deal_id?: string
+          document_category?: string
+          document_status?: string
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          notes?: string | null
+          order_position?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           close_date: string | null
