@@ -1,162 +1,265 @@
-import { useState, useEffect } from 'react';
+/**
+ * Monitor de Secretos en Tiempo Real
+ * 
+ * Componente de depuración para monitorear el estado de los secretos
+ */
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, CheckCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
-import { validateSecrets } from '@/utils/secretsManager';
-import { SERVICE_CONFIGS, generateSecretsDocumentation } from '@/utils/edgeFunctionHelpers';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Shield, 
+  AlertTriangle, 
+  CheckCircle, 
+  RefreshCw, 
+  Activity,
+  Wifi,
+  WifiOff 
+} from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { validateSecrets, isSecretConfigured } from '@/utils/secretsManager';
 
-interface SecretStatus {
-  key: string;
-  service: string;
-  required: boolean;
-  configured: boolean;
-  description: string;
+interface ServiceStatus {
+  name: string;
+  requiredSecrets: Array<{key: string, configured: boolean}>;
+  optionalSecrets: Array<{key: string, configured: boolean}>;
+  connectivity: { success: boolean, message: string };
 }
 
-export function SecretsMonitor() {
-  const [secrets, setSecrets] = useState<SecretStatus[]>([]);
-  const [showValues, setShowValues] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+interface SystemStats {
+  totalSecrets: number;
+  configuredSecrets: number;
+  configurationHealth: number;
+  connectedServices: number;
+  totalServices: number;
+  connectivityHealth: number;
+}
 
-  const checkSecrets = () => {
-    const documentation = generateSecretsDocumentation();
-    const validationErrors = validateSecrets();
-    
-    const secretStatuses: SecretStatus[] = [];
-    
-    documentation.services.forEach(service => {
-        [...service.required, ...service.optional].forEach(secretKey => {
-          // Verificar si el secreto está configurado comprobando las variables de entorno
-          const isConfigured = secretKey.startsWith('VITE_') 
-            ? !!import.meta.env[secretKey as keyof ImportMetaEnv]
-            : false; // Los secretos no-VITE no se pueden verificar desde el cliente
-            
-          secretStatuses.push({
-            key: secretKey,
-            service: service.service,
-            required: service.required.some(req => req === secretKey),
-            configured: isConfigured,
-            description: service.description,
-          });
-        });
-    });
+export const SecretsMonitor: React.FC = () => {
+  const [systemStatus, setSystemStatus] = useState<{
+    services: ServiceStatus[];
+    stats: SystemStats;
+    timestamp: string;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
-    setSecrets(secretStatuses);
-    setLastUpdate(new Date());
+  const fetchSystemStatus = async () => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.functions.invoke('secrets-manager', {
+        body: { action: 'status' }
+      });
+
+      if (error) throw error;
+
+      setSystemStatus(data);
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Error fetching system status:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runHealthCheck = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('secrets-manager', {
+        body: { action: 'health' }
+      });
+
+      if (error) throw error;
+      
+      return data;
+    } catch (error) {
+      console.error('Error running health check:', error);
+      return null;
+    }
   };
 
   useEffect(() => {
-    checkSecrets();
+    fetchSystemStatus();
+
+    let interval: NodeJS.Timeout | null = null;
     
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(checkSecrets, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    if (autoRefresh) {
+      interval = setInterval(fetchSystemStatus, 30000); // 30 segundos
+    }
 
-  const configuredCount = secrets.filter(s => s.configured).length;
-  const requiredCount = secrets.filter(s => s.required).length;
-  const requiredConfigured = secrets.filter(s => s.required && s.configured).length;
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [autoRefresh]);
 
-  if (!import.meta.env.DEV) {
-    return null; // Solo mostrar en desarrollo
+  const getHealthColor = (health: number) => {
+    if (health >= 0.8) return 'text-green-600';
+    if (health >= 0.6) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getHealthBg = (health: number) => {
+    if (health >= 0.8) return 'bg-green-500';
+    if (health >= 0.6) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  if (loading && !systemStatus) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center p-6">
+          <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+          <span>Cargando estado del sistema...</span>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <Card className="w-full max-w-4xl">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            🔒 Monitor de Secretos
-            <Badge variant={requiredConfigured === requiredCount ? "default" : "destructive"}>
-              {configuredCount}/{secrets.length} configurados
-            </Badge>
-          </CardTitle>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowValues(!showValues)}
-            >
-              {showValues ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              {showValues ? 'Ocultar' : 'Mostrar'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={checkSecrets}
-            >
-              <RefreshCw className="h-4 w-4 mr-1" />
-              Actualizar
-            </Button>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Última actualización: {lastUpdate.toLocaleTimeString()}
-        </p>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="space-y-4">
-          {Object.entries(SERVICE_CONFIGS).map(([serviceKey, serviceConfig]) => {
-            const serviceSecrets = secrets.filter(s => s.service === serviceConfig.name);
-            const serviceConfigured = serviceSecrets.filter(s => s.configured).length;
-            
-            return (
-              <div key={serviceKey} className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="font-medium">{serviceConfig.name}</h3>
-                    <p className="text-sm text-muted-foreground">{serviceConfig.description}</p>
-                  </div>
-                  <Badge variant={serviceConfigured === serviceSecrets.length ? "default" : "secondary"}>
-                    {serviceConfigured}/{serviceSecrets.length}
-                  </Badge>
-                </div>
-                
-                <div className="grid gap-2">
-                  {serviceSecrets.map(secret => (
-                    <div
-                      key={secret.key}
-                      className="flex items-center justify-between p-2 rounded bg-muted/30"
-                    >
-                      <div className="flex items-center gap-2">
-                        {secret.configured ? (
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <AlertCircle className="h-4 w-4 text-amber-500" />
-                        )}
-                        <code className="text-sm font-mono">{secret.key}</code>
-                        {secret.required && (
-                          <Badge variant="destructive">Requerido</Badge>
-                        )}
-                      </div>
-                      
-                      <div className="text-sm text-muted-foreground">
-                        {secret.configured ? '✓ Configurado' : '✗ Faltante'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Shield className="h-5 w-5" />
+          <h3 className="font-semibold">Monitor de Secretos</h3>
+          {lastUpdate && (
+            <span className="text-xs text-muted-foreground">
+              Actualizado: {lastUpdate.toLocaleTimeString()}
+            </span>
+          )}
         </div>
         
-        {requiredConfigured < requiredCount && (
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
-              <div>
-                <h4 className="font-medium text-amber-800">Secretos Requeridos Faltantes</h4>
-                <p className="text-sm text-amber-700 mt-1">
-                  Algunos secretos requeridos no están configurados. Esto puede causar errores en las funcionalidades correspondientes.
-                </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={autoRefresh ? 'bg-green-50 border-green-200' : ''}
+          >
+            <Activity className={`h-4 w-4 mr-1 ${autoRefresh ? 'text-green-600' : ''}`} />
+            Auto
+          </Button>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchSystemStatus}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
+          </Button>
+        </div>
+      </div>
+
+      {/* Estadísticas Generales */}
+      {systemStatus?.stats && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className={`text-xl font-bold ${getHealthColor(systemStatus.stats.configurationHealth)}`}>
+                  {Math.round(systemStatus.stats.configurationHealth * 100)}%
+                </div>
+                <div className="text-xs text-muted-foreground">Configuración</div>
+                <Progress 
+                  value={systemStatus.stats.configurationHealth * 100} 
+                  className="h-1 mt-1"
+                />
+              </div>
+              
+              <div className="text-center">
+                <div className={`text-xl font-bold ${getHealthColor(systemStatus.stats.connectivityHealth)}`}>
+                  {Math.round(systemStatus.stats.connectivityHealth * 100)}%
+                </div>
+                <div className="text-xs text-muted-foreground">Conectividad</div>
+                <Progress 
+                  value={systemStatus.stats.connectivityHealth * 100} 
+                  className="h-1 mt-1"
+                />
+              </div>
+              
+              <div className="text-center">
+                <div className="text-xl font-bold">
+                  {systemStatus.stats.configuredSecrets}/{systemStatus.stats.totalSecrets}
+                </div>
+                <div className="text-xs text-muted-foreground">Secretos</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-xl font-bold">
+                  {systemStatus.stats.connectedServices}/{systemStatus.stats.totalServices}
+                </div>
+                <div className="text-xs text-muted-foreground">Servicios</div>
               </div>
             </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Estado de Servicios */}
+      {systemStatus?.services && (
+        <div className="grid gap-3">
+          {systemStatus.services.map((service) => (
+            <Card key={service.name} className="p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <div className="font-medium text-sm">{service.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {service.requiredSecrets.filter(s => s.configured).length}/
+                      {service.requiredSecrets.length} requeridos
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {/* Estado de Configuración */}
+                  {service.requiredSecrets.every(s => s.configured) ? (
+                    <Badge variant="default" className="bg-green-100 text-green-800 border-green-200 text-xs">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Configurado
+                    </Badge>
+                  ) : (
+                    <Badge variant="destructive" className="text-xs">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Incompleto
+                    </Badge>
+                  )}
+                  
+                  {/* Estado de Conectividad */}
+                  {service.connectivity.success ? (
+                    <Wifi className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <WifiOff className="h-4 w-4 text-red-600" />
+                  )}
+                </div>
+              </div>
+              
+              {!service.connectivity.success && service.connectivity.message && (
+                <div className="mt-2 text-xs text-red-600">
+                  {service.connectivity.message}
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Debug Info */}
+      {import.meta.env.DEV && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription className="text-xs">
+            <strong>Modo Debug:</strong> Este monitor está activo solo en desarrollo.
+            Los datos se actualizan {autoRefresh ? 'automáticamente cada 30s' : 'manualmente'}.
+          </AlertDescription>
+        </Alert>
+      )}
+    </div>
   );
-}
+};

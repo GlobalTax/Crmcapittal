@@ -109,15 +109,30 @@ export const startSecretsMonitoring = () => {
  * Obtiene estadísticas del sistema de secretos
  */
 export const getSecretsStats = () => {
-  const totalSecrets = Object.keys(getSecret).length;
-  const configuredSecrets = Object.keys(getSecret).filter(key => isSecretConfigured(key)).length;
+  // Lista básica de secretos conocidos del sistema
+  const knownSecrets = [
+    'VITE_SUPABASE_URL',
+    'VITE_SUPABASE_ANON_KEY',
+    'VITE_CAPITAL_MARKET_API_KEY',
+    'VITE_WEBHOOK_SECRET_KEY',
+    'EINFORMA_CLIENT_ID',
+    'EINFORMA_CLIENT_SECRET',
+    'MICROSOFT_CLIENT_ID',
+    'MICROSOFT_CLIENT_SECRET',
+    'MICROSOFT_TENANT_ID',
+    'OPENAI_API_KEY',
+    'QUANTUM_API_TOKEN',
+    'INTEGRALOOP_SUBSCRIPTION_KEY'
+  ];
+  
+  const configuredSecrets = knownSecrets.filter(key => isSecretConfigured(key)).length;
   const errors = validateSecrets();
   
   return {
-    total: totalSecrets,
+    total: knownSecrets.length,
     configured: configuredSecrets,
-    missing: totalSecrets - configuredSecrets,
+    missing: knownSecrets.length - configuredSecrets,
     errors: errors.length,
-    configurationHealth: configuredSecrets / totalSecrets
+    configurationHealth: knownSecrets.length > 0 ? configuredSecrets / knownSecrets.length : 0
   };
 };
