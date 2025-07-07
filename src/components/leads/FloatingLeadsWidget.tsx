@@ -7,13 +7,19 @@ import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '@/contexts/NotificationContext';
 
 export const FloatingLeadsWidget = () => {
-  const { leads } = useOptimizedLeads({ status: 'NEW' });
+  const { leads = [], isLoading } = useOptimizedLeads({ status: 'NEW' });
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(true);
 
+  // Early return if still loading
+  if (isLoading) return null;
+
+  // Ensure leads is always an array
+  const safeLeads = Array.isArray(leads) ? leads : [];
+
   // Show widget if there are new leads OR unread notifications
-  if (!isVisible || (leads.length === 0 && unreadCount === 0)) return null;
+  if (!isVisible || (safeLeads.length === 0 && unreadCount === 0)) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-50 animate-notification-enter">
@@ -22,8 +28,8 @@ export const FloatingLeadsWidget = () => {
           <div className="flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-red-500 animate-pulse-glow" />
             <span className="font-medium text-red-700">Centro de Leads</span>
-            {leads.length > 0 && (
-              <Badge color="red">{leads.length}</Badge>
+            {safeLeads.length > 0 && (
+              <Badge color="red">{safeLeads.length}</Badge>
             )}
             {unreadCount > 0 && (
               <Badge color="yellow">{unreadCount} notif.</Badge>
@@ -38,17 +44,17 @@ export const FloatingLeadsWidget = () => {
           </Button>
         </div>
         
-        {leads.length > 0 && (
+        {safeLeads.length > 0 && (
           <div className="space-y-2 mb-3 max-h-32 overflow-y-auto">
-            {leads.slice(0, 3).map((lead) => (
+            {safeLeads.slice(0, 3).map((lead) => (
               <div key={lead.id} className="text-sm p-2 bg-red-50 rounded">
                 <div className="font-medium">{lead.name}</div>
                 <div className="text-gray-600 text-xs">{lead.email}</div>
               </div>
             ))}
-            {leads.length > 3 && (
+            {safeLeads.length > 3 && (
               <div className="text-xs text-gray-500 text-center">
-                +{leads.length - 3} más leads nuevos...
+                +{safeLeads.length - 3} más leads nuevos...
               </div>
             )}
           </div>
