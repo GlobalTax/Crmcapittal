@@ -66,9 +66,9 @@ const SECRET_CONFIGS: Record<string, SecretConfig> = {
 const getEnvVar = (key: string): string | undefined => {
   // En el cliente, usar import.meta.env para variables VITE_
   if (typeof window !== 'undefined') {
-    return (import.meta.env as any)[key];
+    return import.meta.env[key as keyof ImportMetaEnv];
   }
-  // En el servidor, usar process.env
+  // En el servidor, usar process.env (para Edge Functions)
   return (process?.env as any)?.[key];
 };
 
@@ -230,8 +230,10 @@ export const getCapitalMarketConfig = () => {
   };
 };
 
-// Validación inicial al cargar el módulo
-const errors = validateSecrets();
-if (errors.length > 0) {
-  secureLogger.warn('Secret validation errors found during initialization', { errors });
+// Validación inicial al cargar el módulo (solo en desarrollo)
+if (import.meta.env.DEV) {
+  const errors = validateSecrets();
+  if (errors.length > 0) {
+    secureLogger.warn('Secret validation errors found during initialization', { errors });
+  }
 }
