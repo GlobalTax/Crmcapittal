@@ -14,25 +14,38 @@ export const useOptimizedLeads = (filters?: {
   const { processLeadChanges } = useNotifications();
   const cacheKey = `leads_${JSON.stringify(filters || {})}`;
 
-  const {
-    data: leads = [],
-    loading: isLoading,
-    error,
-    refetch
-  } = useOptimizedPolling({
-    queryKey: cacheKey,
-    queryFn: async () => {
+  // Simplificar y usar fetch directo sin cache por ahora para diagnosticar
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
       console.log('🔍 [useOptimizedLeads] Fetching leads with filters:', filters);
       const result = await leadsService.fetchLeads(filters);
       console.log('✅ [useOptimizedLeads] Fetched leads result:', result?.length, 'leads');
       console.log('📋 [useOptimizedLeads] First few leads:', result?.slice(0, 3).map(l => ({ id: l.id, name: l.name, status: l.status })));
-      return result;
-    },
-    interval: 120000, // 2 minutes for lead control center (reduced from 30s)
-    priority: 'medium', // reduced from high
-    cacheTtl: 300000, // 5 minute cache (increased from 1m)
-    enabled: true
-  });
+      setLeads(result || []);
+      setError(null);
+    } catch (err) {
+      console.error('❌ [useOptimizedLeads] Error fetching leads:', err);
+      setError(err as Error);
+      setLeads([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refetch = () => {
+    console.log('🔄 [useOptimizedLeads] Manual refetch triggered');
+    return fetchData();
+  };
+
+  useEffect(() => {
+    console.log('🚀 [useOptimizedLeads] Initial fetch triggered');
+    fetchData();
+  }, [JSON.stringify(filters)]);
 
   // Process lead changes for notifications when leads data changes
   useEffect(() => {
