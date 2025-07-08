@@ -22,9 +22,10 @@ export const useOptimizedLeads = (filters?: {
   } = useOptimizedPolling({
     queryKey: cacheKey,
     queryFn: async () => {
-      console.log('Fetching leads with filters:', filters);
+      console.log('🔍 [useOptimizedLeads] Fetching leads with filters:', filters);
       const result = await leadsService.fetchLeads(filters);
-      console.log('Fetched leads result:', result?.length, 'leads');
+      console.log('✅ [useOptimizedLeads] Fetched leads result:', result?.length, 'leads');
+      console.log('📋 [useOptimizedLeads] First few leads:', result?.slice(0, 3).map(l => ({ id: l.id, name: l.name, status: l.status })));
       return result;
     },
     interval: 120000, // 2 minutes for lead control center (reduced from 30s)

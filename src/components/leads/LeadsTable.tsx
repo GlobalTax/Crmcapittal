@@ -127,10 +127,13 @@ export const LeadsTable = ({
     return lead.status === 'QUALIFIED';
   };
 
+  console.log('LeadsTable render - leads count:', leads?.length, 'isLoading:', isLoading);
+
   if (leads.length === 0 && !isLoading) {
     return (
       <div className="text-center py-8 text-gray-500">
         <p>No hay leads disponibles</p>
+        <p className="text-sm mt-2">Revisa los filtros aplicados o crea un nuevo lead</p>
       </div>
     );
   }

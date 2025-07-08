@@ -62,6 +62,8 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
     refetch
   } = useOptimizedLeads(filters);
 
+  console.log('LeadControlCenter - Total leads:', leads?.length, 'Filters applied:', filters);
+
   // Manual refresh with visual feedback
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -91,19 +93,32 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
 
   // Apply all filters
   const filteredLeads = getFilteredLeadsByDate(leads).filter(lead => {
+    console.log('Filtering lead:', lead.id, lead.name, 'Status:', lead.status, 'Source:', lead.source);
+    
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       const matchesSearch = 
         lead.name.toLowerCase().includes(query) ||
         lead.email.toLowerCase().includes(query) ||
         lead.company_name?.toLowerCase().includes(query);
-      if (!matchesSearch) return false;
+      if (!matchesSearch) {
+        console.log('Lead filtered out by search:', lead.name);
+        return false;
+      }
     }
     
-    if (sourceFilter !== 'all' && lead.source !== sourceFilter) return false;
-    // Only filter by priority if it's not 'all' and lead has a priority value
-    if (priorityFilter !== 'all' && lead.priority && lead.priority !== priorityFilter) return false;
+    if (sourceFilter !== 'all' && lead.source !== sourceFilter) {
+      console.log('Lead filtered out by source:', lead.name, 'Expected:', sourceFilter, 'Actual:', lead.source);
+      return false;
+    }
     
+    // Only filter by priority if it's not 'all' and lead has a priority value
+    if (priorityFilter !== 'all' && lead.priority && lead.priority !== priorityFilter) {
+      console.log('Lead filtered out by priority:', lead.name, 'Expected:', priorityFilter, 'Actual:', lead.priority);
+      return false;
+    }
+    
+    console.log('Lead passed all filters:', lead.name);
     return true;
   });
 
