@@ -34,17 +34,35 @@ export default function MandatoDeCompraView() {
   const mandateTargets = targets.filter(t => t.mandate_id === mandateId);
   const mandateDocuments = documents.filter(d => d.mandate_id === mandateId);
 
-  useEffect(() => {
-    fetchMandates();
-  }, []); // Solo ejecutar una vez al montar
+  // Control flag para evitar múltiples llamadas
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // Efecto para cargar mandatos una sola vez
   useEffect(() => {
-    if (mandateId) {
-      fetchTargets(mandateId);
-      fetchDocuments(mandateId);
+    if (!isInitialized) {
+      fetchMandates();
+      setIsInitialized(true);
     }
-  }, [mandateId]); // Solo depende de mandateId
+  }, [isInitialized]);
 
+  // Efecto para cargar datos del mandato específico
+  useEffect(() => {
+    if (mandateId && isInitialized) {
+      const loadMandateData = async () => {
+        try {
+          await Promise.all([
+            fetchTargets(mandateId),
+            fetchDocuments(mandateId)
+          ]);
+        } catch (error) {
+          console.error('Error loading mandate data:', error);
+        }
+      };
+      loadMandateData();
+    }
+  }, [mandateId, isInitialized]);
+
+  // Efecto para actualizar targets filtrados
   useEffect(() => {
     setFilteredTargets(mandateTargets);
   }, [mandateTargets]);

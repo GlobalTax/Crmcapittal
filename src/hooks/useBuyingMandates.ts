@@ -34,15 +34,17 @@ export const useBuyingMandates = () => {
       setMandates((data || []) as BuyingMandate[]);
     } catch (error) {
       console.error('Error fetching mandates:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los mandatos',
-        variant: 'destructive',
-      });
+      if (toast) {
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los mandatos',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   const fetchTargets = useCallback(async (mandateId?: string) => {
     setIsLoading(true);
@@ -62,15 +64,17 @@ export const useBuyingMandates = () => {
       setTargets((data || []) as MandateTarget[]);
     } catch (error) {
       console.error('Error fetching targets:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los targets',
-        variant: 'destructive',
-      });
+      if (toast) {
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los targets',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   const createMandate = async (mandateData: CreateBuyingMandateData) => {
     try {
@@ -274,13 +278,15 @@ export const useBuyingMandates = () => {
       setDocuments((data || []) as MandateDocument[]);
     } catch (error) {
       console.error('Error fetching documents:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los documentos',
-        variant: 'destructive',
-      });
+      if (toast) {
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los documentos',
+          variant: 'destructive',
+        });
+      }
     }
-  }, [toast]);
+  }, []);
 
   const uploadDocument = async (documentData: CreateMandateDocumentData) => {
     try {
