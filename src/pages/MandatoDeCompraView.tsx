@@ -34,12 +34,15 @@ export default function MandatoDeCompraView() {
   const mandateDocuments = documents.filter(d => d.mandate_id === mandateId);
 
   useEffect(() => {
+    fetchMandates();
+  }, [fetchMandates]);
+
+  useEffect(() => {
     if (mandateId) {
-      fetchMandates();
       fetchTargets(mandateId);
       fetchDocuments(mandateId);
     }
-  }, [mandateId]);
+  }, [mandateId, fetchTargets, fetchDocuments]);
 
   useEffect(() => {
     setFilteredTargets(mandateTargets);

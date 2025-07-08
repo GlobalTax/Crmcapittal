@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -22,7 +22,7 @@ export const useBuyingMandates = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const fetchMandates = async () => {
+  const fetchMandates = useCallback(async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -42,9 +42,9 @@ export const useBuyingMandates = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchTargets = async (mandateId?: string) => {
+  const fetchTargets = useCallback(async (mandateId?: string) => {
     setIsLoading(true);
     try {
       let query = supabase
@@ -70,7 +70,7 @@ export const useBuyingMandates = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const createMandate = async (mandateData: CreateBuyingMandateData) => {
     try {
@@ -196,7 +196,7 @@ export const useBuyingMandates = () => {
   };
 
   // Document management functions
-  const fetchDocuments = async (mandateId?: string, targetId?: string) => {
+  const fetchDocuments = useCallback(async (mandateId?: string, targetId?: string) => {
     try {
       let query = supabase
         .from('mandate_documents')
@@ -221,7 +221,7 @@ export const useBuyingMandates = () => {
         variant: 'destructive',
       });
     }
-  };
+  }, [toast]);
 
   const uploadDocument = async (documentData: CreateMandateDocumentData) => {
     try {
