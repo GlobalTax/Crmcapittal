@@ -3884,6 +3884,36 @@ export type Database = {
           },
         ]
       }
+      user_onboarding_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          step_data: Json | null
+          step_id: string
+          step_name: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          step_data?: Json | null
+          step_id: string
+          step_name: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          step_data?: Json | null
+          step_id?: string
+          step_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           company: string | null
@@ -3891,6 +3921,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          onboarding_complete: boolean | null
           phone: string | null
           updated_at: string
         }
@@ -3900,6 +3931,7 @@ export type Database = {
           first_name?: string | null
           id: string
           last_name?: string | null
+          onboarding_complete?: boolean | null
           phone?: string | null
           updated_at?: string
         }
@@ -3909,6 +3941,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          onboarding_complete?: boolean | null
           phone?: string | null
           updated_at?: string
         }

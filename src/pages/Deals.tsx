@@ -30,7 +30,7 @@ const Deals = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col" data-tour="deals-section">
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-border">
         <div className="flex-1">

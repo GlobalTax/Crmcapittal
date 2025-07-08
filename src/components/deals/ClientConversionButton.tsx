@@ -88,6 +88,7 @@ export const ClientConversionButton = ({
       disabled={buttonState.disabled}
       onClick={() => setDialogOpen(true)}
       className={validation?.isValid ? 'bg-success hover:bg-success/90 text-success-foreground' : ''}
+      data-tour="convert-to-client-button"
     >
       {buttonState.icon}
       {size !== 'sm' && <span className="ml-2">{buttonState.text}</span>}

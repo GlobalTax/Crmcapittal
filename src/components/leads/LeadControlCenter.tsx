@@ -236,7 +236,7 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="leads-section">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
