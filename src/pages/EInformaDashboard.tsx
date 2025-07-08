@@ -9,6 +9,7 @@ import { SearchIcon, TrendingUpIcon, BuildingIcon, AlertTriangleIcon, DollarSign
 import { EInformaMetricsCard } from '@/components/einforma/EInformaMetricsCard';
 import { EInformaUsageChart } from '@/components/einforma/EInformaUsageChart';
 import { EInformaQueryQueue } from '@/components/einforma/EInformaQueryQueue';
+import { EInformaBulkLookup } from '@/components/einforma/EInformaBulkLookup';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useCompanyLookup } from '@/hooks/useCompanyLookup';
 import { useEInformaDashboard } from '@/hooks/useEInformaDashboard';
@@ -147,8 +148,9 @@ export default function EInformaDashboard() {
 
       {/* Tabs principales */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Resumen</TabsTrigger>
+          <TabsTrigger value="bulk">Búsqueda Masiva</TabsTrigger>
           <TabsTrigger value="usage">Uso y Costes</TabsTrigger>
           <TabsTrigger value="queue">Cola de Consultas</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
@@ -271,6 +273,10 @@ export default function EInformaDashboard() {
               </Card>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="bulk">
+          <EInformaBulkLookup />
         </TabsContent>
 
         <TabsContent value="queue">
