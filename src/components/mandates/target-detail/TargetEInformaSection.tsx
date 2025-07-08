@@ -4,14 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Brain, Search, CheckCircle, AlertTriangle, Loader2, ExternalLink } from 'lucide-react';
+import { Brain, Search, CheckCircle, AlertTriangle, Loader2, ExternalLink, Clock, RefreshCw } from 'lucide-react';
 import { MandateTarget, MandateTargetEnrichment } from '@/types/BuyingMandate';
 
 interface TargetEInformaSectionProps {
   target: MandateTarget;
   enrichments: MandateTargetEnrichment[];
   isLoading: boolean;
-  onEnrich: (nif: string) => void;
+  onEnrich: (nif: string, forceUpdate?: boolean) => void;
 }
 
 export const TargetEInformaSection = ({ 
@@ -24,11 +24,38 @@ export const TargetEInformaSection = ({
   
   const latestEnrichment = enrichments[0];
   const enrichmentData = latestEnrichment?.enrichment_data;
+  
+  // Check if we have recent data
+  const hasEnrichments = enrichments.length > 0;
+  const lastEnrichmentDate = latestEnrichment ? new Date(latestEnrichment.enriched_at) : null;
+  const hoursAgo = lastEnrichmentDate ? Math.round((Date.now() - lastEnrichmentDate.getTime()) / (1000 * 60 * 60)) : 0;
+  const isRecent = hasEnrichments && hoursAgo < 24;
 
-  const handleEnrich = () => {
+  const handleEnrich = (forceUpdate = false) => {
     if (nif.trim()) {
-      onEnrich(nif.trim());
+      onEnrich(nif.trim(), forceUpdate);
     }
+  };
+
+  const getButtonText = () => {
+    if (isLoading) return 'Consultando...';
+    if (hasEnrichments) return isRecent ? 'Actualizar datos' : 'Consultar actualización';
+    return 'Consultar por primera vez';
+  };
+
+  const getStatusBadge = () => {
+    if (!hasEnrichments) return null;
+    
+    return (
+      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+        isRecent 
+          ? 'bg-green-100 text-green-800' 
+          : 'bg-yellow-100 text-yellow-800'
+      }`}>
+        <CheckCircle className="h-3 w-3" />
+        {isRecent ? '✅ Datos actualizados' : '⚠️ Datos antiguos'}
+      </div>
+    );
   };
 
   return (
@@ -36,10 +63,20 @@ export const TargetEInformaSection = ({
       {/* Search Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-blue-600" />
-            Consultar en eInforma
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-blue-600" />
+              Consultar en eInforma
+            </div>
+            {getStatusBadge()}
           </CardTitle>
+          {hasEnrichments && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              Última consulta: {lastEnrichmentDate?.toLocaleString('es-ES')}
+              {hoursAgo > 0 && ` (hace ${hoursAgo}h)`}
+            </div>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-2">
@@ -53,9 +90,9 @@ export const TargetEInformaSection = ({
                 className="mt-1"
               />
             </div>
-            <div className="flex items-end">
+            <div className="flex items-end gap-2">
               <Button 
-                onClick={handleEnrich}
+                onClick={() => handleEnrich(false)}
                 disabled={!nif.trim() || isLoading}
               >
                 {isLoading ? (
@@ -66,10 +103,21 @@ export const TargetEInformaSection = ({
                 ) : (
                   <>
                     <Search className="h-4 w-4 mr-2" />
-                    Consultar
+                    {getButtonText()}
                   </>
                 )}
               </Button>
+              {hasEnrichments && (
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEnrich(true)}
+                  disabled={!nif.trim() || isLoading}
+                  title="Forzar actualización ignorando consultas recientes"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
+              )}
             </div>
           </div>
           
@@ -78,6 +126,11 @@ export const TargetEInformaSection = ({
             <AlertDescription>
               Introduce el NIF/CIF oficial de {target.company_name} para obtener 
               información actualizada del Registro Mercantil y datos financieros.
+              {hasEnrichments && isRecent && (
+                <span className="block mt-1 text-green-700">
+                  ✅ Ya tienes datos recientes. Usa el botón de actualización si necesitas datos más actuales.
+                </span>
+              )}
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -155,15 +208,68 @@ export const TargetEInformaSection = ({
               </div>
             )}
 
-            {/* Financial Data */}
-            {(enrichmentData.capital || enrichmentData.revenue || enrichmentData.employees) && (
+            {/* Key Metrics Summary */}
+            {(enrichmentData.capital || enrichmentData.revenue || enrichmentData.employees || enrichmentData.cnae || enrichmentData.risk_score) && (
               <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Datos Financieros</h4>
+                <h4 className="font-medium mb-3 flex items-center gap-2">
+                  📊 Resumen Financiero
+                  <div className="flex-1 h-px bg-gray-200"></div>
+                </h4>
+                
+                {/* Key Financial Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {enrichmentData.revenue && (
+                    <div className="text-center p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="text-sm text-green-600 mb-1">💰 Ingresos Anuales</div>
+                      <div className="font-bold text-lg text-green-900">
+                        {new Intl.NumberFormat('es-ES', {
+                          style: 'currency',
+                          currency: 'EUR',
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(enrichmentData.revenue)}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {enrichmentData.ebitda && (
+                    <div className="text-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="text-sm text-blue-600 mb-1">📈 EBITDA</div>
+                      <div className="font-bold text-lg text-blue-900">
+                        {new Intl.NumberFormat('es-ES', {
+                          style: 'currency',
+                          currency: 'EUR',
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(enrichmentData.ebitda)}
+                      </div>
+                      {enrichmentData.revenue && (
+                        <div className="text-xs text-blue-700 mt-1">
+                          {((enrichmentData.ebitda / enrichmentData.revenue) * 100).toFixed(1)}% margen
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {enrichmentData.employees && (
+                    <div className="text-center p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                      <div className="text-sm text-purple-600 mb-1">👥 Empleados</div>
+                      <div className="font-bold text-lg text-purple-900">{enrichmentData.employees}</div>
+                      {enrichmentData.revenue && (
+                        <div className="text-xs text-purple-700 mt-1">
+                          {Math.round(enrichmentData.revenue / enrichmentData.employees).toLocaleString('es-ES')}€/empleado
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Additional Metrics Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {enrichmentData.capital && (
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <div className="text-sm text-blue-600 mb-1">Capital Social</div>
-                      <div className="font-bold text-blue-900">
+                    <div className="text-center p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                      <div className="text-sm text-gray-600 mb-1">🏦 Capital Social</div>
+                      <div className="font-bold text-gray-900">
                         {new Intl.NumberFormat('es-ES', {
                           style: 'currency',
                           currency: 'EUR',
@@ -173,41 +279,88 @@ export const TargetEInformaSection = ({
                     </div>
                   )}
                   
-                  {enrichmentData.revenue && (
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <div className="text-sm text-green-600 mb-1">Facturación</div>
-                      <div className="font-bold text-green-900">
-                        {new Intl.NumberFormat('es-ES', {
-                          style: 'currency',
-                          currency: 'EUR',
-                          minimumFractionDigits: 0,
-                        }).format(enrichmentData.revenue)}
-                      </div>
+                  {enrichmentData.cnae && (
+                    <div className="text-center p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                      <div className="text-sm text-indigo-600 mb-1">🏷️ CNAE</div>
+                      <div className="font-bold text-indigo-900">{enrichmentData.cnae}</div>
                     </div>
                   )}
                   
-                  {enrichmentData.employees && (
-                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <div className="text-sm text-purple-600 mb-1">Empleados</div>
-                      <div className="font-bold text-purple-900">{enrichmentData.employees}</div>
+                  {enrichmentData.founded_year && (
+                    <div className="text-center p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                      <div className="text-sm text-orange-600 mb-1">📅 Año Fundación</div>
+                      <div className="font-bold text-orange-900">{enrichmentData.founded_year}</div>
+                      <div className="text-xs text-orange-700 mt-1">
+                        {new Date().getFullYear() - enrichmentData.founded_year} años
+                      </div>
                     </div>
                   )}
                 </div>
+
+                {/* Risk Assessment */}
+                {enrichmentData.risk_score !== undefined && (
+                  <div className="mt-4 p-3 rounded-lg border" 
+                       style={{
+                         backgroundColor: enrichmentData.risk_score < 3 ? '#f0fdf4' : enrichmentData.risk_score < 7 ? '#fffbeb' : '#fef2f2',
+                         borderColor: enrichmentData.risk_score < 3 ? '#bbf7d0' : enrichmentData.risk_score < 7 ? '#fed7aa' : '#fecaca'
+                       }}>
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium">
+                        🎯 Nivel de Riesgo: {enrichmentData.risk_score}/10
+                      </div>
+                      <div className={`px-2 py-1 rounded text-xs font-medium ${
+                        enrichmentData.risk_score < 3 
+                          ? 'bg-green-200 text-green-800' 
+                          : enrichmentData.risk_score < 7 
+                            ? 'bg-yellow-200 text-yellow-800' 
+                            : 'bg-red-200 text-red-800'
+                      }`}>
+                        {enrichmentData.risk_score < 3 ? 'Bajo' : enrichmentData.risk_score < 7 ? 'Medio' : 'Alto'}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Source Info */}
-            <div className="border-t pt-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>Fuente: eInforma</span>
-                {latestEnrichment.confidence_score && (
-                  <span>• Confianza: {Math.round(latestEnrichment.confidence_score * 100)}%</span>
-                )}
+            {/* Data Completeness & Source */}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>📡 Fuente: eInforma</span>
+                  {latestEnrichment.confidence_score && (
+                    <span>• Confianza: {Math.round(latestEnrichment.confidence_score * 100)}%</span>
+                  )}
+                </div>
+                <Button variant="outline" size="sm">
+                  <ExternalLink className="h-3 w-3 mr-1" />
+                  Ver en eInforma
+                </Button>
               </div>
-              <Button variant="outline" size="sm">
-                <ExternalLink className="h-3 w-3 mr-1" />
-                Ver en eInforma
-              </Button>
+              
+              {/* Data Completeness Indicator */}
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Completitud de datos</span>
+                  <span className="text-sm text-muted-foreground">
+                    {Math.round(
+                      (Object.values(enrichmentData).filter(v => v !== null && v !== undefined && v !== '').length / 
+                       Object.keys(enrichmentData).length) * 100
+                    )}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full" 
+                    style={{
+                      width: `${Math.round(
+                        (Object.values(enrichmentData).filter(v => v !== null && v !== undefined && v !== '').length / 
+                         Object.keys(enrichmentData).length) * 100
+                      )}%`
+                    }}
+                  ></div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

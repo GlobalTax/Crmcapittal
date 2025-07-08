@@ -169,10 +169,67 @@ export const useTargetDetail = (targetId: string) => {
     }
   };
 
-  // Enrich target with eInforma
-  const enrichWithEInforma = async (nif: string) => {
-    setIsLoading(true);
+  // Check if target has previous enrichments
+  const checkPreviousEnrichments = useCallback(async (nif?: string) => {
+    if (!targetId) return { hasData: false, lastEnrichment: null };
+    
     try {
+      const { data, error } = await supabase
+        .from('mandate_target_enrichments')
+        .select('*')
+        .eq('target_id', targetId)
+        .order('enriched_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      const lastEnrichment = data?.[0];
+      
+      // Check if we have a recent enrichment (less than 24 hours) for the same NIF
+      if (lastEnrichment && nif) {
+        const enrichmentDate = new Date(lastEnrichment.enriched_at);
+        const hoursAgo = (Date.now() - enrichmentDate.getTime()) / (1000 * 60 * 60);
+        const enrichmentDataNif = (lastEnrichment.enrichment_data as any)?.nif;
+        const sameNif = enrichmentDataNif?.toUpperCase() === nif.toUpperCase();
+        
+        return {
+          hasData: true,
+          lastEnrichment,
+          isRecent: hoursAgo < 24 && sameNif,
+          hoursAgo: Math.round(hoursAgo)
+        };
+      }
+
+      return {
+        hasData: !!lastEnrichment,
+        lastEnrichment,
+        isRecent: false,
+        hoursAgo: lastEnrichment ? Math.round((Date.now() - new Date(lastEnrichment.enriched_at).getTime()) / (1000 * 60 * 60)) : 0
+      };
+    } catch (error) {
+      console.error('Error checking previous enrichments:', error);
+      return { hasData: false, lastEnrichment: null };
+    }
+  }, [targetId]);
+
+  // Enrich target with eInforma
+  const enrichWithEInforma = async (nif: string, forceUpdate = false) => {
+    setIsLoading(true);
+    
+    try {
+      // Check for previous enrichments unless forced
+      if (!forceUpdate) {
+        const enrichmentCheck = await checkPreviousEnrichments(nif);
+        if (enrichmentCheck.isRecent) {
+          toast({
+            title: 'Información',
+            description: `Ya se consultó este NIF hace ${enrichmentCheck.hoursAgo} horas. Los datos están actualizados.`,
+          });
+          setIsLoading(false);
+          return enrichmentCheck.lastEnrichment?.enrichment_data;
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke('company-lookup-einforma', {
         body: { nif }
       });
@@ -194,31 +251,56 @@ export const useTargetDetail = (targetId: string) => {
 
         if (saveError) throw saveError;
 
+        // Update target financial data if available
+        const updateData: any = {};
+        if (data.data.revenue) updateData.revenues = data.data.revenue;
+        if (data.data.ebitda) updateData.ebitda = data.data.ebitda;
+        if (data.data.business_sector) updateData.sector = data.data.business_sector;
+
+        if (Object.keys(updateData).length > 0) {
+          const { error: updateError } = await supabase
+            .from('mandate_targets')
+            .update(updateData)
+            .eq('id', targetId);
+
+          if (updateError) console.error('Error updating target data:', updateError);
+        }
+
         // Add activity for enrichment
         await addActivity({
           target_id: targetId,
           activity_type: 'einforma_enrichment',
           title: 'Datos enriquecidos con eInforma',
-          description: `Se obtuvieron datos actualizados de ${data.data.name}`,
+          description: `Se obtuvieron datos actualizados de ${data.data.name}${Object.keys(updateData).length > 0 ? ' y se sincronizaron los campos financieros' : ''}`,
           activity_data: {
             source: 'einforma',
             company_name: data.data.name,
             nif: nif,
+            updated_fields: Object.keys(updateData),
+            force_update: forceUpdate
           }
         });
 
         await fetchEnrichments();
         
+        // Show detailed success message
+        const financialData = [];
+        if (data.data.revenue) financialData.push(`Ingresos: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(data.data.revenue)}`);
+        if (data.data.ebitda) financialData.push(`EBITDA: ${new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(data.data.ebitda)}`);
+        if (data.data.business_sector) financialData.push(`Sector: ${data.data.business_sector}`);
+        
         toast({
-          title: 'Éxito',
-          description: 'Datos de eInforma actualizados correctamente',
+          title: 'Datos de eInforma actualizados',
+          description: financialData.length > 0 
+            ? `${data.data.name} - ${financialData.slice(0, 2).join(', ')}${financialData.length > 2 ? '...' : ''}`
+            : `Datos básicos de ${data.data.name} actualizados`,
         });
 
         return data.data;
       } else {
         toast({
-          title: 'Información',
-          description: 'No se encontraron datos adicionales en eInforma',
+          title: 'Sin resultados',
+          description: 'No se encontraron datos para este NIF en eInforma',
         });
       }
     } catch (error) {
@@ -289,6 +371,7 @@ export const useTargetDetail = (targetId: string) => {
     addFollowup,
     completeFollowup,
     enrichWithEInforma,
+    checkPreviousEnrichments,
     generateNDA,
   };
 };

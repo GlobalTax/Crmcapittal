@@ -142,7 +142,7 @@ export const TargetDetailPanel = ({
                 onAddActivity={addActivity}
                 onAddFollowup={addFollowup}
                 onGenerateNDA={generateNDA}
-                onEnrichWithEInforma={enrichWithEInforma}
+                onEnrichWithEInforma={(nif) => enrichWithEInforma(nif, false)}
               />
 
               {/* Pending Followups */}
