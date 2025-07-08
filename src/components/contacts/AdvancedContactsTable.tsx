@@ -10,9 +10,7 @@ import { Contact } from "@/types/Contact";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ColumnEditorModal } from "./ColumnEditorModal";
 import { SavedViewsSelector } from "./SavedViewsSelector";
-import { AdvancedFiltersPanel } from "./AdvancedFiltersPanel";
 import { InlineEditCell } from "./InlineEditCell";
 
 interface Column {
@@ -507,22 +505,7 @@ export function AdvancedContactsTable({
         </Table>
       </div>
 
-      {/* Column Editor Modal */}
-      <ColumnEditorModal
-        open={showColumnEditor}
-        onOpenChange={setShowColumnEditor}
-        columns={columns}
-        onColumnsChange={handleColumnChange}
-      />
-
-      {/* Advanced Filters Panel */}
-      <AdvancedFiltersPanel
-        open={showAdvancedFilters}
-        onOpenChange={setShowAdvancedFilters}
-        filters={filters}
-        onFiltersChange={setFilters}
-        columns={columns}
-      />
+      {/* TODO: Re-implement Column Editor and Advanced Filters */}
     </div>
   );
 }

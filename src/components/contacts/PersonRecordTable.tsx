@@ -8,6 +8,8 @@ import { Users, ChevronDown, Filter, Settings, Plus } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Contact } from '@/types/Contact';
 import { EmptyStateSmall } from '@/components/ui/EmptyStateSmall';
+import { cleanTestContacts, createSampleContacts } from '@/utils/cleanTestData';
+import { useToast } from '@/hooks/use-toast';
 
 interface PersonRecordTableProps {
   contacts: Contact[];
@@ -29,8 +31,10 @@ export const PersonRecordTable = ({
   isLoading
 }: PersonRecordTableProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [savedView, setSavedView] = useState('Recently Contacted People');
+  const [isCleaningData, setIsCleaningData] = useState(false);
 
   const handleRowClick = (contact: Contact) => {
     navigate(`/contacts/${contact.id}`);
@@ -125,12 +129,22 @@ export const PersonRecordTable = ({
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={onFilter}>
             <Filter className="h-4 w-4 mr-1" />
-            Filter
+            Filtros
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={() => console.log('Configurar columnas')}>
             <Settings className="h-4 w-4 mr-1" />
-            View settings
+            Ver columnas
           </Button>
+          {contacts.length > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleCleanData}
+              disabled={isCleaningData}
+            >
+              {isCleaningData ? 'Limpiando...' : 'Limpiar datos'}
+            </Button>
+          )}
           <Button onClick={onCreateContact}>
             + New person
           </Button>
@@ -147,7 +161,7 @@ export const PersonRecordTable = ({
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Connection strength</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Last email interaction</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Last calendar interaction</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">+ Add column</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -203,8 +217,16 @@ export const PersonRecordTable = ({
                     <div className="text-sm">—</div>
                   </td>
                   <td className="p-3">
-                    <Button variant="ghost" size="sm" className="h-6 px-2">
-                      <Plus className="h-3 w-3" />
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRowClick?.(contact);
+                      }}
+                      className="h-6 px-2"
+                    >
+                      Ver
                     </Button>
                   </td>
                 </tr>
@@ -216,8 +238,52 @@ export const PersonRecordTable = ({
 
       {/* Footer */}
       <div className="flex items-center justify-between p-4 border-t border-border text-sm text-muted-foreground">
-        <div>{totalCount} people</div>
+        <div>{totalCount} personas</div>
       </div>
     </div>
   );
+
+  async function handleCleanData() {
+    if (!window.confirm('¿Estás seguro de que quieres limpiar los datos de prueba? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    setIsCleaningData(true);
+    try {
+      const cleanedCount = await cleanTestContacts();
+      
+      if (cleanedCount > 0) {
+        toast({
+          title: 'Datos limpiados',
+          description: `Se eliminaron ${cleanedCount} contactos de prueba.`,
+        });
+        
+        // Optionally create sample contacts
+        if (window.confirm('¿Quieres crear contactos de ejemplo realistas?')) {
+          await createSampleContacts();
+          toast({
+            title: 'Contactos de ejemplo creados',
+            description: 'Se han añadido contactos de ejemplo con datos realistas.',
+          });
+        }
+        
+        // Refresh the page to show changes
+        window.location.reload();
+      } else {
+        toast({
+          title: 'No hay datos para limpiar',
+          description: 'No se encontraron contactos de prueba para eliminar.',
+        });
+      }
+    } catch (error) {
+      console.error('Error cleaning data:', error);
+      toast({
+        title: 'Error',
+        description: 'Hubo un problema al limpiar los datos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsCleaningData(false);
+    }
+  }
 };
