@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,38 +34,54 @@ export default function MandatoDeCompraView() {
   const mandateTargets = targets.filter(t => t.mandate_id === mandateId);
   const mandateDocuments = documents.filter(d => d.mandate_id === mandateId);
 
-  // Control flag para evitar múltiples llamadas
-  const [isInitialized, setIsInitialized] = useState(false);
+  // Referencias para evitar dependencias circulares
+  const initialized = useRef(false);
+  const loadingData = useRef(false);
+  const currentMandateId = useRef<string | undefined>(undefined);
 
-  // Efecto para cargar mandatos una sola vez
-  useEffect(() => {
-    if (!isInitialized) {
-      fetchMandates();
-      setIsInitialized(true);
+  // Función consolidada para cargar datos
+  const loadMandateData = useRef(async (mandateIdToLoad: string) => {
+    if (loadingData.current) return;
+    
+    loadingData.current = true;
+    try {
+      console.log('🔄 Loading mandate data for:', mandateIdToLoad);
+      await Promise.all([
+        fetchTargets(mandateIdToLoad),
+        fetchDocuments(mandateIdToLoad)
+      ]);
+    } catch (error) {
+      console.error('❌ Error loading mandate data:', error);
+    } finally {
+      loadingData.current = false;
     }
-  }, [isInitialized]);
+  });
 
-  // Efecto para cargar datos del mandato específico
+  // Efecto único y estable para inicialización y carga de datos
   useEffect(() => {
-    if (mandateId && isInitialized) {
-      const loadMandateData = async () => {
-        try {
-          await Promise.all([
-            fetchTargets(mandateId),
-            fetchDocuments(mandateId)
-          ]);
-        } catch (error) {
-          console.error('Error loading mandate data:', error);
-        }
-      };
-      loadMandateData();
-    }
-  }, [mandateId, isInitialized]);
+    const initializeAndLoad = async () => {
+      // Solo inicializar una vez
+      if (!initialized.current) {
+        console.log('🚀 Initializing mandates...');
+        await fetchMandates();
+        initialized.current = true;
+      }
 
-  // Efecto para actualizar targets filtrados
+      // Cargar datos específicos del mandato si cambió
+      if (mandateId && mandateId !== currentMandateId.current && initialized.current) {
+        console.log('📋 Loading data for mandate:', mandateId);
+        currentMandateId.current = mandateId;
+        await loadMandateData.current(mandateId);
+      }
+    };
+
+    initializeAndLoad();
+  }, [mandateId]); // Solo depende de mandateId
+
+  // Efecto separado y estable para filtros
   useEffect(() => {
     setFilteredTargets(mandateTargets);
-  }, [mandateTargets]);
+  }, [mandateTargets.length]); // Solo depende de la longitud del array
 
   const handleFilterTargets = (filtered: MandateTarget[]) => {
     setFilteredTargets(filtered);
@@ -175,7 +191,9 @@ export default function MandatoDeCompraView() {
         <div className="flex flex-col sm:flex-row gap-2">
           <ImportFromCRMDialog 
             mandateId={mandateId!}
-            onImported={() => fetchTargets(mandateId!)}
+            onImported={() => {
+              if (mandateId) loadMandateData.current(mandateId);
+            }}
             trigger={
               <Button variant="outline">
                 <Upload className="h-4 w-4 mr-2" />
@@ -216,9 +234,11 @@ export default function MandatoDeCompraView() {
         onOpenChange={setShowTargetDetail}
         onTargetUpdate={(updatedTarget) => {
           setSelectedTarget(updatedTarget);
-          fetchTargets(mandateId!);
+          if (mandateId) loadMandateData.current(mandateId);
         }}
-        onDocumentUploaded={() => fetchDocuments(mandateId!)}
+        onDocumentUploaded={() => {
+          if (mandateId) loadMandateData.current(mandateId);
+        }}
       />
     </div>
   );
