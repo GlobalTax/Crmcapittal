@@ -2363,6 +2363,7 @@ export type Database = {
           location: string | null
           mandate_id: string
           notes: string | null
+          responsible_user_id: string | null
           revenues: number | null
           sector: string | null
           status: string | null
@@ -2383,6 +2384,7 @@ export type Database = {
           location?: string | null
           mandate_id: string
           notes?: string | null
+          responsible_user_id?: string | null
           revenues?: number | null
           sector?: string | null
           status?: string | null
@@ -2403,6 +2405,7 @@ export type Database = {
           location?: string | null
           mandate_id?: string
           notes?: string | null
+          responsible_user_id?: string | null
           revenues?: number | null
           sector?: string | null
           status?: string | null
