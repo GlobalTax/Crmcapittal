@@ -78,20 +78,50 @@ export const useBuyingMandates = () => {
   }, []);
 
   const createMandate = async (mandateData: CreateBuyingMandateData) => {
+    console.log('🚀 [useBuyingMandates] createMandate iniciado');
+    console.log('📋 [useBuyingMandates] mandateData:', mandateData);
+    
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Usuario no autenticado');
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('❌ [useBuyingMandates] Error de autenticación:', authError);
+        throw new Error('Error de autenticación: ' + authError.message);
+      }
+      
+      if (!user) {
+        console.error('❌ [useBuyingMandates] Usuario no autenticado');
+        throw new Error('Usuario no autenticado');
+      }
+
+      console.log('👤 [useBuyingMandates] Usuario autenticado:', user.id);
+
+      const insertData = {
+        ...mandateData,
+        created_by: user.id,
+      };
+
+      console.log('📤 [useBuyingMandates] Datos a insertar:', insertData);
 
       const { data, error } = await supabase
         .from('buying_mandates')
-        .insert({
-          ...mandateData,
-          created_by: user.id,
-        })
-        .select()
+        .insert(insertData)
+        .select('*')
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [useBuyingMandates] Error de Supabase al insertar mandato:', error);
+        console.error('❌ [useBuyingMandates] Error completo:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          insertData: insertData
+        });
+        throw new Error(`Error de base de datos: ${error.message}`);
+      }
+
+      console.log('✅ [useBuyingMandates] Mandato creado exitosamente:', data);
 
       toast({
         title: 'Éxito',
@@ -100,11 +130,14 @@ export const useBuyingMandates = () => {
 
       await fetchMandates();
       return data;
-    } catch (error) {
-      console.error('Error creating mandate:', error);
+    } catch (error: any) {
+      console.error('💥 [useBuyingMandates] Error creating mandate:', error);
+      
+      let errorMessage = error.message || 'No se pudo crear el mandato';
+      
       toast({
-        title: 'Error',
-        description: 'No se pudo crear el mandato',
+        title: 'Error al crear mandato',
+        description: errorMessage,
         variant: 'destructive',
       });
       throw error;
@@ -122,13 +155,46 @@ export const useBuyingMandates = () => {
       
       if (authError) {
         console.error('❌ [useBuyingMandates] Error de autenticación:', authError);
-        throw authError;
+        throw new Error('Error de autenticación: ' + authError.message);
       }
       
       if (!user) {
         console.error('❌ [useBuyingMandates] Usuario no autenticado');
         throw new Error('Usuario no autenticado');
       }
+
+      // Verificar rol del usuario para debugging
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+      
+      console.log('🔐 [useBuyingMandates] Roles del usuario:', userRoles);
+
+      // Verificar que mandate_id existe y el usuario tiene acceso
+      console.log('🔍 [useBuyingMandates] Verificando mandato:', targetData.mandate_id);
+      const { data: mandate, error: mandateError } = await supabase
+        .from('buying_mandates')
+        .select('id, created_by, client_name')
+        .eq('id', targetData.mandate_id)
+        .single();
+
+      if (mandateError) {
+        console.error('❌ [useBuyingMandates] Error al verificar mandato:', mandateError);
+        throw new Error('Error al verificar el mandato: ' + mandateError.message);
+      }
+
+      if (!mandate) {
+        console.error('❌ [useBuyingMandates] Mandato no encontrado');
+        throw new Error('El mandato especificado no existe');
+      }
+
+      console.log('✅ [useBuyingMandates] Mandato verificado:', {
+        id: mandate.id,
+        created_by: mandate.created_by,
+        current_user: user.id,
+        client_name: mandate.client_name
+      });
 
       // Preparar datos para inserción
       const insertData = {
@@ -138,36 +204,33 @@ export const useBuyingMandates = () => {
       
       console.log('📤 [useBuyingMandates] Datos a insertar:', insertData);
 
-      // Verificar que mandate_id existe
-      const { data: mandate, error: mandateError } = await supabase
-        .from('buying_mandates')
-        .select('id')
-        .eq('id', targetData.mandate_id)
-        .single();
-
-      if (mandateError || !mandate) {
-        console.error('❌ [useBuyingMandates] Mandato no encontrado:', mandateError);
-        throw new Error('El mandato especificado no existe');
-      }
-
-      console.log('✅ [useBuyingMandates] Mandato verificado:', mandate.id);
-
-      // Insertar target
+      // Insertar target con manejo mejorado de errores
       const { data, error } = await supabase
         .from('mandate_targets')
         .insert(insertData)
-        .select()
+        .select('*')
         .single();
 
       if (error) {
-        console.error('❌ [useBuyingMandates] Error de Supabase:', error);
-        console.error('❌ [useBuyingMandates] Error details:', {
+        console.error('❌ [useBuyingMandates] Error de Supabase al insertar:', error);
+        console.error('❌ [useBuyingMandates] Error completo:', {
           code: error.code,
           message: error.message,
           details: error.details,
-          hint: error.hint
+          hint: error.hint,
+          insertData: insertData
         });
-        throw error;
+        
+        // Análisis específico del error
+        if (error.code === '42501') {
+          throw new Error('Sin permisos para crear targets. Contacte al administrador.');
+        } else if (error.code === '23505') {
+          throw new Error('Ya existe un target con esa información.');
+        } else if (error.message?.includes('row-level security')) {
+          throw new Error('Política de seguridad bloqueó la operación.');
+        } else {
+          throw new Error(`Error de base de datos: ${error.message}`);
+        }
       }
 
       console.log('✅ [useBuyingMandates] Target creado exitosamente:', data);
@@ -183,20 +246,10 @@ export const useBuyingMandates = () => {
     } catch (error: any) {
       console.error('💥 [useBuyingMandates] Error creating target:', error);
       
-      let errorMessage = 'No se pudo crear el target';
-      
-      if (error.message?.includes('autenticado')) {
-        errorMessage = 'Error de autenticación. Por favor, inicia sesión nuevamente.';
-      } else if (error.message?.includes('row-level security')) {
-        errorMessage = 'Sin permisos para crear targets en este mandato.';
-      } else if (error.code === '23505') {
-        errorMessage = 'Ya existe un target con esa información.';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
+      let errorMessage = error.message || 'No se pudo crear el target';
       
       toast({
-        title: 'Error',
+        title: 'Error al crear target',
         description: errorMessage,
         variant: 'destructive',
       });
