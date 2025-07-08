@@ -41,5 +41,4 @@ export interface CollaboratorCommission {
   paid_at?: string;
   notes?: string;
   created_at: string;
-  updated_at: string;
-}
+  updated_at: string;}

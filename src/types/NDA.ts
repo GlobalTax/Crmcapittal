@@ -21,5 +21,4 @@ export interface CreateNDAData {
   nda_type: 'bilateral' | 'unilateral';
   terms_and_conditions?: string;
   expires_at?: string;
-  notes?: string;
-}
+  notes?: string;}

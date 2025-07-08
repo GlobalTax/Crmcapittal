@@ -341,5 +341,4 @@ export const NegocioTasks = ({ negocio }: NegocioTasksProps) => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  );};

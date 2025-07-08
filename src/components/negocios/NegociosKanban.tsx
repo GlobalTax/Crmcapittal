@@ -105,5 +105,4 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: Nego
         </div>
       </DragDropContext>
     </div>
-  );
-};
+  );};

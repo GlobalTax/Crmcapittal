@@ -158,5 +158,4 @@ export const KanbanTask = ({ negocio, index, onEdit, onView }: KanbanTaskProps) 
         </div>
       )}
     </Draggable>
-  );
-};
+  );};

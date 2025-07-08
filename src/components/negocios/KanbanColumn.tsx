@@ -83,5 +83,4 @@ export const KanbanColumn = ({ stage, negocios, onEdit, onView }: KanbanColumnPr
         )}
       </Droppable>
     </div>
-  );
-};
+  );};

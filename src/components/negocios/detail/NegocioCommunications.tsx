@@ -356,5 +356,4 @@ export const NegocioCommunications = ({ negocio }: NegocioCommunicationsProps) =
         )}
       </CardContent>
     </Card>
-  );
-};
+  );};

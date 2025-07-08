@@ -186,5 +186,4 @@ export const MetricsBar = ({ negocios, stages }: MetricsBarProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  );};

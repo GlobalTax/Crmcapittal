@@ -29,5 +29,4 @@ export const NegociosViewToggle = ({ currentView, onViewChange }: NegociosViewTo
         Pipeline
       </Button>
     </div>
-  );
-};
+  );};

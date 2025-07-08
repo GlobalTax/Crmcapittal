@@ -299,5 +299,4 @@ export const ActivityTimeline = ({ negocio }: ActivityTimelineProps) => {
         )}
       </CardContent>
     </Card>
-  );
-};
+  );};

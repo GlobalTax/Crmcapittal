@@ -354,5 +354,4 @@ export const NegocioBuyers = ({ negocio }: NegocioBuyersProps) => {
         )}
       </CardContent>
     </Card>
-  );
-};
+  );};

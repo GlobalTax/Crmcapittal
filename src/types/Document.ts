@@ -32,5 +32,4 @@ export interface DocumentVariable {
   type: 'text' | 'number' | 'date' | 'select';
   value?: string | number;
   options?: string[];
-  required?: boolean;
-}
+  required?: boolean;}

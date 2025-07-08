@@ -260,5 +260,4 @@ export const NegocioDocuments = ({ negocio }: NegocioDocumentsProps) => {
         )}
       </CardContent>
     </Card>
-  );
-};
+  );};

@@ -22,5 +22,4 @@ export const MetricCard = ({ label, value, color = "" }: MetricCardProps) => {
         {value}
       </span>
     </div>
-  );
-};
+  );};

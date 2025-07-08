@@ -202,5 +202,4 @@ export const NegocioDetailsDialog = ({ negocio, open, onOpenChange, onEdit }: Ne
         </div>
       </DialogContent>
     </Dialog>
-  );
-};
+  );};
