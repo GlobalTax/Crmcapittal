@@ -204,6 +204,23 @@ export const useBuyingMandates = () => {
       
       console.log('📤 [useBuyingMandates] Datos a insertar:', insertData);
 
+      // Test RLS by checking if user can access targets first
+      console.log('🔍 [useBuyingMandates] Testing RLS access...');
+      const { data: testTargets, error: testError } = await supabase
+        .from('mandate_targets')
+        .select('id')
+        .eq('mandate_id', targetData.mandate_id)
+        .limit(1);
+      
+      console.log('🔍 [useBuyingMandates] RLS test result:', { data: testTargets, error: testError });
+      
+      // Test user roles function
+      console.log('🔍 [useBuyingMandates] Testing user role function...');
+      const { data: roleTest, error: roleTestError } = await supabase.rpc('get_user_highest_role', {
+        _user_id: user.id
+      });
+      console.log('🔍 [useBuyingMandates] Role test result:', { data: roleTest, error: roleTestError });
+
       // Insertar target con manejo mejorado de errores
       const { data, error } = await supabase
         .from('mandate_targets')
@@ -227,9 +244,9 @@ export const useBuyingMandates = () => {
         } else if (error.code === '23505') {
           throw new Error('Ya existe un target con esa información.');
         } else if (error.message?.includes('row-level security')) {
-          throw new Error('Política de seguridad bloqueó la operación.');
+          throw new Error('Política de seguridad bloqueó la operación. Verificando permisos...');
         } else {
-          throw new Error(`Error de base de datos: ${error.message}`);
+          throw new Error(`Error de base de datos [${error.code}]: ${error.message}`);
         }
       }
 

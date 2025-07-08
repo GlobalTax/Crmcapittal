@@ -11,6 +11,7 @@ import { Plus, Mail, Phone, Edit2 } from 'lucide-react';
 import { BuyingMandate, MandateTarget, CreateMandateTargetData, MandateDocument } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useViewPreferences } from '@/hooks/useViewPreferences';
+import { useToast } from '@/hooks/use-toast';
 import { PipelineViewToggle } from './PipelineViewToggle';
 import { MandateTargetPipeline } from './MandateTargetPipeline';
 import { TargetDetailPanel } from './TargetDetailPanel';
@@ -28,6 +29,7 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
   const [showTargetDetail, setShowTargetDetail] = useState(false);
   const { targets, documents, fetchTargets, fetchDocuments, createTarget, updateTarget, isLoading } = useBuyingMandates();
   const { mandateViewPreference, updateMandateViewPreference, isLoading: preferencesLoading } = useViewPreferences();
+  const { toast } = useToast();
 
   const [formData, setFormData] = useState<CreateMandateTargetData>({
     mandate_id: '',
@@ -318,10 +320,10 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
             </div>
           )}
 
-          {/* Controls */}
+          {/* Controls and Action Buttons */}
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-base text-muted-foreground">
                 {targets.length} targets encontrados
               </span>
               <PipelineViewToggle
@@ -329,17 +331,30 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
                 onViewChange={updateMandateViewPreference}
               />
             </div>
-            <Button 
-              onClick={() => {
-                setShowAddForm(true);
-                setEditingTarget(null);
-                resetForm();
-              }}
-              disabled={showAddForm}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Añadir Target
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  toast({
+                    title: "Próximamente",
+                    description: "Función de importación desde CRM en desarrollo",
+                  });
+                }}
+              >
+                Importar desde CRM
+              </Button>
+              <Button 
+                onClick={() => {
+                  setShowAddForm(true);
+                  setEditingTarget(null);
+                  resetForm();
+                }}
+                disabled={showAddForm}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Añadir Target Manual
+              </Button>
+            </div>
           </div>
 
           {/* Content based on view preference */}
@@ -442,6 +457,15 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
                   ))}
                 </TableBody>
               </Table>
+              
+              {/* Empty state for table view */}
+              {targets.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-base text-muted-foreground">
+                    No hay targets añadidos aún. Haz clic en "Añadir Target Manual" para comenzar.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <MandateTargetPipeline
