@@ -492,7 +492,7 @@ export const useBuyingMandates = () => {
 
   useEffect(() => {
     fetchMandates();
-  }, []);
+  }, [fetchMandates]);
 
   return {
     mandates,

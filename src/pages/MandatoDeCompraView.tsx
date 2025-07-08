@@ -36,14 +36,14 @@ export default function MandatoDeCompraView() {
 
   useEffect(() => {
     fetchMandates();
-  }, [fetchMandates]); // Dependencia correcta
+  }, []); // Solo ejecutar una vez al montar
 
   useEffect(() => {
     if (mandateId) {
       fetchTargets(mandateId);
       fetchDocuments(mandateId);
     }
-  }, [mandateId, fetchTargets, fetchDocuments]); // Dependencias correctas
+  }, [mandateId]); // Solo depende de mandateId
 
   useEffect(() => {
     setFilteredTargets(mandateTargets);
