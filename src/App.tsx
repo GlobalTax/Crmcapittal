@@ -38,6 +38,7 @@ const MandatoDeCompraView = lazy(() => import('@/pages/MandatoDeCompraView'));
 const ClientMandateView = lazy(() => import('@/pages/ClientMandateView'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
+const SystemDebug = lazy(() => import('@/pages/SystemDebug'));
 
 // Settings pages
 const SettingsLayout = lazy(() => import('@/components/settings/SettingsLayout').then(m => ({ default: m.SettingsLayout })));
@@ -299,6 +300,14 @@ function AppContent() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <EInformaDashboard />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/debug" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <SystemDebug />
               </Suspense>
             } 
           />
