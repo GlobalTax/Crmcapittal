@@ -21,7 +21,7 @@ export const useViewPreferences = () => {
         .select('*')
         .eq('user_id', user.id)
         .eq('table_name', 'mandates')
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading view preferences:', error);
