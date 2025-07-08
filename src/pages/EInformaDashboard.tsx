@@ -10,6 +10,7 @@ import { EInformaMetricsCard } from '@/components/einforma/EInformaMetricsCard';
 import { EInformaUsageChart } from '@/components/einforma/EInformaUsageChart';
 import { EInformaQueryQueue } from '@/components/einforma/EInformaQueryQueue';
 import { EInformaBulkLookup } from '@/components/einforma/EInformaBulkLookup';
+import { EInformaCredentialsConfig } from '@/components/einforma/EInformaCredentialsConfig';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useCompanyLookup } from '@/hooks/useCompanyLookup';
 import { useEInformaDashboard } from '@/hooks/useEInformaDashboard';
@@ -148,13 +149,14 @@ export default function EInformaDashboard() {
 
       {/* Tabs principales */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Resumen</TabsTrigger>
           <TabsTrigger value="bulk">Búsqueda Masiva</TabsTrigger>
           <TabsTrigger value="usage">Uso y Costes</TabsTrigger>
           <TabsTrigger value="queue">Cola de Consultas</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="risk">Análisis de Riesgo</TabsTrigger>
+          <TabsTrigger value="config">Configuración</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -431,6 +433,10 @@ export default function EInformaDashboard() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="config">
+          <EInformaCredentialsConfig />
         </TabsContent>
       </Tabs>
     </div>
