@@ -50,22 +50,55 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
     }
   }, [mandate, open]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.company_name || !mandate) return;
+    
+    console.log('🔍 [MandateTargetsDialog] handleSubmit iniciado');
+    console.log('📋 [MandateTargetsDialog] formData:', formData);
+    console.log('📋 [MandateTargetsDialog] mandate:', mandate);
+    console.log('📋 [MandateTargetsDialog] editingTarget:', editingTarget);
+
+    // Validaciones básicas
+    if (!formData.company_name?.trim()) {
+      console.error('❌ [MandateTargetsDialog] Nombre de empresa requerido');
+      return;
+    }
+    
+    if (!mandate) {
+      console.error('❌ [MandateTargetsDialog] Mandato no encontrado');
+      return;
+    }
+
+    if (!formData.mandate_id) {
+      console.error('❌ [MandateTargetsDialog] mandate_id faltante');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
+      console.log('🚀 [MandateTargetsDialog] Ejecutando operación...');
+      
       if (editingTarget) {
+        console.log('✏️ [MandateTargetsDialog] Editando target existente');
         await updateTarget(editingTarget.id, formData);
         setEditingTarget(null);
       } else {
-        await createTarget(formData);
+        console.log('➕ [MandateTargetsDialog] Creando nuevo target');
+        const result = await createTarget(formData);
+        console.log('✅ [MandateTargetsDialog] Target creado:', result);
       }
       
+      console.log('🎉 [MandateTargetsDialog] Operación completada exitosamente');
       resetForm();
       setShowAddForm(false);
     } catch (error) {
-      console.error('Error saving target:', error);
+      console.error('💥 [MandateTargetsDialog] Error al guardar target:', error);
+      // El error ya es manejado en el hook useBuyingMandates
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -274,8 +307,8 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
                   >
                     Cancelar
                   </Button>
-                  <Button type="submit">
-                    {editingTarget ? 'Actualizar' : 'Añadir'} Target
+                  <Button type="submit" disabled={isSubmitting || !formData.company_name?.trim()}>
+                    {isSubmitting ? 'Guardando...' : (editingTarget ? 'Actualizar' : 'Añadir')} Target
                   </Button>
                 </div>
               </form>
