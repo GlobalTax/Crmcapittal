@@ -8,8 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Mail, Phone, Edit2 } from 'lucide-react';
-import { BuyingMandate, MandateTarget, CreateMandateTargetData } from '@/types/BuyingMandate';
+import { BuyingMandate, MandateTarget, CreateMandateTargetData, MandateDocument } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
+import { useViewPreferences } from '@/hooks/useViewPreferences';
+import { PipelineViewToggle } from './PipelineViewToggle';
+import { MandateTargetPipeline } from './MandateTargetPipeline';
+import { TargetDetailPanel } from './TargetDetailPanel';
 
 interface MandateTargetsDialogProps {
   mandate: BuyingMandate | null;
@@ -20,7 +24,10 @@ interface MandateTargetsDialogProps {
 export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTargetsDialogProps) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingTarget, setEditingTarget] = useState<MandateTarget | null>(null);
-  const { targets, fetchTargets, createTarget, updateTarget, isLoading } = useBuyingMandates();
+  const [selectedTarget, setSelectedTarget] = useState<MandateTarget | null>(null);
+  const [showTargetDetail, setShowTargetDetail] = useState(false);
+  const { targets, documents, fetchTargets, fetchDocuments, createTarget, updateTarget, isLoading } = useBuyingMandates();
+  const { mandateViewPreference, updateMandateViewPreference } = useViewPreferences();
 
   const [formData, setFormData] = useState<CreateMandateTargetData>({
     mandate_id: '',
@@ -38,6 +45,7 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
   useEffect(() => {
     if (mandate && open) {
       fetchTargets(mandate.id);
+      fetchDocuments(mandate.id);
       setFormData(prev => ({ ...prev, mandate_id: mandate.id }));
     }
   }, [mandate, open]);
@@ -104,6 +112,23 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
       contact_method: method,
       status: 'contacted',
     });
+  };
+
+  const handleTargetClick = (target: MandateTarget) => {
+    setSelectedTarget(target);
+    setShowTargetDetail(true);
+  };
+
+  const handleTargetUpdate = (updatedTarget: MandateTarget) => {
+    if (mandate) {
+      fetchTargets(mandate.id);
+    }
+  };
+
+  const handleDocumentUploaded = () => {
+    if (mandate) {
+      fetchDocuments(mandate.id);
+    }
   };
 
   const getStatusBadge = (status: MandateTarget['status']) => {
@@ -259,10 +284,14 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
 
           {/* Controls */}
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">
                 {targets.length} targets encontrados
               </span>
+              <PipelineViewToggle
+                currentView={mandateViewPreference}
+                onViewChange={updateMandateViewPreference}
+              />
             </div>
             <Button 
               onClick={() => {
@@ -277,107 +306,125 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
             </Button>
           </div>
 
-          {/* Targets Table */}
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Empresa</TableHead>
-                  <TableHead>Contacto</TableHead>
-                  <TableHead>Financials</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead>Contactado</TableHead>
-                  <TableHead>Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {targets.map((target) => (
-                  <TableRow key={target.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{target.company_name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {target.sector} • {target.location}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {target.contact_name && (
-                        <div>
-                          <div className="text-sm">{target.contact_name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {target.contact_email}
-                          </div>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>Rev: {formatCurrency(target.revenues)}</div>
-                        <div>EBITDA: {formatCurrency(target.ebitda)}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={target.status}
-                        onValueChange={(value) => updateTargetStatus(target.id, value as MandateTarget['status'])}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pendiente</SelectItem>
-                          <SelectItem value="contacted">Contactado</SelectItem>
-                          <SelectItem value="in_analysis">En Análisis</SelectItem>
-                          <SelectItem value="interested">Interesado</SelectItem>
-                          <SelectItem value="nda_signed">NDA Firmado</SelectItem>
-                          <SelectItem value="rejected">Rechazado</SelectItem>
-                          <SelectItem value="closed">Cerrado</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell>
-                      {target.contacted ? (
-                        <div className="text-sm">
-                          <div className="text-green-600">✓ Sí</div>
-                          <div className="text-xs text-muted-foreground">
-                            {target.contact_date && new Date(target.contact_date).toLocaleDateString('es-ES')}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex space-x-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => markAsContacted(target.id, 'email')}
-                          >
-                            <Mail className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => markAsContacted(target.id, 'phone')}
-                          >
-                            <Phone className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => startEdit(target)}
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </TableCell>
+          {/* Content based on view preference */}
+          {mandateViewPreference === 'table' ? (
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Empresa</TableHead>
+                    <TableHead>Contacto</TableHead>
+                    <TableHead>Financials</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Contactado</TableHead>
+                    <TableHead>Acciones</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {targets.map((target) => (
+                    <TableRow key={target.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{target.company_name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {target.sector} • {target.location}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {target.contact_name && (
+                          <div>
+                            <div className="text-sm">{target.contact_name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {target.contact_email}
+                            </div>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <div>Rev: {formatCurrency(target.revenues)}</div>
+                          <div>EBITDA: {formatCurrency(target.ebitda)}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={target.status}
+                          onValueChange={(value) => updateTargetStatus(target.id, value as MandateTarget['status'])}
+                        >
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pendiente</SelectItem>
+                            <SelectItem value="contacted">Contactado</SelectItem>
+                            <SelectItem value="in_analysis">En Análisis</SelectItem>
+                            <SelectItem value="interested">Interesado</SelectItem>
+                            <SelectItem value="nda_signed">NDA Firmado</SelectItem>
+                            <SelectItem value="rejected">Rechazado</SelectItem>
+                            <SelectItem value="closed">Cerrado</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        {target.contacted ? (
+                          <div className="text-sm">
+                            <div className="text-green-600">✓ Sí</div>
+                            <div className="text-xs text-muted-foreground">
+                              {target.contact_date && new Date(target.contact_date).toLocaleDateString('es-ES')}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex space-x-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => markAsContacted(target.id, 'email')}
+                            >
+                              <Mail className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => markAsContacted(target.id, 'phone')}
+                            >
+                              <Phone className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleTargetClick(target)}
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <MandateTargetPipeline
+              targets={targets}
+              documents={documents}
+              onTargetClick={handleTargetClick}
+            />
+          )}
         </div>
+
+        {/* Target Detail Panel */}
+        <TargetDetailPanel
+          target={selectedTarget}
+          documents={documents}
+          open={showTargetDetail}
+          onOpenChange={setShowTargetDetail}
+          onTargetUpdate={handleTargetUpdate}
+          onDocumentUploaded={handleDocumentUploaded}
+        />
       </DialogContent>
     </Dialog>
   );
