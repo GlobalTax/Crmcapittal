@@ -24,7 +24,9 @@ export const useViewPreferences = () => {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        throw error;
+        console.error('Error loading view preferences:', error);
+        // No lanzar error, solo continuar con valores por defecto
+        return;
       }
 
       if (data?.column_preferences) {
@@ -35,6 +37,7 @@ export const useViewPreferences = () => {
       }
     } catch (error) {
       console.error('Error loading view preferences:', error);
+      // Continuar silenciosamente con valores por defecto
     } finally {
       setIsLoading(false);
     }
@@ -63,13 +66,16 @@ export const useViewPreferences = () => {
       if (key === 'mandate_view_preference') {
         setMandateViewPreference(value);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving view preference:', error);
-      toast({
-        title: 'Error',
-        description: 'No se pudo guardar la preferencia',
-        variant: 'destructive',
-      });
+      // Solo mostrar toast si es un error crítico, no para problemas de estructura
+      if (error.code !== '42P01' && error.code !== '42703') {
+        toast({
+          title: 'Error',
+          description: 'No se pudo guardar la preferencia',
+          variant: 'destructive',
+        });
+      }
     }
   }, [toast]);
 
