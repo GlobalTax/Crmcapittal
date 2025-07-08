@@ -5,6 +5,7 @@ import { useEmailTracking } from '@/hooks/useEmailTracking';
 import { Mail } from 'lucide-react';
 import { TrackedEmail } from '@/types/EmailTracking';
 import { EmailComposer } from '@/components/email/EmailComposer';
+import DOMPurify from 'dompurify';
 
 export default function MinimalEmail() {
   const [selectedEmail, setSelectedEmail] = useState<TrackedEmail | null>(null);
@@ -198,10 +199,10 @@ export default function MinimalEmail() {
               </div>
               
               <div className="prose prose-sm max-w-none">
-                <div 
+                <div
                   className="text-gray-800 leading-relaxed"
-                  dangerouslySetInnerHTML={{ 
-                    __html: selectedEmail.content || 'Sin contenido' 
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(selectedEmail.content || 'Sin contenido')
                   }}
                 />
               </div>
