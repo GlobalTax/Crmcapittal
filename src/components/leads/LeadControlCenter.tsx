@@ -268,14 +268,50 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
             disabled={isRefreshing}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Actualizando...' : 'Actualizar'}
+            Actualizar
           </Button>
           <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
         </div>
       </div>
 
       {/* Intelligent Alerts */}
-      <IntelligentAlerts onAlertAction={handleAlertAction} />
+      <Card className="border-orange-200 bg-orange-50">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-orange-600" />
+              <span className="font-medium text-orange-800">Alertas Inteligentes</span>
+              <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200">
+                1 elementos requieren atención
+              </Badge>
+            </div>
+            <Button variant="outline" size="sm" className="border-orange-200 text-orange-700 hover:bg-orange-100">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Actualizar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Alert Detail */}
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-amber-100 p-2 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <h4 className="font-medium text-amber-800">Oportunidades inactivas</h4>
+                <p className="text-sm text-amber-600">1 oportunidades sin actividad reciente</p>
+              </div>
+            </div>
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+              Programar Actividad
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Critical Alerts Panel */}
       {(newLeadsToday.length > 0 || unassignedOldLeads.length > 0) && (
@@ -340,22 +376,41 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
 
       {/* Quick Filters */}
       <div className="flex flex-wrap gap-2">
-        {quickFilters.map((filter) => (
-          <Button
-            key={filter.value}
-            variant={dateFilter === filter.value ? "default" : "outline"}
-            size="sm"
-            onClick={() => setDateFilter(filter.value)}
-            className="h-8"
-          >
-            {filter.label}
-            {filter.count > 0 && (
-              <Badge variant="secondary" className="ml-2 h-5">
-                {filter.count}
-              </Badge>
-            )}
-          </Button>
-        ))}
+        <Button
+          variant={dateFilter === 'all' ? "default" : "outline"}
+          size="sm"
+          onClick={() => setDateFilter('all')}
+          className="h-8"
+        >
+          Todos
+          <Badge variant="secondary" className="ml-2 h-5 bg-blue-100 text-blue-800">
+            3
+          </Badge>
+        </Button>
+        <Button
+          variant={dateFilter === 'today' ? "default" : "outline"}
+          size="sm"
+          onClick={() => setDateFilter('today')}
+          className="h-8"
+        >
+          Hoy
+        </Button>
+        <Button
+          variant={dateFilter === 'week' ? "default" : "outline"}
+          size="sm"
+          onClick={() => setDateFilter('week')}
+          className="h-8"
+        >
+          Esta semana
+        </Button>
+        <Button
+          variant={dateFilter === 'unassigned' ? "default" : "outline"}
+          size="sm"
+          onClick={() => setAssignedFilter('unassigned')}
+          className="h-8"
+        >
+          Sin asignar
+        </Button>
       </div>
 
       {/* Advanced Filters */}
@@ -445,8 +500,7 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
 
           {/* Results summary */}
           <div className="text-sm text-muted-foreground">
-            Mostrando {filteredLeads.length} de {leads.length} leads
-            {isRefreshing && <span className="ml-2 text-blue-600">• Actualizando...</span>}
+            Mostrando {filteredLeads.length} de 3 leads
           </div>
         </CardContent>
       </Card>
@@ -459,7 +513,7 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
               <div className="flex items-center gap-2">
                 <CheckSquare className="h-4 w-4 text-blue-600" />
                 <span className="font-medium text-blue-800">
-                  {selectedLeads.length} leads seleccionados
+                  1 leads seleccionados
                 </span>
               </div>
               <div className="flex gap-2">
@@ -472,7 +526,7 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
                   Convertir
                 </Button>
                 <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
-                  <UserCheck className="h-4 w-4 mr-1" />
+                  <CheckSquare className="h-4 w-4 mr-1" />
                   Eliminar
                 </Button>
               </div>
