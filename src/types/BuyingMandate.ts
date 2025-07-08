@@ -132,3 +132,59 @@ export interface CreateClientAccessData {
   client_email: string;
   expires_at: string;
 }
+
+// Nuevas interfaces para el sistema de actividades y enriquecimientos
+export interface MandateTargetActivity {
+  id: string;
+  target_id: string;
+  activity_type: string;
+  title: string;
+  description?: string;
+  activity_data: Record<string, any>;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MandateTargetEnrichment {
+  id: string;
+  target_id: string;
+  enrichment_data: Record<string, any>;
+  source: string;
+  confidence_score?: number;
+  enriched_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MandateTargetFollowup {
+  id: string;
+  target_id: string;
+  followup_type: string;
+  title: string;
+  description?: string;
+  scheduled_date: string;
+  is_completed: boolean;
+  completed_at?: string;
+  priority: string;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTargetActivityData {
+  target_id: string;
+  activity_type: string;
+  title: string;
+  description?: string;
+  activity_data?: Record<string, any>;
+}
+
+export interface CreateTargetFollowupData {
+  target_id: string;
+  followup_type: string;
+  title: string;
+  description?: string;
+  scheduled_date: string;
+  priority?: string;
+}

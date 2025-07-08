@@ -260,7 +260,7 @@ export const TargetDataTable = ({
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onViewDocuments(target)}>
                         <Eye className="mr-2 h-4 w-4" />
-                        Ver Documentos
+                        Ver Detalle Completo
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

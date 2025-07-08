@@ -11,12 +11,13 @@ import { TargetDataTable } from '@/components/mandates/TargetDataTable';
 import { TargetFiltersPanel } from '@/components/mandates/TargetFiltersPanel';
 import { DocumentUploader } from '@/components/mandates/DocumentUploader';
 import { ImportFromCRMDialog } from '@/components/mandates/ImportFromCRMDialog';
+import { TargetDetailPanel } from '@/components/mandates/TargetDetailPanel';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 
 export default function MandatoDeCompraView() {
   const { mandateId } = useParams<{ mandateId: string }>();
   const [selectedTarget, setSelectedTarget] = useState<MandateTarget | null>(null);
-  const [showDocuments, setShowDocuments] = useState(false);
+  const [showTargetDetail, setShowTargetDetail] = useState(false);
   const [filteredTargets, setFilteredTargets] = useState<MandateTarget[]>([]);
   
   const { 
@@ -59,7 +60,7 @@ export default function MandatoDeCompraView() {
 
   const handleViewDocuments = (target: MandateTarget) => {
     setSelectedTarget(target);
-    setShowDocuments(true);
+    setShowTargetDetail(true);
   };
 
   const contactedTargets = mandateTargets.filter(t => t.contacted).length;
@@ -189,28 +190,18 @@ export default function MandatoDeCompraView() {
         </CardContent>
       </Card>
 
-      {/* Documents Dialog */}
-      <Dialog open={showDocuments} onOpenChange={setShowDocuments}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              Documentos - {selectedTarget?.company_name}
-            </DialogTitle>
-            <DialogDescription>
-              Gestiona los documentos específicos de este target
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedTarget && (
-            <DocumentUploader
-              mandateId={mandateId!}
-              targetId={selectedTarget.id}
-              documents={mandateDocuments.filter(d => d.target_id === selectedTarget.id)}
-              onDocumentUploaded={() => fetchDocuments(mandateId!)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Target Detail Panel */}
+      <TargetDetailPanel
+        target={selectedTarget}
+        documents={mandateDocuments}
+        open={showTargetDetail}
+        onOpenChange={setShowTargetDetail}
+        onTargetUpdate={(updatedTarget) => {
+          setSelectedTarget(updatedTarget);
+          fetchTargets(mandateId!);
+        }}
+        onDocumentUploaded={() => fetchDocuments(mandateId!)}
+      />
     </div>
   );
 }

@@ -2233,6 +2233,120 @@ export type Database = {
           },
         ]
       }
+      mandate_target_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          target_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          target_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          target_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mandate_target_enrichments: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          enriched_at: string
+          enrichment_data: Json
+          id: string
+          source: string
+          target_id: string
+          updated_at: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          enriched_at?: string
+          enrichment_data?: Json
+          id?: string
+          source?: string
+          target_id: string
+          updated_at?: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          enriched_at?: string
+          enrichment_data?: Json
+          id?: string
+          source?: string
+          target_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mandate_target_followups: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          followup_type: string
+          id: string
+          is_completed: boolean | null
+          priority: string | null
+          scheduled_date: string
+          target_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          followup_type?: string
+          id?: string
+          is_completed?: boolean | null
+          priority?: string | null
+          scheduled_date: string
+          target_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          followup_type?: string
+          id?: string
+          is_completed?: boolean | null
+          priority?: string | null
+          scheduled_date?: string
+          target_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mandate_targets: {
         Row: {
           company_name: string
