@@ -30,11 +30,15 @@ export const useBuyingMandates = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error fetching mandates:', error);
+        throw error;
+      }
       setMandates((data || []) as BuyingMandate[]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching mandates:', error);
-      if (toast) {
+      // Solo mostrar toast para errores reales, no de estructura
+      if (error?.code !== '42P01' && error?.code !== '42703' && toast) {
         toast({
           title: 'Error',
           description: 'No se pudieron cargar los mandatos',
@@ -60,11 +64,15 @@ export const useBuyingMandates = () => {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error fetching targets:', error);
+        throw error;
+      }
       setTargets((data || []) as MandateTarget[]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching targets:', error);
-      if (toast) {
+      // Solo mostrar toast para errores críticos
+      if (error?.code !== '42P01' && error?.code !== '42703' && error?.code !== 'PGRST116' && toast) {
         toast({
           title: 'Error',
           description: 'No se pudieron cargar los targets',
@@ -274,11 +282,15 @@ export const useBuyingMandates = () => {
       }
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error fetching documents:', error);
+        throw error;
+      }
       setDocuments((data || []) as MandateDocument[]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching documents:', error);
-      if (toast) {
+      // Solo mostrar toast para errores críticos
+      if (error?.code !== '42P01' && error?.code !== '42703' && error?.code !== 'PGRST116' && toast) {
         toast({
           title: 'Error',
           description: 'No se pudieron cargar los documentos',
@@ -496,9 +508,10 @@ export const useBuyingMandates = () => {
     }
   };
 
-  useEffect(() => {
-    fetchMandates();
-  }, [fetchMandates]);
+  // Remover el useEffect automático para evitar loops
+  // useEffect(() => {
+  //   fetchMandates();
+  // }, [fetchMandates]);
 
   return {
     mandates,
