@@ -32,13 +32,15 @@ export const useBuyingMandates = () => {
 
       if (error) {
         console.error('Supabase error fetching mandates:', error);
-        throw error;
+        setMandates([]);
+        return;
       }
       setMandates((data || []) as BuyingMandate[]);
     } catch (error: any) {
       console.error('Error fetching mandates:', error);
-      // Solo mostrar toast para errores reales, no de estructura
-      if (error?.code !== '42P01' && error?.code !== '42703' && toast) {
+      setMandates([]);
+      // Solo mostrar toast para errores críticos
+      if (error?.code !== '42P01' && error?.code !== '42703' && error?.code !== '406' && toast) {
         toast({
           title: 'Error',
           description: 'No se pudieron cargar los mandatos',
@@ -48,10 +50,9 @@ export const useBuyingMandates = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   const fetchTargets = useCallback(async (mandateId?: string) => {
-    setIsLoading(true);
     try {
       let query = supabase
         .from('mandate_targets')
@@ -66,21 +67,13 @@ export const useBuyingMandates = () => {
 
       if (error) {
         console.error('Supabase error fetching targets:', error);
-        throw error;
+        setTargets([]);
+        return;
       }
       setTargets((data || []) as MandateTarget[]);
     } catch (error: any) {
       console.error('Error fetching targets:', error);
-      // Solo mostrar toast para errores críticos
-      if (error?.code !== '42P01' && error?.code !== '42703' && error?.code !== 'PGRST116' && toast) {
-        toast({
-          title: 'Error',
-          description: 'No se pudieron cargar los targets',
-          variant: 'destructive',
-        });
-      }
-    } finally {
-      setIsLoading(false);
+      setTargets([]);
     }
   }, []);
 
@@ -508,10 +501,7 @@ export const useBuyingMandates = () => {
     }
   };
 
-  // Remover el useEffect automático para evitar loops
-  // useEffect(() => {
-  //   fetchMandates();
-  // }, [fetchMandates]);
+  // Manual fetch - controlled by components to avoid automatic loops
 
   return {
     mandates,

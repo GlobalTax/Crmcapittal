@@ -27,7 +27,7 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
   const [selectedTarget, setSelectedTarget] = useState<MandateTarget | null>(null);
   const [showTargetDetail, setShowTargetDetail] = useState(false);
   const { targets, documents, fetchTargets, fetchDocuments, createTarget, updateTarget, isLoading } = useBuyingMandates();
-  const { mandateViewPreference, updateMandateViewPreference } = useViewPreferences();
+  const { mandateViewPreference, updateMandateViewPreference, isLoading: preferencesLoading } = useViewPreferences();
 
   const [formData, setFormData] = useState<CreateMandateTargetData>({
     mandate_id: '',
@@ -43,12 +43,12 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
   });
 
   useEffect(() => {
-    if (mandate && open) {
+    if (mandate?.id && open) {
       fetchTargets(mandate.id);
       fetchDocuments(mandate.id);
       setFormData(prev => ({ ...prev, mandate_id: mandate.id }));
     }
-  }, [mandate, open]);
+  }, [mandate?.id, open, fetchTargets, fetchDocuments]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -189,6 +189,9 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
   };
 
   if (!mandate) return null;
+
+  // Prevent rendering if still loading critical data
+  if (preferencesLoading && !mandateViewPreference) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

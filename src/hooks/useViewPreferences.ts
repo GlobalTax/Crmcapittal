@@ -24,8 +24,10 @@ export const useViewPreferences = () => {
     }
 
     try {
+      setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        hasLoadedRef.current = true;
         setIsLoading(false);
         return;
       }
@@ -54,21 +56,10 @@ export const useViewPreferences = () => {
 
       // Manejar específicamente el error 406
       if (error) {
-        if (error.code === '406' || error.message?.includes('406')) {
-          console.log('406 error - usando preferencias por defecto');
-          // Usar valores por defecto sin mostrar error
-          hasLoadedRef.current = true;
-          setIsLoading(false);
-          return;
-        }
-        
-        if (error.code !== 'PGRST116') {
-          console.error('Error loading view preferences:', error);
-          // No lanzar error, solo continuar con valores por defecto
-          hasLoadedRef.current = true;
-          setIsLoading(false);
-          return;
-        }
+        console.log('Error loading preferences, using defaults:', error.code);
+        hasLoadedRef.current = true;
+        setIsLoading(false);
+        return;
       }
 
       if (data?.column_preferences) {
@@ -95,7 +86,13 @@ export const useViewPreferences = () => {
   const savePreference = useCallback(async (key: PreferenceKey, value: ViewType) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        // Still update local state
+        if (key === 'mandate_view_preference') {
+          setMandateViewPreference(value);
+        }
+        return;
+      }
 
       const preferences = { view_type: value };
 
@@ -109,35 +106,25 @@ export const useViewPreferences = () => {
           onConflict: 'user_id,table_name',
         });
 
-      // Manejar específicamente error 406 en save también
+      // Siempre actualizar estado local primero
+      if (key === 'mandate_view_preference') {
+        setMandateViewPreference(value);
+      }
+
       if (error) {
-        if (error.code === '406' || error.message?.includes('406')) {
-          console.log('406 error al guardar - operación silenciosa');
-          // Actualizar estado local aunque falle guardar
-          if (key === 'mandate_view_preference') {
-            setMandateViewPreference(value);
-          }
-          return;
-        }
-        throw error;
+        console.log('Error saving preferences, but state updated locally:', error.code);
+        return;
       }
 
       // Actualizar cache si el save fue exitoso
       const cacheKey = `${user.id}-mandates`;
       preferencesCache.set(cacheKey, preferences);
 
-      if (key === 'mandate_view_preference') {
-        setMandateViewPreference(value);
-      }
     } catch (error: any) {
       console.error('Error saving view preference:', error);
-      // Solo mostrar toast si es un error crítico, no para problemas de estructura o 406
-      if (error.code !== '42P01' && error.code !== '42703' && error.code !== '406') {
-        toast({
-          title: 'Error',
-          description: 'No se pudo guardar la preferencia',
-          variant: 'destructive',
-        });
+      // Actualizar estado local aunque falle
+      if (key === 'mandate_view_preference') {
+        setMandateViewPreference(value);
       }
     }
   }, [toast]);

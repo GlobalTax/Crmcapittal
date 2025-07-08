@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,12 +9,18 @@ import { MandatesTable } from '@/components/mandates/MandatesTable';
 import { MandateTargetsDialog } from '@/components/mandates/MandateTargetsDialog';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { BuyingMandate } from '@/types/BuyingMandate';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 export default function BuyingMandates() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMandate, setSelectedMandate] = useState<BuyingMandate | null>(null);
   const [showTargetsDialog, setShowTargetsDialog] = useState(false);
-  const { mandates, targets, isLoading } = useBuyingMandates();
+  const { mandates, targets, isLoading, fetchMandates } = useBuyingMandates();
+
+  // Fetch mandates on component mount
+  useEffect(() => {
+    fetchMandates();
+  }, [fetchMandates]);
 
   const filteredMandates = mandates.filter(mandate =>
     mandate.mandate_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,16 +40,17 @@ export default function BuyingMandates() {
   const contactedTargets = targets.filter(t => t.contacted).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Mandatos de Compra</h1>
-          <p className="text-muted-foreground">
-            Gestiona los mandatos de búsqueda de empresas para adquisición
-          </p>
+    <ErrorBoundary>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Mandatos de Compra</h1>
+            <p className="text-muted-foreground">
+              Gestiona los mandatos de búsqueda de empresas para adquisición
+            </p>
+          </div>
+          <CreateMandateDialog onSuccess={fetchMandates} />
         </div>
-        <CreateMandateDialog />
-      </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -160,6 +167,7 @@ export default function BuyingMandates() {
           if (!open) setSelectedMandate(null);
         }}
       />
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
