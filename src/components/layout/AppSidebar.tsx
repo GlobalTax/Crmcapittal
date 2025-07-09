@@ -27,8 +27,8 @@ const sidebarData: SidebarSection[] = [
         href: "/crm",
       },
       {
-        title: "Control Leads",
-        href: "/",
+        title: "Entrada Comercial",
+        href: "/captacion",
       },
       {
         title: "Contactos",
@@ -39,8 +39,21 @@ const sidebarData: SidebarSection[] = [
         href: "/companies",
       },
       {
+        title: "Mandatos",
+        href: "/mandatos",
+      },
+    ],
+  },
+  {
+    title: "M&A Operations",
+    items: [
+      {
+        title: "Transacciones",
+        href: "/transacciones",
+      },
+      {
         title: "Negocios",
-        href: "/negocios",
+        href: "/deals",
       },
     ],
   },

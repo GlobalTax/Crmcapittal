@@ -2148,10 +2148,13 @@ export type Database = {
           assigned_to_id: string | null
           collaborator_id: string | null
           company_name: string | null
+          conversion_date: string | null
+          converted_to_mandate_id: string | null
           created_at: string
           email: string
           id: string
           lead_origin: string
+          lead_type: Database["public"]["Enums"]["lead_type"] | null
           message: string | null
           name: string
           phone: string | null
@@ -2164,10 +2167,13 @@ export type Database = {
           assigned_to_id?: string | null
           collaborator_id?: string | null
           company_name?: string | null
+          conversion_date?: string | null
+          converted_to_mandate_id?: string | null
           created_at?: string
           email: string
           id?: string
           lead_origin?: string
+          lead_type?: Database["public"]["Enums"]["lead_type"] | null
           message?: string | null
           name: string
           phone?: string | null
@@ -2180,10 +2186,13 @@ export type Database = {
           assigned_to_id?: string | null
           collaborator_id?: string | null
           company_name?: string | null
+          conversion_date?: string | null
+          converted_to_mandate_id?: string | null
           created_at?: string
           email?: string
           id?: string
           lead_origin?: string
+          lead_type?: Database["public"]["Enums"]["lead_type"] | null
           message?: string | null
           name?: string
           phone?: string | null
@@ -2198,6 +2207,13 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_converted_to_mandate_id_fkey"
+            columns: ["converted_to_mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
             referencedColumns: ["id"]
           },
           {
@@ -4474,6 +4490,7 @@ export type Database = {
         | "CONVERTED"
         | "LOST"
       lead_status: "NEW" | "CONTACTED" | "QUALIFIED" | "DISQUALIFIED"
+      lead_type: "compra" | "venta" | "general"
       lifecycle_stage:
         | "lead"
         | "marketing_qualified_lead"
@@ -4712,6 +4729,7 @@ export const Constants = {
         "LOST",
       ],
       lead_status: ["NEW", "CONTACTED", "QUALIFIED", "DISQUALIFIED"],
+      lead_type: ["compra", "venta", "general"],
       lifecycle_stage: [
         "lead",
         "marketing_qualified_lead",

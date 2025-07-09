@@ -24,6 +24,11 @@ const Deals = lazy(() => import('@/pages/Deals'));
 const DealPage = lazy(() => import('@/pages/DealPage'));
 const Transacciones = lazy(() => import('@/pages/Transacciones'));
 const TransaccionPage = lazy(() => import('@/pages/TransaccionPage'));
+
+// CRM Architecture - New routes
+const MandatosPage = lazy(() => import('@/pages/mandatos'));
+const CaptacionPage = lazy(() => import('@/pages/captacion'));
+const CaptacionDetailPage = lazy(() => import('@/pages/captacion/[id]'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));
 const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
@@ -306,11 +311,36 @@ function AppContent() {
               </Suspense>
             } 
           />
+          {/* CRM Architecture Routes */}
+          <Route 
+            path="/mandatos" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <MandatosPage />
+              </Suspense>
+            } 
+          />
           <Route 
             path="/mandatos/:id" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <MandatoDashboardView />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/captacion" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CaptacionPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/captacion/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CaptacionDetailPage />
               </Suspense>
             } 
           />
