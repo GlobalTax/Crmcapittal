@@ -35,7 +35,7 @@ const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
 const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
 const HierarchicalCRM = lazy(() => import('@/pages/HierarchicalCRM'));
-const MandatoDeCompraView = lazy(() => import('@/pages/MandatoDeCompraView'));
+const MandatoDashboardView = lazy(() => import('@/pages/MandatoDashboardView'));
 const ClientMandateView = lazy(() => import('@/pages/ClientMandateView'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
@@ -292,7 +292,7 @@ function AppContent() {
             path="/buying-mandates/:mandateId" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <MandatoDeCompraView />
+                <MandatoDashboardView />
               </Suspense>
             } 
           />
