@@ -34,6 +34,7 @@ const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
 const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
+const HierarchicalCRM = lazy(() => import('@/pages/HierarchicalCRM'));
 const MandatoDeCompraView = lazy(() => import('@/pages/MandatoDeCompraView'));
 const ClientMandateView = lazy(() => import('@/pages/ClientMandateView'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
@@ -268,6 +269,14 @@ function AppContent() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <Collaborators />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/crm" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <HierarchicalCRM />
               </Suspense>
             } 
           />

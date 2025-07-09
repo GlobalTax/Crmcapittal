@@ -23,6 +23,10 @@ const sidebarData: SidebarSection[] = [
         href: "/personal",
       },
       {
+        title: "Gestión Integral",
+        href: "/crm",
+      },
+      {
         title: "Control Leads",
         href: "/",
       },
