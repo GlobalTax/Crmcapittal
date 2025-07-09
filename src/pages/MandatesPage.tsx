@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HierarchicalCRMView } from '@/components/unified/HierarchicalCRMView';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { ShoppingCart, TrendingUp } from 'lucide-react';
+import MinimalTransacciones from '@/pages/MinimalTransacciones';
 
 export default function MandatesPage() {
   const [activeTab, setActiveTab] = useState('compra');
@@ -40,9 +41,9 @@ export default function MandatesPage() {
           
           <TabsContent value="venta" className="space-y-4">
             <div className="text-sm text-muted-foreground">
-              Mandatos de venta de empresas y activos
+              Transacciones de venta y operaciones comerciales
             </div>
-            <HierarchicalCRMView initialLevel="mandates" mandateType="venta" />
+            <MinimalTransacciones />
           </TabsContent>
         </Tabs>
       </div>
