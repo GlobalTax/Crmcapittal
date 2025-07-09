@@ -289,7 +289,7 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/mandatos/:mandateId" 
+            path="/mandatos/:id" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <MandatoDashboardView />
