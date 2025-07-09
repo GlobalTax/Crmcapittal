@@ -43,15 +43,13 @@ interface HierarchicalCRMViewProps {
   companyId?: string;
   mandateId?: string;
   targetId?: string;
-  mandateType?: string;
 }
 
 export const HierarchicalCRMView = ({ 
   initialLevel = 'leads',
   companyId,
   mandateId,
-  targetId,
-  mandateType
+  targetId
 }: HierarchicalCRMViewProps) => {
   const [navigation, setNavigation] = useState<NavigationState>({
     level: initialLevel
@@ -75,7 +73,7 @@ export const HierarchicalCRMView = ({
     fetchTargets, 
     fetchDocuments,
     isLoading: mandatesLoading 
-  } = useBuyingMandates(mandateType);
+  } = useBuyingMandates('compra');
 
   // Load initial data
   useEffect(() => {
@@ -324,7 +322,7 @@ export const HierarchicalCRMView = ({
                 <div className="flex items-center space-x-2">
                   <FileText className="h-5 w-5" />
                   <span>
-                    {mandateType === 'venta' ? 'Mandatos de Venta' : 'Mandatos de Compra'}
+                    Mandatos de Compra
                   </span>
                   {navigation.selectedCompany && (
                     <Badge variant="outline">

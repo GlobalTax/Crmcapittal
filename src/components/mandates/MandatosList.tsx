@@ -14,7 +14,7 @@ export default function MandatosList() {
           </div>
         </div>
 
-        <HierarchicalCRMView initialLevel="mandates" mandateType="compra" />
+        <HierarchicalCRMView initialLevel="mandates" />
       </div>
     </ErrorBoundary>
   );

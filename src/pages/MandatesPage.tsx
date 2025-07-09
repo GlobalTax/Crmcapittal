@@ -36,7 +36,7 @@ export default function MandatesPage() {
             <div className="text-sm text-muted-foreground">
               Mandatos de búsqueda de empresas para adquisición
             </div>
-            <HierarchicalCRMView initialLevel="mandates" mandateType="compra" />
+            <HierarchicalCRMView initialLevel="mandates" />
           </TabsContent>
           
           <TabsContent value="venta" className="space-y-4">

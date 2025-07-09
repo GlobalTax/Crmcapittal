@@ -10,7 +10,6 @@ export default function MandatoTargetPanel() {
       <HierarchicalCRMView 
         initialLevel="targets" 
         mandateId={id}
-        mandateType="compra" 
       />
     </ErrorBoundary>
   );
