@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronRight, Users, Building2, FileText, Target, ArrowLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 // Import existing components
 import { LeadControlCenter } from '@/components/leads/LeadControlCenter';
@@ -14,6 +13,12 @@ import { MandatesTable } from '@/components/mandates/MandatesTable';
 import { MandateTargetPipeline } from '@/components/mandates/MandateTargetPipeline';
 import { TargetDetailPanel } from '@/components/mandates/TargetDetailPanel';
 
+// Import new collapsible panels
+import { CollapsibleLeadPanel } from './CollapsibleLeadPanel';
+import { CollapsibleCompanyPanel } from './CollapsibleCompanyPanel';
+import { CollapsibleMandatePanel } from './CollapsibleMandatePanel';
+import { CollapsibleTargetPanel } from './CollapsibleTargetPanel';
+
 // Import hooks
 import { useCompanies } from '@/hooks/useCompanies';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
@@ -21,6 +26,7 @@ import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 // Import types
 import { Company } from '@/types/Company';
 import { BuyingMandate, MandateTarget } from '@/types/BuyingMandate';
+import { Lead } from '@/types/Lead';
 
 type NavigationLevel = 'leads' | 'companies' | 'mandates' | 'targets';
 
@@ -29,6 +35,7 @@ interface NavigationState {
   selectedCompany?: Company;
   selectedMandate?: BuyingMandate;
   selectedTarget?: MandateTarget;
+  selectedLead?: Lead;
 }
 
 interface HierarchicalCRMViewProps {
@@ -285,15 +292,25 @@ export const HierarchicalCRMView = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <RecordTable
-                companies={companies}
-                totalCount={companies.length}
-                onRowClick={handleNavigateToCompanies}
-                onCreateCompany={() => {}}
-                onSearch={() => {}}
-                onFilter={() => {}}
-                isLoading={companiesLoading}
-              />
+              {navigation.selectedCompany ? (
+                <CollapsibleCompanyPanel
+                  company={navigation.selectedCompany}
+                  onEdit={(company) => {
+                    // TODO: Implement edit dialog
+                    console.log('Edit company:', company);
+                  }}
+                />
+              ) : (
+                <RecordTable
+                  companies={companies}
+                  totalCount={companies.length}
+                  onRowClick={handleNavigateToCompanies}
+                  onCreateCompany={() => {}}
+                  onSearch={() => {}}
+                  onFilter={() => {}}
+                  isLoading={companiesLoading}
+                />
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -314,10 +331,37 @@ export const HierarchicalCRMView = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <MandatesTable 
-                mandates={mandates}
-                onViewTargets={handleNavigateToTargets}
-              />
+              {navigation.selectedMandate ? (
+                <CollapsibleMandatePanel
+                  mandate={navigation.selectedMandate}
+                  onEdit={(mandate) => {
+                    // TODO: Implement edit dialog
+                    console.log('Edit mandate:', mandate);
+                  }}
+                  onViewTargets={handleNavigateToTargets}
+                />
+              ) : (
+                <div className="grid gap-4">
+                  {mandates.map((mandate) => (
+                    <CollapsibleMandatePanel
+                      key={mandate.id}
+                      mandate={mandate}
+                      onEdit={(mandate) => {
+                        // TODO: Implement edit dialog
+                        console.log('Edit mandate:', mandate);
+                      }}
+                      onViewTargets={handleNavigateToTargets}
+                    />
+                  ))}
+                  {mandates.length === 0 && (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">
+                        No hay mandatos disponibles
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -342,11 +386,45 @@ export const HierarchicalCRMView = ({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <MandateTargetPipeline
-                  targets={targets}
-                  documents={documents}
-                  onTargetClick={handleTargetClick}
-                />
+                {navigation.selectedTarget ? (
+                  <CollapsibleTargetPanel
+                    target={navigation.selectedTarget}
+                    onEdit={(target) => {
+                      // TODO: Implement edit dialog
+                      console.log('Edit target:', target);
+                    }}
+                    onUpdate={(target) => {
+                      if (navigation.selectedMandate?.id) {
+                        fetchTargets(navigation.selectedMandate.id);
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="grid gap-4">
+                    {targets.map((target) => (
+                      <CollapsibleTargetPanel
+                        key={target.id}
+                        target={target}
+                        onEdit={(target) => {
+                          // TODO: Implement edit dialog
+                          console.log('Edit target:', target);
+                        }}
+                        onUpdate={(target) => {
+                          if (navigation.selectedMandate?.id) {
+                            fetchTargets(navigation.selectedMandate.id);
+                          }
+                        }}
+                      />
+                    ))}
+                    {targets.length === 0 && (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          No hay targets para este mandato
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ) : (
