@@ -1,275 +1,218 @@
-import { useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { FileText, Upload, Download, Eye, Trash2, Plus, FolderOpen } from 'lucide-react';
-import { useDropzone } from 'react-dropzone';
-
-interface Document {
-  id: string;
-  name: string;
-  type: 'nda' | 'teaser' | 'proposal' | 'legal' | 'financial' | 'other';
-  size: number;
-  uploadedAt: string;
-  uploadedBy: string;
-  status: 'pending' | 'approved' | 'rejected';
-  url?: string;
-}
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { DocumentItem } from './DocumentItem';
+import { useMandateDocuments } from '@/hooks/useMandateDocuments';
+import { Upload, FileText, Loader2 } from 'lucide-react';
+import { MANDATE_DOCUMENT_TYPES, DOCUMENT_TYPE_LABELS } from '@/types/MandateDocument';
+import { toast } from 'sonner';
 
 interface MandatoDocsProps {
   mandateId: string;
-  documents?: Document[];
 }
 
-export const MandatoDocs = ({ mandateId, documents = [] }: MandatoDocsProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Document['type']>('other');
+export const MandatoDocs = ({ mandateId }: MandatoDocsProps) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [documentType, setDocumentType] = useState<string>('other');
+  const [notes, setNotes] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const {
+    documents,
+    loading,
+    uploading,
+    uploadDocument,
+    downloadDocument,
+    deleteDocument,
+    getDocumentsByType,
+    getDocumentCounts
+  } = useMandateDocuments(mandateId);
 
-  // Mock documents for now
-  const mockDocuments: Document[] = [
-    {
-      id: '1',
-      name: 'NDA_EmpresaABC.pdf',
-      type: 'nda',
-      size: 245760, // 240KB
-      uploadedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      uploadedBy: 'Juan Pérez',
-      status: 'approved',
-      url: '#'
-    },
-    {
-      id: '2',
-      name: 'Teaser_Mandato_2024.pdf',
-      type: 'teaser',
-      size: 1024000, // 1MB
-      uploadedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      uploadedBy: 'María García',
-      status: 'pending',
-      url: '#'
-    },
-    {
-      id: '3',
-      name: 'Propuesta_EmpresaXYZ.docx',
-      type: 'proposal',
-      size: 512000, // 500KB
-      uploadedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      uploadedBy: 'Ana López',
-      status: 'approved',
-      url: '#'
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file size (max 50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        toast.error('El archivo es demasiado grande. Máximo 50MB');
+        return;
+      }
+      setSelectedFile(file);
     }
-  ];
-
-  const allDocuments = [...mockDocuments, ...documents];
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setIsUploading(true);
-    
-    // Simulate upload process
-    setTimeout(() => {
-      console.log('Files to upload:', acceptedFiles);
-      setIsUploading(false);
-    }, 2000);
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'application/vnd.ms-excel': ['.xls'],
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
-    }
-  });
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      toast.error('Selecciona un archivo primero');
+      return;
+    }
+
+    const result = await uploadDocument(selectedFile, {
+      mandate_id: mandateId,
+      document_type: documentType,
+      notes: notes.trim() || undefined,
     });
-  };
 
-  const getDocumentTypeLabel = (type: Document['type']) => {
-    const types = {
-      nda: 'NDA',
-      teaser: 'Teaser',
-      proposal: 'Propuesta',
-      legal: 'Legal',
-      financial: 'Financiero',
-      other: 'Otros'
-    };
-    return types[type];
-  };
-
-  const getStatusBadge = (status: Document['status']) => {
-    const config = {
-      pending: { variant: 'secondary' as const, label: 'Pendiente' },
-      approved: { variant: 'default' as const, label: 'Aprobado' },
-      rejected: { variant: 'destructive' as const, label: 'Rechazado' },
-    };
-    
-    const { variant, label } = config[status];
-    return <Badge variant={variant}>{label}</Badge>;
-  };
-
-  const groupedDocuments = allDocuments.reduce((acc, doc) => {
-    if (!acc[doc.type]) {
-      acc[doc.type] = [];
+    if (result) {
+      // Reset form
+      setSelectedFile(null);
+      setDocumentType('other');
+      setNotes('');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
-    acc[doc.type].push(doc);
-    return acc;
-  }, {} as Record<Document['type'], Document[]>);
+  };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Documentos del Mandato</h2>
-          <p className="text-muted-foreground">
-            Gestiona documentos, NDAs, teasers y propuestas
-          </p>
-        </div>
-      </div>
+  const handleDelete = async (documentId: string) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este documento?')) {
+      await deleteDocument(documentId);
+    }
+  };
 
-      {/* Upload Area */}
+  const documentCounts = getDocumentCounts();
+
+  if (loading) {
+    return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-blue-600" />
-            Subir Documentos
-          </CardTitle>
-          <CardDescription>
-            Arrastra archivos aquí o haz clic para seleccionar
-          </CardDescription>
+          <CardTitle>Documentación del Mandato</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-medium">Categoría:</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value as Document['type'])}
-                className="px-3 py-2 border border-border rounded-md bg-background text-sm"
-              >
-                <option value="nda">NDA</option>
-                <option value="teaser">Teaser</option>
-                <option value="proposal">Propuesta</option>
-                <option value="legal">Legal</option>
-                <option value="financial">Financiero</option>
-                <option value="other">Otros</option>
-              </select>
-            </div>
-
-            <div
-              {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                isDragActive
-                  ? 'border-primary bg-primary/5'
-                  : 'border-muted-foreground/25 hover:border-primary/50'
-              }`}
-            >
-              <input {...getInputProps()} />
-              <Upload className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
-              {isUploading ? (
-                <p className="text-sm text-muted-foreground">Subiendo archivo...</p>
-              ) : isDragActive ? (
-                <p className="text-sm text-muted-foreground">Suelta los archivos aquí...</p>
-              ) : (
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Arrastra archivos aquí o haz clic para seleccionar
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Formatos soportados: PDF, DOC, DOCX, XLS, XLSX
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin" />
         </CardContent>
       </Card>
+    );
+  }
 
-      {/* Documents by Category */}
-      <div className="grid grid-cols-1 gap-6">
-        {Object.entries(groupedDocuments).map(([type, docs]) => (
-          <Card key={type}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FolderOpen className="h-5 w-5" />
-                {getDocumentTypeLabel(type as Document['type'])}
-                <Badge variant="outline">{docs.length}</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {docs.map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium text-sm">{doc.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(doc.size)} • Subido el {formatDate(doc.uploadedAt)} por {doc.uploadedBy}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(doc.status)}
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {docs.length === 0 && (
-                  <div className="text-center py-6 text-muted-foreground">
-                    <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No hay documentos en esta categoría</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {allDocuments.length === 0 && (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <FileText className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-              <h3 className="text-lg font-medium mb-2">No hay documentos</h3>
-              <p className="text-muted-foreground mb-4">
-                Comienza subiendo el primer documento del mandato
-              </p>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Subir Primer Documento
-              </Button>
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Documentación del Mandato
+          {documents.length > 0 && (
+            <span className="text-sm font-normal text-muted-foreground">
+              ({documents.length} documento{documents.length !== 1 ? 's' : ''})
+            </span>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Upload Form */}
+        <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+          <h4 className="text-sm font-medium">Subir nuevo documento</h4>
+          
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="fileUpload">Archivo</Label>
+              <Input 
+                ref={fileInputRef}
+                id="fileUpload" 
+                type="file" 
+                onChange={handleFileSelect}
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif"
+              />
+              {selectedFile && (
+                <p className="text-xs text-muted-foreground">
+                  Archivo seleccionado: {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
+                </p>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="documentType">Tipo de Documento</Label>
+              <Select value={documentType} onValueChange={setDocumentType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona un tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MANDATE_DOCUMENT_TYPES.map(type => (
+                    <SelectItem key={type} value={type}>
+                      {DOCUMENT_TYPE_LABELS[type]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas (opcional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Descripción o comentarios sobre el documento..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={2}
+              />
+            </div>
+            
+            <Button 
+              onClick={handleUpload} 
+              disabled={!selectedFile || uploading}
+              className="w-full"
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Subiendo...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Subir documento
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Documents List */}
+        {documents.length === 0 ? (
+          <div className="text-center py-8">
+            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-sm text-muted-foreground">
+              Aún no se han subido documentos para este mandato.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {MANDATE_DOCUMENT_TYPES.map(type => {
+              const typeDocs = getDocumentsByType(type);
+              if (typeDocs.length === 0) return null;
+              
+              return (
+                <div key={type} className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-medium text-muted-foreground">
+                      {DOCUMENT_TYPE_LABELS[type]}
+                    </h4>
+                    <span className="text-xs bg-muted px-2 py-1 rounded">
+                      {typeDocs.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {typeDocs.map(doc => (
+                      <DocumentItem
+                        key={doc.id}
+                        document={doc}
+                        onDownload={downloadDocument}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
