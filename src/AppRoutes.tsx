@@ -5,7 +5,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Import new organized components
 import MandatosList from '@/components/mandates/MandatosList';
-import MandatoDashboardView from '@/components/mandates/MandatoDashboardView';
+import MandatoDashboardView from '@/pages/MandatoDashboardView';
 import MandatoTargetPanel from '@/components/targets/MandatoTargetPanel';
 import MandateTargetPipeline from '@/components/targets/MandateTargetPipeline';
 import TransaccionesList from '@/components/transacciones/TransaccionesList';
