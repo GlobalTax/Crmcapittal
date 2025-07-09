@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
-import { CreateContactData, ContactType } from '@/types/Contact';
+import { CreateContactData, ContactType, ContactRole } from '@/types/Contact';
 
 interface PersonModalProps {
   open: boolean;
@@ -34,7 +34,9 @@ export const PersonModal = ({
     preferred_contact_method: 'email',
     language_preference: 'es',
     lifecycle_stage: 'lead',
-    roles: []
+    roles: [],
+    contact_roles: [],
+    contact_status: 'active'
   });
 
   const [newRole, setNewRole] = useState('');
@@ -67,6 +69,8 @@ export const PersonModal = ({
         language_preference: formData.language_preference || 'es',
         lifecycle_stage: formData.lifecycle_stage || 'lead',
         roles: formData.roles || [],
+        contact_roles: formData.contact_roles || ['other'],
+        contact_status: formData.contact_status || 'active',
         linkedin_url: '',
         website_url: '',
         sectors_of_interest: [],
@@ -92,7 +96,9 @@ export const PersonModal = ({
         preferred_contact_method: 'email',
         language_preference: 'es',
         lifecycle_stage: 'lead',
-        roles: []
+        roles: [],
+        contact_roles: [],
+        contact_status: 'active'
       });
       onOpenChange(false);
       console.log('✅ Contact created and form closed');
@@ -110,10 +116,16 @@ export const PersonModal = ({
     if (role && !formData.roles?.includes(role)) {
       updateField('roles', [...(formData.roles || []), role]);
     }
+    // También actualizar contact_roles con los nuevos valores
+    const contactRole = role as ContactRole;
+    if (role && !formData.contact_roles?.includes(contactRole)) {
+      updateField('contact_roles', [...(formData.contact_roles || []), contactRole]);
+    }
   };
 
   const removeRole = (role: string) => {
     updateField('roles', formData.roles?.filter(r => r !== role) || []);
+    updateField('contact_roles', formData.contact_roles?.filter(r => r !== role) || []);
   };
 
   const handleAddCustomRole = () => {
@@ -123,7 +135,7 @@ export const PersonModal = ({
     }
   };
 
-  const predefinedRoles = ['colaborador', 'inversor', 'board', 'advisor', 'proveedor', 'cliente'];
+  const predefinedRoles: ContactRole[] = ['owner', 'buyer', 'advisor', 'investor', 'target', 'client', 'prospect', 'lead'];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

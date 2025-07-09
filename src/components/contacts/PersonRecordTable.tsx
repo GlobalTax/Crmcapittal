@@ -10,6 +10,8 @@ import { Contact } from '@/types/Contact';
 import { EmptyStateSmall } from '@/components/ui/EmptyStateSmall';
 import { cleanTestContacts, createSampleContacts } from '@/utils/cleanTestData';
 import { useToast } from '@/hooks/use-toast';
+import { ContactRoleBadges } from './ContactRoleBadges';
+import { ContactStatusBadge } from './ContactStatusBadge';
 
 interface PersonRecordTableProps {
   contacts: Contact[];
@@ -158,9 +160,10 @@ export const PersonRecordTable = ({
             <tr className="border-b border-border">
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Person</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Company</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Roles</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Estado</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Connection strength</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Last email interaction</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Last calendar interaction</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Last interaction</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
@@ -198,6 +201,18 @@ export const PersonRecordTable = ({
                     </div>
                   </td>
                   <td className="p-3">
+                    <ContactRoleBadges 
+                      roles={contact.contact_roles}
+                      maxDisplay={2}
+                    />
+                  </td>
+                  <td className="p-3">
+                    <ContactStatusBadge 
+                      status={contact.contact_status}
+                      showIcon={false}
+                    />
+                  </td>
+                  <td className="p-3">
                     <Badge 
                       variant="outline"
                       style={{ 
@@ -212,9 +227,6 @@ export const PersonRecordTable = ({
                     <div className="text-sm">
                       {formatLastInteraction(contact.last_interaction_date)}
                     </div>
-                  </td>
-                  <td className="p-3">
-                    <div className="text-sm">—</div>
                   </td>
                   <td className="p-3">
                     <Button 

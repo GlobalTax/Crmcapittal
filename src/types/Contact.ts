@@ -11,10 +11,12 @@ export interface DealPreferences {
   [key: string]: string | string[] | number | undefined;
 }
 
-export type ContactType = 'marketing' | 'sales' | 'franquicia' | 'cliente' | 'prospect' | 'other';
+// Nuevos tipos unificados para contactos
+export type ContactRole = 'owner' | 'buyer' | 'advisor' | 'investor' | 'target' | 'client' | 'prospect' | 'lead' | 'other';
+export type ContactType = 'marketing' | 'sales' | 'franquicia' | 'cliente' | 'prospect' | 'target' | 'lead' | 'other';
 export type ContactPriority = 'low' | 'medium' | 'high';
-export type ContactStatus = 'active' | 'inactive';
-export type ContactSource = 'web' | 'referido' | 'cold_outreach' | 'networking' | 'franquicia' | 'marketing';
+export type ContactStatus = 'active' | 'blocked' | 'archived';
+export type ContactSource = 'web' | 'referido' | 'cold_outreach' | 'networking' | 'franquicia' | 'marketing' | 'mandate_targets' | 'leads';
 
 export interface Contact {
   id: string;
@@ -41,7 +43,12 @@ export interface Contact {
   language_preference?: string;
   company_id?: string;
   lifecycle_stage?: 'lead' | 'cliente' | 'suscriptor' | 'proveedor';
-  roles?: string[];
+  roles?: string[]; // Mantener compatibility con el campo legacy
+  // Nuevos campos unificados
+  contact_roles?: ContactRole[];
+  contact_status?: ContactStatus;
+  source_table?: string;
+  external_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -66,7 +73,10 @@ export interface CreateContactData {
   time_zone?: string;
   language_preference?: string;
   lifecycle_stage?: 'lead' | 'cliente' | 'suscriptor' | 'proveedor';
-  roles?: string[];
+  roles?: string[]; // Mantener compatibility
+  // Nuevos campos unificados
+  contact_roles?: ContactRole[];
+  contact_status?: ContactStatus;
 }
 
 export interface UpdateContactData extends Partial<CreateContactData> {

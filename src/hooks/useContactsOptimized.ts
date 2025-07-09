@@ -32,6 +32,7 @@ export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) 
       const { data, error, count } = await supabase
         .from('contacts')
         .select('*', { count: 'exact' })
+        .eq('contact_status', 'active')
         .order('created_at', { ascending: false })
         .range(from, to);
 
@@ -66,9 +67,15 @@ export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) 
 
   const createContact = async (contactData: CreateContactData) => {
     try {
+      const { data: user } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from('contacts')
-        .insert([contactData])
+        .insert([{
+          ...contactData,
+          created_by: user.user?.id,
+          contact_status: contactData.contact_status || 'active',
+          contact_roles: contactData.contact_roles || ['other'],
+        }])
         .select()
         .single();
 
@@ -111,7 +118,7 @@ export function useContactsOptimized(options: UseContactsOptimizedOptions = {}) 
     try {
       const { error } = await supabase
         .from('contacts')
-        .delete()
+        .update({ contact_status: 'archived' })
         .eq('id', id);
 
       if (error) throw error;

@@ -19,7 +19,7 @@ export const useContacts = () => {
       const { data, error } = await supabase
         .from('contacts')
         .select('*')
-        .eq('is_active', true)
+        .eq('contact_status', 'active')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -39,6 +39,8 @@ export const useContacts = () => {
           ...contactData,
           created_by: (await supabase.auth.getUser()).data.user?.id,
           is_active: true,
+          contact_status: contactData.contact_status || 'active',
+          contact_roles: contactData.contact_roles || ['other'],
         }])
         .select()
         .single();
@@ -102,7 +104,7 @@ export const useContacts = () => {
     mutationFn: async (contactId: string) => {
       const { error } = await supabase
         .from('contacts')
-        .update({ is_active: false })
+        .update({ contact_status: 'archived' })
         .eq('id', contactId);
 
       if (error) {

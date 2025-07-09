@@ -1164,12 +1164,15 @@ export type Database = {
           company: string | null
           company_id: string | null
           contact_priority: string | null
+          contact_roles: Database["public"]["Enums"]["contact_role"][] | null
           contact_source: string | null
+          contact_status: Database["public"]["Enums"]["contact_status"] | null
           contact_type: string
           created_at: string
           created_by: string | null
           deal_preferences: Json | null
           email: string | null
+          external_id: string | null
           id: string
           investment_capacity_max: number | null
           investment_capacity_min: number | null
@@ -1185,6 +1188,7 @@ export type Database = {
           preferred_contact_method: string | null
           roles: string[] | null
           sectors_of_interest: string[] | null
+          source_table: string | null
           time_zone: string | null
           updated_at: string
           website_url: string | null
@@ -1193,12 +1197,15 @@ export type Database = {
           company?: string | null
           company_id?: string | null
           contact_priority?: string | null
+          contact_roles?: Database["public"]["Enums"]["contact_role"][] | null
           contact_source?: string | null
+          contact_status?: Database["public"]["Enums"]["contact_status"] | null
           contact_type?: string
           created_at?: string
           created_by?: string | null
           deal_preferences?: Json | null
           email?: string | null
+          external_id?: string | null
           id?: string
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
@@ -1214,6 +1221,7 @@ export type Database = {
           preferred_contact_method?: string | null
           roles?: string[] | null
           sectors_of_interest?: string[] | null
+          source_table?: string | null
           time_zone?: string | null
           updated_at?: string
           website_url?: string | null
@@ -1222,12 +1230,15 @@ export type Database = {
           company?: string | null
           company_id?: string | null
           contact_priority?: string | null
+          contact_roles?: Database["public"]["Enums"]["contact_role"][] | null
           contact_source?: string | null
+          contact_status?: Database["public"]["Enums"]["contact_status"] | null
           contact_type?: string
           created_at?: string
           created_by?: string | null
           deal_preferences?: Json | null
           email?: string | null
+          external_id?: string | null
           id?: string
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
@@ -1243,6 +1254,7 @@ export type Database = {
           preferred_contact_method?: string | null
           roles?: string[] | null
           sectors_of_interest?: string[] | null
+          source_table?: string | null
           time_zone?: string | null
           updated_at?: string
           website_url?: string | null
@@ -4312,6 +4324,17 @@ export type Database = {
         | "partner"
         | "franquicia"
         | "competidor"
+      contact_role:
+        | "owner"
+        | "buyer"
+        | "advisor"
+        | "investor"
+        | "target"
+        | "client"
+        | "prospect"
+        | "lead"
+        | "other"
+      contact_status: "active" | "blocked" | "archived"
       email_status: "SENT" | "OPENED" | "CLICKED"
       lead_source:
         | "WEBSITE_FORM"
@@ -4502,6 +4525,18 @@ export const Constants = {
         "franquicia",
         "competidor",
       ],
+      contact_role: [
+        "owner",
+        "buyer",
+        "advisor",
+        "investor",
+        "target",
+        "client",
+        "prospect",
+        "lead",
+        "other",
+      ],
+      contact_status: ["active", "blocked", "archived"],
       email_status: ["SENT", "OPENED", "CLICKED"],
       lead_source: [
         "WEBSITE_FORM",
