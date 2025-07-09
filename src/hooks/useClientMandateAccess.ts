@@ -92,23 +92,31 @@ export const useClientMandateAccess = (mandateId: string) => {
           end_date,
           assigned_user_id,
           created_at,
-          assigned_user:user_profiles(
-            first_name,
-            last_name
-          )
+          updated_at
         `)
         .eq('id', mandateId)
         .single();
 
       if (mandateError) throw mandateError;
       
+      // Fetch assigned user profile if exists
+      let assignedUserName = undefined;
+      if (mandateData.assigned_user_id) {
+        const { data: userProfile } = await supabase
+          .from('user_profiles')
+          .select('first_name, last_name')
+          .eq('id', mandateData.assigned_user_id)
+          .single();
+        
+        if (userProfile) {
+          assignedUserName = `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim();
+        }
+      }
+      
       // Transform data to include assigned_user_name
-      const { assigned_user, ...mandateRest } = mandateData;
       const transformedMandate = {
-        ...mandateRest,
-        assigned_user_name: assigned_user && Array.isArray(assigned_user) && assigned_user.length > 0
-          ? `${assigned_user[0].first_name || ''} ${assigned_user[0].last_name || ''}`.trim()
-          : undefined,
+        ...mandateData,
+        assigned_user_name: assignedUserName,
       };
       
       setMandate(transformedMandate as BuyingMandate);

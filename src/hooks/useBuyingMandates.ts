@@ -27,13 +27,7 @@ export const useBuyingMandates = () => {
     try {
       const { data, error } = await supabase
         .from('buying_mandates')
-        .select(`
-          *,
-          assigned_user:user_profiles(
-            first_name,
-            last_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -42,13 +36,31 @@ export const useBuyingMandates = () => {
         return;
       }
       
+      // Fetch user profiles for assigned users
+      const assignedUserIds = (data || [])
+        .map(mandate => mandate.assigned_user_id)
+        .filter(Boolean);
+      
+      let userProfiles: any = {};
+      if (assignedUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('user_profiles')
+          .select('id, first_name, last_name')
+          .in('id', assignedUserIds);
+        
+        userProfiles = (profiles || []).reduce((acc, profile) => {
+          acc[profile.id] = profile;
+          return acc;
+        }, {});
+      }
+      
       // Transform data to include assigned_user_name
       const transformedData = (data || []).map(mandate => {
-        const { assigned_user, ...mandateData } = mandate;
+        const assignedUser = userProfiles[mandate.assigned_user_id];
         return {
-          ...mandateData,
-          assigned_user_name: assigned_user && Array.isArray(assigned_user) && assigned_user.length > 0
-            ? `${assigned_user[0].first_name || ''} ${assigned_user[0].last_name || ''}`.trim()
+          ...mandate,
+          assigned_user_name: assignedUser 
+            ? `${assignedUser.first_name || ''} ${assignedUser.last_name || ''}`.trim()
             : undefined,
         };
       });
