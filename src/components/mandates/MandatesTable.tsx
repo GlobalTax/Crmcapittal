@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,6 +14,7 @@ interface MandatesTableProps {
 }
 
 export const MandatesTable = ({ mandates, onViewTargets }: MandatesTableProps) => {
+  const navigate = useNavigate();
   const { updateMandateStatus } = useBuyingMandates();
 
   const getStatusBadge = (status: BuyingMandate['status']) => {
@@ -114,7 +116,7 @@ export const MandatesTable = ({ mandates, onViewTargets }: MandatesTableProps) =
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => window.location.href = `/mandatos/${mandate.id}`}>
+                    <DropdownMenuItem onClick={() => navigate(`/mandatos/${mandate.id}`)}>
                       <Eye className="mr-2 h-4 w-4" />
                       Ver Mandato
                     </DropdownMenuItem>
