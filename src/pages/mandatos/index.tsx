@@ -1,7 +1,7 @@
-import BuyingMandates from "@/pages/BuyingMandates";
+import MandatesPage from "@/pages/MandatesPage";
 
 const MandatosPage = () => {
-  return <BuyingMandates />;
+  return <MandatesPage />;
 };
 
 export default MandatosPage;
