@@ -4,7 +4,7 @@ import { AttioLayout } from '@/components/layout/AttioLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Import new organized components
-import MandatosList from '@/components/mandates/MandatosList';
+import MandatesPage from '@/pages/MandatesPage';
 import MandatoDashboardView from '@/pages/MandatoDashboardView';
 import MandatoTargetPanel from '@/components/targets/MandatoTargetPanel';
 import MandateTargetPipeline from '@/components/targets/MandateTargetPipeline';
@@ -93,7 +93,7 @@ export const AppRoutes = () => {
           />
 
           {/* Mandatos (Spanish routes) */}
-          <Route path="/mandatos" element={<MandatosList />} />
+          <Route path="/mandatos" element={<MandatesPage />} />
           <Route path="/mandatos/:id" element={<MandatoDashboardView />} />
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
