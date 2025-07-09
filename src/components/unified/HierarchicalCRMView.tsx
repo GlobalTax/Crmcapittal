@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronRight, Users, Building2, FileText, Target, ArrowLeft } from 'lucide-react';
+import { ChevronRight, Users, Building2, FileText, Target, ArrowLeft, Plus } from 'lucide-react';
 
 // Import existing components
 import { LeadControlCenter } from '@/components/leads/LeadControlCenter';
@@ -12,6 +12,7 @@ import { RecordTable } from '@/components/companies/RecordTable';
 import { MandatesTable } from '@/components/mandates/MandatesTable';
 import { MandateTargetPipeline } from '@/components/mandates/MandateTargetPipeline';
 import { TargetDetailPanel } from '@/components/mandates/TargetDetailPanel';
+import { MandateTargetsDialog } from '@/components/mandates/MandateTargetsDialog';
 
 // Import new collapsible panels
 import { CollapsibleLeadPanel } from './CollapsibleLeadPanel';
@@ -55,6 +56,7 @@ export const HierarchicalCRMView = ({
     level: initialLevel
   });
   const [showTargetDetail, setShowTargetDetail] = useState(false);
+  const [showTargetsDialog, setShowTargetsDialog] = useState(false);
 
   // Hooks
   const { companies, createCompany, updateCompany, deleteCompany, isLoading: companiesLoading } = useCompanies({
@@ -87,6 +89,13 @@ export const HierarchicalCRMView = ({
       fetchDocuments(navigation.selectedMandate.id);
     }
   }, [navigation.selectedMandate?.id, fetchTargets, fetchDocuments]);
+
+  // Refresh targets when dialog closes
+  useEffect(() => {
+    if (!showTargetsDialog && navigation.selectedMandate?.id) {
+      fetchTargets(navigation.selectedMandate.id);
+    }
+  }, [showTargetsDialog, navigation.selectedMandate?.id, fetchTargets]);
 
   // Navigation handlers
   const handleNavigateToCompanies = (company?: Company) => {
@@ -382,6 +391,14 @@ export const HierarchicalCRMView = ({
                     <Badge variant="secondary">
                       {targets.filter(t => t.contacted).length} contactados
                     </Badge>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowTargetsDialog(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Añadir Target
+                    </Button>
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -464,6 +481,13 @@ export const HierarchicalCRMView = ({
             fetchDocuments(navigation.selectedMandate.id);
           }
         }}
+      />
+
+      {/* Mandate Targets Dialog */}
+      <MandateTargetsDialog
+        mandate={navigation.selectedMandate || null}
+        open={showTargetsDialog}
+        onOpenChange={setShowTargetsDialog}
       />
     </div>
   );
