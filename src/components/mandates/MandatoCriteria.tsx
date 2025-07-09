@@ -8,7 +8,7 @@ interface MandateCriteriaPanelProps {
   mandate: BuyingMandate;
 }
 
-export const MandateCriteriaPanel = ({ mandate }: MandateCriteriaPanelProps) => {
+export const MandatoCriteria = ({ mandate }: MandateCriteriaPanelProps) => {
   const formatCurrency = (amount?: number) => {
     if (!amount) return 'No especificado';
     return new Intl.NumberFormat('es-ES', {

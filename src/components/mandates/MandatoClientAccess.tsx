@@ -22,7 +22,7 @@ interface MandateClientAccessPanelProps {
   mandateId: string;
 }
 
-export const MandateClientAccessPanel = ({ mandateId }: MandateClientAccessPanelProps) => {
+export const MandatoClientAccess = ({ mandateId }: MandateClientAccessPanelProps) => {
   const [accessLinks, setAccessLinks] = useState<ClientAccessLink[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newClientEmail, setNewClientEmail] = useState('');

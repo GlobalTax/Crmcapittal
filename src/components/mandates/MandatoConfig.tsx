@@ -11,7 +11,7 @@ interface MandateConfigurationPanelProps {
   mandate: BuyingMandate;
 }
 
-export const MandateConfigurationPanel = ({ mandate }: MandateConfigurationPanelProps) => {
+export const MandatoConfig = ({ mandate }: MandateConfigurationPanelProps) => {
   const { updateMandateStatus } = useBuyingMandates();
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState({

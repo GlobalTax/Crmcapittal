@@ -7,23 +7,20 @@ import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { BuyingMandate, MandateTarget } from '@/types/BuyingMandate';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { MandateDashboardHeader } from '@/components/mandates/MandateDashboardHeader';
-import { MandateKPIRow } from '@/components/mandates/MandateKPIRow';
-import { MandateTargetsPipeline } from '@/components/mandates/MandateTargetsPipeline';
-import { TargetDataTable } from '@/components/mandates/TargetDataTable';
-import { TargetFiltersPanel } from '@/components/mandates/TargetFiltersPanel';
+import { MandatoKPIHeader } from '@/components/mandates/MandatoKPIHeader';
+import { MandatoTargetPanel } from '@/components/mandates/MandatoTargetPanel';
+import { MandatoDocs } from '@/components/mandates/MandatoDocs';
 import { TargetDetailPanel } from '@/components/mandates/TargetDetailPanel';
-import { MandateActivityTimeline } from '@/components/mandates/MandateActivityTimeline';
-import { MandateCriteriaPanel } from '@/components/mandates/MandateCriteriaPanel';
-import { MandateConfigurationPanel } from '@/components/mandates/MandateConfigurationPanel';
-import { MandateClientAccessPanel } from '@/components/mandates/MandateClientAccessPanel';
+import { MandatoActivityLog } from '@/components/mandates/MandatoActivityLog';
+import { MandatoCriteria } from '@/components/mandates/MandatoCriteria';
+import { MandatoConfig } from '@/components/mandates/MandatoConfig';
+import { MandatoClientAccess } from '@/components/mandates/MandatoClientAccess';
 
 export default function MandatoDashboardView() {
   const { mandateId } = useParams<{ mandateId: string }>();
   const [selectedTarget, setSelectedTarget] = useState<MandateTarget | null>(null);
   const [showTargetDetail, setShowTargetDetail] = useState(false);
-  const [filteredTargets, setFilteredTargets] = useState<MandateTarget[]>([]);
   const [activeTab, setActiveTab] = useState('targets');
-  const [viewMode, setViewMode] = useState<'table' | 'pipeline'>('table');
   
   const { 
     mandates, 
@@ -83,10 +80,6 @@ export default function MandatoDashboardView() {
     initializeAndLoad();
   }, [mandateId]);
 
-  // Efecto separado y estable para filtros
-  useEffect(() => {
-    setFilteredTargets(mandateTargets);
-  }, [mandateTargets.length]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -124,10 +117,6 @@ export default function MandatoDashboardView() {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
-
-  const handleFilterTargets = (filtered: MandateTarget[]) => {
-    setFilteredTargets(filtered);
-  };
 
   const handleEditTarget = (target: MandateTarget) => {
     setSelectedTarget(target);
@@ -171,7 +160,7 @@ export default function MandatoDashboardView() {
           totalTargets={mandateTargets.length}
           contactedTargets={contactedTargets}
         />
-        <MandateKPIRow 
+        <MandatoKPIHeader 
           totalTargets={mandateTargets.length}
           contactedTargets={contactedTargets}
           interestedTargets={interestedTargets}
@@ -213,72 +202,33 @@ export default function MandatoDashboardView() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <TabsContent value="targets" className="h-full m-0 p-6 space-y-6">
-              {/* Filters and View Toggle */}
-              <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1">
-                  <TargetFiltersPanel 
-                    targets={mandateTargets}
-                    onFilter={handleFilterTargets}
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={viewMode}
-                    onChange={(e) => setViewMode(e.target.value as 'table' | 'pipeline')}
-                    className="px-3 py-2 border border-border rounded-md bg-background"
-                  >
-                    <option value="table">Vista Tabla</option>
-                    <option value="pipeline">Vista Pipeline</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Content based on view mode */}
-              {viewMode === 'table' ? (
-                <Card>
-                  <CardContent className="p-6">
-                    <TargetDataTable
-                      targets={filteredTargets}
-                      documents={mandateDocuments}
-                      onEditTarget={handleEditTarget}
-                      onViewDocuments={handleViewDocuments}
-                    />
-                  </CardContent>
-                </Card>
-              ) : (
-                <MandateTargetsPipeline
-                  targets={filteredTargets}
-                  documents={mandateDocuments}
-                  onTargetClick={handleViewDocuments}
-                />
-              )}
+            <TabsContent value="targets" className="h-full m-0 p-6">
+              <MandatoTargetPanel
+                targets={mandateTargets}
+                documents={mandateDocuments}
+                onEditTarget={handleEditTarget}
+                onViewDocuments={handleViewDocuments}
+              />
             </TabsContent>
 
             <TabsContent value="documents" className="h-full m-0 p-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="text-center text-muted-foreground">
-                    Panel de documentos - En desarrollo
-                  </div>
-                </CardContent>
-              </Card>
+              <MandatoDocs mandateId={mandateId!} />
             </TabsContent>
 
             <TabsContent value="activity" className="h-full m-0 p-6">
-              <MandateActivityTimeline mandateId={mandateId!} />
+              <MandatoActivityLog mandateId={mandateId!} />
             </TabsContent>
 
             <TabsContent value="criteria" className="h-full m-0 p-6">
-              <MandateCriteriaPanel mandate={mandate} />
+              <MandatoCriteria mandate={mandate} />
             </TabsContent>
 
             <TabsContent value="configuration" className="h-full m-0 p-6">
-              <MandateConfigurationPanel mandate={mandate} />
+              <MandatoConfig mandate={mandate} />
             </TabsContent>
 
             <TabsContent value="client-access" className="h-full m-0 p-6">
-              <MandateClientAccessPanel mandateId={mandateId!} />
+              <MandatoClientAccess mandateId={mandateId!} />
             </TabsContent>
           </div>
         </Tabs>

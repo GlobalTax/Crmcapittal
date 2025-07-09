@@ -18,7 +18,7 @@ interface MandateActivityTimelineProps {
   mandateId: string;
 }
 
-export const MandateActivityTimeline = ({ mandateId }: MandateActivityTimelineProps) => {
+export const MandatoActivityLog = ({ mandateId }: MandateActivityTimelineProps) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
