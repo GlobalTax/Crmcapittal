@@ -26,6 +26,7 @@ import { TargetEInformaSection } from './target-detail/TargetEInformaSection';
 import { TargetDocumentsSection } from './target-detail/TargetDocumentsSection';
 import { TargetActivityTimeline } from './target-detail/TargetActivityTimeline';
 import { TargetQuickActions } from './target-detail/TargetQuickActions';
+import { ContactHistorySection } from './target-detail/ContactHistorySection';
 
 interface TargetDetailPanelProps {
   target: MandateTarget | null;
@@ -175,7 +176,9 @@ export const TargetDetailPanel = ({
               )}
             </TabsContent>
 
-            <TabsContent value="activity" className="mt-6">
+            <TabsContent value="activity" className="mt-6 space-y-6">
+              <ContactHistorySection targetId={target.id} />
+              
               <TargetActivityTimeline 
                 activities={activities}
                 followups={followups}

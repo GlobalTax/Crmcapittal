@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,7 @@ import {
   User
 } from 'lucide-react';
 import { MandateTarget } from '@/types/BuyingMandate';
+import { useContactHistory } from '@/hooks/useContactHistory';
 
 interface TargetQuickActionsProps {
   target: MandateTarget;
@@ -33,6 +34,11 @@ export const TargetQuickActions = ({
 }: TargetQuickActionsProps) => {
   const [isSchedulingFollowup, setIsSchedulingFollowup] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [emailDisabled, setEmailDisabled] = useState(false);
+  const [phoneDisabled, setPhoneDisabled] = useState(false);
+  
+  const { createContactEntry, hasContactEntry, loading } = useContactHistory();
+  
   const [followupData, setFollowupData] = useState({
     title: '',
     description: '',
@@ -44,36 +50,72 @@ export const TargetQuickActions = ({
     description: '',
   });
 
-  const handleEmailContact = () => {
-    if (target.contact_email) {
-      window.open(`mailto:${target.contact_email}`, '_blank');
-      onAddActivity({
-        target_id: target.id,
-        activity_type: 'email_sent',
-        title: 'Email enviado',
-        description: `Email enviado a ${target.contact_email}`,
-        activity_data: {
-          contact_email: target.contact_email,
-          contact_name: target.contact_name,
-        }
-      });
+  // Check if contact entries already exist for this target
+  useEffect(() => {
+    const checkContactEntries = async () => {
+      const hasEmail = await hasContactEntry(target.id, 'email');
+      const hasPhone = await hasContactEntry(target.id, 'telefono');
+      setEmailDisabled(hasEmail);
+      setPhoneDisabled(hasPhone);
+    };
+    
+    checkContactEntries();
+  }, [target.id, hasContactEntry]);
+
+  const handleEmailContact = async () => {
+    if (target.contact_email && !emailDisabled) {
+      // Create contact history entry
+      const contactEntry = await createContactEntry(target.id, target.mandate_id, 'email');
+      
+      if (contactEntry) {
+        // Disable the button
+        setEmailDisabled(true);
+        
+        // Open email client
+        window.open(`mailto:${target.contact_email}`, '_blank');
+        
+        // Add activity
+        onAddActivity({
+          target_id: target.id,
+          activity_type: 'email_sent',
+          title: 'Email enviado',
+          description: `Email enviado a ${target.contact_email}`,
+          activity_data: {
+            contact_email: target.contact_email,
+            contact_name: target.contact_name,
+            contact_history_id: contactEntry.id,
+          }
+        });
+      }
     }
   };
 
-  const handlePhoneContact = () => {
-    if (target.contact_phone) {
-      window.open(`tel:${target.contact_phone}`, '_blank');
-      onAddActivity({
-        target_id: target.id,
-        activity_type: 'contact_made',
-        title: 'Llamada realizada',
-        description: `Llamada a ${target.contact_phone}`,
-        activity_data: {
-          contact_phone: target.contact_phone,
-          contact_name: target.contact_name,
-          contact_method: 'phone',
-        }
-      });
+  const handlePhoneContact = async () => {
+    if (target.contact_phone && !phoneDisabled) {
+      // Create contact history entry
+      const contactEntry = await createContactEntry(target.id, target.mandate_id, 'telefono');
+      
+      if (contactEntry) {
+        // Disable the button
+        setPhoneDisabled(true);
+        
+        // Open phone dialer
+        window.open(`tel:${target.contact_phone}`, '_blank');
+        
+        // Add activity
+        onAddActivity({
+          target_id: target.id,
+          activity_type: 'contact_made',
+          title: 'Llamada realizada',
+          description: `Llamada a ${target.contact_phone}`,
+          activity_data: {
+            contact_phone: target.contact_phone,
+            contact_name: target.contact_name,
+            contact_method: 'phone',
+            contact_history_id: contactEntry.id,
+          }
+        });
+      }
     }
   };
 
@@ -134,13 +176,20 @@ export const TargetQuickActions = ({
           variant="outline"
           className="h-auto p-4 flex flex-col items-center gap-2"
           onClick={handleEmailContact}
-          disabled={!target.contact_email}
+          disabled={!target.contact_email || emailDisabled || loading}
         >
           <Mail className="h-6 w-6 text-blue-600" />
           <div className="text-center">
-            <div className="font-medium">Enviar Email</div>
+            <div className="font-medium">
+              {emailDisabled ? 'Email Enviado' : 'Enviar Email'}
+            </div>
             <div className="text-xs text-muted-foreground">
-              {target.contact_email ? 'Contactar' : 'Sin email'}
+              {!target.contact_email 
+                ? 'Sin email' 
+                : emailDisabled 
+                ? 'Ya contactado' 
+                : 'Contactar'
+              }
             </div>
           </div>
         </Button>
@@ -150,13 +199,20 @@ export const TargetQuickActions = ({
           variant="outline"
           className="h-auto p-4 flex flex-col items-center gap-2"
           onClick={handlePhoneContact}
-          disabled={!target.contact_phone}
+          disabled={!target.contact_phone || phoneDisabled || loading}
         >
           <Phone className="h-6 w-6 text-green-600" />
           <div className="text-center">
-            <div className="font-medium">Llamar</div>
+            <div className="font-medium">
+              {phoneDisabled ? 'Llamada Hecha' : 'Llamar'}
+            </div>
             <div className="text-xs text-muted-foreground">
-              {target.contact_phone ? 'Contactar' : 'Sin teléfono'}
+              {!target.contact_phone 
+                ? 'Sin teléfono' 
+                : phoneDisabled 
+                ? 'Ya contactado' 
+                : 'Contactar'
+              }
             </div>
           </div>
         </Button>

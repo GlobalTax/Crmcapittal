@@ -760,6 +760,42 @@ export type Database = {
           },
         ]
       }
+      contact_history: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          fecha_contacto: string
+          id: string
+          mandate_id: string
+          medio: string
+          resultado: string
+          target_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          fecha_contacto?: string
+          id?: string
+          mandate_id: string
+          medio: string
+          resultado?: string
+          target_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          fecha_contacto?: string
+          id?: string
+          mandate_id?: string
+          medio?: string
+          resultado?: string
+          target_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_interactions: {
         Row: {
           attendees: Json | null
