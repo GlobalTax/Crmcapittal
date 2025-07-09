@@ -46,6 +46,7 @@ export type Database = {
       }
       buying_mandates: {
         Row: {
+          assigned_user_id: string | null
           client_contact: string
           client_email: string | null
           client_name: string
@@ -67,6 +68,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          assigned_user_id?: string | null
           client_contact: string
           client_email?: string | null
           client_name: string
@@ -88,6 +90,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          assigned_user_id?: string | null
           client_contact?: string
           client_email?: string | null
           client_name?: string

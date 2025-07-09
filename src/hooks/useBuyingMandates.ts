@@ -27,7 +27,13 @@ export const useBuyingMandates = () => {
     try {
       const { data, error } = await supabase
         .from('buying_mandates')
-        .select('*')
+        .select(`
+          *,
+          assigned_user:user_profiles(
+            first_name,
+            last_name
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -35,7 +41,19 @@ export const useBuyingMandates = () => {
         setMandates([]);
         return;
       }
-      setMandates((data || []) as BuyingMandate[]);
+      
+      // Transform data to include assigned_user_name
+      const transformedData = (data || []).map(mandate => {
+        const { assigned_user, ...mandateData } = mandate;
+        return {
+          ...mandateData,
+          assigned_user_name: assigned_user && Array.isArray(assigned_user) && assigned_user.length > 0
+            ? `${assigned_user[0].first_name || ''} ${assigned_user[0].last_name || ''}`.trim()
+            : undefined,
+        };
+      });
+      
+      setMandates(transformedData as BuyingMandate[]);
     } catch (error: any) {
       console.error('Error fetching mandates:', error);
       setMandates([]);

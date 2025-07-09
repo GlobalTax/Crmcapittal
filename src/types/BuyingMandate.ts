@@ -16,6 +16,8 @@ export interface BuyingMandate {
   start_date: string;
   end_date?: string;
   created_by?: string;
+  assigned_user_id?: string;
+  assigned_user_name?: string;
   created_at: string;
   updated_at: string;
 }
@@ -54,6 +56,7 @@ export interface CreateBuyingMandateData {
   min_ebitda?: number;
   max_ebitda?: number;
   other_criteria?: string;
+  assigned_user_id?: string;
   start_date?: string;
   end_date?: string;
 }

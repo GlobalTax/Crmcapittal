@@ -37,6 +37,12 @@ export const ClientMandateHeader = ({ mandate, totalTargets, contactedTargets }:
               Cliente: <span className="font-medium">{mandate.client_name}</span>
               <br />
               Contacto: <span className="font-medium">{mandate.client_contact}</span>
+              {mandate.assigned_user_name && (
+                <>
+                  <br />
+                  Usuario asignado: <span className="font-medium">{mandate.assigned_user_name}</span>
+                </>
+              )}
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">

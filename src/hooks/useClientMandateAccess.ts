@@ -90,13 +90,28 @@ export const useClientMandateAccess = (mandateId: string) => {
           status,
           start_date,
           end_date,
-          created_at
+          assigned_user_id,
+          created_at,
+          assigned_user:user_profiles(
+            first_name,
+            last_name
+          )
         `)
         .eq('id', mandateId)
         .single();
 
       if (mandateError) throw mandateError;
-      setMandate(mandateData as BuyingMandate);
+      
+      // Transform data to include assigned_user_name
+      const { assigned_user, ...mandateRest } = mandateData;
+      const transformedMandate = {
+        ...mandateRest,
+        assigned_user_name: assigned_user && Array.isArray(assigned_user) && assigned_user.length > 0
+          ? `${assigned_user[0].first_name || ''} ${assigned_user[0].last_name || ''}`.trim()
+          : undefined,
+      };
+      
+      setMandate(transformedMandate as BuyingMandate);
 
       // Fetch targets (limited fields, no sensitive financial data)
       const { data: targetsData, error: targetsError } = await supabase
