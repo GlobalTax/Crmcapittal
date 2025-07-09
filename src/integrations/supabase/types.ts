@@ -56,6 +56,7 @@ export type Database = {
           end_date: string | null
           id: string
           mandate_name: string
+          mandate_type: string
           max_ebitda: number | null
           max_revenue: number | null
           min_ebitda: number | null
@@ -78,6 +79,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           mandate_name: string
+          mandate_type?: string
           max_ebitda?: number | null
           max_revenue?: number | null
           min_ebitda?: number | null
@@ -100,6 +102,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           mandate_name?: string
+          mandate_type?: string
           max_ebitda?: number | null
           max_revenue?: number | null
           min_ebitda?: number | null
