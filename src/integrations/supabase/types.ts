@@ -413,6 +413,9 @@ export type Database = {
         Row: {
           address: string | null
           annual_revenue: number | null
+          business_segment:
+            | Database["public"]["Enums"]["business_segment"]
+            | null
           city: string | null
           company_size: Database["public"]["Enums"]["company_size"]
           company_status: Database["public"]["Enums"]["company_status"]
@@ -420,12 +423,17 @@ export type Database = {
           country: string | null
           created_at: string
           created_by: string | null
+          deal_readiness_score: number | null
           description: string | null
           domain: string | null
+          engagement_level: number | null
           engagement_score: number | null
           facebook_url: string | null
           first_contact_date: string | null
           founded_year: number | null
+          geographic_scope:
+            | Database["public"]["Enums"]["geographic_scope"]
+            | null
           id: string
           industry: string | null
           is_franquicia: boolean
@@ -437,6 +445,7 @@ export type Database = {
           lifecycle_stage: Database["public"]["Enums"]["lifecycle_stage"]
           linkedin_url: string | null
           name: string
+          network_strength: number | null
           next_follow_up_date: string | null
           nif: string | null
           notes: string | null
@@ -446,6 +455,9 @@ export type Database = {
           postal_code: string | null
           state: string | null
           tags: string[] | null
+          transaction_interest:
+            | Database["public"]["Enums"]["transaction_interest"]
+            | null
           twitter_url: string | null
           updated_at: string
           website: string | null
@@ -453,6 +465,9 @@ export type Database = {
         Insert: {
           address?: string | null
           annual_revenue?: number | null
+          business_segment?:
+            | Database["public"]["Enums"]["business_segment"]
+            | null
           city?: string | null
           company_size?: Database["public"]["Enums"]["company_size"]
           company_status?: Database["public"]["Enums"]["company_status"]
@@ -460,12 +475,17 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          deal_readiness_score?: number | null
           description?: string | null
           domain?: string | null
+          engagement_level?: number | null
           engagement_score?: number | null
           facebook_url?: string | null
           first_contact_date?: string | null
           founded_year?: number | null
+          geographic_scope?:
+            | Database["public"]["Enums"]["geographic_scope"]
+            | null
           id?: string
           industry?: string | null
           is_franquicia?: boolean
@@ -477,6 +497,7 @@ export type Database = {
           lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
           linkedin_url?: string | null
           name: string
+          network_strength?: number | null
           next_follow_up_date?: string | null
           nif?: string | null
           notes?: string | null
@@ -486,6 +507,9 @@ export type Database = {
           postal_code?: string | null
           state?: string | null
           tags?: string[] | null
+          transaction_interest?:
+            | Database["public"]["Enums"]["transaction_interest"]
+            | null
           twitter_url?: string | null
           updated_at?: string
           website?: string | null
@@ -493,6 +517,9 @@ export type Database = {
         Update: {
           address?: string | null
           annual_revenue?: number | null
+          business_segment?:
+            | Database["public"]["Enums"]["business_segment"]
+            | null
           city?: string | null
           company_size?: Database["public"]["Enums"]["company_size"]
           company_status?: Database["public"]["Enums"]["company_status"]
@@ -500,12 +527,17 @@ export type Database = {
           country?: string | null
           created_at?: string
           created_by?: string | null
+          deal_readiness_score?: number | null
           description?: string | null
           domain?: string | null
+          engagement_level?: number | null
           engagement_score?: number | null
           facebook_url?: string | null
           first_contact_date?: string | null
           founded_year?: number | null
+          geographic_scope?:
+            | Database["public"]["Enums"]["geographic_scope"]
+            | null
           id?: string
           industry?: string | null
           is_franquicia?: boolean
@@ -517,6 +549,7 @@ export type Database = {
           lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
           linkedin_url?: string | null
           name?: string
+          network_strength?: number | null
           next_follow_up_date?: string | null
           nif?: string | null
           notes?: string | null
@@ -526,6 +559,9 @@ export type Database = {
           postal_code?: string | null
           state?: string | null
           tags?: string[] | null
+          transaction_interest?:
+            | Database["public"]["Enums"]["transaction_interest"]
+            | null
           twitter_url?: string | null
           updated_at?: string
           website?: string | null
@@ -564,6 +600,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      company_mandates: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          mandate_id: string
+          notes: string | null
+          relationship_type: Database["public"]["Enums"]["mandate_relationship_type"]
+          status: Database["public"]["Enums"]["mandate_relationship_status"]
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mandate_id: string
+          notes?: string | null
+          relationship_type: Database["public"]["Enums"]["mandate_relationship_type"]
+          status?: Database["public"]["Enums"]["mandate_relationship_status"]
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mandate_id?: string
+          notes?: string | null
+          relationship_type?: Database["public"]["Enums"]["mandate_relationship_type"]
+          status?: Database["public"]["Enums"]["mandate_relationship_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_mandates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_mandates_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       connected_accounts: {
         Row: {
@@ -1171,7 +1258,9 @@ export type Database = {
           created_at: string
           created_by: string | null
           deal_preferences: Json | null
+          ecosystem_role: Database["public"]["Enums"]["ecosystem_role"] | null
           email: string | null
+          engagement_level: number | null
           external_id: string | null
           id: string
           investment_capacity_max: number | null
@@ -1182,6 +1271,7 @@ export type Database = {
           lifecycle_stage: string | null
           linkedin_url: string | null
           name: string
+          network_connections: number | null
           notes: string | null
           phone: string | null
           position: string | null
@@ -1204,7 +1294,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deal_preferences?: Json | null
+          ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
           email?: string | null
+          engagement_level?: number | null
           external_id?: string | null
           id?: string
           investment_capacity_max?: number | null
@@ -1215,6 +1307,7 @@ export type Database = {
           lifecycle_stage?: string | null
           linkedin_url?: string | null
           name: string
+          network_connections?: number | null
           notes?: string | null
           phone?: string | null
           position?: string | null
@@ -1237,7 +1330,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deal_preferences?: Json | null
+          ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
           email?: string | null
+          engagement_level?: number | null
           external_id?: string | null
           id?: string
           investment_capacity_max?: number | null
@@ -1248,6 +1343,7 @@ export type Database = {
           lifecycle_stage?: string | null
           linkedin_url?: string | null
           name?: string
+          network_connections?: number | null
           notes?: string | null
           phone?: string | null
           position?: string | null
@@ -4305,6 +4401,12 @@ export type Database = {
         | "WEBSITE_VISIT"
         | "DOCUMENT_DOWNLOADED"
       app_role: "superadmin" | "admin" | "user"
+      business_segment:
+        | "pyme"
+        | "mid_market"
+        | "enterprise"
+        | "family_office"
+        | "investment_fund"
       collaborator_type:
         | "referente"
         | "partner_comercial"
@@ -4324,6 +4426,9 @@ export type Database = {
         | "partner"
         | "franquicia"
         | "competidor"
+        | "target"
+        | "cliente_comprador"
+        | "cliente_vendedor"
       contact_role:
         | "owner"
         | "buyer"
@@ -4334,8 +4439,24 @@ export type Database = {
         | "prospect"
         | "lead"
         | "other"
+        | "decision_maker"
+        | "influencer"
+        | "gatekeeper"
+        | "champion"
+        | "ceo"
+        | "cfo"
+        | "board_member"
+        | "broker"
       contact_status: "active" | "blocked" | "archived"
+      ecosystem_role:
+        | "entrepreneur"
+        | "investor"
+        | "advisor"
+        | "broker"
+        | "lawyer"
+        | "banker"
       email_status: "SENT" | "OPENED" | "CLICKED"
+      geographic_scope: "local" | "regional" | "nacional" | "internacional"
       lead_source:
         | "WEBSITE_FORM"
         | "CAPITAL_MARKET"
@@ -4360,6 +4481,12 @@ export type Database = {
         | "opportunity"
         | "customer"
         | "evangelist"
+      mandate_relationship_status:
+        | "potential"
+        | "active"
+        | "completed"
+        | "discarded"
+      mandate_relationship_type: "target" | "buyer" | "seller" | "advisor"
       nurturing_status: "ACTIVE" | "PAUSED" | "COMPLETED" | "FAILED"
       target_status:
         | "IDENTIFIED"
@@ -4371,6 +4498,7 @@ export type Database = {
         | "ARCHIVED"
         | "CONVERTED_TO_DEAL"
       task_status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "ON_HOLD"
+      transaction_interest: "compra" | "venta" | "ambos" | "ninguno"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4509,6 +4637,13 @@ export const Constants = {
         "DOCUMENT_DOWNLOADED",
       ],
       app_role: ["superadmin", "admin", "user"],
+      business_segment: [
+        "pyme",
+        "mid_market",
+        "enterprise",
+        "family_office",
+        "investment_fund",
+      ],
       collaborator_type: [
         "referente",
         "partner_comercial",
@@ -4524,6 +4659,9 @@ export const Constants = {
         "partner",
         "franquicia",
         "competidor",
+        "target",
+        "cliente_comprador",
+        "cliente_vendedor",
       ],
       contact_role: [
         "owner",
@@ -4535,9 +4673,26 @@ export const Constants = {
         "prospect",
         "lead",
         "other",
+        "decision_maker",
+        "influencer",
+        "gatekeeper",
+        "champion",
+        "ceo",
+        "cfo",
+        "board_member",
+        "broker",
       ],
       contact_status: ["active", "blocked", "archived"],
+      ecosystem_role: [
+        "entrepreneur",
+        "investor",
+        "advisor",
+        "broker",
+        "lawyer",
+        "banker",
+      ],
       email_status: ["SENT", "OPENED", "CLICKED"],
+      geographic_scope: ["local", "regional", "nacional", "internacional"],
       lead_source: [
         "WEBSITE_FORM",
         "CAPITAL_MARKET",
@@ -4565,6 +4720,13 @@ export const Constants = {
         "customer",
         "evangelist",
       ],
+      mandate_relationship_status: [
+        "potential",
+        "active",
+        "completed",
+        "discarded",
+      ],
+      mandate_relationship_type: ["target", "buyer", "seller", "advisor"],
       nurturing_status: ["ACTIVE", "PAUSED", "COMPLETED", "FAILED"],
       target_status: [
         "IDENTIFIED",
@@ -4577,6 +4739,7 @@ export const Constants = {
         "CONVERTED_TO_DEAL",
       ],
       task_status: ["PENDING", "IN_PROGRESS", "COMPLETED", "ON_HOLD"],
+      transaction_interest: ["compra", "venta", "ambos", "ninguno"],
     },
   },
 } as const

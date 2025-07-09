@@ -27,7 +27,15 @@ const roleLabels: Record<ContactRole, string> = {
   client: 'Cliente',
   prospect: 'Prospecto',
   lead: 'Lead',
-  other: 'Otro'
+  other: 'Otro',
+  decision_maker: 'Tomador de Decisiones',
+  influencer: 'Influenciador',
+  gatekeeper: 'Guardián',
+  champion: 'Champion',
+  ceo: 'CEO',
+  cfo: 'CFO',
+  board_member: 'Miembro del Consejo',
+  broker: 'Intermediario'
 };
 
 const statusLabels: Record<ContactStatus, string> = {

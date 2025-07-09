@@ -12,11 +12,12 @@ export interface DealPreferences {
 }
 
 // Nuevos tipos unificados para contactos
-export type ContactRole = 'owner' | 'buyer' | 'advisor' | 'investor' | 'target' | 'client' | 'prospect' | 'lead' | 'other';
+export type ContactRole = 'owner' | 'buyer' | 'advisor' | 'investor' | 'target' | 'client' | 'prospect' | 'lead' | 'other' | 'decision_maker' | 'influencer' | 'gatekeeper' | 'champion' | 'ceo' | 'cfo' | 'board_member' | 'broker';
 export type ContactType = 'marketing' | 'sales' | 'franquicia' | 'cliente' | 'prospect' | 'target' | 'lead' | 'other';
 export type ContactPriority = 'low' | 'medium' | 'high';
 export type ContactStatus = 'active' | 'blocked' | 'archived';
 export type ContactSource = 'web' | 'referido' | 'cold_outreach' | 'networking' | 'franquicia' | 'marketing' | 'mandate_targets' | 'leads';
+export type EcosystemRole = 'entrepreneur' | 'investor' | 'advisor' | 'broker' | 'lawyer' | 'banker';
 
 export interface Contact {
   id: string;
@@ -49,6 +50,12 @@ export interface Contact {
   contact_status?: ContactStatus;
   source_table?: string;
   external_id?: string;
+  
+  // Nuevos campos de segmentación del ecosistema
+  ecosystem_role?: EcosystemRole;
+  engagement_level?: number;
+  network_connections?: number;
+  
   created_at: string;
   updated_at: string;
 }
@@ -77,6 +84,11 @@ export interface CreateContactData {
   // Nuevos campos unificados
   contact_roles?: ContactRole[];
   contact_status?: ContactStatus;
+  
+  // Nuevos campos de segmentación del ecosistema
+  ecosystem_role?: EcosystemRole;
+  engagement_level?: number;
+  network_connections?: number;
 }
 
 export interface UpdateContactData extends Partial<CreateContactData> {

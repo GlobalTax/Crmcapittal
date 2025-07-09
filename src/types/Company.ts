@@ -1,8 +1,15 @@
 
 export type CompanySize = '1-10' | '11-50' | '51-200' | '201-500' | '500+';
-export type CompanyType = 'prospect' | 'cliente' | 'partner' | 'franquicia' | 'competidor';
+export type CompanyType = 'prospect' | 'cliente' | 'partner' | 'franquicia' | 'competidor' | 'target' | 'cliente_comprador' | 'cliente_vendedor';
 export type CompanyStatus = 'activa' | 'inactiva' | 'prospecto' | 'cliente' | 'perdida';
 export type LifecycleStage = 'lead' | 'marketing_qualified_lead' | 'sales_qualified_lead' | 'opportunity' | 'customer' | 'evangelist';
+
+// Nuevos tipos para segmentación
+export type BusinessSegment = 'pyme' | 'mid_market' | 'enterprise' | 'family_office' | 'investment_fund';
+export type TransactionInterest = 'compra' | 'venta' | 'ambos' | 'ninguno';
+export type GeographicScope = 'local' | 'regional' | 'nacional' | 'internacional';
+export type MandateRelationshipType = 'target' | 'buyer' | 'seller' | 'advisor';
+export type MandateRelationshipStatus = 'potential' | 'active' | 'completed' | 'discarded';
 
 export interface Company {
   id: string;
@@ -41,6 +48,14 @@ export interface Company {
   is_key_account: boolean;
   is_franquicia: boolean;
   
+  // Nuevos campos de segmentación
+  business_segment?: BusinessSegment;
+  transaction_interest?: TransactionInterest;
+  geographic_scope?: GeographicScope;
+  engagement_level?: number;
+  deal_readiness_score?: number;
+  network_strength?: number;
+  
   // Información adicional
   notes?: string;
   tags?: string[];
@@ -76,6 +91,19 @@ export interface Company {
   nif?: string;
 }
 
+// Interface para la tabla de relaciones empresa-mandato
+export interface CompanyMandate {
+  id: string;
+  company_id: string;
+  mandate_id: string;
+  relationship_type: MandateRelationshipType;
+  status: MandateRelationshipStatus;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  created_by?: string;
+}
+
 export interface CreateCompanyData {
   name: string;
   domain?: string;
@@ -106,6 +134,14 @@ export interface CreateCompanyData {
   twitter_url?: string;
   facebook_url?: string;
   nif?: string;
+  
+  // Nuevos campos de segmentación
+  business_segment?: BusinessSegment;
+  transaction_interest?: TransactionInterest;
+  geographic_scope?: GeographicScope;
+  engagement_level?: number;
+  deal_readiness_score?: number;
+  network_strength?: number;
 }
 
 export interface UpdateCompanyData extends Partial<CreateCompanyData> {
