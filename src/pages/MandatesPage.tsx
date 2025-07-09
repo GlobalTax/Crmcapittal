@@ -7,6 +7,7 @@ import { useBuyingMandates } from "@/hooks/useBuyingMandates";
 import { BuyingMandate } from "@/types/BuyingMandate";
 import { MandatesKanban } from "@/components/mandates/MandatesKanban";
 import { MandateFiltersComponent, MandateFilters } from "@/components/mandates/MandateFilters";
+import { CreateMandateDialog } from "@/components/mandates/CreateMandateDialog";
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { User, Briefcase, Building2, Target, TrendingUp, LayoutGrid, List, Plus, RefreshCw, Calendar } from "lucide-react";
 import { format } from 'date-fns';
@@ -106,10 +107,8 @@ export default function MandatesPage() {
     navigate(`/mandatos/${mandate.id}`);
   };
 
-  const handleAddMandate = (status?: string) => {
-    navigate('/mandatos/new', { 
-      state: status ? { defaultStatus: status } : undefined 
-    });
+  const handleMandateCreated = () => {
+    fetchMandates();
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -178,10 +177,15 @@ export default function MandatesPage() {
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </div>
-            <Button variant="primary" onClick={() => handleAddMandate()}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Mandato
-            </Button>
+            <CreateMandateDialog 
+              onSuccess={handleMandateCreated}
+              trigger={
+                <Button variant="primary">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nuevo Mandato
+                </Button>
+              }
+            />
           </div>
         </div>
 
@@ -325,7 +329,7 @@ export default function MandatesPage() {
               onUpdateStatus={updateMandateStatus}
               onEdit={handleEditMandate}
               onView={handleViewMandate}
-              onAddMandate={handleAddMandate}
+              onAddMandate={() => {}}
               isLoading={isLoading}
               onRefresh={fetchMandates}
             />
