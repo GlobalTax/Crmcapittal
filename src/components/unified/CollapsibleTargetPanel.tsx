@@ -1,13 +1,8 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { 
-  ChevronDown, 
-  ChevronUp, 
-  Edit, 
   Building2, 
   User, 
   Phone, 
@@ -15,9 +10,12 @@ import {
   MapPin, 
   TrendingUp, 
   Calendar,
-  FileText,
-  Star
+  FileText
 } from 'lucide-react';
+import { FloatingEditButton } from './collapsible/FloatingEditButton';
+import { EntityHeader } from './collapsible/EntityHeader';
+import { EssentialInfo, EssentialField } from './collapsible/EssentialInfo';
+import { CollapsibleSection } from './collapsible/CollapsibleSection';
 import { MandateTarget } from '@/types/BuyingMandate';
 
 interface CollapsibleTargetPanelProps {
@@ -78,173 +76,123 @@ export const CollapsibleTargetPanel = ({ target, onEdit, onUpdate }: Collapsible
 
   return (
     <Card className="relative">
-      {/* Floating Edit Button */}
-      <Button
-        size="sm"
-        className="absolute top-4 right-4 z-10 h-8 w-8 p-0 shadow-md"
-        onClick={() => onEdit(target)}
-      >
-        <Edit className="h-4 w-4" />
-      </Button>
-
-      <CardHeader className="pb-4 pr-16">
-        <CardTitle className="flex items-center gap-3">
-          <Building2 className="h-5 w-5" />
-          <span className="text-lg">{target.company_name}</span>
+      <FloatingEditButton onClick={() => onEdit(target)} />
+      
+      <EntityHeader
+        icon={<Building2 className="h-5 w-5" />}
+        title={target.company_name}
+        badge={
           <Badge className={getStatusColor(target.status)}>
             {getStatusText(target.status)}
           </Badge>
-        </CardTitle>
-      </CardHeader>
+        }
+      />
 
       <CardContent className="space-y-4">
         {/* Essential Information - Always Visible */}
-        <div className="grid grid-cols-2 gap-4">
+        <EssentialInfo>
           <div className="space-y-2">
             {target.sector && (
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Sector:</span>
-                <span className="font-medium">{target.sector}</span>
-              </div>
+              <EssentialField label="Sector" value={target.sector} />
             )}
             {target.location && (
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{target.location}</span>
-              </div>
+              <EssentialField 
+                icon={<MapPin className="h-4 w-4 text-muted-foreground" />} 
+                value={target.location} 
+              />
             )}
           </div>
           <div className="space-y-2">
             {target.revenues && (
-              <div className="flex items-center gap-2 text-sm">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span>Facturación: {formatCurrency(target.revenues)}</span>
-              </div>
+              <EssentialField 
+                icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />} 
+                value={`Facturación: ${formatCurrency(target.revenues)}`} 
+              />
             )}
-            {target.contacted && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-green-500" />
-                <span className="text-green-700">
-                  Contactado el {target.contact_date && new Date(target.contact_date).toLocaleDateString('es-ES')}
-                </span>
+            {target.contacted && target.contact_date && (
+              <EssentialField 
+                icon={<Calendar className="h-4 w-4 text-green-500" />} 
+                value={`Contactado el ${new Date(target.contact_date).toLocaleDateString('es-ES')}`}
+                className="text-green-700"
+              />
+            )}
+          </div>
+        </EssentialInfo>
+
+        {/* Contact Information - Collapsible */}
+        <CollapsibleSection
+          title="Información de Contacto"
+          icon={<User className="h-4 w-4" />}
+          isOpen={expandedSections.has('contact')}
+          onToggle={() => toggleSection('contact')}
+        >
+          <div className="space-y-3">
+            {target.contact_name && (
+              <EssentialField 
+                icon={<User className="h-4 w-4 text-muted-foreground" />} 
+                value={target.contact_name} 
+              />
+            )}
+            {target.contact_email && (
+              <EssentialField 
+                icon={<Mail className="h-4 w-4 text-muted-foreground" />} 
+                value={target.contact_email}
+                href={`mailto:${target.contact_email}`}
+              />
+            )}
+            {target.contact_phone && (
+              <EssentialField 
+                icon={<Phone className="h-4 w-4 text-muted-foreground" />} 
+                value={target.contact_phone}
+                href={`tel:${target.contact_phone}`}
+              />
+            )}
+            {target.contact_method && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Método de contacto:</span>
+                <Badge variant="outline" className="text-xs">
+                  {target.contact_method}
+                </Badge>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Contact Information - Collapsible */}
-        <Collapsible
-          open={expandedSections.has('contact')}
-          onOpenChange={() => toggleSection('contact')}
-        >
-          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-md">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span className="font-medium">Información de Contacto</span>
-            </div>
-            {expandedSections.has('contact') ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2">
-            <div className="bg-muted/30 p-4 rounded-md space-y-3">
-              {target.contact_name && (
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{target.contact_name}</span>
-                </div>
-              )}
-              {target.contact_email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a href={`mailto:${target.contact_email}`} className="text-sm text-blue-600 hover:underline">
-                    {target.contact_email}
-                  </a>
-                </div>
-              )}
-              {target.contact_phone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <a href={`tel:${target.contact_phone}`} className="text-sm text-blue-600 hover:underline">
-                    {target.contact_phone}
-                  </a>
-                </div>
-              )}
-              {target.contact_method && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Método de contacto:</span>
-                  <Badge variant="outline" className="text-xs">
-                    {target.contact_method}
-                  </Badge>
-                </div>
-              )}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+        </CollapsibleSection>
 
         {/* Financial Information - Collapsible */}
         {(target.revenues || target.ebitda) && (
-          <Collapsible
-            open={expandedSections.has('financial')}
-            onOpenChange={() => toggleSection('financial')}
+          <CollapsibleSection
+            title="Información Financiera"
+            icon={<TrendingUp className="h-4 w-4" />}
+            isOpen={expandedSections.has('financial')}
+            onToggle={() => toggleSection('financial')}
           >
-            <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-md">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                <span className="font-medium">Información Financiera</span>
-              </div>
-              {expandedSections.has('financial') ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2">
-              <div className="bg-muted/30 p-4 rounded-md">
-                <div className="grid grid-cols-2 gap-4">
-                  {target.revenues && (
-                    <div>
-                      <span className="text-sm text-muted-foreground">Facturación</span>
-                      <div className="font-medium">{formatCurrency(target.revenues)}</div>
-                    </div>
-                  )}
-                  {target.ebitda && (
-                    <div>
-                      <span className="text-sm text-muted-foreground">EBITDA</span>
-                      <div className="font-medium">{formatCurrency(target.ebitda)}</div>
-                    </div>
-                  )}
+            <div className="grid grid-cols-2 gap-4">
+              {target.revenues && (
+                <div>
+                  <span className="text-sm text-muted-foreground">Facturación</span>
+                  <div className="font-medium">{formatCurrency(target.revenues)}</div>
                 </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+              )}
+              {target.ebitda && (
+                <div>
+                  <span className="text-sm text-muted-foreground">EBITDA</span>
+                  <div className="font-medium">{formatCurrency(target.ebitda)}</div>
+                </div>
+              )}
+            </div>
+          </CollapsibleSection>
         )}
 
         {/* Notes - Collapsible */}
         {target.notes && (
-          <Collapsible
-            open={expandedSections.has('notes')}
-            onOpenChange={() => toggleSection('notes')}
+          <CollapsibleSection
+            title="Notas"
+            icon={<FileText className="h-4 w-4" />}
+            isOpen={expandedSections.has('notes')}
+            onToggle={() => toggleSection('notes')}
           >
-            <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted/50 rounded-md">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span className="font-medium">Notas</span>
-              </div>
-              {expandedSections.has('notes') ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2">
-              <div className="bg-muted/30 p-4 rounded-md">
-                <p className="text-sm">{target.notes}</p>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+            <p className="text-sm">{target.notes}</p>
+          </CollapsibleSection>
         )}
 
         {/* Metadata */}
