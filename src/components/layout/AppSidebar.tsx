@@ -32,11 +32,11 @@ const sidebarData: SidebarSection[] = [
       },
       {
         title: "Contactos",
-        href: "/contacts",
+        href: "/contactos",
       },
       {
-        title: "Empresas",
-        href: "/companies",
+        title: "Empresas", 
+        href: "/empresas",
       },
       {
         title: "Mandatos",
@@ -100,8 +100,8 @@ const sidebarData: SidebarSection[] = [
     title: "Administración",
     items: [
       {
-        title: "Mandatos Compra",
-        href: "/buying-mandates",
+        title: "Gestión de Mandatos",
+        href: "/mandatos",
       },
       {
         title: "Colaboradores",
