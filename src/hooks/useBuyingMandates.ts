@@ -13,7 +13,7 @@ import {
   CreateClientAccessData
 } from '@/types/BuyingMandate';
 
-export const useBuyingMandates = () => {
+export const useBuyingMandates = (mandateType?: string) => {
   const [mandates, setMandates] = useState<BuyingMandate[]>([]);
   const [targets, setTargets] = useState<MandateTarget[]>([]);
   const [documents, setDocuments] = useState<MandateDocument[]>([]);
@@ -25,10 +25,16 @@ export const useBuyingMandates = () => {
   const fetchMandates = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('buying_mandates')
         .select('*')
         .order('created_at', { ascending: false });
+
+      if (mandateType) {
+        query = query.eq('mandate_type', mandateType);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Supabase error fetching mandates:', error);
@@ -80,7 +86,7 @@ export const useBuyingMandates = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, mandateType]);
 
   const fetchTargets = useCallback(async (mandateId?: string) => {
     try {

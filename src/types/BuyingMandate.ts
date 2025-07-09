@@ -1,3 +1,5 @@
+export type MandateType = 'compra' | 'venta';
+
 export interface BuyingMandate {
   id: string;
   client_name: string;
@@ -13,6 +15,7 @@ export interface BuyingMandate {
   max_ebitda?: number;
   other_criteria?: string;
   status: 'active' | 'paused' | 'completed' | 'cancelled';
+  mandate_type: MandateType;
   start_date: string;
   end_date?: string;
   created_by?: string;
@@ -56,6 +59,7 @@ export interface CreateBuyingMandateData {
   min_ebitda?: number;
   max_ebitda?: number;
   other_criteria?: string;
+  mandate_type?: MandateType;
   assigned_user_id?: string;
   start_date?: string;
   end_date?: string;

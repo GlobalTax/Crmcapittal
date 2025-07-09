@@ -34,6 +34,8 @@ const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
 const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
+const SellingMandates = lazy(() => import('@/pages/SellingMandates'));
+const MandatesPage = lazy(() => import('@/pages/MandatesPage'));
 const HierarchicalCRM = lazy(() => import('@/pages/HierarchicalCRM'));
 const MandatoDashboardView = lazy(() => import('@/pages/MandatoDashboardView'));
 const ClientMandateView = lazy(() => import('@/pages/ClientMandateView'));
@@ -281,10 +283,26 @@ function AppContent() {
             } 
           />
           <Route 
+            path="/mandates" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <MandatesPage />
+              </Suspense>
+            } 
+          />
+          <Route 
             path="/buying-mandates" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <BuyingMandates />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/selling-mandates" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <SellingMandates />
               </Suspense>
             } 
           />
