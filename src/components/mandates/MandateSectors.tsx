@@ -24,7 +24,7 @@ export const MandateSectors = ({
             </Badge>
           ))
         ) : (
-          <span className="text-sm text-muted-foreground">Sin sectores definidos</span>
+          <p className="text-sm text-muted-foreground">Sin sectores definidos</p>
         )}
       </div>
       {locations && locations.length > 0 && (
