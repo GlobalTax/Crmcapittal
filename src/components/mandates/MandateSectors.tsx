@@ -17,11 +17,15 @@ export const MandateSectors = ({
     <div className={className}>
       {showTitle && <h4 className="font-medium mb-2">Sectores Objetivo</h4>}
       <div className="flex flex-wrap gap-1">
-        {sectors.map((sector) => (
-          <Badge key={sector} variant="outline" className="text-xs">
-            {sector}
-          </Badge>
-        ))}
+        {sectors && sectors.length > 0 ? (
+          sectors.map((sector) => (
+            <Badge key={sector} variant="outline" className="text-xs">
+              {sector}
+            </Badge>
+          ))
+        ) : (
+          <span className="text-sm text-muted-foreground">Sin sectores definidos</span>
+        )}
       </div>
       {locations && locations.length > 0 && (
         <div className="mt-2">

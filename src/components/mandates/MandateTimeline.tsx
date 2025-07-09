@@ -39,9 +39,9 @@ export const MandateTimeline = ({
       {showTitle && <h4 className="font-medium mb-2">Timeline</h4>}
       <div className="space-y-1 text-sm">
         <div>Inicio: {formatDate(startDate)}</div>
-        {endDate && (
-          <div>Fin estimado: {formatDate(endDate)}</div>
-        )}
+        <div>
+          Fin estimado: {endDate ? formatDate(endDate) : (status === 'active' ? 'Abierto' : 'No definido')}
+        </div>
         <div className="text-muted-foreground">
           Mandato iniciado: {formatDate(createdAt)}
         </div>
