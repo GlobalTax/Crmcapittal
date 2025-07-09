@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -23,10 +24,10 @@ interface CollapsibleMandatePanelProps {
   mandate: BuyingMandate;
   onEdit: (mandate: BuyingMandate) => void;
   onUpdate?: (mandate: BuyingMandate) => void;
-  onViewTargets?: (mandate: BuyingMandate) => void;
 }
 
-export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate, onViewTargets }: CollapsibleMandatePanelProps) => {
+export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate }: CollapsibleMandatePanelProps) => {
+  const navigate = useNavigate();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   const toggleSection = (section: string) => {
@@ -101,17 +102,15 @@ export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate, onViewTarge
                 </Badge>
               )}
             </div>
-            {onViewTargets && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onViewTargets(mandate)}
-                className="text-xs h-7"
-              >
-                <Target className="h-3 w-3 mr-1" />
-                Ver Targets
-              </Button>
-            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate(`/mandatos/${mandate.id}`)}
+              className="text-xs h-7"
+            >
+              <Target className="h-3 w-3 mr-1" />
+              Ver Mandato
+            </Button>
           </div>
         </EssentialInfo>
 

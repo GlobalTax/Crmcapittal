@@ -338,7 +338,6 @@ export const HierarchicalCRMView = ({
                     // TODO: Implement edit dialog
                     console.log('Edit mandate:', mandate);
                   }}
-                  onViewTargets={handleNavigateToTargets}
                 />
               ) : (
                 <div className="grid gap-4">
@@ -350,7 +349,6 @@ export const HierarchicalCRMView = ({
                         // TODO: Implement edit dialog
                         console.log('Edit mandate:', mandate);
                       }}
-                      onViewTargets={handleNavigateToTargets}
                     />
                   ))}
                   {mandates.length === 0 && (
