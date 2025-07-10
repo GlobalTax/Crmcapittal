@@ -49,37 +49,73 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
 
   const uploadFileMutation = useMutation({
     mutationFn: async (file: File) => {
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) throw new Error('No user found');
+      console.log('Iniciando subida de archivo:', { 
+        fileName: file.name, 
+        fileSize: file.size, 
+        fileType: file.type 
+      });
 
-      // Upload file to storage
-      const fileName = `${Date.now()}-${file.name}`;
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Error obteniendo usuario:', userError);
+        throw new Error('Error de autenticación');
+      }
+      if (!userData.user) {
+        console.error('No hay usuario autenticado');
+        throw new Error('Usuario no autenticado');
+      }
+
+      console.log('Usuario autenticado:', userData.user.id);
+
+      // Upload file to storage with user folder structure
+      const fileName = `${userData.user.id}/${Date.now()}-${file.name}`;
+      console.log('Subiendo archivo como:', fileName);
+
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('company-files')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Error al subir archivo al storage:', uploadError);
+        throw new Error(`Error de storage: ${uploadError.message}`);
+      }
+
+      console.log('Archivo subido al storage:', uploadData);
 
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('company-files')
         .getPublicUrl(fileName);
 
+      console.log('URL pública generada:', urlData.publicUrl);
+
       // Save file record to database
+      const fileRecord = {
+        company_id: company.id,
+        file_name: file.name,
+        file_url: urlData.publicUrl,
+        content_type: file.type,
+        file_size: file.size,
+        uploaded_by: userData.user.id,
+      };
+
+      console.log('Guardando registro en BD:', fileRecord);
+
       const { data, error } = await supabase
         .from('company_files')
-        .insert({
-          company_id: company.id,
-          file_name: file.name,
-          file_url: urlData.publicUrl,
-          content_type: file.type,
-          file_size: file.size,
-          uploaded_by: userData.user.id,
-        })
+        .insert(fileRecord)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error al guardar en BD:', error);
+        throw new Error(`Error de base de datos: ${error.message}`);
+      }
+
+      console.log('Archivo guardado exitosamente:', data);
       return data;
     },
     onSuccess: () => {
@@ -88,7 +124,7 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
     },
     onError: (error) => {
       console.error('Error uploading file:', error);
-      toast.error('Error al subir el archivo');
+      toast.error(`Error al subir el archivo: ${error.message}`);
     },
   });
 
