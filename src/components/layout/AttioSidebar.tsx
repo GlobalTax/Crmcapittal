@@ -35,8 +35,8 @@ const navigationSections: NavSection[] = [
       { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
       { to: '/', label: 'Control Leads', icon: LayoutDashboard },
       { to: '/gestion-leads', label: 'Gestión de Leads', icon: TrendingUp },
-      { to: '/contacts', label: 'Contactos', icon: Users },
-      { to: '/companies', label: 'Empresas', icon: Building2 },
+      { to: '/contactos', label: 'Contactos', icon: Users },
+      { to: '/empresas', label: 'Empresas', icon: Building2 },
     ]
   },
   {
