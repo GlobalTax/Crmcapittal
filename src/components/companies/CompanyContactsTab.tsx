@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Users, Plus, Mail, Phone, Linkedin } from 'lucide-react';
+import { Users, Plus, Mail, Phone, Linkedin, Link, Unlink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useContacts } from '@/hooks/useContacts';
 import { Company } from '@/types/Company';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CreateContactDialog } from '@/components/contacts/CreateContactDialog';
+import { LinkContactDialog } from '@/components/contacts/LinkContactDialog';
 import { useNavigate } from 'react-router-dom';
 
 interface CompanyContactsTabProps {
@@ -13,8 +15,18 @@ interface CompanyContactsTabProps {
 }
 
 export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
-  const { contacts, isLoading, createContact, isCreating } = useContacts();
+  const { 
+    contacts, 
+    isLoading, 
+    createContact, 
+    isCreating, 
+    linkContactToCompany, 
+    isLinking,
+    unlinkContactFromCompany,
+    isUnlinking 
+  } = useContacts();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
   const navigate = useNavigate();
 
   const companyContacts = contacts?.filter(contact => 
@@ -43,6 +55,13 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
           }}
         />
         
+        <div className="flex justify-center mt-4">
+          <Button variant="outline" onClick={() => setShowLinkDialog(true)}>
+            <Link className="h-4 w-4 mr-2" />
+            Vincular Contacto Existente
+          </Button>
+        </div>
+        
         <CreateContactDialog
           open={showCreateDialog}
           onOpenChange={setShowCreateDialog}
@@ -54,6 +73,18 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
           }}
           isCreating={isCreating}
         />
+        
+        <LinkContactDialog
+          open={showLinkDialog}
+          onOpenChange={setShowLinkDialog}
+          contacts={contacts}
+          companyId={company.id}
+          companyName={company.name}
+          onLinkContact={(contactId) => {
+            linkContactToCompany({ contactId, companyId: company.id, companyName: company.name });
+          }}
+          isLinking={isLinking}
+        />
       </>
     );
   }
@@ -64,10 +95,24 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
         <h3 className="text-lg font-medium">
           Contactos de la Empresa ({companyContacts.length})
         </h3>
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Añadir Contacto
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Añadir Contacto
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Nuevo Contacto
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowLinkDialog(true)}>
+              <Link className="h-4 w-4 mr-2" />
+              Vincular Contacto Existente
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="grid gap-4">
@@ -136,6 +181,15 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
                 >
                   Editar
                 </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => unlinkContactFromCompany(contact.id)}
+                  disabled={isUnlinking}
+                >
+                  <Unlink className="h-4 w-4 mr-1" />
+                  Desvincular
+                </Button>
               </div>
             </div>
           </div>
@@ -152,6 +206,18 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
           setShowCreateDialog(false);
         }}
         isCreating={isCreating}
+      />
+      
+      <LinkContactDialog
+        open={showLinkDialog}
+        onOpenChange={setShowLinkDialog}
+        contacts={contacts}
+        companyId={company.id}
+        companyName={company.name}
+        onLinkContact={(contactId) => {
+          linkContactToCompany({ contactId, companyId: company.id, companyName: company.name });
+        }}
+        isLinking={isLinking}
       />
     </div>
   );

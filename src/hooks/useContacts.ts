@@ -128,6 +128,74 @@ export const useContacts = () => {
     },
   });
 
+  const linkContactToCompanyMutation = useMutation({
+    mutationFn: async ({ contactId, companyId, companyName }: { contactId: string; companyId: string; companyName: string }) => {
+      const { data, error } = await supabase
+        .from('contacts')
+        .update({
+          company_id: companyId,
+          company: companyName,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', contactId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error linking contact to company:', error);
+        throw error;
+      }
+
+      return data as Contact;
+    },
+    onSuccess: (updatedContact) => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      toast.success('Contacto vinculado correctamente', {
+        description: `${updatedContact.name} ha sido vinculado a la empresa.`
+      });
+    },
+    onError: (error) => {
+      console.error('Error linking contact to company:', error);
+      toast.error('Error al vincular el contacto', {
+        description: 'Hubo un problema al vincular el contacto. Inténtalo de nuevo.'
+      });
+    },
+  });
+
+  const unlinkContactFromCompanyMutation = useMutation({
+    mutationFn: async (contactId: string) => {
+      const { data, error } = await supabase
+        .from('contacts')
+        .update({
+          company_id: null,
+          company: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', contactId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error unlinking contact from company:', error);
+        throw error;
+      }
+
+      return data as Contact;
+    },
+    onSuccess: (updatedContact) => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      toast.success('Contacto desvinculado correctamente', {
+        description: `${updatedContact.name} ha sido desvinculado de la empresa.`
+      });
+    },
+    onError: (error) => {
+      console.error('Error unlinking contact from company:', error);
+      toast.error('Error al desvincular el contacto', {
+        description: 'Hubo un problema al desvincular el contacto. Inténtalo de nuevo.'
+      });
+    },
+  });
+
   return {
     contacts,
     isLoading,
@@ -136,8 +204,12 @@ export const useContacts = () => {
     createContact: createContactMutation.mutate,
     updateContact: updateContactMutation.mutate,
     deleteContact: deleteContactMutation.mutate,
+    linkContactToCompany: linkContactToCompanyMutation.mutate,
+    unlinkContactFromCompany: unlinkContactFromCompanyMutation.mutate,
     isCreating: createContactMutation.isPending,
     isUpdating: updateContactMutation.isPending,
     isDeleting: deleteContactMutation.isPending,
+    isLinking: linkContactToCompanyMutation.isPending,
+    isUnlinking: unlinkContactFromCompanyMutation.isPending,
   };
 };
