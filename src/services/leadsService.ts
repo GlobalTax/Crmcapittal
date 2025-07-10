@@ -6,7 +6,7 @@ export const fetchLeads = async (filters?: {
   status?: LeadStatus;
   assigned_to_id?: string;
 }): Promise<Lead[]> => {
-  console.log('🔍 [leadsService] Fetching leads with filters:', filters);
+  
   
   let query = supabase
     .from('leads')
@@ -29,19 +29,16 @@ export const fetchLeads = async (filters?: {
   }
 
   if (filters?.assigned_to_id) {
-    console.log('👤 [leadsService] Applying assigned_to filter:', filters.assigned_to_id);
     query = query.eq('assigned_to_id', filters.assigned_to_id);
   }
 
   const { data, error } = await query;
 
   if (error) {
-    console.error('❌ [leadsService] Error fetching leads:', error);
+    console.error('Error fetching leads:', error);
     throw error;
   }
 
-  console.log('📊 [leadsService] Raw data from DB:', data?.length, 'records');
-  console.log('📋 [leadsService] Raw leads preview:', data?.slice(0, 3).map(l => ({ id: l.id, name: l.name, status: l.status })));
 
   // Fetch user profiles for assigned users
   const assignedUserIds = (data || [])
@@ -86,8 +83,6 @@ export const fetchLeads = async (filters?: {
     lead_nurturing: []
   }));
 
-  console.log('✅ [leadsService] Transformed leads:', transformedData?.length);
-  console.log('📋 [leadsService] Transformed leads preview:', transformedData?.slice(0, 3).map(l => ({ id: l.id, name: l.name, status: l.status, source: l.source })));
   return transformedData;
 };
 

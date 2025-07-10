@@ -39,8 +39,11 @@ export const useOptimizedLeads = (filters?: {
   };
 
   useEffect(() => {
-    console.log('🚀 [useOptimizedLeads] Initial fetch triggered');
-    fetchData();
+    const timeoutId = setTimeout(() => {
+      fetchData();
+    }, 100); // Small debounce to prevent rapid refetches
+
+    return () => clearTimeout(timeoutId);
   }, [JSON.stringify(filters || {})]);
 
   // Process lead changes for notifications when leads data changes
