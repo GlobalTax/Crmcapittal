@@ -20,6 +20,7 @@ interface NewDealModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultStage?: DealStage;
+  defaultCompanyId?: string;
 }
 
 const STAGES: DealStage[] = ['Lead', 'In Progress', 'Won', 'Lost'];
@@ -36,7 +37,7 @@ const dealSchema = z.object({
 
 type DealFormData = z.infer<typeof dealSchema>;
 
-export const NewDealModal = ({ open, onOpenChange, defaultStage = 'Lead' }: NewDealModalProps) => {
+export const NewDealModal = ({ open, onOpenChange, defaultStage = 'Lead', defaultCompanyId }: NewDealModalProps) => {
   const { createDeal } = useDeals();
   const { users, isLoading: isLoadingUsers } = useUsers();
   const { companies, isLoading: isLoadingCompanies } = useCompanies({ limit: 100 });
@@ -68,6 +69,9 @@ export const NewDealModal = ({ open, onOpenChange, defaultStage = 'Lead' }: NewD
   useEffect(() => {
     if (open) {
       setValue('stage', defaultStage);
+      if (defaultCompanyId) {
+        setValue('companyId', defaultCompanyId);
+      }
       
       const handleKeyDown = (e: KeyboardEvent) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -79,7 +83,7 @@ export const NewDealModal = ({ open, onOpenChange, defaultStage = 'Lead' }: NewD
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [open, defaultStage, setValue, handleSubmit]);
+  }, [open, defaultStage, defaultCompanyId, setValue, handleSubmit]);
 
   const onSubmit = async (data: DealFormData) => {
     const result = await createDeal({

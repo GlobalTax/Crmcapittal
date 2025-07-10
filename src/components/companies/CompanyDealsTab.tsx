@@ -6,6 +6,8 @@ import { useDeals } from '@/hooks/useDeals';
 import { Company } from '@/types/Company';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { NewDealModal } from '@/components/deals/NewDealModal';
+import { useNavigate } from 'react-router-dom';
 
 interface CompanyDealsTabProps {
   company: Company;
@@ -13,6 +15,8 @@ interface CompanyDealsTabProps {
 
 export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
   const { deals, loading, error } = useDeals();
+  const [showNewDealModal, setShowNewDealModal] = useState(false);
+  const navigate = useNavigate();
 
   // Add error handling
   if (error) {
@@ -67,7 +71,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
         subtitle="Crea oportunidades para esta empresa para hacer seguimiento"
         action={{
           label: "Crear Oportunidad",
-          onClick: () => console.log('Create deal clicked')
+          onClick: () => setShowNewDealModal(true)
         }}
       />
     );
@@ -111,7 +115,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Oportunidades</h3>
-          <Button>
+          <Button onClick={() => setShowNewDealModal(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Crear Oportunidad
           </Button>
@@ -148,10 +152,18 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/negocios?dealId=${deal.id}`)}
+                  >
                     Ver
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate(`/negocios?dealId=${deal.id}&edit=true`)}
+                  >
                     Editar
                   </Button>
                 </div>
@@ -160,6 +172,13 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
           ))}
         </div>
       </div>
+
+      <NewDealModal
+        open={showNewDealModal}
+        onOpenChange={setShowNewDealModal}
+        defaultStage="Lead"
+        defaultCompanyId={company.id}
+      />
     </div>
   );
 };

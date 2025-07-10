@@ -5,13 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { useContacts } from '@/hooks/useContacts';
 import { Company } from '@/types/Company';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { CreateContactDialog } from '@/components/contacts/CreateContactDialog';
+import { useNavigate } from 'react-router-dom';
 
 interface CompanyContactsTabProps {
   company: Company;
 }
 
 export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
-  const { contacts, isLoading } = useContacts();
+  const { contacts, isLoading, createContact, isCreating } = useContacts();
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const navigate = useNavigate();
 
   const companyContacts = contacts?.filter(contact => 
     contact.company?.toLowerCase().includes(company.name.toLowerCase()) ||
@@ -34,7 +38,7 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
         subtitle="Añade contactos de esta empresa para empezar a construir relaciones"
         action={{
           label: "Añadir Contacto",
-          onClick: () => console.log('Add contact clicked')
+          onClick: () => setShowCreateDialog(true)
         }}
       />
     );
@@ -46,7 +50,7 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
         <h3 className="text-lg font-medium">
           Contactos de la Empresa ({companyContacts.length})
         </h3>
-        <Button>
+        <Button onClick={() => setShowCreateDialog(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Añadir Contacto
         </Button>
@@ -104,10 +108,18 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate(`/contactos/${contact.id}`)}
+                >
                   Ver
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate(`/contactos/${contact.id}?edit=true`)}
+                >
                   Editar
                 </Button>
               </div>
@@ -115,6 +127,19 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
           </div>
         ))}
       </div>
+
+      {showCreateDialog && (
+        <CreateContactDialog 
+          onCreateContact={(contactData) => {
+            createContact({
+              ...contactData,
+              company: company.name,
+            });
+            setShowCreateDialog(false);
+          }}
+          isCreating={isCreating}
+        />
+      )}
     </div>
   );
 };

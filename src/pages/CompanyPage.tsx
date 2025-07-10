@@ -10,6 +10,7 @@ import { CompanyDealsTab } from '@/components/companies/CompanyDealsTab';
 import { CompanyNotesSection } from '@/components/companies/CompanyNotesSection';
 import { CompanyFilesTab } from '@/components/companies/CompanyFilesTab';
 import { CompanyEinformaTab } from '@/components/companies/CompanyEinformaTab';
+import { CompanyDocumentsTab } from '@/components/companies/CompanyDocumentsTab';
 import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
 import { useCompanies } from '@/hooks/useCompanies';
@@ -230,9 +231,7 @@ export default function CompanyPage() {
                  </TabsContent>
                  
                  <TabsContent value="documents" className="mt-0 p-6">
-                   <div className="text-center py-12">
-                     <p className="text-muted-foreground">Gestión de documentos próximamente</p>
-                   </div>
+                   <CompanyDocumentsTab company={company} />
                  </TabsContent>
               </div>
             </div>

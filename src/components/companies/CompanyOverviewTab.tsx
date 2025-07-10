@@ -79,15 +79,18 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
         <DealHighlightCard
           title="Próxima Interacción"
           icon={Calendar}
-          value="No hay reuniones programadas"
-          subtitle="Programar una reunión"
+          value={company.next_follow_up_date ? 
+            new Date(company.next_follow_up_date).toLocaleDateString('es-ES') : 
+            "No programada"
+          }
+          subtitle={company.next_follow_up_date ? "Próximo seguimiento" : "Programar una reunión"}
         />
 
         <DealHighlightCard
           title="Equipo"
           icon={Users}
           value={`${stats.contactsCount} personas`}
-          subtitle="Ver todos los contactos"
+          subtitle={stats.contactsCount > 0 ? "Ver todos los contactos" : "Añadir contactos"}
         />
 
         <DealHighlightCard
