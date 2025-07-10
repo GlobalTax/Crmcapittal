@@ -23,15 +23,15 @@ const roleLabels: Record<ContactRole, string> = {
   buyer: 'Comprador', 
   advisor: 'Asesor',
   investor: 'Inversor',
-  target: 'Target',
+  target: 'Objetivo',
   client: 'Cliente',
   prospect: 'Prospecto',
-  lead: 'Lead',
+  lead: 'Prospecto Inicial',
   other: 'Otro',
   decision_maker: 'Tomador de Decisiones',
   influencer: 'Influenciador',
   gatekeeper: 'Guardián',
-  champion: 'Champion',
+  champion: 'Promotor',
   ceo: 'CEO',
   cfo: 'CFO',
   board_member: 'Miembro del Consejo',
@@ -45,8 +45,8 @@ const statusLabels: Record<ContactStatus, string> = {
 };
 
 const sourceLabels: Record<string, string> = {
-  mandate_targets: 'Mandate Targets',
-  leads: 'Leads',
+  mandate_targets: 'Objetivos de Mandato',
+  leads: 'Prospectos',
   manual: 'Manual'
 };
 

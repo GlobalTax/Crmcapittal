@@ -35,7 +35,7 @@ export const PersonRecordTable = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
-  const [savedView, setSavedView] = useState('Recently Contacted People');
+  const [savedView, setSavedView] = useState('Personas Contactadas Recientemente');
   const [isCleaningData, setIsCleaningData] = useState(false);
 
   const handleRowClick = (contact: Contact) => {
@@ -60,31 +60,31 @@ export const PersonRecordTable = ({
     if (contact.last_interaction_date) strength += 30;
     if (contact.company) strength += 20;
     
-    if (strength >= 80) return { label: 'Strong', color: 'hsl(158, 100%, 38%)' }; // green
-    if (strength >= 60) return { label: 'Medium', color: 'hsl(45, 93%, 47%)' }; // yellow  
-    if (strength >= 40) return { label: 'Weak', color: 'hsl(25, 95%, 53%)' }; // orange
-    return { label: 'Very weak', color: 'hsl(4, 86%, 63%)' }; // red
+    if (strength >= 80) return { label: 'Fuerte', color: 'hsl(158, 100%, 38%)' }; // green
+    if (strength >= 60) return { label: 'Media', color: 'hsl(45, 93%, 47%)' }; // yellow  
+    if (strength >= 40) return { label: 'Débil', color: 'hsl(25, 95%, 53%)' }; // orange
+    return { label: 'Muy débil', color: 'hsl(4, 86%, 63%)' }; // red
   };
 
   const formatLastInteraction = (date?: string) => {
     if (!date) return '—';
     const diff = Date.now() - new Date(date).getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days} days ago`;
-    if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
-    return `${Math.floor(days / 30)} months ago`;
+    if (days === 0) return 'Hoy';
+    if (days === 1) return 'Ayer';
+    if (days < 7) return `Hace ${days} días`;
+    if (days < 30) return `Hace ${Math.floor(days / 7)} semanas`;
+    return `Hace ${Math.floor(days / 30)} meses`;
   };
 
   if (contacts.length === 0 && !isLoading) {
     return (
       <div className="bg-neutral-0 rounded-lg border border-border">
         <div className="p-6">
-          <EmptyStateSmall
-            icon={<Users className="w-5 h-5 text-primary" />}
-            text="No contacts yet"
-            action={<Button onClick={onCreateContact}>+ New person</Button>}
+            <EmptyStateSmall
+              icon={<Users className="w-5 h-5 text-primary" />}
+              text="Aún no hay contactos"
+              action={<Button onClick={onCreateContact}>+ Nueva persona</Button>}
           />
         </div>
       </div>
@@ -105,14 +105,14 @@ export const PersonRecordTable = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-              <DropdownMenuItem onClick={() => setSavedView('Recently Contacted People')}>
-                Recently Contacted People
+              <DropdownMenuItem onClick={() => setSavedView('Personas Contactadas Recientemente')}>
+                Personas Contactadas Recientemente
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSavedView('All contacts')}>
-                All contacts
+              <DropdownMenuItem onClick={() => setSavedView('Todos los contactos')}>
+                Todos los contactos
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSavedView('High priority')}>
-                High priority
+              <DropdownMenuItem onClick={() => setSavedView('Alta prioridad')}>
+                Alta prioridad
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -120,7 +120,7 @@ export const PersonRecordTable = ({
           {/* Search */}
           <div className="relative">
             <Input
-              placeholder="Search people..."
+              placeholder="Buscar personas..."
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="w-64 h-8"
@@ -148,7 +148,7 @@ export const PersonRecordTable = ({
             </Button>
           )}
           <Button onClick={onCreateContact}>
-            + New person
+            + Nueva persona
           </Button>
         </div>
       </div>
@@ -158,12 +158,12 @@ export const PersonRecordTable = ({
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Person</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Company</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Persona</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Empresa</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Roles</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Estado</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Connection strength</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Last interaction</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Fuerza de conexión</th>
+              <th className="text-left p-3 text-xs font-medium text-muted-foreground">Última interacción</th>
               <th className="text-left p-3 text-xs font-medium text-muted-foreground">Acciones</th>
             </tr>
           </thead>
@@ -187,7 +187,7 @@ export const PersonRecordTable = ({
                       <div>
                         <div className="font-medium text-sm">{contact.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {contact.email || 'No email'}
+                          {contact.email || 'Sin email'}
                         </div>
                       </div>
                     </div>
