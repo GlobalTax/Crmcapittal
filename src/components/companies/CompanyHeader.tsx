@@ -54,7 +54,7 @@ export const CompanyHeader = ({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/companies')}
+              onClick={() => navigate('/empresas')}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />

@@ -20,7 +20,7 @@ export const QuickActions = ({ className }: QuickActionsProps) => {
     {
       title: 'Nueva Empresa',
       icon: Building,
-      onClick: () => navigate('/companies'),
+      onClick: () => navigate('/empresas'),
       description: 'Registrar nueva empresa'
     },
     {

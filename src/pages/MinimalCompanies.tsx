@@ -96,7 +96,7 @@ export default function MinimalCompanies() {
     actions: (
       <div className="flex gap-2 justify-end">
         <button 
-          onClick={() => navigate(`/companies/${company.id}`)}
+          onClick={() => navigate(`/empresas/${company.id}`)}
           className="text-blue-600 hover:text-blue-800 text-sm"
         >
           Ver
@@ -111,7 +111,7 @@ export default function MinimalCompanies() {
   };
 
   const handleViewCompany = (company: Company) => {
-    navigate(`/companies/${company.id}`);
+    navigate(`/empresas/${company.id}`);
   };
 
   if (isLoading) {
@@ -216,7 +216,7 @@ export default function MinimalCompanies() {
             data={tableData}
             columns={companyColumns}
             onRowClick={(row) => {
-              navigate(`/companies/${row.id}`);
+              navigate(`/empresas/${row.id}`);
             }}
             className=""
           />

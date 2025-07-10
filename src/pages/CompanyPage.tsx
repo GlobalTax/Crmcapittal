@@ -42,7 +42,7 @@ export default function CompanyPage() {
     const searchParams = new URLSearchParams(location.search);
     const drawerId = searchParams.get('drawer');
     if (drawerId && drawerId !== id) {
-      navigate(`/companies/${drawerId}`, { replace: true });
+      navigate(`/empresas/${drawerId}`, { replace: true });
     }
   }, [location.search, id, navigate]);
 
@@ -61,7 +61,7 @@ export default function CompanyPage() {
         document.title = `Empresa • ${foundCompany.name}`;
       } else if (!localLoading) {
         // Company not found, redirect to companies list
-        navigate('/companies', { replace: true });
+        navigate('/empresas', { replace: true });
       }
     }
   }, [companies, id, navigate, localLoading]);
@@ -98,7 +98,7 @@ export default function CompanyPage() {
     const currentIndex = getCurrentCompanyIndex();
     if (currentIndex > 0) {
       const previousCompany = companies[currentIndex - 1];
-      navigate(`/companies/${previousCompany.id}`);
+      navigate(`/empresas/${previousCompany.id}`);
     }
   };
 
@@ -107,7 +107,7 @@ export default function CompanyPage() {
     const currentIndex = getCurrentCompanyIndex();
     if (currentIndex < companies.length - 1) {
       const nextCompany = companies[currentIndex + 1];
-      navigate(`/companies/${nextCompany.id}`);
+      navigate(`/empresas/${nextCompany.id}`);
     }
   };
 
