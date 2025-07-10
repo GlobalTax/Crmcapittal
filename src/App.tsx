@@ -22,6 +22,7 @@ const Companies = lazy(() => import('@/pages/MinimalCompanies'));
 const CompanyPage = lazy(() => import('@/pages/CompanyPage'));
 const Deals = lazy(() => import('@/pages/Deals'));
 const DealPage = lazy(() => import('@/pages/DealPage'));
+const OpportunityDetail = lazy(() => import('@/pages/OpportunityDetail'));
 const Transacciones = lazy(() => import('@/pages/Transacciones'));
 const TransaccionPage = lazy(() => import('@/pages/TransaccionPage'));
 
@@ -214,6 +215,14 @@ function AppContentOld() {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <DealPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/opportunities/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <OpportunityDetail />
               </Suspense>
             } 
           />
