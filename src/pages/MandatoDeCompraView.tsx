@@ -12,6 +12,7 @@ import { TargetFiltersPanel } from '@/components/mandates/TargetFiltersPanel';
 import { DocumentUploader } from '@/components/mandates/DocumentUploader';
 import { ImportFromCRMDialog } from '@/components/mandates/ImportFromCRMDialog';
 import { TargetDetailPanel } from '@/components/mandates/TargetDetailPanel';
+import { MandateTargetsDialog } from '@/components/mandates/MandateTargetsDialog';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 
 export default function MandatoDeCompraView() {
@@ -19,6 +20,7 @@ export default function MandatoDeCompraView() {
   const [selectedTarget, setSelectedTarget] = useState<MandateTarget | null>(null);
   const [showTargetDetail, setShowTargetDetail] = useState(false);
   const [filteredTargets, setFilteredTargets] = useState<MandateTarget[]>([]);
+  const [showTargetsDialog, setShowTargetsDialog] = useState(false);
   
   const { 
     mandates, 
@@ -201,7 +203,7 @@ export default function MandatoDeCompraView() {
               </Button>
             }
           />
-          <Button>
+          <Button onClick={() => setShowTargetsDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Añadir Target Manual
           </Button>
@@ -239,6 +241,13 @@ export default function MandatoDeCompraView() {
         onDocumentUploaded={() => {
           if (mandateId) loadMandateData.current(mandateId);
         }}
+      />
+
+      {/* Mandate Targets Dialog */}
+      <MandateTargetsDialog
+        mandate={mandate}
+        open={showTargetsDialog}
+        onOpenChange={setShowTargetsDialog}
       />
     </div>
   );
