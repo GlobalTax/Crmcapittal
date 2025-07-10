@@ -123,7 +123,7 @@ export default function ContactPage() {
   if (!contact) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Contact not found</p>
+        <p className="text-muted-foreground">Contacto no encontrado</p>
       </div>
     );
   }
@@ -150,13 +150,13 @@ export default function ContactPage() {
                   value="overview"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Overview
+                  Resumen
                 </TabsTrigger>
                 <TabsTrigger 
                   value="activity"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Activity
+                  Actividad
                 </TabsTrigger>
                 <TabsTrigger 
                   value="emails"
@@ -168,31 +168,31 @@ export default function ContactPage() {
                   value="calls"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Calls
+                  Llamadas
                 </TabsTrigger>
                 <TabsTrigger 
                   value="company"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Company
+                  Empresa
                 </TabsTrigger>
                 <TabsTrigger 
                   value="notes"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Notes
+                  Notas
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tasks"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Tasks
+                  Tareas
                 </TabsTrigger>
                 <TabsTrigger 
                   value="files"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
                 >
-                  Files
+                  Archivos
                 </TabsTrigger>
               </div>
             </TabsList>
@@ -211,13 +211,13 @@ export default function ContactPage() {
                 
                 <TabsContent value="emails" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">Email integration coming soon</p>
+                    <p className="text-muted-foreground">Integración de email próximamente</p>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="calls" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">Call logging coming soon</p>
+                    <p className="text-muted-foreground">Registro de llamadas próximamente</p>
                   </div>
                 </TabsContent>
                 
@@ -225,7 +225,7 @@ export default function ContactPage() {
                   <div className="space-y-4">
                     {contact.company ? (
                       <div>
-                        <h3 className="text-sm font-medium mb-3">Company Information</h3>
+                        <h3 className="text-sm font-medium mb-3">Información de la Empresa</h3>
                         <div className="space-y-2">
                           <div>
                             <span className="text-sm font-medium">{contact.company}</span>
@@ -239,7 +239,7 @@ export default function ContactPage() {
                       </div>
                     ) : (
                       <div className="text-center py-12">
-                        <p className="text-muted-foreground">No company information available</p>
+                        <p className="text-muted-foreground">No hay información de empresa disponible</p>
                       </div>
                     )}
                   </div>
@@ -247,19 +247,19 @@ export default function ContactPage() {
                 
                 <TabsContent value="notes" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">Notes coming soon</p>
+                    <p className="text-muted-foreground">Notas próximamente</p>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="tasks" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">Task management coming soon</p>
+                    <p className="text-muted-foreground">Gestión de tareas próximamente</p>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="files" className="mt-0 p-6">
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground">File management coming soon</p>
+                    <p className="text-muted-foreground">Gestión de archivos próximamente</p>
                   </div>
                 </TabsContent>
               </div>
@@ -279,7 +279,7 @@ export default function ContactPage() {
           onClick={() => setActiveTab(activeTab === 'details' ? 'overview' : 'details')}
           className="rounded-full shadow-lg"
         >
-          {activeTab === 'details' ? 'Close Details' : 'Show Details'}
+          {activeTab === 'details' ? 'Cerrar Detalles' : 'Mostrar Detalles'}
         </Button>
       </div>
 
@@ -287,7 +287,7 @@ export default function ContactPage() {
       {activeTab === 'details' && (
         <div className="fixed inset-0 bg-background z-50 lg:hidden overflow-y-auto">
           <div className="flex items-center justify-between p-4 border-b border-border">
-            <h2 className="text-lg font-semibold">Contact Details</h2>
+            <h2 className="text-lg font-semibold">Detalles del Contacto</h2>
             <Button
               variant="ghost"
               size="sm"

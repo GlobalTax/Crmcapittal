@@ -108,12 +108,12 @@ export const ContactHeader = ({
 
           <Button variant="outline" size="sm" onClick={handleComposeEmail}>
             <Mail className="h-4 w-4 mr-2" />
-            Compose email
+            Redactar email
           </Button>
           
           <Button variant="outline" size="sm" onClick={() => onEdit?.(contact)}>
             <Edit2 className="h-4 w-4 mr-2" />
-            Edit
+            Editar
           </Button>
         </div>
       </div>
@@ -123,17 +123,17 @@ export const ContactHeader = ({
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-background rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Compose Email</h3>
+              <h3 className="text-lg font-semibold">Redactar Email</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowComposeEmail(false)}>
                 ×
               </Button>
             </div>
             <p className="text-muted-foreground mb-4">
-              Email integration coming soon. This will open your default email client to compose an email to {contact.email}.
+              Integración de email próximamente. Esto abrirá tu cliente de email predeterminado para redactar un email a {contact.email}.
             </p>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowComposeEmail(false)}>
-                Close
+                Cerrar
               </Button>
               <Button onClick={() => {
                 if (contact.email) {
@@ -141,7 +141,7 @@ export const ContactHeader = ({
                 }
                 setShowComposeEmail(false);
               }}>
-                Open Email Client
+                Abrir Cliente de Email
               </Button>
             </div>
           </div>

@@ -85,7 +85,7 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
                 onClick={() => handleFieldSave(fieldName)}
                 className="h-6 px-2 text-xs"
               >
-                Save
+                Guardar
               </Button>
               <Button 
                 variant="outline" 
@@ -93,7 +93,7 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
                 onClick={handleFieldCancel}
                 className="h-6 px-2 text-xs"
               >
-                Cancel
+                Cancelar
               </Button>
             </div>
           </div>
@@ -103,7 +103,7 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
             onClick={() => handleFieldEdit(fieldName, value)}
           >
             <span className="text-sm">
-              {value || <span className="text-muted-foreground">Not set</span>}
+              {value || <span className="text-muted-foreground">No establecido</span>}
             </span>
             <Edit2 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
@@ -127,11 +127,11 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
   const getContactTypeLabel = (type: ContactType) => {
     const typeLabels = {
       marketing: 'Marketing',
-      sales: 'Sales',
+      sales: 'Ventas',
       franquicia: 'Franquicia',
-      cliente: 'Customer',
-      prospect: 'Prospect',
-      other: 'Other'
+      cliente: 'Cliente',
+      prospect: 'Prospecto',
+      other: 'Otro'
     };
     return typeLabels[type] || 'Other';
   };
@@ -144,7 +144,7 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
           onClick={() => setIsRecordDetailsOpen(!isRecordDetailsOpen)}
           className="flex items-center justify-between w-full p-2 hover:bg-neutral-100 rounded transition-colors"
         >
-          <span className="text-sm font-medium">Record Details</span>
+          <span className="text-sm font-medium">Detalles del Registro</span>
           {isRecordDetailsOpen ? (
             <ChevronDown className="h-4 w-4" />
           ) : (
@@ -154,66 +154,66 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
 
         {isRecordDetailsOpen && (
           <div className="mt-3 space-y-4">
-            {renderEditableField('name', 'Full name', contact.name)}
+            {renderEditableField('name', 'Nombre completo', contact.name)}
             
             {renderEditableField('email', 'Email', contact.email, 'email')}
             
-            {renderEditableField('phone', 'Phone', contact.phone, 'tel')}
+            {renderEditableField('phone', 'Teléfono', contact.phone, 'tel')}
             
-            {renderEditableField('company', 'Company', contact.company)}
+            {renderEditableField('company', 'Empresa', contact.company)}
             
-            {renderEditableField('position', 'Job title', contact.position)}
+            {renderEditableField('position', 'Cargo', contact.position)}
 
             {renderEditableField(
               'contact_type',
-              'Contact type',
+              'Tipo de contacto',
               contact.contact_type,
               'select',
               [
                 { value: 'marketing', label: 'Marketing' },
-                { value: 'sales', label: 'Sales' },
+                { value: 'sales', label: 'Ventas' },
                 { value: 'franquicia', label: 'Franquicia' },
-                { value: 'cliente', label: 'Customer' },
-                { value: 'prospect', label: 'Prospect' },
-                { value: 'other', label: 'Other' }
+                { value: 'cliente', label: 'Cliente' },
+                { value: 'prospect', label: 'Prospecto' },
+                { value: 'other', label: 'Otro' }
               ]
             )}
 
             {renderEditableField(
               'contact_priority',
-              'Priority',
+              'Prioridad',
               contact.contact_priority,
               'select',
               [
-                { value: 'low', label: 'Low' },
-                { value: 'medium', label: 'Medium' },
-                { value: 'high', label: 'High' }
+                { value: 'low', label: 'Baja' },
+                { value: 'medium', label: 'Media' },
+                { value: 'high', label: 'Alta' }
               ]
             )}
 
-            {renderEditableField('contact_source', 'Source', contact.contact_source)}
+            {renderEditableField('contact_source', 'Origen', contact.contact_source)}
 
             {renderEditableField(
               'preferred_contact_method',
-              'Preferred contact method',
+              'Método de contacto preferido',
               contact.preferred_contact_method,
               'select',
               [
                 { value: 'email', label: 'Email' },
-                { value: 'phone', label: 'Phone' },
+                { value: 'phone', label: 'Teléfono' },
                 { value: 'linkedin', label: 'LinkedIn' }
               ]
             )}
 
-            {renderEditableField('linkedin_url', 'LinkedIn URL', contact.linkedin_url)}
+            {renderEditableField('linkedin_url', 'URL de LinkedIn', contact.linkedin_url)}
 
-            {renderEditableField('website_url', 'Website URL', contact.website_url)}
+            {renderEditableField('website_url', 'URL del sitio web', contact.website_url)}
 
-            {renderEditableField('notes', 'Notes', contact.notes, 'textarea')}
+            {renderEditableField('notes', 'Notas', contact.notes, 'textarea')}
 
             {/* Contact Type Badge */}
             <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Type</Label>
+              <Label className="text-xs text-muted-foreground">Tipo</Label>
               <div>
                 <Badge 
                   variant="outline"
@@ -230,10 +230,10 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
             {/* Timestamps */}
             <div className="pt-2 border-t border-border">
               <div className="text-xs text-muted-foreground space-y-1">
-                <div>Created: {new Date(contact.created_at).toLocaleDateString('es-ES')}</div>
-                <div>Updated: {new Date(contact.updated_at).toLocaleDateString('es-ES')}</div>
+                <div>Creado: {new Date(contact.created_at).toLocaleDateString('es-ES')}</div>
+                <div>Actualizado: {new Date(contact.updated_at).toLocaleDateString('es-ES')}</div>
                 {contact.last_interaction_date && (
-                  <div>Last interaction: {new Date(contact.last_interaction_date).toLocaleDateString('es-ES')}</div>
+                  <div>Última interacción: {new Date(contact.last_interaction_date).toLocaleDateString('es-ES')}</div>
                 )}
               </div>
             </div>
@@ -247,7 +247,7 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
           onClick={() => setIsListsOpen(!isListsOpen)}
           className="flex items-center justify-between w-full p-2 hover:bg-neutral-100 rounded transition-colors"
         >
-          <span className="text-sm font-medium">Lists</span>
+          <span className="text-sm font-medium">Listas</span>
           {isListsOpen ? (
             <ChevronDown className="h-4 w-4" />
           ) : (
@@ -259,7 +259,7 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
           <div className="mt-3">
             <Button variant="outline" size="sm" className="w-full justify-start">
               <Plus className="h-3 w-3 mr-2" />
-              Add to list
+              Agregar a lista
             </Button>
           </div>
         )}
