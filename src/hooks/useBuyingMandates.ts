@@ -14,6 +14,7 @@ import {
 } from '@/types/BuyingMandate';
 
 export const useBuyingMandates = (mandateType?: string) => {
+  console.log('🎯 [useBuyingMandates] Hook initialized with mandateType:', mandateType);
   const [mandates, setMandates] = useState<BuyingMandate[]>([]);
   const [targets, setTargets] = useState<MandateTarget[]>([]);
   const [documents, setDocuments] = useState<MandateDocument[]>([]);
@@ -23,21 +24,39 @@ export const useBuyingMandates = (mandateType?: string) => {
   const { toast } = useToast();
 
   const fetchMandates = useCallback(async () => {
+    console.log('🔍 [fetchMandates] Iniciando fetch de mandatos...');
+    console.log('🔍 [fetchMandates] mandateType:', mandateType);
     setIsLoading(true);
     try {
+      // Check current auth user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log('👤 [fetchMandates] Current user:', user?.id, 'Auth error:', authError);
+      
+      if (!user) {
+        console.warn('⚠️ [fetchMandates] No authenticated user found');
+      }
       let query = supabase
         .from('buying_mandates')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (mandateType) {
+        console.log('🔍 [fetchMandates] Aplicando filtro mandateType:', mandateType);
         query = query.eq('mandate_type', mandateType);
       }
 
+      console.log('🔍 [fetchMandates] Ejecutando query...');
       const { data, error } = await query;
+      console.log('🔍 [fetchMandates] Resultado query:', { data: data?.length || 0, error });
 
       if (error) {
-        console.error('Supabase error fetching mandates:', error);
+        console.error('❌ [fetchMandates] Supabase error fetching mandates:', error);
+        console.error('❌ [fetchMandates] Error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         setMandates([]);
         return;
       }
@@ -61,6 +80,7 @@ export const useBuyingMandates = (mandateType?: string) => {
       }
       
       // Transform data to include assigned_user_name
+      console.log('🔍 [fetchMandates] Raw data length:', data?.length || 0);
       const transformedData = (data || []).map(mandate => {
         const assignedUser = userProfiles[mandate.assigned_user_id];
         return {
@@ -71,9 +91,16 @@ export const useBuyingMandates = (mandateType?: string) => {
         };
       });
       
+      console.log('✅ [fetchMandates] Transformed data length:', transformedData.length);
+      console.log('✅ [fetchMandates] Sample mandate:', transformedData[0]);
       setMandates(transformedData as BuyingMandate[]);
     } catch (error: any) {
-      console.error('Error fetching mandates:', error);
+      console.error('💥 [fetchMandates] Error fetching mandates:', error);
+      console.error('💥 [fetchMandates] Error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
       setMandates([]);
       // Solo mostrar toast para errores críticos
       if (error?.code !== '42P01' && error?.code !== '42703' && error?.code !== '406' && toast) {
@@ -84,6 +111,7 @@ export const useBuyingMandates = (mandateType?: string) => {
         });
       }
     } finally {
+      console.log('🏁 [fetchMandates] Finalizando fetch...');
       setIsLoading(false);
     }
   }, [toast, mandateType]);
@@ -607,7 +635,11 @@ export const useBuyingMandates = (mandateType?: string) => {
     }
   };
 
-  // Manual fetch - controlled by components to avoid automatic loops
+  // Auto-fetch mandates on hook initialization
+  useEffect(() => {
+    console.log('🎯 [useBuyingMandates] useEffect triggered - auto-fetching mandates');
+    fetchMandates();
+  }, [fetchMandates]);
 
   return {
     mandates,

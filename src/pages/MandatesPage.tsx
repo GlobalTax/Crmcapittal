@@ -16,7 +16,11 @@ import { es } from 'date-fns/locale';
 export default function MandatesPage() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
   const navigate = useNavigate();
-  const { mandates, isLoading, updateMandateStatus, fetchMandates } = useBuyingMandates();
+  const { mandates, isLoading, updateMandateStatus, fetchMandates } = useBuyingMandates('compra');
+  
+  console.log('🎯 [MandatesPage] Render - mandates length:', mandates.length);
+  console.log('🎯 [MandatesPage] isLoading:', isLoading);
+  
   const [filters, setFilters] = useState<MandateFilters>({
     search: '',
     mandate_type: '',
