@@ -18,8 +18,8 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
   const navigate = useNavigate();
 
   const companyContacts = contacts?.filter(contact => 
-    contact.company?.toLowerCase().includes(company.name.toLowerCase()) ||
-    contact.company_id === company.id
+    contact.company_id === company.id ||
+    contact.company?.toLowerCase().includes(company.name.toLowerCase())
   ) || [];
 
   if (isLoading) {
@@ -135,6 +135,7 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
           createContact({
             ...contactData,
             company: company.name,
+            company_id: company.id,
           });
           setShowCreateDialog(false);
         }}

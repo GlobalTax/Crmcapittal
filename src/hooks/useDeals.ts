@@ -86,7 +86,8 @@ export const useDeals = () => {
           tipo_negocio: 'venta',
           stage_id: stages?.id,
           prioridad: 'media',
-          company_id: dealData.companyId,
+          // Only include company_id if provided and not empty
+          ...(dealData.companyId && { company_id: dealData.companyId }),
           created_by: dealData.ownerId || user?.user?.id
         }])
         .select()

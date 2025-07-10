@@ -41,6 +41,8 @@ export const useContacts = () => {
           is_active: true,
           contact_status: contactData.contact_status || 'active',
           contact_roles: contactData.contact_roles || ['other'],
+          // Handle company_id properly - only include if not empty
+          ...(contactData.company_id && { company_id: contactData.company_id }),
         }])
         .select()
         .single();

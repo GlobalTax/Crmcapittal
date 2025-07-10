@@ -34,6 +34,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
   }
 
   const companyDeals = deals?.filter(deal => 
+    deal.companyId === company.id ||
     deal.company?.name?.toLowerCase().includes(company.name.toLowerCase())
   ) || [];
 

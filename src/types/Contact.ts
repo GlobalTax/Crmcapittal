@@ -65,6 +65,7 @@ export interface CreateContactData {
   email?: string;
   phone?: string;
   company?: string;
+  company_id?: string;
   position?: string;
   contact_type: ContactType;
   contact_priority?: ContactPriority;
