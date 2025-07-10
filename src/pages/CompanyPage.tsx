@@ -13,7 +13,7 @@ import { CompanyEinformaTab } from '@/components/companies/CompanyEinformaTab';
 import { CompanyDocumentsTab } from '@/components/companies/CompanyDocumentsTab';
 import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
-import { useCompanies } from '@/hooks/useCompanies';
+import { useOptimizedCompanies } from '@/hooks/useOptimizedCompanies';
 import { Company } from '@/types/Company';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 
@@ -30,14 +30,8 @@ export default function CompanyPage() {
     companies,
     updateCompany,
     isLoading: companiesLoading,
-    isUpdating
-  } = useCompanies({ 
-    page: 1, 
-    limit: 1000, // Load many to allow navigation
-    searchTerm: '', 
-    statusFilter: 'all', 
-    typeFilter: 'all' 
-  });
+    getCompanyById
+  } = useOptimizedCompanies();
 
   // Handle legacy URL redirections (from drawer URLs)
   useEffect(() => {
@@ -81,7 +75,7 @@ export default function CompanyPage() {
   }, []);
 
   const handleUpdateCompany = (companyId: string, companyData: any) => {
-    updateCompany({ id: companyId, ...companyData });
+    updateCompany(companyId, companyData);
     setEditingCompany(null);
   };
 
@@ -278,7 +272,7 @@ export default function CompanyPage() {
           open={!!editingCompany}
           onOpenChange={(open) => !open && setEditingCompany(null)}
           onUpdateCompany={handleUpdateCompany}
-          isUpdating={isUpdating}
+          isUpdating={false}
         />
       )}
     </div>
