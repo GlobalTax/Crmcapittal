@@ -4,10 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { CompanyHeader } from '@/components/companies/CompanyHeader';
 import { CompanyOverviewTab } from '@/components/companies/CompanyOverviewTab';
-import { CompanyActivityTab } from '@/components/companies/CompanyActivityTab';
+import { CompanyTimeline } from '@/components/companies/CompanyTimeline';
 import { CompanyContactsTab } from '@/components/companies/CompanyContactsTab';
 import { CompanyDealsTab } from '@/components/companies/CompanyDealsTab';
-import { CompanyNotesTab } from '@/components/companies/CompanyNotesTab';
+import { CompanyNotesSection } from '@/components/companies/CompanyNotesSection';
+import { CompanyFilesTab } from '@/components/companies/CompanyFilesTab';
 import { CompanyEinformaTab } from '@/components/companies/CompanyEinformaTab';
 import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
@@ -169,24 +170,30 @@ export default function CompanyPage() {
                 >
                   Oportunidades
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="notes"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Notas
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="einforma"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Datos eInforma
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="documents"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Documentos
-                </TabsTrigger>
+                 <TabsTrigger 
+                   value="notes"
+                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                 >
+                   Notas
+                 </TabsTrigger>
+                 <TabsTrigger 
+                   value="files"
+                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                 >
+                   Archivos
+                 </TabsTrigger>
+                 <TabsTrigger 
+                   value="einforma"
+                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                 >
+                   Datos eInforma
+                 </TabsTrigger>
+                 <TabsTrigger 
+                   value="documents"
+                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                 >
+                   Documentos
+                 </TabsTrigger>
               </div>
             </TabsList>
 
@@ -198,31 +205,35 @@ export default function CompanyPage() {
                   <CompanyOverviewTab company={company} />
                 </TabsContent>
                 
-                <TabsContent value="activity" className="mt-0 p-6">
-                  <CompanyActivityTab company={company} />
-                </TabsContent>
-                
-                <TabsContent value="contacts" className="mt-0 p-6">
-                  <CompanyContactsTab company={company} />
-                </TabsContent>
-                
-                <TabsContent value="deals" className="mt-0 p-6">
-                  <CompanyDealsTab company={company} />
-                </TabsContent>
-                
-                <TabsContent value="notes" className="mt-0 p-6">
-                  <CompanyNotesTab company={company} />
-                </TabsContent>
-                
-                <TabsContent value="einforma" className="mt-0 p-6">
-                  <CompanyEinformaTab company={company} />
-                </TabsContent>
-                
-                <TabsContent value="documents" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Gestión de documentos próximamente</p>
-                  </div>
-                </TabsContent>
+                 <TabsContent value="activity" className="mt-0 p-6">
+                   <CompanyTimeline company={company} />
+                 </TabsContent>
+                 
+                 <TabsContent value="contacts" className="mt-0 p-6">
+                   <CompanyContactsTab company={company} />
+                 </TabsContent>
+                 
+                 <TabsContent value="deals" className="mt-0 p-6">
+                   <CompanyDealsTab company={company} />
+                 </TabsContent>
+                 
+                 <TabsContent value="notes" className="mt-0 p-6">
+                   <CompanyNotesSection company={company} />
+                 </TabsContent>
+                 
+                 <TabsContent value="files" className="mt-0 p-6">
+                   <CompanyFilesTab company={company} />
+                 </TabsContent>
+                 
+                 <TabsContent value="einforma" className="mt-0 p-6">
+                   <CompanyEinformaTab company={company} />
+                 </TabsContent>
+                 
+                 <TabsContent value="documents" className="mt-0 p-6">
+                   <div className="text-center py-12">
+                     <p className="text-muted-foreground">Gestión de documentos próximamente</p>
+                   </div>
+                 </TabsContent>
               </div>
             </div>
           </Tabs>

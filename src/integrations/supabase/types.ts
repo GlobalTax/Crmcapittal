@@ -568,6 +568,42 @@ export type Database = {
         }
         Relationships: []
       }
+      company_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       company_enrichments: {
         Row: {
           company_id: string
@@ -598,6 +634,42 @@ export type Database = {
           id?: string
           source?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      company_files: {
+        Row: {
+          company_id: string
+          content_type: string | null
+          created_at: string | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          company_id: string
+          content_type?: string | null
+          created_at?: string | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          content_type?: string | null
+          created_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
         }
         Relationships: []
       }
@@ -651,6 +723,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      company_notes: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string
+          note_type: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note: string
+          note_type?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string
+          note_type?: string | null
+        }
+        Relationships: []
       }
       connected_accounts: {
         Row: {
