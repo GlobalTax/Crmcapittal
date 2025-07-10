@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { ContactHeader } from '@/components/contacts/ContactHeader';
 import { PersonOverviewTab } from '@/components/contacts/PersonOverviewTab';
-import { PersonActivityTab } from '@/components/contacts/PersonActivityTab';
+import { ContactTimeline } from '@/components/contacts/ContactTimeline';
 import { PersonRecordSidebar } from '@/components/contacts/PersonRecordSidebar';
 import { EditContactDialog } from '@/components/contacts/EditContactDialog';
 import ContactFilesTab from '@/components/contacts/ContactFilesTab';
@@ -223,7 +223,7 @@ export default function ContactPage() {
                 </TabsContent>
                 
                 <TabsContent value="activity" className="mt-0 p-6">
-                  <PersonActivityTab contact={contact} />
+                  <ContactTimeline contact={contact} />
                 </TabsContent>
                 
                 <TabsContent value="emails" className="mt-0 p-6">
