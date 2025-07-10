@@ -43,19 +43,27 @@ export const CompanyModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name) return;
+    console.log("📝 Company form submitted with data:", formData);
+    
+    if (!formData.name?.trim()) {
+      console.error("❌ Company name is required");
+      return;
+    }
 
-    onCreateCompany({
-      name: formData.name,
-      domain: formData.domain || '',
-      company_status: formData.company_status || 'prospecto',
-      company_type: formData.company_type || 'prospect',
+    // Simplified company data - only send essential fields with explicit defaults
+    const companyPayload: CreateCompanyData = {
+      // Required fields
+      name: formData.name.trim(),
       company_size: formData.company_size || '11-50',
+      company_type: formData.company_type || 'prospect',
+      company_status: formData.company_status || 'prospecto',
       lifecycle_stage: formData.lifecycle_stage || 'lead',
-      annual_revenue: formData.annual_revenue,
       is_target_account: formData.is_target_account || false,
       is_key_account: formData.is_key_account || false,
       is_franquicia: formData.is_franquicia || false,
+      
+      // Optional fields - explicitly set to sensible defaults
+      domain: formData.domain?.trim() || '',
       website: '',
       description: '',
       phone: '',
@@ -65,6 +73,7 @@ export const CompanyModal = ({
       country: 'España',
       postal_code: '',
       industry: '',
+      annual_revenue: formData.annual_revenue || undefined,
       founded_year: undefined,
       owner_id: '',
       notes: '',
@@ -72,8 +81,12 @@ export const CompanyModal = ({
       lead_score: 0,
       linkedin_url: '',
       twitter_url: '',
-      facebook_url: ''
-    });
+      facebook_url: '',
+      nif: ''
+    };
+
+    console.log("🚀 Sending company payload:", companyPayload);
+    onCreateCompany(companyPayload);
 
     // Reset form
     setFormData({
@@ -202,10 +215,10 @@ export const CompanyModal = ({
                 </Button>
                 <Button
                   type="submit"
-                  disabled={isCreating || !formData.name}
+                  disabled={isCreating || !formData.name?.trim()}
                   className="relative"
                 >
-                  Create company
+                  {isCreating ? "Creando..." : "Create company"}
                   <span className="ml-2 text-xs text-muted opacity-60">⌘⇧↩</span>
                 </Button>
               </div>

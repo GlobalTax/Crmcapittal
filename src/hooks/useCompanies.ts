@@ -22,6 +22,8 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
   } = useQuery({
     queryKey: ["companies", page, limit, searchTerm, statusFilter, typeFilter],
     queryFn: async () => {
+      console.log("🔍 Fetching companies with filters:", { searchTerm, statusFilter, typeFilter, page, limit });
+      
       // Base query for companies
       let query = supabase
         .from("companies")
@@ -49,59 +51,86 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
       const { data, error, count } = await query;
 
       if (error) {
-        console.error("Error fetching companies:", error);
+        console.error("❌ Error fetching companies:", error);
         throw error;
       }
 
-      // Enrich companies with additional data
+      console.log("✅ Successfully fetched companies:", data?.length || 0);
+
+      // Enrich companies with additional data (with error handling)
       const enrichedCompanies = await Promise.all(
         (data || []).map(async (company) => {
-          // Get enrichment data
-          const { data: enrichmentData } = await supabase
-            .from("company_enrichments")
-            .select("enrichment_data")
-            .eq("company_id", company.id)
-            .limit(1)
-            .maybeSingle();
+          try {
+            // Get enrichment data
+            const { data: enrichmentData, error: enrichmentError } = await supabase
+              .from("company_enrichments")
+              .select("enrichment_data")
+              .eq("company_id", company.id)
+              .limit(1)
+              .maybeSingle();
 
-          // Count contacts
-          const { count: contactsCount } = await supabase
-            .from("contacts")
-            .select("*", { count: "exact", head: true })
-            .eq("company_id", company.id);
+            if (enrichmentError) {
+              console.warn("⚠️ Enrichment data error for company", company.id, enrichmentError);
+            }
 
-          // Count active opportunities
-          const { count: opportunitiesCount } = await supabase
-            .from("opportunities")
-            .select("*", { count: "exact", head: true })
-            .eq("company_id", company.id)
-            .eq("is_active", true);
+            // Count contacts
+            const { count: contactsCount, error: contactsError } = await supabase
+              .from("contacts")
+              .select("*", { count: "exact", head: true })
+              .eq("company_id", company.id);
 
-          const enrichment = enrichmentData?.enrichment_data as any;
+            if (contactsError) {
+              console.warn("⚠️ Contacts count error for company", company.id, contactsError);
+            }
 
-          // Calculate profile score (0-100)
-          let profileScore = 0;
-          if (company.name) profileScore += 15;
-          if (company.domain) profileScore += 10;
-          if (company.city) profileScore += 10;
-          if (company.industry || enrichment?.sector) profileScore += 15;
-          if (company.annual_revenue || enrichment?.revenue) profileScore += 15;
-          if (company.phone) profileScore += 10;
-          if (contactsCount > 0) profileScore += 15;
-          if (opportunitiesCount > 0) profileScore += 10;
+            // Count active opportunities - use status instead of is_active since column doesn't exist
+            const { count: opportunitiesCount, error: opportunitiesError } = await supabase
+              .from("opportunities")
+              .select("*", { count: "exact", head: true })
+              .eq("company_id", company.id)
+              .neq("status", "closed");
 
-          // Determine profile status
-          const profileStatus = profileScore >= 70 ? 'high' : profileScore >= 40 ? 'medium' : 'low';
+            if (opportunitiesError) {
+              console.warn("⚠️ Opportunities count error for company", company.id, opportunitiesError);
+            }
 
-          return {
-            ...company,
-            enrichment_data: enrichment,
-            contacts_count: contactsCount || 0,
-            opportunities_count: opportunitiesCount || 0,
-            profile_score: profileScore,
-            profile_status: profileStatus,
-            sector: enrichment?.company_data?.actividad_principal || enrichment?.sector || company.industry,
-          };
+            const enrichment = enrichmentData?.enrichment_data as any;
+
+            // Calculate profile score (0-100)
+            let profileScore = 0;
+            if (company.name) profileScore += 15;
+            if (company.domain) profileScore += 10;
+            if (company.city) profileScore += 10;
+            if (company.industry || enrichment?.sector) profileScore += 15;
+            if (company.annual_revenue || enrichment?.revenue) profileScore += 15;
+            if (company.phone) profileScore += 10;
+            if (contactsCount > 0) profileScore += 15;
+            if (opportunitiesCount > 0) profileScore += 10;
+
+            // Determine profile status
+            const profileStatus = profileScore >= 70 ? 'high' : profileScore >= 40 ? 'medium' : 'low';
+
+            return {
+              ...company,
+              enrichment_data: enrichment,
+              contacts_count: contactsCount || 0,
+              opportunities_count: opportunitiesCount || 0,
+              profile_score: profileScore,
+              profile_status: profileStatus,
+              sector: enrichment?.company_data?.actividad_principal || enrichment?.sector || company.industry,
+            };
+          } catch (enrichError) {
+            console.error("❌ Error enriching company data for", company.id, enrichError);
+            // Return basic company data without enrichment if there's an error
+            return {
+              ...company,
+              contacts_count: 0,
+              opportunities_count: 0,
+              profile_score: 15, // Just for having a name
+              profile_status: 'low',
+              sector: company.industry,
+            };
+          }
         })
       );
 
@@ -154,23 +183,34 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
 
   const createCompanyMutation = useMutation({
     mutationFn: async (companyData: CreateCompanyData) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      console.log("🏢 Creating company with data:", companyData);
+      
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error("❌ User authentication error:", userError);
+        throw new Error("Usuario no autenticado");
+      }
+      
+      console.log("👤 User authenticated:", user.id);
       
       const { data, error } = await supabase
         .from("companies")
         .insert([
           {
             ...companyData,
-            created_by: user?.id,
+            created_by: user.id,
           },
         ])
         .select()
         .single();
 
       if (error) {
-        console.error("Error creating company:", error);
+        console.error("❌ Error creating company:", error);
         throw error;
       }
+      
+      console.log("✅ Company created successfully:", data.id);
 
       // Auto-enrich with eInforma if NIF is provided
       if (data.nif && data.nif.trim()) {
@@ -188,14 +228,26 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("🎉 Company creation successful, invalidating queries");
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       queryClient.invalidateQueries({ queryKey: ["company-stats"] });
       toast.success("Empresa creada exitosamente");
     },
-    onError: (error) => {
-      console.error("Error creating company:", error);
-      toast.error("Error al crear la empresa");
+    onError: (error: any) => {
+      console.error("❌ Company creation failed:", error);
+      
+      // Better error handling
+      let errorMessage = "Error al crear la empresa";
+      if (error?.message?.includes("violates row-level security")) {
+        errorMessage = "No tienes permisos para crear empresas";
+      } else if (error?.message?.includes("duplicate key")) {
+        errorMessage = "Ya existe una empresa con ese nombre";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     },
   });
 

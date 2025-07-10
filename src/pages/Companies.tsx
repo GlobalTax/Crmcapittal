@@ -60,6 +60,18 @@ const Companies = () => {
 
   const { data: stats, isLoading: statsLoading } = useCompanyStats();
 
+  // Add debug logging
+  console.log("📊 Companies page state:", {
+    companiesCount: companies.length,
+    totalCount,
+    isLoading,
+    isCreating,
+    page,
+    searchTerm,
+    statusFilter,
+    typeFilter
+  });
+
   const handleEditCompany = (company: Company) => {
     console.log('✏️ handleEditCompany called with:', company.name);
     setEditingCompany(company);
