@@ -32,15 +32,29 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
 
   if (companyContacts.length === 0) {
     return (
-      <EmptyState
-        icon={Users}
-        title="Aún no hay contactos"
-        subtitle="Añade contactos de esta empresa para empezar a construir relaciones"
-        action={{
-          label: "Añadir Contacto",
-          onClick: () => setShowCreateDialog(true)
-        }}
-      />
+      <>
+        <EmptyState
+          icon={Users}
+          title="Aún no hay contactos"
+          subtitle="Añade contactos de esta empresa para empezar a construir relaciones"
+          action={{
+            label: "Añadir Contacto",
+            onClick: () => setShowCreateDialog(true)
+          }}
+        />
+        
+        <CreateContactDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          company_id={company.id}
+          defaultCompanyName={company.name}
+          onCreateContact={(contactData) => {
+            createContact(contactData);
+            setShowCreateDialog(false);
+          }}
+          isCreating={isCreating}
+        />
+      </>
     );
   }
 
@@ -128,15 +142,15 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
         ))}
       </div>
 
-        <CreateContactDialog
-          open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
-          company_id={company.id}
-          defaultCompanyName={company.name}
-          onCreateContact={(contactData) => {
-            createContact(contactData);
-            setShowCreateDialog(false);
-          }}
+      <CreateContactDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        company_id={company.id}
+        defaultCompanyName={company.name}
+        onCreateContact={(contactData) => {
+          createContact(contactData);
+          setShowCreateDialog(false);
+        }}
         isCreating={isCreating}
       />
     </div>
