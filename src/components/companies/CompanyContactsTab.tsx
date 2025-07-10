@@ -128,18 +128,18 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
         ))}
       </div>
 
-      {showCreateDialog && (
-        <CreateContactDialog 
-          onCreateContact={(contactData) => {
-            createContact({
-              ...contactData,
-              company: company.name,
-            });
-            setShowCreateDialog(false);
-          }}
-          isCreating={isCreating}
-        />
-      )}
+      <CreateContactDialog 
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreateContact={(contactData) => {
+          createContact({
+            ...contactData,
+            company: company.name,
+          });
+          setShowCreateDialog(false);
+        }}
+        isCreating={isCreating}
+      />
     </div>
   );
 };

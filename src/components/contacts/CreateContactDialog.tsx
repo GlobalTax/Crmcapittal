@@ -12,10 +12,23 @@ import { AdditionalContactInfo } from "./forms/AdditionalContactInfo";
 interface CreateContactDialogProps {
   onCreateContact: (contactData: CreateContactData) => void;
   isCreating?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
 }
 
-export const CreateContactDialog = ({ onCreateContact, isCreating = false }: CreateContactDialogProps) => {
-  const [open, setOpen] = useState(false);
+export const CreateContactDialog = ({ 
+  onCreateContact, 
+  isCreating = false,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange,
+  trigger
+}: CreateContactDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Use external control if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
   
   const [contactData, setContactData] = useState({
     name: "",
@@ -79,12 +92,16 @@ export const CreateContactDialog = ({ onCreateContact, isCreating = false }: Cre
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-orange-600 hover:bg-orange-700 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Crear Contacto
-        </Button>
-      </DialogTrigger>
+      {(trigger || externalOpen === undefined) && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Contacto
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
