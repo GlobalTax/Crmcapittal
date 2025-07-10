@@ -62,27 +62,11 @@ export const CompanyModal = ({
       is_key_account: formData.is_key_account || false,
       is_franquicia: formData.is_franquicia || false,
       
-      // Optional fields - explicitly set to sensible defaults
-      domain: formData.domain?.trim() || '',
-      website: '',
-      description: '',
-      phone: '',
-      address: '',
-      city: '',
-      state: '',
+      // Optional fields - only include non-empty values
+      ...(formData.domain?.trim() && { domain: formData.domain.trim() }),
+      ...(formData.annual_revenue && { annual_revenue: formData.annual_revenue }),
       country: 'España',
-      postal_code: '',
-      industry: '',
-      annual_revenue: formData.annual_revenue || undefined,
-      founded_year: undefined,
-      owner_id: '',
-      notes: '',
-      tags: [],
-      lead_score: 0,
-      linkedin_url: '',
-      twitter_url: '',
-      facebook_url: '',
-      nif: ''
+      lead_score: 0
     };
 
     console.log("🚀 Sending company payload:", companyPayload);
