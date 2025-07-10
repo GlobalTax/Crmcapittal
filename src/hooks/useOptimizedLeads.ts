@@ -22,10 +22,7 @@ export const useOptimizedLeads = (filters?: {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      console.log('🔍 [useOptimizedLeads] Fetching leads with filters:', filters);
       const result = await leadsService.fetchLeads(filters);
-      console.log('✅ [useOptimizedLeads] Fetched leads result:', result?.length, 'leads');
-      console.log('📋 [useOptimizedLeads] First few leads:', result?.slice(0, 3).map(l => ({ id: l.id, name: l.name, status: l.status })));
       setLeads(result || []);
       setError(null);
     } catch (err) {
@@ -38,14 +35,13 @@ export const useOptimizedLeads = (filters?: {
   };
 
   const refetch = () => {
-    console.log('🔄 [useOptimizedLeads] Manual refetch triggered');
     return fetchData();
   };
 
   useEffect(() => {
     console.log('🚀 [useOptimizedLeads] Initial fetch triggered');
     fetchData();
-  }, [JSON.stringify(filters)]);
+  }, [JSON.stringify(filters || {})]);
 
   // Process lead changes for notifications when leads data changes
   useEffect(() => {

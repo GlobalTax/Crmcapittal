@@ -127,8 +127,6 @@ export const LeadsTable = ({
     return lead.status === 'QUALIFIED';
   };
 
-  console.log('LeadsTable render - leads count:', leads?.length, 'isLoading:', isLoading);
-
   if (leads.length === 0 && !isLoading) {
     return (
       <div className="text-center py-8 text-gray-500">

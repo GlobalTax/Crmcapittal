@@ -50,12 +50,14 @@ export const fetchLeads = async (filters?: {
 
   let userProfiles: Array<{ id: string; first_name?: string; last_name?: string }> = [];
   if (assignedUserIds.length > 0) {
-    const { data: profiles } = await supabase
+    const { data: profiles, error: profilesError } = await supabase
       .from('user_profiles')
       .select('id, first_name, last_name')
       .in('id', assignedUserIds);
     
-    userProfiles = profiles || [];
+    if (!profilesError && profiles) {
+      userProfiles = profiles;
+    }
   }
 
   // Transform the data to match our Lead interface with enhanced fields
@@ -106,13 +108,15 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
   // Fetch user profile if assigned
   let assignedTo = null;
   if (data.assigned_to_id) {
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('id, first_name, last_name')
       .eq('id', data.assigned_to_id)
-      .single();
+      .maybeSingle();
     
-    assignedTo = profile;
+    if (!profileError && profile) {
+      assignedTo = profile;
+    }
   }
 
   // Transform the data to match our Lead interface with missing column handling
@@ -234,13 +238,15 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
   // Fetch user profile if assigned
   let assignedTo = null;
   if (data.assigned_to_id) {
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
       .select('id, first_name, last_name')
       .eq('id', data.assigned_to_id)
-      .single();
+      .maybeSingle();
     
-    assignedTo = profile;
+    if (!profileError && profile) {
+      assignedTo = profile;
+    }
   }
 
   // Transform the data to match our Lead interface

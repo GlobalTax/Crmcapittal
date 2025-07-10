@@ -48,7 +48,7 @@ export const ConvertLeadDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" aria-describedby="convert-lead-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowRight className="h-5 w-5" />
@@ -57,7 +57,7 @@ export const ConvertLeadDialog = ({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg" id="convert-lead-description">
             <h4 className="font-medium text-gray-900 mb-2">Lead a convertir:</h4>
             <div className="text-sm text-gray-600 space-y-1">
               <p><strong>Nombre:</strong> {lead.name}</p>
