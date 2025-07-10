@@ -7,9 +7,14 @@ import { PersonOverviewTab } from '@/components/contacts/PersonOverviewTab';
 import { PersonActivityTab } from '@/components/contacts/PersonActivityTab';
 import { PersonRecordSidebar } from '@/components/contacts/PersonRecordSidebar';
 import { EditContactDialog } from '@/components/contacts/EditContactDialog';
+import ContactFilesTab from '@/components/contacts/ContactFilesTab';
+import { ContactTasksTab } from '@/components/contacts/ContactTasksTab';
+import { ContactNotesTab } from '@/components/contacts/ContactNotesTab';
+import { ContactCompanyTab } from '@/components/contacts/ContactCompanyTab';
 import { useOptimizedContacts } from '@/hooks/useOptimizedContacts';
 import { Contact, UpdateContactData } from '@/types/Contact';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ContactPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +24,7 @@ export default function ContactPage() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [localLoading, setLocalLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   
   const {
     contacts,
@@ -37,6 +43,17 @@ export default function ContactPage() {
       navigate(`/contactos/${drawerId}`, { replace: true });
     }
   }, [location.search, id, navigate]);
+
+  // Get current user ID
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+    };
+    getCurrentUser();
+  }, []);
 
   // Update loading state based on contacts loading
   useEffect(() => {
@@ -222,45 +239,31 @@ export default function ContactPage() {
                 </TabsContent>
                 
                 <TabsContent value="company" className="mt-0 p-6">
-                  <div className="space-y-4">
-                    {contact.company ? (
-                      <div>
-                        <h3 className="text-sm font-medium mb-3">Información de la Empresa</h3>
-                        <div className="space-y-2">
-                          <div>
-                            <span className="text-sm font-medium">{contact.company}</span>
-                          </div>
-                          {contact.position && (
-                            <div className="text-sm text-muted-foreground">
-                              {contact.position}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-12">
-                        <p className="text-muted-foreground">No hay información de empresa disponible</p>
-                      </div>
-                    )}
-                  </div>
+                  <ContactCompanyTab 
+                    contactId={contact.id} 
+                    currentUserId={currentUserId} 
+                  />
                 </TabsContent>
                 
                 <TabsContent value="notes" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Notas próximamente</p>
-                  </div>
+                  <ContactNotesTab 
+                    contactId={contact.id} 
+                    currentUserId={currentUserId} 
+                  />
                 </TabsContent>
                 
                 <TabsContent value="tasks" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Gestión de tareas próximamente</p>
-                  </div>
+                  <ContactTasksTab 
+                    contactId={contact.id} 
+                    currentUserId={currentUserId} 
+                  />
                 </TabsContent>
                 
                 <TabsContent value="files" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Gestión de archivos próximamente</p>
-                  </div>
+                  <ContactFilesTab 
+                    contactId={contact.id} 
+                    currentUserId={currentUserId} 
+                  />
                 </TabsContent>
               </div>
             </div>
