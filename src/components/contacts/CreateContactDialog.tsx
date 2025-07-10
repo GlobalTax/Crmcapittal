@@ -15,6 +15,8 @@ interface CreateContactDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   trigger?: React.ReactNode;
+  company_id?: string;
+  defaultCompanyName?: string;
 }
 
 export const CreateContactDialog = ({ 
@@ -22,7 +24,9 @@ export const CreateContactDialog = ({
   isCreating = false,
   open: externalOpen,
   onOpenChange: externalOnOpenChange,
-  trigger
+  trigger,
+  company_id,
+  defaultCompanyName
 }: CreateContactDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
   
@@ -34,7 +38,7 @@ export const CreateContactDialog = ({
     name: "",
     email: "",
     phone: "",
-    company: "",
+    company: defaultCompanyName || "",
     position: "",
     contact_type: "other" as const,
     contact_priority: "medium" as const,
@@ -49,6 +53,7 @@ export const CreateContactDialog = ({
     notes: "",
     time_zone: "",
     language_preference: "es",
+    company_id,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -67,7 +72,7 @@ export const CreateContactDialog = ({
       name: "",
       email: "",
       phone: "",
-      company: "",
+      company: defaultCompanyName || "",
       position: "",
       contact_type: "other" as const,
       contact_priority: "medium" as const,
@@ -82,6 +87,7 @@ export const CreateContactDialog = ({
       notes: "",
       time_zone: "",
       language_preference: "es",
+      company_id,
     };
     setContactData(initialState);
   };

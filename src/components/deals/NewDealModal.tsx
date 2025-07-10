@@ -58,7 +58,7 @@ export const NewDealModal = ({ open, onOpenChange, defaultStage = 'Lead', defaul
       title: '',
       ownerId: '',
       amount: undefined,
-      companyId: '',
+      companyId: defaultCompanyId || '',
       associatedPeople: [],
     }
   });
@@ -103,7 +103,7 @@ export const NewDealModal = ({ open, onOpenChange, defaultStage = 'Lead', defaul
           title: '',
           ownerId: '',
           amount: undefined,
-          companyId: '',
+          companyId: defaultCompanyId || '',
           associatedPeople: [],
         });
       } else {

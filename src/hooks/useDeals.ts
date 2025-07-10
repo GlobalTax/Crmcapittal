@@ -87,7 +87,7 @@ export const useDeals = () => {
           stage_id: stages?.id,
           prioridad: 'media',
           // Only include company_id if provided and not empty
-          ...(dealData.companyId && { company_id: dealData.companyId }),
+          ...(dealData.companyId && dealData.companyId.trim() !== '' && { company_id: dealData.companyId }),
           created_by: dealData.ownerId || user?.user?.id
         }])
         .select()
