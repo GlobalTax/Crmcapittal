@@ -123,7 +123,7 @@ export const AppRoutes = () => {
           <Route path="/companies" element={<Navigate to="/empresas" replace />} />
           <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
           <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
-          <Route path="/contacts/:id" element={<Navigate to="/contactos" replace />} />
+          <Route path="/contacts/:id" element={<Navigate to="/contactos/:id" replace />} />
 
           {/* Other routes */}
           <Route 
