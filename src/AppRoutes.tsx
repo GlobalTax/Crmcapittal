@@ -101,6 +101,9 @@ export const AppRoutes = () => {
           {/* Captación (Spanish routes) */}
           <Route path="/captacion" element={<LeadsEntryPanel />} />
           <Route path="/captacion/:id" element={<LeadDetail />} />
+          
+          {/* Gestión de Leads route */}
+          <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
 
           {/* Empresas y Contactos (Spanish routes) */}
           <Route path="/empresas" element={<CompanyList />} />
