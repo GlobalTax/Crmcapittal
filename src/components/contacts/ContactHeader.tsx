@@ -35,7 +35,7 @@ export const ContactHeader = ({
   };
 
   const handleBackToContacts = () => {
-    navigate('/contacts');
+    navigate('/contactos');
   };
 
   return (

@@ -38,7 +38,7 @@ export default function Contacts() {
     const searchParams = new URLSearchParams(location.search);
     const drawerId = searchParams.get('drawer');
     if (drawerId) {
-      navigate(`/contacts/${drawerId}`, { replace: true });
+      navigate(`/contactos/${drawerId}`, { replace: true });
     }
   }, [location.search, navigate]);
 
@@ -95,7 +95,7 @@ export default function Contacts() {
   };
 
   const handleViewContact = (contact: Contact) => {
-    navigate(`/contacts/${contact.id}`);
+    navigate(`/contactos/${contact.id}`);
   };
 
   const handleSearch = (term: string) => {

@@ -39,7 +39,7 @@ export const PersonRecordTable = ({
   const [isCleaningData, setIsCleaningData] = useState(false);
 
   const handleRowClick = (contact: Contact) => {
-    navigate(`/contacts/${contact.id}`);
+    navigate(`/contactos/${contact.id}`);
     onRowClick?.(contact);
   };
 

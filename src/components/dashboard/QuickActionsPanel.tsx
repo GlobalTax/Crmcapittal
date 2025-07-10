@@ -25,7 +25,7 @@ export const QuickActionsPanel = () => {
   };
 
   const handleRegisterCall = () => {
-    navigate('/contacts');
+    navigate('/contactos');
     toast({
       title: "Registrar Llamada",
       description: "Registra actividades desde la página de contactos",

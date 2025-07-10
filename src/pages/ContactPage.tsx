@@ -34,7 +34,7 @@ export default function ContactPage() {
     const searchParams = new URLSearchParams(location.search);
     const drawerId = searchParams.get('drawer');
     if (drawerId && drawerId !== id) {
-      navigate(`/contacts/${drawerId}`, { replace: true });
+      navigate(`/contactos/${drawerId}`, { replace: true });
     }
   }, [location.search, id, navigate]);
 
@@ -53,7 +53,7 @@ export default function ContactPage() {
         document.title = `Contacto • ${foundContact.name}`;
       } else if (!localLoading) {
         // Contact not found, redirect to contacts list
-        navigate('/contacts', { replace: true });
+        navigate('/contactos', { replace: true });
       }
     }
   }, [contacts, id, navigate, localLoading]);
@@ -99,7 +99,7 @@ export default function ContactPage() {
     const currentIndex = getCurrentContactIndex();
     if (currentIndex > 0) {
       const previousContact = contacts[currentIndex - 1];
-      navigate(`/contacts/${previousContact.id}`);
+      navigate(`/contactos/${previousContact.id}`);
     }
   };
 
@@ -108,7 +108,7 @@ export default function ContactPage() {
     const currentIndex = getCurrentContactIndex();
     if (currentIndex < contacts.length - 1) {
       const nextContact = contacts[currentIndex + 1];
-      navigate(`/contacts/${nextContact.id}`);
+      navigate(`/contactos/${nextContact.id}`);
     }
   };
 
