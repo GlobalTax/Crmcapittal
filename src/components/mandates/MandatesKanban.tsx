@@ -58,11 +58,16 @@ export const MandatesKanban = React.memo(({
 
   // Group mandates by status
   const mandatesByStatus = useMemo(() => {
+    console.log('MandatesKanban: mandates received:', mandates);
+    console.log('MandatesKanban: mandate statuses:', mandates.map(m => ({ id: m.id, name: m.mandate_name, status: m.status })));
+    
     const groups: Record<string, BuyingMandate[]> = {};
     
     MANDATE_STAGES.forEach(stage => {
       groups[stage.id] = mandates.filter(mandate => mandate.status === stage.id);
     });
+    
+    console.log('MandatesKanban: groups after filtering:', groups);
     
     // Add mandates without status to the first stage if available
     const mandatesSinEstado = mandates.filter(m => !m.status && MANDATE_STAGES.length > 0);
