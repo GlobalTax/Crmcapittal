@@ -172,6 +172,20 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
         throw error;
       }
 
+      // Auto-enrich with eInforma if NIF is provided
+      if (data.nif && data.nif.trim()) {
+        try {
+          await supabase.functions.invoke('einforma-enrich-company', {
+            body: { 
+              nif: data.nif,
+              companyId: data.id 
+            }
+          });
+        } catch (enrichError) {
+          console.log('Auto-enrichment failed, but company was created successfully:', enrichError);
+        }
+      }
+
       return data;
     },
     onSuccess: () => {

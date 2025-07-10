@@ -1,9 +1,11 @@
-import { Building2, Users, TrendingUp, Calendar, Globe, MapPin } from 'lucide-react';
+import { Building2, Users, TrendingUp, Calendar, Globe, MapPin, Database } from 'lucide-react';
 import { DealHighlightCard } from '@/components/deals/DealHighlightCard';
 import { CompanyProfileScore } from '@/components/companies/CompanyProfileScore';
 import { Company } from '@/types/Company';
 import { useCompanyStats } from '@/hooks/useCompanyStats';
 import { useCompanyProfileScore } from '@/hooks/useCompanyProfileScore';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompanyOverviewTabProps {
   company: Company;
@@ -12,6 +14,26 @@ interface CompanyOverviewTabProps {
 export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
   const stats = useCompanyStats(company.id, company.name);
   const profileScore = useCompanyProfileScore(company);
+  
+  // Check if company has eInforma enrichment data
+  const { data: enrichmentData } = useQuery({
+    queryKey: ['company-enrichments', company.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('company_enrichments')
+        .select('*')
+        .eq('company_id', company.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching enrichment data:', error);
+        return null;
+      }
+
+      return data;
+    },
+  });
   
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
@@ -87,10 +109,13 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
         />
 
         <DealHighlightCard
-          title="Rango de Empleados"
-          icon={Users}
-          value={company.company_size}
-          subtitle="Tamaño de empresa"
+          title="Datos eInforma"
+          icon={Database}
+          value={enrichmentData ? 'Disponible' : 'No disponible'}
+          subtitle={enrichmentData ? 
+            `Enriquecido ${new Date(enrichmentData.created_at).toLocaleDateString('es-ES')}` : 
+            'Datos no enriquecidos'
+          }
         />
       </div>
 

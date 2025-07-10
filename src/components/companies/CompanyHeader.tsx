@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { Company } from '@/types/Company';
+import { EnrichmentButton } from './EnrichmentButton';
 
 interface CompanyHeaderProps {
   company: Company;
@@ -84,10 +85,13 @@ export const CompanyHeader = ({
             </div>
           </div>
 
-          <Button onClick={() => onEdit(company)} className="gap-2">
-            <Edit className="h-4 w-4" />
-            Editar Empresa
-          </Button>
+          <div className="flex gap-2">
+            <EnrichmentButton company={company} />
+            <Button onClick={() => onEdit(company)} className="gap-2">
+              <Edit className="h-4 w-4" />
+              Editar Empresa
+            </Button>
+          </div>
         </div>
 
         {/* Company Header */}
