@@ -85,18 +85,24 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
 
       console.log('Archivo subido al storage:', uploadData);
 
-      // Get public URL
+      // Get public URL - ensure it includes /public/ for public buckets
       const { data: urlData } = supabase.storage
         .from('company-files')
         .getPublicUrl(fileName);
 
-      console.log('URL pública generada:', urlData.publicUrl);
+      // Verify the URL is properly formatted for public access
+      let publicUrl = urlData.publicUrl;
+      if (!publicUrl.includes('/public/')) {
+        publicUrl = publicUrl.replace('/object/company-files/', '/object/public/company-files/');
+      }
+
+      console.log('URL pública generada:', publicUrl);
 
       // Save file record to database
       const fileRecord = {
         company_id: company.id,
         file_name: file.name,
-        file_url: urlData.publicUrl,
+        file_url: publicUrl,
         content_type: file.type,
         file_size: file.size,
         uploaded_by: userData.user.id,
@@ -130,12 +136,21 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
 
   const deleteFileMutation = useMutation({
     mutationFn: async (file: CompanyFile) => {
-      // Delete from storage
-      const fileName = file.file_url.split('/').pop();
-      if (fileName) {
-        await supabase.storage
+      // Extract the correct file path from the URL
+      const urlParts = file.file_url.split('/');
+      const pathIndex = urlParts.findIndex(part => part === 'company-files');
+      
+      if (pathIndex !== -1 && pathIndex < urlParts.length - 1) {
+        const filePath = urlParts.slice(pathIndex + 1).join('/');
+        console.log('Deleting file with path:', filePath);
+        
+        const { error: storageError } = await supabase.storage
           .from('company-files')
-          .remove([fileName]);
+          .remove([filePath]);
+          
+        if (storageError) {
+          console.error('Storage deletion error:', storageError);
+        }
       }
 
       // Delete from database
