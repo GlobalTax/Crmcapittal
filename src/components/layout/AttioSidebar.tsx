@@ -42,7 +42,7 @@ const navigationSections: NavSection[] = [
   {
     title: "Ventas & Transacciones",
     items: [
-      { to: '/transacciones', label: 'Transacciones', icon: Briefcase },
+      { to: '/transacciones', label: 'Mandatos de Venta', icon: Briefcase },
       { to: '/buying-mandates', label: 'Mandatos de Compra', icon: FileText },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
       { to: '/documents', label: 'Documentos', icon: FileText },
