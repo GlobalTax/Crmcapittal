@@ -150,6 +150,7 @@ export const useCommissions = () => {
     lead_id?: string;
     deal_id?: string;
     notes?: string;
+    calculation_details?: any;
   }) => {
     try {
       const { error } = await supabase
