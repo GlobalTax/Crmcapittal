@@ -180,131 +180,157 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
   ];
 
   return (
-    <div className="space-y-6">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div className="space-y-8">
+      {/* Enhanced KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
         {kpiCards.map((card, index) => (
-          <div key={index} className="border border-gray-200 bg-white p-4 hover:shadow-md transition-shadow">
-            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="text-sm font-medium text-gray-600">
-                {card.title}
-              </div>
-              <div className={`p-2 rounded-lg ${card.bgColor}`}>
-                <card.icon className={`h-4 w-4 ${card.color}`} />
-              </div>
-            </div>
-            <div className="pt-0">
-              <div className={`text-sm font-bold ${card.color}`}>
-                {card.value}
-              </div>
-              {card.subtitle && (
-                <p className="text-xs text-gray-500 mt-1">{card.subtitle}</p>
-              )}
-              {card.change !== undefined && (
-                <div className="flex items-center mt-2">
-                  <TrendingUp className={`h-3 w-3 mr-1 ${card.change >= 0 ? 'text-green-500' : 'text-red-500'}`} />
-                  <span className={`text-xs ${card.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {card.change >= 0 ? '+' : ''}{card.change.toFixed(1)}% vs mes anterior
-                  </span>
+          <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-xl ${card.bgColor} group-hover:scale-110 transition-transform duration-300`}>
+                  <card.icon className={`h-5 w-5 ${card.color}`} />
                 </div>
-              )}
-            </div>
-          </div>
+                {card.change !== undefined && (
+                  <div className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                    card.change >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}>
+                    <TrendingUp className={`h-3 w-3 mr-1 ${card.change >= 0 ? '' : 'rotate-180'}`} />
+                    {card.change >= 0 ? '+' : ''}{card.change.toFixed(1)}%
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  {card.title}
+                </h3>
+                <p className={`text-2xl font-bold ${card.color}`}>
+                  {card.value}
+                </p>
+                {card.subtitle && (
+                  <p className="text-xs text-muted-foreground">
+                    {card.subtitle}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Charts Section */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Resumen</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="distribution">Distribución</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
+      {/* Enhanced Charts Section */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 bg-muted p-1 h-12">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-background">Resumen</TabsTrigger>
+          <TabsTrigger value="timeline" className="data-[state=active]:bg-background">Timeline</TabsTrigger>
+          <TabsTrigger value="distribution" className="data-[state=active]:bg-background">Distribución</TabsTrigger>
+          <TabsTrigger value="performance" className="data-[state=active]:bg-background">Performance</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="border border-gray-200 bg-white p-4">
-              <div className="pb-2">
-                <h3 className="text-sm font-semibold text-black">Pipeline de Propuestas</h3>
-                <p className="text-sm text-gray-600 mt-1">Estado actual de todas las propuestas</p>
-              </div>
-              <div className="pt-0">
-                <div className="space-y-4">
+            <Card className="shadow-sm">
+              <CardHeader className="border-b bg-muted/30">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="h-5 w-5 text-primary" />
+                  Pipeline de Propuestas
+                </CardTitle>
+                <CardDescription>Estado actual de todas las propuestas</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Borradores</span>
-                    <div className="flex items-center space-x-2">
-                      <Progress value={(metrics.draftProposals / metrics.totalProposals) * 100} className="w-20" />
-                      <span className="text-sm text-gray-500">{metrics.draftProposals}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-muted-foreground/50" />
+                      <span className="text-sm font-medium">Borradores</span>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Enviadas</span>
-                    <div className="flex items-center space-x-2">
-                      <Progress value={(metrics.sentProposals / metrics.totalProposals) * 100} className="w-20" />
-                      <span className="text-sm text-gray-500">{metrics.sentProposals}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">En Revisión</span>
-                    <div className="flex items-center space-x-2">
-                      <Progress value={(metrics.inReviewProposals / metrics.totalProposals) * 100} className="w-20" />
-                      <span className="text-sm text-gray-500">{metrics.inReviewProposals}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-green-600">Aprobadas</span>
-                    <div className="flex items-center space-x-2">
-                      <Progress value={(metrics.approvedProposals / metrics.totalProposals) * 100} className="w-20" />
-                      <span className="text-sm text-green-600 font-medium">{metrics.approvedProposals}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="border border-gray-200 bg-white p-4">
-              <div className="pb-2">
-                <h3 className="text-sm font-semibold text-black">Métricas Clave</h3>
-                <p className="text-sm text-gray-600 mt-1">Indicadores de rendimiento</p>
-              </div>
-              <div className="pt-0">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium">Tasa de Conversión</p>
-                      <p className="text-xs text-gray-500">Propuestas aprobadas</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-green-600">{metrics.conversionRate.toFixed(1)}%</p>
-                      <Progress value={metrics.conversionRate} className="w-16 mt-1" />
+                    <div className="flex items-center gap-3">
+                      <Progress value={(metrics.draftProposals / Math.max(metrics.totalProposals, 1)) * 100} className="w-24" />
+                      <span className="text-sm font-semibold w-6 text-right">{metrics.draftProposals}</span>
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium">Tiempo Promedio</p>
-                      <p className="text-xs text-gray-500">Desde envío a cierre</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-blue-500" />
+                      <span className="text-sm font-medium">Enviadas</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-blue-600">12 días</p>
-                      <Badge variant="outline" className="text-xs">Mejorado</Badge>
+                    <div className="flex items-center gap-3">
+                      <Progress value={(metrics.sentProposals / Math.max(metrics.totalProposals, 1)) * 100} className="w-24" />
+                      <span className="text-sm font-semibold w-6 text-right">{metrics.sentProposals}</span>
                     </div>
                   </div>
-
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm font-medium">Engagement</p>
-                      <p className="text-xs text-gray-500">Visualizaciones promedio</p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-orange-500" />
+                      <span className="text-sm font-medium">En Revisión</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-purple-600">{(metrics.totalViews / Math.max(metrics.totalProposals, 1)).toFixed(1)}</p>
-                      <Badge variant="outline" className="text-xs">Por propuesta</Badge>
+                    <div className="flex items-center gap-3">
+                      <Progress value={(metrics.inReviewProposals / Math.max(metrics.totalProposals, 1)) * 100} className="w-24" />
+                      <span className="text-sm font-semibold w-6 text-right">{metrics.inReviewProposals}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                      <span className="text-sm font-medium text-green-600">Aprobadas</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Progress value={(metrics.approvedProposals / Math.max(metrics.totalProposals, 1)) * 100} className="w-24" />
+                      <span className="text-sm font-semibold w-6 text-right text-green-600">{metrics.approvedProposals}</span>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-sm">
+              <CardHeader className="border-b bg-muted/30">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Métricas Clave
+                </CardTitle>
+                <CardDescription>Indicadores de rendimiento principales</CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Tasa de Conversión</p>
+                      <p className="text-xs text-muted-foreground">Propuestas aprobadas</p>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <p className="text-lg font-bold text-green-600">{metrics.conversionRate.toFixed(1)}%</p>
+                      <Progress value={metrics.conversionRate} className="w-20" />
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Tiempo Promedio</p>
+                      <p className="text-xs text-muted-foreground">Desde envío a cierre</p>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <p className="text-lg font-bold text-blue-600">12 días</p>
+                      <Badge variant="secondary" className="text-xs">Mejorado</Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">Engagement</p>
+                      <p className="text-xs text-muted-foreground">Visualizaciones promedio</p>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <p className="text-lg font-bold text-purple-600">{(metrics.totalViews / Math.max(metrics.totalProposals, 1)).toFixed(1)}</p>
+                      <Badge variant="secondary" className="text-xs">Por propuesta</Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
