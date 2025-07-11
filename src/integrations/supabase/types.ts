@@ -2252,14 +2252,20 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          job_title: string | null
           lead_origin: string
+          lead_score: number | null
           lead_type: Database["public"]["Enums"]["lead_type"] | null
           message: string | null
           name: string
+          next_follow_up_date: string | null
           phone: string | null
+          priority: string | null
+          quality: string | null
           source: string
           stage_id: string | null
           status: Database["public"]["Enums"]["lead_status"]
+          tags: string[] | null
           updated_at: string
         }
         Insert: {
@@ -2271,14 +2277,20 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          job_title?: string | null
           lead_origin?: string
+          lead_score?: number | null
           lead_type?: Database["public"]["Enums"]["lead_type"] | null
           message?: string | null
           name: string
+          next_follow_up_date?: string | null
           phone?: string | null
+          priority?: string | null
+          quality?: string | null
           source: string
           stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
+          tags?: string[] | null
           updated_at?: string
         }
         Update: {
@@ -2290,14 +2302,20 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          job_title?: string | null
           lead_origin?: string
+          lead_score?: number | null
           lead_type?: Database["public"]["Enums"]["lead_type"] | null
           message?: string | null
           name?: string
+          next_follow_up_date?: string | null
           phone?: string | null
+          priority?: string | null
+          quality?: string | null
           source?: string
           stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
+          tags?: string[] | null
           updated_at?: string
         }
         Relationships: [

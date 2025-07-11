@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useOptimizedLeads } from "@/hooks/useOptimizedLeads";
-import { LeadStatus, LeadSource, Lead } from "@/types/Lead";
+import { LeadStatus, LeadSource, LeadPriority, LeadQuality, Lead } from "@/types/Lead";
 import { Search, Plus, Phone, Mail, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CreateLeadDialog } from "./CreateLeadDialog";
+import { InlineEditCell } from "@/components/contacts/InlineEditCell";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { toast } from "sonner";
 
 export const SimpleLeadsTable = () => {
   const navigate = useNavigate();
@@ -32,7 +34,8 @@ export const SimpleLeadsTable = () => {
       const matchesSearch = 
         lead.name.toLowerCase().includes(query) ||
         lead.email.toLowerCase().includes(query) ||
-        (lead.company_name?.toLowerCase() || '').includes(query);
+        (lead.company_name?.toLowerCase() || '').includes(query) ||
+        (lead.job_title?.toLowerCase() || '').includes(query);
       if (!matchesSearch) return false;
     }
     
@@ -40,6 +43,45 @@ export const SimpleLeadsTable = () => {
     
     return true;
   });
+
+  // Options for dropdowns
+  const statusOptions = [
+    { value: 'NEW', label: 'Nuevo' },
+    { value: 'CONTACTED', label: 'Contactado' },
+    { value: 'QUALIFIED', label: 'Calificado' },
+    { value: 'DISQUALIFIED', label: 'Descalificado' },
+    { value: 'NURTURING', label: 'En seguimiento' },
+    { value: 'CONVERTED', label: 'Convertido' },
+    { value: 'LOST', label: 'Perdido' }
+  ];
+
+  const priorityOptions = [
+    { value: 'LOW', label: 'Baja' },
+    { value: 'MEDIUM', label: 'Media' },
+    { value: 'HIGH', label: 'Alta' },
+    { value: 'URGENT', label: 'Urgente' }
+  ];
+
+  const qualityOptions = [
+    { value: 'POOR', label: 'Pobre' },
+    { value: 'FAIR', label: 'Regular' },
+    { value: 'GOOD', label: 'Buena' },
+    { value: 'EXCELLENT', label: 'Excelente' }
+  ];
+
+  // Convert options to string arrays for InlineEditCell
+  const statusSelectOptions = statusOptions.map(opt => opt.value);
+  const prioritySelectOptions = priorityOptions.map(opt => opt.value);
+  const qualitySelectOptions = qualityOptions.map(opt => opt.value);
+
+  const handleUpdate = async (leadId: string, field: string, value: any) => {
+    try {
+      await updateLead({ id: leadId, updates: { [field]: value } as any });
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      toast.error('Error al actualizar el lead');
+    }
+  };
 
   const getStatusBadge = (status: LeadStatus) => {
     const variants = {
@@ -54,7 +96,41 @@ export const SimpleLeadsTable = () => {
 
     return (
       <Badge variant="outline" className={variants[status]}>
-        {status}
+        {statusOptions.find(opt => opt.value === status)?.label || status}
+      </Badge>
+    );
+  };
+
+  const getPriorityBadge = (priority?: LeadPriority) => {
+    if (!priority) return <span className="text-muted-foreground">-</span>;
+    
+    const variants = {
+      'LOW': 'bg-gray-100 text-gray-800 border-gray-200',
+      'MEDIUM': 'bg-blue-100 text-blue-800 border-blue-200',
+      'HIGH': 'bg-orange-100 text-orange-800 border-orange-200',
+      'URGENT': 'bg-red-100 text-red-800 border-red-200'
+    };
+
+    return (
+      <Badge variant="outline" className={variants[priority]}>
+        {priorityOptions.find(opt => opt.value === priority)?.label || priority}
+      </Badge>
+    );
+  };
+
+  const getQualityBadge = (quality?: LeadQuality) => {
+    if (!quality) return <span className="text-muted-foreground">-</span>;
+    
+    const variants = {
+      'POOR': 'bg-red-100 text-red-800 border-red-200',
+      'FAIR': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'GOOD': 'bg-green-100 text-green-800 border-green-200',
+      'EXCELLENT': 'bg-emerald-100 text-emerald-800 border-emerald-200'
+    };
+
+    return (
+      <Badge variant="outline" className={variants[quality]}>
+        {qualityOptions.find(opt => opt.value === quality)?.label || quality}
       </Badge>
     );
   };
@@ -92,13 +168,11 @@ export const SimpleLeadsTable = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="NEW">Nuevo</SelectItem>
-              <SelectItem value="CONTACTED">Contactado</SelectItem>
-              <SelectItem value="QUALIFIED">Calificado</SelectItem>
-              <SelectItem value="NURTURING">En seguimiento</SelectItem>
-              <SelectItem value="CONVERTED">Convertido</SelectItem>
-              <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
-              <SelectItem value="LOST">Perdido</SelectItem>
+              {statusOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -127,29 +201,35 @@ export const SimpleLeadsTable = () => {
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg bg-white">
+      <div className="border rounded-lg bg-white overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Lead</TableHead>
-              <TableHead>Propietario</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Fuente</TableHead>
-              <TableHead>Fecha de creación</TableHead>
-              <TableHead>Acciones</TableHead>
+              <TableHead className="min-w-[200px]">Nombre</TableHead>
+              <TableHead className="min-w-[200px]">Email</TableHead>
+              <TableHead className="min-w-[120px]">Teléfono</TableHead>
+              <TableHead className="min-w-[150px]">Empresa</TableHead>
+              <TableHead className="min-w-[150px]">Cargo</TableHead>
+              <TableHead className="min-w-[120px]">Estado</TableHead>
+              <TableHead className="min-w-[120px]">Prioridad</TableHead>
+              <TableHead className="min-w-[120px]">Calidad</TableHead>
+              <TableHead className="min-w-[100px]">Puntuación</TableHead>
+              <TableHead className="min-w-[100px]">Fuente</TableHead>
+              <TableHead className="min-w-[120px]">Próximo contacto</TableHead>
+              <TableHead className="min-w-[120px]">Fecha creación</TableHead>
+              <TableHead className="min-w-[100px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={13} className="text-center py-8">
                   Cargando leads...
                 </TableCell>
               </TableRow>
             ) : filteredLeads.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={13} className="text-center py-8">
                   No se encontraron leads
                 </TableCell>
               </TableRow>
@@ -157,41 +237,90 @@ export const SimpleLeadsTable = () => {
               filteredLeads.map((lead) => (
                 <TableRow key={lead.id} className="hover:bg-gray-50">
                   <TableCell>
-                    <div className="flex flex-col">
-                      <button
-                        onClick={() => handleViewLead(lead.id)}
-                        className="text-primary hover:underline font-medium text-left"
-                      >
-                        {lead.name}
-                      </button>
-                      <span className="text-sm text-muted-foreground">{lead.email}</span>
-                    </div>
+                    <InlineEditCell
+                      value={lead.name}
+                      type="text"
+                      onSave={(value) => handleUpdate(lead.id, 'name', value)}
+                    />
                   </TableCell>
                   <TableCell>
-                    {lead.assigned_to ? (
-                      <span className="text-primary">
-                        {lead.assigned_to.first_name} {lead.assigned_to.last_name}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">Sin asignar</span>
-                    )}
+                    <InlineEditCell
+                      value={lead.email}
+                      type="email"
+                      onSave={(value) => handleUpdate(lead.id, 'email', value)}
+                    />
                   </TableCell>
                   <TableCell>
-                    {lead.company_name || (
-                      <span className="text-muted-foreground">Sin empresa</span>
-                    )}
+                    <InlineEditCell
+                      value={lead.phone || ''}
+                      type="phone"
+                      onSave={(value) => handleUpdate(lead.id, 'phone', value || null)}
+                    />
                   </TableCell>
                   <TableCell>
-                    {getStatusBadge(lead.status)}
+                    <InlineEditCell
+                      value={lead.company_name || ''}
+                      type="text"
+                      onSave={(value) => handleUpdate(lead.id, 'company_name', value || null)}
+                    />
                   </TableCell>
                   <TableCell>
-                    <span className="capitalize">{lead.source.replace('_', ' ')}</span>
+                    <InlineEditCell
+                      value={lead.job_title || ''}
+                      type="text"
+                      onSave={(value) => handleUpdate(lead.id, 'job_title', value || null)}
+                    />
                   </TableCell>
                   <TableCell>
-                    {format(new Date(lead.created_at), "dd MMM yyyy", { locale: es })}
+                    <InlineEditCell
+                      value={lead.status}
+                      type="select"
+                      options={statusSelectOptions}
+                      onSave={(value) => handleUpdate(lead.id, 'status', value)}
+                    />
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center space-x-2">
+                    <InlineEditCell
+                      value={lead.priority || ''}
+                      type="select"
+                      options={prioritySelectOptions}
+                      onSave={(value) => handleUpdate(lead.id, 'priority', value || null)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={lead.quality || ''}
+                      type="select"
+                      options={qualitySelectOptions}
+                      onSave={(value) => handleUpdate(lead.id, 'quality', value || null)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={(lead.lead_score || 0).toString()}
+                      type="text"
+                      onSave={(value) => handleUpdate(lead.id, 'lead_score', parseInt(value as string) || 0)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground capitalize">
+                      {lead.source.replace('_', ' ')}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={lead.next_follow_up_date || ''}
+                      type="date"
+                      onSave={(value) => handleUpdate(lead.id, 'next_follow_up_date', value || null)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">
+                      {format(new Date(lead.created_at), "dd MMM yyyy", { locale: es })}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-1">
                       <Button
                         variant="ghost"
                         size="sm"
