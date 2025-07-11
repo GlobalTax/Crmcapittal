@@ -228,11 +228,7 @@ export const AppRoutes = () => {
           />
            <Route 
              path="/hubspot-data" 
-             element={
-               <Suspense fallback={<LoadingSkeleton />}>
-                 <HubSpotDatabase />
-               </Suspense>
-             } 
+             element={<HubSpotDatabase />}
            />
            <Route 
              path="/einforma" 
