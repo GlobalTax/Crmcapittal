@@ -39,6 +39,7 @@ const ClientMandateView = lazy(() => import('@/pages/ClientMandateView'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 const SystemDebug = lazy(() => import('@/pages/SystemDebug'));
+const CommissionsPage = lazy(() => import('@/pages/CommissionsPage'));
 
 // Note: Settings routes can be added later from the original App.tsx
 
@@ -243,6 +244,14 @@ export const AppRoutes = () => {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <SystemDebug />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/comisiones" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CommissionsPage />
               </Suspense>
             } 
           />

@@ -11,7 +11,8 @@ import {
   UserPlus,
   Zap,
   Briefcase,
-  TrendingUp
+  TrendingUp,
+  DollarSign
 } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 
@@ -34,9 +35,14 @@ const adminNav = [
   { to: '/integrations', label: 'Integraciones', icon: <Zap className="w-5 h-5" /> },
 ];
 
+const superAdminNav = [
+  { to: '/comisiones', label: 'Comisiones', icon: <DollarSign className="w-5 h-5" /> },
+];
+
 export function MinimalSidebar() {
   const { role } = useUserRole();
   const isAdmin = role === 'admin' || role === 'superadmin';
+  const isSuperAdmin = role === 'superadmin';
 
   return (
     <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
@@ -79,6 +85,38 @@ export function MinimalSidebar() {
               </div>
             </div>
             {adminNav.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
+                    isActive
+                      ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span className={`${isActive ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground'}`}>
+                      {item.icon}
+                    </span>
+                    <span className="font-medium">{item.label}</span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </>
+        )}
+
+        {isSuperAdmin && (
+          <>
+            <div className="pt-6 pb-3">
+              <div className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider px-3">
+                Super Admin
+              </div>
+            </div>
+            {superAdminNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}

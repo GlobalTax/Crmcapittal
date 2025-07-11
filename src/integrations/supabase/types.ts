@@ -271,6 +271,9 @@ export type Database = {
       }
       collaborator_commissions: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
+          calculation_details: Json | null
           collaborator_id: string
           commission_amount: number
           commission_percentage: number | null
@@ -280,10 +283,16 @@ export type Database = {
           lead_id: string | null
           notes: string | null
           paid_at: string | null
+          payment_due_date: string | null
+          source_name: string | null
+          source_type: string | null
           status: Database["public"]["Enums"]["commission_status"]
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculation_details?: Json | null
           collaborator_id: string
           commission_amount: number
           commission_percentage?: number | null
@@ -293,10 +302,16 @@ export type Database = {
           lead_id?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_due_date?: string | null
+          source_name?: string | null
+          source_type?: string | null
           status?: Database["public"]["Enums"]["commission_status"]
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculation_details?: Json | null
           collaborator_id?: string
           commission_amount?: number
           commission_percentage?: number | null
@@ -306,6 +321,9 @@ export type Database = {
           lead_id?: string | null
           notes?: string | null
           paid_at?: string | null
+          payment_due_date?: string | null
+          source_name?: string | null
+          source_type?: string | null
           status?: Database["public"]["Enums"]["commission_status"]
           updated_at?: string
         }
@@ -411,6 +429,174 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      commission_approvals: {
+        Row: {
+          approval_notes: string | null
+          approved_at: string | null
+          approved_by: string
+          commission_id: string
+          id: string
+        }
+        Insert: {
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by: string
+          commission_id: string
+          id?: string
+        }
+        Update: {
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string
+          commission_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_approvals_commission_id_fkey"
+            columns: ["commission_id"]
+            isOneToOne: false
+            referencedRelation: "collaborator_commissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_payments: {
+        Row: {
+          commission_id: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          notes: string | null
+          payment_amount: number
+          payment_date: string
+          payment_method: string | null
+          payment_reference: string | null
+        }
+        Insert: {
+          commission_id: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payment_amount: number
+          payment_date: string
+          payment_method?: string | null
+          payment_reference?: string | null
+        }
+        Update: {
+          commission_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payment_amount?: number
+          payment_date?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_payments_commission_id_fkey"
+            columns: ["commission_id"]
+            isOneToOne: false
+            referencedRelation: "collaborator_commissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_rules: {
+        Row: {
+          base_commission: number
+          collaborator_id: string | null
+          collaborator_type:
+            | Database["public"]["Enums"]["collaborator_type"]
+            | null
+          commission_percentage: number
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          max_amount: number | null
+          min_amount: number | null
+          name: string
+          source_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          base_commission?: number
+          collaborator_id?: string | null
+          collaborator_type?:
+            | Database["public"]["Enums"]["collaborator_type"]
+            | null
+          commission_percentage?: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_amount?: number | null
+          min_amount?: number | null
+          name: string
+          source_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          base_commission?: number
+          collaborator_id?: string | null
+          collaborator_type?:
+            | Database["public"]["Enums"]["collaborator_type"]
+            | null
+          commission_percentage?: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_amount?: number | null
+          min_amount?: number | null
+          name?: string
+          source_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_rules_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_settings: {
+        Row: {
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       communication_templates: {
         Row: {
