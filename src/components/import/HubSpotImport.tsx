@@ -156,6 +156,12 @@ export function HubSpotImport() {
                     </div>
                   </div>
                 )}
+
+                {results.errors.length === 0 && (results.companies > 0 || results.contacts > 0 || results.deals > 0) && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                    <p className="text-green-800 text-sm">✅ Importación completada exitosamente sin errores</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

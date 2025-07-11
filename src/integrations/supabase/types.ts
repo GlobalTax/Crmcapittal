@@ -428,6 +428,7 @@ export type Database = {
           domain: string | null
           engagement_level: number | null
           engagement_score: number | null
+          external_id: string | null
           facebook_url: string | null
           first_contact_date: string | null
           founded_year: number | null
@@ -453,6 +454,7 @@ export type Database = {
           owner_name: string | null
           phone: string | null
           postal_code: string | null
+          source_table: string | null
           state: string | null
           tags: string[] | null
           transaction_interest:
@@ -480,6 +482,7 @@ export type Database = {
           domain?: string | null
           engagement_level?: number | null
           engagement_score?: number | null
+          external_id?: string | null
           facebook_url?: string | null
           first_contact_date?: string | null
           founded_year?: number | null
@@ -505,6 +508,7 @@ export type Database = {
           owner_name?: string | null
           phone?: string | null
           postal_code?: string | null
+          source_table?: string | null
           state?: string | null
           tags?: string[] | null
           transaction_interest?:
@@ -532,6 +536,7 @@ export type Database = {
           domain?: string | null
           engagement_level?: number | null
           engagement_score?: number | null
+          external_id?: string | null
           facebook_url?: string | null
           first_contact_date?: string | null
           founded_year?: number | null
@@ -557,6 +562,7 @@ export type Database = {
           owner_name?: string | null
           phone?: string | null
           postal_code?: string | null
+          source_table?: string | null
           state?: string | null
           tags?: string[] | null
           transaction_interest?:
@@ -1642,6 +1648,7 @@ export type Database = {
           description: string | null
           ebitda: number | null
           employees: number | null
+          external_id: string | null
           id: string
           is_active: boolean
           lead_source: string | null
@@ -1652,6 +1659,7 @@ export type Database = {
           priority: string | null
           revenue: number | null
           sector: string | null
+          source_table: string | null
           stage_id: string | null
           updated_at: string
         }
@@ -1673,6 +1681,7 @@ export type Database = {
           description?: string | null
           ebitda?: number | null
           employees?: number | null
+          external_id?: string | null
           id?: string
           is_active?: boolean
           lead_source?: string | null
@@ -1683,6 +1692,7 @@ export type Database = {
           priority?: string | null
           revenue?: number | null
           sector?: string | null
+          source_table?: string | null
           stage_id?: string | null
           updated_at?: string
         }
@@ -1704,6 +1714,7 @@ export type Database = {
           description?: string | null
           ebitda?: number | null
           employees?: number | null
+          external_id?: string | null
           id?: string
           is_active?: boolean
           lead_source?: string | null
@@ -1714,6 +1725,7 @@ export type Database = {
           priority?: string | null
           revenue?: number | null
           sector?: string | null
+          source_table?: string | null
           stage_id?: string | null
           updated_at?: string
         }

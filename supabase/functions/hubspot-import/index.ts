@@ -277,12 +277,17 @@ Deno.serve(async (req) => {
               contact_id,
               created_by: user.id,
               close_date: deal.properties.closedate ? new Date(deal.properties.closedate).toISOString() : null,
-              is_active: true
+              is_active: true,
+              external_id: deal.id,
+              source_table: 'hubspot_deals'
             }
 
             const { error } = await supabaseClient
               .from('deals')
-              .insert(dealData)
+              .upsert(dealData, { 
+                onConflict: 'external_id,source_table',
+                ignoreDuplicates: false 
+              })
 
             if (error) {
               console.error('Error inserting deal:', error)
