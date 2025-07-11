@@ -7,8 +7,9 @@ import { CommissionsDashboard } from '@/components/commissions/CommissionsDashbo
 import { CommissionsTable } from '@/components/commissions/CommissionsTable';
 import { CommissionCalculator } from '@/components/commissions/CommissionCalculator';
 import { CommissionSettings } from '@/components/commissions/CommissionSettings';
+import { CommissionReports } from '@/components/commissions/CommissionReports';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Calculator, Settings, List } from 'lucide-react';
+import { DollarSign, Calculator, Settings, List, BarChart3 } from 'lucide-react';
 
 const CommissionsPage = () => {
   const { role, loading: roleLoading } = useUserRole();
@@ -42,6 +43,7 @@ const CommissionsPage = () => {
     { id: 'dashboard', label: 'Dashboard', icon: DollarSign },
     { id: 'commissions', label: 'Comisiones', icon: List },
     { id: 'calculator', label: 'Calculadora', icon: Calculator },
+    { id: 'reports', label: 'Reportes', icon: BarChart3 },
     ...(isAdmin ? [{ id: 'settings', label: 'Configuración', icon: Settings }] : [])
   ];
 
@@ -72,6 +74,10 @@ const CommissionsPage = () => {
 
         <TabsContent value="calculator" className="space-y-6">
           <CommissionCalculator />
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-6">
+          <CommissionReports />
         </TabsContent>
 
         {isAdmin && (
