@@ -14,7 +14,8 @@ import {
   Settings, 
   Zap,
   TrendingUp,
-  Database
+  Database,
+  DollarSign
 } from 'lucide-react';
 
 interface NavItem {
@@ -70,6 +71,7 @@ const adminSection: NavSection = {
   items: [
     { to: '/collaborators', label: 'Colaboradores', icon: UserPlus },
     { to: '/users', label: 'Gestión de Usuarios', icon: Users },
+    { to: '/comisiones', label: 'Comisiones', icon: DollarSign },
     { to: '/integrations', label: 'Integraciones', icon: Zap },
   ]
 };
