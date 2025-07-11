@@ -31,7 +31,8 @@ import {
   Calendar,
   DollarSign,
   Calculator,
-  AlertTriangle
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -313,6 +314,12 @@ export const CommissionsTable = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {getSourceBadge(commission.source_type || 'deal')}
+                      {commission.calculation_details?.calculation_method === 'automatic' && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          <Zap className="h-3 w-3 mr-1" />
+                          Auto
+                        </Badge>
+                      )}
                       {commission.source_name && (
                         <span className="text-sm text-muted-foreground">
                           {commission.source_name}

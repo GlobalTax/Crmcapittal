@@ -8,6 +8,7 @@ import { CommissionsTable } from '@/components/commissions/CommissionsTable';
 import { CommissionCalculator } from '@/components/commissions/CommissionCalculator';
 import { CommissionSettings } from '@/components/commissions/CommissionSettings';
 import { CommissionReports } from '@/components/commissions/CommissionReports';
+import { CommissionNotifications } from '@/components/commissions/CommissionNotifications';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, Calculator, Settings, List, BarChart3 } from 'lucide-react';
 

@@ -4,6 +4,7 @@ import { useCommissionStats } from '@/hooks/useCommissionStats';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useUserCollaborator } from '@/hooks/useUserCollaborator';
 import { DollarSign, TrendingUp, Clock, Users, AlertCircle, Calculator, TrendingDown } from 'lucide-react';
+import { CommissionNotifications } from './CommissionNotifications';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
@@ -26,6 +27,11 @@ export const CommissionsDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Barra de notificaciones */}
+      <div className="flex justify-end">
+        <CommissionNotifications />
+      </div>
+      
       {/* Métricas principales */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
