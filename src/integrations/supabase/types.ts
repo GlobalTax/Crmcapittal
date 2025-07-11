@@ -4635,6 +4635,69 @@ export type Database = {
           },
         ]
       }
+      transaction_interested_parties: {
+        Row: {
+          company: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          documents_shared: string[] | null
+          email: string | null
+          financial_capacity: number | null
+          id: string
+          interest_level: string
+          last_interaction_date: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          position: string | null
+          process_status: string
+          score: number | null
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          documents_shared?: string[] | null
+          email?: string | null
+          financial_capacity?: number | null
+          id?: string
+          interest_level?: string
+          last_interaction_date?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          position?: string | null
+          process_status?: string
+          score?: number | null
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          documents_shared?: string[] | null
+          email?: string | null
+          financial_capacity?: number | null
+          id?: string
+          interest_level?: string
+          last_interaction_date?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          position?: string | null
+          process_status?: string
+          score?: number | null
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           company_id: string | null

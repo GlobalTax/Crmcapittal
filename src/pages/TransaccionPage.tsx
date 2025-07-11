@@ -9,6 +9,7 @@ import { TransaccionTasksTab } from '@/components/transacciones/tabs/Transaccion
 import { TransaccionPeopleTab } from '@/components/transacciones/tabs/TransaccionPeopleTab';
 import { TransaccionNotesTab } from '@/components/transacciones/tabs/TransaccionNotesTab';
 import { TransaccionDocumentsTab } from '@/components/transacciones/tabs/TransaccionDocumentsTab';
+import { TransaccionInteresadosTab } from '@/components/transacciones/tabs/TransaccionInteresadosTab';
 import { TransaccionDetailsSidebar } from '@/components/transacciones/TransaccionDetailsSidebar';
 import { useTransaccion } from '@/hooks/useTransaccion';
 import { useTransacciones } from '@/hooks/useTransacciones';
@@ -149,6 +150,12 @@ export default function TransaccionPage() {
                 >
                   Notas
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="interesados"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                >
+                  Interesados
+                </TabsTrigger>
               </div>
             </TabsList>
 
@@ -178,6 +185,10 @@ export default function TransaccionPage() {
                 
                 <TabsContent value="notes" className="mt-0 p-6">
                   <TransaccionNotesTab transaccion={transaccion} />
+                </TabsContent>
+                
+                <TabsContent value="interesados" className="mt-0 p-6">
+                  <TransaccionInteresadosTab transaccionId={transaccion.id} />
                 </TabsContent>
               </div>
             </div>
