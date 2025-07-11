@@ -59,6 +59,7 @@ const navigationSections: NavSection[] = [
   {
     title: "Análisis & Data",
     items: [
+      { to: '/hubspot-data', label: 'Base de Datos HubSpot', icon: Database },
       { to: '/einforma', label: 'eInforma Dashboard', icon: Database },
     ]
   }

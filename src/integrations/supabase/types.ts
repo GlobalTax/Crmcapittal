@@ -186,10 +186,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "cases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "cases_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -294,6 +322,20 @@ export type Database = {
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_deals_with_details"
             referencedColumns: ["id"]
           },
           {
@@ -722,6 +764,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "company_mandates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_mandates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "company_mandates_mandate_id_fkey"
             columns: ["mandate_id"]
             isOneToOne: false
@@ -853,6 +909,20 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contact_activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contact_companies: {
@@ -912,6 +982,20 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contact_companies_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_companies_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contact_files: {
@@ -954,6 +1038,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_files_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_files_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
         ]
@@ -1061,6 +1159,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "contact_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_interactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "contact_interactions_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
@@ -1102,6 +1214,20 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contact_notes_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_notes_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contact_operations: {
@@ -1132,6 +1258,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_operations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_operations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -1191,6 +1331,20 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contact_reminders_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_reminders_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contact_tag_relations: {
@@ -1218,6 +1372,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_tag_relations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_tag_relations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -1302,6 +1470,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_tasks_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_tasks_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
         ]
@@ -1466,6 +1648,20 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
             referencedColumns: ["id"]
           },
         ]
@@ -1738,6 +1934,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deals_stage_id_fkey"
             columns: ["stage_id"]
             isOneToOne: false
@@ -1786,6 +1996,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_logs_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_logs_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
         ]
@@ -2349,6 +2573,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "leads_converted_to_mandate_id_fkey"
             columns: ["converted_to_mandate_id"]
             isOneToOne: false
@@ -2833,6 +3071,20 @@ export type Database = {
             referencedRelation: "deals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_negocio_activities_negocio"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_negocio_activities_negocio"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_deals_with_details"
+            referencedColumns: ["id"]
+          },
         ]
       }
       negocios: {
@@ -2926,10 +3178,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "negocios_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negocios_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "negocios_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negocios_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "negocios_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -3240,6 +3520,20 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "opportunities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
         ]
       }
       opportunity_contacts: {
@@ -3279,6 +3573,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunity_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -3375,6 +3683,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_tasks_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "planned_tasks_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -3500,10 +3822,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "proposals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "proposals_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -3615,10 +3965,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "recurring_fees_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_fees_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "recurring_fees_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_fees_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_fees_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -3958,6 +4336,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "time_entries_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "time_entries_operation_id_fkey"
             columns: ["operation_id"]
             isOneToOne: false
@@ -4070,6 +4462,20 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracked_emails_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracked_emails_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -4186,10 +4592,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "transacciones_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transacciones_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -4262,10 +4696,38 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transactions_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
             referencedColumns: ["id"]
           },
           {
@@ -4461,7 +4923,335 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      hubspot_companies: {
+        Row: {
+          annual_revenue: number | null
+          city: string | null
+          company_size: Database["public"]["Enums"]["company_size"] | null
+          country: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          domain: string | null
+          founded_year: number | null
+          hubspot_id: string | null
+          id: string | null
+          industry: string | null
+          name: string | null
+          phone: string | null
+          state: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          annual_revenue?: number | null
+          city?: string | null
+          company_size?: Database["public"]["Enums"]["company_size"] | null
+          country?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          domain?: string | null
+          founded_year?: number | null
+          hubspot_id?: string | null
+          id?: string | null
+          industry?: string | null
+          name?: string | null
+          phone?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          annual_revenue?: number | null
+          city?: string | null
+          company_size?: Database["public"]["Enums"]["company_size"] | null
+          country?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          domain?: string | null
+          founded_year?: number | null
+          hubspot_id?: string | null
+          id?: string | null
+          industry?: string | null
+          name?: string | null
+          phone?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      hubspot_companies_with_stats: {
+        Row: {
+          annual_revenue: number | null
+          city: string | null
+          company_size: Database["public"]["Enums"]["company_size"] | null
+          country: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          domain: string | null
+          founded_year: number | null
+          hubspot_id: string | null
+          id: string | null
+          industry: string | null
+          name: string | null
+          phone: string | null
+          state: string | null
+          total_contacts: number | null
+          total_deals: number | null
+          updated_at: string | null
+          website: string | null
+        }
+        Relationships: []
+      }
+      hubspot_contacts: {
+        Row: {
+          company: string | null
+          company_id: string | null
+          contact_roles: Database["public"]["Enums"]["contact_role"][] | null
+          contact_status: Database["public"]["Enums"]["contact_status"] | null
+          contact_type: string | null
+          created_at: string | null
+          created_by: string | null
+          ecosystem_role: Database["public"]["Enums"]["ecosystem_role"] | null
+          email: string | null
+          hubspot_id: string | null
+          id: string | null
+          is_active: boolean | null
+          last_interaction_date: string | null
+          lifecycle_stage: string | null
+          name: string | null
+          phone: string | null
+          position: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company?: string | null
+          company_id?: string | null
+          contact_roles?: Database["public"]["Enums"]["contact_role"][] | null
+          contact_status?: Database["public"]["Enums"]["contact_status"] | null
+          contact_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
+          email?: string | null
+          hubspot_id?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_interaction_date?: string | null
+          lifecycle_stage?: string | null
+          name?: string | null
+          phone?: string | null
+          position?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company?: string | null
+          company_id?: string | null
+          contact_roles?: Database["public"]["Enums"]["contact_role"][] | null
+          contact_status?: Database["public"]["Enums"]["contact_status"] | null
+          contact_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
+          email?: string | null
+          hubspot_id?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_interaction_date?: string | null
+          lifecycle_stage?: string | null
+          name?: string | null
+          phone?: string | null
+          position?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hubspot_contacts_with_company: {
+        Row: {
+          company: string | null
+          company_domain: string | null
+          company_id: string | null
+          company_industry: string | null
+          company_name: string | null
+          company_website: string | null
+          contact_roles: Database["public"]["Enums"]["contact_role"][] | null
+          contact_status: Database["public"]["Enums"]["contact_status"] | null
+          contact_type: string | null
+          created_at: string | null
+          created_by: string | null
+          ecosystem_role: Database["public"]["Enums"]["ecosystem_role"] | null
+          email: string | null
+          hubspot_id: string | null
+          id: string | null
+          is_active: boolean | null
+          last_interaction_date: string | null
+          lifecycle_stage: string | null
+          name: string | null
+          phone: string | null
+          position: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hubspot_deals: {
+        Row: {
+          close_date: string | null
+          contact_id: string | null
+          created_at: string | null
+          created_by: string | null
+          deal_name: string | null
+          deal_type: string | null
+          deal_value: number | null
+          description: string | null
+          hubspot_id: string | null
+          id: string | null
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          close_date?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          deal_name?: string | null
+          deal_type?: string | null
+          deal_value?: number | null
+          description?: string | null
+          hubspot_id?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          close_date?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          deal_name?: string | null
+          deal_type?: string | null
+          deal_value?: number | null
+          description?: string | null
+          hubspot_id?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hubspot_deals_with_details: {
+        Row: {
+          close_date: string | null
+          company_domain: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_id: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          created_by: string | null
+          deal_name: string | null
+          deal_type: string | null
+          deal_value: number | null
+          description: string | null
+          hubspot_id: string | null
+          id: string | null
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       diagnostico_net_queue: {

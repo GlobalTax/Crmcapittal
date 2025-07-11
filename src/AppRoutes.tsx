@@ -16,6 +16,7 @@ import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import LeadDetail from '@/components/captacion/LeadDetail';
+import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
 
 // Import the new lead detail page
 const LeadDetailPage = lazy(() => import('@/pages/LeadDetailPage'));
@@ -225,14 +226,22 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-          <Route 
-            path="/einforma" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <EInformaDashboard />
-              </Suspense>
-            } 
-          />
+           <Route 
+             path="/hubspot-data" 
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <HubSpotDatabase />
+               </Suspense>
+             } 
+           />
+           <Route 
+             path="/einforma" 
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <EInformaDashboard />
+               </Suspense>
+             } 
+           />
           <Route 
             path="/debug" 
             element={
