@@ -9,44 +9,63 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 215 6% 16%;
+    /* Modern LegalCRM inspired color system */
+    --background: 0 0% 99%;
+    --foreground: 222 15% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Professional blue palette */
+    --primary: 220 91% 55%;
+    --primary-hover: 220 91% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Sophisticated grays */
+    --secondary: 215 25% 97%;
+    --secondary-foreground: 222 15% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 36.9%;
+    --muted: 215 25% 97%;
+    --muted-foreground: 215 15% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 215 25% 97%;
+    --accent-foreground: 222 15% 25%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders and inputs */
+    --border: 215 20% 92%;
+    --input: 215 20% 95%;
+    --ring: 220 91% 55%;
 
-    --radius: 2px;
+    --radius: 8px;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Modern sidebar styling */
+    --sidebar-background: 222 20% 11%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 220 91% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 15% 15%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 222 15% 20%;
+    --sidebar-ring: 220 91% 55%;
+
+    /* Additional modern colors */
+    --surface: 0 0% 99%;
+    --surface-variant: 215 25% 97%;
+    --outline: 215 20% 85%;
+    --outline-variant: 215 15% 90%;
   }
 
   .dark {

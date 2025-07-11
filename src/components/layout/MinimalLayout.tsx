@@ -6,12 +6,14 @@ import { OnboardingProvider } from '../onboarding/OnboardingProvider';
 export function MinimalLayout() {
   return (
     <OnboardingProvider>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-background flex">
         <MinimalSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           <MinimalHeader />
-          <main className="flex-1 p-8">
-            <Outlet />
+          <main className="flex-1 p-6 lg:p-8 bg-background overflow-auto">
+            <div className="max-w-7xl mx-auto">
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>

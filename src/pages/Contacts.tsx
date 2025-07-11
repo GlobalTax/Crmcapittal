@@ -8,6 +8,10 @@ import { ContactsGrid } from "@/components/contacts/ContactsGrid";
 import { useOptimizedContacts } from '@/hooks/useOptimizedContacts';
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatsCard } from "@/components/ui/stats-card";
+import { Users, UserPlus, Building2, TrendingUp } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 export default function Contacts() {
   const navigate = useNavigate();
@@ -124,20 +128,101 @@ export default function Contacts() {
     return matchesSearch && matchesFilter;
   }) || [];
 
+  // Calculate stats
+  const totalContacts = filteredContacts.length;
+  const activeContacts = filteredContacts.filter(c => c.contact_status === 'active').length;
+  const companiesCount = new Set(filteredContacts.map(c => c.company).filter(Boolean)).size;
+  const recentContacts = filteredContacts.filter(c => {
+    const createdDate = new Date(c.created_at);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return createdDate >= thirtyDaysAgo;
+  }).length;
+
   return (
-    <div className="space-y-6">
-      <ContactsHeader
+    <div className="space-y-8">
+      {/* Modern Page Header */}
+      <PageHeader
         title="Contactos"
-        description="Gestiona todas las personas de tu red de contactos"
-        searchValue={searchTerm}
-        onSearchChange={handleSearch}
-        onFilterChange={handleFilterChange}
-        onNewContact={() => setIsCreateModalOpen(true)}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        totalCount={filteredContacts.length}
+        description="Gestiona tu red de contactos profesionales y relaciones comerciales"
+        badge={{ text: `${totalContacts} contactos`, variant: 'secondary' }}
+        actions={
+          <>
+            <Button 
+              variant="outline" 
+              onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+            >
+              {viewMode === 'grid' ? 'Vista Lista' : 'Vista Grid'}
+            </Button>
+            <Button onClick={() => setIsCreateModalOpen(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Nuevo Contacto
+            </Button>
+          </>
+        }
       />
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard
+          title="Total Contactos"
+          value={totalContacts.toLocaleString()}
+          description="En tu red"
+          icon={<Users className="h-5 w-5" />}
+          trend={recentContacts > 0 ? {
+            value: Math.round((recentContacts / totalContacts) * 100),
+            label: "últimos 30 días",
+            direction: 'up'
+          } : undefined}
+        />
+        <StatsCard
+          title="Contactos Activos"
+          value={activeContacts.toLocaleString()}
+          description="Disponibles"
+          icon={<TrendingUp className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Empresas"
+          value={companiesCount.toLocaleString()}
+          description="Organizaciones"
+          icon={<Building2 className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Nuevos"
+          value={recentContacts.toLocaleString()}
+          description="Últimos 30 días"
+          icon={<UserPlus className="h-5 w-5" />}
+        />
+      </div>
+
+      {/* Search and Filters */}
+      <Card className="p-6">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex-1 max-w-md">
+            <input
+              type="text"
+              placeholder="Buscar contactos..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={filterType}
+              onChange={(e) => handleFilterChange(e.target.value)}
+              className="px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="all">Todos los tipos</option>
+              <option value="cliente">Clientes</option>
+              <option value="prospecto">Prospectos</option>
+              <option value="colaborador">Colaboradores</option>
+            </select>
+          </div>
+        </div>
+      </Card>
+
+      {/* Content */}
       {viewMode === 'grid' ? (
         <ContactsGrid
           contacts={filteredContacts}

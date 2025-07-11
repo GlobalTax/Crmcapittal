@@ -1,23 +1,37 @@
 import { NavLink } from 'react-router-dom';
-import { User, Mail, Briefcase } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Building2, 
+  FileText, 
+  Mail, 
+  Calendar,
+  Clock,
+  Settings,
+  UserPlus,
+  Zap,
+  Briefcase,
+  TrendingUp
+} from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 
 const nav = [
-  { to: '/', label: 'Dashboard', icon: <User className="w-4 h-4" /> },
-  { to: '/contacts', label: 'Contactos', icon: <User className="w-4 h-4" /> },
-  { to: '/negocios', label: 'Negocios', icon: <Briefcase className="w-4 h-4" /> },
-  { to: '/proposals', label: 'Propuestas', icon: <Mail className="w-4 h-4" /> },
-  { to: '/email', label: 'Email', icon: <Mail className="w-4 h-4" /> },
-  { to: '/companies', label: 'Empresas', icon: <Briefcase className="w-4 h-4" /> },
-  { to: '/documents', label: 'Documentos', icon: <Mail className="w-4 h-4" /> },
-  { to: '/calendar', label: 'Calendario', icon: <Mail className="w-4 h-4" /> },
-  { to: '/time-tracking', label: 'Time Tracking', icon: <Mail className="w-4 h-4" /> },
+  { to: '/', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+  { to: '/contacts', label: 'Contactos', icon: <Users className="w-5 h-5" /> },
+  { to: '/companies', label: 'Empresas', icon: <Building2 className="w-5 h-5" /> },
+  { to: '/negocios', label: 'Negocios', icon: <TrendingUp className="w-5 h-5" /> },
+  { to: '/proposals', label: 'Propuestas', icon: <FileText className="w-5 h-5" /> },
+  { to: '/mandatos', label: 'Mandatos', icon: <Briefcase className="w-5 h-5" /> },
+  { to: '/email', label: 'Email', icon: <Mail className="w-5 h-5" /> },
+  { to: '/documents', label: 'Documentos', icon: <FileText className="w-5 h-5" /> },
+  { to: '/calendar', label: 'Calendario', icon: <Calendar className="w-5 h-5" /> },
+  { to: '/time-tracking', label: 'Time Tracking', icon: <Clock className="w-5 h-5" /> },
 ];
 
 const adminNav = [
-  { to: '/collaborators', label: 'Colaboradores', icon: <User className="w-4 h-4" /> },
-  { to: '/users', label: 'Usuarios', icon: <User className="w-4 h-4" /> },
-  { to: '/integrations', label: 'Integraciones', icon: <Mail className="w-4 h-4" /> },
+  { to: '/collaborators', label: 'Colaboradores', icon: <UserPlus className="w-5 h-5" /> },
+  { to: '/users', label: 'Usuarios', icon: <Users className="w-5 h-5" /> },
+  { to: '/integrations', label: 'Integraciones', icon: <Zap className="w-5 h-5" /> },
 ];
 
 export function MinimalSidebar() {
@@ -25,30 +39,42 @@ export function MinimalSidebar() {
   const isAdmin = role === 'admin' || role === 'superadmin';
 
   return (
-    <aside className="w-60 bg-white border-r flex flex-col py-6 px-4">
-      <div className="mb-8 font-bold text-xl text-gray-900">CRM</div>
-      <nav className="flex-1 space-y-2">
+    <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
+      {/* Logo/Brand */}
+      <div className="p-6 border-b border-sidebar-border">
+        <h1 className="text-xl font-bold text-sidebar-foreground">LegalCRM</h1>
+        <p className="text-sm text-sidebar-foreground/70 mt-1">Professional Suite</p>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-4 py-6 space-y-1">
         {nav.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded transition-colors ${
+              `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
                 isActive
-                  ? 'bg-gray-100 text-gray-900 font-semibold'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
               }`
             }
           >
-            {item.icon}
-            {item.label}
+            {({ isActive }) => (
+              <>
+                <span className={`${isActive ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground'}`}>
+                  {item.icon}
+                </span>
+                <span className="font-medium">{item.label}</span>
+              </>
+            )}
           </NavLink>
         ))}
         
         {isAdmin && (
           <>
-            <div className="pt-4 pb-2">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <div className="pt-6 pb-3">
+              <div className="text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider px-3">
                 Administración
               </div>
             </div>
@@ -57,20 +83,33 @@ export function MinimalSidebar() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2 rounded transition-colors ${
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
                     isActive
-                      ? 'bg-gray-100 text-gray-900 font-semibold'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                   }`
                 }
               >
-                {item.icon}
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    <span className={`${isActive ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground'}`}>
+                      {item.icon}
+                    </span>
+                    <span className="font-medium">{item.label}</span>
+                  </>
+                )}
               </NavLink>
             ))}
           </>
         )}
       </nav>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-sidebar-border">
+        <div className="text-xs text-sidebar-foreground/50">
+          © 2024 LegalCRM
+        </div>
+      </div>
     </aside>
   );
 }
