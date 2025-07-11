@@ -7,6 +7,22 @@ interface CommissionSettings {
   default_commission_percentage?: { percentage: number };
   approval_required?: { enabled: boolean };
   payment_schedule?: { frequency: string };
+  notification_settings?: {
+    enabled: boolean;
+    recipients: string[];
+    newCommissionNotifications: boolean;
+    dueReminderNotifications: boolean;
+    overdueAlertNotifications: boolean;
+    reminderDaysBefore: number;
+  };
+  report_settings?: {
+    enabled: boolean;
+    frequency: 'weekly' | 'monthly' | 'quarterly';
+    recipients: string[];
+    format: 'excel' | 'pdf';
+    dayOfWeek?: number;
+    dayOfMonth?: number;
+  };
 }
 
 export const useCommissionSettings = () => {

@@ -12,8 +12,11 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { useCommissionSettings } from '@/hooks/useCommissionSettings';
-import { Settings, Save, Percent, Calendar, Zap } from 'lucide-react';
+import { Settings, Save, Percent, Calendar, Zap, Mail, Bell, FileText, Users, Send } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 export const CommissionSettings = () => {
   const { settings, loading, updateSetting } = useCommissionSettings();
@@ -22,16 +25,43 @@ export const CommissionSettings = () => {
     autoCalculate: false,
     defaultPercentage: 5.0,
     approvalRequired: true,
-    paymentSchedule: 'monthly'
+    paymentSchedule: 'monthly',
+    // Notification settings
+    notificationsEnabled: true,
+    notificationRecipients: ['admin@empresa.com'],
+    newCommissionNotifications: true,
+    dueReminderNotifications: true,
+    overdueAlertNotifications: true,
+    reminderDaysBefore: 3,
+    // Report settings
+    reportsEnabled: false,
+    reportFrequency: 'monthly' as 'weekly' | 'monthly' | 'quarterly',
+    reportRecipients: ['admin@empresa.com'],
+    reportFormat: 'excel' as 'excel' | 'pdf'
   });
 
   React.useEffect(() => {
     if (settings) {
+      const notifications = settings.notification_settings as any || {};
+      const reports = settings.report_settings as any || {};
+      
       setLocalSettings({
         autoCalculate: settings.auto_calculate_commissions?.enabled || false,
         defaultPercentage: settings.default_commission_percentage?.percentage || 5.0,
         approvalRequired: settings.approval_required?.enabled || true,
-        paymentSchedule: settings.payment_schedule?.frequency || 'monthly'
+        paymentSchedule: settings.payment_schedule?.frequency || 'monthly',
+        // Notification settings
+        notificationsEnabled: notifications.enabled ?? true,
+        notificationRecipients: notifications.recipients || ['admin@empresa.com'],
+        newCommissionNotifications: notifications.newCommissionNotifications ?? true,
+        dueReminderNotifications: notifications.dueReminderNotifications ?? true,
+        overdueAlertNotifications: notifications.overdueAlertNotifications ?? true,
+        reminderDaysBefore: notifications.reminderDaysBefore || 3,
+        // Report settings
+        reportsEnabled: reports.enabled ?? false,
+        reportFrequency: (reports.frequency as 'weekly' | 'monthly' | 'quarterly') || 'monthly',
+        reportRecipients: reports.recipients || ['admin@empresa.com'],
+        reportFormat: (reports.format as 'excel' | 'pdf') || 'excel'
       });
     }
   }, [settings]);
@@ -41,8 +71,49 @@ export const CommissionSettings = () => {
       updateSetting('auto_calculate_commissions', { enabled: localSettings.autoCalculate }),
       updateSetting('default_commission_percentage', { percentage: localSettings.defaultPercentage }),
       updateSetting('approval_required', { enabled: localSettings.approvalRequired }),
-      updateSetting('payment_schedule', { frequency: localSettings.paymentSchedule })
+      updateSetting('payment_schedule', { frequency: localSettings.paymentSchedule }),
+      updateSetting('notification_settings', {
+        enabled: localSettings.notificationsEnabled,
+        recipients: localSettings.notificationRecipients,
+        newCommissionNotifications: localSettings.newCommissionNotifications,
+        dueReminderNotifications: localSettings.dueReminderNotifications,
+        overdueAlertNotifications: localSettings.overdueAlertNotifications,
+        reminderDaysBefore: localSettings.reminderDaysBefore
+      }),
+      updateSetting('report_settings', {
+        enabled: localSettings.reportsEnabled,
+        frequency: localSettings.reportFrequency,
+        recipients: localSettings.reportRecipients,
+        format: localSettings.reportFormat
+      })
     ]);
+  };
+
+  const handleTestNotification = async () => {
+    try {
+      await supabase.functions.invoke('commission-notifications', {
+        body: {
+          type: 'due_reminder',
+          daysAhead: localSettings.reminderDaysBefore
+        }
+      });
+    } catch (error) {
+      console.error('Error testing notification:', error);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      await supabase.functions.invoke('scheduled-reports', {
+        body: {
+          reportType: localSettings.reportFrequency,
+          format: localSettings.reportFormat,
+          recipients: localSettings.reportRecipients
+        }
+      });
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
   };
 
   if (loading) {
@@ -177,6 +248,249 @@ export const CommissionSettings = () => {
             <Save className="h-4 w-4 mr-2" />
             Guardar Configuración
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Configuración de Notificaciones */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Notificaciones por Email
+          </CardTitle>
+          <CardDescription>
+            Configura las notificaciones automáticas del sistema
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Activar notificaciones */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="notifications-enabled">Notificaciones Activadas</Label>
+              <p className="text-sm text-muted-foreground">
+                Enviar notificaciones por email sobre el estado de comisiones
+              </p>
+            </div>
+            <Switch
+              id="notifications-enabled"
+              checked={localSettings.notificationsEnabled}
+              onCheckedChange={(checked) => 
+                setLocalSettings(prev => ({ ...prev, notificationsEnabled: checked }))
+              }
+            />
+          </div>
+
+          {localSettings.notificationsEnabled && (
+            <>
+              <Separator />
+
+              {/* Destinatarios */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <Label htmlFor="notification-recipients">Destinatarios</Label>
+                </div>
+                <Textarea
+                  id="notification-recipients"
+                  value={localSettings.notificationRecipients.join(', ')}
+                  onChange={(e) => 
+                    setLocalSettings(prev => ({ 
+                      ...prev, 
+                      notificationRecipients: e.target.value.split(',').map(email => email.trim()).filter(Boolean)
+                    }))
+                  }
+                  placeholder="admin@empresa.com, finanzas@empresa.com"
+                  className="min-h-[60px]"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Emails separados por comas que recibirán las notificaciones
+                </p>
+              </div>
+
+              <Separator />
+
+              {/* Tipos de notificaciones */}
+              <div className="space-y-4">
+                <Label>Tipos de Notificaciones</Label>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="new-commission-notifications">Nuevas Comisiones</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Notificar cuando se crean nuevas comisiones automáticamente
+                      </p>
+                    </div>
+                    <Switch
+                      id="new-commission-notifications"
+                      checked={localSettings.newCommissionNotifications}
+                      onCheckedChange={(checked) => 
+                        setLocalSettings(prev => ({ ...prev, newCommissionNotifications: checked }))
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="due-reminder-notifications">Recordatorios de Vencimiento</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Recordar comisiones próximas a vencer
+                      </p>
+                    </div>
+                    <Switch
+                      id="due-reminder-notifications"
+                      checked={localSettings.dueReminderNotifications}
+                      onCheckedChange={(checked) => 
+                        setLocalSettings(prev => ({ ...prev, dueReminderNotifications: checked }))
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="overdue-alert-notifications">Alertas de Vencimiento</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Alertar sobre comisiones ya vencidas
+                      </p>
+                    </div>
+                    <Switch
+                      id="overdue-alert-notifications"
+                      checked={localSettings.overdueAlertNotifications}
+                      onCheckedChange={(checked) => 
+                        setLocalSettings(prev => ({ ...prev, overdueAlertNotifications: checked }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Días de anticipación */}
+              <div className="space-y-2">
+                <Label htmlFor="reminder-days">Días de Anticipación para Recordatorios</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="reminder-days"
+                    type="number"
+                    min="1"
+                    max="30"
+                    value={localSettings.reminderDaysBefore}
+                    onChange={(e) => 
+                      setLocalSettings(prev => ({ ...prev, reminderDaysBefore: Number(e.target.value) }))
+                    }
+                    className="w-24"
+                  />
+                  <span className="text-sm text-muted-foreground">días antes del vencimiento</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleTestNotification} className="flex-1">
+                  <Send className="h-4 w-4 mr-2" />
+                  Probar Notificación
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Configuración de Reportes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Reportes Automáticos
+          </CardTitle>
+          <CardDescription>
+            Configura la generación automática de reportes periódicos
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Activar reportes */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="reports-enabled">Reportes Automáticos</Label>
+              <p className="text-sm text-muted-foreground">
+                Generar y enviar reportes de comisiones automáticamente
+              </p>
+            </div>
+            <Switch
+              id="reports-enabled"
+              checked={localSettings.reportsEnabled}
+              onCheckedChange={(checked) => 
+                setLocalSettings(prev => ({ ...prev, reportsEnabled: checked }))
+              }
+            />
+          </div>
+
+          {localSettings.reportsEnabled && (
+            <>
+              <Separator />
+
+              {/* Frecuencia */}
+              <div className="space-y-2">
+                <Label htmlFor="report-frequency">Frecuencia</Label>
+                <Select
+                  value={localSettings.reportFrequency}
+                  onValueChange={(value: 'weekly' | 'monthly' | 'quarterly') => 
+                    setLocalSettings(prev => ({ ...prev, reportFrequency: value }))
+                  }
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Semanal</SelectItem>
+                    <SelectItem value="monthly">Mensual</SelectItem>
+                    <SelectItem value="quarterly">Trimestral</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Formato */}
+              <div className="space-y-2">
+                <Label htmlFor="report-format">Formato</Label>
+                <Select
+                  value={localSettings.reportFormat}
+                  onValueChange={(value: 'excel' | 'pdf') => 
+                    setLocalSettings(prev => ({ ...prev, reportFormat: value }))
+                  }
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excel">Excel (XLSX)</SelectItem>
+                    <SelectItem value="pdf">PDF</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Destinatarios de reportes */}
+              <div className="space-y-2">
+                <Label htmlFor="report-recipients">Destinatarios</Label>
+                <Textarea
+                  id="report-recipients"
+                  value={localSettings.reportRecipients.join(', ')}
+                  onChange={(e) => 
+                    setLocalSettings(prev => ({ 
+                      ...prev, 
+                      reportRecipients: e.target.value.split(',').map(email => email.trim()).filter(Boolean)
+                    }))
+                  }
+                  placeholder="direccion@empresa.com, finanzas@empresa.com"
+                  className="min-h-[60px]"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleGenerateReport} className="flex-1">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Generar Reporte Ahora
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

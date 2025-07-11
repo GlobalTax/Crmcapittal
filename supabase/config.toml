@@ -77,6 +77,12 @@ verify_jwt = true
 [functions.einforma-test-connection]
 verify_jwt = true
 
+[functions.scheduled-reports]
+verify_jwt = true
+
+[functions.commission-notifications]
+verify_jwt = true
+
 [edge-runtime]
 enabled = true
 port = 54327
