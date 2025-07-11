@@ -23,6 +23,7 @@ const nav = [
   { to: '/negocios', label: 'Negocios', icon: <TrendingUp className="w-5 h-5" /> },
   { to: '/proposals', label: 'Propuestas', icon: <FileText className="w-5 h-5" /> },
   { to: '/mandatos', label: 'Mandatos', icon: <Briefcase className="w-5 h-5" /> },
+  { to: '/comisiones', label: 'Comisiones', icon: <DollarSign className="w-5 h-5" /> },
   { to: '/email', label: 'Email', icon: <Mail className="w-5 h-5" /> },
   { to: '/documents', label: 'Documentos', icon: <FileText className="w-5 h-5" /> },
   { to: '/calendar', label: 'Calendario', icon: <Calendar className="w-5 h-5" /> },
@@ -33,22 +34,16 @@ const adminNav = [
   { to: '/collaborators', label: 'Colaboradores', icon: <UserPlus className="w-5 h-5" /> },
   { to: '/users', label: 'Usuarios', icon: <Users className="w-5 h-5" /> },
   { to: '/integrations', label: 'Integraciones', icon: <Zap className="w-5 h-5" /> },
-  { to: '/comisiones', label: 'Comisiones (DEBUG)', icon: <DollarSign className="w-5 h-5" /> }, // Temporarily moved here for debugging
 ];
 
 const superAdminNav = [
-  { to: '/comisiones', label: 'Comisiones', icon: <DollarSign className="w-5 h-5" /> },
+  { to: '/settings', label: 'Configuración', icon: <Settings className="w-5 h-5" /> },
 ];
 
 export function MinimalSidebar() {
   const { role } = useUserRole();
   const isAdmin = role === 'admin' || role === 'superadmin';
   const isSuperAdmin = role === 'superadmin';
-
-  // Debug logging
-  console.log('🔍 [DEBUG] MinimalSidebar - Current role:', role);
-  console.log('🔍 [DEBUG] MinimalSidebar - isAdmin:', isAdmin);
-  console.log('🔍 [DEBUG] MinimalSidebar - isSuperAdmin:', isSuperAdmin);
 
   return (
     <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
