@@ -33,6 +33,7 @@ const adminNav = [
   { to: '/collaborators', label: 'Colaboradores', icon: <UserPlus className="w-5 h-5" /> },
   { to: '/users', label: 'Usuarios', icon: <Users className="w-5 h-5" /> },
   { to: '/integrations', label: 'Integraciones', icon: <Zap className="w-5 h-5" /> },
+  { to: '/comisiones', label: 'Comisiones (DEBUG)', icon: <DollarSign className="w-5 h-5" /> }, // Temporarily moved here for debugging
 ];
 
 const superAdminNav = [
@@ -43,6 +44,11 @@ export function MinimalSidebar() {
   const { role } = useUserRole();
   const isAdmin = role === 'admin' || role === 'superadmin';
   const isSuperAdmin = role === 'superadmin';
+
+  // Debug logging
+  console.log('🔍 [DEBUG] MinimalSidebar - Current role:', role);
+  console.log('🔍 [DEBUG] MinimalSidebar - isAdmin:', isAdmin);
+  console.log('🔍 [DEBUG] MinimalSidebar - isSuperAdmin:', isSuperAdmin);
 
   return (
     <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
