@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useUserCollaborator } from '@/hooks/useUserCollaborator';
 
 interface CommissionStats {
   pendingAmount: number;
@@ -35,52 +37,81 @@ export const useCommissionStats = () => {
   const [stats, setStats] = useState<CommissionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useUserRole();
+  const { collaborator } = useUserCollaborator();
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true);
         
-        // Obtener comisiones pendientes
-        const { data: pendingCommissions } = await supabase
+        const isAdmin = role === 'admin' || role === 'superadmin';
+        
+        // Base queries for commissions
+        let pendingQuery = supabase
           .from('collaborator_commissions')
           .select('commission_amount')
           .eq('status', 'pending');
+          
+        let paidQuery = supabase
+          .from('collaborator_commissions')
+          .select('commission_amount')
+          .eq('status', 'paid');
+
+        // Filter by collaborator for non-admin users
+        if (!isAdmin && collaborator?.id) {
+          pendingQuery = pendingQuery.eq('collaborator_id', collaborator.id);
+          paidQuery = paidQuery.eq('collaborator_id', collaborator.id);
+        }
+        
+        // Obtener comisiones pendientes
+        const { data: pendingCommissions } = await pendingQuery;
 
         // Obtener comisiones pagadas este mes
         const startOfMonth = new Date();
         startOfMonth.setDate(1);
         startOfMonth.setHours(0, 0, 0, 0);
 
-        const { data: paidCommissions } = await supabase
-          .from('collaborator_commissions')
-          .select('commission_amount')
-          .eq('status', 'paid')
+        const { data: paidCommissions } = await paidQuery
           .gte('paid_at', startOfMonth.toISOString());
 
-        // Obtener colaboradores activos
-        const { data: activeCollaborators } = await supabase
-          .from('collaborators')
-          .select('id')
-          .eq('is_active', true);
+        // Obtener colaboradores activos (solo para admins)
+        let activeCollaboratorsCount = 1; // Default for individual users
+        if (isAdmin) {
+          const { data: activeCollaborators } = await supabase
+            .from('collaborators')
+            .select('id')
+            .eq('is_active', true);
+          activeCollaboratorsCount = activeCollaborators?.length || 0;
+        }
 
         // Obtener distribución por fuente
-        const { data: commissionsBySource } = await supabase
+        let sourceQuery = supabase
           .from('collaborator_commissions')
           .select('source_type, commission_amount')
           .eq('status', 'paid')
           .gte('created_at', startOfMonth.toISOString());
+          
+        if (!isAdmin && collaborator?.id) {
+          sourceQuery = sourceQuery.eq('collaborator_id', collaborator.id);
+        }
+        
+        const { data: commissionsBySource } = await sourceQuery;
 
-        // Obtener top colaboradores
-        const { data: topCollaboratorsData } = await supabase
-          .from('collaborator_commissions')
-          .select(`
-            collaborator_id,
-            commission_amount,
-            collaborators(name, collaborator_type)
-          `)
-          .eq('status', 'paid')
-          .gte('created_at', startOfMonth.toISOString());
+        // Obtener top colaboradores (solo para admins)
+        let topCollaboratorsData = [];
+        if (isAdmin) {
+          const { data } = await supabase
+            .from('collaborator_commissions')
+            .select(`
+              collaborator_id,
+              commission_amount,
+              collaborators(name, collaborator_type)
+            `)
+            .eq('status', 'paid')
+            .gte('created_at', startOfMonth.toISOString());
+          topCollaboratorsData = data || [];
+        }
 
         // Calcular estadísticas
         const pendingAmount = pendingCommissions?.reduce((sum, c) => sum + Number(c.commission_amount), 0) || 0;
@@ -101,32 +132,40 @@ export const useCommissionStats = () => {
           percentage: totalSourceAmount > 0 ? Math.round((amount / totalSourceAmount) * 100) : 0
         }));
 
-        // Top colaboradores
-        const collaboratorMap = new Map();
-        topCollaboratorsData?.forEach(commission => {
-          const id = commission.collaborator_id;
-          const current = collaboratorMap.get(id) || { 
-            id, 
-            name: commission.collaborators?.name || 'Sin nombre',
-            type: commission.collaborators?.collaborator_type || 'referente',
-            amount: 0, 
-            count: 0 
-          };
-          current.amount += Number(commission.commission_amount);
-          current.count += 1;
-          collaboratorMap.set(id, current);
-        });
+        // Top colaboradores (solo para admins)
+        let topCollaborators = [];
+        if (isAdmin) {
+          const collaboratorMap = new Map();
+          topCollaboratorsData.forEach(commission => {
+            const id = commission.collaborator_id;
+            const current = collaboratorMap.get(id) || { 
+              id, 
+              name: commission.collaborators?.name || 'Sin nombre',
+              type: commission.collaborators?.collaborator_type || 'referente',
+              amount: 0, 
+              count: 0 
+            };
+            current.amount += Number(commission.commission_amount);
+            current.count += 1;
+            collaboratorMap.set(id, current);
+          });
 
-        const topCollaborators = Array.from(collaboratorMap.values())
-          .sort((a, b) => b.amount - a.amount)
-          .slice(0, 5);
+          topCollaborators = Array.from(collaboratorMap.values())
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 5);
+        }
 
         // Generar alertas
         const alerts = [];
-        if (pendingCommissions && pendingCommissions.length > 10) {
+        const alertThreshold = isAdmin ? 10 : 3; // Lower threshold for individual users
+        if (pendingCommissions && pendingCommissions.length > alertThreshold) {
+          const alertTitle = isAdmin ? 'Muchas comisiones pendientes' : 'Comisiones pendientes de aprobación';
+          const alertDescription = isAdmin 
+            ? `Hay ${pendingCommissions.length} comisiones pendientes de aprobación`
+            : `Tienes ${pendingCommissions.length} comisiones pendientes de aprobación`;
           alerts.push({
-            title: 'Muchas comisiones pendientes',
-            description: `Hay ${pendingCommissions.length} comisiones pendientes de aprobación`,
+            title: alertTitle,
+            description: alertDescription,
             type: 'warning' as const
           });
         }
@@ -138,9 +177,9 @@ export const useCommissionStats = () => {
           paidThisMonth: paidAmount,
           paidCount: paidCommissions?.length || 0,
           paidTrend: 0, // TODO: Calcular tendencia
-          activeCollaborators: activeCollaborators?.length || 0,
+          activeCollaborators: activeCollaboratorsCount,
           collaboratorsTrend: 0, // TODO: Calcular tendencia
-          averageCommission: activeCollaborators?.length ? paidAmount / activeCollaborators.length : 0,
+          averageCommission: activeCollaboratorsCount ? paidAmount / activeCollaboratorsCount : paidAmount,
           averageTrend: 0, // TODO: Calcular tendencia
           sourceDistribution,
           topCollaborators,
@@ -155,8 +194,10 @@ export const useCommissionStats = () => {
       }
     };
 
-    fetchStats();
-  }, []);
+    if (role !== undefined && (role === 'admin' || role === 'superadmin' || collaborator)) {
+      fetchStats();
+    }
+  }, [role, collaborator]);
 
   return { stats, loading, error };
 };

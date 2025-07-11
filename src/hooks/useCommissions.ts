@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useUserCollaborator } from '@/hooks/useUserCollaborator';
 
 interface Commission {
   id: string;
@@ -29,17 +31,27 @@ export const useCommissions = () => {
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useUserRole();
+  const { collaborator } = useUserCollaborator();
 
   const fetchCommissions = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      let query = supabase
         .from('collaborator_commissions')
         .select(`
           *,
           collaborators(name, collaborator_type)
-        `)
-        .order('created_at', { ascending: false });
+        `);
+
+      // Filter by collaborator for non-admin users
+      const isAdmin = role === 'admin' || role === 'superadmin';
+      if (!isAdmin && collaborator?.id) {
+        query = query.eq('collaborator_id', collaborator.id);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -156,8 +168,10 @@ export const useCommissions = () => {
   };
 
   useEffect(() => {
-    fetchCommissions();
-  }, []);
+    if (role !== undefined && (role === 'admin' || role === 'superadmin' || collaborator)) {
+      fetchCommissions();
+    }
+  }, [role, collaborator]);
 
   return {
     commissions,

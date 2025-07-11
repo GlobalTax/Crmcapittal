@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useUserCollaborator } from '@/hooks/useUserCollaborator';
 import { Navigate } from 'react-router-dom';
 import { PageHeader } from '@/components/ui/page-header';
 import { CommissionsDashboard } from '@/components/commissions/CommissionsDashboard';
@@ -10,7 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, Calculator, Settings, List } from 'lucide-react';
 
 const CommissionsPage = () => {
-  const { role, loading } = useUserRole();
+  const { role, loading: roleLoading } = useUserRole();
+  const { collaborator, loading: collaboratorLoading, isCollaborator } = useUserCollaborator();
+
+  const loading = roleLoading || collaboratorLoading;
 
   if (loading) {
     return (
@@ -20,36 +24,42 @@ const CommissionsPage = () => {
     );
   }
 
-  // Solo superadmins pueden acceder
-  if (role !== 'superadmin') {
+  // Allow access for superadmins, admins, and users with collaborator profiles
+  const hasAccess = role === 'superadmin' || role === 'admin' || isCollaborator;
+  
+  if (!hasAccess) {
     return <Navigate to="/" replace />;
   }
+
+  const isAdmin = role === 'admin' || role === 'superadmin';
+  const pageTitle = isAdmin ? "Sistema de Comisiones" : "Mis Comisiones";
+  const pageDescription = isAdmin 
+    ? "Gestión completa de comisiones para colaboradores"
+    : `Consulta tus comisiones ${collaborator?.name ? `como ${collaborator.name}` : ''}`;
+  
+  // Define which tabs are available based on role
+  const availableTabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: DollarSign },
+    { id: 'commissions', label: 'Comisiones', icon: List },
+    { id: 'calculator', label: 'Calculadora', icon: Calculator },
+    ...(isAdmin ? [{ id: 'settings', label: 'Configuración', icon: Settings }] : [])
+  ];
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Sistema de Comisiones"
-        description="Gestión completa de comisiones para colaboradores"
+        title={pageTitle}
+        description={pageDescription}
       />
 
       <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="commissions" className="flex items-center gap-2">
-            <List className="h-4 w-4" />
-            Comisiones
-          </TabsTrigger>
-          <TabsTrigger value="calculator" className="flex items-center gap-2">
-            <Calculator className="h-4 w-4" />
-            Calculadora
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Configuración
-          </TabsTrigger>
+        <TabsList className={`grid w-full grid-cols-${availableTabs.length}`}>
+          {availableTabs.map((tab) => (
+            <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
@@ -64,9 +74,11 @@ const CommissionsPage = () => {
           <CommissionCalculator />
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-6">
-          <CommissionSettings />
-        </TabsContent>
+        {isAdmin && (
+          <TabsContent value="settings" className="space-y-6">
+            <CommissionSettings />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
