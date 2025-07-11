@@ -25,6 +25,15 @@ export default {
 		}
 		},
 		extend: {
+			fontSize: {
+				'xs': ['0.8125rem', { lineHeight: '1.4' }],
+				'sm': ['0.9375rem', { lineHeight: '1.5' }],
+				'base': ['1rem', { lineHeight: '1.6' }],
+				'lg': ['1.125rem', { lineHeight: '1.6' }],
+				'xl': ['1.25rem', { lineHeight: '1.6' }],
+				'2xl': ['1.5rem', { lineHeight: '1.5' }],
+				'3xl': ['1.875rem', { lineHeight: '1.4' }],
+			},
 			fontFamily: {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},

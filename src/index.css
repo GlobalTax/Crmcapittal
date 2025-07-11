@@ -89,13 +89,13 @@
     @apply bg-white text-foreground;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
-    line-height: 20px;
-    letter-spacing: -0.28px;
+    line-height: 1.6;
+    letter-spacing: -0.2px;
   }
 
   /* Base font size */
   html {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   #root {
