@@ -31,6 +31,24 @@ interface CommissionStats {
     description: string;
     type: 'warning' | 'error' | 'info';
   }>;
+  collaboratorStats: {
+    totalAmount: number;
+    count: number;
+  };
+  employeeStats: {
+    totalAmount: number;
+    count: number;
+  };
+  advancedCalculations: {
+    percentage: number;
+    count: number;
+  };
+  lowMarginAlerts: Array<{
+    title: string;
+    description: string;
+    commissionId: string;
+    margin: number;
+  }>;
 }
 
 export const useCommissionStats = () => {
@@ -98,23 +116,25 @@ export const useCommissionStats = () => {
         
         const { data: commissionsBySource } = await sourceQuery;
 
-        // Obtener top colaboradores y empleados (solo para admins)
-        let topRecipientsData = [];
+        // Obtener todas las comisiones para estadísticas detalladas (solo para admins)
+        let allCommissionsData = [];
         if (isAdmin) {
           const { data } = await supabase
             .from('commissions')
             .select(`
+              id,
               collaborator_id,
               employee_id,
               recipient_type,
               recipient_name,
               commission_amount,
+              calculation_details,
               collaborators(name, collaborator_type),
               user_profiles(first_name, last_name)
             `)
             .eq('status', 'paid')
             .gte('created_at', startOfMonth.toISOString());
-          topRecipientsData = data || [];
+          allCommissionsData = data || [];
         }
 
         // Calcular estadísticas
@@ -136,11 +156,47 @@ export const useCommissionStats = () => {
           percentage: totalSourceAmount > 0 ? Math.round((amount / totalSourceAmount) * 100) : 0
         }));
 
-        // Top colaboradores y empleados (solo para admins)
+        // Calcular estadísticas por tipo de destinatario y cálculos avanzados
+        let collaboratorStats = { totalAmount: 0, count: 0 };
+        let employeeStats = { totalAmount: 0, count: 0 };
+        let advancedCalculations = { percentage: 0, count: 0 };
+        let lowMarginAlerts = [];
         let topCollaborators = [];
+
         if (isAdmin) {
           const recipientMap = new Map();
-          topRecipientsData.forEach(commission => {
+          let advancedCalcCount = 0;
+          const totalCalcCount = allCommissionsData.length;
+          
+          allCommissionsData.forEach(commission => {
+            const amount = Number(commission.commission_amount);
+            
+            // Estadísticas por tipo de destinatario
+            if (commission.recipient_type === 'collaborator') {
+              collaboratorStats.totalAmount += amount;
+              collaboratorStats.count += 1;
+            } else {
+              employeeStats.totalAmount += amount;
+              employeeStats.count += 1;
+            }
+            
+            // Calcular estadísticas de cálculos avanzados
+            const calcDetails = commission.calculation_details as any;
+            if (calcDetails?.calculationType && calcDetails.calculationType !== 'gross') {
+              advancedCalcCount += 1;
+              
+              // Verificar margen bajo
+              if (calcDetails.netProfit && calcDetails.netProfitMargin && calcDetails.netProfitMargin < 20) {
+                lowMarginAlerts.push({
+                  title: `Margen bajo: ${calcDetails.netProfitMargin.toFixed(1)}%`,
+                  description: `Comisión con margen inferior al 20%`,
+                  commissionId: commission.id,
+                  margin: calcDetails.netProfitMargin
+                });
+              }
+            }
+            
+            // Top colaboradores/empleados
             const id = commission.recipient_type === 'collaborator' ? commission.collaborator_id : commission.employee_id;
             const recipientKey = `${commission.recipient_type}-${id}`;
             
@@ -164,10 +220,13 @@ export const useCommissionStats = () => {
               amount: 0, 
               count: 0 
             };
-            current.amount += Number(commission.commission_amount);
+            current.amount += amount;
             current.count += 1;
             recipientMap.set(recipientKey, current);
           });
+
+          advancedCalculations.percentage = totalCalcCount > 0 ? Math.round((advancedCalcCount / totalCalcCount) * 100) : 0;
+          advancedCalculations.count = advancedCalcCount;
 
           topCollaborators = Array.from(recipientMap.values())
             .sort((a, b) => b.amount - a.amount)
@@ -202,7 +261,11 @@ export const useCommissionStats = () => {
           averageTrend: 0, // TODO: Calcular tendencia
           sourceDistribution,
           topCollaborators,
-          alerts
+          alerts,
+          collaboratorStats,
+          employeeStats,
+          advancedCalculations,
+          lowMarginAlerts
         });
 
       } catch (err) {

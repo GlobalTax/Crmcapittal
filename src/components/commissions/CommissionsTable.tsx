@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCommissions } from '@/hooks/useCommissions';
+import { CommissionDetails } from './CommissionDetails';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +29,9 @@ import {
   X, 
   Eye,
   Calendar,
-  DollarSign
+  DollarSign,
+  Calculator,
+  AlertTriangle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -40,19 +43,32 @@ export const CommissionsTable = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [recipientFilter, setRecipientFilter] = useState('all');
+  const [calculationFilter, setCalculationFilter] = useState('all');
+  const [marginFilter, setMarginFilter] = useState('all');
+  const [selectedCommission, setSelectedCommission] = useState<any>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const filteredCommissions = commissions?.filter(commission => {
     const recipientName = commission.recipient_name || 
       (commission.recipient_type === 'collaborator' ? commission.collaborators?.name : 
        (commission.user_profiles ? `${commission.user_profiles.first_name || ''} ${commission.user_profiles.last_name || ''}`.trim() : ''));
     
+    const calcDetails = commission.calculation_details as any;
+    const calculationType = calcDetails?.calculationType || 'gross';
+    const netProfitMargin = calcDetails?.netProfitMargin || 0;
+    
     const matchesSearch = recipientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          commission.source_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || commission.status === statusFilter;
     const matchesSource = sourceFilter === 'all' || commission.source_type === sourceFilter;
     const matchesRecipient = recipientFilter === 'all' || commission.recipient_type === recipientFilter;
+    const matchesCalculation = calculationFilter === 'all' || calculationType === calculationFilter;
+    const matchesMargin = marginFilter === 'all' || 
+      (marginFilter === 'low' && netProfitMargin < 20) ||
+      (marginFilter === 'medium' && netProfitMargin >= 20 && netProfitMargin < 40) ||
+      (marginFilter === 'high' && netProfitMargin >= 40);
     
-    return matchesSearch && matchesStatus && matchesSource && matchesRecipient;
+    return matchesSearch && matchesStatus && matchesSource && matchesRecipient && matchesCalculation && matchesMargin;
   });
 
   const handleSelectAll = (checked: boolean) => {
@@ -98,6 +114,38 @@ export const CommissionsTable = () => {
     
     const config = variants[sourceType as keyof typeof variants] || variants.deal;
     return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
+
+  const getCalculationBadge = (calculationDetails: any) => {
+    const calculationType = calculationDetails?.calculationType || 'gross';
+    const variants = {
+      gross: { variant: 'secondary' as const, label: 'Bruto', icon: DollarSign },
+      net: { variant: 'outline' as const, label: 'Neto', icon: Calculator },
+      mixed: { variant: 'default' as const, label: 'Mixto', icon: Calculator }
+    };
+    
+    const config = variants[calculationType as keyof typeof variants] || variants.gross;
+    const IconComponent = config.icon;
+    
+    return (
+      <Badge variant={config.variant} className="flex items-center gap-1">
+        <IconComponent className="h-3 w-3" />
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getMarginIndicator = (calculationDetails: any) => {
+    const margin = calculationDetails?.netProfitMargin;
+    if (!margin) return null;
+    
+    const isLowMargin = margin < 20;
+    return (
+      <div className={`flex items-center gap-1 text-xs ${isLowMargin ? 'text-warning' : 'text-muted-foreground'}`}>
+        {isLowMargin && <AlertTriangle className="h-3 w-3" />}
+        {margin.toFixed(1)}% margen
+      </div>
+    );
   };
 
   if (loading) {
@@ -186,6 +234,28 @@ export const CommissionsTable = () => {
               <SelectItem value="employee">Empleados</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={calculationFilter} onValueChange={setCalculationFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Cálculo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los cálculos</SelectItem>
+              <SelectItem value="gross">Bruto</SelectItem>
+              <SelectItem value="net">Neto</SelectItem>
+              <SelectItem value="mixed">Mixto</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={marginFilter} onValueChange={setMarginFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Margen" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los márgenes</SelectItem>
+              <SelectItem value="low">Bajo (&lt;20%)</SelectItem>
+              <SelectItem value="medium">Medio (20-40%)</SelectItem>
+              <SelectItem value="high">Alto (&gt;40%)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Tabla */}
@@ -205,6 +275,7 @@ export const CommissionsTable = () => {
                 <TableHead>Destinatario</TableHead>
                 <TableHead>Fuente</TableHead>
                 <TableHead>Monto</TableHead>
+                <TableHead>Cálculo</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Fecha</TableHead>
                 <TableHead>Vencimiento</TableHead>
@@ -263,6 +334,12 @@ export const CommissionsTable = () => {
                     )}
                   </TableCell>
                   <TableCell>
+                    <div className="space-y-1">
+                      {getCalculationBadge(commission.calculation_details)}
+                      {getMarginIndicator(commission.calculation_details)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
                     {getStatusBadge(commission.status)}
                   </TableCell>
                   <TableCell>
@@ -284,7 +361,14 @@ export const CommissionsTable = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedCommission(commission);
+                          setDetailsOpen(true);
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                       {commission.status === 'pending' && (
@@ -319,6 +403,12 @@ export const CommissionsTable = () => {
           </div>
         )}
       </CardContent>
+
+      <CommissionDetails
+        commission={selectedCommission}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
     </Card>
   );
 };

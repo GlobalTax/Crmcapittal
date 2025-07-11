@@ -3,7 +3,7 @@ import { StatsCard } from '@/components/ui/stats-card';
 import { useCommissionStats } from '@/hooks/useCommissionStats';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useUserCollaborator } from '@/hooks/useUserCollaborator';
-import { DollarSign, TrendingUp, Clock, Users, AlertCircle } from 'lucide-react';
+import { DollarSign, TrendingUp, Clock, Users, AlertCircle, Calculator, TrendingDown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
@@ -53,6 +53,73 @@ export const CommissionsDashboard = () => {
           description={isAdmin ? "Este mes" : "Este mes"}
         />
       </div>
+
+      {/* Métricas por tipo de destinatario */}
+      {isAdmin && (
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Colaboradores</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">€{stats?.collaboratorStats?.totalAmount?.toLocaleString() || '0'}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats?.collaboratorStats?.count || 0} comisiones
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Empleados</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">€{stats?.employeeStats?.totalAmount?.toLocaleString() || '0'}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats?.employeeStats?.count || 0} comisiones
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Cálculo Avanzado</CardTitle>
+              <Calculator className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.advancedCalculations?.percentage || 0}%</div>
+              <p className="text-xs text-muted-foreground">
+                Beneficio neto/mixto
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Alertas de márgenes bajos */}
+      {isAdmin && stats?.lowMarginAlerts && stats.lowMarginAlerts.length > 0 && (
+        <Card className="border-warning">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 text-warning" />
+              Alertas de Márgenes Bajos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.lowMarginAlerts.map((alert, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-warning/5 rounded-lg">
+                  <TrendingDown className="h-4 w-4 text-warning mt-0.5" />
+                  <div>
+                    <p className="font-medium">{alert.title}</p>
+                    <p className="text-sm text-muted-foreground">{alert.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Gráficos y detalles */}
       <div className="grid gap-6 md:grid-cols-2">

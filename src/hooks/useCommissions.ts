@@ -24,6 +24,7 @@ export interface Commission {
   source_type?: string;
   source_name?: string;
   payment_due_date?: string;
+  calculation_details?: any;
   collaborators?: {
     name: string;
     collaborator_type: string;
