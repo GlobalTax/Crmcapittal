@@ -5254,6 +5254,10 @@ export type Database = {
       }
     }
     Functions: {
+      delete_user_completely: {
+        Args: { _user_id: string }
+        Returns: Json
+      }
       diagnostico_net_queue: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -5309,6 +5313,13 @@ export type Database = {
       obtener_token_integraloop: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      remove_user_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: Json
       }
       set_environment_variables: {
         Args: Record<PropertyKey, never>

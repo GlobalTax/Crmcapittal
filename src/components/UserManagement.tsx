@@ -8,13 +8,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, UserCheck, Camera, X, Edit } from "lucide-react";
+import { Plus, Trash2, UserCheck, Camera, X, Edit, UserMinus, UserX } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EditUserDialog from "./EditUserDialog";
 import UserProjectsList from "./UserProjectsList";
 
 type UserRole = 'superadmin' | 'admin' | 'user';
+
+interface DatabaseFunctionResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
 
 interface CreateUserData {
   email: string;
@@ -207,32 +213,78 @@ const UserManagement = () => {
     },
   });
 
-  // Delete user role mutation
-  const deleteUserRoleMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      console.log('Deleting user role for:', userId);
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
+  // Remove user role mutation
+  const removeUserRoleMutation = useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: UserRole }) => {
+      console.log('Removing user role for:', userId, 'role:', role);
+      const { data, error } = await supabase
+        .rpc('remove_user_role', {
+          _user_id: userId,
+          _role: role
+        });
 
       if (error) {
-        console.error('Delete role error:', error);
+        console.error('Remove role error:', error);
         throw error;
       }
+
+      const result = data as unknown as DatabaseFunctionResponse;
+      if (result && !result.success) {
+        throw new Error(result.error || 'Error al remover rol');
+      }
+
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data: DatabaseFunctionResponse) => {
       toast({
-        title: "Rol eliminado",
-        description: "El rol del usuario ha sido eliminado",
+        title: "Rol removido",
+        description: data?.message || "El rol del usuario ha sido removido",
       });
       queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
     },
     onError: (error: Error) => {
-      console.error('Delete role mutation failed:', error);
+      console.error('Remove role mutation failed:', error);
       toast({
         title: "Error",
-        description: error.message || "Error al eliminar el rol",
+        description: error.message || "Error al remover el rol",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete user completely mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      console.log('Deleting user completely:', userId);
+      const { data, error } = await supabase
+        .rpc('delete_user_completely', {
+          _user_id: userId
+        });
+
+      if (error) {
+        console.error('Delete user error:', error);
+        throw error;
+      }
+
+      const result = data as unknown as DatabaseFunctionResponse;
+      if (result && !result.success) {
+        throw new Error(result.error || 'Error al eliminar usuario');
+      }
+
+      return result;
+    },
+    onSuccess: (data: DatabaseFunctionResponse) => {
+      toast({
+        title: "Usuario eliminado",
+        description: data?.message || "El usuario ha sido eliminado completamente del sistema",
+      });
+      queryClient.invalidateQueries({ queryKey: ['users-with-roles-complete'] });
+    },
+    onError: (error: Error) => {
+      console.error('Delete user mutation failed:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Error al eliminar el usuario",
         variant: "destructive",
       });
     },
@@ -332,8 +384,12 @@ const UserManagement = () => {
     createUserMutation.mutate(formData);
   };
 
-  const handleDeleteUserRole = (userId: string) => {
-    deleteUserRoleMutation.mutate(userId);
+  const handleRemoveUserRole = (userId: string, role: UserRole) => {
+    removeUserRoleMutation.mutate({ userId, role });
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    deleteUserMutation.mutate(userId);
   };
 
   const handleEditUser = (user: User) => {
@@ -566,42 +622,100 @@ const UserManagement = () => {
                       isManager={user.is_manager}
                     />
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleEditUser(user)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-800">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>¿Eliminar rol de usuario?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta acción eliminará el rol del usuario. El usuario no podrá acceder a las funciones administrativas.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteUserRole(user.user_id)}
-                              className="bg-red-600 hover:bg-red-700"
-                            >
-                              Eliminar Rol
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+                   <TableCell>
+                     <div className="flex items-center gap-2">
+                       <Button 
+                         variant="outline" 
+                         size="sm" 
+                         onClick={() => handleEditUser(user)}
+                         className="text-blue-600 hover:text-blue-800"
+                         title="Editar usuario"
+                       >
+                         <Edit className="h-4 w-4" />
+                       </Button>
+                       
+                       {/* Remover Rol */}
+                       <AlertDialog>
+                         <AlertDialogTrigger asChild>
+                           <Button 
+                             variant="outline" 
+                             size="sm" 
+                             className="text-orange-600 hover:text-orange-800"
+                             title="Remover rol (mantener usuario)"
+                           >
+                             <UserMinus className="h-4 w-4" />
+                           </Button>
+                         </AlertDialogTrigger>
+                         <AlertDialogContent>
+                           <AlertDialogHeader>
+                             <AlertDialogTitle>¿Remover rol de usuario?</AlertDialogTitle>
+                             <AlertDialogDescription>
+                               Esta acción removerá el rol "{user.role}" del usuario {user.email}. 
+                               El usuario permanecerá en el sistema pero perderá los permisos asociados a este rol.
+                               {user.role === 'admin' && ' También se eliminará su perfil de gestor si lo tiene.'}
+                             </AlertDialogDescription>
+                           </AlertDialogHeader>
+                           <AlertDialogFooter>
+                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                             <AlertDialogAction
+                               onClick={() => handleRemoveUserRole(user.user_id, user.role)}
+                               className="bg-orange-600 hover:bg-orange-700"
+                               disabled={removeUserRoleMutation.isPending}
+                             >
+                               {removeUserRoleMutation.isPending ? "Removiendo..." : "Remover Rol"}
+                             </AlertDialogAction>
+                           </AlertDialogFooter>
+                         </AlertDialogContent>
+                       </AlertDialog>
+
+                       {/* Eliminar Usuario Completo */}
+                       <AlertDialog>
+                         <AlertDialogTrigger asChild>
+                           <Button 
+                             variant="outline" 
+                             size="sm" 
+                             className="text-red-600 hover:text-red-800"
+                             title="Eliminar usuario completamente"
+                           >
+                             <UserX className="h-4 w-4" />
+                           </Button>
+                         </AlertDialogTrigger>
+                         <AlertDialogContent>
+                           <AlertDialogHeader>
+                             <AlertDialogTitle>¿Eliminar usuario completamente?</AlertDialogTitle>
+                             <AlertDialogDescription className="space-y-2">
+                               <div className="text-red-600 font-medium">
+                                 ⚠️ ATENCIÓN: Esta es una acción irreversible
+                               </div>
+                               <div>
+                                 Esta acción eliminará completamente al usuario {user.email} del sistema, incluyendo:
+                               </div>
+                               <ul className="list-disc list-inside text-sm space-y-1 ml-4">
+                                 <li>Su cuenta de autenticación</li>
+                                 <li>Todos sus roles y permisos</li>
+                                 <li>Su perfil de usuario</li>
+                                 {user.is_manager && <li>Su perfil de gestor</li>}
+                                 <li>Historial de actividades asociadas</li>
+                               </ul>
+                               <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                                 <strong>El usuario no podrá volver a acceder al sistema.</strong>
+                               </div>
+                             </AlertDialogDescription>
+                           </AlertDialogHeader>
+                           <AlertDialogFooter>
+                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                             <AlertDialogAction
+                               onClick={() => handleDeleteUser(user.user_id)}
+                               className="bg-red-600 hover:bg-red-700"
+                               disabled={deleteUserMutation.isPending}
+                             >
+                               {deleteUserMutation.isPending ? "Eliminando..." : "Eliminar Usuario"}
+                             </AlertDialogAction>
+                           </AlertDialogFooter>
+                         </AlertDialogContent>
+                       </AlertDialog>
+                     </div>
+                   </TableCell>
                 </TableRow>
               ))
             ) : (
