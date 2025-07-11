@@ -49,12 +49,12 @@ export const useCommissionStats = () => {
         
         // Base queries for commissions
         let pendingQuery = supabase
-          .from('collaborator_commissions')
+          .from('commissions')
           .select('commission_amount')
           .eq('status', 'pending');
           
         let paidQuery = supabase
-          .from('collaborator_commissions')
+          .from('commissions')
           .select('commission_amount')
           .eq('status', 'paid');
 
@@ -87,7 +87,7 @@ export const useCommissionStats = () => {
 
         // Obtener distribución por fuente
         let sourceQuery = supabase
-          .from('collaborator_commissions')
+          .from('commissions')
           .select('source_type, commission_amount')
           .eq('status', 'paid')
           .gte('created_at', startOfMonth.toISOString());
@@ -98,19 +98,23 @@ export const useCommissionStats = () => {
         
         const { data: commissionsBySource } = await sourceQuery;
 
-        // Obtener top colaboradores (solo para admins)
-        let topCollaboratorsData = [];
+        // Obtener top colaboradores y empleados (solo para admins)
+        let topRecipientsData = [];
         if (isAdmin) {
           const { data } = await supabase
-            .from('collaborator_commissions')
+            .from('commissions')
             .select(`
               collaborator_id,
+              employee_id,
+              recipient_type,
+              recipient_name,
               commission_amount,
-              collaborators(name, collaborator_type)
+              collaborators(name, collaborator_type),
+              user_profiles(first_name, last_name)
             `)
             .eq('status', 'paid')
             .gte('created_at', startOfMonth.toISOString());
-          topCollaboratorsData = data || [];
+          topRecipientsData = data || [];
         }
 
         // Calcular estadísticas
@@ -132,25 +136,40 @@ export const useCommissionStats = () => {
           percentage: totalSourceAmount > 0 ? Math.round((amount / totalSourceAmount) * 100) : 0
         }));
 
-        // Top colaboradores (solo para admins)
+        // Top colaboradores y empleados (solo para admins)
         let topCollaborators = [];
         if (isAdmin) {
-          const collaboratorMap = new Map();
-          topCollaboratorsData.forEach(commission => {
-            const id = commission.collaborator_id;
-            const current = collaboratorMap.get(id) || { 
-              id, 
-              name: commission.collaborators?.name || 'Sin nombre',
-              type: commission.collaborators?.collaborator_type || 'referente',
+          const recipientMap = new Map();
+          topRecipientsData.forEach(commission => {
+            const id = commission.recipient_type === 'collaborator' ? commission.collaborator_id : commission.employee_id;
+            const recipientKey = `${commission.recipient_type}-${id}`;
+            
+            let name = commission.recipient_name;
+            if (!name) {
+              if (commission.recipient_type === 'collaborator') {
+                name = commission.collaborators?.name || 'Sin nombre';
+              } else {
+                const firstName = commission.user_profiles?.first_name || '';
+                const lastName = commission.user_profiles?.last_name || '';
+                name = `${firstName} ${lastName}`.trim() || 'Sin nombre';
+              }
+            }
+            
+            const current = recipientMap.get(recipientKey) || { 
+              id: recipientKey, 
+              name,
+              type: commission.recipient_type === 'collaborator' 
+                ? commission.collaborators?.collaborator_type || 'referente'
+                : 'empleado',
               amount: 0, 
               count: 0 
             };
             current.amount += Number(commission.commission_amount);
             current.count += 1;
-            collaboratorMap.set(id, current);
+            recipientMap.set(recipientKey, current);
           });
 
-          topCollaborators = Array.from(collaboratorMap.values())
+          topCollaborators = Array.from(recipientMap.values())
             .sort((a, b) => b.amount - a.amount)
             .slice(0, 5);
         }

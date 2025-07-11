@@ -269,102 +269,6 @@ export type Database = {
         }
         Relationships: []
       }
-      collaborator_commissions: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          calculation_details: Json | null
-          collaborator_id: string
-          commission_amount: number
-          commission_percentage: number | null
-          created_at: string
-          deal_id: string | null
-          id: string
-          lead_id: string | null
-          notes: string | null
-          paid_at: string | null
-          payment_due_date: string | null
-          source_name: string | null
-          source_type: string | null
-          status: Database["public"]["Enums"]["commission_status"]
-          updated_at: string
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_details?: Json | null
-          collaborator_id: string
-          commission_amount: number
-          commission_percentage?: number | null
-          created_at?: string
-          deal_id?: string | null
-          id?: string
-          lead_id?: string | null
-          notes?: string | null
-          paid_at?: string | null
-          payment_due_date?: string | null
-          source_name?: string | null
-          source_type?: string | null
-          status?: Database["public"]["Enums"]["commission_status"]
-          updated_at?: string
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          calculation_details?: Json | null
-          collaborator_id?: string
-          commission_amount?: number
-          commission_percentage?: number | null
-          created_at?: string
-          deal_id?: string | null
-          id?: string
-          lead_id?: string | null
-          notes?: string | null
-          paid_at?: string | null
-          payment_due_date?: string | null
-          source_name?: string | null
-          source_type?: string | null
-          status?: Database["public"]["Enums"]["commission_status"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collaborator_commissions_collaborator_id_fkey"
-            columns: ["collaborator_id"]
-            isOneToOne: false
-            referencedRelation: "collaborators"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collaborator_commissions_deal_id_fkey"
-            columns: ["deal_id"]
-            isOneToOne: false
-            referencedRelation: "deals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collaborator_commissions_deal_id_fkey"
-            columns: ["deal_id"]
-            isOneToOne: false
-            referencedRelation: "hubspot_deals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collaborator_commissions_deal_id_fkey"
-            columns: ["deal_id"]
-            isOneToOne: false
-            referencedRelation: "hubspot_deals_with_details"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collaborator_commissions_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       collaborators: {
         Row: {
           agreement_date: string | null
@@ -460,7 +364,7 @@ export type Database = {
             foreignKeyName: "commission_approvals_commission_id_fkey"
             columns: ["commission_id"]
             isOneToOne: false
-            referencedRelation: "collaborator_commissions"
+            referencedRelation: "commissions"
             referencedColumns: ["id"]
           },
         ]
@@ -504,7 +408,7 @@ export type Database = {
             foreignKeyName: "commission_payments_commission_id_fkey"
             columns: ["commission_id"]
             isOneToOne: false
-            referencedRelation: "collaborator_commissions"
+            referencedRelation: "commissions"
             referencedColumns: ["id"]
           },
         ]
@@ -600,6 +504,111 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      commissions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          calculation_details: Json | null
+          collaborator_id: string | null
+          commission_amount: number
+          commission_percentage: number | null
+          created_at: string
+          deal_id: string | null
+          employee_id: string | null
+          id: string
+          lead_id: string | null
+          notes: string | null
+          paid_at: string | null
+          payment_due_date: string | null
+          recipient_name: string | null
+          recipient_type: Database["public"]["Enums"]["recipient_type"]
+          source_name: string | null
+          source_type: string | null
+          status: Database["public"]["Enums"]["commission_status"]
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculation_details?: Json | null
+          collaborator_id?: string | null
+          commission_amount: number
+          commission_percentage?: number | null
+          created_at?: string
+          deal_id?: string | null
+          employee_id?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_due_date?: string | null
+          recipient_name?: string | null
+          recipient_type?: Database["public"]["Enums"]["recipient_type"]
+          source_name?: string | null
+          source_type?: string | null
+          status?: Database["public"]["Enums"]["commission_status"]
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculation_details?: Json | null
+          collaborator_id?: string | null
+          commission_amount?: number
+          commission_percentage?: number | null
+          created_at?: string
+          deal_id?: string | null
+          employee_id?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          paid_at?: string | null
+          payment_due_date?: string | null
+          recipient_name?: string | null
+          recipient_type?: Database["public"]["Enums"]["recipient_type"]
+          source_name?: string | null
+          source_type?: string | null
+          status?: Database["public"]["Enums"]["commission_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborator_commissions_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_deals_with_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_commissions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       communication_templates: {
         Row: {
@@ -5697,6 +5706,7 @@ export type Database = {
         | "discarded"
       mandate_relationship_type: "target" | "buyer" | "seller" | "advisor"
       nurturing_status: "ACTIVE" | "PAUSED" | "COMPLETED" | "FAILED"
+      recipient_type: "collaborator" | "employee"
       target_status:
         | "IDENTIFIED"
         | "RESEARCHING"
@@ -5938,6 +5948,7 @@ export const Constants = {
       ],
       mandate_relationship_type: ["target", "buyer", "seller", "advisor"],
       nurturing_status: ["ACTIVE", "PAUSED", "COMPLETED", "FAILED"],
+      recipient_type: ["collaborator", "employee"],
       target_status: [
         "IDENTIFIED",
         "RESEARCHING",

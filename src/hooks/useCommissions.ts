@@ -4,9 +4,12 @@ import { toast } from '@/hooks/use-toast';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useUserCollaborator } from '@/hooks/useUserCollaborator';
 
-interface Commission {
+export interface Commission {
   id: string;
-  collaborator_id: string;
+  collaborator_id?: string;
+  employee_id?: string;
+  recipient_type: 'collaborator' | 'employee';
+  recipient_name?: string;
   lead_id?: string;
   deal_id?: string;
   commission_amount: number;
@@ -21,9 +24,13 @@ interface Commission {
   source_type?: string;
   source_name?: string;
   payment_due_date?: string;
-  collaborators: {
+  collaborators?: {
     name: string;
     collaborator_type: string;
+  };
+  user_profiles?: {
+    first_name?: string;
+    last_name?: string;
   };
 }
 
@@ -39,7 +46,7 @@ export const useCommissions = () => {
       setLoading(true);
       
       let query = supabase
-        .from('collaborator_commissions')
+        .from('commissions')
         .select(`
           *,
           collaborators(name, collaborator_type)
@@ -72,7 +79,7 @@ export const useCommissions = () => {
   const approveCommissions = async (commissionIds: string[]) => {
     try {
       const { error } = await supabase
-        .from('collaborator_commissions')
+        .from('commissions')
         .update({
           status: 'paid',
           approved_at: new Date().toISOString(),
@@ -109,7 +116,7 @@ export const useCommissions = () => {
       }
 
       const { error } = await supabase
-        .from('collaborator_commissions')
+        .from('commissions')
         .update(updates)
         .eq('id', commissionId);
 
@@ -132,7 +139,10 @@ export const useCommissions = () => {
   };
 
   const createCommission = async (commissionData: {
-    collaborator_id: string;
+    collaborator_id?: string;
+    employee_id?: string;
+    recipient_type: 'collaborator' | 'employee';
+    recipient_name?: string;
     commission_amount: number;
     commission_percentage?: number;
     source_type: string;
@@ -143,7 +153,7 @@ export const useCommissions = () => {
   }) => {
     try {
       const { error } = await supabase
-        .from('collaborator_commissions')
+        .from('commissions')
         .insert({
           ...commissionData,
           status: 'pending'

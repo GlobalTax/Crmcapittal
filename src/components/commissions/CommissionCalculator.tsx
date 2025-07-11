@@ -15,13 +15,17 @@ import { Separator } from '@/components/ui/separator';
 import { Calculator, DollarSign, Percent, Plus } from 'lucide-react';
 import { useCollaborators } from '@/hooks/useCollaborators';
 import { useCommissions } from '@/hooks/useCommissions';
+import { useEmployees } from '@/hooks/useEmployees';
 
 export const CommissionCalculator = () => {
   const { collaborators } = useCollaborators();
+  const { employees } = useEmployees();
   const { createCommission } = useCommissions();
   
   const [calculatorData, setCalculatorData] = useState({
+    recipient_type: 'collaborator' as 'collaborator' | 'employee',
     collaborator_id: '',
+    employee_id: '',
     source_type: 'deal',
     source_name: '',
     base_amount: '',
@@ -44,12 +48,29 @@ export const CommissionCalculator = () => {
   };
 
   const handleCreateCommission = async () => {
-    if (!calculatorData.collaborator_id || calculatedAmount <= 0) {
+    const hasValidRecipient = calculatorData.recipient_type === 'collaborator' 
+      ? calculatorData.collaborator_id 
+      : calculatorData.employee_id;
+      
+    if (!hasValidRecipient || calculatedAmount <= 0) {
       return;
     }
 
+    // Get recipient name
+    let recipientName = '';
+    if (calculatorData.recipient_type === 'collaborator') {
+      const collaborator = collaborators?.find(c => c.id === calculatorData.collaborator_id);
+      recipientName = collaborator?.name || '';
+    } else {
+      const employee = employees?.find(e => e.id === calculatorData.employee_id);
+      recipientName = `${employee?.first_name || ''} ${employee?.last_name || ''}`.trim();
+    }
+
     await createCommission({
-      collaborator_id: calculatorData.collaborator_id,
+      recipient_type: calculatorData.recipient_type,
+      collaborator_id: calculatorData.recipient_type === 'collaborator' ? calculatorData.collaborator_id : undefined,
+      employee_id: calculatorData.recipient_type === 'employee' ? calculatorData.employee_id : undefined,
+      recipient_name: recipientName,
       commission_amount: calculatedAmount,
       commission_percentage: Number(calculatorData.commission_percentage) || undefined,
       source_type: calculatorData.source_type,
@@ -59,7 +80,9 @@ export const CommissionCalculator = () => {
 
     // Reset form
     setCalculatorData({
+      recipient_type: 'collaborator',
       collaborator_id: '',
+      employee_id: '',
       source_type: 'deal',
       source_name: '',
       base_amount: '',
@@ -89,22 +112,57 @@ export const CommissionCalculator = () => {
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="collaborator">Colaborador</Label>
+              <Label htmlFor="recipient_type">Tipo de Destinatario</Label>
               <Select
-                value={calculatorData.collaborator_id}
-                onValueChange={(value) => 
-                  setCalculatorData(prev => ({ ...prev, collaborator_id: value }))
+                value={calculatorData.recipient_type}
+                onValueChange={(value: 'collaborator' | 'employee') => 
+                  setCalculatorData(prev => ({ 
+                    ...prev, 
+                    recipient_type: value,
+                    collaborator_id: '',
+                    employee_id: ''
+                  }))
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar colaborador" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {collaborators?.map((collaborator) => (
-                    <SelectItem key={collaborator.id} value={collaborator.id}>
-                      {collaborator.name} - {collaborator.collaborator_type}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="collaborator">Colaborador</SelectItem>
+                  <SelectItem value="employee">Empleado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="recipient">
+                {calculatorData.recipient_type === 'collaborator' ? 'Colaborador' : 'Empleado'}
+              </Label>
+              <Select
+                value={calculatorData.recipient_type === 'collaborator' ? calculatorData.collaborator_id : calculatorData.employee_id}
+                onValueChange={(value) => 
+                  setCalculatorData(prev => ({ 
+                    ...prev, 
+                    [calculatorData.recipient_type === 'collaborator' ? 'collaborator_id' : 'employee_id']: value 
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={`Seleccionar ${calculatorData.recipient_type === 'collaborator' ? 'colaborador' : 'empleado'}`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {calculatorData.recipient_type === 'collaborator' 
+                    ? collaborators?.map((collaborator) => (
+                        <SelectItem key={collaborator.id} value={collaborator.id}>
+                          {collaborator.name} - {collaborator.collaborator_type}
+                        </SelectItem>
+                      ))
+                    : employees?.map((employee) => (
+                        <SelectItem key={employee.id} value={employee.id}>
+                          {employee.first_name} {employee.last_name}
+                        </SelectItem>
+                      ))
+                  }
                 </SelectContent>
               </Select>
             </div>
@@ -262,7 +320,11 @@ export const CommissionCalculator = () => {
 
           <Button 
             onClick={handleCreateCommission}
-            disabled={!calculatorData.collaborator_id || calculatedAmount <= 0}
+            disabled={
+              (calculatorData.recipient_type === 'collaborator' && !calculatorData.collaborator_id) ||
+              (calculatorData.recipient_type === 'employee' && !calculatorData.employee_id) ||
+              calculatedAmount <= 0
+            }
             className="w-full"
           >
             <Plus className="h-4 w-4 mr-2" />

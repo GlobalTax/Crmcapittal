@@ -39,14 +39,20 @@ export const CommissionsTable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [recipientFilter, setRecipientFilter] = useState('all');
 
   const filteredCommissions = commissions?.filter(commission => {
-    const matchesSearch = commission.collaborators?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const recipientName = commission.recipient_name || 
+      (commission.recipient_type === 'collaborator' ? commission.collaborators?.name : 
+       (commission.user_profiles ? `${commission.user_profiles.first_name || ''} ${commission.user_profiles.last_name || ''}`.trim() : ''));
+    
+    const matchesSearch = recipientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          commission.source_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || commission.status === statusFilter;
     const matchesSource = sourceFilter === 'all' || commission.source_type === sourceFilter;
+    const matchesRecipient = recipientFilter === 'all' || commission.recipient_type === recipientFilter;
     
-    return matchesSearch && matchesStatus && matchesSource;
+    return matchesSearch && matchesStatus && matchesSource && matchesRecipient;
   });
 
   const handleSelectAll = (checked: boolean) => {
@@ -118,7 +124,7 @@ export const CommissionsTable = () => {
           <div>
             <CardTitle>Gestión de Comisiones</CardTitle>
             <CardDescription>
-              Administra y aprueba comisiones de colaboradores
+              Administra y aprueba comisiones de colaboradores y empleados
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
@@ -141,7 +147,7 @@ export const CommissionsTable = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por colaborador o fuente..."
+              placeholder="Buscar por destinatario o fuente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -170,6 +176,16 @@ export const CommissionsTable = () => {
               <SelectItem value="transaction">Transacción</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={recipientFilter} onValueChange={setRecipientFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los tipos</SelectItem>
+              <SelectItem value="collaborator">Colaboradores</SelectItem>
+              <SelectItem value="employee">Empleados</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Tabla */}
@@ -186,7 +202,7 @@ export const CommissionsTable = () => {
                     onCheckedChange={handleSelectAll}
                   />
                 </TableHead>
-                <TableHead>Colaborador</TableHead>
+                <TableHead>Destinatario</TableHead>
                 <TableHead>Fuente</TableHead>
                 <TableHead>Monto</TableHead>
                 <TableHead>Estado</TableHead>
@@ -208,9 +224,18 @@ export const CommissionsTable = () => {
                   </TableCell>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{commission.collaborators?.name}</p>
+                      <p className="font-medium">
+                        {commission.recipient_name || 
+                         (commission.recipient_type === 'collaborator' 
+                           ? commission.collaborators?.name 
+                           : commission.user_profiles 
+                             ? `${commission.user_profiles.first_name || ''} ${commission.user_profiles.last_name || ''}`.trim()
+                             : 'Sin nombre')}
+                      </p>
                       <p className="text-sm text-muted-foreground capitalize">
-                        {commission.collaborators?.collaborator_type}
+                        {commission.recipient_type === 'collaborator' 
+                          ? commission.collaborators?.collaborator_type || 'colaborador'
+                          : 'empleado'}
                       </p>
                     </div>
                   </TableCell>
