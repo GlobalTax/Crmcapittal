@@ -1,8 +1,8 @@
 
-import { LeadControlCenter } from "@/components/leads/LeadControlCenter";
+import { SimpleLeadManagement } from "@/components/leads/SimpleLeadManagement";
 
 const Leads = () => {
-  return <LeadControlCenter />;
+  return <SimpleLeadManagement />;
 };
 
 export default Leads;

@@ -17,6 +17,9 @@ import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import LeadDetail from '@/components/captacion/LeadDetail';
 
+// Import the new lead detail page
+const LeadDetailPage = lazy(() => import('@/pages/LeadDetailPage'));
+
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
@@ -104,6 +107,14 @@ export const AppRoutes = () => {
           
           {/* Gestión de Leads route */}
           <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
+          <Route 
+            path="/gestion-leads/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadDetailPage />
+              </Suspense>
+            } 
+          />
 
           {/* Empresas y Contactos (Spanish routes) */}
           <Route path="/empresas" element={<CompanyList />} />

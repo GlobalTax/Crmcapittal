@@ -26,6 +26,8 @@ import { CreateLeadData, LeadSource, LeadOrigin } from "@/types/Lead";
 interface CreateLeadDialogProps {
   onCreateLead: (data: CreateLeadData) => void;
   isCreating?: boolean;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 const leadSources = [
@@ -37,8 +39,12 @@ const leadSources = [
   { value: 'other', label: 'Otro' }
 ] as const;
 
-export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogProps) => {
+export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: CreateLeadDialogProps) => {
   const [open, setOpen] = useState(false);
+  
+  // Use external state if provided
+  const dialogOpen = isOpen !== undefined ? isOpen : open;
+  const setDialogOpen = onClose !== undefined ? (open: boolean) => !open && onClose() : setOpen;
   const [formData, setFormData] = useState<CreateLeadData>({
     name: '',
     email: '',
@@ -58,6 +64,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogP
     };
     
     onCreateLead(leadDataWithOrigin);
+    setDialogOpen(false);
     setFormData({
       name: '',
       email: '',
@@ -66,7 +73,6 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogP
       message: '',
       source: 'other' as LeadSource
     });
-    setOpen(false);
   };
 
   const handleInputChange = (field: keyof CreateLeadData, value: string) => {
@@ -74,13 +80,15 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogP
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Nuevo Lead
-        </Button>
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {!isOpen && (
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Lead
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Crear Nuevo Lead</DialogTitle>
@@ -151,7 +159,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating }: CreateLeadDialogP
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isCreating}>
