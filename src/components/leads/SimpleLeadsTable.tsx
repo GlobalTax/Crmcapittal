@@ -10,9 +10,11 @@ import { Search, Plus, Phone, Mail, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CreateLeadDialog } from "./CreateLeadDialog";
 import { InlineEditCell } from "@/components/contacts/InlineEditCell";
+import { CompanySelector } from "./CompanySelector";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
+import { Company } from "@/types/Company";
 
 export const SimpleLeadsTable = () => {
   const navigate = useNavigate();
@@ -80,6 +82,21 @@ export const SimpleLeadsTable = () => {
     } catch (error) {
       console.error('Error updating lead:', error);
       toast.error('Error al actualizar el lead');
+    }
+  };
+
+  const handleCompanySelect = async (leadId: string, company: Company | null) => {
+    try {
+      await updateLead({ 
+        id: leadId, 
+        updates: { 
+          company_id: company?.id || null,
+          company_name: company?.name || null
+        } as any 
+      });
+    } catch (error) {
+      console.error('Error updating lead company:', error);
+      toast.error('Error al actualizar la empresa del lead');
     }
   };
 
@@ -237,11 +254,7 @@ export const SimpleLeadsTable = () => {
               filteredLeads.map((lead) => (
                 <TableRow key={lead.id} className="hover:bg-gray-50">
                   <TableCell>
-                    <InlineEditCell
-                      value={lead.name}
-                      type="text"
-                      onSave={(value) => handleUpdate(lead.id, 'name', value)}
-                    />
+                    <span className="font-medium">{lead.name}</span>
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
@@ -258,10 +271,10 @@ export const SimpleLeadsTable = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <InlineEditCell
-                      value={lead.company_name || ''}
-                      type="text"
-                      onSave={(value) => handleUpdate(lead.id, 'company_name', value || null)}
+                    <CompanySelector
+                      value={lead.company_id}
+                      companyName={lead.company_name}
+                      onSelect={(company) => handleCompanySelect(lead.id, company)}
                     />
                   </TableCell>
                   <TableCell>

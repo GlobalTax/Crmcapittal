@@ -15,6 +15,7 @@ export interface Lead {
   email: string;
   phone?: string;
   company_name?: string;
+  company_id?: string;
   job_title?: string;
   message?: string;
   source: LeadSource;
@@ -81,6 +82,7 @@ export interface CreateLeadData {
   email: string;
   phone?: string;
   company_name?: string;
+  company_id?: string;
   job_title?: string;
   message?: string;
   source: LeadSource;
@@ -97,6 +99,7 @@ export interface UpdateLeadData {
   email?: string;
   phone?: string;
   company_name?: string;
+  company_id?: string;
   job_title?: string;
   message?: string;
   source?: LeadSource;

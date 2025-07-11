@@ -2246,6 +2246,7 @@ export type Database = {
         Row: {
           assigned_to_id: string | null
           collaborator_id: string | null
+          company_id: string | null
           company_name: string | null
           conversion_date: string | null
           converted_to_mandate_id: string | null
@@ -2271,6 +2272,7 @@ export type Database = {
         Insert: {
           assigned_to_id?: string | null
           collaborator_id?: string | null
+          company_id?: string | null
           company_name?: string | null
           conversion_date?: string | null
           converted_to_mandate_id?: string | null
@@ -2296,6 +2298,7 @@ export type Database = {
         Update: {
           assigned_to_id?: string | null
           collaborator_id?: string | null
+          company_id?: string | null
           company_name?: string | null
           conversion_date?: string | null
           converted_to_mandate_id?: string | null
@@ -2324,6 +2327,13 @@ export type Database = {
             columns: ["collaborator_id"]
             isOneToOne: false
             referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
