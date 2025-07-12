@@ -1,94 +1,87 @@
-import React, { useState } from 'react';
-import { useUserRole } from '@/hooks/useUserRole';
-import { useUserCollaborator } from '@/hooks/useUserCollaborator';
-import { Navigate } from 'react-router-dom';
-import { PageHeader } from '@/components/ui/page-header';
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  BarChart3, 
+  Settings, 
+  Target, 
+  Calculator, 
+  FileText, 
+  Table,
+  TrendingUp,
+  Zap
+} from 'lucide-react';
 import { CommissionsDashboard } from '@/components/commissions/CommissionsDashboard';
-import { CommissionsTable } from '@/components/commissions/CommissionsTable';
+import { EnhancedExecutiveDashboard } from '@/components/commissions/EnhancedExecutiveDashboard';
+import { AdvancedCommissionRules } from '@/components/commissions/AdvancedCommissionRules';
 import { CommissionCalculator } from '@/components/commissions/CommissionCalculator';
+import { CommissionsTable } from '@/components/commissions/CommissionsTable';
 import { CommissionSettings } from '@/components/commissions/CommissionSettings';
 import { CommissionReports } from '@/components/commissions/CommissionReports';
-import { CommissionNotifications } from '@/components/commissions/CommissionNotifications';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Calculator, Settings, List, BarChart3 } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
 
-const CommissionsPage = () => {
-  const { role, loading: roleLoading } = useUserRole();
-  const { collaborator, loading: collaboratorLoading, isCollaborator } = useUserCollaborator();
-
-  const loading = roleLoading || collaboratorLoading;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  // Allow access for superadmins, admins, and users with collaborator profiles
-  const hasAccess = role === 'superadmin' || role === 'admin' || isCollaborator;
-  
-  if (!hasAccess) {
-    return <Navigate to="/" replace />;
-  }
-
+export default function CommissionsPage() {
+  const { role } = useUserRole();
   const isAdmin = role === 'admin' || role === 'superadmin';
-  const pageTitle = isAdmin ? "Sistema de Comisiones" : "Mis Comisiones";
-  const pageDescription = isAdmin 
-    ? "Gestión completa de comisiones para colaboradores"
-    : `Consulta tus comisiones ${collaborator?.name ? `como ${collaborator.name}` : ''}`;
-  
-  // Define which tabs are available based on role
-  const availableTabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: DollarSign },
-    { id: 'commissions', label: 'Comisiones', icon: List },
-    { id: 'calculator', label: 'Calculadora', icon: Calculator },
-    { id: 'reports', label: 'Reportes', icon: BarChart3 },
-    ...(isAdmin ? [{ id: 'settings', label: 'Configuración', icon: Settings }] : [])
-  ];
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={pageTitle}
-        description={pageDescription}
-      />
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Sistema de Comisiones</h1>
+            <p className="text-muted-foreground">
+              Gestión avanzada con reglas personalizadas y análisis ejecutivo
+            </p>
+          </div>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Zap className="h-3 w-3" />
+            Sistema Avanzado
+          </Badge>
+        </div>
+      </div>
 
       <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className={`grid w-full grid-cols-${availableTabs.length}`}>
-          {availableTabs.map((tab) => (
-            <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </TabsTrigger>
-          ))}
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          {isAdmin && <TabsTrigger value="executive">Ejecutivo</TabsTrigger>}
+          {isAdmin && <TabsTrigger value="rules">Reglas</TabsTrigger>}
+          <TabsTrigger value="calculator">Calculadora</TabsTrigger>
+          <TabsTrigger value="table">Comisiones</TabsTrigger>
+          {isAdmin && <TabsTrigger value="settings">Configuración</TabsTrigger>}
         </TabsList>
 
-        <TabsContent value="dashboard" className="space-y-6">
+        <TabsContent value="dashboard">
           <CommissionsDashboard />
         </TabsContent>
 
-        <TabsContent value="commissions" className="space-y-6">
-          <CommissionsTable />
-        </TabsContent>
+        {isAdmin && (
+          <TabsContent value="executive">
+            <EnhancedExecutiveDashboard />
+          </TabsContent>
+        )}
 
-        <TabsContent value="calculator" className="space-y-6">
+        {isAdmin && (
+          <TabsContent value="rules">
+            <AdvancedCommissionRules />
+          </TabsContent>
+        )}
+
+        <TabsContent value="calculator">
           <CommissionCalculator />
         </TabsContent>
 
-        <TabsContent value="reports" className="space-y-6">
-          <CommissionReports />
+        <TabsContent value="table">
+          <CommissionsTable />
         </TabsContent>
 
         {isAdmin && (
-          <TabsContent value="settings" className="space-y-6">
+          <TabsContent value="settings">
             <CommissionSettings />
           </TabsContent>
         )}
       </Tabs>
     </div>
   );
-};
-
-export default CommissionsPage;
+}
