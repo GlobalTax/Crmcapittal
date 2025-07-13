@@ -15,11 +15,10 @@ import CompanyDetail from '@/components/empresas/CompanyDetail';
 import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
-import LeadDetail from '@/components/captacion/LeadDetail';
 import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
 
-// Import the new lead detail page
-const LeadDetailPage = lazy(() => import('@/pages/LeadDetailPage'));
+// Import the unified lead page
+const LeadPage = lazy(() => import('@/pages/LeadPage'));
 
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
@@ -105,7 +104,14 @@ export const AppRoutes = () => {
 
           {/* Captación (Spanish routes) */}
           <Route path="/captacion" element={<LeadsEntryPanel />} />
-          <Route path="/captacion/:id" element={<LeadDetail />} />
+          <Route 
+            path="/captacion/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadPage />
+              </Suspense>
+            } 
+          />
           
           {/* Gestión de Leads route */}
           <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
@@ -113,7 +119,18 @@ export const AppRoutes = () => {
             path="/gestion-leads/:id" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <LeadDetailPage />
+                <LeadPage />
+              </Suspense>
+            } 
+          />
+
+          {/* Unified leads route */}
+          <Route path="/leads" element={<LeadsEntryPanel />} />
+          <Route 
+            path="/leads/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadPage />
               </Suspense>
             } 
           />
@@ -131,8 +148,6 @@ export const AppRoutes = () => {
           {/* Redirects from old English routes to new Spanish routes */}
           <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
           <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos" replace />} />
-          <Route path="/leads" element={<Navigate to="/captacion" replace />} />
-          <Route path="/leads/:id" element={<Navigate to="/captacion" replace />} />
           <Route path="/companies" element={<Navigate to="/empresas" replace />} />
           <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
           <Route path="/contacts" element={<Navigate to="/contactos" replace />} />

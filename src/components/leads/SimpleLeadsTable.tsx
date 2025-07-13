@@ -153,7 +153,7 @@ export const SimpleLeadsTable = () => {
   };
 
   const handleViewLead = (leadId: string) => {
-    navigate(`/gestion-leads/${leadId}`);
+    navigate(`/leads/${leadId}`);
   };
 
   const handleCall = (phone: string) => {
