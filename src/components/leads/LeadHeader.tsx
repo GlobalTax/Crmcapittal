@@ -64,12 +64,12 @@ export const LeadHeader = ({
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
               <AvatarFallback className="bg-muted text-sm">
-                {getInitials(lead.name)}
+                {getInitials(lead.name || lead.email)}
               </AvatarFallback>
             </Avatar>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-semibold">{lead.name}</h1>
+                <h1 className="text-xl font-semibold">{lead.name || lead.email}</h1>
                 <LeadStatusBadge status={lead.status} />
               </div>
               {lead.company_name && (

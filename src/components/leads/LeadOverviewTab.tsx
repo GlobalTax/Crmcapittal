@@ -1,62 +1,41 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { Lead } from '@/types/Lead';
 import { LeadStatusBadge } from './LeadStatusBadge';
-import { Mail, Phone, Building2, Calendar, Target, TrendingUp, Clock, Star, Activity, Users } from 'lucide-react';
+import { 
+  Mail, 
+  Phone, 
+  Building2, 
+  Calendar, 
+  Clock, 
+  MessageSquare, 
+  User, 
+  ArrowRight,
+  Plus,
+  Edit,
+  Activity
+} from 'lucide-react';
 
 interface LeadOverviewTabProps {
   lead: Lead;
 }
 
 export const LeadOverviewTab = ({ lead }: LeadOverviewTabProps) => {
-  const getLeadScoreColor = (score: number) => {
-    if (score >= 80) return 'hsl(158, 100%, 38%)';
-    if (score >= 60) return 'hsl(42, 100%, 50%)';
-    if (score >= 40) return 'hsl(30, 100%, 50%)';
-    return 'hsl(4, 86%, 63%)';
-  };
-  
-  const getLeadScoreDescription = (score: number) => {
-    if (score >= 80) return 'Excelente - Lead altamente calificado';
-    if (score >= 60) return 'Bueno - Lead bien calificado';
-    if (score >= 40) return 'Regular - Requiere nurturing';
-    return 'Bajo - Necesita atención urgente';
-  };
-
-  const getPriorityColor = (priority?: string) => {
-    switch (priority) {
-      case 'HIGH': case 'URGENT': return 'hsl(4, 86%, 63%)';
-      case 'MEDIUM': return 'hsl(42, 100%, 50%)';
-      case 'LOW': return 'hsl(158, 100%, 38%)';
-      default: return 'hsl(213, 94%, 68%)';
-    }
-  };
-
-  const getQualityScore = (quality?: string) => {
-    switch (quality) {
-      case 'EXCELLENT': return 90;
-      case 'GOOD': return 75;
-      case 'FAIR': return 50;
-      case 'POOR': return 25;
-      default: return 0;
-    }
-  };
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric'
     });
   };
 
-  const formatDateWithTime = (dateString?: string) => {
+  const formatDateTime = (dateString?: string) => {
     if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
-      month: 'short',
+      month: 'short', 
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -69,209 +48,291 @@ export const LeadOverviewTab = ({ lead }: LeadOverviewTabProps) => {
     return days;
   };
 
+  const getLeadScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    if (score >= 40) return 'text-orange-600';
+    return 'text-red-600';
+  };
+
+  const lastContactDays = getDaysAgo(lead.last_contact_date);
+  const nextFollowUpDays = lead.next_follow_up_date ? 
+    Math.ceil((new Date(lead.next_follow_up_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
+
   return (
     <div className="space-y-6">
-      {/* Contact Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Mail className="h-5 w-5" />
-            Contact Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Email</label>
-              <p className="text-sm mt-1">{lead.email}</p>
+      {/* Lead Header Info */}
+      <div className="space-y-4">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold">{lead.name || lead.email}</h1>
+            <div className="flex items-center gap-4 text-muted-foreground">
+              {lead.email && (
+                <div className="flex items-center gap-1">
+                  <Mail className="h-4 w-4" />
+                  <span className="text-sm">{lead.email}</span>
+                </div>
+              )}
+              {lead.phone && (
+                <div className="flex items-center gap-1">
+                  <Phone className="h-4 w-4" />
+                  <span className="text-sm">{lead.phone}</span>
+                </div>
+              )}
+              {lead.company_name && (
+                <div className="flex items-center gap-1">
+                  <Building2 className="h-4 w-4" />
+                  <span className="text-sm">{lead.company_name}</span>
+                </div>
+              )}
             </div>
-            {lead.phone && (
+          </div>
+          <div className="flex items-center gap-2">
+            <LeadStatusBadge status={lead.status} />
+            <span className={`text-sm font-medium ${getLeadScoreColor(lead.lead_score)}`}>
+              Score: {lead.lead_score}/100
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Next Activity Section */}
+      <Card className="border-l-4 border-l-primary bg-blue-50/50">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Calendar className="h-5 w-5 text-primary" />
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Phone</label>
-                <p className="text-sm mt-1">{lead.phone}</p>
+                <h3 className="font-medium">Next Follow-up</h3>
+                <p className="text-sm text-muted-foreground">
+                  {lead.next_follow_up_date ? (
+                    <>
+                      {formatDate(lead.next_follow_up_date)}
+                      {nextFollowUpDays !== null && (
+                        <span className={`ml-2 ${nextFollowUpDays < 0 ? 'text-red-600' : nextFollowUpDays <= 2 ? 'text-orange-600' : 'text-green-600'}`}>
+                          ({nextFollowUpDays < 0 ? `${Math.abs(nextFollowUpDays)} days overdue` : 
+                            nextFollowUpDays === 0 ? 'Today' : 
+                            `in ${nextFollowUpDays} days`})
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    'No follow-up scheduled'
+                  )}
+                </p>
               </div>
-            )}
-            {lead.company_name && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Company</label>
-                <p className="text-sm mt-1">{lead.company_name}</p>
-              </div>
-            )}
-            {lead.job_title && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Job Title</label>
-                <p className="text-sm mt-1">{lead.job_title}</p>
-              </div>
-            )}
+            </div>
+            <Button size="sm" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Schedule Activity
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Lead Status & Scoring */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Communications */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Recent Communications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {lead.last_contact_date ? (
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <div>
+                    <p className="text-sm font-medium">Last Contact</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDateTime(lead.last_contact_date)}
+                      {lastContactDays !== null && (
+                        <span className="ml-2">
+                          ({lastContactDays === 0 ? 'Today' : `${lastContactDays} days ago`})
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-6 text-muted-foreground">
+                <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No communications yet</p>
+              </div>
+            )}
+            
+            <Button variant="outline" size="sm" className="w-full">
+              <Plus className="h-4 w-4 mr-2" />
+              Log Communication
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Lead Details */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Lead Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Owner</label>
+                <p className="text-sm mt-1">{lead.assigned_to?.first_name && lead.assigned_to?.last_name ? `${lead.assigned_to.first_name} ${lead.assigned_to.last_name}` : 'Unassigned'}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Priority</label>
+                <p className="text-sm mt-1">{lead.priority || 'Medium'}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Source</label>
+                <p className="text-sm mt-1 capitalize">{lead.source?.replace('_', ' ') || 'Unknown'}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quality</label>
+                <p className="text-sm mt-1">{lead.quality || 'Not rated'}</p>
+              </div>
+              {lead.job_title && (
+                <div className="col-span-2">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Position</label>
+                  <p className="text-sm mt-1">{lead.job_title}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Activity Timeline */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Target className="h-5 w-5" />
-            Lead Status & Scoring
+            <Activity className="h-5 w-5" />
+            Activity Timeline
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Status</label>
-              <div className="mt-1">
-                <LeadStatusBadge status={lead.status} />
-              </div>
-            </div>
-            {lead.priority && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Priority</label>
-                <div className="mt-1">
-                  <Badge variant="outline">{lead.priority}</Badge>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Lead Creation */}
+            <div className="flex items-start gap-3">
+              <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">Lead Created</p>
+                    <p className="text-xs text-muted-foreground">{formatDateTime(lead.created_at)}</p>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {getDaysAgo(lead.created_at) === 0 ? 'Today' : `${getDaysAgo(lead.created_at)} days ago`}
+                  </Badge>
                 </div>
               </div>
-            )}
-            {lead.quality && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Quality</label>
-                <div className="mt-1">
-                  <Badge variant="outline">{lead.quality}</Badge>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Lead Score */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-muted-foreground">Lead Score</label>
-              <span className="text-sm font-medium" style={{ color: getLeadScoreColor(lead.lead_score) }}>
-                {lead.lead_score}/100
-              </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="h-2 rounded-full transition-all duration-300"
-                style={{ 
-                  width: `${lead.lead_score}%`,
-                  backgroundColor: getLeadScoreColor(lead.lead_score)
-                }}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Source & Attribution */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Source & Attribution
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Source</label>
-              <p className="text-sm mt-1 capitalize">{lead.source.replace('_', ' ')}</p>
-            </div>
-            {lead.form_data?.utm_source && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">UTM Source</label>
-                <p className="text-sm mt-1">{lead.form_data.utm_source}</p>
-              </div>
-            )}
-            {lead.form_data?.utm_campaign && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Campaign</label>
-                <p className="text-sm mt-1">{lead.form_data.utm_campaign}</p>
-              </div>
-            )}
-            {lead.form_data?.landing_page && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Landing Page</label>
-                <p className="text-sm mt-1">{lead.form_data.landing_page}</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Timeline */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Timeline
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Created</label>
-              <p className="text-sm mt-1">{formatDate(lead.created_at)}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Last Updated</label>
-              <p className="text-sm mt-1">{formatDate(lead.updated_at)}</p>
-            </div>
+            {/* First Contact */}
             {lead.first_contact_date && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">First Contact</label>
-                <p className="text-sm mt-1">{formatDate(lead.first_contact_date)}</p>
+              <div className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full bg-green-500 mt-2"></div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">First Contact</p>
+                      <p className="text-xs text-muted-foreground">{formatDateTime(lead.first_contact_date)}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {getDaysAgo(lead.first_contact_date) === 0 ? 'Today' : `${getDaysAgo(lead.first_contact_date)} days ago`}
+                    </Badge>
+                  </div>
+                </div>
               </div>
             )}
-            {lead.last_contact_date && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Last Contact</label>
-                <p className="text-sm mt-1">{formatDate(lead.last_contact_date)}</p>
+
+            {/* Last Contact */}
+            {lead.last_contact_date && lead.last_contact_date !== lead.first_contact_date && (
+              <div className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full bg-orange-500 mt-2"></div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Last Contact</p>
+                      <p className="text-xs text-muted-foreground">{formatDateTime(lead.last_contact_date)}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {getDaysAgo(lead.last_contact_date) === 0 ? 'Today' : `${getDaysAgo(lead.last_contact_date)} days ago`}
+                    </Badge>
+                  </div>
+                </div>
               </div>
             )}
-            {lead.next_follow_up_date && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Next Follow-up</label>
-                <p className="text-sm mt-1">{formatDate(lead.next_follow_up_date)}</p>
-              </div>
-            )}
+
+            {/* Conversion */}
             {lead.conversion_date && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Conversion Date</label>
-                <p className="text-sm mt-1">{formatDate(lead.conversion_date)}</p>
+              <div className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full bg-purple-500 mt-2"></div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium">Lead Converted</p>
+                      <p className="text-xs text-muted-foreground">{formatDateTime(lead.conversion_date)}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {getDaysAgo(lead.conversion_date) === 0 ? 'Today' : `${getDaysAgo(lead.conversion_date)} days ago`}
+                    </Badge>
+                  </div>
+                </div>
               </div>
             )}
           </div>
+
+          {!lead.first_contact_date && !lead.last_contact_date && !lead.conversion_date && (
+            <div className="text-center py-6 text-muted-foreground">
+              <Clock className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No recent activity</p>
+              <Button variant="outline" size="sm" className="mt-3">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Activity
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Engagement Stats */}
       {(lead.email_opens || lead.email_clicks || lead.website_visits || lead.content_downloads) && (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg">Engagement Statistics</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {lead.email_opens && (
-                <div className="text-center">
+                <div className="text-center p-3 rounded-lg bg-muted/50">
                   <p className="text-2xl font-bold text-primary">{lead.email_opens}</p>
                   <p className="text-sm text-muted-foreground">Email Opens</p>
                 </div>
               )}
               {lead.email_clicks && (
-                <div className="text-center">
+                <div className="text-center p-3 rounded-lg bg-muted/50">
                   <p className="text-2xl font-bold text-primary">{lead.email_clicks}</p>
                   <p className="text-sm text-muted-foreground">Email Clicks</p>
                 </div>
               )}
               {lead.website_visits && (
-                <div className="text-center">
+                <div className="text-center p-3 rounded-lg bg-muted/50">
                   <p className="text-2xl font-bold text-primary">{lead.website_visits}</p>
                   <p className="text-sm text-muted-foreground">Website Visits</p>
                 </div>
               )}
               {lead.content_downloads && (
-                <div className="text-center">
+                <div className="text-center p-3 rounded-lg bg-muted/50">
                   <p className="text-2xl font-bold text-primary">{lead.content_downloads}</p>
                   <p className="text-sm text-muted-foreground">Downloads</p>
                 </div>
@@ -281,14 +342,16 @@ export const LeadOverviewTab = ({ lead }: LeadOverviewTabProps) => {
         </Card>
       )}
 
-      {/* Message */}
+      {/* Initial Message */}
       {lead.message && (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg">Initial Message</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm whitespace-pre-wrap">{lead.message}</p>
+            <div className="p-4 rounded-lg bg-muted/50 border-l-4 border-l-primary">
+              <p className="text-sm whitespace-pre-wrap italic">{lead.message}</p>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -296,7 +359,7 @@ export const LeadOverviewTab = ({ lead }: LeadOverviewTabProps) => {
       {/* Tags */}
       {lead.tags && lead.tags.length > 0 && (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="text-lg">Tags</CardTitle>
           </CardHeader>
           <CardContent>
