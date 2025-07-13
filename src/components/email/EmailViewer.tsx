@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import './email-styles.css';
+import DOMPurify from 'dompurify';
 
 interface EmailViewerProps {
   email: TrackedEmail | null;
@@ -79,9 +80,9 @@ export const EmailViewer: React.FC<EmailViewerProps> = ({
     // Si es HTML, renderizar como HTML
     if (email.content.includes('<')) {
       return (
-        <div 
+        <div
           className="email-content prose prose-sm max-w-none"
-          dangerouslySetInnerHTML={{ __html: email.content }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.content) }}
         />
       );
     }
