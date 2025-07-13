@@ -1,194 +1,240 @@
-import { useMemo } from 'react';
-import { Lead, LeadStatus } from '@/types/Lead';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface LeadAnalytics {
   totalLeads: number;
+  qualifiedLeads: number;
   conversionRate: number;
-  averageLeadScore: number;
-  topSources: Array<{ source: string; count: number; percentage: number }>;
-  statusDistribution: Array<{ status: LeadStatus; count: number; percentage: number }>;
-  monthlyTrends: Array<{ month: string; count: number; converted: number }>;
-  engagementMetrics: {
-    totalEmailOpens: number;
-    totalEmailClicks: number;
-    totalWebsiteVisits: number;
-    averageEngagement: number;
-  };
-  qualityDistribution: Array<{ quality: string; count: number; percentage: number }>;
-  priorityDistribution: Array<{ priority: string; count: number; percentage: number }>;
+  averageScore: number;
+  averageEngagement: number;
+  leadsBySource: Record<string, number>;
+  leadsByStatus: Record<string, number>;
+  scoreDistribution: { range: string; count: number }[];
+  recentTrends: {
+    period: string;
+    newLeads: number;
+    qualified: number;
+    converted: number;
+  }[];
 }
 
-export const useLeadAnalytics = (leads: Lead[]): LeadAnalytics => {
-  return useMemo(() => {
-    const totalLeads = leads.length;
-    
-    if (totalLeads === 0) {
-      return {
-        totalLeads: 0,
-        conversionRate: 0,
-        averageLeadScore: 0,
-        topSources: [],
-        statusDistribution: [],
-        monthlyTrends: [],
-        engagementMetrics: {
-          totalEmailOpens: 0,
-          totalEmailClicks: 0,
-          totalWebsiteVisits: 0,
-          averageEngagement: 0,
-        },
-        qualityDistribution: [],
-        priorityDistribution: [],
-      };
-    }
+export interface LeadSegment {
+  id: string;
+  name: string;
+  description?: string | null;
+  criteria: any;
+  color: string | null;
+  is_active: boolean;
+  created_by?: string | null;
+  created_at: string;
+  updated_at: string;
+  leadCount?: number;
+}
 
-    // Conversion rate calculation
-    const convertedLeads = leads.filter(lead => 
-      lead.status === 'CONVERTED' || lead.status === 'QUALIFIED'
-    ).length;
-    const conversionRate = (convertedLeads / totalLeads) * 100;
+export const useLeadAnalytics = () => {
+  return useQuery({
+    queryKey: ['lead-analytics'],
+    queryFn: async (): Promise<LeadAnalytics> => {
+      // Get basic lead stats
+      const { data: leads, error: leadsError } = await supabase
+        .from('leads')
+        .select('id, status, source, created_at');
 
-    // Average lead score
-    const totalScore = leads.reduce((sum, lead) => sum + (lead.lead_score || 0), 0);
-    const averageLeadScore = totalScore / totalLeads;
+      if (leadsError) throw leadsError;
 
-    // Top sources analysis
-    const sourceCount = leads.reduce((acc, lead) => {
-      acc[lead.source] = (acc[lead.source] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const topSources = Object.entries(sourceCount)
-      .map(([source, count]) => ({
-        source: source.replace('_', ' ').toUpperCase(),
-        count,
-        percentage: (count / totalLeads) * 100,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    // Status distribution
-    const statusCount = leads.reduce((acc, lead) => {
-      acc[lead.status] = (acc[lead.status] || 0) + 1;
-      return acc;
-    }, {} as Record<LeadStatus, number>);
-
-    const statusDistribution = Object.entries(statusCount)
-      .map(([status, count]) => ({
-        status: status as LeadStatus,
-        count,
-        percentage: (count / totalLeads) * 100,
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    // Monthly trends (last 6 months)
-    const now = new Date();
-    const monthlyData = Array.from({ length: 6 }, (_, i) => {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthKey = date.toISOString().slice(0, 7); // YYYY-MM format
+      const totalLeads = leads?.length || 0;
+      const qualifiedLeads = leads?.filter(l => l.status === 'QUALIFIED').length || 0;
+      const conversionRate = totalLeads > 0 ? (qualifiedLeads / totalLeads) * 100 : 0;
+      // Get lead scores from lead_nurturing table
+      const { data: nurturingScores } = await supabase
+        .from('lead_nurturing')
+        .select('lead_score');
       
-      const monthLeads = leads.filter(lead => {
-        const leadDate = new Date(lead.created_at);
-        return leadDate.getFullYear() === date.getFullYear() && 
-               leadDate.getMonth() === date.getMonth();
-      });
+      const averageScore = nurturingScores?.reduce((acc, n) => acc + (n.lead_score || 0), 0) / (nurturingScores?.length || 1) || 0;
 
-      const convertedInMonth = monthLeads.filter(lead => 
-        lead.status === 'CONVERTED' || lead.status === 'QUALIFIED'
-      ).length;
+      // Get engagement scores
+      const { data: nurturingData } = await supabase
+        .from('lead_nurturing')
+        .select('engagement_score');
+
+      const averageEngagement = nurturingData?.reduce((acc, n) => acc + (n.engagement_score || 0), 0) / (nurturingData?.length || 1) || 0;
+
+      // Group by source
+      const leadsBySource = leads?.reduce((acc, lead) => {
+        acc[lead.source] = (acc[lead.source] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      // Group by status
+      const leadsByStatus = leads?.reduce((acc, lead) => {
+        acc[lead.status] = (acc[lead.status] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      // Score distribution using nurturing data
+      const scoreDistribution = [
+        { range: '0-20', count: nurturingScores?.filter(l => (l.lead_score || 0) <= 20).length || 0 },
+        { range: '21-40', count: nurturingScores?.filter(l => (l.lead_score || 0) > 20 && (l.lead_score || 0) <= 40).length || 0 },
+        { range: '41-60', count: nurturingScores?.filter(l => (l.lead_score || 0) > 40 && (l.lead_score || 0) <= 60).length || 0 },
+        { range: '61-80', count: nurturingScores?.filter(l => (l.lead_score || 0) > 60 && (l.lead_score || 0) <= 80).length || 0 },
+        { range: '81+', count: nurturingScores?.filter(l => (l.lead_score || 0) > 80).length || 0 },
+      ];
+
+      // Recent trends (last 7 days)
+      const recentTrends = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const dayLeads = leads?.filter(l => l.created_at?.startsWith(dateStr)) || [];
+        
+        return {
+          period: dateStr,
+          newLeads: dayLeads.length,
+          qualified: dayLeads.filter(l => l.status === 'QUALIFIED').length,
+          converted: dayLeads.filter(l => l.status === 'QUALIFIED').length, // Using QUALIFIED as proxy for converted
+        };
+      }).reverse();
 
       return {
-        month: date.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }),
-        count: monthLeads.length,
-        converted: convertedInMonth,
+        totalLeads,
+        qualifiedLeads,
+        conversionRate,
+        averageScore,
+        averageEngagement,
+        leadsBySource,
+        leadsByStatus,
+        scoreDistribution,
+        recentTrends,
       };
-    }).reverse();
-
-    // Engagement metrics
-    const totalEmailOpens = leads.reduce((sum, lead) => sum + (lead.email_opens || 0), 0);
-    const totalEmailClicks = leads.reduce((sum, lead) => sum + (lead.email_clicks || 0), 0);
-    const totalWebsiteVisits = leads.reduce((sum, lead) => sum + (lead.website_visits || 0), 0);
-    
-    const engagementMetrics = {
-      totalEmailOpens,
-      totalEmailClicks,
-      totalWebsiteVisits,
-      averageEngagement: totalLeads > 0 ? 
-        (totalEmailOpens + totalEmailClicks + totalWebsiteVisits) / totalLeads : 0,
-    };
-
-    // Quality distribution
-    const qualityCount = leads.reduce((acc, lead) => {
-      const quality = lead.quality || 'FAIR';
-      acc[quality] = (acc[quality] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const qualityDistribution = Object.entries(qualityCount)
-      .map(([quality, count]) => ({
-        quality,
-        count,
-        percentage: (count / totalLeads) * 100,
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    // Priority distribution
-    const priorityCount = leads.reduce((acc, lead) => {
-      const priority = lead.priority || 'MEDIUM';
-      acc[priority] = (acc[priority] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const priorityDistribution = Object.entries(priorityCount)
-      .map(([priority, count]) => ({
-        priority,
-        count,
-        percentage: (count / totalLeads) * 100,
-      }))
-      .sort((a, b) => {
-        const priorityOrder = { 'URGENT': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1 };
-        return (priorityOrder[b.priority as keyof typeof priorityOrder] || 0) - 
-               (priorityOrder[a.priority as keyof typeof priorityOrder] || 0);
-      });
-
-    return {
-      totalLeads,
-      conversionRate: Math.round(conversionRate * 100) / 100,
-      averageLeadScore: Math.round(averageLeadScore * 100) / 100,
-      topSources,
-      statusDistribution,
-      monthlyTrends: monthlyData,
-      engagementMetrics,
-      qualityDistribution,
-      priorityDistribution,
-    };
-  }, [leads]);
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
 };
 
-// Hook for specific analytics queries
-export const useLeadMetrics = (leads: Lead[]) => {
-  return useMemo(() => {
-    const highPriorityLeads = leads.filter(l => l.priority === 'HIGH' || l.priority === 'URGENT').length;
-    const excellentQualityLeads = leads.filter(l => l.quality === 'EXCELLENT').length;
-    const recentLeads = leads.filter(l => {
-      const daysDiff = (Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60 * 24);
-      return daysDiff <= 7;
-    }).length;
-    
-    const assignedLeads = leads.filter(l => l.assigned_to_id).length;
-    const unassignedLeads = leads.length - assignedLeads;
-    
-    const activeLeads = leads.filter(l => 
-      !['CONVERTED', 'LOST', 'DISQUALIFIED'].includes(l.status)
-    ).length;
+export const useLeadSegments = () => {
+  return useQuery({
+    queryKey: ['lead-segments'],
+    queryFn: async (): Promise<LeadSegment[]> => {
+      const { data, error } = await supabase
+        .from('lead_segments')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
 
-    return {
-      highPriorityLeads,
-      excellentQualityLeads,
-      recentLeads,
-      assignedLeads,
-      unassignedLeads,
-      activeLeads,
-      assignmentRate: leads.length > 0 ? (assignedLeads / leads.length) * 100 : 0,
-    };
-  }, [leads]);
+      if (error) throw error;
+
+      // Get lead count for each segment
+      const segmentsWithCount = await Promise.all(
+        (data || []).map(async (segment) => {
+          const { count } = await supabase
+            .from('lead_segment_assignments')
+            .select('*', { count: 'exact', head: true })
+            .eq('segment_id', segment.id);
+
+          return { ...segment, leadCount: count || 0 };
+        })
+      );
+
+      return segmentsWithCount;
+    },
+  });
+};
+
+export const useCreateSegment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (segment: Omit<LeadSegment, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase
+        .from('lead_segments')
+        .insert([segment])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead-segments'] });
+      toast.success('Segmento creado exitosamente');
+    },
+    onError: (error) => {
+      console.error('Error creating segment:', error);
+      toast.error('Error al crear el segmento');
+    },
+  });
+};
+
+export const useBulkLeadActions = () => {
+  const queryClient = useQueryClient();
+
+  const bulkUpdateStatus = useMutation({
+    mutationFn: async ({ leadIds, status }: { leadIds: string[]; status: 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED' }) => {
+      const { error } = await supabase
+        .from('leads')
+        .update({ status, updated_at: new Date().toISOString() })
+        .in('id', leadIds);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { leadIds }) => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      toast.success(`${leadIds.length} leads actualizados exitosamente`);
+    },
+    onError: (error) => {
+      console.error('Error updating leads:', error);
+      toast.error('Error al actualizar los leads');
+    },
+  });
+
+  const bulkAssign = useMutation({
+    mutationFn: async ({ leadIds, userId }: { leadIds: string[]; userId: string }) => {
+      const { error } = await supabase
+        .from('leads')
+        .update({ assigned_to_id: userId, updated_at: new Date().toISOString() })
+        .in('id', leadIds);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { leadIds }) => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      toast.success(`${leadIds.length} leads asignados exitosamente`);
+    },
+    onError: (error) => {
+      console.error('Error assigning leads:', error);
+      toast.error('Error al asignar los leads');
+    },
+  });
+
+  const bulkAddToSegment = useMutation({
+    mutationFn: async ({ leadIds, segmentId }: { leadIds: string[]; segmentId: string }) => {
+      const assignments = leadIds.map(leadId => ({
+        lead_id: leadId,
+        segment_id: segmentId,
+      }));
+
+      const { error } = await supabase
+        .from('lead_segment_assignments')
+        .upsert(assignments);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, { leadIds }) => {
+      queryClient.invalidateQueries({ queryKey: ['lead-segments'] });
+      toast.success(`${leadIds.length} leads añadidos al segmento`);
+    },
+    onError: (error) => {
+      console.error('Error adding leads to segment:', error);
+      toast.error('Error al añadir leads al segmento');
+    },
+  });
+
+  return {
+    bulkUpdateStatus: bulkUpdateStatus.mutate,
+    bulkAssign: bulkAssign.mutate,
+    bulkAddToSegment: bulkAddToSegment.mutate,
+    isLoading: bulkUpdateStatus.isPending || bulkAssign.isPending || bulkAddToSegment.isPending,
+  };
 };

@@ -2590,6 +2590,83 @@ export type Database = {
           },
         ]
       }
+      lead_analytics: {
+        Row: {
+          calculation_date: string
+          created_at: string
+          id: string
+          lead_id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+        }
+        Insert: {
+          calculation_date?: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value: number
+        }
+        Update: {
+          calculation_date?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_analytics_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_assignment_rules: {
+        Row: {
+          assigned_user_id: string | null
+          assignment_type: string
+          conditions: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          assigned_user_id?: string | null
+          assignment_type?: string
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          assigned_user_id?: string | null
+          assignment_type?: string
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_files: {
         Row: {
           content_type: string | null
@@ -2758,6 +2835,78 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_segment_assignments: {
+        Row: {
+          assigned_at: string
+          id: string
+          lead_id: string
+          segment_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          id?: string
+          lead_id: string
+          segment_id: string
+        }
+        Update: {
+          assigned_at?: string
+          id?: string
+          lead_id?: string
+          segment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_segment_assignments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_segment_assignments_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "lead_segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_segments: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string | null
+          criteria: Json
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          criteria?: Json
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          criteria?: Json
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_tasks: {
         Row: {
           assigned_to: string | null
@@ -2810,6 +2959,96 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_workflow_executions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          execution_data: Json | null
+          id: string
+          lead_id: string
+          started_at: string
+          status: string
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          execution_data?: Json | null
+          id?: string
+          lead_id: string
+          started_at?: string
+          status?: string
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          execution_data?: Json | null
+          id?: string
+          lead_id?: string
+          started_at?: string
+          status?: string
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_workflow_executions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_workflow_executions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "lead_workflow_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_workflow_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          trigger_conditions: Json
+          updated_at: string
+          workflow_steps: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          trigger_conditions?: Json
+          updated_at?: string
+          workflow_steps?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          trigger_conditions?: Json
+          updated_at?: string
+          workflow_steps?: Json
+        }
+        Relationships: []
       }
       leads: {
         Row: {
@@ -5650,6 +5889,14 @@ export type Database = {
       }
     }
     Functions: {
+      auto_assign_lead: {
+        Args: { p_lead_id: string }
+        Returns: string
+      }
+      calculate_lead_engagement_score: {
+        Args: { p_lead_id: string }
+        Returns: number
+      }
       delete_user_completely: {
         Args: { _user_id: string }
         Returns: Json

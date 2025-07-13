@@ -6,11 +6,21 @@ import { Lead } from '@/types/Lead';
 export const useLeadAutomation = () => {
   const queryClient = useQueryClient();
 
-  // Auto-assign lead based on rules (simplified version)
+  // Auto-assign lead based on rules
   const autoAssignMutation = useMutation({
     mutationFn: async (leadId: string) => {
-      // For now, just return success without assignment
-      return { leadId, assignedUserId: null, ruleName: 'Default' };
+      // Use the database function for automatic assignment
+      const { data, error } = await supabase.rpc('auto_assign_lead', {
+        p_lead_id: leadId
+      });
+
+      if (error) throw error;
+
+      return { 
+        leadId, 
+        assignedUserId: data, 
+        ruleName: data ? 'Automatic Assignment' : 'No Rule Matched' 
+      };
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
@@ -69,6 +79,22 @@ export const useLeadAutomation = () => {
           p_lead_id: leadId,
           p_points_to_add: totalPoints
         });
+
+        // Calculate and update engagement score
+        const { data: engagementScore } = await supabase.rpc('calculate_lead_engagement_score', {
+          p_lead_id: leadId
+        });
+
+        if (engagementScore !== null) {
+          // Update lead nurturing with new engagement score
+          await supabase
+            .from('lead_nurturing')
+            .upsert({
+              lead_id: leadId,
+              engagement_score: engagementScore,
+              updated_at: new Date().toISOString()
+            });
+        }
       }
 
       return { leadId, totalPoints, rulesApplied: matchingRules.length };
