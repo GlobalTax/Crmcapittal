@@ -13,6 +13,7 @@ import { PipelineChart } from './PipelineChart';
 import { ConversionChart } from './ConversionChart';
 import { RecentDeals } from './RecentDeals';
 import { LoadingSkeleton, DashboardLoadingSkeleton } from '@/components/LoadingSkeleton';
+import { HealthStatusIndicator } from './HealthStatusIndicator';
 import { 
   Plus, 
   Users, 
@@ -35,47 +36,60 @@ export const EnhancedDashboard = () => {
   // Get dashboard metrics
   const dashboardData = useDashboardMetrics(operations, leads);
 
-  // Generate recent activity
+  // Generate recent activity - Optimized for performance
   const recentActivity = React.useMemo(() => {
     const activities = [];
     
-    // Add recent operations
-    operations.slice(0, 3).forEach(op => {
-      activities.push({
-        id: `op-${op.id}`,
-        type: 'operation' as const,
-        description: `Nueva operación "${op.company_name || 'Sin nombre'}" por €${(op.amount / 1000000).toFixed(1)}M`,
-        timestamp: new Date(op.created_at || Date.now()),
-        user: op.manager?.name || 'Sistema',
-        priority: op.amount > 10000000 ? 'high' as const : 'medium' as const
-      });
+    // Process only the most recent items to avoid unnecessary computation
+    const recentOps = operations.length > 0 ? operations.slice(0, 3) : [];
+    const recentNegocios = negocios.length > 0 ? negocios.slice(0, 2) : [];
+    const recentLeads = leads.length > 0 ? leads.slice(0, 2) : [];
+    
+    // Add recent operations with error handling
+    recentOps.forEach(op => {
+      if (op?.id) {
+        activities.push({
+          id: `op-${op.id}`,
+          type: 'operation' as const,
+          description: `Nueva operación "${op.company_name || 'Sin nombre'}" por €${((op.amount || 0) / 1000000).toFixed(1)}M`,
+          timestamp: new Date(op.created_at || Date.now()),
+          user: op.manager?.name || 'Sistema',
+          priority: (op.amount || 0) > 10000000 ? 'high' as const : 'medium' as const
+        });
+      }
     });
 
-    // Add recent negocios
-    negocios.slice(0, 2).forEach(negocio => {
-      activities.push({
-        id: `neg-${negocio.id}`,
-        type: 'lead' as const,
-        description: `Negocio "${negocio.nombre_negocio}" actualizado`,
-        timestamp: new Date(negocio.updated_at || Date.now()),
-        user: negocio.propietario_negocio || 'Sistema',
-        priority: negocio.prioridad === 'urgente' ? 'high' as const : 'medium' as const
-      });
+    // Add recent negocios with error handling
+    recentNegocios.forEach(negocio => {
+      if (negocio?.id) {
+        activities.push({
+          id: `neg-${negocio.id}`,
+          type: 'lead' as const,
+          description: `Negocio "${negocio.nombre_negocio || 'Sin nombre'}" actualizado`,
+          timestamp: new Date(negocio.updated_at || Date.now()),
+          user: negocio.propietario_negocio || 'Sistema',
+          priority: negocio.prioridad === 'urgente' ? 'high' as const : 'medium' as const
+        });
+      }
     });
 
-    // Add recent leads
-    leads.slice(0, 2).forEach(lead => {
-      activities.push({
-        id: `lead-${lead.id}`,
-        type: 'user' as const,
-        description: `Nuevo lead "${lead.company_name || lead.name}" registrado`,
-        timestamp: new Date(lead.created_at || Date.now()),
-        user: 'Sistema',
-        priority: 'low' as const
-      });
+    // Add recent leads with error handling
+    recentLeads.forEach(lead => {
+      if (lead?.id) {
+        activities.push({
+          id: `lead-${lead.id}`,
+          type: 'user' as const,
+          description: `Nuevo lead "${lead.company_name || lead.name || 'Sin nombre'}" registrado`,
+          timestamp: new Date(lead.created_at || Date.now()),
+          user: 'Sistema',
+          priority: 'low' as const
+        });
+      }
     });
 
-    return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 8);
+    return activities
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, 8);
   }, [operations, negocios, leads]);
 
   // Quick actions based on role
@@ -226,6 +240,13 @@ export const EnhancedDashboard = () => {
                     </div>
                   </div>
                 </DashboardCard>
+              </div>
+            )}
+
+            {/* System Health Status - Admin Only */}
+            {(role === 'admin' || role === 'superadmin') && (
+              <div className="animate-fade-in delay-800">
+                <HealthStatusIndicator />
               </div>
             )}
           </div>

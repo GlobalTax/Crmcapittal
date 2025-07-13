@@ -17,11 +17,21 @@ export const useOperationsData = () => {
       setLoading(true);
       setError(null);
       
-      const typedOperations = await fetchOperationsFromDB(role);
-      setOperations(typedOperations);
+      // Add timeout and better error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      
+      try {
+        const typedOperations = await fetchOperationsFromDB(role);
+        clearTimeout(timeoutId);
+        setOperations(typedOperations || []); // Ensure it's always an array
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError;
+      }
     } catch (err) {
       console.error('Error cargando operaciones:', err);
-      setError('Error al cargar las operaciones');
+      setError(err.name === 'AbortError' ? 'Timeout al cargar operaciones' : 'Error al cargar las operaciones');
     } finally {
       setLoading(false);
     }

@@ -108,8 +108,11 @@ Deno.serve(async (req) => {
       try {
         console.log('Fetching companies from HubSpot...')
         const companiesResponse = await fetch(
-          'https://api.hubapi.com/crm/v3/objects/companies?limit=100&properties=name,domain,industry,phone,city,state,country,website,description,annualrevenue,numberofemployees,founded_year',
-          { headers }
+          'https://api.hubapi.com/crm/v3/objects/companies?limit=100&properties=name,domain,industry,phone,city,state,country,website,description,annualrevenue,numberofemployees,founded_year&archived=false',
+          { 
+            headers,
+            timeout: 30000 // 30 second timeout
+          }
         )
         
         if (!companiesResponse.ok) {
@@ -168,8 +171,11 @@ Deno.serve(async (req) => {
       try {
         console.log('Fetching contacts from HubSpot...')
         const contactsResponse = await fetch(
-          'https://api.hubapi.com/crm/v3/objects/contacts?limit=100&properties=firstname,lastname,email,phone,jobtitle,company,lifecyclestage&associations=companies',
-          { headers }
+          'https://api.hubapi.com/crm/v3/objects/contacts?limit=100&properties=firstname,lastname,email,phone,jobtitle,company,lifecyclestage&associations=companies&archived=false',
+          { 
+            headers,
+            timeout: 30000
+          }
         )
         
         if (!contactsResponse.ok) {
@@ -241,8 +247,11 @@ Deno.serve(async (req) => {
       try {
         console.log('Fetching deals from HubSpot...')
         const dealsResponse = await fetch(
-          'https://api.hubapi.com/crm/v3/objects/deals?limit=100&properties=dealname,amount,dealstage,pipeline,closedate,createdate,description&associations=companies,contacts',
-          { headers }
+          'https://api.hubapi.com/crm/v3/objects/deals?limit=100&properties=dealname,amount,dealstage,pipeline,closedate,createdate,description&associations=companies,contacts&archived=false',
+          { 
+            headers,
+            timeout: 30000
+          }
         )
         
         if (!dealsResponse.ok) {

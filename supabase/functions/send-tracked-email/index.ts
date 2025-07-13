@@ -107,13 +107,29 @@ serve(async (req: Request) => {
       </html>
     `;
 
-    // Send email with Resend
-    const emailResponse = await resend.emails.send({
-      from: emailData.sender_email || 'CRM System <onboarding@resend.dev>',
-      to: [emailData.recipient_email],
-      subject: emailData.subject,
-      html: htmlContent,
-    });
+    // Send email with Resend with better error handling
+    let emailResponse;
+    try {
+      emailResponse = await resend.emails.send({
+        from: emailData.sender_email || 'CRM System <onboarding@resend.dev>',
+        to: [emailData.recipient_email],
+        subject: emailData.subject,
+        html: htmlContent,
+        headers: {
+          'X-Entity-Ref-ID': trackedEmail.tracking_id,
+        }
+      });
+    } catch (sendError) {
+      console.error('Resend send error:', sendError);
+      
+      // Update status to failed in database
+      await supabase
+        .from('tracked_emails')
+        .update({ status: 'FAILED' })
+        .eq('id', trackedEmail.id);
+        
+      throw new Error(`Email sending failed: ${sendError.message}`);
+    }
 
     if (emailResponse.error) {
       console.error('Resend error:', emailResponse.error);
