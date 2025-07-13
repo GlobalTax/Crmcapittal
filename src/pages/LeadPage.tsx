@@ -58,7 +58,7 @@ export default function LeadPage() {
 
   const handleUpdateLead = async (leadId: string, leadData: UpdateLeadData) => {
     try {
-      updateLead({ id: leadId, updates: leadData });
+      await updateLead({ id: leadId, updates: leadData });
     } catch (error) {
       console.error('Error updating lead:', error);
     }
