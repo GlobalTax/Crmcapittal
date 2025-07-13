@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Edit2, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit2, Plus, Save, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 import { Lead, UpdateLeadData, LeadStatus, LeadPriority, LeadQuality } from '@/types/Lead';
 import { LeadStatusBadge } from './LeadStatusBadge';
 
@@ -19,22 +21,80 @@ export const LeadDetailsSidebar = ({ lead, onUpdate }: LeadDetailsSidebarProps) 
   const [isListsOpen, setIsListsOpen] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateField = (fieldName: string, value: any): string | null => {
+    switch (fieldName) {
+      case 'email':
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return 'Email format is invalid';
+        }
+        break;
+      case 'phone':
+        if (value && !/^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ''))) {
+          return 'Phone format is invalid';
+        }
+        break;
+      case 'lead_score':
+        const score = parseInt(value);
+        if (value && (isNaN(score) || score < 0 || score > 100)) {
+          return 'Lead score must be between 0 and 100';
+        }
+        break;
+      case 'name':
+        if (!value || value.trim().length < 2) {
+          return 'Name must be at least 2 characters';
+        }
+        break;
+    }
+    return null;
+  };
 
   const handleFieldEdit = (fieldName: string, currentValue: any) => {
     setEditingField(fieldName);
-    setFieldValues({ ...fieldValues, [fieldName]: currentValue });
+    setFieldValues({ ...fieldValues, [fieldName]: currentValue || '' });
+    setErrors({ ...errors, [fieldName]: '' });
   };
 
-  const handleFieldSave = (fieldName: string) => {
-    if (onUpdate) {
-      onUpdate(lead.id, { [fieldName]: fieldValues[fieldName] });
+  const handleFieldSave = async (fieldName: string) => {
+    const value = fieldValues[fieldName];
+    const error = validateField(fieldName, value);
+    
+    if (error) {
+      setErrors({ ...errors, [fieldName]: error });
+      toast.error(error);
+      return;
     }
-    setEditingField(null);
+
+    setIsUpdating(true);
+    try {
+      if (onUpdate) {
+        await onUpdate(lead.id, { [fieldName]: value });
+        toast.success('Campo actualizado exitosamente');
+      }
+      setEditingField(null);
+      setErrors({ ...errors, [fieldName]: '' });
+    } catch (error: any) {
+      toast.error('Error al actualizar: ' + error.message);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleFieldCancel = () => {
     setEditingField(null);
     setFieldValues({});
+    setErrors({});
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent, fieldName: string) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleFieldSave(fieldName);
+    } else if (e.key === 'Escape') {
+      handleFieldCancel();
+    }
   };
 
   const renderEditableField = (
@@ -55,7 +115,10 @@ export const LeadDetailsSidebar = ({ lead, onUpdate }: LeadDetailsSidebarProps) 
               <Textarea
                 value={fieldValues[fieldName] || ''}
                 onChange={(e) => setFieldValues({ ...fieldValues, [fieldName]: e.target.value })}
-                className="h-20 text-xs"
+                onKeyDown={(e) => handleKeyPress(e, fieldName)}
+                className={`h-20 text-xs ${errors[fieldName] ? 'border-destructive' : ''}`}
+                placeholder="Enter text..."
+                autoFocus
               />
             ) : type === 'select' && options ? (
               <Select
@@ -78,36 +141,59 @@ export const LeadDetailsSidebar = ({ lead, onUpdate }: LeadDetailsSidebarProps) 
                 type={type}
                 value={fieldValues[fieldName] || ''}
                 onChange={(e) => setFieldValues({ ...fieldValues, [fieldName]: e.target.value })}
-                className="h-8 text-xs"
+                onKeyDown={(e) => handleKeyPress(e, fieldName)}
+                className={`h-8 text-xs ${errors[fieldName] ? 'border-destructive' : ''}`}
+                placeholder={`Enter ${label.toLowerCase()}...`}
+                autoFocus
               />
+            )}
+            {errors[fieldName] && (
+              <p className="text-xs text-destructive">{errors[fieldName]}</p>
             )}
             <div className="flex gap-1">
               <Button 
                 size="sm" 
                 onClick={() => handleFieldSave(fieldName)}
-                className="h-6 px-2 text-xs"
+                disabled={isUpdating}
+                className="h-6 px-2 text-xs gap-1"
               >
-                Save
+                {isUpdating ? (
+                  <div className="h-3 w-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Check className="h-3 w-3" />
+                )}
+                {isUpdating ? 'Saving...' : 'Save'}
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleFieldCancel}
-                className="h-6 px-2 text-xs"
+                disabled={isUpdating}
+                className="h-6 px-2 text-xs gap-1"
               >
+                <X className="h-3 w-3" />
                 Cancel
               </Button>
             </div>
+            {type !== 'select' && (
+              <p className="text-xs text-muted-foreground">
+                Press Enter to save, Escape to cancel
+              </p>
+            )}
           </div>
         ) : (
           <div 
-            className="group flex items-center justify-between cursor-pointer p-1 rounded hover:bg-neutral-100"
+            className="group flex items-center justify-between cursor-pointer p-2 rounded hover:bg-neutral-100 transition-all duration-200 border border-transparent hover:border-border animate-fade-in"
             onClick={() => handleFieldEdit(fieldName, value)}
           >
-            <span className="text-sm">
-              {value || <span className="text-muted-foreground">Not set</span>}
+            <span className="text-sm flex-1 min-w-0">
+              {value ? (
+                <span className="truncate block">{value}</span>
+              ) : (
+                <span className="text-muted-foreground italic">Click to set {label.toLowerCase()}</span>
+              )}
             </span>
-            <Edit2 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Edit2 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0" />
           </div>
         )}
       </div>

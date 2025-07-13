@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Lead } from '@/types/Lead';
 import { LeadStatusBadge } from './LeadStatusBadge';
-import { Mail, Phone, Building2, Calendar, Target, TrendingUp } from 'lucide-react';
+import { Mail, Phone, Building2, Calendar, Target, TrendingUp, Clock, Star, Activity, Users } from 'lucide-react';
 
 interface LeadOverviewTabProps {
   lead: Lead;
@@ -15,6 +16,32 @@ export const LeadOverviewTab = ({ lead }: LeadOverviewTabProps) => {
     if (score >= 40) return 'hsl(30, 100%, 50%)';
     return 'hsl(4, 86%, 63%)';
   };
+  
+  const getLeadScoreDescription = (score: number) => {
+    if (score >= 80) return 'Excelente - Lead altamente calificado';
+    if (score >= 60) return 'Bueno - Lead bien calificado';
+    if (score >= 40) return 'Regular - Requiere nurturing';
+    return 'Bajo - Necesita atención urgente';
+  };
+
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case 'HIGH': case 'URGENT': return 'hsl(4, 86%, 63%)';
+      case 'MEDIUM': return 'hsl(42, 100%, 50%)';
+      case 'LOW': return 'hsl(158, 100%, 38%)';
+      default: return 'hsl(213, 94%, 68%)';
+    }
+  };
+
+  const getQualityScore = (quality?: string) => {
+    switch (quality) {
+      case 'EXCELLENT': return 90;
+      case 'GOOD': return 75;
+      case 'FAIR': return 50;
+      case 'POOR': return 25;
+      default: return 0;
+    }
+  };
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Not set';
@@ -23,6 +50,23 @@ export const LeadOverviewTab = ({ lead }: LeadOverviewTabProps) => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const formatDateWithTime = (dateString?: string) => {
+    if (!dateString) return 'Not set';
+    return new Date(dateString).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getDaysAgo = (dateString?: string) => {
+    if (!dateString) return null;
+    const days = Math.floor((Date.now() - new Date(dateString).getTime()) / (1000 * 60 * 60 * 24));
+    return days;
   };
 
   return (
