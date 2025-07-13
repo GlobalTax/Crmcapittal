@@ -254,7 +254,12 @@ export const SimpleLeadsTable = () => {
               filteredLeads.map((lead) => (
                 <TableRow key={lead.id} className="hover:bg-gray-50">
                   <TableCell>
-                    <span className="font-medium">{lead.name}</span>
+                    <button
+                      onClick={() => handleViewLead(lead.id)}
+                      className="font-medium text-primary hover:text-primary-hover hover:underline cursor-pointer text-left"
+                    >
+                      {lead.name}
+                    </button>
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
