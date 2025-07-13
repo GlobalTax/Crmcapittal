@@ -9,23 +9,15 @@ export const fetchLeads = async (filters?: {
   
   
   let query = supabase
-    .from('leads')
+    .from('contacts')
     .select('*')
+    .eq('lifecycle_stage', 'lead')
     .order('created_at', { ascending: false });
 
-  // Only filter by status if it's one of the database-supported statuses
-  // Database only supports: NEW, CONTACTED, QUALIFIED, DISQUALIFIED
+  // Filter by lead status 
   if (filters?.status) {
-    const dbSupportedStatuses: LeadStatus[] = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'];
-    if (dbSupportedStatuses.includes(filters.status)) {
-      console.log('🏷️ [leadsService] Applying status filter:', filters.status);
-      // Cast to the specific type that the database supports
-      query = query.eq('status', filters.status as 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED');
-    } else {
-      console.log('⚠️ [leadsService] Status filter not supported by DB, will filter in frontend:', filters.status);
-    }
-    // If the filter status is not supported by DB (like NURTURING, CONVERTED, LOST),
-    // we don't apply the filter and let the frontend handle it
+    console.log('🏷️ [leadsService] Applying status filter:', filters.status);
+    query = query.eq('lead_status', filters.status);
   }
 
   if (filters?.assigned_to_id) {
@@ -58,25 +50,26 @@ export const fetchLeads = async (filters?: {
   }
 
   // Transform the data to match our Lead interface with enhanced fields
-  // Handle missing database columns gracefully
   const transformedData = (data || []).map(lead => ({
     ...lead,
-    // Ensure source is properly typed
-    source: (lead.source as LeadSource) || 'website_form',
-    // Handle lead_origin field
-    lead_origin: ((lead as { lead_origin?: string }).lead_origin as LeadOrigin) || 'manual',
-    // Use actual database values or defaults for missing columns
-    lead_score: (lead as { lead_score?: number }).lead_score || 10,
-    priority: ((lead as { priority?: string }).priority as LeadPriority) || 'HIGH',
-    quality: ((lead as { quality?: string }).quality as LeadQuality) || 'GOOD',
-    follow_up_count: (lead as { follow_up_count?: number }).follow_up_count || 0,
-    email_opens: (lead as { email_opens?: number }).email_opens || 0,
-    email_clicks: (lead as { email_clicks?: number }).email_clicks || 0,
-    website_visits: (lead as { website_visits?: number }).website_visits || 0,
-    content_downloads: (lead as { content_downloads?: number }).content_downloads || 0,
-    tags: (lead as { tags?: string[] }).tags || [],
-    form_data: (lead as { form_data?: Record<string, unknown> }).form_data || {},
-    job_title: (lead as { job_title?: string }).job_title || '',
+    // Map contact fields to lead interface
+    source: (lead.lead_source as LeadSource) || 'website_form',
+    lead_origin: (lead.lead_origin as LeadOrigin) || 'manual',
+    status: (lead.lead_status as LeadStatus) || 'NEW',
+    priority: (lead.lead_priority as LeadPriority) || 'HIGH', 
+    quality: (lead.lead_quality as LeadQuality) || 'GOOD',
+    company_name: lead.company || '',
+    job_title: lead.position || '',
+    message: lead.notes || '',
+    // Use contact field values
+    lead_score: lead.lead_score || 10,
+    follow_up_count: lead.follow_up_count || 0,
+    email_opens: lead.email_opens || 0,
+    email_clicks: lead.email_clicks || 0,
+    website_visits: lead.website_visits || 0,
+    content_downloads: lead.content_downloads || 0,
+    tags: lead.tags_array || [],
+    form_data: {},
     assigned_to: lead.assigned_to_id 
       ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
       : null,
@@ -90,14 +83,19 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
   console.log('Fetching lead by ID:', id);
   
   const { data, error } = await supabase
-    .from('leads')
+    .from('contacts')
     .select('*')
     .eq('id', id)
-    .single();
+    .eq('lifecycle_stage', 'lead')
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching lead:', error);
     throw error;
+  }
+
+  if (!data) {
+    return null;
   }
 
   // Fetch user profile if assigned
@@ -114,22 +112,25 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     }
   }
 
-  // Transform the data to match our Lead interface with missing column handling
+  // Transform the data to match our Lead interface 
   const transformedData = {
     ...data,
-    source: (data.source as LeadSource) || 'other',
-    lead_origin: ((data as { lead_origin?: string }).lead_origin as LeadOrigin) || 'manual',
-    lead_score: (data as { lead_score?: number }).lead_score || 0,
-    priority: ((data as { priority?: string }).priority as LeadPriority) || 'MEDIUM',
-    quality: ((data as { quality?: string }).quality as LeadQuality) || 'FAIR',
-    follow_up_count: (data as { follow_up_count?: number }).follow_up_count || 0,
-    email_opens: (data as { email_opens?: number }).email_opens || 0,
-    email_clicks: (data as { email_clicks?: number }).email_clicks || 0,
-    website_visits: (data as { website_visits?: number }).website_visits || 0,
-    content_downloads: (data as { content_downloads?: number }).content_downloads || 0,
-    tags: (data as { tags?: string[] }).tags || [],
-    form_data: (data as { form_data?: Record<string, unknown> }).form_data || {},
-    job_title: (data as { job_title?: string }).job_title || '',
+    source: (data.lead_source as LeadSource) || 'other',
+    lead_origin: (data.lead_origin as LeadOrigin) || 'manual',
+    status: (data.lead_status as LeadStatus) || 'NEW',
+    priority: (data.lead_priority as LeadPriority) || 'MEDIUM',
+    quality: (data.lead_quality as LeadQuality) || 'FAIR',
+    company_name: data.company || '',
+    job_title: data.position || '',
+    message: data.notes || '',
+    lead_score: data.lead_score || 0,
+    follow_up_count: data.follow_up_count || 0,
+    email_opens: data.email_opens || 0,
+    email_clicks: data.email_clicks || 0,
+    website_visits: data.website_visits || 0,
+    content_downloads: data.content_downloads || 0,
+    tags: data.tags_array || [],
+    form_data: {},
     assigned_to: assignedTo
   };
 
@@ -140,22 +141,27 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
 export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   console.log('Creating lead:', leadData);
 
-  // Prepare data for the current database schema (only use existing columns)
+  // Prepare data for the contacts table with lead fields
   const dataToInsert = {
     name: leadData.name,
     email: leadData.email,
     phone: leadData.phone,
-    company_name: leadData.company_name,
-    message: leadData.message,
-    source: leadData.source,
+    company: leadData.company_name,
+    position: leadData.job_title,
+    notes: leadData.message,
+    contact_type: 'lead',
+    lifecycle_stage: 'lead',
+    lead_source: leadData.source,
     lead_origin: leadData.lead_origin || 'manual',
-    status: 'NEW' as const
-    // Note: other fields like priority, quality, lead_score, etc. are not included
-    // because they don't exist in the current database schema
+    lead_status: 'NEW' as const,
+    lead_priority: leadData.priority || 'MEDIUM',
+    lead_quality: leadData.quality || 'FAIR',
+    lead_score: leadData.lead_score || 10,
+    tags_array: leadData.tags || []
   };
 
   const { data, error } = await supabase
-    .from('leads')
+    .from('contacts')
     .insert([dataToInsert])
     .select('*')
     .single();
@@ -168,19 +174,22 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    source: (data.source as LeadSource) || 'other',
+    source: (data.lead_source as LeadSource) || 'other',
     lead_origin: (data.lead_origin as LeadOrigin) || 'manual',
-    lead_score: leadData.lead_score || 10,
-    priority: leadData.priority || 'MEDIUM',
-    quality: leadData.quality || 'FAIR',
+    status: (data.lead_status as LeadStatus) || 'NEW',
+    priority: (data.lead_priority as LeadPriority) || 'MEDIUM',
+    quality: (data.lead_quality as LeadQuality) || 'FAIR', 
+    company_name: data.company || '',
+    job_title: data.position || '',
+    message: data.notes || '',
+    lead_score: data.lead_score || 10,
     follow_up_count: 0,
     email_opens: 0,
     email_clicks: 0,
     website_visits: 0,
     content_downloads: 0,
-    tags: leadData.tags || [],
+    tags: data.tags_array || [],
     form_data: leadData.form_data || {},
-    job_title: leadData.job_title || '',
     assigned_to: null
   };
 
@@ -195,33 +204,27 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
 export const updateLead = async (id: string, updates: UpdateLeadData): Promise<Lead> => {
   console.log('Updating lead:', id, updates);
 
-    // Only include fields that exist in the current database
-    const dbUpdates: Partial<{
-      name: string;
-      email: string;
-      phone: string;
-      company_name: string;
-      message: string;
-      source: LeadSource;
-      status: 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED';
-      assigned_to_id: string;
-    }> = {};
+  // Map lead updates to contact fields
+  const dbUpdates: any = {};
   if (updates.name !== undefined) dbUpdates.name = updates.name;
   if (updates.email !== undefined) dbUpdates.email = updates.email;
   if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
-  if (updates.company_name !== undefined) dbUpdates.company_name = updates.company_name;
-  if (updates.message !== undefined) dbUpdates.message = updates.message;
-  if (updates.source !== undefined) dbUpdates.source = updates.source;
-  // Only update status if it's supported by the database
-  if (updates.status !== undefined && ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'].includes(updates.status)) {
-    dbUpdates.status = updates.status as 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED';
-  }
+  if (updates.company_name !== undefined) dbUpdates.company = updates.company_name;
+  if (updates.job_title !== undefined) dbUpdates.position = updates.job_title;
+  if (updates.message !== undefined) dbUpdates.notes = updates.message;
+  if (updates.source !== undefined) dbUpdates.lead_source = updates.source;
+  if (updates.status !== undefined) dbUpdates.lead_status = updates.status;
+  if (updates.priority !== undefined) dbUpdates.lead_priority = updates.priority;
+  if (updates.quality !== undefined) dbUpdates.lead_quality = updates.quality;
+  if (updates.lead_score !== undefined) dbUpdates.lead_score = updates.lead_score;
   if (updates.assigned_to_id !== undefined) dbUpdates.assigned_to_id = updates.assigned_to_id;
+  if (updates.tags !== undefined) dbUpdates.tags_array = updates.tags;
 
   const { data, error } = await supabase
-    .from('leads')
+    .from('contacts')
     .update(dbUpdates)
     .eq('id', id)
+    .eq('lifecycle_stage', 'lead')
     .select('*')
     .single();
 
@@ -247,19 +250,22 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
   // Transform the data to match our Lead interface
   const transformedData = {
     ...data,
-    source: (data.source as LeadSource) || 'other',
-    lead_origin: ((data as { lead_origin?: string }).lead_origin as LeadOrigin) || 'manual',
-    lead_score: updates.lead_score || 0,
-    priority: updates.priority || 'MEDIUM',
-    quality: updates.quality || 'FAIR',
-    follow_up_count: 0,
-    email_opens: 0,
-    email_clicks: 0,
-    website_visits: 0,
-    content_downloads: 0,
-    tags: updates.tags || [],
+    source: (data.lead_source as LeadSource) || 'other',
+    lead_origin: (data.lead_origin as LeadOrigin) || 'manual',
+    status: (data.lead_status as LeadStatus) || 'NEW',
+    priority: (data.lead_priority as LeadPriority) || 'MEDIUM',
+    quality: (data.lead_quality as LeadQuality) || 'FAIR',
+    company_name: data.company || '',
+    job_title: data.position || '',
+    message: data.notes || '',
+    lead_score: data.lead_score || 0,
+    follow_up_count: data.follow_up_count || 0,
+    email_opens: data.email_opens || 0,
+    email_clicks: data.email_clicks || 0,
+    website_visits: data.website_visits || 0,
+    content_downloads: data.content_downloads || 0,
+    tags: data.tags_array || [],
     form_data: updates.form_data || {},
-    job_title: updates.job_title || '',
     assigned_to: assignedTo
   };
 
@@ -271,9 +277,10 @@ export const deleteLead = async (id: string): Promise<void> => {
   console.log('Deleting lead:', id);
 
   const { error } = await supabase
-    .from('leads')
+    .from('contacts')
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('lifecycle_stage', 'lead');
 
   if (error) {
     console.error('Error deleting lead:', error);
@@ -381,8 +388,11 @@ export const convertLeadToContact = async (
     }
   }
 
-  // Update lead status to QUALIFIED (since CONVERTED isn't supported in DB)
-  await updateLead(leadId, { status: 'QUALIFIED' });
+  // Update contact to change lifecycle stage from lead to cliente
+  await supabase
+    .from('contacts')
+    .update({ lifecycle_stage: 'cliente', conversion_date: new Date().toISOString() })
+    .eq('id', leadId);
 
   console.log('Lead converted successfully:', { 
     contactId: contact.id, 
@@ -517,14 +527,11 @@ const createFollowUpTask = async (leadData: Lead, config: Record<string, unknown
 
 const updateLeadStatus = async (leadId: string, newStatus: string) => {
   try {
-    // Only update status if it's supported by the database
-    const supportedStatuses = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'];
-    if (supportedStatuses.includes(newStatus)) {
-      await supabase
-        .from('leads')
-        .update({ status: newStatus as 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'DISQUALIFIED' })
-        .eq('id', leadId);
-    }
+    await supabase
+      .from('contacts')
+      .update({ lead_status: newStatus })
+      .eq('id', leadId)
+      .eq('lifecycle_stage', 'lead');
   } catch (error) {
     console.error('Error updating lead status:', error);
   }
