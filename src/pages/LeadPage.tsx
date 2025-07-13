@@ -6,6 +6,10 @@ import { LeadHeader } from '@/components/leads/LeadHeader';
 import { LeadOverviewTab } from '@/components/leads/LeadOverviewTab';
 import { LeadActivityTab } from '@/components/leads/LeadActivityTab';
 import { LeadDetailsSidebar } from '@/components/leads/LeadDetailsSidebar';
+import { LeadNotesTab } from '@/components/leads/LeadNotesTab';
+import { LeadTasksTab } from '@/components/leads/LeadTasksTab';
+import { LeadFilesTab } from '@/components/leads/LeadFilesTab';
+import { LeadEmailsTab } from '@/components/leads/LeadEmailsTab';
 import { useLeads, useLead } from '@/hooks/useLeads';
 import { Lead, UpdateLeadData } from '@/types/Lead';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
@@ -181,27 +185,19 @@ export default function LeadPage() {
                 </TabsContent>
                 
                 <TabsContent value="emails" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Email integration coming soon</p>
-                  </div>
+                  <LeadEmailsTab lead={lead} />
                 </TabsContent>
                 
                 <TabsContent value="tasks" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Task management coming soon</p>
-                  </div>
+                  <LeadTasksTab lead={lead} />
                 </TabsContent>
                 
                 <TabsContent value="notes" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Notes coming soon</p>
-                  </div>
+                  <LeadNotesTab lead={lead} />
                 </TabsContent>
                 
                 <TabsContent value="files" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">File management coming soon</p>
-                  </div>
+                  <LeadFilesTab lead={lead} />
                 </TabsContent>
 
                 {hasTransactions && (
