@@ -1733,6 +1733,8 @@ export type Database = {
       }
       contacts: {
         Row: {
+          assigned_to_id: string | null
+          collaborator_id: string | null
           company: string | null
           company_id: string | null
           contact_priority: string | null
@@ -1740,23 +1742,43 @@ export type Database = {
           contact_source: string | null
           contact_status: Database["public"]["Enums"]["contact_status"] | null
           contact_type: string
+          content_downloads: number | null
+          conversion_date: string | null
+          conversion_value: number | null
+          converted_to_mandate_id: string | null
           created_at: string
           created_by: string | null
           deal_preferences: Json | null
           ecosystem_role: Database["public"]["Enums"]["ecosystem_role"] | null
           email: string | null
+          email_clicks: number | null
+          email_opens: number | null
           engagement_level: number | null
           external_id: string | null
+          external_lead_id: string | null
+          external_source: string | null
+          first_contact_date: string | null
+          follow_up_count: number | null
           id: string
           investment_capacity_max: number | null
           investment_capacity_min: number | null
           is_active: boolean | null
           language_preference: string | null
+          last_activity_date: string | null
+          last_contact_date: string | null
           last_interaction_date: string | null
+          lead_origin: string | null
+          lead_priority: string | null
+          lead_quality: string | null
+          lead_score: number | null
+          lead_source: string | null
+          lead_status: string | null
+          lead_type: string | null
           lifecycle_stage: string | null
           linkedin_url: string | null
           name: string
           network_connections: number | null
+          next_follow_up_date: string | null
           notes: string | null
           phone: string | null
           position: string | null
@@ -1764,11 +1786,16 @@ export type Database = {
           roles: string[] | null
           sectors_of_interest: string[] | null
           source_table: string | null
+          stage_id: string | null
+          tags_array: string[] | null
           time_zone: string | null
           updated_at: string
           website_url: string | null
+          website_visits: number | null
         }
         Insert: {
+          assigned_to_id?: string | null
+          collaborator_id?: string | null
           company?: string | null
           company_id?: string | null
           contact_priority?: string | null
@@ -1776,23 +1803,43 @@ export type Database = {
           contact_source?: string | null
           contact_status?: Database["public"]["Enums"]["contact_status"] | null
           contact_type?: string
+          content_downloads?: number | null
+          conversion_date?: string | null
+          conversion_value?: number | null
+          converted_to_mandate_id?: string | null
           created_at?: string
           created_by?: string | null
           deal_preferences?: Json | null
           ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
           email?: string | null
+          email_clicks?: number | null
+          email_opens?: number | null
           engagement_level?: number | null
           external_id?: string | null
+          external_lead_id?: string | null
+          external_source?: string | null
+          first_contact_date?: string | null
+          follow_up_count?: number | null
           id?: string
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
           is_active?: boolean | null
           language_preference?: string | null
+          last_activity_date?: string | null
+          last_contact_date?: string | null
           last_interaction_date?: string | null
+          lead_origin?: string | null
+          lead_priority?: string | null
+          lead_quality?: string | null
+          lead_score?: number | null
+          lead_source?: string | null
+          lead_status?: string | null
+          lead_type?: string | null
           lifecycle_stage?: string | null
           linkedin_url?: string | null
           name: string
           network_connections?: number | null
+          next_follow_up_date?: string | null
           notes?: string | null
           phone?: string | null
           position?: string | null
@@ -1800,11 +1847,16 @@ export type Database = {
           roles?: string[] | null
           sectors_of_interest?: string[] | null
           source_table?: string | null
+          stage_id?: string | null
+          tags_array?: string[] | null
           time_zone?: string | null
           updated_at?: string
           website_url?: string | null
+          website_visits?: number | null
         }
         Update: {
+          assigned_to_id?: string | null
+          collaborator_id?: string | null
           company?: string | null
           company_id?: string | null
           contact_priority?: string | null
@@ -1812,23 +1864,43 @@ export type Database = {
           contact_source?: string | null
           contact_status?: Database["public"]["Enums"]["contact_status"] | null
           contact_type?: string
+          content_downloads?: number | null
+          conversion_date?: string | null
+          conversion_value?: number | null
+          converted_to_mandate_id?: string | null
           created_at?: string
           created_by?: string | null
           deal_preferences?: Json | null
           ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
           email?: string | null
+          email_clicks?: number | null
+          email_opens?: number | null
           engagement_level?: number | null
           external_id?: string | null
+          external_lead_id?: string | null
+          external_source?: string | null
+          first_contact_date?: string | null
+          follow_up_count?: number | null
           id?: string
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
           is_active?: boolean | null
           language_preference?: string | null
+          last_activity_date?: string | null
+          last_contact_date?: string | null
           last_interaction_date?: string | null
+          lead_origin?: string | null
+          lead_priority?: string | null
+          lead_quality?: string | null
+          lead_score?: number | null
+          lead_source?: string | null
+          lead_status?: string | null
+          lead_type?: string | null
           lifecycle_stage?: string | null
           linkedin_url?: string | null
           name?: string
           network_connections?: number | null
+          next_follow_up_date?: string | null
           notes?: string | null
           phone?: string | null
           position?: string | null
@@ -1836,9 +1908,12 @@ export type Database = {
           roles?: string[] | null
           sectors_of_interest?: string[] | null
           source_table?: string | null
+          stage_id?: string | null
+          tags_array?: string[] | null
           time_zone?: string | null
           updated_at?: string
           website_url?: string | null
+          website_visits?: number | null
         }
         Relationships: [
           {

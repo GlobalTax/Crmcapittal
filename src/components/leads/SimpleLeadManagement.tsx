@@ -2,19 +2,19 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimpleLeadsTable } from "./SimpleLeadsTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useOptimizedLeads } from "@/hooks/useOptimizedLeads";
+import { useLeadContacts } from "@/hooks/useLeadContacts";
 import { Users, TrendingUp, UserCheck, AlertCircle } from "lucide-react";
 
 export const SimpleLeadManagement = () => {
   const [activeTab, setActiveTab] = useState("manage");
-  const { leads, isLoading } = useOptimizedLeads();
+  const { leads, isLoading } = useLeadContacts();
 
   // Calculate stats
   const stats = {
     total: leads.length,
-    new: leads.filter(lead => lead.status === 'NEW').length,
-    contacted: leads.filter(lead => lead.status === 'CONTACTED').length,
-    qualified: leads.filter(lead => lead.status === 'QUALIFIED').length,
+    new: leads.filter(lead => lead.lead_status === 'NEW').length,
+    contacted: leads.filter(lead => lead.lead_status === 'CONTACTED').length,
+    qualified: leads.filter(lead => lead.lead_status === 'QUALIFIED').length,
   };
 
   return (

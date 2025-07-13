@@ -22,9 +22,10 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { CreateLeadData, LeadSource, LeadOrigin } from "@/types/Lead";
+import { CreateContactData } from "@/types/Contact";
 
 interface CreateLeadDialogProps {
-  onCreateLead: (data: CreateLeadData) => void;
+  onCreateLead: (data: CreateContactData) => void;
   isCreating?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
@@ -45,37 +46,45 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
   // Use external state if provided
   const dialogOpen = isOpen !== undefined ? isOpen : open;
   const setDialogOpen = onClose !== undefined ? (open: boolean) => !open && onClose() : setOpen;
-  const [formData, setFormData] = useState<CreateLeadData>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
-    company_name: '',
+    company: '',
     message: '',
-    source: 'other' as LeadSource
+    source: 'other'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Add lead_origin for manual creation
-    const leadDataWithOrigin: CreateLeadData = {
-      ...formData,
-      lead_origin: 'manual' as LeadOrigin
+    // Create contact data for lead
+    const contactData: CreateContactData = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      company: formData.company,
+      notes: formData.message,
+      contact_type: 'lead',
+      lifecycle_stage: 'lead',
+      lead_source: formData.source,
+      lead_origin: 'manual',
+      lead_score: 0,
     };
     
-    onCreateLead(leadDataWithOrigin);
+    onCreateLead(contactData);
     setDialogOpen(false);
     setFormData({
       name: '',
       email: '',
       phone: '',
-      company_name: '',
+      company: '',
       message: '',
-      source: 'other' as LeadSource
+      source: 'other'
     });
   };
 
-  const handleInputChange = (field: keyof CreateLeadData, value: string) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -126,11 +135,11 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="company_name">Compañía</Label>
+              <Label htmlFor="company">Compañía</Label>
               <Input
-                id="company_name"
-                value={formData.company_name}
-                onChange={(e) => handleInputChange('company_name', e.target.value)}
+                id="company"
+                value={formData.company}
+                onChange={(e) => handleInputChange('company', e.target.value)}
               />
             </div>
             <div className="grid gap-2">

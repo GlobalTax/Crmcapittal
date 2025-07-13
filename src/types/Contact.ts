@@ -56,6 +56,33 @@ export interface Contact {
   engagement_level?: number;
   network_connections?: number;
   
+  // Lead-specific fields (when lifecycle_stage = 'lead')
+  lead_score?: number;
+  lead_source?: string;
+  lead_status?: string;
+  lead_priority?: string;
+  lead_quality?: string;
+  assigned_to_id?: string;
+  first_contact_date?: string;
+  last_contact_date?: string;
+  last_activity_date?: string;
+  next_follow_up_date?: string;
+  follow_up_count?: number;
+  email_opens?: number;
+  email_clicks?: number;
+  website_visits?: number;
+  content_downloads?: number;
+  tags_array?: string[];
+  conversion_date?: string;
+  conversion_value?: number;
+  external_lead_id?: string;
+  external_source?: string;
+  lead_origin?: string;
+  lead_type?: string;
+  stage_id?: string;
+  collaborator_id?: string;
+  converted_to_mandate_id?: string;
+  
   created_at: string;
   updated_at: string;
 }
@@ -90,6 +117,33 @@ export interface CreateContactData {
   ecosystem_role?: EcosystemRole;
   engagement_level?: number;
   network_connections?: number;
+  
+  // Lead-specific fields (when creating a lead)
+  lead_score?: number;
+  lead_source?: string;
+  lead_status?: string;
+  lead_priority?: string;
+  lead_quality?: string;
+  assigned_to_id?: string;
+  first_contact_date?: string;
+  last_contact_date?: string;
+  last_activity_date?: string;
+  next_follow_up_date?: string;
+  follow_up_count?: number;
+  email_opens?: number;
+  email_clicks?: number;
+  website_visits?: number;
+  content_downloads?: number;
+  tags_array?: string[];
+  conversion_date?: string;
+  conversion_value?: number;
+  external_lead_id?: string;
+  external_source?: string;
+  lead_origin?: string;
+  lead_type?: string;
+  stage_id?: string;
+  collaborator_id?: string;
+  converted_to_mandate_id?: string;
 }
 
 export interface UpdateContactData extends Partial<CreateContactData> {

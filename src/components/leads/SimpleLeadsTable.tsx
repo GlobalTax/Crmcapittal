@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useOptimizedLeads } from "@/hooks/useOptimizedLeads";
+import { useLeadContacts } from "@/hooks/useLeadContacts";
 import { LeadStatus, LeadSource, LeadPriority, LeadQuality, Lead } from "@/types/Lead";
 import { Search, Plus, Phone, Mail, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +27,7 @@ export const SimpleLeadsTable = () => {
     ...(statusFilter !== 'all' && { status: statusFilter as LeadStatus })
   };
 
-  const { leads, isLoading, createLead, updateLead, isCreating } = useOptimizedLeads(filters);
+  const { leads, isLoading, createLead, updateLead, isCreating } = useLeadContacts(filters);
 
   // Apply search filter
   const filteredLeads = leads.filter(lead => {
@@ -35,13 +35,13 @@ export const SimpleLeadsTable = () => {
       const query = searchQuery.toLowerCase();
       const matchesSearch = 
         lead.name.toLowerCase().includes(query) ||
-        lead.email.toLowerCase().includes(query) ||
-        (lead.company_name?.toLowerCase() || '').includes(query) ||
-        (lead.job_title?.toLowerCase() || '').includes(query);
+        (lead.email?.toLowerCase() || '').includes(query) ||
+        (lead.company?.toLowerCase() || '').includes(query) ||
+        (lead.position?.toLowerCase() || '').includes(query);
       if (!matchesSearch) return false;
     }
     
-    if (sourceFilter !== 'all' && lead.source !== sourceFilter) return false;
+    if (sourceFilter !== 'all' && lead.lead_source !== sourceFilter) return false;
     
     return true;
   });
@@ -91,8 +91,8 @@ export const SimpleLeadsTable = () => {
         id: leadId, 
         updates: { 
           company_id: company?.id || null,
-          company_name: company?.name || null
-        } as any 
+          company: company?.name || null
+        } as any
       });
     } catch (error) {
       console.error('Error updating lead company:', error);
@@ -278,39 +278,39 @@ export const SimpleLeadsTable = () => {
                   <TableCell>
                     <CompanySelector
                       value={lead.company_id}
-                      companyName={lead.company_name}
+                      companyName={lead.company}
                       onSelect={(company) => handleCompanySelect(lead.id, company)}
                     />
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={lead.job_title || ''}
+                      value={lead.position || ''}
                       type="text"
-                      onSave={(value) => handleUpdate(lead.id, 'job_title', value || null)}
+                      onSave={(value) => handleUpdate(lead.id, 'position', value || null)}
                     />
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={lead.status}
+                      value={lead.lead_status || ''}
                       type="select"
                       options={statusSelectOptions}
-                      onSave={(value) => handleUpdate(lead.id, 'status', value)}
+                      onSave={(value) => handleUpdate(lead.id, 'lead_status', value)}
                     />
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={lead.priority || ''}
+                      value={lead.lead_priority || ''}
                       type="select"
                       options={prioritySelectOptions}
-                      onSave={(value) => handleUpdate(lead.id, 'priority', value || null)}
+                      onSave={(value) => handleUpdate(lead.id, 'lead_priority', value || null)}
                     />
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={lead.quality || ''}
+                      value={lead.lead_quality || ''}
                       type="select"
                       options={qualitySelectOptions}
-                      onSave={(value) => handleUpdate(lead.id, 'quality', value || null)}
+                      onSave={(value) => handleUpdate(lead.id, 'lead_quality', value || null)}
                     />
                   </TableCell>
                   <TableCell>
@@ -322,7 +322,7 @@ export const SimpleLeadsTable = () => {
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground capitalize">
-                      {lead.source.replace('_', ' ')}
+                      {(lead.lead_source || '').replace('_', ' ')}
                     </span>
                   </TableCell>
                   <TableCell>
