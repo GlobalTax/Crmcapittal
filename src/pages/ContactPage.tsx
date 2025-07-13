@@ -12,7 +12,9 @@ import { ContactTasksTab } from '@/components/contacts/ContactTasksTab';
 import { ContactNotesTab } from '@/components/contacts/ContactNotesTab';
 import { ContactCompanyTab } from '@/components/contacts/ContactCompanyTab';
 import { useOptimizedContacts } from '@/hooks/useOptimizedContacts';
+import { useLeads } from '@/hooks/useLeads';
 import { Contact, UpdateContactData } from '@/types/Contact';
+import { UpdateLeadData } from '@/types/Lead';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,10 +32,16 @@ export default function ContactPage() {
     contacts,
     getContactById,
     updateContact,
+    refetch,
     isLoading: contactsLoading
   } = useOptimizedContacts();
   
-  const isUpdating = false; // Will be true during actual operations
+  const {
+    updateLead,
+    isUpdating: isUpdatingLead
+  } = useLeads();
+  
+  const isUpdating = isUpdatingLead; // Will be true during actual operations
 
   // Handle legacy URL redirections (from drawer URLs)
   useEffect(() => {
@@ -89,15 +97,42 @@ export default function ContactPage() {
 
   const handleUpdateContact = async (contactId: string, contactData: UpdateContactData) => {
     try {
-      const result = await updateContact(contactId, contactData);
-      if (result) {
-        // Update local contact state
-        setContact(prev => prev ? { ...prev, ...result } : null);
-        setEditingContact(null);
-        // No need to manually refresh - useOptimizedContacts handles it
+      // Check if this contact is actually a lead
+      if (contact?.lifecycle_stage === 'lead') {
+        // Use lead update service for leads
+        const leadData: UpdateLeadData = {
+          name: contactData.name || contact.name,
+          email: contactData.email,
+          phone: contactData.phone,
+          company_name: contactData.company,
+          position: contactData.position,
+          lead_source: contactData.lead_source,
+          lead_status: contactData.lead_status,
+          lead_priority: contactData.lead_priority,
+          notes: contactData.notes,
+          ...contactData
+        };
+        
+        await updateLead({ id: contactId, updates: leadData });
+        
+        // Update local contact state by refetching
+        await refetch();
+        const updatedContact = contacts.find(c => c.id === contactId);
+        if (updatedContact) {
+          setContact(updatedContact);
+        }
+      } else {
+        // Use regular contact update for non-leads
+        const result = await updateContact(contactId, contactData);
+        if (result) {
+          // Update local contact state
+          setContact(prev => prev ? { ...prev, ...result } : null);
+        }
       }
+      
+      setEditingContact(null);
     } catch (error) {
-      console.error('Error updating contact:', error);
+      console.error('Error updating contact/lead:', error);
     }
   };
 
