@@ -33,7 +33,7 @@ export const PersonModal = ({
     contact_source: 'manual',
     preferred_contact_method: 'email',
     language_preference: 'es',
-    lifecycle_stage: 'lead',
+    lifecycle_stage: 'customer',
     roles: [],
     contact_roles: [],
     contact_status: 'active'
@@ -67,7 +67,7 @@ export const PersonModal = ({
         contact_source: formData.contact_source || 'manual',
         preferred_contact_method: formData.preferred_contact_method || 'email',
         language_preference: formData.language_preference || 'es',
-        lifecycle_stage: formData.lifecycle_stage || 'lead',
+        lifecycle_stage: formData.lifecycle_stage || 'customer',
         roles: formData.roles || [],
         contact_roles: formData.contact_roles || ['other'],
         contact_status: formData.contact_status || 'active',
@@ -95,7 +95,7 @@ export const PersonModal = ({
         contact_source: 'manual',
         preferred_contact_method: 'email',
         language_preference: 'es',
-        lifecycle_stage: 'lead',
+        lifecycle_stage: 'customer',
         roles: [],
         contact_roles: [],
         contact_status: 'active'
@@ -208,7 +208,7 @@ export const PersonModal = ({
 
                 <div>
                   <Label htmlFor="lifecycle_stage">Etapa del Ciclo</Label>
-                  <Select value={formData.lifecycle_stage || 'lead'} onValueChange={(value) => updateField('lifecycle_stage', value)}>
+                  <Select value={formData.lifecycle_stage || 'customer'} onValueChange={(value) => updateField('lifecycle_stage', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona la etapa" />
                     </SelectTrigger>

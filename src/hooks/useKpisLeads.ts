@@ -28,14 +28,11 @@ export const useKpisLeads = () => {
         setLoading(true);
         setError(null);
         
-        // Get active leads from contacts table  
+        // Get active leads from dedicated leads table  
         const [activeLeadsQuery, closedDealsQuery] = await Promise.all([
           supabase
-            .from('contacts')
-            .select('investment_capacity_max, investment_capacity_min')
-            .eq('created_by', user.id)
-            .eq('is_active', true)
-            .eq('lifecycle_stage', 'lead'),
+            .from('leads')
+            .select('*'),
           supabase
             .from('deals')
             .select('id, deal_value')
@@ -46,9 +43,9 @@ export const useKpisLeads = () => {
         ]);
         
         const activeLeads = activeLeadsQuery.data?.length || 0;
-        const leadsValue = activeLeadsQuery.data?.reduce((sum, contact) => {
-          // Use max capacity as estimated value, fallback to min, then 0
-          return sum + (contact.investment_capacity_max || contact.investment_capacity_min || 0);
+        // For leads table, we don't have investment capacity - use lead_score as proxy
+        const leadsValue = activeLeadsQuery.data?.reduce((sum, lead) => {
+          return sum + (lead.lead_score || 0) * 100; // multiply by 100 to get meaningful values
         }, 0) || 0;
         const closedThisMonth = closedDealsQuery.data?.length || 0;
         

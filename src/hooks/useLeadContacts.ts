@@ -69,15 +69,26 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
   // Update lead
   const updateLeadMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateContactData }) => {
+      // Update in dedicated leads table
+      const leadUpdates = {
+        name: updates.name,
+        email: updates.email,
+        phone: updates.phone,
+        company_name: updates.company,
+        job_title: updates.position,
+        lead_score: updates.lead_score,
+        message: updates.notes
+      };
+
       const { data, error } = await supabase
-        .from('contacts')
-        .update(updates)
+        .from('leads')
+        .update(leadUpdates)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
-      return data as Contact;
+      return data as any; // Lead data structure is different
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead-contacts'] });
@@ -92,8 +103,9 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
   // Delete lead
   const deleteLeadMutation = useMutation({
     mutationFn: async (id: string) => {
+      // Delete from dedicated leads table
       const { error } = await supabase
-        .from('contacts')
+        .from('leads')
         .delete()
         .eq('id', id);
 
@@ -161,7 +173,6 @@ export const useLeadContact = (id: string) => {
         .from('contacts')
         .select('*')
         .eq('id', id)
-        .eq('lifecycle_stage', 'lead')
         .single();
 
       if (error) throw error;

@@ -66,7 +66,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
       company: formData.company,
       notes: formData.message,
       contact_type: 'lead',
-      lifecycle_stage: 'lead',
+      lifecycle_stage: 'customer',
       lead_source: formData.source,
       lead_origin: 'manual',
       lead_score: 0,

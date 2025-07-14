@@ -43,7 +43,7 @@ export interface Contact {
   time_zone?: string;
   language_preference?: string;
   company_id?: string;
-  lifecycle_stage?: 'lead' | 'cliente' | 'suscriptor' | 'proveedor';
+  lifecycle_stage?: 'customer' | 'marketing_qualified_lead' | 'sales_qualified_lead' | 'opportunity' | 'evangelist';
   roles?: string[]; // Mantener compatibility con el campo legacy
   // Nuevos campos unificados
   contact_roles?: ContactRole[];
@@ -107,7 +107,7 @@ export interface CreateContactData {
   notes?: string;
   time_zone?: string;
   language_preference?: string;
-  lifecycle_stage?: 'lead' | 'cliente' | 'suscriptor' | 'proveedor';
+  lifecycle_stage?: 'customer' | 'marketing_qualified_lead' | 'sales_qualified_lead' | 'opportunity' | 'evangelist';
   roles?: string[]; // Mantener compatibility
   // Nuevos campos unificados
   contact_roles?: ContactRole[];
