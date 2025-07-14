@@ -41,7 +41,7 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
 
   // Create lead (contact with lifecycle_stage = 'lead' and also in leads table)
   const createLeadMutation = useMutation({
-    mutationFn: async (leadData: CreateContactData) => {
+    mutationFn: async (leadData: CreateContactData & { opportunity_name?: string; estimated_value?: number; close_date?: string; probability?: number }) => {
       // Create contact with generated lead name
       const contactData = {
         ...leadData,
@@ -59,14 +59,15 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
       if (contactError) throw contactError;
 
       // Also create in leads table for lead management
-      // Extract the original name from the generated lead name (remove date suffix)
-      const leadNameMatch = leadData.name?.match(/^(.+) \d{2}\/\d{2}\/\d{4}$/);
-      const originalName = leadNameMatch ? leadNameMatch[1] : leadData.name;
+      // Extract the original name or opportunity name from the generated lead name
+      const opportunityName = leadData.opportunity_name || leadData.name || '';
+      const leadNameMatch = leadData.name?.match(/^(.+) - \d{2}\/\d{2}\/\d{4}$/);
+      const extractedOpportunityName = leadNameMatch ? leadNameMatch[1] : opportunityName;
 
       const leadRecord = {
         id: contactResult.id, // Use same ID as contact
-        name: originalName || leadData.name || '',
-        lead_name: leadData.name, // Store the generated name
+        name: extractedOpportunityName,
+        lead_name: leadData.name, // Store the generated name with date
         email: leadData.email,
         phone: leadData.phone,
         company_name: leadData.company,
@@ -75,6 +76,9 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
         lead_origin: leadData.lead_origin || 'manual',
         status: 'NEW' as const,
         lead_score: leadData.lead_score || 0,
+        estimated_value: leadData.estimated_value || null,
+        close_date: leadData.close_date || null,
+        probability: leadData.probability || 50,
       };
 
       const { error: leadError } = await supabase

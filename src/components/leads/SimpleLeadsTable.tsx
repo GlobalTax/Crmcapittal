@@ -222,14 +222,13 @@ export const SimpleLeadsTable = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="min-w-[200px]">Nombre</TableHead>
+              <TableHead className="min-w-[250px]">Oportunidad / Contacto</TableHead>
               <TableHead className="min-w-[200px]">Email</TableHead>
               <TableHead className="min-w-[120px]">Teléfono</TableHead>
               <TableHead className="min-w-[150px]">Empresa</TableHead>
-              <TableHead className="min-w-[150px]">Cargo</TableHead>
+              <TableHead className="min-w-[120px]">Valor Estimado</TableHead>
               <TableHead className="min-w-[120px]">Estado</TableHead>
               <TableHead className="min-w-[120px]">Prioridad</TableHead>
-              <TableHead className="min-w-[120px]">Calidad</TableHead>
               <TableHead className="min-w-[100px]">Puntuación</TableHead>
               <TableHead className="min-w-[100px]">Fuente</TableHead>
               <TableHead className="min-w-[120px]">Próximo contacto</TableHead>
@@ -240,13 +239,13 @@ export const SimpleLeadsTable = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={13} className="text-center py-8">
+                <TableCell colSpan={12} className="text-center py-8">
                   Cargando leads...
                 </TableCell>
               </TableRow>
             ) : filteredLeads.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={13} className="text-center py-8">
+                <TableCell colSpan={12} className="text-center py-8">
                   No se encontraron leads
                 </TableCell>
               </TableRow>
@@ -254,12 +253,17 @@ export const SimpleLeadsTable = () => {
               filteredLeads.map((lead) => (
                 <TableRow key={lead.id} className="hover:bg-gray-50">
                   <TableCell>
-                    <button
-                      onClick={() => handleViewLead(lead.id)}
-                      className="font-medium text-primary hover:text-primary-hover hover:underline cursor-pointer text-left"
-                    >
-                      {lead.name}
-                    </button>
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => handleViewLead(lead.id)}
+                        className="font-medium text-primary hover:text-primary-hover hover:underline cursor-pointer text-left block"
+                      >
+                        {lead.name}
+                      </button>
+                      <div className="text-xs text-muted-foreground">
+                        Contacto: {lead.name?.split(' - ')[0] || 'Sin contacto'}
+                      </div>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
@@ -284,9 +288,9 @@ export const SimpleLeadsTable = () => {
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={lead.position || ''}
+                      value={(lead as any).estimated_value?.toString() || ''}
                       type="text"
-                      onSave={(value) => handleUpdate(lead.id, 'position', value || null)}
+                      onSave={(value) => handleUpdate(lead.id, 'estimated_value', value ? parseFloat(value as string) : null)}
                     />
                   </TableCell>
                   <TableCell>
@@ -303,14 +307,6 @@ export const SimpleLeadsTable = () => {
                       type="select"
                       options={prioritySelectOptions}
                       onSave={(value) => handleUpdate(lead.id, 'lead_priority', value || null)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <InlineEditCell
-                      value={lead.lead_quality || ''}
-                      type="select"
-                      options={qualitySelectOptions}
-                      onSave={(value) => handleUpdate(lead.id, 'lead_quality', value || null)}
                     />
                   </TableCell>
                   <TableCell>
