@@ -20,8 +20,6 @@ interface EmailRequest {
   sender_email?: string;
 }
 
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-
 serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -29,6 +27,26 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Check if RESEND_API_KEY is configured
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY not configured');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Email service not configured. Please set up RESEND_API_KEY.'
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
+    const resend = new Resend(resendApiKey);
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -119,6 +137,8 @@ serve(async (req: Request) => {
           'X-Entity-Ref-ID': trackedEmail.tracking_id,
         }
       });
+
+      console.log('Resend response:', emailResponse);
     } catch (sendError) {
       console.error('Resend send error:', sendError);
       
@@ -128,7 +148,7 @@ serve(async (req: Request) => {
         .update({ status: 'FAILED' })
         .eq('id', trackedEmail.id);
         
-      throw new Error(`Email sending failed: ${sendError.message}`);
+      throw new Error(`Email sending failed: ${sendError.message || 'Unknown Resend error'}`);
     }
 
     if (emailResponse.error) {

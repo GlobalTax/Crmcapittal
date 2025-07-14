@@ -175,9 +175,12 @@ export const EmailComposer = ({
     };
 
     try {
+      // sendTrackedEmail uses mutations with onSuccess/onError callbacks
+      // So we just call it and let the mutation handle success/error states
       await sendTrackedEmail(emailData);
       
-      // Reset form and close dialog
+      // Reset form and close dialog on successful initiation
+      // The actual success/error handling is done in the mutation callbacks
       setFormData({
         recipient_email: "",
         subject: "",
@@ -189,7 +192,9 @@ export const EmailComposer = ({
       setFormError('');
       onClose();
     } catch (error) {
-      setFormError('Error al enviar el email. Por favor, inténtalo de nuevo.');
+      console.error('Email sending error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      setFormError(`Error al enviar el email: ${errorMessage}`);
     }
   };
 

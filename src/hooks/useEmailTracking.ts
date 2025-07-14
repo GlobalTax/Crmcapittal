@@ -184,7 +184,7 @@ export const useEmailTracking = (filters?: {
     sender_name?: string; 
     sender_email?: string; 
   }) => {
-    return createEmailMutation.mutate(emailData);
+    return createEmailMutation.mutateAsync(emailData);
   };
 
   return {
