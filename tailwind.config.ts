@@ -35,7 +35,7 @@ export default {
 				'3xl': ['1.875rem', { lineHeight: '1.4' }],
 			},
 			fontFamily: {
-				sans: ['Inter', 'system-ui', 'sans-serif'],
+				sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
 				DEFAULT: '6px',

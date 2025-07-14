@@ -1,9 +1,14 @@
 import { useState } from 'react';
-import { Button } from "@/components/ui/minimal/Button";
-import { Badge } from "@/components/ui/minimal/Badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatsCard } from "@/components/ui/stats-card";
+import { UnifiedCard } from "@/components/ui/unified-card";
 import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
 import { useProposals } from '@/hooks/useProposals';
 import { ProposalWizard } from '@/components/proposals/ProposalWizard';
+import { FileText, Users, CheckCircle, Euro, Plus } from "lucide-react";
 
 export default function MinimalProposals() {
   const { proposals, loading, createProposal } = useProposals();
@@ -86,38 +91,65 @@ export default function MinimalProposals() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Propuestas</h1>
-          <p className="text-gray-600 mt-1">Gestiona y crea propuestas de honorarios</p>
-        </div>
-        <Button 
-          variant="primary"
-          onClick={() => setIsWizardOpen(true)}
-        >
-          Nueva Propuesta
-        </Button>
+    <div className="space-y-8">
+      {/* Modern Page Header */}
+      <PageHeader
+        title="Propuestas"
+        description="Gestiona y crea propuestas de honorarios profesionales"
+        badge={{ text: `${proposals.length} propuestas`, variant: 'secondary' }}
+        actions={
+          <Button onClick={() => setIsWizardOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Propuesta
+          </Button>
+        }
+      />
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard
+          title="Total Propuestas"
+          value={proposals.length.toLocaleString()}
+          description="Propuestas creadas"
+          icon={<FileText className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Borradores"
+          value={proposals.filter(p => p.status === 'draft').length.toLocaleString()}
+          description="En desarrollo"
+          icon={<Users className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Aprobadas"
+          value={proposals.filter(p => p.status === 'approved').length.toLocaleString()}
+          description="Aceptadas"
+          icon={<CheckCircle className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Valor Total"
+          value={`€${proposals.reduce((sum, p) => sum + (p.total_amount || 0), 0).toLocaleString()}`}
+          description="Valor total"
+          icon={<Euro className="h-5 w-5" />}
+        />
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg border p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+      <Card className="p-6">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex-1 max-w-md">
             <input
               type="text"
               placeholder="Buscar propuestas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="all">Todos los estados</option>
               <option value="draft">Borrador</option>
@@ -128,50 +160,21 @@ export default function MinimalProposals() {
             </select>
           </div>
         </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Total Propuestas</span>
-          <span className="text-3xl font-bold mt-2 block">{proposals.length}</span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Borradores</span>
-          <span className="text-3xl font-bold mt-2 block text-gray-600">
-            {proposals.filter(p => p.status === 'draft').length}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Aprobadas</span>
-          <span className="text-3xl font-bold mt-2 block text-green-600">
-            {proposals.filter(p => p.status === 'approved').length}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Valor Total</span>
-          <span className="text-3xl font-bold mt-2 block">
-            €{proposals.reduce((sum, p) => sum + (p.total_amount || 0), 0).toLocaleString()}
-          </span>
-        </div>
-      </div>
+      </Card>
 
       {/* Proposals Table */}
-      <div className="bg-white rounded-lg border">
-        <div className="p-4 border-b">
-          <h3 className="font-semibold">
-            {filteredProposals.length} propuestas
-            {searchQuery && ` (filtradas de ${proposals.length})`}
-          </h3>
-        </div>
-        <div className="p-4">
+      <UnifiedCard 
+        title={`${filteredProposals.length} propuestas${searchQuery ? ` (filtradas de ${proposals.length})` : ''}`}
+        className="p-0"
+      >
+        <div className="p-6">
           <AdvancedTable
             data={tableData}
             columns={proposalColumns}
             className=""
           />
         </div>
-      </div>
+      </UnifiedCard>
 
       {/* Wizard Dialog */}
       <ProposalWizard

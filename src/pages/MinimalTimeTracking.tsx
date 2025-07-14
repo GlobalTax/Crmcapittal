@@ -1,10 +1,15 @@
 import { useState } from 'react';
-import { Button } from "@/components/ui/minimal/Button";
-import { Badge } from "@/components/ui/minimal/Badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatsCard } from "@/components/ui/stats-card";
+import { UnifiedCard } from "@/components/ui/unified-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
 import { useTimeTracking } from '@/hooks/useTimeTracking';
 import { CreateTaskDialog } from '@/components/time-tracking/CreateTaskDialog';
 import { ManualTimeEntryDialog } from '@/components/time-tracking/ManualTimeEntryDialog';
+import { Clock, CheckCircle, Plus, PlayCircle, Calendar } from 'lucide-react';
 
 export default function MinimalTimeTracking() {
   const today = new Date().toISOString().split('T')[0];
@@ -55,116 +60,107 @@ export default function MinimalTimeTracking() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Control de Tiempo</h1>
-          <p className="text-gray-600 mt-1">Mide y controla el tiempo dedicado a tus actividades</p>
-        </div>
-        <div className="flex gap-3">
-          <Button 
-            variant="secondary"
-            onClick={() => setShowManualEntry(true)}
-          >
-            Entrada Manual
-          </Button>
-          <Button 
-            variant="primary"
-            onClick={() => setShowCreateTask(true)}
-          >
-            Nueva Tarea
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-8">
+      {/* Modern Page Header */}
+      <PageHeader
+        title="Control de Tiempo"
+        description="Mide y controla el tiempo dedicado a tus actividades profesionales"
+        actions={
+          <>
+            <Button 
+              variant="outline"
+              onClick={() => setShowManualEntry(true)}
+            >
+              Entrada Manual
+            </Button>
+            <Button onClick={() => setShowCreateTask(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva Tarea
+            </Button>
+          </>
+        }
+      />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Tiempo Total Hoy</span>
-          <span className="text-3xl font-bold mt-2 block">
-            {formatTime(dailyData?.timeEntries.reduce((total, entry) => total + (entry.duration_minutes || 0), 0) || 0)}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Tareas Completadas</span>
-          <span className="text-3xl font-bold mt-2 block text-green-600">
-            {dailyData?.plannedTasks.filter(t => t.status === 'COMPLETED').length || 0}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Tareas Pendientes</span>
-          <span className="text-3xl font-bold mt-2 block text-blue-600">
-            {dailyData?.plannedTasks.filter(t => t.status === 'PENDING').length || 0}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Timer Activo</span>
-          <span className="text-3xl font-bold mt-2 block">
-            {isTimerRunning ? (
-              <Badge color="green">En curso</Badge>
-            ) : (
-              <Badge color="gray">Parado</Badge>
-            )}
-          </span>
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard
+          title="Tiempo Total Hoy"
+          value={formatTime(dailyData?.timeEntries.reduce((total, entry) => total + (entry.duration_minutes || 0), 0) || 0)}
+          description="Tiempo registrado"
+          icon={<Clock className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Tareas Completadas"
+          value={(dailyData?.plannedTasks.filter(t => t.status === 'COMPLETED').length || 0).toString()}
+          description="Finalizadas hoy"
+          icon={<CheckCircle className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Tareas Pendientes"
+          value={(dailyData?.plannedTasks.filter(t => t.status === 'PENDING').length || 0).toString()}
+          description="Por completar"
+          icon={<Calendar className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Timer Activo"
+          value={isTimerRunning ? "En curso" : "Parado"}
+          description="Estado actual"
+          icon={<PlayCircle className="h-5 w-5" />}
+          trend={isTimerRunning ? {
+            direction: 'up',
+            value: 100,
+            label: 'activo'
+          } : undefined}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Active Timer */}
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
-            <h3 className="font-semibold">Temporizador Activo</h3>
-          </div>
-          <div className="p-4">
-            {dailyData?.activeTimer ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">Tarea activa</div>
-                    <div className="text-sm text-gray-500">
-                      Iniciado: {new Date(dailyData.activeTimer.start_time).toLocaleTimeString('es-ES')}
-                    </div>
+        <UnifiedCard title="Temporizador Activo">
+          {dailyData?.activeTimer ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium">Tarea activa</div>
+                  <div className="text-sm text-muted-foreground">
+                    Iniciado: {new Date(dailyData.activeTimer.start_time).toLocaleTimeString('es-ES')}
                   </div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                 </div>
-                <Button 
-                  variant="secondary"
-                  onClick={handleStopTimer}
-                  className="w-full"
-                >
-                  Detener Timer
-                </Button>
+                <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
               </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No hay timer activo</p>
-                <p className="text-sm">Inicia una tarea para comenzar</p>
-              </div>
-            )}
-          </div>
-        </div>
+              <Button 
+                variant="outline"
+                onClick={handleStopTimer}
+                className="w-full"
+              >
+                Detener Timer
+              </Button>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No hay timer activo</p>
+              <p className="text-sm">Inicia una tarea para comenzar</p>
+            </div>
+          )}
+        </UnifiedCard>
 
         {/* Tasks List */}
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
-            <h3 className="font-semibold">Tareas del Día</h3>
-          </div>
-          <div className="p-4 space-y-3 max-h-80 overflow-y-auto">
+        <UnifiedCard title="Tareas del Día">
+          <div className="space-y-3 max-h-80 overflow-y-auto">
             {dailyData?.plannedTasks && dailyData.plannedTasks.length > 0 ? (
               dailyData.plannedTasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-3 border rounded">
+                <div key={task.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
                   <div className="flex-1">
                     <div className="font-medium">{task.title}</div>
-                    <div className="text-sm text-gray-500">{task.description}</div>
+                    <div className="text-sm text-muted-foreground">{task.description}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge color={task.status === 'COMPLETED' ? 'green' : 'blue'}>
+                    <Badge variant={task.status === 'COMPLETED' ? 'default' : 'secondary'}>
                       {task.status === 'COMPLETED' ? 'Completado' : 'Pendiente'}
                     </Badge>
                     {task.status === 'PENDING' && !isTimerRunning && (
                       <Button 
-                        variant="secondary" 
+                        variant="outline"
                         size="sm"
                         onClick={() => handleStartTimer(task.id)}
                       >
@@ -175,20 +171,17 @@ export default function MinimalTimeTracking() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-muted-foreground">
                 <p>No hay tareas programadas</p>
               </div>
             )}
           </div>
-        </div>
+        </UnifiedCard>
       </div>
 
       {/* Time Entries */}
-      <div className="bg-white rounded-lg border">
-        <div className="p-4 border-b">
-          <h3 className="font-semibold">Registro de Tiempo</h3>
-        </div>
-        <div className="p-4">
+      <UnifiedCard title="Registro de Tiempo" className="p-0">
+        <div className="p-6">
           <Table>
             <TableHeader>
               <TableHead>Tarea</TableHead>
@@ -220,7 +213,7 @@ export default function MinimalTimeTracking() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell className="text-center py-8 text-gray-500">
+                  <TableCell className="text-center py-8 text-muted-foreground">
                     No hay entradas de tiempo registradas
                   </TableCell>
                 </TableRow>
@@ -228,7 +221,7 @@ export default function MinimalTimeTracking() {
             </TableBody>
           </Table>
         </div>
-      </div>
+      </UnifiedCard>
 
       {/* Dialogs */}
       <CreateTaskDialog

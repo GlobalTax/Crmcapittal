@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/minimal/Button";
-import { Badge } from "@/components/ui/minimal/Badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatsCard } from "@/components/ui/stats-card";
+import { UnifiedCard } from "@/components/ui/unified-card";
 import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
 import { CompanyModal } from "@/components/companies/CompanyModal";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
+import { Building2, TrendingUp, Target, Euro, Plus } from "lucide-react";
 
 export default function MinimalCompanies() {
   const navigate = useNavigate();
@@ -126,35 +131,65 @@ export default function MinimalCompanies() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Empresas - Minimal</h1>
-          <p className="text-gray-600 mt-1">Gestiona todas las empresas de tu pipeline</p>
-        </div>
-        <Button variant="primary" onClick={() => setIsCreateModalOpen(true)}>
-          Nueva Empresa
-        </Button>
+    <div className="space-y-8">
+      {/* Modern Page Header */}
+      <PageHeader
+        title="Empresas"
+        description="Gestiona tu cartera de empresas y prospectos"
+        badge={{ text: `${totalCount} empresas`, variant: 'secondary' }}
+        actions={
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nueva Empresa
+          </Button>
+        }
+      />
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard
+          title="Total Empresas"
+          value={totalCount.toLocaleString()}
+          description="En tu cartera"
+          icon={<Building2 className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Clientes"
+          value={(stats?.clientCompanies || 0).toLocaleString()}
+          description="Empresas activas"
+          icon={<TrendingUp className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Target Accounts"
+          value={(stats?.targetAccounts || 0).toLocaleString()}
+          description="Cuentas objetivo"
+          icon={<Target className="h-5 w-5" />}
+        />
+        <StatsCard
+          title="Valor Total"
+          value={`€${(stats?.totalDealsValue || 0).toLocaleString()}`}
+          description="Valor de deals"
+          icon={<Euro className="h-5 w-5" />}
+        />
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg border p-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
+      <Card className="p-6">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex-1 max-w-md">
             <input
               type="text"
               placeholder="Buscar empresas..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="all">Todos los estados</option>
               <option value="activa">Activa</option>
@@ -165,7 +200,7 @@ export default function MinimalCompanies() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+              className="px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="all">Todos los tipos</option>
               <option value="prospect">Prospecto</option>
@@ -175,53 +210,24 @@ export default function MinimalCompanies() {
             </select>
           </div>
         </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Total Empresas</span>
-          <span className="text-3xl font-bold mt-2 block">{totalCount}</span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Clientes</span>
-          <span className="text-3xl font-bold mt-2 block text-green-600">
-            {stats?.clientCompanies || 0}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Target Accounts</span>
-          <span className="text-3xl font-bold mt-2 block text-blue-600">
-            {stats?.targetAccounts || 0}
-          </span>
-        </div>
-        <div className="bg-white rounded-lg p-6 border">
-          <span className="text-gray-500 text-sm">Valor Total</span>
-          <span className="text-3xl font-bold mt-2 block">
-            €{stats?.totalDealsValue?.toLocaleString() || 0}
-          </span>
-        </div>
-      </div>
+      </Card>
 
       {/* Companies Table */}
-      <div className="bg-white rounded-lg border">
-        <div className="p-4 border-b">
-          <h3 className="font-semibold">
-            {filteredCompanies.length} empresas
-            {searchTerm && ` (filtradas de ${companies.length})`}
-          </h3>
-        </div>
-        <div className="p-4">
+      <UnifiedCard 
+        title={`${filteredCompanies.length} empresas${searchTerm ? ` (filtradas de ${companies.length})` : ''}`}
+        className="p-0"
+      >
+        <div className="p-6">
           <AdvancedTable
             data={tableData}
             columns={companyColumns}
             onRowClick={(row) => {
-              navigate(`/empresas/${row.id}`);
+              navigate(`/companies/${row.id}`);
             }}
             className=""
           />
         </div>
-      </div>
+      </UnifiedCard>
 
       {/* Create Company Modal */}
       <CompanyModal
