@@ -56,7 +56,7 @@ export const EmailConfigDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="default" size="sm" className="font-medium shadow-sm">
           <Settings className="h-4 w-4 mr-2" />
           Configurar Email
         </Button>

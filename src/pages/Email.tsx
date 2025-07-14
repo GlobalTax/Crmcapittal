@@ -77,11 +77,18 @@ export default function Email() {
 
   return (
     <div className="h-screen bg-white flex flex-col">
-      {/* Header limpio */}
+      {/* Header con botón de configuración destacado */}
       <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-gray-900">Sistema de Email</h1>
-          <EmailConfigDialog />
+          <div className="flex items-center gap-3">
+            <EmailConfigDialog />
+            {!hasConfiguredAccounts && (
+              <div className="text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-md">
+                ← Configura tu email aquí
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
