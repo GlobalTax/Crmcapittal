@@ -70,7 +70,7 @@ const TransaccionKanbanColumn = memo(({
               variant="ghost"
               size="sm"
               onClick={() => onAddTransaccion(stage.id)}
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="h-7 w-7 p-0 opacity-60 hover:opacity-100 transition-opacity"
               aria-label={`Añadir transacción a ${stage.name}`}
             >
               <Plus className="h-4 w-4" />
@@ -134,9 +134,10 @@ const TransaccionKanbanColumn = memo(({
               <Button
                 size="sm"
                 onClick={() => onAddTransaccion(stage.id)}
-                className="text-xs"
+                className="text-xs gap-1"
               >
-                + Nueva transacción
+                <Plus className="h-3 w-3" />
+                Nueva transacción
               </Button>
             )}
           </div>

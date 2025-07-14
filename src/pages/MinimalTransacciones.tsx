@@ -9,6 +9,7 @@ import { Transaccion } from "@/types/Transaccion";
 import { TransaccionesKanban } from "@/components/transacciones/TransaccionesKanban";
 import { TransaccionFiltersComponent, TransaccionFilters } from "@/components/transacciones/TransaccionFilters";
 import { User, Briefcase, Building2, Users, TrendingUp, LayoutGrid, List, Plus, RefreshCw } from "lucide-react";
+import { StageManagement } from "@/components/transacciones/StageManagement";
 
 export default function MinimalTransacciones() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
@@ -158,6 +159,11 @@ export default function MinimalTransacciones() {
             <RefreshCw className="h-4 w-4" />
             Actualizar
           </Button>
+          
+          {viewMode === 'kanban' && (
+            <StageManagement />
+          )}
+          
           <div className="flex rounded-lg border">
             <Button
               variant={viewMode === 'table' ? 'primary' : 'secondary'}
@@ -176,8 +182,13 @@ export default function MinimalTransacciones() {
               <LayoutGrid className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="primary" onClick={() => handleAddTransaccion()}>
-            <Plus className="h-4 w-4 mr-2" />
+          
+          <Button 
+            variant="primary" 
+            onClick={() => handleAddTransaccion()}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
             Nueva Transacción
           </Button>
         </div>

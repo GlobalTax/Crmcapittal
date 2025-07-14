@@ -193,28 +193,6 @@ export const TransaccionesKanban = React.memo(({
 
   return (
     <div className="space-y-4">
-      {/* Pipeline Selector */}
-      <div className="flex items-center justify-between">
-        {pipelines && pipelines.length > 0 && (
-          <PipelineSelector
-            selectedPipelineId={selectedPipelineId}
-            onPipelineChange={handlePipelineChange}
-            pipelineType="DEAL"
-          />
-        )}
-        
-        {onRefresh && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            disabled={isDragging}
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Actualizar
-          </Button>
-        )}
-      </div>
 
       {/* Drag Error Alert */}
       {dragError && (
