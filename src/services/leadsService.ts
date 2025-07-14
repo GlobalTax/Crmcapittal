@@ -136,6 +136,10 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
 export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
   console.log('Creating lead:', leadData);
 
+  // Get current user ID
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
   // Create in dedicated leads table
   const leadInsertData = {
     name: leadData.name,
@@ -148,7 +152,9 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     lead_score: leadData.lead_score || 0,
     lead_origin: leadData.lead_origin || 'manual',
     message: leadData.message,
-    tags: leadData.tags || []
+    tags: leadData.tags || [],
+    created_by: user.id,
+    assigned_to_id: user.id // Automatically assign to creator
   };
 
   const { data, error } = await supabase

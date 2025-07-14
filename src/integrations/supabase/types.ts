@@ -3134,6 +3134,7 @@ export type Database = {
           conversion_date: string | null
           converted_to_mandate_id: string | null
           created_at: string
+          created_by: string | null
           email: string
           id: string
           job_title: string | null
@@ -3161,6 +3162,7 @@ export type Database = {
           conversion_date?: string | null
           converted_to_mandate_id?: string | null
           created_at?: string
+          created_by?: string | null
           email: string
           id?: string
           job_title?: string | null
@@ -3188,6 +3190,7 @@ export type Database = {
           conversion_date?: string | null
           converted_to_mandate_id?: string | null
           created_at?: string
+          created_by?: string | null
           email?: string
           id?: string
           job_title?: string | null
