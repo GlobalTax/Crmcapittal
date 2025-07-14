@@ -48,19 +48,19 @@ const TransaccionKanbanColumn = memo(({
   });
 
   return (
-    <div className="min-w-[350px] flex-shrink-0">
+    <div className="min-w-[360px] flex-shrink-0">
       {/* Column Header */}
-      <div className="mb-4 p-2">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+      <div className="mb-6 px-1">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
             <div 
-              className="w-2 h-2 rounded-full"
+              className="w-3 h-3 rounded-full shadow-sm"
               style={{ backgroundColor: stage.color || '#6B7280' }}
             />
-            <h3 className="text-sm font-medium text-foreground">
+            <h3 className="text-base font-semibold text-foreground">
               {stage.name}
             </h3>
-            <div className="rounded bg-neutral-100 px-2 text-xs font-medium">
+            <div className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
               {transacciones.length}
             </div>
           </div>
@@ -80,11 +80,9 @@ const TransaccionKanbanColumn = memo(({
 
         {/* Stage Statistics */}
         {totalValue > 0 && (
-          <div className="text-xs text-muted-foreground mb-2">
-            <div className="flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" />
-              <span>Valor total: {formatCurrency(totalValue)}</span>
-            </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
+            <TrendingUp className="h-4 w-4" />
+            <span className="font-medium">Valor total: {formatCurrency(totalValue)}</span>
           </div>
         )}
       </div>
@@ -93,10 +91,10 @@ const TransaccionKanbanColumn = memo(({
       <div
         ref={setNodeRef}
         className={`
-          min-h-[400px] space-y-3 p-2 rounded-lg transition-all duration-200
+          min-h-[500px] space-y-4 p-3 rounded-xl transition-all duration-300 bg-muted/30
           ${isOver 
-            ? 'bg-primary/5 border-2 border-dashed border-primary/30 scale-[1.02]' 
-            : ''
+            ? 'bg-primary/10 border-2 border-dashed border-primary/50 scale-[1.01] shadow-lg' 
+            : 'border border-transparent'
           }
           ${isLoading ? 'opacity-50' : ''}
         `}
@@ -123,20 +121,23 @@ const TransaccionKanbanColumn = memo(({
 
         {/* Empty State */}
         {!isLoading && transacciones.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="mb-3 text-primary">
-              <Plus className="w-5 h-5" />
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+              <Plus className="h-6 w-6 text-primary" />
             </div>
-            <p className="text-sm text-muted-foreground mb-3">
-              Añade tu primera transacción
+            <p className="text-sm font-medium text-foreground mb-1">
+              Sin transacciones
+            </p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Añade tu primera transacción a esta etapa
             </p>
             {onAddTransaccion && (
               <Button
                 size="sm"
                 onClick={() => onAddTransaccion(stage.id)}
-                className="text-xs gap-1"
+                className="gap-2 font-medium"
               >
-                <Plus className="h-3 w-3" />
+                <Plus className="h-4 w-4" />
                 Nueva transacción
               </Button>
             )}
@@ -145,8 +146,8 @@ const TransaccionKanbanColumn = memo(({
 
         {/* Drop Indicator */}
         {isOver && (
-          <div className="border-2 border-dashed border-primary/50 rounded-lg p-4 bg-primary/5 text-center">
-            <p className="text-sm text-primary font-medium">
+          <div className="border-2 border-dashed border-primary/60 rounded-xl p-6 bg-primary/10 text-center backdrop-blur-sm">
+            <p className="text-sm text-primary font-semibold">
               Soltar aquí para mover a {stage.name}
             </p>
           </div>

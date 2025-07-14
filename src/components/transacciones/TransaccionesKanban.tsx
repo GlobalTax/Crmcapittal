@@ -208,14 +208,14 @@ export const TransaccionesKanban = React.memo(({
       )}
 
       {/* Kanban Board */}
-      <div className="h-full">
+      <div className="h-full p-6">
         <DndContext 
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragStart={handleDragStart} 
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-6 h-full overflow-x-auto pb-4 min-h-[600px]">
+          <div className="flex gap-6 h-full overflow-x-auto pb-6 min-h-[650px]">
             {filteredStages.map((stage) => (
               <SortableContext
                 key={stage.id}

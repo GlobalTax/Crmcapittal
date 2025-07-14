@@ -143,56 +143,63 @@ export default function MinimalTransacciones() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Transacciones M&A</h1>
-          <p className="text-gray-600 mt-1">Gestiona tus transacciones de fusiones y adquisiciones</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="secondary" 
-            onClick={refetch}
-            className="gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Actualizar
-          </Button>
-          
-          {viewMode === 'kanban' && (
-            <StageManagement />
-          )}
-          
-          <div className="flex rounded-lg border">
-            <Button
-              variant={viewMode === 'table' ? 'primary' : 'secondary'}
-              size="sm" 
-              onClick={() => setViewMode('table')}
-              className="rounded-r-none border-r-0"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'kanban' ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => setViewMode('kanban')}
-              className="rounded-l-none"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
+    <div className="min-h-screen bg-background">
+      <div className="container max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Transacciones M&A
+            </h1>
+            <p className="text-muted-foreground">
+              Gestiona tus transacciones de fusiones y adquisiciones
+            </p>
           </div>
           
-          <Button 
-            variant="primary" 
-            onClick={() => handleAddTransaccion()}
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Nueva Transacción
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button 
+              variant="secondary" 
+              size="sm"
+              onClick={refetch}
+              className="gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Actualizar
+            </Button>
+            
+            {viewMode === 'kanban' && (
+              <StageManagement />
+            )}
+            
+            <div className="flex items-center rounded-lg border bg-muted p-1">
+              <Button
+                variant={viewMode === 'table' ? 'primary' : 'ghost'}
+                size="sm" 
+                onClick={() => setViewMode('table')}
+                className="h-8 px-3"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'kanban' ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('kanban')}
+                className="h-8 px-3"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <Button 
+              variant="primary"
+              onClick={() => handleAddTransaccion()}
+              className="gap-2 font-medium"
+            >
+              <Plus className="h-4 w-4" />
+              Nueva Transacción
+            </Button>
+          </div>
         </div>
-      </div>
 
       {/* Filters */}
       <TransaccionFiltersComponent
@@ -202,56 +209,69 @@ export default function MinimalTransacciones() {
         uniqueValues={uniqueValues}
       />
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-4 border">
-          <div className="flex items-center">
-            <TrendingUp className="h-8 w-8 text-blue-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Total</p>
-              <p className="text-lg font-semibold">{filteredTransacciones.length}</p>
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="group">
+            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <TrendingUp className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Total</p>
+                <p className="text-2xl font-bold text-card-foreground">{filteredTransacciones.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="group">
+            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
+                <Briefcase className="h-6 w-6 text-success" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Activas</p>
+                <p className="text-2xl font-bold text-card-foreground">{filteredTransacciones.filter(t => t.is_active).length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="group">
+            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-warning/10">
+                <TrendingUp className="h-6 w-6 text-warning" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">En Progreso</p>
+                <p className="text-2xl font-bold text-card-foreground">{filteredTransacciones.filter(t => t.stage?.name === 'In Progress').length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="group">
+            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
+                <TrendingUp className="h-6 w-6 text-success" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
+                <p className="text-xl font-bold text-card-foreground">
+                  €{filteredTransacciones.reduce((sum, t) => sum + (t.valor_transaccion || 0), 0).toLocaleString()}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg p-4 border">
-          <div className="flex items-center">
-            <Briefcase className="h-8 w-8 text-green-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Activas</p>
-              <p className="text-lg font-semibold">{filteredTransacciones.filter(t => t.is_active).length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg p-4 border">
-          <div className="flex items-center">
-            <TrendingUp className="h-8 w-8 text-orange-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">En Progreso</p>
-              <p className="text-lg font-semibold">{filteredTransacciones.filter(t => t.stage?.name === 'In Progress').length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg p-4 border">
-          <div className="flex items-center">
-            <TrendingUp className="h-8 w-8 text-green-600" />
-            <div className="ml-3">
-              <p className="text-sm font-medium text-gray-500">Valor Total</p>
-              <p className="text-lg font-semibold">
-                €{filteredTransacciones.reduce((sum, t) => sum + (t.valor_transaccion || 0), 0).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Content */}
-      {viewMode === 'table' ? (
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
-            <h3 className="font-semibold">{filteredTransacciones.length} transacciones</h3>
-          </div>
-          <div className="p-4">
-            <Table>
+        {/* Content */}
+        {viewMode === 'table' ? (
+          <div className="rounded-lg border bg-card shadow-sm">
+            <div className="border-b px-6 py-4">
+              <h3 className="font-semibold text-card-foreground">
+                {filteredTransacciones.length} transacciones
+              </h3>
+            </div>
+            <div className="p-6">
+              <Table>
               <TableHeader>
                 <TableHead>Transacción</TableHead>
                 <TableHead>Empresa</TableHead>
@@ -310,19 +330,20 @@ export default function MinimalTransacciones() {
             </Table>
           </div>
         </div>
-      ) : (
-        <div className="bg-white rounded-lg border p-6">
-          <TransaccionesKanban
-            transacciones={filteredTransacciones}
-            onUpdateStage={updateTransaccionStage}
-            onEdit={handleEditTransaccion}
-            onView={handleViewTransaccion}
-            onAddTransaccion={handleAddTransaccion}
-            isLoading={loading}
-            onRefresh={refetch}
-          />
-        </div>
-      )}
+        ) : (
+          <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
+            <TransaccionesKanban
+              transacciones={filteredTransacciones}
+              onUpdateStage={updateTransaccionStage}
+              onEdit={handleEditTransaccion}
+              onView={handleViewTransaccion}
+              onAddTransaccion={handleAddTransaccion}
+              isLoading={loading}
+              onRefresh={refetch}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
