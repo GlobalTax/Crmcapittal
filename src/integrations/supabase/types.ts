@@ -3948,6 +3948,51 @@ export type Database = {
           },
         ]
       }
+      nylas_accounts: {
+        Row: {
+          access_token: string | null
+          account_status: string
+          connector_id: string | null
+          created_at: string | null
+          email_address: string
+          grant_id: string | null
+          id: string
+          last_sync_at: string | null
+          provider: string
+          settings: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          account_status?: string
+          connector_id?: string | null
+          created_at?: string | null
+          email_address: string
+          grant_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          provider?: string
+          settings?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          account_status?: string
+          connector_id?: string | null
+          created_at?: string | null
+          email_address?: string
+          grant_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          provider?: string
+          settings?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       operation_managers: {
         Row: {
           created_at: string
@@ -5059,6 +5104,9 @@ export type Database = {
           id: string
           ip_address: unknown | null
           lead_id: string | null
+          nylas_account_id: string | null
+          nylas_message_id: string | null
+          nylas_thread_id: string | null
           open_count: number
           opened_at: string | null
           operation_id: string | null
@@ -5078,6 +5126,9 @@ export type Database = {
           id?: string
           ip_address?: unknown | null
           lead_id?: string | null
+          nylas_account_id?: string | null
+          nylas_message_id?: string | null
+          nylas_thread_id?: string | null
           open_count?: number
           opened_at?: string | null
           operation_id?: string | null
@@ -5097,6 +5148,9 @@ export type Database = {
           id?: string
           ip_address?: unknown | null
           lead_id?: string | null
+          nylas_account_id?: string | null
+          nylas_message_id?: string | null
+          nylas_thread_id?: string | null
           open_count?: number
           opened_at?: string | null
           operation_id?: string | null
@@ -5136,6 +5190,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracked_emails_nylas_account_id_fkey"
+            columns: ["nylas_account_id"]
+            isOneToOne: false
+            referencedRelation: "nylas_accounts"
             referencedColumns: ["id"]
           },
           {

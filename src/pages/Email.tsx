@@ -4,6 +4,7 @@ import { EmailSidebar } from '@/components/email/EmailSidebar';
 import { EmailList } from '@/components/email/EmailList';
 import { EmailViewer } from '@/components/email/EmailViewer';
 import { EmailComposer } from '@/components/email/EmailComposer';
+import { EmailConfigDialog } from '@/components/email/EmailConfigDialog';
 import { useEmailTracking } from '@/hooks/useEmailTracking';
 import { TrackedEmail } from '@/types/EmailTracking';
 import { useToast } from '@/hooks/use-toast';
@@ -69,7 +70,10 @@ export default function Email() {
     <div className="h-screen bg-white flex flex-col">
       {/* Header limpio */}
       <div className="flex-shrink-0 border-b border-gray-200 bg-white px-6 py-4">
-        <h1 className="text-xl font-semibold text-gray-900">Sistema de Email</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-gray-900">Sistema de Email</h1>
+          <EmailConfigDialog />
+        </div>
       </div>
 
       {/* Contenido principal */}
