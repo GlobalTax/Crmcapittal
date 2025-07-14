@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UnifiedCard } from "@/components/ui/unified-card";
 import { LucideIcon } from "lucide-react";
 
 interface StatsCardProps {
@@ -19,40 +19,23 @@ export const StatsCard = ({
   title, 
   value, 
   description, 
-  icon: Icon, 
+  icon, 
   trend, 
-  bgColor = "bg-white",
-  textColor = "text-gray-900"
+  bgColor,
+  textColor
 }: StatsCardProps) => {
-  const isGradient = bgColor.includes('gradient');
-  const iconBgColor = isGradient ? "bg-white/20" : "bg-blue-50";
-  const iconTextColor = isGradient ? "text-white" : "text-blue-600";
-  const titleColor = isGradient ? "text-white/90" : "text-gray-600";
-  const descriptionColor = isGradient ? "text-white/80" : "text-gray-500";
-  const trendColor = trend?.isPositive ? 
-    (isGradient ? "text-white/90" : "text-green-600") : 
-    (isGradient ? "text-white/90" : "text-red-600");
+  // Convert trend to diff format for UnifiedCard
+  const diff = trend ? (trend.isPositive ? trend.value : -trend.value) : undefined;
 
   return (
-    <Card className={`${bgColor} border border-gray-200 p-4`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className={`text-sm font-medium ${titleColor}`}>{title}</CardTitle>
-        <div className={`w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}>
-          <Icon className={`h-6 w-6 ${iconTextColor}`} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className={`text-sm font-bold ${textColor} mb-1`}>{value}</div>
-        {description && (
-          <p className={`text-sm ${descriptionColor} mb-2`}>{description}</p>
-        )}
-        {trend && (
-          <div className={`text-sm flex items-center ${trendColor} font-medium`}>
-            <span className="mr-1 text-lg">{trend.isPositive ? '↗' : '↘'}</span>
-            {trend.isPositive ? '+' : ''}{trend.value}% desde el mes pasado
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <UnifiedCard
+      variant="stats"
+      title={title}
+      metric={value}
+      description={description}
+      icon={icon}
+      diff={diff}
+      className={bgColor}
+    />
   );
 };

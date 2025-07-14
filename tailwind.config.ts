@@ -51,8 +51,8 @@ export default {
 			},
 			colors: {
 				primary: {
-					DEFAULT: 'hsl(222, 100%, 58%)',
-					hover: 'hsl(222, 75%, 44%)',
+					DEFAULT: 'hsl(220, 91%, 55%)',
+					hover: 'hsl(220, 91%, 45%)',
 					foreground: 'hsl(0, 0%, 100%)'
 				},
 				neutral: {
@@ -61,7 +61,11 @@ export default {
 					900: 'hsl(0, 0%, 12%)',
 				},
 				success: {
-					DEFAULT: 'hsl(164, 100%, 38%)',
+					DEFAULT: 'hsl(142, 76%, 36%)',
+					foreground: 'hsl(0, 0%, 100%)'
+				},
+				warning: {
+					DEFAULT: 'hsl(38, 92%, 50%)',
 					foreground: 'hsl(0, 0%, 100%)'
 				},
 				border: 'hsl(var(--border))',
