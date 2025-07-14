@@ -55,18 +55,29 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
     source: 'other'
   });
 
+  // Generate lead name automatically
+  const generateLeadName = (name: string) => {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    return `${name} ${dateStr}`;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Create contact data for lead
+    // Create contact data with lead name for display
     const contactData: CreateContactData = {
-      name: formData.name,
+      name: generateLeadName(formData.name), // Use generated lead name for display
       email: formData.email,
       phone: formData.phone,
       company: formData.company,
       notes: formData.message,
       contact_type: 'lead',
-      lifecycle_stage: 'customer',
+      lifecycle_stage: 'marketing_qualified_lead',
       lead_source: formData.source,
       lead_origin: 'manual',
       lead_score: 0,

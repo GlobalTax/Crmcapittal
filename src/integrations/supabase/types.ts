@@ -3137,6 +3137,7 @@ export type Database = {
           email: string
           id: string
           job_title: string | null
+          lead_name: string | null
           lead_origin: string
           lead_score: number | null
           lead_type: Database["public"]["Enums"]["lead_type"] | null
@@ -3163,6 +3164,7 @@ export type Database = {
           email: string
           id?: string
           job_title?: string | null
+          lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
           lead_type?: Database["public"]["Enums"]["lead_type"] | null
@@ -3189,6 +3191,7 @@ export type Database = {
           email?: string
           id?: string
           job_title?: string | null
+          lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
           lead_type?: Database["public"]["Enums"]["lead_type"] | null

@@ -12,6 +12,7 @@ export type LeadQuality = 'POOR' | 'FAIR' | 'GOOD' | 'EXCELLENT';
 export interface Lead {
   id: string;
   name: string;
+  lead_name?: string;
   email: string;
   phone?: string;
   company_name?: string;
@@ -79,6 +80,7 @@ export interface Lead {
 
 export interface CreateLeadData {
   name: string;
+  lead_name?: string;
   email: string;
   phone?: string;
   company_name?: string;
@@ -96,6 +98,7 @@ export interface CreateLeadData {
 
 export interface UpdateLeadData {
   name?: string;
+  lead_name?: string;
   email?: string;
   phone?: string;
   company_name?: string;

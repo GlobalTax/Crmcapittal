@@ -20,7 +20,7 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
       let query = supabase
         .from('contacts')
         .select('*')
-        .eq('lifecycle_stage', 'lead')
+        .eq('lifecycle_stage', 'marketing_qualified_lead')
         .order('created_at', { ascending: false });
 
       if (filters.status) {
@@ -39,22 +39,54 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
     },
   });
 
-  // Create lead (contact with lifecycle_stage = 'lead')
+  // Create lead (contact with lifecycle_stage = 'lead' and also in leads table)
   const createLeadMutation = useMutation({
     mutationFn: async (leadData: CreateContactData) => {
-      const { data, error } = await supabase
+      // Create contact with generated lead name
+      const contactData = {
+        ...leadData,
+        contact_type: 'lead',
+        lifecycle_stage: 'marketing_qualified_lead',
+        lead_score: leadData.lead_score || 0,
+      };
+
+      const { data: contactResult, error: contactError } = await supabase
         .from('contacts')
-        .insert({
-          ...leadData,
-          contact_type: 'lead',
-          lifecycle_stage: 'lead',
-          lead_score: leadData.lead_score || 0,
-        })
+        .insert(contactData)
         .select()
         .single();
 
-      if (error) throw error;
-      return data as Contact;
+      if (contactError) throw contactError;
+
+      // Also create in leads table for lead management
+      // Extract the original name from the generated lead name (remove date suffix)
+      const leadNameMatch = leadData.name?.match(/^(.+) \d{2}\/\d{2}\/\d{4}$/);
+      const originalName = leadNameMatch ? leadNameMatch[1] : leadData.name;
+
+      const leadRecord = {
+        id: contactResult.id, // Use same ID as contact
+        name: originalName || leadData.name || '',
+        lead_name: leadData.name, // Store the generated name
+        email: leadData.email,
+        phone: leadData.phone,
+        company_name: leadData.company,
+        message: leadData.notes,
+        source: leadData.lead_source || 'other',
+        lead_origin: leadData.lead_origin || 'manual',
+        status: 'NEW' as const,
+        lead_score: leadData.lead_score || 0,
+      };
+
+      const { error: leadError } = await supabase
+        .from('leads')
+        .insert(leadRecord);
+
+      if (leadError) {
+        console.error('Error creating lead record:', leadError);
+        // Don't throw error here, contact was created successfully
+      }
+
+      return contactResult as Contact;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead-contacts'] });
@@ -127,7 +159,7 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
       const { data, error } = await supabase
         .from('contacts')
         .update({
-          lifecycle_stage: 'cliente',
+          lifecycle_stage: 'customer',
           contact_type: 'cliente',
           conversion_date: new Date().toISOString(),
         })
