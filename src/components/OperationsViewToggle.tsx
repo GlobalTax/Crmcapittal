@@ -8,7 +8,7 @@ interface OperationsViewToggleProps {
 
 export const OperationsViewToggle = ({ viewMode, onViewModeChange }: OperationsViewToggleProps) => {
   return (
-    <div className="flex items-center space-x-2 bg-white rounded-[10px] p-1" style={{ border: '0.5px solid black' }}>
+    <div className="flex items-center space-x-2 bg-white rounded-lg p-1" style={{ border: '0.5px solid black' }}>
       <Button
         variant={viewMode === 'grid' ? 'default' : 'ghost'}
         size="sm"

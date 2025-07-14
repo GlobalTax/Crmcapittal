@@ -80,7 +80,7 @@ export const ManagersList = () => {
 
       {/* Managers Grid */}
       {managers.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border-black p-12 text-center">
+        <div className="bg-white rounded-lg shadow-sm border-black p-12 text-center">
           <h3 className="text-sm font-medium text-black mb-2">No hay gestores registrados</h3>
           <p className="text-muted-foreground mb-4">Añade tu primer gestor al equipo</p>
           <Button 

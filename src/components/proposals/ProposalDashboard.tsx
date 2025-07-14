@@ -187,7 +187,7 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
           <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm bg-gradient-to-br from-background to-muted/30">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl ${card.bgColor} group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`p-3 rounded-lg ${card.bgColor} group-hover:scale-110 transition-transform duration-300`}>
                   <card.icon className={`h-5 w-5 ${card.color}`} />
                 </div>
                 {card.change !== undefined && (
@@ -296,7 +296,7 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
+                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Tasa de Conversión</p>
                       <p className="text-xs text-muted-foreground">Propuestas aprobadas</p>
@@ -307,7 +307,7 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                     </div>
                   </div>
                   
-                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
+                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Tiempo Promedio</p>
                       <p className="text-xs text-muted-foreground">Desde envío a cierre</p>
@@ -318,7 +318,7 @@ export const ProposalDashboard: React.FC<ProposalDashboardProps> = ({ proposals 
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-xl">
+                  <div className="flex justify-between items-center p-4 bg-muted/50 rounded-lg">
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Engagement</p>
                       <p className="text-xs text-muted-foreground">Visualizaciones promedio</p>

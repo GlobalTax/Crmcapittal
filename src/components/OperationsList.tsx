@@ -99,12 +99,12 @@ export const OperationsList = () => {
         </div>
 
         {/* Stats */}
-        <div className="bg-gray-50 rounded-xl p-6">
+        <div className="bg-gray-50 rounded-lg p-6">
           <OperationStats stats={stats} isFiltered={hasActiveFilters} />
         </div>
 
         {/* Filters */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
           <OperationFilters 
             onFiltersChange={handleFiltersChange} 
             operations={allOperations}
@@ -113,7 +113,7 @@ export const OperationsList = () => {
 
         {/* Results */}
         {operations.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-12">
+          <div className="bg-white border border-gray-200 rounded-lg p-12">
             <OperationsEmptyState 
               hasFilters={hasActiveFilters}
               onClearFilters={clearFilters}
@@ -135,7 +135,7 @@ export const OperationsList = () => {
                   isFavorite={isFavorite}
                 />
               ) : (
-                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                   <OperationsTable 
                     operations={operations}
                     onToggleFavorite={(operationId) => {

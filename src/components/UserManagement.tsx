@@ -555,7 +555,7 @@ const UserManagement = () => {
         </Dialog>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-black overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border border-black overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>

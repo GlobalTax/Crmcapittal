@@ -76,7 +76,7 @@ export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
               
               return (
                 <div key={activity.id} className="group">
-                  <div className="flex items-start space-x-4 p-4 rounded-xl hover:bg-accent/50 transition-all duration-200 border border-border hover:border-primary/20">
+                  <div className="flex items-start space-x-4 p-4 rounded-lg hover:bg-accent/50 transition-all duration-200 border border-border hover:border-primary/20">
                     {/* Timeline indicator */}
                     <div className="relative">
                       <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-md">

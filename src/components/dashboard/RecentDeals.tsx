@@ -105,7 +105,7 @@ export const RecentDeals = ({ operations, negocios, role }: RecentDealsProps) =>
             {recentDeals.map((deal) => (
               <div 
                 key={`${deal.type}-${deal.id}`}
-                className="group p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-accent/50 transition-all duration-200"
+                className="group p-4 rounded-lg border border-border hover:border-primary/20 hover:bg-accent/50 transition-all duration-200"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 min-w-0">
