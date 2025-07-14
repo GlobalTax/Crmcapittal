@@ -13,9 +13,13 @@ export const fetchLeads = async (filters?: {
 
   // Apply filters
   if (filters?.status) {
-    // Map our TypeScript enum to database enum values
-    const dbStatus = filters.status === 'NURTURING' ? 'NEW' : filters.status;
-    query = query.eq('status', dbStatus);
+    // Only filter by valid database status values
+    const validDbStatuses = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'] as const;
+    type DbLeadStatus = typeof validDbStatuses[number];
+    
+    if (validDbStatuses.includes(filters.status as DbLeadStatus)) {
+      query = query.eq('status', filters.status as DbLeadStatus);
+    }
   }
 
   if (filters?.assigned_to_id) {
@@ -53,6 +57,8 @@ export const fetchLeads = async (filters?: {
     source: lead.source as LeadSource,
     status: lead.status as LeadStatus,
     lead_origin: lead.lead_origin as LeadOrigin,
+    priority: lead.priority as LeadPriority,
+    quality: lead.quality as LeadQuality,
     // Add fields that don't exist in leads table yet, with default values
     follow_up_count: 0,
     email_opens: 0,
@@ -110,6 +116,8 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     source: data.source as LeadSource,
     status: data.status as LeadStatus,
     lead_origin: data.lead_origin as LeadOrigin,
+    priority: data.priority as LeadPriority,
+    quality: data.quality as LeadQuality,
     // Add fields that don't exist in leads table yet, with default values
     follow_up_count: 0,
     email_opens: 0,
@@ -161,6 +169,8 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     source: data.source as LeadSource,
     status: data.status as LeadStatus,
     lead_origin: data.lead_origin as LeadOrigin,
+    priority: data.priority as LeadPriority,
+    quality: data.quality as LeadQuality,
     // Add fields that don't exist in leads table yet
     follow_up_count: 0,
     email_opens: 0,
@@ -227,6 +237,8 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     source: data.source as LeadSource,
     status: data.status as LeadStatus,
     lead_origin: data.lead_origin as LeadOrigin,
+    priority: data.priority as LeadPriority,
+    quality: data.quality as LeadQuality,
     // Add fields that don't exist in leads table yet
     follow_up_count: 0,
     email_opens: 0,
@@ -384,6 +396,6 @@ export const convertLeadToContact = async (
 };
 
 // Export placeholder for missing function
-export const triggerAutomation = () => {
-  console.log('Automation triggered');
+export const triggerAutomation = (event?: string, data?: any) => {
+  console.log('Automation triggered:', event, data);
 };

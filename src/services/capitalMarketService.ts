@@ -99,8 +99,8 @@ export class CapitalMarketService {
     };
 
     // Trigger automation workflows
-    await triggerAutomation('lead_created', transformedLead);
-    await triggerAutomation('capital_market_lead_imported', transformedLead);
+    triggerAutomation('lead_created', transformedLead);
+    triggerAutomation('capital_market_lead_imported', transformedLead);
 
     // Start nurturing sequence if applicable
     await this.startNurturingSequence(transformedLead);
