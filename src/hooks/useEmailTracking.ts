@@ -104,25 +104,37 @@ const SAMPLE_EMAILS: TrackedEmail[] = [
   }
 ];
 
-export const useEmailTracking = (filters?: {
+export const useEmailTracking = (options?: {
   lead_id?: string;
   contact_id?: string;
   target_company_id?: string;
   operation_id?: string;
+  enabled?: boolean;
 }) => {
+  const filters = options ? {
+    lead_id: options.lead_id,
+    contact_id: options.contact_id,
+    target_company_id: options.target_company_id,
+    operation_id: options.operation_id
+  } : undefined;
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const {
-    data: emails = SAMPLE_EMAILS,
+    data: emails = [],
     isLoading,
     error
   } = useQuery({
     queryKey: ['tracked-emails', filters],
     queryFn: async () => {
-      // Siempre devolvemos los datos de prueba para que funcione
+      // Solo devolvemos datos si está habilitado
+      if (options?.enabled === false) {
+        return [];
+      }
+      // Datos de prueba para cuando esté habilitado
       return SAMPLE_EMAILS;
     },
+    enabled: options?.enabled !== false,
     refetchInterval: (query) => {
       // Smart polling: only refetch if tab is active and user is active
       if (document.hidden) return 300000; // 5 minutes when hidden
@@ -137,6 +149,9 @@ export const useEmailTracking = (filters?: {
   } = useQuery({
     queryKey: ['email-stats'],
     queryFn: async () => {
+      if (options?.enabled === false) {
+        return { totalSent: 0, totalOpened: 0, openRate: 0, recentEmails: [] };
+      }
       return {
         totalSent: SAMPLE_EMAILS.length,
         totalOpened: SAMPLE_EMAILS.filter(e => e.status === 'OPENED').length,
@@ -144,6 +159,7 @@ export const useEmailTracking = (filters?: {
         recentEmails: SAMPLE_EMAILS.slice(0, 3)
       };
     },
+    enabled: options?.enabled !== false,
     refetchInterval: (query) => {
       if (document.hidden) return 300000; // 5 minutes when hidden
       return 120000; // 2 minutes when active (less frequent for stats)

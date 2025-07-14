@@ -16,12 +16,16 @@ export default function Email() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   
-  const { emails, isLoading, error } = useEmailTracking();
   const { accounts, isLoading: accountsLoading } = useNylasAccounts();
   const { toast } = useToast();
 
   // Check if user has configured email accounts
   const hasConfiguredAccounts = accounts && accounts.length > 0;
+  
+  // Only use email tracking when accounts are configured
+  const { emails, isLoading, error } = useEmailTracking({
+    enabled: hasConfiguredAccounts
+  });
 
   const handleEmailSelect = (email: TrackedEmail) => {
     setSelectedEmail(email);
