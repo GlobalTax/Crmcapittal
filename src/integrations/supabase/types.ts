@@ -3169,6 +3169,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           email: string
+          highlighted: boolean | null
           id: string
           job_title: string | null
           lead_name: string | null
@@ -3181,6 +3182,7 @@ export type Database = {
           phone: string | null
           priority: string | null
           quality: string | null
+          rod_order: number | null
           source: string
           stage_id: string | null
           status: Database["public"]["Enums"]["lead_status"]
@@ -3197,6 +3199,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           email: string
+          highlighted?: boolean | null
           id?: string
           job_title?: string | null
           lead_name?: string | null
@@ -3209,6 +3212,7 @@ export type Database = {
           phone?: string | null
           priority?: string | null
           quality?: string | null
+          rod_order?: number | null
           source: string
           stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
@@ -3225,6 +3229,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           email?: string
+          highlighted?: boolean | null
           id?: string
           job_title?: string | null
           lead_name?: string | null
@@ -3237,6 +3242,7 @@ export type Database = {
           phone?: string | null
           priority?: string | null
           quality?: string | null
+          rod_order?: number | null
           source?: string
           stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
@@ -4077,6 +4083,7 @@ export type Database = {
           date: string
           description: string | null
           ebitda: number | null
+          highlighted: boolean | null
           id: string
           location: string | null
           manager_id: string | null
@@ -4084,6 +4091,7 @@ export type Database = {
           photo_url: string | null
           project_name: string | null
           revenue: number | null
+          rod_order: number | null
           sector: string
           seller: string | null
           stage_id: string | null
@@ -4105,6 +4113,7 @@ export type Database = {
           date: string
           description?: string | null
           ebitda?: number | null
+          highlighted?: boolean | null
           id?: string
           location?: string | null
           manager_id?: string | null
@@ -4112,6 +4121,7 @@ export type Database = {
           photo_url?: string | null
           project_name?: string | null
           revenue?: number | null
+          rod_order?: number | null
           sector: string
           seller?: string | null
           stage_id?: string | null
@@ -4133,6 +4143,7 @@ export type Database = {
           date?: string
           description?: string | null
           ebitda?: number | null
+          highlighted?: boolean | null
           id?: string
           location?: string | null
           manager_id?: string | null
@@ -4140,6 +4151,7 @@ export type Database = {
           photo_url?: string | null
           project_name?: string | null
           revenue?: number | null
+          rod_order?: number | null
           sector?: string
           seller?: string | null
           stage_id?: string | null
