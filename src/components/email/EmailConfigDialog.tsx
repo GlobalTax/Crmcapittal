@@ -56,14 +56,15 @@ export const EmailConfigDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" size="sm" className="font-medium shadow-sm">
-          <Settings className="h-4 w-4 mr-2" />
-          Configurar Email
+        <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg">
+          <Settings className="h-5 w-5 mr-3" />
+          Configurar Email con Nylas
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Configuración de Cuentas de Email</DialogTitle>
+          <DialogTitle className="text-2xl">Configuración de Email con Nylas</DialogTitle>
+          <p className="text-gray-600">Conecta tu cuenta de DonDominio para sincronizar tus emails</p>
         </DialogHeader>
         
         <div className="space-y-6">
