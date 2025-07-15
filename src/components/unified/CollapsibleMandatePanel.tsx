@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { 
   FileText, 
@@ -12,12 +10,11 @@ import {
   Calendar,
   TrendingUp,
   Building2,
-  Target
+  Target,
+  Edit,
+  Euro,
+  MapPin
 } from 'lucide-react';
-import { FloatingEditButton } from './collapsible/FloatingEditButton';
-import { EntityHeader } from './collapsible/EntityHeader';
-import { EssentialInfo, EssentialField } from './collapsible/EssentialInfo';
-import { CollapsibleSection } from './collapsible/CollapsibleSection';
 import { BuyingMandate } from '@/types/BuyingMandate';
 
 interface CollapsibleMandatePanelProps {
@@ -28,19 +25,6 @@ interface CollapsibleMandatePanelProps {
 
 export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate }: CollapsibleMandatePanelProps) => {
   const navigate = useNavigate();
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(section)) {
-        newSet.delete(section);
-      } else {
-        newSet.add(section);
-      }
-      return newSet;
-    });
-  };
 
   const getStatusBadge = (status: BuyingMandate['status']) => {
     const statusConfig = {
@@ -67,139 +51,140 @@ export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate }: Collapsib
     return new Date(dateString).toLocaleDateString('es-ES');
   };
 
+  const formatRange = (min?: number, max?: number) => {
+    if (min && max) return `${formatCurrency(min)} - ${formatCurrency(max)}`;
+    if (min) return `Desde ${formatCurrency(min)}`;
+    if (max) return `Hasta ${formatCurrency(max)}`;
+    return 'No especificado';
+  };
+
   return (
-    <Card className="relative">
-      <FloatingEditButton onClick={() => onEdit(mandate)} />
-      
-      <EntityHeader
-        icon={<FileText className="h-5 w-5" />}
-        title={mandate.mandate_name}
-        badge={getStatusBadge(mandate.status)}
-      />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{mandate.mandate_name}</h1>
+          <p className="text-muted-foreground">
+            Mandato de compra - {mandate.client_name}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {getStatusBadge(mandate.status)}
+          <Button variant="outline" size="sm" onClick={() => onEdit(mandate)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Editar
+          </Button>
+        </div>
+      </div>
 
-      <CardContent className="space-y-4">
-        {/* Essential Information - Always Visible */}
-        <EssentialInfo>
-          <div className="space-y-2">
-            <EssentialField 
-              icon={<User className="h-4 w-4 text-muted-foreground" />} 
-              label="Cliente"
-              value={mandate.client_name} 
-            />
-            <EssentialField 
-              icon={<Calendar className="h-4 w-4 text-muted-foreground" />} 
-              label="Inicio"
-              value={formatDate(mandate.start_date)} 
-            />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-              <span>Sectores: {mandate.target_sectors.slice(0, 2).join(', ')}</span>
-              {mandate.target_sectors.length > 2 && (
-                <Badge variant="outline" className="text-xs">
-                  +{mandate.target_sectors.length - 2}
-                </Badge>
-              )}
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Facturación Objetivo</CardTitle>
+            <Euro className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-lg font-bold">
+              {formatRange(mandate.min_revenue, mandate.max_revenue)}
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => navigate(`/mandatos/${mandate.id}`)}
-              className="text-xs h-7"
-            >
-              <Target className="h-3 w-3 mr-1" />
-              Ver Mandato
-            </Button>
-          </div>
-        </EssentialInfo>
+            <p className="text-xs text-muted-foreground">Rango buscado</p>
+          </CardContent>
+        </Card>
 
-        {/* Client Information - Collapsible */}
-        <CollapsibleSection
-          title="Información del Cliente"
-          icon={<User className="h-4 w-4" />}
-          isOpen={expandedSections.has('client')}
-          onToggle={() => toggleSection('client')}
-        >
-          <div className="space-y-3">
-            <EssentialField 
-              icon={<User className="h-4 w-4 text-muted-foreground" />} 
-              label="Contacto"
-              value={mandate.client_contact} 
-            />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">EBITDA Objetivo</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-lg font-bold">
+              {formatRange(mandate.min_ebitda, mandate.max_ebitda)}
+            </div>
+            <p className="text-xs text-muted-foreground">Rango buscado</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Sectores</CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-lg font-bold">{mandate.target_sectors.length}</div>
+            <p className="text-xs text-muted-foreground">
+              {mandate.target_sectors.slice(0, 2).join(', ')}
+              {mandate.target_sectors.length > 2 && ` +${mandate.target_sectors.length - 2}`}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Duración</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-lg font-bold">
+              {Math.ceil((new Date(mandate.end_date || new Date()).getTime() - new Date(mandate.start_date).getTime()) / (1000 * 60 * 60 * 24))} días
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Desde {formatDate(mandate.start_date)}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Details Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Client Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Información del Cliente</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="font-medium mb-2">Cliente</h4>
+              <p className="text-sm text-muted-foreground">{mandate.client_name}</p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Contacto Principal</h4>
+              <p className="text-sm text-muted-foreground">{mandate.client_contact}</p>
+            </div>
             {mandate.client_email && (
-              <EssentialField 
-                icon={<Mail className="h-4 w-4 text-muted-foreground" />} 
-                value={mandate.client_email}
-                href={`mailto:${mandate.client_email}`}
-              />
+              <div>
+                <h4 className="font-medium mb-2">Email</h4>
+                <a 
+                  href={`mailto:${mandate.client_email}`}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {mandate.client_email}
+                </a>
+              </div>
             )}
             {mandate.client_phone && (
-              <EssentialField 
-                icon={<Phone className="h-4 w-4 text-muted-foreground" />} 
-                value={mandate.client_phone}
-                href={`tel:${mandate.client_phone}`}
-              />
+              <div>
+                <h4 className="font-medium mb-2">Teléfono</h4>
+                <a 
+                  href={`tel:${mandate.client_phone}`}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {mandate.client_phone}
+                </a>
+              </div>
             )}
-          </div>
-        </CollapsibleSection>
+          </CardContent>
+        </Card>
 
-        {/* Financial Criteria - Collapsible */}
-        {(mandate.min_revenue || mandate.max_revenue || mandate.min_ebitda || mandate.max_ebitda) && (
-          <CollapsibleSection
-            title="Criterios Financieros"
-            icon={<TrendingUp className="h-4 w-4" />}
-            isOpen={expandedSections.has('financial')}
-            onToggle={() => toggleSection('financial')}
-          >
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <span className="text-sm text-muted-foreground">Rango Facturación</span>
-                <div className="font-medium text-sm">
-                  {mandate.min_revenue && mandate.max_revenue ? (
-                    <>
-                      {formatCurrency(mandate.min_revenue)} - {formatCurrency(mandate.max_revenue)}
-                    </>
-                  ) : mandate.min_revenue ? (
-                    <>Desde {formatCurrency(mandate.min_revenue)}</>
-                  ) : mandate.max_revenue ? (
-                    <>Hasta {formatCurrency(mandate.max_revenue)}</>
-                  ) : (
-                    'No especificado'
-                  )}
-                </div>
-              </div>
-              <div>
-                <span className="text-sm text-muted-foreground">Rango EBITDA</span>
-                <div className="font-medium text-sm">
-                  {mandate.min_ebitda && mandate.max_ebitda ? (
-                    <>
-                      {formatCurrency(mandate.min_ebitda)} - {formatCurrency(mandate.max_ebitda)}
-                    </>
-                  ) : mandate.min_ebitda ? (
-                    <>Desde {formatCurrency(mandate.min_ebitda)}</>
-                  ) : mandate.max_ebitda ? (
-                    <>Hasta {formatCurrency(mandate.max_ebitda)}</>
-                  ) : (
-                    'No especificado'
-                  )}
-                </div>
-              </div>
-            </div>
-          </CollapsibleSection>
-        )}
-
-        {/* Target Criteria - Collapsible */}
-        <CollapsibleSection
-          title="Criterios de Búsqueda"
-          icon={<Target className="h-4 w-4" />}
-          isOpen={expandedSections.has('criteria')}
-          onToggle={() => toggleSection('criteria')}
-        >
-          <div className="space-y-3">
+        {/* Search Criteria */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Criterios de Búsqueda</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <span className="text-sm text-muted-foreground">Sectores Objetivo</span>
-              <div className="flex flex-wrap gap-1 mt-1">
+              <h4 className="font-medium mb-2">Sectores Objetivo</h4>
+              <div className="flex flex-wrap gap-1">
                 {mandate.target_sectors.map((sector) => (
                   <Badge key={sector} variant="outline" className="text-xs">
                     {sector}
@@ -207,42 +192,38 @@ export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate }: Collapsib
                 ))}
               </div>
             </div>
-            {mandate.target_locations.length > 0 && (
+            
+            {mandate.target_locations && mandate.target_locations.length > 0 && (
               <div>
-                <span className="text-sm text-muted-foreground">Ubicaciones Objetivo</span>
-                <div className="flex flex-wrap gap-1 mt-1">
+                <h4 className="font-medium mb-2">Ubicaciones</h4>
+                <div className="flex flex-wrap gap-1">
                   {mandate.target_locations.map((location) => (
                     <Badge key={location} variant="outline" className="text-xs">
-                      📍 {location}
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {location}
                     </Badge>
                   ))}
                 </div>
               </div>
             )}
-          </div>
-        </CollapsibleSection>
 
-        {/* Other Criteria - Collapsible */}
-        {mandate.other_criteria && (
-          <CollapsibleSection
-            title="Otros Criterios"
-            icon={<FileText className="h-4 w-4" />}
-            isOpen={expandedSections.has('other')}
-            onToggle={() => toggleSection('other')}
-          >
-            <p className="text-sm">{mandate.other_criteria}</p>
-          </CollapsibleSection>
-        )}
+            {mandate.other_criteria && (
+              <div>
+                <h4 className="font-medium mb-2">Otros Criterios</h4>
+                <p className="text-sm text-muted-foreground">{mandate.other_criteria}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Metadata */}
-        <Separator />
-        <div className="flex justify-between items-center text-xs text-muted-foreground">
-          <span>Inicio: {formatDate(mandate.start_date)}</span>
-          {mandate.end_date && (
-            <span>Fin: {formatDate(mandate.end_date)}</span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      {/* Action Buttons */}
+      <div className="flex justify-end">
+        <Button onClick={() => navigate(`/mandatos/${mandate.id}`)}>
+          <Target className="h-4 w-4 mr-2" />
+          Ver Mandato Completo
+        </Button>
+      </div>
+    </div>
   );
 };
