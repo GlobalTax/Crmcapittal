@@ -126,8 +126,8 @@ export const EnhancedTimeSheet = ({
     return null;
   };
 
-  const filteredEntries = useMemo(() => {
-    return timeEntries.filter(entry => {
+  const groupedEntries = useMemo(() => {
+    const filtered = timeEntries.filter(entry => {
       const projectInfo = getProjectInfo(entry);
       const searchText = `${entry.description || ''} ${entry.activity_type} ${projectInfo?.name || ''}`.toLowerCase();
       
@@ -146,205 +146,324 @@ export const EnhancedTimeSheet = ({
       
       return true;
     });
+
+    // Group entries by date
+    const grouped = filtered.reduce((acc, entry) => {
+      const date = format(new Date(entry.start_time), 'yyyy-MM-dd');
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(entry);
+      return acc;
+    }, {} as Record<string, typeof filtered>);
+
+    // Sort dates in descending order and sort entries within each date
+    const sortedGroups = Object.keys(grouped)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+      .map(date => ({
+        date,
+        entries: grouped[date].sort((a, b) => 
+          new Date(b.start_time).getTime() - new Date(a.start_time).getTime()
+        )
+      }));
+
+    return sortedGroups;
   }, [timeEntries, filter, typeFilter, billableFilter, projectFilter]);
+
+  const filteredEntries = useMemo(() => {
+    return groupedEntries.flatMap(group => group.entries);
+  }, [groupedEntries]);
 
   const uniqueActivityTypes = [...new Set(timeEntries.map(e => e.activity_type))];
   const totalDuration = filteredEntries.reduce((sum, entry) => sum + (entry.duration_minutes || 0), 0);
   const billableDuration = filteredEntries.filter(e => e.is_billable).reduce((sum, entry) => sum + (entry.duration_minutes || 0), 0);
 
+  const getDateLabel = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd')) {
+      return 'Hoy';
+    } else if (format(date, 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd')) {
+      return 'Ayer';
+    } else {
+      return format(date, "EEEE, d 'de' MMMM", { locale: es });
+    }
+  };
+
   const TableView = () => (
-    <Table>
-      <TableHeader>
-        <TableRow className="bg-muted/50">
-          <TableHead className="w-16">Tipo</TableHead>
-          <TableHead>Descripción</TableHead>
-          <TableHead className="w-48">Proyecto</TableHead>
-          <TableHead className="w-24">Inicio</TableHead>
-          <TableHead className="w-24">Fin</TableHead>
-          <TableHead className="w-20">Tiempo</TableHead>
-          <TableHead className="w-20">Estado</TableHead>
-          <TableHead className="w-16">Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {filteredEntries.map((entry) => {
-          const projectInfo = getProjectInfo(entry);
-          return (
-            <TableRow key={entry.id} className="hover:bg-muted/30">
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  {getActivityIcon(entry.activity_type)}
-                  <Badge variant="outline" className="text-xs">
-                    {getActivityTypeLabel(entry.activity_type)}
-                  </Badge>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="max-w-xs">
-                  <p className="text-sm font-medium truncate">
-                    {entry.planned_task?.title || entry.description || 'Sin descripción'}
+    <div className="space-y-6">
+      {groupedEntries.map((group) => {
+        const dayTotal = group.entries.reduce((sum, entry) => sum + (entry.duration_minutes || 0), 0);
+        const dayBillable = group.entries.filter(e => e.is_billable).reduce((sum, entry) => sum + (entry.duration_minutes || 0), 0);
+        
+        return (
+          <div key={group.date} className="space-y-4">
+            {/* Date Header */}
+            <div className="flex items-center justify-between py-3 px-4 bg-muted/30 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <h3 className="font-semibold text-lg">{getDateLabel(group.date)}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {format(new Date(group.date), "dd/MM/yyyy")}
                   </p>
-                  {entry.planned_task?.title && entry.description && (
-                    <p className="text-xs text-muted-foreground truncate">
-                      {entry.description}
-                    </p>
-                  )}
                 </div>
-              </TableCell>
-              <TableCell>
-                {projectInfo ? (
-                  <div className="flex items-center gap-2">
-                    <Badge className={`text-xs ${projectInfo.color}`}>
-                      {projectInfo.type === 'lead' ? 'Lead' : 
-                       projectInfo.type === 'mandate' ? 'Mandato' : 'Contacto'}
-                    </Badge>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{projectInfo.name}</p>
-                      {projectInfo.subtitle && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {projectInfo.subtitle}
-                        </p>
-                      )}
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-4 w-4 p-0"
-                      onClick={() => {
-                        // Navigate to project details
-                        const baseUrl = projectInfo.type === 'lead' ? '/leads' : 
-                                       projectInfo.type === 'mandate' ? '/mandates' : '/contacts';
-                        window.open(`${baseUrl}/${projectInfo.id}`, '_blank');
-                      }}
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground text-xs">Sin proyecto</span>
-                )}
-              </TableCell>
-              <TableCell className="text-xs text-muted-foreground">
-                {format(new Date(entry.start_time), 'HH:mm', { locale: es })}
-              </TableCell>
-              <TableCell className="text-xs text-muted-foreground">
-                {entry.end_time ? format(new Date(entry.end_time), 'HH:mm', { locale: es }) : 'En curso'}
-              </TableCell>
-              <TableCell>
-                <span className="font-mono text-sm font-medium">
-                  {formatDuration(entry.duration_minutes || 0)}
-                </span>
-              </TableCell>
-              <TableCell>
-                <Badge 
-                  variant={entry.is_billable ? 'default' : 'secondary'}
-                  className="text-xs"
-                >
-                  {entry.is_billable ? 'Facturable' : 'No fact.'}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      <MoreHorizontal className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onDuplicateEntry(entry)}>
-                      <Copy className="h-3 w-3 mr-2" />
-                      Duplicar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onContinueTask(entry)}>
-                      <Play className="h-3 w-3 mr-2" />
-                      Continuar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEditEntry(entry)}>
-                      <Edit className="h-3 w-3 mr-2" />
-                      Editar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+              </div>
+              <div className="flex items-center gap-6 text-sm">
+                <div className="text-center">
+                  <p className="text-muted-foreground">Total</p>
+                  <p className="font-mono font-semibold">{formatDuration(dayTotal)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-muted-foreground">Facturable</p>
+                  <p className="font-mono font-semibold text-green-600">{formatDuration(dayBillable)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-muted-foreground">Entradas</p>
+                  <p className="font-semibold">{group.entries.length}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Entries Table */}
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="w-16">Tipo</TableHead>
+                  <TableHead>Descripción</TableHead>
+                  <TableHead className="w-48">Proyecto</TableHead>
+                  <TableHead className="w-24">Inicio</TableHead>
+                  <TableHead className="w-24">Fin</TableHead>
+                  <TableHead className="w-20">Tiempo</TableHead>
+                  <TableHead className="w-20">Estado</TableHead>
+                  <TableHead className="w-16">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {group.entries.map((entry) => {
+                  const projectInfo = getProjectInfo(entry);
+                  return (
+                    <TableRow key={entry.id} className="hover:bg-muted/30">
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getActivityIcon(entry.activity_type)}
+                          <Badge variant="outline" className="text-xs">
+                            {getActivityTypeLabel(entry.activity_type)}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-xs">
+                          <p className="text-sm font-medium truncate">
+                            {entry.planned_task?.title || entry.description || 'Sin descripción'}
+                          </p>
+                          {entry.planned_task?.title && entry.description && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {entry.description}
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {projectInfo ? (
+                          <div className="flex items-center gap-2">
+                            <Badge className={`text-xs ${projectInfo.color}`}>
+                              {projectInfo.type === 'lead' ? 'Lead' : 
+                               projectInfo.type === 'mandate' ? 'Mandato' : 'Contacto'}
+                            </Badge>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">{projectInfo.name}</p>
+                              {projectInfo.subtitle && (
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {projectInfo.subtitle}
+                                </p>
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-4 w-4 p-0"
+                              onClick={() => {
+                                // Navigate to project details
+                                const baseUrl = projectInfo.type === 'lead' ? '/leads' : 
+                                               projectInfo.type === 'mandate' ? '/mandates' : '/contacts';
+                                window.open(`${baseUrl}/${projectInfo.id}`, '_blank');
+                              }}
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">Sin proyecto</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {format(new Date(entry.start_time), 'HH:mm', { locale: es })}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {entry.end_time ? format(new Date(entry.end_time), 'HH:mm', { locale: es }) : 'En curso'}
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-mono text-sm font-medium">
+                          {formatDuration(entry.duration_minutes || 0)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={entry.is_billable ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {entry.is_billable ? 'Facturable' : 'No fact.'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <MoreHorizontal className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onDuplicateEntry(entry)}>
+                              <Copy className="h-3 w-3 mr-2" />
+                              Duplicar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onContinueTask(entry)}>
+                              <Play className="h-3 w-3 mr-2" />
+                              Continuar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEditEntry(entry)}>
+                              <Edit className="h-3 w-3 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        );
+      })}
+    </div>
   );
 
   const CardsView = () => (
-    <div className="grid gap-4">
-      {filteredEntries.map((entry) => {
-        const projectInfo = getProjectInfo(entry);
+    <div className="space-y-6">
+      {groupedEntries.map((group) => {
+        const dayTotal = group.entries.reduce((sum, entry) => sum + (entry.duration_minutes || 0), 0);
+        const dayBillable = group.entries.filter(e => e.is_billable).reduce((sum, entry) => sum + (entry.duration_minutes || 0), 0);
+        
         return (
-          <Card key={entry.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    {getActivityIcon(entry.activity_type)}
-                    <Badge variant="outline" className="text-xs">
-                      {getActivityTypeLabel(entry.activity_type)}
-                    </Badge>
-                    {projectInfo && (
-                      <Badge className={`text-xs ${projectInfo.color}`}>
-                        {projectInfo.type === 'lead' ? 'Lead' : 
-                         projectInfo.type === 'mandate' ? 'Mandato' : 'Contacto'}
-                      </Badge>
-                    )}
-                    <Badge 
-                      variant={entry.is_billable ? 'default' : 'secondary'}
-                      className="text-xs"
-                    >
-                      {entry.is_billable ? 'Facturable' : 'No fact.'}
-                    </Badge>
-                  </div>
-                  
-                  <h4 className="font-medium text-sm mb-1">
-                    {entry.planned_task?.title || entry.description || 'Sin descripción'}
-                  </h4>
-                  
-                  {projectInfo && (
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {projectInfo.name} {projectInfo.subtitle && `- ${projectInfo.subtitle}`}
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>{format(new Date(entry.start_time), 'HH:mm', { locale: es })}</span>
-                    <span>-</span>
-                    <span>{entry.end_time ? format(new Date(entry.end_time), 'HH:mm', { locale: es }) : 'En curso'}</span>
-                    <span className="font-mono font-medium">
-                      {formatDuration(entry.duration_minutes || 0)}
-                    </span>
-                  </div>
+          <div key={group.date} className="space-y-4">
+            {/* Date Header */}
+            <div className="flex items-center justify-between py-3 px-4 bg-muted/30 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <h3 className="font-semibold text-lg">{getDateLabel(group.date)}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {format(new Date(group.date), "dd/MM/yyyy")}
+                  </p>
                 </div>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      <MoreHorizontal className="h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onDuplicateEntry(entry)}>
-                      <Copy className="h-3 w-3 mr-2" />
-                      Duplicar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onContinueTask(entry)}>
-                      <Play className="h-3 w-3 mr-2" />
-                      Continuar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEditEntry(entry)}>
-                      <Edit className="h-3 w-3 mr-2" />
-                      Editar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-center gap-6 text-sm">
+                <div className="text-center">
+                  <p className="text-muted-foreground">Total</p>
+                  <p className="font-mono font-semibold">{formatDuration(dayTotal)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-muted-foreground">Facturable</p>
+                  <p className="font-mono font-semibold text-green-600">{formatDuration(dayBillable)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-muted-foreground">Entradas</p>
+                  <p className="font-semibold">{group.entries.length}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Entries Cards */}
+            <div className="grid gap-4">
+              {group.entries.map((entry) => {
+                const projectInfo = getProjectInfo(entry);
+                return (
+                  <Card key={entry.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            {getActivityIcon(entry.activity_type)}
+                            <Badge variant="outline" className="text-xs">
+                              {getActivityTypeLabel(entry.activity_type)}
+                            </Badge>
+                            {projectInfo && (
+                              <Badge className={`text-xs ${projectInfo.color}`}>
+                                {projectInfo.type === 'lead' ? 'Lead' : 
+                                 projectInfo.type === 'mandate' ? 'Mandato' : 'Contacto'}
+                              </Badge>
+                            )}
+                            <Badge 
+                              variant={entry.is_billable ? 'default' : 'secondary'}
+                              className="text-xs"
+                            >
+                              {entry.is_billable ? 'Facturable' : 'No fact.'}
+                            </Badge>
+                          </div>
+                          
+                          <h4 className="font-medium text-sm mb-1">
+                            {entry.planned_task?.title || entry.description || 'Sin descripción'}
+                          </h4>
+                          
+                          {projectInfo && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {projectInfo.name} {projectInfo.subtitle && `- ${projectInfo.subtitle}`}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>{format(new Date(entry.start_time), 'HH:mm', { locale: es })}</span>
+                            <span>-</span>
+                            <span>{entry.end_time ? format(new Date(entry.end_time), 'HH:mm', { locale: es }) : 'En curso'}</span>
+                            <span className="font-mono font-medium">
+                              {formatDuration(entry.duration_minutes || 0)}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <MoreHorizontal className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onDuplicateEntry(entry)}>
+                              <Copy className="h-3 w-3 mr-2" />
+                              Duplicar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onContinueTask(entry)}>
+                              <Play className="h-3 w-3 mr-2" />
+                              Continuar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEditEntry(entry)}>
+                              <Edit className="h-3 w-3 mr-2" />
+                              Editar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
         );
       })}
     </div>
