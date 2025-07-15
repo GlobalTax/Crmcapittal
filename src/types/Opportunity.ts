@@ -31,6 +31,11 @@ export interface Opportunity {
   ebitda?: number;
   multiplier?: number;
   
+  // ROD Builder fields
+  highlighted?: boolean;
+  rod_order?: number;
+  notes?: string;
+  
   // Campos de auditoría
   created_at: string;
   updated_at: string;
@@ -68,6 +73,9 @@ export interface CreateOpportunityData {
   revenue?: number;
   ebitda?: number;
   multiplier?: number;
+  highlighted?: boolean;
+  rod_order?: number;
+  notes?: string;
 }
 
 export interface UpdateOpportunityData extends Partial<CreateOpportunityData> {

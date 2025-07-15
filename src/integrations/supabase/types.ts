@@ -116,6 +116,39 @@ export type Database = {
         }
         Relationships: []
       }
+      campaigns: {
+        Row: {
+          audience: string
+          created_at: string
+          created_by: string | null
+          html_body: string
+          id: string
+          opportunity_ids: string[]
+          sent_at: string
+          subject: string
+        }
+        Insert: {
+          audience?: string
+          created_at?: string
+          created_by?: string | null
+          html_body: string
+          id?: string
+          opportunity_ids?: string[]
+          sent_at?: string
+          subject: string
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          created_by?: string | null
+          html_body?: string
+          id?: string
+          opportunity_ids?: string[]
+          sent_at?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       cases: {
         Row: {
           actual_hours: number | null
@@ -4143,14 +4176,17 @@ export type Database = {
           description: string | null
           ebitda: number | null
           employees: number | null
+          highlighted: boolean | null
           id: string
           is_active: boolean
           location: string | null
           multiplier: number | null
+          notes: string | null
           opportunity_type: string
           priority: string | null
           probability: number | null
           revenue: number | null
+          rod_order: number | null
           sector: string | null
           stage: string
           status: string
@@ -4169,14 +4205,17 @@ export type Database = {
           description?: string | null
           ebitda?: number | null
           employees?: number | null
+          highlighted?: boolean | null
           id?: string
           is_active?: boolean
           location?: string | null
           multiplier?: number | null
+          notes?: string | null
           opportunity_type?: string
           priority?: string | null
           probability?: number | null
           revenue?: number | null
+          rod_order?: number | null
           sector?: string | null
           stage?: string
           status?: string
@@ -4195,14 +4234,17 @@ export type Database = {
           description?: string | null
           ebitda?: number | null
           employees?: number | null
+          highlighted?: boolean | null
           id?: string
           is_active?: boolean
           location?: string | null
           multiplier?: number | null
+          notes?: string | null
           opportunity_type?: string
           priority?: string | null
           probability?: number | null
           revenue?: number | null
+          rod_order?: number | null
           sector?: string | null
           stage?: string
           status?: string
@@ -4713,6 +4755,27 @@ export type Database = {
           },
         ]
       }
+      rod_log: {
+        Row: {
+          created_by: string | null
+          deals: Json
+          id: string
+          sent_at: string
+        }
+        Insert: {
+          created_by?: string | null
+          deals?: Json
+          id?: string
+          sent_at?: string
+        }
+        Update: {
+          created_by?: string | null
+          deals?: Json
+          id?: string
+          sent_at?: string
+        }
+        Relationships: []
+      }
       security_logs: {
         Row: {
           created_at: string | null
@@ -4792,6 +4855,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          segment: string
+          unsubscribed: boolean
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          segment?: string
+          unsubscribed?: boolean
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          segment?: string
+          unsubscribed?: boolean
+          verified?: boolean
+        }
+        Relationships: []
       }
       target_companies: {
         Row: {
