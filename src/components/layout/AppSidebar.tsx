@@ -97,6 +97,23 @@ const sidebarData: SidebarSection[] = [
     ],
   },
   {
+    title: "ROD Builder",
+    items: [
+      {
+        title: "Crear ROD",
+        href: "/rod",
+      },
+      {
+        title: "Gestionar Suscriptores",
+        href: "/subscribers",
+      },
+      {
+        title: "Campañas de Email",
+        href: "/campaigns",
+      },
+    ],
+  },
+  {
     title: "Administración",
     items: [
       {

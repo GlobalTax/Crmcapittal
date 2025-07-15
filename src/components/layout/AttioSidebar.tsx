@@ -15,7 +15,10 @@ import {
   Zap,
   TrendingUp,
   Database,
-  DollarSign
+  DollarSign,
+  Target,
+  Users2,
+  Send
 } from 'lucide-react';
 
 interface NavItem {
@@ -62,6 +65,14 @@ const navigationSections: NavSection[] = [
     items: [
       { to: '/hubspot-data', label: 'Base de Datos HubSpot', icon: Database },
       { to: '/einforma', label: 'eInforma Dashboard', icon: Database },
+    ]
+  },
+  {
+    title: "ROD Builder",
+    items: [
+      { to: '/rod', label: 'Crear ROD', icon: Target },
+      { to: '/subscribers', label: 'Gestionar Suscriptores', icon: Users2 },
+      { to: '/campaigns', label: 'Campañas de Email', icon: Send },
     ]
   }
 ];

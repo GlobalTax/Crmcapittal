@@ -44,6 +44,26 @@ export const useCampaigns = () => {
     },
   });
 
+  const createCampaignMutation = useMutation({
+    mutationFn: async (campaignData: CreateCampaignData) => {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .insert([campaignData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Campaign;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaigns'] });
+    },
+    onError: (error) => {
+      console.error('Error creating campaign:', error);
+      toast.error('Error al crear campaña');
+    },
+  });
+
   return {
     campaigns: campaigns || [],
     isLoading,
@@ -51,5 +71,6 @@ export const useCampaigns = () => {
     refetch,
     sendCampaign: sendCampaignMutation.mutate,
     isSending: sendCampaignMutation.isPending,
+    createCampaign: createCampaignMutation.mutateAsync,
   };
 };

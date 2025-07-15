@@ -39,6 +39,9 @@ const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 const SystemDebug = lazy(() => import('@/pages/SystemDebug'));
 const CommissionsPage = lazy(() => import('@/pages/CommissionsPage'));
+const RODBuilder = lazy(() => import('@/pages/RODBuilder'));
+const Subscribers = lazy(() => import('@/pages/Subscribers'));
+const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 
 // Note: Settings routes can be added later from the original App.tsx
 
@@ -267,6 +270,32 @@ export const AppRoutes = () => {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <CommissionsPage />
+              </Suspense>
+            } 
+          />
+
+          {/* ROD Builder and Campaign routes */}
+          <Route 
+            path="/rod" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <RODBuilder />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/subscribers" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Subscribers />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/campaigns" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CampaignBuilder />
               </Suspense>
             } 
           />
