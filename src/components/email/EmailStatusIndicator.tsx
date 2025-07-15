@@ -1,118 +1,80 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Mail, 
-  MailOpen, 
-  MousePointer, 
-  Clock,
-  AlertCircle 
-} from 'lucide-react';
-import { EmailStatus } from '@/types/EmailTracking';
+import { CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EmailStatusIndicatorProps {
-  status: EmailStatus;
-  openedAt?: string;
-  openCount?: number;
+  status: string;
   size?: 'sm' | 'md' | 'lg';
   showText?: boolean;
 }
 
 export const EmailStatusIndicator: React.FC<EmailStatusIndicatorProps> = ({
   status,
-  openedAt,
-  openCount = 0,
   size = 'md',
   showText = true
 }) => {
-  const getStatusConfig = () => {
-    switch (status) {
+  const getStatusConfig = (status: string) => {
+    switch (status.toUpperCase()) {
       case 'SENT':
         return {
-          icon: Mail,
+          icon: <Clock className="h-4 w-4" />,
+          color: 'bg-blue-500',
           text: 'Enviado',
-          color: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-          iconColor: 'text-yellow-600',
-          dotColor: 'bg-yellow-400'
+          badgeVariant: 'secondary' as const
         };
       case 'OPENED':
         return {
-          icon: MailOpen,
+          icon: <CheckCircle className="h-4 w-4" />,
+          color: 'bg-green-500',
           text: 'Abierto',
-          color: 'bg-green-50 text-green-700 border-green-200',
-          iconColor: 'text-green-600',
-          dotColor: 'bg-green-400'
+          badgeVariant: 'default' as const
         };
       case 'CLICKED':
         return {
-          icon: MousePointer,
-          text: 'Clic',
-          color: 'bg-blue-50 text-blue-700 border-blue-200',
-          iconColor: 'text-blue-600',
-          dotColor: 'bg-blue-400'
+          icon: <CheckCircle className="h-4 w-4" />,
+          color: 'bg-green-600',
+          text: 'Clicked',
+          badgeVariant: 'default' as const
         };
       default:
         return {
-          icon: AlertCircle,
+          icon: <AlertCircle className="h-4 w-4" />,
+          color: 'bg-gray-500',
           text: 'Desconocido',
-          color: 'bg-gray-50 text-gray-700 border-gray-200',
-          iconColor: 'text-gray-600',
-          dotColor: 'bg-gray-400'
+          badgeVariant: 'outline' as const
         };
     }
   };
 
-  const config = getStatusConfig();
-  const Icon = config.icon;
-
-  const sizeClasses = {
-    sm: 'text-xs px-2 py-1',
-    md: 'text-sm px-2.5 py-1.5',
-    lg: 'text-base px-3 py-2'
-  };
-
-  const iconSizes = {
-    sm: 'h-3 w-3',
-    md: 'h-4 w-4',
-    lg: 'h-5 w-5'
-  };
-
-  const dotSizes = {
-    sm: 'h-2 w-2',
-    md: 'h-3 w-3',
-    lg: 'h-4 w-4'
-  };
+  const config = getStatusConfig(status);
 
   if (!showText) {
     return (
-      <div className="relative">
-        <div className={cn(
-          "rounded-full",
-          config.dotColor,
-          dotSizes[size]
-        )}>
-        </div>
+      <div className={cn(
+        "rounded-full flex items-center justify-center text-white",
+        config.color,
+        size === 'sm' && "w-6 h-6",
+        size === 'md' && "w-8 h-8",
+        size === 'lg' && "w-10 h-10"
+      )}>
+        {React.cloneElement(config.icon, {
+          className: cn(
+            size === 'sm' && "h-3 w-3",
+            size === 'md' && "h-4 w-4",
+            size === 'lg' && "h-5 w-5"
+          )
+        })}
       </div>
     );
   }
 
   return (
-    <Badge 
-      variant="outline" 
-      className={cn(
-        "inline-flex items-center gap-1.5 border",
-        config.color,
-        sizeClasses[size]
-      )}
-    >
-      <Icon className={cn(iconSizes[size], config.iconColor)} />
-      <span>{config.text}</span>
-      {status === 'OPENED' && openCount > 1 && (
-        <span className="text-xs opacity-75">
-          ({openCount}x)
-        </span>
-      )}
+    <Badge variant={config.badgeVariant} className="flex items-center gap-1">
+      {React.cloneElement(config.icon, {
+        className: "h-3 w-3"
+      })}
+      {config.text}
     </Badge>
   );
 };

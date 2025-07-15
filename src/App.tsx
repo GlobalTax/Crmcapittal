@@ -33,7 +33,7 @@ const CaptacionDetailPage = lazy(() => import('@/pages/captacion/[id]'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));
 const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
-const Email = lazy(() => import('@/pages/MinimalEmail'));
+const EmailSetup = lazy(() => import('@/pages/EmailSetup'));
 const CalendarPage = lazy(() => import('@/pages/MinimalCalendar'));
 
 const Documents = lazy(() => import('@/pages/MinimalDocuments'));
@@ -258,14 +258,14 @@ function AppContentOld() {
               </Suspense>
             } 
           />
-          <Route 
-            path="/email" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Email />
-              </Suspense>
-            } 
-          />
+            <Route 
+              path="/email" 
+              element={
+                <Suspense fallback={<LoadingSkeleton />}>
+                  <EmailSetup />
+                </Suspense>
+              } 
+            />
           <Route 
             path="/calendar" 
             element={

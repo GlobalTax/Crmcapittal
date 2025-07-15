@@ -28,7 +28,7 @@ const Deals = lazy(() => import('@/pages/Deals'));
 const DealPage = lazy(() => import('@/pages/DealPage'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));
 const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
-const Email = lazy(() => import('@/pages/MinimalEmail'));
+const EmailSetup = lazy(() => import('@/pages/EmailSetup'));
 const CalendarPage = lazy(() => import('@/pages/MinimalCalendar'));
 const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
@@ -186,14 +186,14 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-          <Route 
-            path="/email" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Email />
-              </Suspense>
-            } 
-          />
+            <Route 
+              path="/email" 
+              element={
+                <Suspense fallback={<LoadingSkeleton />}>
+                  <EmailSetup />
+                </Suspense>
+              } 
+            />
           <Route 
             path="/calendar" 
             element={

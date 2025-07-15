@@ -65,11 +65,10 @@ export const EmailHistory = ({ lead_id, contact_id, target_company_id, operation
         <div className="space-y-4">
           {emails.map((email) => (
             <div key={email.id} className="flex items-start space-x-3 p-3 rounded-lg border">
-              <EmailStatusIndicator 
-                status={email.status} 
-                openedAt={email.opened_at}
-                openCount={email.open_count}
-              />
+                  <EmailStatusIndicator 
+                    status={email.status}
+                    size="sm"
+                  />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium truncate">
