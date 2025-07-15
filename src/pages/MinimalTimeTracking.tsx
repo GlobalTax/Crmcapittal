@@ -7,8 +7,9 @@ import { StatsCard } from "@/components/ui/stats-card";
 import { UnifiedCard } from "@/components/ui/unified-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
 import { useTimeTracking } from '@/hooks/useTimeTracking';
-import { CreateTaskDialog } from '@/components/time-tracking/CreateTaskDialog';
-import { ManualTimeEntryDialog } from '@/components/time-tracking/ManualTimeEntryDialog';
+import { EnhancedCreateTaskDialog } from '@/components/time-tracking/EnhancedCreateTaskDialog';
+import { EnhancedManualTimeEntryDialog } from '@/components/time-tracking/EnhancedManualTimeEntryDialog';
+import { EnhancedTimeSheet } from '@/components/time-tracking/EnhancedTimeSheet';
 import { Clock, CheckCircle, Plus, PlayCircle, Calendar } from 'lucide-react';
 
 export default function MinimalTimeTracking() {
@@ -179,59 +180,23 @@ export default function MinimalTimeTracking() {
         </UnifiedCard>
       </div>
 
-      {/* Time Entries */}
-      <UnifiedCard title="Registro de Tiempo" className="p-0">
-        <div className="p-6">
-          <Table>
-            <TableHeader>
-              <TableHead>Tarea</TableHead>
-              <TableHead>Inicio</TableHead>
-              <TableHead>Fin</TableHead>
-              <TableHead>Duración</TableHead>
-              <TableHead>Fecha</TableHead>
-            </TableHeader>
-            <TableBody>
-              {dailyData?.timeEntries && dailyData.timeEntries.length > 0 ? (
-                dailyData.timeEntries.map((entry) => (
-                  <TableRow key={entry.id}>
-                    <TableCell>
-                      <div className="font-medium">Entrada de tiempo</div>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(entry.start_time).toLocaleTimeString('es-ES')}
-                    </TableCell>
-                    <TableCell>
-                      {entry.end_time ? new Date(entry.end_time).toLocaleTimeString('es-ES') : 'En curso'}
-                    </TableCell>
-                    <TableCell>
-                      {formatTime(entry.duration_minutes || 0)}
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(entry.start_time)}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell className="text-center py-8 text-muted-foreground">
-                    No hay entradas de tiempo registradas
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </UnifiedCard>
+      {/* Enhanced Time Entries */}
+      <EnhancedTimeSheet
+        timeEntries={dailyData?.timeEntries || []}
+        onDuplicateEntry={(entry) => setShowManualEntry(true)}
+        onContinueTask={(entry) => handleStartTimer()}
+        onEditEntry={(entry) => setShowManualEntry(true)}
+      />
 
-      {/* Dialogs */}
-      <CreateTaskDialog
+      {/* Enhanced Dialogs */}
+      <EnhancedCreateTaskDialog
         open={showCreateTask}
         onOpenChange={setShowCreateTask}
         onCreateTask={createPlannedTask}
         defaultDate={today}
       />
 
-      <ManualTimeEntryDialog
+      <EnhancedManualTimeEntryDialog
         open={showManualEntry}
         onOpenChange={setShowManualEntry}
       />

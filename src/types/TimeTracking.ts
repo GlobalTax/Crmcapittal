@@ -12,6 +12,7 @@ export interface PlannedTask {
   lead_id?: string;
   contact_id?: string;
   operation_id?: string;
+  mandate_id?: string;
   target_company_id?: string;
   created_at: string;
   updated_at: string;
@@ -28,6 +29,8 @@ export interface TimeEntry {
   planned_task_id?: string;
   contact_id?: string;
   operation_id?: string;
+  lead_id?: string;
+  mandate_id?: string;
   is_billable: boolean;
   hourly_rate?: number;
   created_at: string;
@@ -42,6 +45,7 @@ export interface CreatePlannedTaskData {
   lead_id?: string;
   contact_id?: string;
   operation_id?: string;
+  mandate_id?: string;
   target_company_id?: string;
 }
 
@@ -53,6 +57,8 @@ export interface CreateTimeEntryData {
   planned_task_id?: string;
   contact_id?: string;
   operation_id?: string;
+  lead_id?: string;
+  mandate_id?: string;
   is_billable?: boolean;
   hourly_rate?: number;
 }
