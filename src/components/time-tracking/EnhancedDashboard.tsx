@@ -85,169 +85,64 @@ export const EnhancedDashboard = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Primary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="relative overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiempo Hoy</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatDecimalTime(stats.totalMinutesToday)}</div>
-            <div className="space-y-2">
-              <Progress value={(stats.totalMinutesToday / stats.dailyGoal) * 100} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                Meta: {formatDecimalTime(stats.dailyGoal)} ({Math.round((stats.totalMinutesToday / stats.dailyGoal) * 100)}%)
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-8">
+      {/* Primary Stats - Minimalist */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="p-4 border rounded-lg">
+          <div className="text-2xl font-bold">{formatDecimalTime(stats.totalMinutesToday)}</div>
+          <div className="text-sm text-muted-foreground">Tiempo hoy</div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tiempo Facturable</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatDecimalTime(stats.billableMinutesToday)}</div>
-            <div className="space-y-2">
-              <Progress value={stats.billablePercentage} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                {stats.billablePercentage}% del tiempo total
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="p-4 border rounded-lg">
+          <div className="text-2xl font-bold">{formatDecimalTime(stats.billableMinutesToday)}</div>
+          <div className="text-sm text-muted-foreground">Facturable</div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tareas</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.completedTasks}/{stats.totalTasks}</div>
-            <div className="space-y-2">
-              <Progress value={stats.productivityScore} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                {stats.pendingTasks} pendientes
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="p-4 border rounded-lg">
+          <div className="text-2xl font-bold">{stats.completedTasks}/{stats.totalTasks}</div>
+          <div className="text-sm text-muted-foreground">Tareas</div>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Estado</CardTitle>
-            <Timer className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2 mb-3">
-              {isTimerRunning ? (
-                <>
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-sm font-medium text-green-600">Activo</span>
-                </>
-              ) : (
-                <>
-                  <div className="w-3 h-3 bg-gray-400 rounded-full" />
-                  <span className="text-sm font-medium text-muted-foreground">Parado</span>
-                </>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {isTimerRunning ? 'Timer en ejecución' : 'Timer pausado'}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Secondary Stats */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Semana Actual
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Total</span>
-              <span className="font-mono font-semibold">{formatDecimalTime(stats.weeklyMinutes)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Facturable</span>
-              <span className="font-mono font-semibold text-green-600">
-                {formatDecimalTime(stats.weeklyBillableMinutes)}
-              </span>
-            </div>
-            <Progress value={(stats.weeklyMinutes / stats.weeklyGoal) * 100} className="h-2" />
-            <p className="text-xs text-muted-foreground">
-              Meta semanal: {formatDecimalTime(stats.weeklyGoal)}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Productividad
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">{stats.productivityScore}%</div>
-              <p className="text-sm text-muted-foreground">Score del día</p>
-            </div>
-            <Progress value={stats.productivityScore} className="h-3" />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Tareas completadas</span>
-              <span>{stats.completedTasks}/{stats.totalTasks}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Actividad
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              {dailyData.timeEntries
-                .reduce((acc, entry) => {
-                  const type = entry.activity_type;
-                  const existing = acc.find(item => item.type === type);
-                  if (existing) {
-                    existing.minutes += entry.duration_minutes || 0;
-                  } else {
-                    acc.push({ type, minutes: entry.duration_minutes || 0 });
-                  }
-                  return acc;
-                }, [] as Array<{ type: string; minutes: number }>)
-                .sort((a, b) => b.minutes - a.minutes)
-                .slice(0, 3)
-                .map(({ type, minutes }) => (
-                  <div key={type} className="flex justify-between items-center">
-                    <Badge variant="outline" className="text-xs">
-                      {type}
-                    </Badge>
-                    <span className="font-mono text-sm">{formatTime(minutes)}</span>
-                  </div>
-                ))}
-            </div>
-            {dailyData.timeEntries.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No hay actividad registrada
-              </p>
+        <div className="p-4 border rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            {isTimerRunning ? (
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            ) : (
+              <div className="w-2 h-2 bg-gray-400 rounded-full" />
             )}
-          </CardContent>
-        </Card>
+            <div className="text-2xl font-bold">{isTimerRunning ? 'ON' : 'OFF'}</div>
+          </div>
+          <div className="text-sm text-muted-foreground">Timer</div>
+        </div>
       </div>
+
+      {/* Activity Summary - Minimal */}
+      {dailyData.timeEntries.length > 0 && (
+        <div className="p-4 border rounded-lg">
+          <div className="text-sm font-medium mb-3">Actividad del día</div>
+          <div className="space-y-2">
+            {dailyData.timeEntries
+              .reduce((acc, entry) => {
+                const type = entry.activity_type;
+                const existing = acc.find(item => item.type === type);
+                if (existing) {
+                  existing.minutes += entry.duration_minutes || 0;
+                } else {
+                  acc.push({ type, minutes: entry.duration_minutes || 0 });
+                }
+                return acc;
+              }, [] as Array<{ type: string; minutes: number }>)
+              .sort((a, b) => b.minutes - a.minutes)
+              .slice(0, 5)
+              .map(({ type, minutes }) => (
+                <div key={type} className="flex justify-between text-sm">
+                  <span className="capitalize">{type}</span>
+                  <span className="font-mono">{formatTime(minutes)}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
