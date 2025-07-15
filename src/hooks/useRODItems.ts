@@ -78,14 +78,7 @@ export function useRODItems() {
       // Fetch qualified leads
       const { data: leads, error: leadsError } = await supabase
         .from('leads')
-        .select(`
-          *,
-          assigned_to:assigned_to_id (
-            id,
-            first_name,
-            last_name
-          )
-        `)
+        .select('*')
         .in('status', ['QUALIFIED', 'CONTACTED']);
 
       if (leadsError) {
