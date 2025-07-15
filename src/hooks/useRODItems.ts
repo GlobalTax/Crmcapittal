@@ -19,8 +19,8 @@ export function useRODItems() {
     ebitda: operation.ebitda,
     description: operation.description,
     status: operation.status,
-    highlighted: false, // Default value
-    rod_order: undefined,
+    highlighted: operation.highlighted || false,
+    rod_order: operation.rod_order,
     created_at: operation.created_at,
     updated_at: operation.updated_at,
     operation_type: operation.operation_type,
@@ -44,8 +44,8 @@ export function useRODItems() {
     ebitda: undefined,
     description: lead.message,
     status: lead.status,
-    highlighted: false, // Default value
-    rod_order: undefined,
+    highlighted: lead.highlighted || false,
+    rod_order: lead.rod_order,
     created_at: lead.created_at,
     updated_at: lead.updated_at,
     lead_score: lead.lead_score,

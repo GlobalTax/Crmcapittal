@@ -17,6 +17,7 @@ import { Search, Filter, Calendar, TrendingUp, Building, Target, HandCoins, User
 export default function RODBuilder() {
   const { items, isLoading, refetch, updateItem } = useRODItems();
   const [sortedItems, setSortedItems] = useState<RODItem[]>([]);
+  const [optimisticHighlights, setOptimisticHighlights] = useState<Record<string, boolean>>({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sectorFilter, setSectorFilter] = useState<string>('all');
@@ -49,8 +50,16 @@ export default function RODBuilder() {
 
   useEffect(() => {
     if (filteredItems) {
+      // Apply optimistic highlights to items
+      const itemsWithOptimisticHighlights = filteredItems.map(item => ({
+        ...item,
+        highlighted: optimisticHighlights[item.id] !== undefined 
+          ? optimisticHighlights[item.id] 
+          : item.highlighted
+      }));
+      
       // Sort by rod_order, putting null values at the end
-      const sorted = [...filteredItems].sort((a, b) => {
+      const sorted = [...itemsWithOptimisticHighlights].sort((a, b) => {
         if (a.rod_order === null && b.rod_order === null) return 0;
         if (a.rod_order === null) return 1;
         if (b.rod_order === null) return -1;
@@ -58,7 +67,7 @@ export default function RODBuilder() {
       });
       setSortedItems(sorted);
     }
-  }, [filteredItems]);
+  }, [filteredItems, optimisticHighlights]);
 
   // Get unique sectors, statuses, and types for filters
   const uniqueSectors = useMemo(() => {
@@ -99,8 +108,30 @@ export default function RODBuilder() {
   };
 
   const handleHighlightToggle = async (itemId: string, type: RODItemType, highlighted: boolean) => {
-    await updateItem(itemId, type, { highlighted });
-    refetch();
+    // Optimistic update for immediate UI feedback
+    setOptimisticHighlights(prev => ({
+      ...prev,
+      [itemId]: highlighted
+    }));
+
+    try {
+      await updateItem(itemId, type, { highlighted });
+      // Clear optimistic state after successful update
+      setOptimisticHighlights(prev => {
+        const newState = { ...prev };
+        delete newState[itemId];
+        return newState;
+      });
+      refetch();
+    } catch (error) {
+      // Revert optimistic update on error
+      setOptimisticHighlights(prev => {
+        const newState = { ...prev };
+        delete newState[itemId];
+        return newState;
+      });
+      toast.error('Error al actualizar selección');
+    }
   };
 
   const generatePreview = () => {

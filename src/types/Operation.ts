@@ -32,4 +32,6 @@ export interface Operation {
   updated_at: string;
   cif?: string;
   teaser_url?: string;
+  highlighted?: boolean;
+  rod_order?: number;
 }

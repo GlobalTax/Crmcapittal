@@ -76,6 +76,10 @@ export interface Lead {
   // External source tracking
   external_id?: string;
   external_source?: string;
+  
+  // ROD fields
+  highlighted?: boolean;
+  rod_order?: number;
 }
 
 export interface CreateLeadData {
