@@ -12,7 +12,32 @@ import { supabase } from '@/integrations/supabase/client';
 import { RODItemRow } from '@/components/rod/RODItemRow';
 import { RODItem, RODItemType } from '@/types/RODItem';
 import { useRODItems } from '@/hooks/useRODItems';
-import { Search, Filter, Calendar, TrendingUp, Building, Target, HandCoins, Users } from 'lucide-react';
+import { 
+  Search, 
+  Filter, 
+  TrendingUp, 
+  Building, 
+  Target, 
+  HandCoins, 
+  Users, 
+  Play,
+  Download,
+  Eye,
+  Star,
+  BarChart3,
+  Zap,
+  CheckCircle2,
+  Clock,
+  ArrowUp,
+  ArrowDown,
+  Sparkles,
+  FileText,
+  Send
+} from 'lucide-react';
+import { RODPreviewPanel } from '@/components/rod/RODPreviewPanel';
+import { RODStatsDisplay } from '@/components/rod/RODStatsDisplay';
+import { RODEmptyState } from '@/components/rod/RODEmptyState';
+import { RODFloatingToolbar } from '@/components/rod/RODFloatingToolbar';
 
 export default function RODBuilder() {
   const { items, isLoading, refetch, updateItem } = useRODItems();
@@ -23,6 +48,8 @@ export default function RODBuilder() {
   const [sectorFilter, setSectorFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [showPreview, setShowPreview] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'cards'>('list');
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -134,151 +161,6 @@ export default function RODBuilder() {
     }
   };
 
-  const generatePreview = () => {
-    const highlightedItems = sortedItems.filter(item => item.highlighted);
-    
-    if (highlightedItems.length === 0) {
-      return '<div class="text-center text-gray-500 py-8"><p>No hay elementos seleccionados para la ROD.</p></div>';
-    }
-
-    // Separate by type
-    const operations = highlightedItems.filter(item => item.type === 'operation');
-    const leads = highlightedItems.filter(item => item.type === 'lead');
-
-    const renderItems = (items: RODItem[], title: string, color: string) => {
-      if (items.length === 0) return '';
-      
-      const itemsHtml = items.map((item, index) => {
-        const value = item.value || item.amount;
-        const sales = value ? `€${value.toLocaleString()}` : 'N/A';
-        const ebitda = item.ebitda ? `€${item.ebitda.toLocaleString()}` : 'N/A';
-        const description = item.description || item.message || 'Sin descripción adicional';
-        
-        return `
-          <div style="margin-bottom: 24px; padding: 16px; border-left: 4px solid ${color}; background-color: #f8fafc; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-              <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #1e293b;">
-                ${index + 1}. ${item.title}
-              </h3>
-              <span style="background-color: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">
-                ${item.sector}
-              </span>
-            </div>
-            
-            <div style="margin-bottom: 12px;">
-              <p style="margin: 0 0 4px 0; color: #64748b; font-size: 14px;">
-                <strong>Empresa:</strong> ${item.company_name}
-              </p>
-              ${item.type === 'operation' && item.location ? `
-                <p style="margin: 0 0 4px 0; color: #64748b; font-size: 14px;">
-                  <strong>Ubicación:</strong> ${item.location}
-                </p>
-              ` : ''}
-              ${item.type === 'lead' && item.lead_score ? `
-                <p style="margin: 0 0 4px 0; color: #64748b; font-size: 14px;">
-                  <strong>Lead Score:</strong> ${item.lead_score}
-                </p>
-              ` : ''}
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
-              <div>
-                <span style="color: #059669; font-weight: 600; font-size: 14px;">
-                  ${item.type === 'operation' ? 'Importe:' : 'Valor:'}
-                </span>
-                <span style="margin-left: 8px; color: #065f46; font-weight: 500;">${sales}</span>
-              </div>
-              ${item.ebitda ? `
-                <div>
-                  <span style="color: #0284c7; font-weight: 600; font-size: 14px;">EBITDA:</span>
-                  <span style="margin-left: 8px; color: #0c4a6e; font-weight: 500;">${ebitda}</span>
-                </div>
-              ` : ''}
-            </div>
-            
-            <div style="background-color: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-              <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.5;">
-                <strong>Descripción:</strong> ${description}
-              </p>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      return `
-        <div style="margin-bottom: 32px;">
-          <h3 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 600; color: #1e293b; border-bottom: 2px solid ${color}; padding-bottom: 8px;">
-            ${title} (${items.length})
-          </h3>
-          ${itemsHtml}
-        </div>
-      `;
-    };
-
-    const totalValue = highlightedItems.reduce((sum, item) => sum + (item.value || item.amount || 0), 0);
-    const totalEbitda = highlightedItems.reduce((sum, item) => sum + (item.ebitda || 0), 0);
-
-    return `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #334155;">
-        <div style="margin-bottom: 24px; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px;">
-          <h2 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 700;">
-            Reporte de Oportunidades de Dealflow (ROD)
-          </h2>
-          <p style="margin: 0; opacity: 0.9; font-size: 16px;">
-            ${highlightedItems.length} oportunidades seleccionadas • Valor total: €${totalValue.toLocaleString()}
-          </p>
-        </div>
-        
-        <div style="margin-bottom: 24px;">
-          <h3 style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
-            Resumen Ejecutivo
-          </h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px;">
-            <div style="text-align: center; padding: 16px; background-color: #f1f5f9; border-radius: 8px;">
-              <div style="font-size: 28px; font-weight: 700; color: #3b82f6;">${highlightedItems.length}</div>
-              <div style="font-size: 14px; color: #64748b; font-weight: 500;">Total Elementos</div>
-            </div>
-            <div style="text-align: center; padding: 16px; background-color: #fef3c7; border-radius: 8px;">
-              <div style="font-size: 24px; font-weight: 700; color: #d97706;">${operations.length}</div>
-              <div style="font-size: 14px; color: #64748b; font-weight: 500;">Mandatos de Venta</div>
-            </div>
-            <div style="text-align: center; padding: 16px; background-color: #d1fae5; border-radius: 8px;">
-              <div style="font-size: 24px; font-weight: 700; color: #059669;">${leads.length}</div>
-              <div style="font-size: 14px; color: #64748b; font-weight: 500;">Leads Potenciales</div>
-            </div>
-            <div style="text-align: center; padding: 16px; background-color: #f0fdf4; border-radius: 8px;">
-              <div style="font-size: 24px; font-weight: 700; color: #059669;">€${totalValue.toLocaleString()}</div>
-              <div style="font-size: 14px; color: #64748b; font-weight: 500;">Valor Total</div>
-            </div>
-            ${totalEbitda > 0 ? `
-              <div style="text-align: center; padding: 16px; background-color: #eff6ff; border-radius: 8px;">
-                <div style="font-size: 24px; font-weight: 700; color: #0284c7;">€${totalEbitda.toLocaleString()}</div>
-                <div style="font-size: 14px; color: #64748b; font-weight: 500;">EBITDA Total</div>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-        
-        <div>
-          ${renderItems(operations, 'Mandatos de Venta', '#d97706')}
-          ${renderItems(leads, 'Leads Potenciales', '#059669')}
-        </div>
-        
-        <div style="margin-top: 32px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-          <p style="margin: 0; text-align: center; color: #64748b; font-size: 12px;">
-            Reporte generado automáticamente el ${new Date().toLocaleDateString('es-ES', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </p>
-        </div>
-      </div>
-    `;
-  };
-
   const handleGenerateROD = async () => {
     try {
       setIsGenerating(true);
@@ -304,8 +186,36 @@ export default function RODBuilder() {
     }
   };
 
+  const handleSelectAll = () => {
+    const allVisible = filteredItems.every(item => item.highlighted);
+    filteredItems.forEach(item => {
+      handleHighlightToggle(item.id, item.type, !allVisible);
+    });
+  };
+
+  const handleClearSelection = () => {
+    const selectedItems = sortedItems.filter(item => item.highlighted);
+    selectedItems.forEach(item => {
+      handleHighlightToggle(item.id, item.type, false);
+    });
+  };
+
   if (isLoading) {
-    return <div className="p-6">Cargando operaciones y leads...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
+        <div className="container mx-auto p-6">
+          <div className="animate-pulse space-y-6">
+            <div className="h-12 bg-muted rounded-lg"></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-24 bg-muted rounded-lg"></div>
+              ))}
+            </div>
+            <div className="h-96 bg-muted rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const selectedCount = sortedItems.filter(item => item.highlighted).length;
@@ -318,173 +228,170 @@ export default function RODBuilder() {
     .filter(item => item.highlighted)
     .reduce((sum, item) => sum + (item.ebitda || 0), 0);
 
+  if (filteredItems.length === 0) {
+    return <RODEmptyState />;
+  }
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">ROD Builder</h1>
-        <p className="text-muted-foreground text-lg">
-          Selecciona y ordena mandatos de venta y leads potenciales para generar una ROD profesional
-        </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Target className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm font-medium">Total Elementos</p>
-                <p className="text-2xl font-bold">{filteredItems.length}</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
+      <div className="container mx-auto p-6 space-y-8">
+        {/* Premium Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary/90 to-primary/80 p-8 text-primary-foreground">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djEwaDEwVjM0SDM2ek0yMCAyMHYxMGgxMFYyMEgyMHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-primary-foreground/20 rounded-lg">
+                <Sparkles className="h-6 w-6" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <HandCoins className="h-5 w-5 text-orange-500" />
               <div>
-                <p className="text-sm font-medium">Mandatos</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {filteredItems.filter(item => item.type === 'operation').length}
+                <h1 className="text-3xl font-bold">ROD Builder Premium</h1>
+                <p className="text-primary-foreground/80 text-lg">
+                  Herramienta avanzada para crear Reports de Oportunidades de Dealflow profesionales
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-sm font-medium">Leads</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {filteredItems.filter(item => item.type === 'lead').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-sm font-medium">Seleccionadas</p>
-                <p className="text-2xl font-bold text-blue-600">{selectedCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Building className="h-5 w-5 text-emerald-500" />
-              <div>
-                <p className="text-sm font-medium">Valor Total</p>
-                <p className="text-lg font-bold text-emerald-600">€{totalValue.toLocaleString()}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            
+            <RODStatsDisplay 
+              totalItems={filteredItems.length}
+              selectedCount={selectedCount}
+              selectedOperations={selectedOperations}
+              selectedLeads={selectedLeads}
+              totalValue={totalValue}
+              totalEbitda={totalEbitda}
+            />
+          </div>
+        </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Left Panel - ROD Items DataTable */}
-        <Card className="h-fit">
+        {/* Control Panel */}
+        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
-              Gestión de ROD
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Busca, filtra y organiza mandatos de venta y leads para tu ROD
-            </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Filter className="h-5 w-5 text-primary" />
+                <CardTitle className="text-xl">Panel de Control</CardTitle>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  {showPreview ? 'Ocultar' : 'Vista'} Previa
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSelectAll}
+                  className="gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Seleccionar Todo
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearSelection}
+                  className="gap-2"
+                  disabled={selectedCount === 0}
+                >
+                  <Target className="h-4 w-4" />
+                  Limpiar Selección
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Search and Filters */}
-            <div className="space-y-3">
+            {/* Advanced Search and Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar mandatos y leads..."
+                  placeholder="Buscar en título, empresa..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className="pl-10 bg-background/50"
                 />
               </div>
               
-              <div className="grid grid-cols-3 gap-2">
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos los tipos</SelectItem>
-                    {uniqueTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select value={sectorFilter} onValueChange={setSectorFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sector" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos los sectores</SelectItem>
-                    {uniqueSectors.map((sector) => (
-                      <SelectItem key={sector} value={sector}>{sector}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos los estados</SelectItem>
-                    {uniqueStatuses.map((status) => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="bg-background/50">
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
+                  {uniqueTypes.map(type => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-              {(searchQuery || sectorFilter !== 'all' || statusFilter !== 'all' || typeFilter !== 'all') && (
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>Mostrando {sortedItems.length} de {items?.length || 0} elementos</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSectorFilter('all');
-                      setStatusFilter('all');
-                      setTypeFilter('all');
-                    }}
-                  >
-                    Limpiar filtros
-                  </Button>
-                </div>
-              )}
+              <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                <SelectTrigger className="bg-background/50">
+                  <SelectValue placeholder="Sector" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los sectores</SelectItem>
+                  {uniqueSectors.map(sector => (
+                    <SelectItem key={sector} value={sector}>
+                      {sector}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="bg-background/50">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  {uniqueStatuses.map(status => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* ROD Items List */}
-            {sortedItems.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">No se encontraron elementos</p>
-                <p className="text-sm">Ajusta los filtros para ver más resultados</p>
+            {/* Quick Stats */}
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                <span>{filteredItems.length} elementos encontrados</span>
               </div>
-            ) : (
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>{selectedCount} seleccionados</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                <span>€{totalValue.toLocaleString()} valor total</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Main Content Area */}
+        <div className={`grid gap-6 ${showPreview ? 'lg:grid-cols-2' : 'lg:grid-cols-1'}`}>
+          {/* ROD Items List */}
+          <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  Elementos de ROD
+                </CardTitle>
+                <Badge variant="secondary" className="px-3 py-1">
+                  {filteredItems.length} elementos
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -495,7 +402,7 @@ export default function RODBuilder() {
                   items={sortedItems.map(item => item.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  <div className="space-y-2 max-h-[500px] overflow-y-auto">
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
                     {sortedItems.map((item) => (
                       <RODItemRow
                         key={item.id}
@@ -506,73 +413,29 @@ export default function RODBuilder() {
                   </div>
                 </SortableContext>
               </DndContext>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Right Panel - Live Preview */}
-        <Card className="h-fit">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Vista Previa ROD
-            </CardTitle>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Badge variant={selectedCount > 0 ? "default" : "secondary"}>
-                  {selectedCount} seleccionadas
-                </Badge>
-                {selectedCount > 0 && (
-                  <Badge variant="outline" className="text-xs">
-                    €{totalValue.toLocaleString()} total
-                  </Badge>
-                )}
-              </div>
-              <Button
-                onClick={handleGenerateROD}
-                disabled={isGenerating || selectedCount === 0}
-                size="sm"
-                className="shrink-0"
-              >
-                {isGenerating ? 'Generando...' : 'Generar & Enviar ROD'}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {selectedCount === 0 ? (
-                <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center text-muted-foreground">
-                  <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium">Vista Previa ROD</p>
-                  <p className="text-sm">Selecciona oportunidades para ver la vista previa</p>
-                </div>
-              ) : (
-                <div className="border rounded-lg bg-gradient-to-br from-background to-muted/20">
-                  <div className="p-4 border-b bg-primary/5">
-                    <h3 className="font-semibold text-lg">Reporte de Oportunidades de Dealflow</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Generado el {new Date().toLocaleDateString('es-ES', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}
-                    </p>
-                  </div>
-                  <div 
-                    className="p-4 max-h-[400px] overflow-y-auto"
-                    dangerouslySetInnerHTML={{ __html: generatePreview() }}
-                  />
-                  <div className="p-4 border-t bg-muted/30 text-sm text-muted-foreground">
-                    <div className="flex justify-between">
-                      <span>Total oportunidades: {selectedCount}</span>
-                      <span>Valor total: €{totalValue.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+          {/* Preview Panel */}
+          {showPreview && (
+            <RODPreviewPanel
+              selectedItems={sortedItems.filter(item => item.highlighted)}
+              onGenerate={handleGenerateROD}
+              isGenerating={isGenerating}
+            />
+          )}
+        </div>
+
+        {/* Floating Toolbar */}
+        <RODFloatingToolbar
+          selectedCount={selectedCount}
+          onGenerate={handleGenerateROD}
+          onPreview={() => setShowPreview(!showPreview)}
+          onSelectAll={handleSelectAll}
+          onClearSelection={handleClearSelection}
+          isGenerating={isGenerating}
+          showPreview={showPreview}
+        />
       </div>
     </div>
   );
