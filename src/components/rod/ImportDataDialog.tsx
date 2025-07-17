@@ -3,10 +3,29 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Database, Import, Search, Users, HandCoins } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { 
+  Database, 
+  Import, 
+  Search, 
+  Users, 
+  HandCoins, 
+  Building2, 
+  MapPin, 
+  Euro, 
+  User, 
+  Mail, 
+  Phone,
+  Target,
+  TrendingUp,
+  Calendar,
+  Briefcase,
+  Store,
+  ShoppingCart
+} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -15,15 +34,39 @@ interface ImportDataDialogProps {
   onImportLeads?: (leads: any[]) => void;
 }
 
+// Helper function to format currency
+const formatCurrency = (amount: number, currency = 'EUR') => {
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+// Helper function to get status color
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'available': return 'bg-green-100 text-green-800 border-green-200';
+    case 'active': return 'bg-green-100 text-green-800 border-green-200';
+    case 'in_process': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    case 'pending': return 'bg-orange-100 text-orange-800 border-orange-200';
+    case 'sold': return 'bg-gray-100 text-gray-800 border-gray-200';
+    default: return 'bg-blue-100 text-blue-800 border-blue-200';
+  }
+};
+
 export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportDataDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Data states
-  const [mandates, setMandates] = useState<any[]>([]);
+  const [buyingMandates, setBuyingMandates] = useState<any[]>([]);
+  const [operations, setOperations] = useState<any[]>([]);
   const [leads, setLeads] = useState<any[]>([]);
-  const [selectedMandates, setSelectedMandates] = useState<string[]>([]);
+  const [selectedBuyingMandates, setSelectedBuyingMandates] = useState<string[]>([]);
+  const [selectedOperations, setSelectedOperations] = useState<string[]>([]);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
 
   useEffect(() => {
@@ -36,12 +79,20 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
     setLoading(true);
     try {
       // Load buying mandates
-      const { data: mandatesData, error: mandatesError } = await supabase
+      const { data: buyingMandatesData, error: buyingMandatesError } = await supabase
         .from('buying_mandates')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (mandatesError) throw mandatesError;
+      if (buyingMandatesError) throw buyingMandatesError;
+
+      // Load operations (sales mandates)
+      const { data: operationsData, error: operationsError } = await supabase
+        .from('operations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (operationsError) throw operationsError;
 
       // Load leads from contacts table
       const { data: leadsData, error: leadsError } = await supabase
@@ -52,7 +103,8 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
 
       if (leadsError) throw leadsError;
 
-      setMandates(mandatesData || []);
+      setBuyingMandates(buyingMandatesData || []);
+      setOperations(operationsData || []);
       setLeads(leadsData || []);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -62,9 +114,15 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
     }
   };
 
-  const filteredMandates = mandates.filter(mandate =>
+  // Filtered data
+  const filteredBuyingMandates = buyingMandates.filter(mandate =>
     mandate.mandate_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     mandate.client_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredOperations = operations.filter(operation =>
+    operation.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    operation.project_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredLeads = leads.filter(lead =>
@@ -72,8 +130,9 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
     lead.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleImportMandates = () => {
-    const selected = mandates.filter(m => selectedMandates.includes(m.id));
+  // Import handlers
+  const handleImportBuyingMandates = () => {
+    const selected = buyingMandates.filter(m => selectedBuyingMandates.includes(m.id));
     const convertedMandates = selected.map(mandate => ({
       companyName: mandate.client_name || 'Empresa Sin Nombre',
       sector: mandate.target_sectors?.[0] || 'No especificado',
@@ -88,8 +147,28 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
     }));
 
     onImportMandates?.(convertedMandates);
-    toast.success(`${convertedMandates.length} mandatos importados`);
-    setSelectedMandates([]);
+    toast.success(`${convertedMandates.length} mandatos de compra importados`);
+    setSelectedBuyingMandates([]);
+  };
+
+  const handleImportOperations = () => {
+    const selected = operations.filter(o => selectedOperations.includes(o.id));
+    const convertedOperations = selected.map(operation => ({
+      companyName: operation.company_name || 'Empresa Sin Nombre',
+      sector: operation.sector || 'No especificado',
+      location: operation.location || 'No especificado',
+      salesAmount: operation.amount || 0,
+      ebitda: operation.ebitda,
+      description: operation.description || 'Sin descripción disponible',
+      status: operation.status === 'available' ? 'Disponible' : 'En proceso',
+      contactName: operation.seller || 'Contacto desconocido',
+      contactEmail: operation.contact_email || '',
+      contactPhone: operation.contact_phone || '',
+    }));
+
+    onImportMandates?.(convertedOperations);
+    toast.success(`${convertedOperations.length} mandatos de venta importados`);
+    setSelectedOperations([]);
   };
 
   const handleImportLeads = () => {
@@ -115,9 +194,263 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
   const handleClose = () => {
     setOpen(false);
     setSearchTerm('');
-    setSelectedMandates([]);
+    setSelectedBuyingMandates([]);
+    setSelectedOperations([]);
     setSelectedLeads([]);
   };
+
+  // Card components
+  const BuyingMandateCard = ({ mandate }: { mandate: any }) => (
+    <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-3">
+            <Checkbox
+              checked={selectedBuyingMandates.includes(mandate.id)}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setSelectedBuyingMandates([...selectedBuyingMandates, mandate.id]);
+                } else {
+                  setSelectedBuyingMandates(selectedBuyingMandates.filter(id => id !== mandate.id));
+                }
+              }}
+            />
+            <div className="flex-1">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4 text-blue-600" />
+                {mandate.mandate_name}
+              </CardTitle>
+              <Badge className={`mt-1 ${getStatusColor(mandate.status)}`}>
+                {mandate.status === 'active' ? 'Activo' : mandate.status}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Cliente:</span>
+            <span>{mandate.client_name}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Contacto:</span>
+            <span>{mandate.client_contact}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Sectores:</span>
+            <span>{mandate.target_sectors?.slice(0, 2).join(', ') || 'No especificado'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Ubicaciones:</span>
+            <span>{mandate.target_locations?.slice(0, 2).join(', ') || 'No especificado'}</span>
+          </div>
+        </div>
+        
+        <Separator className="my-3" />
+        
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          {mandate.min_revenue && (
+            <div className="flex items-center gap-2">
+              <Euro className="h-4 w-4 text-green-600" />
+              <span className="font-medium">Rev. mín:</span>
+              <span className="text-green-600 font-medium">{formatCurrency(mandate.min_revenue)}</span>
+            </div>
+          )}
+          {mandate.min_ebitda && (
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+              <span className="font-medium">EBITDA mín:</span>
+              <span className="text-green-600 font-medium">{formatCurrency(mandate.min_ebitda)}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Mail className="h-3 w-3" />
+            {mandate.client_email || 'Sin email'}
+          </div>
+          <div className="flex items-center gap-1">
+            <Phone className="h-3 w-3" />
+            {mandate.client_phone || 'Sin teléfono'}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const OperationCard = ({ operation }: { operation: any }) => (
+    <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-3">
+            <Checkbox
+              checked={selectedOperations.includes(operation.id)}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setSelectedOperations([...selectedOperations, operation.id]);
+                } else {
+                  setSelectedOperations(selectedOperations.filter(id => id !== operation.id));
+                }
+              }}
+            />
+            <div className="flex-1">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Store className="h-4 w-4 text-orange-600" />
+                {operation.company_name}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">{operation.project_name}</p>
+              <Badge className={`mt-2 ${getStatusColor(operation.status)}`}>
+                {operation.status === 'available' ? 'Disponible' : 
+                 operation.status === 'in_process' ? 'En proceso' : operation.status}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Sector:</span>
+            <span>{operation.sector}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Ubicación:</span>
+            <span>{operation.location}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Vendedor:</span>
+            <span>{operation.seller || 'No especificado'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Fecha:</span>
+            <span>{new Date(operation.date).toLocaleDateString('es-ES')}</span>
+          </div>
+        </div>
+        
+        <Separator className="my-3" />
+        
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Euro className="h-4 w-4 text-green-600" />
+            <span className="font-medium">Importe:</span>
+            <span className="text-green-600 font-semibold">{formatCurrency(operation.amount, operation.currency)}</span>
+          </div>
+          {operation.ebitda && (
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+              <span className="font-medium">EBITDA:</span>
+              <span className="text-green-600 font-medium">{formatCurrency(operation.ebitda)}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Mail className="h-3 w-3" />
+            {operation.contact_email || 'Sin email'}
+          </div>
+          <div className="flex items-center gap-1">
+            <Phone className="h-3 w-3" />
+            {operation.contact_phone || 'Sin teléfono'}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const LeadCard = ({ lead }: { lead: any }) => (
+    <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-3">
+            <Checkbox
+              checked={selectedLeads.includes(lead.id)}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setSelectedLeads([...selectedLeads, lead.id]);
+                } else {
+                  setSelectedLeads(selectedLeads.filter(id => id !== lead.id));
+                }
+              }}
+            />
+            <div className="flex-1">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="h-4 w-4 text-purple-600" />
+                {lead.name}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">{lead.email}</p>
+              <div className="flex gap-2 mt-2">
+                <Badge className={`${getStatusColor(lead.lifecycle_stage)}`}>
+                  {lead.lifecycle_stage}
+                </Badge>
+                {lead.lead_score && (
+                  <Badge variant="secondary">
+                    Score: {lead.lead_score}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Empresa:</span>
+            <span>{lead.company || 'No especificado'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Posición:</span>
+            <span>{lead.position || 'No especificado'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Teléfono:</span>
+            <span>{lead.phone || 'Sin teléfono'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">Creado:</span>
+            <span>{new Date(lead.created_at).toLocaleDateString('es-ES')}</span>
+          </div>
+        </div>
+        
+        {lead.sectors_of_interest && lead.sectors_of_interest.length > 0 && (
+          <>
+            <Separator className="my-3" />
+            <div className="text-sm">
+              <span className="font-medium">Sectores de interés:</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {lead.sectors_of_interest.slice(0, 3).map((sector: string, index: number) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {sector}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {lead.notes && (
+          <div className="mt-3 text-xs text-muted-foreground">
+            <p className="line-clamp-2">{lead.notes}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -127,7 +460,7 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
           Importar Datos
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
@@ -139,18 +472,22 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
           <div className="relative">
             <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Buscar por nombre o email..."
+              placeholder="Buscar por nombre, empresa o email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
             />
           </div>
 
-          <Tabs defaultValue="mandates" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="mandates" className="gap-2">
-                <HandCoins className="h-4 w-4" />
-                Mandatos ({filteredMandates.length})
+          <Tabs defaultValue="buying-mandates" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="buying-mandates" className="gap-2">
+                <ShoppingCart className="h-4 w-4" />
+                Mandatos Compra ({filteredBuyingMandates.length})
+              </TabsTrigger>
+              <TabsTrigger value="operations" className="gap-2">
+                <Store className="h-4 w-4" />
+                Mandatos Venta ({filteredOperations.length})
               </TabsTrigger>
               <TabsTrigger value="leads" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -158,59 +495,55 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="mandates" className="space-y-4">
+            <TabsContent value="buying-mandates" className="space-y-4">
               <div className="flex justify-between items-center">
                 <p className="text-sm text-muted-foreground">
-                  Selecciona los mandatos que deseas importar
+                  Selecciona los mandatos de compra que deseas importar
                 </p>
-                {selectedMandates.length > 0 && (
-                  <Button onClick={handleImportMandates} size="sm">
-                    Importar {selectedMandates.length} mandatos
+                {selectedBuyingMandates.length > 0 && (
+                  <Button onClick={handleImportBuyingMandates} size="sm">
+                    Importar {selectedBuyingMandates.length} mandatos
                   </Button>
                 )}
               </div>
 
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-96 overflow-y-auto">
                 {loading ? (
-                  <div className="text-center py-8">Cargando mandatos...</div>
-                ) : filteredMandates.length === 0 ? (
+                  <div className="text-center py-8">Cargando mandatos de compra...</div>
+                ) : filteredBuyingMandates.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    No se encontraron mandatos
+                    No se encontraron mandatos de compra
                   </div>
                 ) : (
-                  filteredMandates.map((mandate) => (
-                    <Card key={mandate.id} className="cursor-pointer hover:bg-muted/50">
-                      <CardContent className="p-4">
-                        <div className="flex items-start space-x-3">
-                          <Checkbox
-                            checked={selectedMandates.includes(mandate.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedMandates([...selectedMandates, mandate.id]);
-                              } else {
-                                setSelectedMandates(selectedMandates.filter(id => id !== mandate.id));
-                              }
-                            }}
-                          />
-                          <div className="flex-1">
-                            <h3 className="font-medium">{mandate.mandate_name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Cliente: {mandate.client_name}
-                            </p>
-                            <div className="flex gap-2 mt-2">
-                              <Badge variant="outline">
-                                {mandate.status}
-                              </Badge>
-                              {mandate.target_sectors?.length > 0 && (
-                                <Badge variant="secondary">
-                                  {mandate.target_sectors[0]}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  filteredBuyingMandates.map((mandate) => (
+                    <BuyingMandateCard key={mandate.id} mandate={mandate} />
+                  ))
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="operations" className="space-y-4">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-muted-foreground">
+                  Selecciona los mandatos de venta que deseas importar
+                </p>
+                {selectedOperations.length > 0 && (
+                  <Button onClick={handleImportOperations} size="sm">
+                    Importar {selectedOperations.length} operaciones
+                  </Button>
+                )}
+              </div>
+
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {loading ? (
+                  <div className="text-center py-8">Cargando operaciones...</div>
+                ) : filteredOperations.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No se encontraron operaciones
+                  </div>
+                ) : (
+                  filteredOperations.map((operation) => (
+                    <OperationCard key={operation.id} operation={operation} />
                   ))
                 )}
               </div>
@@ -228,7 +561,7 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
                 )}
               </div>
 
-              <div className="space-y-2 max-h-96 overflow-y-auto">
+              <div className="space-y-3 max-h-96 overflow-y-auto">
                 {loading ? (
                   <div className="text-center py-8">Cargando leads...</div>
                 ) : filteredLeads.length === 0 ? (
@@ -237,38 +570,7 @@ export function ImportDataDialog({ onImportMandates, onImportLeads }: ImportData
                   </div>
                 ) : (
                   filteredLeads.map((lead) => (
-                    <Card key={lead.id} className="cursor-pointer hover:bg-muted/50">
-                      <CardContent className="p-4">
-                        <div className="flex items-start space-x-3">
-                          <Checkbox
-                            checked={selectedLeads.includes(lead.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedLeads([...selectedLeads, lead.id]);
-                              } else {
-                                setSelectedLeads(selectedLeads.filter(id => id !== lead.id));
-                              }
-                            }}
-                          />
-                          <div className="flex-1">
-                            <h3 className="font-medium">{lead.name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              {lead.email}
-                            </p>
-                            <div className="flex gap-2 mt-2">
-                              <Badge variant="outline">
-                                {lead.lifecycle_stage}
-                              </Badge>
-                              {lead.lead_score && (
-                                <Badge variant="secondary">
-                                  Score: {lead.lead_score}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <LeadCard key={lead.id} lead={lead} />
                   ))
                 )}
               </div>
