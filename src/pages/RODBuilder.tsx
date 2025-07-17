@@ -22,6 +22,8 @@ export default function RODBuilder() {
     nextStep,
     prevStep,
     goToStep,
+    importMandates,
+    importLeads,
   } = useRODFormState();
 
   const handleGenerate = async () => {
@@ -54,6 +56,7 @@ export default function RODBuilder() {
             onRemoveMandate={removeMandate}
             onNext={nextStep}
             onPrev={prevStep}
+            onImportMandates={importMandates}
           />
         );
       case 3:
@@ -65,6 +68,7 @@ export default function RODBuilder() {
             onRemoveLead={removeLead}
             onNext={nextStep}
             onPrev={prevStep}
+            onImportLeads={importLeads}
           />
         );
       case 4:

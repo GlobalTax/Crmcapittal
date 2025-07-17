@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Target, Plus, Trash2, Edit3, Building, Euro, Star, Mail, Phone, User } from 'lucide-react';
 import { RODLead } from '@/hooks/useRODFormState';
+import { ImportDataDialog } from './ImportDataDialog';
 
 const leadSchema = z.object({
   companyName: z.string().min(1, 'Nombre de empresa requerido'),
@@ -34,6 +35,7 @@ interface LeadFormProps {
   onRemoveLead: (id: string) => void;
   onNext: () => void;
   onPrev: () => void;
+  onImportLeads?: (leads: LeadFormData[]) => void;
 }
 
 const sectors = [
@@ -55,7 +57,8 @@ export function LeadForm({
   onUpdateLead, 
   onRemoveLead, 
   onNext, 
-  onPrev 
+  onPrev,
+  onImportLeads
 }: LeadFormProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -116,17 +119,22 @@ export function LeadForm({
           <p className="text-sm text-muted-foreground">
             Añade los leads potenciales que incluirás en la ROD
           </p>
-          <div className="flex items-center gap-4 text-sm">
-            <Badge variant="outline" className="px-3 py-1">
-              {leads.length} leads
-            </Badge>
-            <Badge variant="outline" className="px-3 py-1">
-              Valor estimado: €{totalValue.toLocaleString()}
-            </Badge>
-            {leads.length > 0 && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-sm">
               <Badge variant="outline" className="px-3 py-1">
-                Score promedio: {averageScore}
+                {leads.length} leads
               </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                Valor estimado: €{totalValue.toLocaleString()}
+              </Badge>
+              {leads.length > 0 && (
+                <Badge variant="outline" className="px-3 py-1">
+                  Score promedio: {averageScore}
+                </Badge>
+              )}
+            </div>
+            {onImportLeads && (
+              <ImportDataDialog onImportLeads={onImportLeads} />
             )}
           </div>
         </CardHeader>
@@ -456,11 +464,8 @@ export function LeadForm({
         <Button variant="outline" onClick={onPrev}>
           Anterior
         </Button>
-        <Button 
-          onClick={onNext}
-          disabled={leads.length === 0}
-        >
-          Continuar
+        <Button onClick={onNext}>
+          Continuar {leads.length === 0 && '(Sin Leads)'}
         </Button>
       </div>
     </div>

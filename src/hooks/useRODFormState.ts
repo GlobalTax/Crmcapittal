@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 export interface RODGeneralInfo {
   title: string;
@@ -67,6 +68,50 @@ export function useRODFormState() {
       distributionMethod: 'download',
     },
   });
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+
+  // Load draft on mount
+  useEffect(() => {
+    loadDraft();
+  }, []);
+
+  // Auto-save every 5 seconds
+  useEffect(() => {
+    if (!autoSaveEnabled) return;
+    
+    const interval = setInterval(() => {
+      saveDraft();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [formData, autoSaveEnabled]);
+
+  const loadDraft = () => {
+    try {
+      const savedDraft = localStorage.getItem('rod-builder-draft');
+      if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        setFormData(draft.formData || formData);
+        setCurrentStep(draft.currentStep || 1);
+        toast.info('Borrador cargado automáticamente');
+      }
+    } catch (error) {
+      console.error('Error loading draft:', error);
+    }
+  };
+
+  const saveDraft = () => {
+    try {
+      const draft = {
+        formData,
+        currentStep,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem('rod-builder-draft', JSON.stringify(draft));
+    } catch (error) {
+      console.error('Error saving draft:', error);
+    }
+  };
 
   const updateGeneralInfo = (info: Partial<RODGeneralInfo>) => {
     setFormData(prev => ({
@@ -148,6 +193,38 @@ export function useRODFormState() {
     setCurrentStep(Math.max(1, Math.min(step, 5)));
   };
 
+  const importMandates = (mandates: Omit<RODMandate, 'id'>[]) => {
+    const newMandates = mandates.map(mandate => ({
+      ...mandate,
+      id: crypto.randomUUID(),
+    }));
+    setFormData(prev => ({
+      ...prev,
+      mandates: [...prev.mandates, ...newMandates]
+    }));
+    saveDraft();
+  };
+
+  const importLeads = (leads: Omit<RODLead, 'id'>[]) => {
+    const newLeads = leads.map(lead => ({
+      ...lead,
+      id: crypto.randomUUID(),
+    }));
+    setFormData(prev => ({
+      ...prev,
+      leads: [...prev.leads, ...newLeads]
+    }));
+    saveDraft();
+  };
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem('rod-builder-draft');
+    } catch (error) {
+      console.error('Error clearing draft:', error);
+    }
+  };
+
   return {
     currentStep,
     formData,
@@ -162,5 +239,11 @@ export function useRODFormState() {
     nextStep,
     prevStep,
     goToStep,
+    importMandates,
+    importLeads,
+    saveDraft,
+    clearDraft,
+    autoSaveEnabled,
+    setAutoSaveEnabled,
   };
 }

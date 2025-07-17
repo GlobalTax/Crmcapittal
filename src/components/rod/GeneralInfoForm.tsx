@@ -10,10 +10,10 @@ import { FileText, Calendar, User, Building } from 'lucide-react';
 import { RODGeneralInfo } from '@/hooks/useRODFormState';
 
 const generalInfoSchema = z.object({
-  title: z.string().min(1, 'El título es requerido'),
-  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres'),
-  client: z.string().min(1, 'El cliente es requerido'),
-  period: z.string().min(1, 'El período es requerido'),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  client: z.string().optional(),
+  period: z.string().optional(),
 });
 
 interface GeneralInfoFormProps {

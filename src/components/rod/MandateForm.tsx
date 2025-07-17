@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { HandCoins, Plus, Trash2, Edit3, Building, MapPin, Euro, Phone, Mail, User } from 'lucide-react';
 import { RODMandate } from '@/hooks/useRODFormState';
+import { ImportDataDialog } from './ImportDataDialog';
 
 const mandateSchema = z.object({
   companyName: z.string().min(1, 'Nombre de empresa requerido'),
@@ -34,6 +35,7 @@ interface MandateFormProps {
   onRemoveMandate: (id: string) => void;
   onNext: () => void;
   onPrev: () => void;
+  onImportMandates?: (mandates: MandateFormData[]) => void;
 }
 
 const sectors = [
@@ -51,7 +53,8 @@ export function MandateForm({
   onUpdateMandate, 
   onRemoveMandate, 
   onNext, 
-  onPrev 
+  onPrev,
+  onImportMandates
 }: MandateFormProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -109,13 +112,18 @@ export function MandateForm({
           <p className="text-sm text-muted-foreground">
             Añade los mandatos de venta que incluirás en la ROD
           </p>
-          <div className="flex items-center gap-4 text-sm">
-            <Badge variant="outline" className="px-3 py-1">
-              {mandates.length} mandatos
-            </Badge>
-            <Badge variant="outline" className="px-3 py-1">
-              Valor total: €{totalValue.toLocaleString()}
-            </Badge>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-sm">
+              <Badge variant="outline" className="px-3 py-1">
+                {mandates.length} mandatos
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                Valor total: €{totalValue.toLocaleString()}
+              </Badge>
+            </div>
+            {onImportMandates && (
+              <ImportDataDialog onImportMandates={onImportMandates} />
+            )}
           </div>
         </CardHeader>
       </Card>
@@ -433,11 +441,8 @@ export function MandateForm({
         <Button variant="outline" onClick={onPrev}>
           Anterior
         </Button>
-        <Button 
-          onClick={onNext}
-          disabled={mandates.length === 0}
-        >
-          Continuar
+        <Button onClick={onNext}>
+          Continuar {mandates.length === 0 && '(Sin Mandatos)'}
         </Button>
       </div>
     </div>
