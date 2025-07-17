@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Download, Mail, Edit, FileText, Building, TrendingUp, Users, HandCoins } from 'lucide-react';
+import { Eye, Download, Mail, Edit, FileText, Building, TrendingUp, Users, HandCoins, ArrowLeft, Plus } from 'lucide-react';
 import { RODFormData } from '@/hooks/useRODFormState';
 import { useSubscribers } from '@/hooks/useSubscribers';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface RODPreviewProps {
   formData: RODFormData;
@@ -20,7 +21,10 @@ const months = [
 
 export function RODPreview({ formData, onPrev, onGenerate }: RODPreviewProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [countdown, setCountdown] = useState(5);
   const { subscribers } = useSubscribers();
+  const navigate = useNavigate();
 
   const totalMandateValue = formData.mandates.reduce((sum, mandate) => sum + mandate.salesAmount, 0);
   const totalLeadValue = formData.leads.reduce((sum, lead) => sum + lead.estimatedValue, 0);
@@ -31,12 +35,32 @@ export function RODPreview({ formData, onPrev, onGenerate }: RODPreviewProps) {
     setIsGenerating(true);
     try {
       await onGenerate();
+      setIsCompleted(true);
       toast.success('ROD generada exitosamente');
     } catch (error) {
       toast.error('Error al generar la ROD');
-    } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Auto-redirect countdown after successful generation
+  useEffect(() => {
+    if (isCompleted && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (isCompleted && countdown === 0) {
+      navigate('/rod');
+    }
+  }, [isCompleted, countdown, navigate]);
+
+  const handleBackToDashboard = () => {
+    navigate('/rod');
+  };
+
+  const handleCreateNew = () => {
+    navigate('/rod/builder');
   };
 
   const selectedSubscriberEmails = subscribers
@@ -280,38 +304,73 @@ export function RODPreview({ formData, onPrev, onGenerate }: RODPreviewProps) {
       </Card>
 
       {/* Actions */}
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onPrev}>
-          Anterior
-        </Button>
-        <div className="flex gap-3">
-          <Button 
-            variant="outline"
-            onClick={() => toast.info('Funcionalidad de edición pendiente')}
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Editar
+      {isCompleted ? (
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-6 text-center">
+            <div className="text-green-600 mb-4">
+              <div className="text-xl font-semibold">¡ROD generada exitosamente!</div>
+              <p className="text-sm mt-2">
+                Redirigiendo al dashboard en {countdown} segundo{countdown !== 1 ? 's' : ''}...
+              </p>
+            </div>
+            <div className="flex justify-center gap-3">
+              <Button onClick={handleBackToDashboard} className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Ir al Dashboard
+              </Button>
+              <Button variant="outline" onClick={handleCreateNew} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Crear Nueva ROD
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  setIsCompleted(false);
+                  setCountdown(5);
+                  setIsGenerating(false);
+                }}
+              >
+                Cancelar redirección
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="flex justify-between">
+          <Button variant="outline" onClick={onPrev} disabled={isGenerating}>
+            Anterior
           </Button>
-          <Button 
-            onClick={handleGenerate}
-            disabled={isGenerating}
-            className="px-8"
-          >
-            {isGenerating ? (
-              'Generando...'
-            ) : (
-              <>
-                {formData.generationSettings.distributionMethod === 'email' ? (
-                  <Mail className="h-4 w-4 mr-2" />
-                ) : (
-                  <Download className="h-4 w-4 mr-2" />
-                )}
-                Generar ROD
-              </>
-            )}
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              onClick={() => toast.info('Funcionalidad de edición pendiente')}
+              disabled={isGenerating}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Editar
+            </Button>
+            <Button 
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="px-8"
+            >
+              {isGenerating ? (
+                'Generando...'
+              ) : (
+                <>
+                  {formData.generationSettings.distributionMethod === 'email' ? (
+                    <Mail className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Download className="h-4 w-4 mr-2" />
+                  )}
+                  Generar ROD
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

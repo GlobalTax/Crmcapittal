@@ -51,8 +51,13 @@ export const RODBuilder: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       toast({
         title: "ROD generada",
-        description: "El reporte se ha generado exitosamente",
+        description: "El reporte se ha generado exitosamente. Redirigiendo al dashboard...",
       });
+      
+      // Auto-redirect to dashboard after successful generation
+      setTimeout(() => {
+        navigate('/rod');
+      }, 2000);
     } catch (error) {
       toast({
         title: "Error",
