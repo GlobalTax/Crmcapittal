@@ -92,17 +92,42 @@ export function useRODFormState() {
     return () => clearInterval(interval);
   }, [formData, autoSaveEnabled]);
 
+  const validateAndMigrateData = (data: any): RODFormData => {
+    // Ensure selectedSubscribers is always an array
+    if (data.generalInfo && !Array.isArray(data.generalInfo.selectedSubscribers)) {
+      data.generalInfo.selectedSubscribers = [];
+    }
+    
+    // Validate period structure
+    if (!data.generalInfo?.period || typeof data.generalInfo.period.month !== 'number') {
+      data.generalInfo = {
+        ...data.generalInfo,
+        period: {
+          month: new Date().getMonth() + 1,
+          year: new Date().getFullYear(),
+        }
+      };
+    }
+    
+    return data;
+  };
+
   const loadDraft = () => {
     try {
       const savedDraft = localStorage.getItem('rod-builder-draft');
       if (savedDraft) {
         const draft = JSON.parse(savedDraft);
-        setFormData(draft.formData || formData);
-        setCurrentStep(draft.currentStep || 1);
-        toast.info('Borrador cargado automáticamente');
+        if (draft.formData) {
+          const migratedData = validateAndMigrateData(draft.formData);
+          setFormData(migratedData);
+          setCurrentStep(draft.currentStep || 1);
+          toast.info('Borrador cargado automáticamente');
+        }
       }
     } catch (error) {
       console.error('Error loading draft:', error);
+      // Clear corrupted data
+      localStorage.removeItem('rod-builder-draft');
     }
   };
 

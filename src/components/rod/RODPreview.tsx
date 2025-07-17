@@ -40,7 +40,7 @@ export function RODPreview({ formData, onPrev, onGenerate }: RODPreviewProps) {
   };
 
   const selectedSubscriberEmails = subscribers
-    ?.filter(sub => formData.generalInfo.selectedSubscribers.includes(sub.id))
+    ?.filter(sub => (formData.generalInfo.selectedSubscribers || []).includes(sub.id))
     .map(sub => sub.email) || [];
 
   const formatPeriod = () => {
