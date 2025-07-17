@@ -97,7 +97,18 @@ export function MandateForm({
   const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
-    form.reset();
+    form.reset({
+      companyName: '',
+      sector: '',
+      location: '',
+      salesAmount: 0,
+      ebitda: undefined,
+      description: '',
+      status: '',
+      contactName: '',
+      contactEmail: '',
+      contactPhone: '',
+    });
   };
 
   const totalValue = mandates.reduce((sum, mandate) => sum + mandate.salesAmount, 0);
@@ -150,7 +161,21 @@ export function MandateForm({
         <Card className="border-dashed border-2 border-muted hover:border-primary transition-colors">
           <CardContent className="p-6">
             <Button 
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                form.reset({
+                  companyName: '',
+                  sector: '',
+                  location: '',
+                  salesAmount: 0,
+                  ebitda: undefined,
+                  description: '',
+                  status: '',
+                  contactName: '',
+                  contactEmail: '',
+                  contactPhone: '',
+                });
+                setShowForm(true);
+              }}
               variant="ghost" 
               className="w-full h-20 border-none"
             >
@@ -198,7 +223,7 @@ export function MandateForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Sector</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Selecciona un sector" />
@@ -284,7 +309,7 @@ export function MandateForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Estado</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecciona el estado" />
