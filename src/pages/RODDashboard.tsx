@@ -292,3 +292,5 @@ export const RODDashboard: React.FC = () => {
     </div>
   );
 };
+
+export default RODDashboard;

@@ -40,7 +40,7 @@ const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 const SystemDebug = lazy(() => import('@/pages/SystemDebug'));
 const CommissionsPage = lazy(() => import('@/pages/CommissionsPage'));
 const RODBuilder = lazy(() => import('@/pages/RODBuilder'));
-const RODDashboard = lazy(() => import('@/pages/RODDashboard').then(m => ({ default: m.RODDashboard })));
+const RODDashboard = lazy(() => import('@/pages/RODDashboard'));
 const Subscribers = lazy(() => import('@/pages/Subscribers'));
 const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 
