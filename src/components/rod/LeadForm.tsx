@@ -9,9 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Target, Plus, Trash2, Edit3, Building, Euro, Star, Mail, Phone, User } from 'lucide-react';
+import { Target, Plus, Trash2, Edit3, Building, Euro, Star, Mail, Phone, User, TestTube } from 'lucide-react';
 import { RODLead } from '@/hooks/useRODFormState';
 import { ImportDataDialog } from './ImportDataDialog';
+import { useTestData } from '@/hooks/useTestData';
 
 const leadSchema = z.object({
   companyName: z.string().min(1, 'Nombre de empresa requerido'),
@@ -62,6 +63,7 @@ export function LeadForm({
 }: LeadFormProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const { sampleLeads } = useTestData();
 
   const form = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
@@ -133,9 +135,24 @@ export function LeadForm({
                 </Badge>
               )}
             </div>
-            {onImportLeads && (
-              <ImportDataDialog onImportLeads={onImportLeads} />
-            )}
+            <div className="flex items-center gap-2">
+              {leads.length === 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    sampleLeads.forEach(lead => onAddLead(lead));
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <TestTube className="h-4 w-4" />
+                  Cargar Datos de Prueba
+                </Button>
+              )}
+              {onImportLeads && (
+                <ImportDataDialog onImportLeads={onImportLeads} />
+              )}
+            </div>
           </div>
         </CardHeader>
       </Card>

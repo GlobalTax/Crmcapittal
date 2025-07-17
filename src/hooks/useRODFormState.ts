@@ -4,8 +4,11 @@ import { toast } from 'sonner';
 export interface RODGeneralInfo {
   title: string;
   description: string;
-  client: string;
-  period: string;
+  selectedSubscribers: string[];
+  period: {
+    month: number;
+    year: number;
+  };
 }
 
 export interface RODMandate {
@@ -56,8 +59,11 @@ export function useRODFormState() {
     generalInfo: {
       title: '',
       description: '',
-      client: '',
-      period: '',
+      selectedSubscribers: [],
+      period: {
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
+      },
     },
     mandates: [],
     leads: [],

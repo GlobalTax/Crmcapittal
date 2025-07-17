@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye, Download, Mail, Edit, FileText, Building, TrendingUp, Users, HandCoins } from 'lucide-react';
 import { RODFormData } from '@/hooks/useRODFormState';
+import { useSubscribers } from '@/hooks/useSubscribers';
 import { toast } from 'sonner';
 
 interface RODPreviewProps {
@@ -12,8 +13,14 @@ interface RODPreviewProps {
   onGenerate: () => void;
 }
 
+const months = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
 export function RODPreview({ formData, onPrev, onGenerate }: RODPreviewProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { subscribers } = useSubscribers();
 
   const totalMandateValue = formData.mandates.reduce((sum, mandate) => sum + mandate.salesAmount, 0);
   const totalLeadValue = formData.leads.reduce((sum, lead) => sum + lead.estimatedValue, 0);
@@ -32,6 +39,15 @@ export function RODPreview({ formData, onPrev, onGenerate }: RODPreviewProps) {
     }
   };
 
+  const selectedSubscriberEmails = subscribers
+    ?.filter(sub => formData.generalInfo.selectedSubscribers.includes(sub.id))
+    .map(sub => sub.email) || [];
+
+  const formatPeriod = () => {
+    const { month, year } = formData.generalInfo.period;
+    return `${months[month - 1]} ${year}`;
+  };
+
   const renderPreviewContent = () => {
     return (
       <div className="space-y-6 p-6 bg-white rounded-lg border">
@@ -44,9 +60,9 @@ export function RODPreview({ formData, onPrev, onGenerate }: RODPreviewProps) {
             {formData.generalInfo.description}
           </p>
           <div className="flex justify-center gap-4 text-sm text-gray-500">
-            <span>Cliente: {formData.generalInfo.client}</span>
+            <span>Destinatarios: {selectedSubscriberEmails.length} suscriptores</span>
             <span>•</span>
-            <span>Período: {formData.generalInfo.period}</span>
+            <span>Período: {formatPeriod()}</span>
             <span>•</span>
             <span>Generado: {new Date().toLocaleDateString('es-ES')}</span>
           </div>
