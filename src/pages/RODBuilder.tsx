@@ -1,41 +1,112 @@
-import { useState, useEffect, useMemo } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useRODFormState } from '@/hooks/useRODFormState';
+import { StepperNavigation } from '@/components/rod/StepperNavigation';
+import { GeneralInfoForm } from '@/components/rod/GeneralInfoForm';
+import { MandateForm } from '@/components/rod/MandateForm';
+import { LeadForm } from '@/components/rod/LeadForm';
+import { GenerationSettingsForm } from '@/components/rod/GenerationSettingsForm';
+import { RODPreview } from '@/components/rod/RODPreview';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { RODItemRow } from '@/components/rod/RODItemRow';
-import { RODItem, RODItemType } from '@/types/RODItem';
-import { useRODItems } from '@/hooks/useRODItems';
-import { Search, Filter, Calendar, TrendingUp, Building, Target, HandCoins, Users } from 'lucide-react';
 
 export default function RODBuilder() {
-  const { items, isLoading, refetch, updateItem } = useRODItems();
-  const [sortedItems, setSortedItems] = useState<RODItem[]>([]);
-  const [optimisticHighlights, setOptimisticHighlights] = useState<Record<string, boolean>>({});
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sectorFilter, setSectorFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const {
+    currentStep,
+    formData,
+    updateGeneralInfo,
+    addMandate,
+    updateMandate,
+    removeMandate,
+    addLead,
+    updateLead,
+    removeLead,
+    updateGenerationSettings,
+    nextStep,
+    prevStep,
+    goToStep,
+  } = useRODFormState();
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+  const handleGenerate = async () => {
+    try {
+      // Here you would implement the actual ROD generation logic
+      // For now, just show a success message
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      toast.success('ROD generada exitosamente');
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <GeneralInfoForm
+            initialData={formData.generalInfo}
+            onSave={updateGeneralInfo}
+            onNext={nextStep}
+          />
+        );
+      case 2:
+        return (
+          <MandateForm
+            mandates={formData.mandates}
+            onAddMandate={addMandate}
+            onUpdateMandate={updateMandate}
+            onRemoveMandate={removeMandate}
+            onNext={nextStep}
+            onPrev={prevStep}
+          />
+        );
+      case 3:
+        return (
+          <LeadForm
+            leads={formData.leads}
+            onAddLead={addLead}
+            onUpdateLead={updateLead}
+            onRemoveLead={removeLead}
+            onNext={nextStep}
+            onPrev={prevStep}
+          />
+        );
+      case 4:
+        return (
+          <GenerationSettingsForm
+            initialData={formData.generationSettings}
+            onSave={updateGenerationSettings}
+            onNext={nextStep}
+            onPrev={prevStep}
+          />
+        );
+      case 5:
+        return (
+          <RODPreview
+            formData={formData}
+            onPrev={prevStep}
+            onGenerate={handleGenerate}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">ROD Builder</h1>
+        <p className="text-muted-foreground text-lg">
+          Crea reportes de oportunidades de dealflow de forma rápida y profesional
+        </p>
+      </div>
+
+      <StepperNavigation 
+        currentStep={currentStep} 
+        onStepClick={goToStep} 
+      />
+
+      {renderCurrentStep()}
+    </div>
   );
-
-  // Filtered and sorted items
-  const filteredItems = useMemo(() => {
-    if (!items) return [];
-    
-    return items.filter((item) => {
+}
       const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            item.company_name.toLowerCase().includes(searchQuery.toLowerCase());
