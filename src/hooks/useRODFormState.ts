@@ -256,6 +256,30 @@ export function useRODFormState() {
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      generalInfo: {
+        title: '',
+        description: '',
+        selectedSubscribers: [],
+        period: {
+          month: new Date().getMonth() + 1,
+          year: new Date().getFullYear(),
+        },
+      },
+      mandates: [],
+      leads: [],
+      generationSettings: {
+        template: 'professional',
+        outputFormat: 'pdf',
+        includeLogos: true,
+        distributionMethod: 'download',
+      },
+    });
+    setCurrentStep(1);
+    localStorage.removeItem('rod-builder-draft');
+  };
+
   return {
     currentStep,
     formData,
@@ -276,5 +300,6 @@ export function useRODFormState() {
     clearDraft,
     autoSaveEnabled,
     setAutoSaveEnabled,
+    resetForm,
   };
 }
