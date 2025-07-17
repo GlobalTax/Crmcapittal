@@ -40,6 +40,7 @@ const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
 const SystemDebug = lazy(() => import('@/pages/SystemDebug'));
 const CommissionsPage = lazy(() => import('@/pages/CommissionsPage'));
 const RODBuilder = lazy(() => import('@/pages/RODBuilder'));
+const RODDashboard = lazy(() => import('@/pages/RODDashboard').then(m => ({ default: m.RODDashboard })));
 const Subscribers = lazy(() => import('@/pages/Subscribers'));
 const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 
@@ -274,9 +275,17 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* ROD Builder and Campaign routes */}
+          {/* ROD Dashboard and Builder routes */}
           <Route 
             path="/rod" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <RODDashboard />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/rod/builder" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <RODBuilder />

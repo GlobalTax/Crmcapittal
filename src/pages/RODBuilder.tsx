@@ -1,23 +1,24 @@
-import { useState } from 'react';
-import { useRODFormState } from '@/hooks/useRODFormState';
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { StepperNavigation } from '@/components/rod/StepperNavigation';
 import { GeneralInfoForm } from '@/components/rod/GeneralInfoForm';
 import { MandateForm } from '@/components/rod/MandateForm';
 import { LeadForm } from '@/components/rod/LeadForm';
 import { GenerationSettingsForm } from '@/components/rod/GenerationSettingsForm';
 import { RODPreview } from '@/components/rod/RODPreview';
-import { RODHistoryPanel } from '@/components/rod/RODHistoryPanel';
-import { Button } from '@/components/ui/button';
-import { History } from 'lucide-react';
-import { toast } from 'sonner';
-import { RodLog } from '@/types/RodLog';
+import { ArrowLeft } from 'lucide-react';
+import { useRODFormState } from '@/hooks/useRODFormState';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function RODBuilder() {
-  const [showHistory, setShowHistory] = useState(false);
-  
+export const RODBuilder: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const {
-    currentStep,
     formData,
+    currentStep,
     updateGeneralInfo,
     addMandate,
     updateMandate,
@@ -34,73 +35,58 @@ export default function RODBuilder() {
     resetForm,
   } = useRODFormState();
 
+  // Handle duplication from dashboard
+  useEffect(() => {
+    const duplicateData = location.state?.duplicateData;
+    if (duplicateData) {
+      handleDuplicateROD(duplicateData);
+      // Clear the state to prevent re-duplication on refresh
+      navigate('/rod/builder', { replace: true });
+    }
+  }, [location.state]);
+
   const handleGenerate = async () => {
     try {
-      // Here you would implement the actual ROD generation logic
-      // For now, just show a success message
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      toast.success('ROD generada exitosamente');
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      toast({
+        title: "ROD generada",
+        description: "El reporte se ha generado exitosamente",
+      });
     } catch (error) {
-      throw error;
+      toast({
+        title: "Error",
+        description: "Hubo un problema al generar la ROD",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleDuplicateROD = (rodData: RodLog) => {
-    try {
-      // Reset form and populate with historical data
-      resetForm();
+  const handleDuplicateROD = (rodData: any) => {
+    resetForm();
+    
+    // Import the data from the ROD
+    if (rodData.deals && rodData.deals.length > 0) {
+      const mandates = rodData.deals.filter((deal: any) => deal.dealType === 'mandate');
+      const leads = rodData.deals.filter((deal: any) => deal.dealType === 'lead');
       
-      // Extract period information from the first deal
-      const firstDeal = rodData.deals?.[0];
-      if (firstDeal?.period) {
-        const [month, year] = firstDeal.period.split('/').map(Number);
-        updateGeneralInfo({
-          title: `Copia de ROD ${firstDeal.period}`,
-          period: { month: month || new Date().getMonth() + 1, year: year || new Date().getFullYear() },
-          selectedSubscribers: []
-        });
+      if (mandates.length > 0) {
+        importMandates(mandates);
       }
-
-      // Convert deals back to mandates and leads
-      const mandates = rodData.deals?.filter(deal => deal.type === 'operation') || [];
-      const leads = rodData.deals?.filter(deal => deal.type === 'lead') || [];
-
-      mandates.forEach(mandate => {
-        addMandate({
-          companyName: mandate.company_name || '',
-          sector: mandate.sector || '',
-          location: mandate.location || '',
-          salesAmount: mandate.value || 0,
-          ebitda: mandate.ebitda || 0,
-          description: mandate.description || '',
-          status: 'active',
-          contactName: '',
-          contactEmail: '',
-          contactPhone: ''
-        });
-      });
-
-      leads.forEach(lead => {
-        addLead({
-          companyName: lead.company_name || '',
-          sector: lead.sector || '',
-          estimatedValue: lead.value || 0,
-          leadScore: 0,
-          leadSource: 'imported',
-          qualificationStatus: 'new',
-          contactName: '',
-          contactEmail: '',
-          contactPhone: '',
-          notes: lead.description || ''
-        });
-      });
-
-      toast.success('ROD duplicada exitosamente');
-      setShowHistory(false);
-    } catch (error) {
-      console.error('Error duplicating ROD:', error);
-      toast.error('Error al duplicar la ROD');
+      
+      if (leads.length > 0) {
+        importLeads(leads);
+      }
     }
+    
+    toast({
+      title: "ROD duplicada",
+      description: "Los datos han sido importados correctamente",
+    });
+  };
+
+  const handleBackToDashboard = () => {
+    navigate('/rod');
   };
 
   const renderCurrentStep = () => {
@@ -159,43 +145,41 @@ export default function RODBuilder() {
     }
   };
 
-  if (showHistory) {
-    return (
-      <div className="container mx-auto p-6 h-[calc(100vh-2rem)]">
-        <RODHistoryPanel 
-          onClose={() => setShowHistory(false)}
-          onDuplicate={handleDuplicateROD}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">ROD Builder</h1>
-          <p className="text-muted-foreground text-lg">
-            Crea reportes de oportunidades de dealflow de forma rápida y profesional
-          </p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              Generador de ROD
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Crea tu Reporte de Oportunidades de Dealflow paso a paso
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={handleBackToDashboard}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver al Dashboard
+          </Button>
         </div>
-        
-        <Button 
-          variant="outline" 
-          onClick={() => setShowHistory(true)}
-          className="flex items-center gap-2"
-        >
-          <History className="h-4 w-4" />
-          Ver Histórico
-        </Button>
+
+        <div className="max-w-4xl mx-auto">
+          <StepperNavigation 
+            currentStep={currentStep} 
+            onStepClick={goToStep}
+          />
+          
+          <div className="mt-8">
+            {renderCurrentStep()}
+          </div>
+        </div>
       </div>
-
-      <StepperNavigation 
-        currentStep={currentStep} 
-        onStepClick={goToStep} 
-      />
-
-      {renderCurrentStep()}
     </div>
   );
-}
+};
+
+export default RODBuilder;
