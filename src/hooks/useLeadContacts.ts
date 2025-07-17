@@ -42,12 +42,19 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
   // Create lead (contact with lifecycle_stage = 'lead' and also in leads table)
   const createLeadMutation = useMutation({
     mutationFn: async (leadData: CreateContactData & { opportunity_name?: string; estimated_value?: number; close_date?: string; probability?: number }) => {
+      // First check if user is authenticated
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('Usuario no autenticado');
+      }
+
       // Create contact with generated lead name
       const contactData = {
         ...leadData,
         contact_type: 'lead',
         lifecycle_stage: 'marketing_qualified_lead',
         lead_score: leadData.lead_score || 0,
+        created_by: user.id,
       };
 
       const { data: contactResult, error: contactError } = await supabase
@@ -56,7 +63,10 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
         .select()
         .single();
 
-      if (contactError) throw contactError;
+      if (contactError) {
+        console.error('Error creating contact:', contactError);
+        throw new Error(`Error al crear contacto: ${contactError.message}`);
+      }
 
       // Also create in leads table for lead management
       // Extract the original name or opportunity name from the generated lead name
@@ -88,6 +98,7 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
       if (leadError) {
         console.error('Error creating lead record:', leadError);
         // Don't throw error here, contact was created successfully
+        toast.error('Lead creado pero hubo un problema con el registro adicional');
       }
 
       return contactResult as Contact;
@@ -96,9 +107,10 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
       queryClient.invalidateQueries({ queryKey: ['lead-contacts'] });
       toast.success('Lead creado exitosamente');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error creating lead:', error);
-      toast.error('Error al crear el lead');
+      const errorMessage = error?.message || 'Error al crear el lead';
+      toast.error(errorMessage);
     },
   });
 
