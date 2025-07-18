@@ -51,6 +51,8 @@ const navigationSections: NavSection[] = [
     items: [
       { to: '/transacciones', label: 'Mandatos de Venta', icon: Briefcase },
       { to: '/buying-mandates', label: 'Mandatos de Compra', icon: FileText },
+      { to: '/valoraciones', label: 'Valoraciones', icon: Calculator },
+      { to: '/reconversiones', label: 'Reconversiones', icon: RefreshCw },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
       { to: '/documents', label: 'Documentos', icon: FileText },
     ]
@@ -58,8 +60,6 @@ const navigationSections: NavSection[] = [
   {
     title: "Servicios Complementarios",
     items: [
-      { to: '/valoraciones', label: 'Valoraciones', icon: Calculator },
-      { to: '/reconversiones', label: 'Reconversiones', icon: RefreshCw },
       { to: '/teaser-builder', label: 'Teaser Builder', icon: FileImage },
     ]
   },
