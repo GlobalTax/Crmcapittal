@@ -43,6 +43,9 @@ const RODBuilder = lazy(() => import('@/pages/RODBuilder'));
 const RODDashboard = lazy(() => import('@/pages/RODDashboard'));
 const Subscribers = lazy(() => import('@/pages/Subscribers'));
 const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
+const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
+const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
+const TeaserBuilder = lazy(() => import('@/pages/TeaserBuilder'));
 
 // Note: Settings routes can be added later from the original App.tsx
 
@@ -305,6 +308,32 @@ export const AppRoutes = () => {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <CampaignBuilder />
+              </Suspense>
+            } 
+          />
+
+          {/* Servicios Complementarios */}
+          <Route 
+            path="/valoraciones" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Valoraciones />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/reconversiones" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Reconversiones />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/teaser-builder" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <TeaserBuilder />
               </Suspense>
             } 
           />

@@ -4650,6 +4650,93 @@ export type Database = {
         }
         Relationships: []
       }
+      reconversiones: {
+        Row: {
+          assigned_to: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string | null
+          conversion_probability: number | null
+          created_at: string
+          created_by: string | null
+          deal_structure_preferences: string[] | null
+          id: string
+          investment_capacity: number | null
+          max_ebitda: number | null
+          max_revenue: number | null
+          min_ebitda: number | null
+          min_revenue: number | null
+          new_requirements: Json | null
+          next_contact_date: string | null
+          notes: string | null
+          original_lead_id: string | null
+          original_mandate_id: string | null
+          rejection_reason: string
+          status: string
+          target_locations: string[] | null
+          target_sectors: string[] | null
+          timeline_preference: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_name: string
+          contact_phone?: string | null
+          conversion_probability?: number | null
+          created_at?: string
+          created_by?: string | null
+          deal_structure_preferences?: string[] | null
+          id?: string
+          investment_capacity?: number | null
+          max_ebitda?: number | null
+          max_revenue?: number | null
+          min_ebitda?: number | null
+          min_revenue?: number | null
+          new_requirements?: Json | null
+          next_contact_date?: string | null
+          notes?: string | null
+          original_lead_id?: string | null
+          original_mandate_id?: string | null
+          rejection_reason: string
+          status?: string
+          target_locations?: string[] | null
+          target_sectors?: string[] | null
+          timeline_preference?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string | null
+          conversion_probability?: number | null
+          created_at?: string
+          created_by?: string | null
+          deal_structure_preferences?: string[] | null
+          id?: string
+          investment_capacity?: number | null
+          max_ebitda?: number | null
+          max_revenue?: number | null
+          min_ebitda?: number | null
+          min_revenue?: number | null
+          new_requirements?: Json | null
+          next_contact_date?: string | null
+          notes?: string | null
+          original_lead_id?: string | null
+          original_mandate_id?: string | null
+          rejection_reason?: string
+          status?: string
+          target_locations?: string[] | null
+          target_sectors?: string[] | null
+          timeline_preference?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       recurring_fees: {
         Row: {
           amount: number
@@ -5797,6 +5884,81 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      valoraciones: {
+        Row: {
+          assigned_to: string | null
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          company_description: string | null
+          company_name: string
+          company_sector: string | null
+          created_at: string
+          created_by: string | null
+          delivery_date: string | null
+          estimated_value_max: number | null
+          estimated_value_min: number | null
+          final_valuation_amount: number | null
+          id: string
+          notes: string | null
+          priority: string
+          requested_date: string
+          status: string
+          updated_at: string
+          valuation_method: string[] | null
+          valuation_report_url: string | null
+          valuation_type: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          company_description?: string | null
+          company_name: string
+          company_sector?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_date?: string | null
+          estimated_value_max?: number | null
+          estimated_value_min?: number | null
+          final_valuation_amount?: number | null
+          id?: string
+          notes?: string | null
+          priority?: string
+          requested_date?: string
+          status?: string
+          updated_at?: string
+          valuation_method?: string[] | null
+          valuation_report_url?: string | null
+          valuation_type?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          company_description?: string | null
+          company_name?: string
+          company_sector?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_date?: string | null
+          estimated_value_max?: number | null
+          estimated_value_min?: number | null
+          final_valuation_amount?: number | null
+          id?: string
+          notes?: string | null
+          priority?: string
+          requested_date?: string
+          status?: string
+          updated_at?: string
+          valuation_method?: string[] | null
+          valuation_report_url?: string | null
+          valuation_type?: string
         }
         Relationships: []
       }

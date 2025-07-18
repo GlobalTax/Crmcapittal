@@ -18,7 +18,10 @@ import {
   DollarSign,
   Target,
   Users2,
-  Send
+  Send,
+  Calculator,
+  RefreshCw,
+  FileImage
 } from 'lucide-react';
 
 interface NavItem {
@@ -50,6 +53,14 @@ const navigationSections: NavSection[] = [
       { to: '/buying-mandates', label: 'Mandatos de Compra', icon: FileText },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
       { to: '/documents', label: 'Documentos', icon: FileText },
+    ]
+  },
+  {
+    title: "Servicios Complementarios",
+    items: [
+      { to: '/valoraciones', label: 'Valoraciones', icon: Calculator },
+      { to: '/reconversiones', label: 'Reconversiones', icon: RefreshCw },
+      { to: '/teaser-builder', label: 'Teaser Builder', icon: FileImage },
     ]
   },
   {
