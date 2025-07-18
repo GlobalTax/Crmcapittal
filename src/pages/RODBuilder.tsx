@@ -35,15 +35,26 @@ export const RODBuilder: React.FC = () => {
     resetForm,
   } = useRODFormState();
 
-  // Handle duplication from dashboard
+  // Handle initial state - new ROD or duplication from dashboard
   useEffect(() => {
     const duplicateData = location.state?.duplicateData;
-    if (duplicateData) {
+    const isNew = location.state?.isNew;
+    
+    if (isNew) {
+      // For new RODs, ensure completely clean state
+      resetForm();
+      toast({
+        title: "Nueva ROD iniciada",
+        description: "Formulario listo para crear un nuevo reporte",
+      });
+      // Clear the state to prevent re-execution
+      navigate('/rod/builder', { replace: true });
+    } else if (duplicateData) {
       handleDuplicateROD(duplicateData);
       // Clear the state to prevent re-duplication on refresh
       navigate('/rod/builder', { replace: true });
     }
-  }, [location.state]);
+  }, [location.state, resetForm, navigate, toast]);
 
   const handleGenerate = async () => {
     try {

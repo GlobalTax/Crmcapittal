@@ -48,7 +48,9 @@ export const RODDashboard: React.FC = () => {
   };
 
   const handleCreateNew = () => {
-    navigate('/rod/builder');
+    // Clear any existing draft before creating new ROD
+    localStorage.removeItem('rod-builder-draft');
+    navigate('/rod/builder', { state: { isNew: true } });
   };
 
   const handleDuplicate = (rod: RodLog) => {
