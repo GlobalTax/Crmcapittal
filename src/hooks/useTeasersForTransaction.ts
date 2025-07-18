@@ -40,6 +40,9 @@ export function useTeasersForTransaction(transactionId: string) {
           anonymous_company_name: teaserData.anonymous_company_name || 'Nueva Empresa',
           transaction_id: transactionId,
           teaser_type: 'venta',
+          status: teaserData.status || 'borrador',
+          currency: 'EUR',
+          created_by: (await supabase.auth.getUser()).data.user?.id,
           ...teaserData
         });
 
@@ -51,6 +54,45 @@ export function useTeasersForTransaction(transactionId: string) {
       console.error('Error creating teaser:', err);
       toast({
         title: 'Error al crear el teaser',
+        description: 'Por favor, inténtelo de nuevo',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const updateTeaser = async (teaserId: string, teaserData: Partial<Teaser>) => {
+    try {
+      const { error } = await supabase
+        .from('teasers')
+        .update(teaserData)
+        .eq('id', teaserId);
+
+      if (error) throw error;
+      
+      toast({ title: 'Teaser actualizado correctamente' });
+      fetchTeasers();
+    } catch (err) {
+      console.error('Error updating teaser:', err);
+      toast({
+        title: 'Error al actualizar el teaser',
+        description: 'Por favor, inténtelo de nuevo',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const duplicateTeaser = async (teaser: Teaser) => {
+    try {
+      const { id, created_at, updated_at, ...teaserData } = teaser;
+      await createTeaser({
+        ...teaserData,
+        title: `${teaser.title} (Copia)`,
+        status: 'borrador'
+      });
+    } catch (err) {
+      console.error('Error duplicating teaser:', err);
+      toast({
+        title: 'Error al duplicar el teaser',
         description: 'Por favor, inténtelo de nuevo',
         variant: 'destructive'
       });
@@ -89,7 +131,9 @@ export function useTeasersForTransaction(transactionId: string) {
     loading,
     error,
     createTeaser,
+    updateTeaser,
     deleteTeaser,
+    duplicateTeaser,
     refetch: fetchTeasers
   };
 }

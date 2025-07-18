@@ -12,7 +12,7 @@ interface TransaccionTeaserTabProps {
 export function TransaccionTeaserTab({ transaccion }: TransaccionTeaserTabProps) {
   const [showBuilder, setShowBuilder] = useState(false);
   const [editingTeaser, setEditingTeaser] = useState<any>(null);
-  const { teasers, loading, error, createTeaser, deleteTeaser } = useTeasersForTransaction(transaccion.id);
+  const { teasers, loading, error, createTeaser, deleteTeaser, duplicateTeaser } = useTeasersForTransaction(transaccion.id);
 
   const handleCreateTeaser = () => {
     setEditingTeaser(null);
@@ -155,6 +155,14 @@ export function TransaccionTeaserTab({ transaccion }: TransaccionTeaserTabProps)
                     <Button variant="outline" size="sm">
                       <Eye className="w-4 h-4 mr-1" />
                       Ver
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => duplicateTeaser(teaser)}
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Duplicar
                     </Button>
                     <Button 
                       variant="outline" 
