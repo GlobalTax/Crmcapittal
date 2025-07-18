@@ -9,93 +9,103 @@
 
 @layer base {
   :root {
-    /* Modern LegalCRM inspired color system */
-    --background: 0 0% 99%;
-    --foreground: 222 15% 15%;
+    /* Enhanced color system from OKLCH palette */
+    --background: 0 0% 100%;
+    --foreground: 220 14% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 15% 15%;
+    --card-foreground: 220 14% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 15% 15%;
+    --popover-foreground: 220 14% 14%;
 
-    /* Professional blue palette */
-    --primary: 220 91% 55%;
-    --primary-hover: 220 91% 45%;
-    --primary-foreground: 0 0% 100%;
+    /* Enhanced blue palette */
+    --primary: 220 14% 21%;
+    --primary-hover: 220 20% 18%;
+    --primary-foreground: 0 0% 98%;
 
-    /* Sophisticated grays */
-    --secondary: 215 25% 97%;
-    --secondary-foreground: 222 15% 25%;
+    /* Refined grays */
+    --secondary: 216 2% 97%;
+    --secondary-foreground: 220 14% 21%;
 
-    --muted: 215 25% 97%;
-    --muted-foreground: 215 15% 50%;
+    --muted: 216 2% 97%;
+    --muted-foreground: 220 9% 55%;
 
-    --accent: 215 25% 97%;
-    --accent-foreground: 222 15% 25%;
+    --accent: 216 2% 97%;
+    --accent-foreground: 220 14% 21%;
 
-    /* Status colors */
+    /* Enhanced status colors */
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
     
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
     
-    --destructive: 0 72% 51%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders and inputs */
-    --border: 215 20% 92%;
-    --input: 215 20% 95%;
-    --ring: 220 91% 55%;
+    /* Refined borders and inputs */
+    --border: 220 13% 92%;
+    --input: 220 13% 92%;
+    --ring: 220 14% 21%;
 
     --radius: 8px;
 
-    /* Modern sidebar styling */
-    --sidebar-background: 222 20% 11%;
-    --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 220 91% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 15% 15%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 222 15% 20%;
-    --sidebar-ring: 220 91% 55%;
+    /* Enhanced sidebar styling */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 14% 14%;
+    --sidebar-primary: 220 14% 21%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 216 2% 97%;
+    --sidebar-accent-foreground: 220 14% 21%;
+    --sidebar-border: 220 13% 92%;
+    --sidebar-ring: 220 14% 21%;
 
-    /* Additional modern colors */
-    --surface: 0 0% 99%;
-    --surface-variant: 215 25% 97%;
-    --outline: 215 20% 85%;
-    --outline-variant: 215 15% 90%;
+    /* Enhanced modern colors */
+    --surface: 0 0% 100%;
+    --surface-variant: 216 2% 97%;
+    --outline: 220 13% 85%;
+    --outline-variant: 220 9% 90%;
+
+    /* New gradient colors */
+    --gradient-1: 270 41% 64%;
+    --gradient-2: 145 47% 73%;
+    --gradient-3: 340 38% 70%;
   }
 
   .dark {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 36.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --background: 220 14% 14%;
+    --foreground: 0 0% 98%;
+    --card: 220 14% 21%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 14% 21%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 220 13% 92%;
+    --primary-foreground: 220 14% 21%;
+    --secondary: 220 15% 27%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 220 15% 27%;
+    --muted-foreground: 220 9% 71%;
+    --accent: 220 15% 27%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 100% / 10%;
+    --input: 0 0% 100% / 15%;
+    --ring: 220 9% 55%;
+    --sidebar-background: 220 14% 21%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 270 24% 49%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 220 15% 27%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 100% / 10%;
+    --sidebar-ring: 220 9% 55%;
+
+    /* Enhanced gradient colors for dark mode */
+    --gradient-1: 270 39% 27%;
+    --gradient-2: 145 47% 73%;
+    --gradient-3: 340 38% 70%;
   }
 }
 
@@ -166,8 +176,37 @@
   .gradient-border {
     position: relative;
     background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, #667eea 0%, #764ba2 100%) border-box;
+                linear-gradient(135deg, hsl(var(--gradient-1)), hsl(var(--gradient-2))) border-box;
     border: 2px solid transparent;
+  }
+
+  /* Enhanced button effects */
+  .btn-glow {
+    position: relative;
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
+    box-shadow: 0 4px 15px hsl(var(--primary) / 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-glow:hover {
+    box-shadow: 0 8px 25px hsl(var(--primary) / 0.6);
+    transform: translateY(-2px);
+  }
+
+  .btn-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent, hsl(var(--primary-foreground) / 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .btn-glow:hover::before {
+    opacity: 1;
   }
 
   .glass-effect {
