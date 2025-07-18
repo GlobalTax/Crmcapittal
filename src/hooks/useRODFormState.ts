@@ -81,9 +81,16 @@ export function useRODFormState() {
     loadDraft();
   }, []);
 
-  // Auto-save every 5 seconds
+  // Auto-save every 5 seconds (only if there's meaningful data)
   useEffect(() => {
     if (!autoSaveEnabled) return;
+    
+    // Only auto-save if there's actual meaningful data to save
+    const hasData = formData.generalInfo.title.trim() !== '' || 
+                   formData.mandates.length > 0 || 
+                   formData.leads.length > 0;
+    
+    if (!hasData) return;
     
     const interval = setInterval(() => {
       saveDraft();
@@ -257,7 +264,7 @@ export function useRODFormState() {
   };
 
   const resetForm = () => {
-    setFormData({
+    const freshData = {
       generalInfo: {
         title: '',
         description: '',
@@ -275,9 +282,17 @@ export function useRODFormState() {
         includeLogos: true,
         distributionMethod: 'download',
       },
-    });
+    };
+    setFormData(freshData);
     setCurrentStep(1);
-    localStorage.removeItem('rod-builder-draft');
+    clearDraft();
+  };
+
+  // Function to clear form editing state without affecting global data
+  const clearFormState = () => {
+    // This can be used by individual forms to clear their editing state
+    // without affecting the overall ROD data
+    return;
   };
 
   return {
@@ -298,6 +313,7 @@ export function useRODFormState() {
     importLeads,
     saveDraft,
     clearDraft,
+    clearFormState,
     autoSaveEnabled,
     setAutoSaveEnabled,
     resetForm,

@@ -61,20 +61,23 @@ export function MandateForm({
   const [editingId, setEditingId] = useState<string | null>(null);
   const { sampleMandates } = useTestData();
 
+  // Fresh default values - completely clean slate
+  const getCleanFormValues = () => ({
+    companyName: '',
+    sector: '',
+    location: '',
+    salesAmount: 0,
+    ebitda: undefined,
+    description: '',
+    status: '',
+    contactName: '',
+    contactEmail: '',
+    contactPhone: '',
+  });
+
   const form = useForm<MandateFormData>({
     resolver: zodResolver(mandateSchema),
-    defaultValues: {
-      companyName: '',
-      sector: '',
-      location: '',
-      salesAmount: 0,
-      ebitda: undefined,
-      description: '',
-      status: '',
-      contactName: '',
-      contactEmail: '',
-      contactPhone: '',
-    },
+    defaultValues: getCleanFormValues(),
   });
 
   const onSubmit = (data: MandateFormData) => {
@@ -84,7 +87,8 @@ export function MandateForm({
     } else {
       onAddMandate(data);
     }
-    form.reset();
+    // Force complete reset with clean values
+    form.reset(getCleanFormValues());
     setShowForm(false);
   };
 
@@ -97,18 +101,8 @@ export function MandateForm({
   const handleCancel = () => {
     setShowForm(false);
     setEditingId(null);
-    form.reset({
-      companyName: '',
-      sector: '',
-      location: '',
-      salesAmount: 0,
-      ebitda: undefined,
-      description: '',
-      status: '',
-      contactName: '',
-      contactEmail: '',
-      contactPhone: '',
-    });
+    // Force complete reset with fresh clean values
+    form.reset(getCleanFormValues());
   };
 
   const totalValue = mandates.reduce((sum, mandate) => sum + mandate.salesAmount, 0);
@@ -162,18 +156,9 @@ export function MandateForm({
           <CardContent className="p-6">
             <Button 
               onClick={() => {
-                form.reset({
-                  companyName: '',
-                  sector: '',
-                  location: '',
-                  salesAmount: 0,
-                  ebitda: undefined,
-                  description: '',
-                  status: '',
-                  contactName: '',
-                  contactEmail: '',
-                  contactPhone: '',
-                });
+                // Ensure completely clean form before showing
+                setEditingId(null);
+                form.reset(getCleanFormValues());
                 setShowForm(true);
               }}
               variant="ghost" 
