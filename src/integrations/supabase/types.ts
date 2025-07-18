@@ -5101,6 +5101,7 @@ export type Database = {
           id: string
           key_highlights: string[] | null
           location: string | null
+          mandate_id: string | null
           revenue: number | null
           sector: string | null
           status: string
@@ -5124,6 +5125,7 @@ export type Database = {
           id?: string
           key_highlights?: string[] | null
           location?: string | null
+          mandate_id?: string | null
           revenue?: number | null
           sector?: string | null
           status?: string
@@ -5147,6 +5149,7 @@ export type Database = {
           id?: string
           key_highlights?: string[] | null
           location?: string | null
+          mandate_id?: string | null
           revenue?: number | null
           sector?: string | null
           status?: string
@@ -5156,6 +5159,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "teasers_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "teasers_transaction_id_fkey"
             columns: ["transaction_id"]
