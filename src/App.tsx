@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Dashboard from "./pages/Dashboard";
 import Companies from "./pages/Companies";
 import CompanyPage from "./pages/CompanyPage";
@@ -31,9 +32,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
+        <AuthProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
@@ -72,6 +74,7 @@ const App = () => (
             </div>
           </SidebarInset>
         </SidebarProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
