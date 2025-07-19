@@ -8,10 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { Search, Bell, Settings } from "lucide-react";
 
 export const GlobalHeader = () => {
   const { user, signOut } = useAuth();
@@ -25,29 +25,35 @@ export const GlobalHeader = () => {
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
-      <div className="flex items-center gap-4">
-        <SidebarTrigger className="-ml-1" />
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">S</span>
-          </div>
-          <h1 className="font-semibold text-lg">SaaS Dashboard</h1>
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-6">
+      {/* Search */}
+      <div className="flex items-center gap-4 flex-1 max-w-md">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Buscar contactos, empresas, deals..."
+            className="w-full pl-10 pr-4 py-2 border border-input rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          />
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm">
-          Buscar
+      {/* Right Side */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" className="relative">
+          <Bell className="w-4 h-4" />
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></span>
         </Button>
         
-        <NotificationCenter />
+        <Button variant="ghost" size="icon">
+          <Settings className="w-4 h-4" />
+        </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary text-primary-foreground">
+            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+              <Avatar className="h-9 w-9">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -56,18 +62,22 @@ export const GlobalHeader = () => {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <div className="flex items-center justify-start gap-2 p-2">
               <div className="flex flex-col space-y-1 leading-none">
-                <p className="font-medium">{user?.email}</p>
+                <p className="font-medium text-sm">{user?.email}</p>
+                <p className="text-xs text-muted-foreground">Administrador</p>
               </div>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <span>Perfil</span>
+              <span>Mi Perfil</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <span>Configuración</span>
             </DropdownMenuItem>
+            <DropdownMenuItem>
+              <span>Ayuda</span>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut}>
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
               <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

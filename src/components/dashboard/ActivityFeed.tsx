@@ -1,133 +1,149 @@
+import React from 'react';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { 
+  User, 
+  Briefcase, 
+  FileText, 
+  Phone, 
+  Mail,
+  CheckCircle,
+  TrendingUp 
+} from 'lucide-react';
 
-import { DashboardCard } from "./DashboardCard";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
-import { Activity, TrendingUp, Users, AlertCircle, Clock } from "lucide-react";
-
-interface Activity {
+interface ActivityItem {
   id: string;
-  type: 'operation' | 'lead' | 'user';
-  description: string;
+  type: 'lead' | 'deal' | 'task' | 'call' | 'email' | 'completed';
+  message: string;
   timestamp: Date;
   user?: string;
-  priority?: 'low' | 'medium' | 'high';
 }
 
 interface ActivityFeedProps {
-  activities: Activity[];
+  className?: string;
 }
 
-const getActivityIcon = (type: string) => {
+const mockActivities: ActivityItem[] = [
+  {
+    id: '1',
+    type: 'lead',
+    message: 'Nuevo lead registrado: María González - Tech Solutions',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    user: 'Carlos Ruiz'
+  },
+  {
+    id: '2',
+    type: 'deal',
+    message: 'Negocio movido a "Propuesta Enviada" - €250.000',
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    user: 'Ana García'
+  },
+  {
+    id: '3',
+    type: 'completed',
+    message: 'Tarea completada: Llamar a cliente potencial',
+    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+    user: 'Luis Martín'
+  },
+  {
+    id: '4',
+    type: 'call',
+    message: 'Llamada programada con Inversiones ABC para mañana',
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
+    user: 'Carmen López'
+  },
+  {
+    id: '5',
+    type: 'email',
+    message: 'Email enviado a 15 leads del sector tecnológico',
+    timestamp: new Date(Date.now() - 10 * 60 * 60 * 1000), // 10 hours ago
+    user: 'David Ruiz'
+  }
+];
+
+const getActivityIcon = (type: ActivityItem['type']) => {
   switch (type) {
-    case 'operation':
+    case 'lead':
+      return User;
+    case 'deal':
       return TrendingUp;
-    case 'lead':
-      return Users;
-    case 'user':
-      return Activity;
+    case 'task':
+      return FileText;
+    case 'call':
+      return Phone;
+    case 'email':
+      return Mail;
+    case 'completed':
+      return CheckCircle;
     default:
-      return AlertCircle;
+      return FileText;
   }
 };
 
-const getPriorityBadge = (priority?: string) => {
-  switch (priority) {
-    case 'high':
-      return <Badge className="bg-red-100 text-red-800 border-red-200">Alta</Badge>;
-    case 'medium':
-      return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Media</Badge>;
-    case 'low':
-      return <Badge className="bg-green-100 text-green-800 border-green-200">Baja</Badge>;
-    default:
-      return null;
-  }
-};
-
-const getActivityColor = (type: string) => {
+const getActivityColor = (type: ActivityItem['type']) => {
   switch (type) {
-    case 'operation':
-      return 'bg-blue-500';
     case 'lead':
-      return 'bg-green-500';
-    case 'user':
-      return 'bg-purple-500';
+      return 'text-primary bg-primary/10';
+    case 'deal':
+      return 'text-success bg-success/10';
+    case 'completed':
+      return 'text-success bg-success/10';
+    case 'call':
+      return 'text-warning bg-warning/10';
+    case 'email':
+      return 'text-info bg-info/10';
     default:
-      return 'bg-gray-500';
+      return 'text-muted-foreground bg-muted';
   }
 };
 
-export const ActivityFeed = ({ activities }: ActivityFeedProps) => {
+export const ActivityFeed: React.FC<ActivityFeedProps> = ({ className }) => {
   return (
-    <DashboardCard title="Actividad Reciente" icon={Activity}>
-        <div className="space-y-4 max-h-96 overflow-y-auto">
-          {activities.length === 0 ? (
-            <EmptyState
-              icon={Activity}
-              title="No hay actividad reciente"
-              subtitle="Las actividades aparecerán aquí cuando ocurran"
-            />
-          ) : (
-            activities.map((activity, index) => {
-              const ActivityIcon = getActivityIcon(activity.type);
-              const colorClass = getActivityColor(activity.type);
+    <div className={cn("bg-card border rounded-lg p-6", className)}>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-card-foreground">Actividad Reciente</h3>
+        <button className="text-sm text-primary hover:underline">
+          Ver todo
+        </button>
+      </div>
+      
+      <div className="space-y-4">
+        {mockActivities.map((activity, index) => {
+          const Icon = getActivityIcon(activity.type);
+          const colorClass = getActivityColor(activity.type);
+          
+          return (
+            <div key={activity.id} className="flex items-start gap-3">
+              <div className={cn(
+                "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                colorClass
+              )}>
+                <Icon className="w-4 h-4" />
+              </div>
               
-              return (
-                <div key={activity.id} className="group">
-                  <div className="flex items-start space-x-4 p-4 rounded-lg hover:bg-accent/50 transition-all duration-200 border border-border hover:border-primary/20">
-                    {/* Timeline indicator */}
-                    <div className="relative">
-                      <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-md">
-                        <ActivityIcon className="h-5 w-5 text-primary-foreground" />
-                      </div>
-                      {index < activities.length - 1 && (
-                        <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-0.5 h-8 bg-border"></div>
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                              {activity.user?.substring(0, 2).toUpperCase() || 'SI'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {activity.user || 'Sistema'}
-                          </span>
-                        </div>
-                        {getPriorityBadge(activity.priority)}
-                      </div>
-                      
-                      <p className="text-foreground font-medium mb-2 leading-relaxed">
-                        {activity.description}
-                      </p>
-                      
-                      <p className="text-xs text-muted-foreground flex items-center">
-                        <Clock className="h-3 w-3 mr-1" strokeWidth={1.5} />
-                        {formatDistanceToNow(activity.timestamp, { 
-                          addSuffix: true, 
-                          locale: es 
-                        })}
-                      </p>
-                    </div>
-                  </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-card-foreground font-medium">
+                  {activity.message}
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-muted-foreground">
+                    {format(activity.timestamp, 'HH:mm', { locale: es })}
+                  </span>
+                  {activity.user && (
+                    <>
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <span className="text-xs text-muted-foreground">
+                        {activity.user}
+                      </span>
+                    </>
+                  )}
                 </div>
-              );
-            })
-          )}
-        </div>
-        
-        {activities.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-border">
-            <button className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 px-4 rounded-lg hover:bg-accent transition-colors">
-              Ver toda la actividad →
-            </button>
-          </div>
-        )}
-    </DashboardCard>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
