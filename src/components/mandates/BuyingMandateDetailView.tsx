@@ -25,11 +25,11 @@ export const BuyingMandateDetailView = () => {
   const { mandate, loading, error } = useMandatoById(id!);
 
   useEffect(() => {
-    if (id) {
+    if (id && mandate) {
       fetchTargets(id);
       fetchDocuments(id);
     }
-  }, [id, fetchTargets, fetchDocuments]);
+  }, [id, mandate, fetchTargets, fetchDocuments]);
 
   if (loading) {
     return (
@@ -60,9 +60,18 @@ export const BuyingMandateDetailView = () => {
       active: { label: 'Activo', variant: 'default' as const },
       paused: { label: 'Pausado', variant: 'secondary' as const },
       completed: { label: 'Completado', variant: 'outline' as const },
+      cancelled: { label: 'Cancelado', variant: 'destructive' as const },
     };
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
     return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
+
+  const handleEditTarget = (target: any) => {
+    console.log('Edit target:', target);
+  };
+
+  const handleViewDocuments = (target: any) => {
+    console.log('View documents for target:', target);
   };
 
   return (
@@ -221,7 +230,12 @@ export const BuyingMandateDetailView = () => {
         </TabsContent>
 
         <TabsContent value="targets">
-          <MandatoTargetPanel />
+          <MandatoTargetPanel 
+            targets={mandateTargets}
+            documents={mandateDocuments}
+            onEditTarget={handleEditTarget}
+            onViewDocuments={handleViewDocuments}
+          />
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">

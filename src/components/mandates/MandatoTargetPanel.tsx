@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Upload } from 'lucide-react';
-import { MandateTarget } from '@/types/BuyingMandate';
+import { MandateTarget, MandateDocument } from '@/types/BuyingMandate';
 import { TargetDataTable } from './TargetDataTable';
 import { TargetFiltersPanel } from './TargetFiltersPanel';
 import { MandateTargetsPipeline } from './MandateTargetsPipeline';
@@ -13,7 +13,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 
 interface MandatoTargetPanelProps {
   targets: MandateTarget[];
-  documents: any[];
+  documents: MandateDocument[];
   onEditTarget: (target: MandateTarget) => void;
   onViewDocuments: (target: MandateTarget) => void;
 }
@@ -45,19 +45,11 @@ export const MandatoTargetPanel = ({
           <EmptyState
             icon={Plus}
             title="No hay targets identificados"
-            description="Los targets son las empresas objetivo para este mandato de M&A. Puedes añadirlos manualmente o importarlos desde el CRM."
-            action={
-              <div className="flex gap-2">
-                <Button onClick={() => setShowTargetsDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Añadir Target Manual
-                </Button>
-                <Button variant="outline" onClick={() => setShowImportDialog(true)}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Importar desde CRM
-                </Button>
-              </div>
-            }
+            subtitle="Los targets son las empresas objetivo para este mandato de M&A. Puedes añadirlos manualmente o importarlos desde el CRM."
+            action={{
+              label: "Añadir Target Manual",
+              onClick: () => setShowTargetsDialog(true)
+            }}
           />
           
           {/* Dialogs */}
@@ -70,9 +62,6 @@ export const MandatoTargetPanel = ({
           <ImportFromCRMDialog
             mandateId={targets[0]?.mandate_id || ''}
             onImported={() => {}}
-            trigger={<></>}
-            open={showImportDialog}
-            onOpenChange={setShowImportDialog}
           />
         </CardContent>
       </Card>
@@ -98,10 +87,16 @@ export const MandatoTargetPanel = ({
             <option value="table">Vista Tabla</option>
             <option value="pipeline">Vista Pipeline</option>
           </select>
-          <Button variant="outline" onClick={() => setShowImportDialog(true)}>
-            <Upload className="h-4 w-4 mr-2" />
-            Importar CRM
-          </Button>
+          <ImportFromCRMDialog
+            mandateId={targets[0]?.mandate_id || ''}
+            onImported={() => {}}
+            trigger={
+              <Button variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Importar CRM
+              </Button>
+            }
+          />
           <Button onClick={() => setShowTargetsDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Añadir Target
@@ -139,9 +134,6 @@ export const MandatoTargetPanel = ({
       <ImportFromCRMDialog
         mandateId={targets[0]?.mandate_id || ''}
         onImported={() => {}}
-        trigger={<></>}
-        open={showImportDialog}
-        onOpenChange={setShowImportDialog}
       />
     </div>
   );

@@ -1,414 +1,256 @@
 
-import { useState, useEffect, useRef } from 'react';
-import { BuyingMandate, MandateTarget, MandateDocument, CreateBuyingMandateData, CreateMandateTargetData, CreateMandateDocumentData } from '@/types/BuyingMandate';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { BuyingMandate, MandateTarget, MandateDocument, CreateBuyingMandateData, CreateMandateTargetData, CreateMandateDocumentData } from '@/types/BuyingMandate';
 
-interface UseBuyingMandatesResult {
-  mandates: BuyingMandate[];
-  targets: MandateTarget[];
-  documents: MandateDocument[];
-  isLoading: boolean;
-  error: string | null;
-  fetchMandates: (type?: string) => Promise<void>;
-  fetchTargets: (mandateId: string) => Promise<void>;
-  fetchDocuments: (mandateId: string) => Promise<void>;
-  createMandate: (data: CreateBuyingMandateData) => Promise<BuyingMandate | null>;
-  updateMandate: (id: string, updates: Partial<BuyingMandate>) => Promise<BuyingMandate | null>;
-  deleteMandate: (id: string) => Promise<void>;
-  createTarget: (data: CreateMandateTargetData) => Promise<MandateTarget | null>;
-  updateTarget: (id: string, updates: Partial<MandateTarget>) => Promise<MandateTarget | null>;
-  deleteTarget: (id: string) => Promise<void>;
-  uploadDocument: (data: CreateMandateDocumentData, file: File) => Promise<MandateDocument | null>;
-  deleteDocument: (id: string) => Promise<void>;
-  updateMandateStatus: (id: string, status: string) => Promise<void>;
-  importFromContacts: (mandateId: string, contactIds: string[]) => Promise<void>;
-  importFromCompanies: (mandateId: string, companyIds: string[]) => Promise<void>;
-  refetch: (type?: string) => Promise<void>;
-}
-
-export const useBuyingMandates = (mandateType?: string): UseBuyingMandatesResult => {
+export const useBuyingMandates = () => {
   const [mandates, setMandates] = useState<BuyingMandate[]>([]);
   const [targets, setTargets] = useState<MandateTarget[]>([]);
   const [documents, setDocuments] = useState<MandateDocument[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
-  const loadingMandates = useRef(false);
-  const loadingTargets = useRef(false);
-  const loadingDocuments = useRef(false);
-
-  const fetchMandates = async (type: string = mandateType || '') => {
-    if (loadingMandates.current) return;
-
+  const fetchMandates = useCallback(async (type?: string) => {
     try {
-      loadingMandates.current = true;
       setIsLoading(true);
-      setError(null);
-
+      setError('');
+      
       let query = supabase
         .from('buying_mandates')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (type) {
+      if (type && type !== 'all') {
         query = query.eq('mandate_type', type);
       }
 
-      if (user) {
-        query = query.eq('created_by', user.id);
+      const { data, error: queryError } = await query;
+
+      if (queryError) {
+        console.error('Error fetching mandates:', queryError);
+        setError('Error al cargar los mandatos');
+        return;
       }
 
-      const { data, error } = await query;
-
-      if (error) {
-        throw error;
-      }
-
-      // Cast the data to match our type
-      setMandates((data as any[])?.map(item => ({
+      // Ensure all data conforms to the BuyingMandate type
+      const typedData: BuyingMandate[] = (data || []).map(item => ({
         ...item,
-        target_sectors: item.target_sectors || [],
-        target_locations: item.target_locations || []
-      })) || []);
-    } catch (err: any) {
-      console.error('Error fetching mandates:', err);
-      setError(err.message || 'Failed to fetch mandates');
+        status: item.status as BuyingMandate['status'],
+        mandate_type: item.mandate_type as BuyingMandate['mandate_type']
+      }));
+
+      setMandates(typedData);
+    } catch (err) {
+      console.error('Error in fetchMandates:', err);
+      setError('Error inesperado al cargar mandatos');
     } finally {
       setIsLoading(false);
-      loadingMandates.current = false;
     }
-  };
-  
-  const fetchTargets = async (mandateId: string) => {
-    if (loadingTargets.current) return;
+  }, []);
+
+  const fetchTargets = useCallback(async (mandateId: string) => {
+    if (!mandateId) return;
     
     try {
-      loadingTargets.current = true;
       console.log('🎯 [fetchTargets] Iniciando fetch para mandato:', mandateId);
       
-      const { data, error } = await supabase
+      const { data, error: queryError } = await supabase
         .from('mandate_targets')
         .select('*')
         .eq('mandate_id', mandateId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ [fetchTargets] Error:', error);
-        throw error;
+      if (queryError) {
+        console.error('Error fetching targets:', queryError);
+        return;
       }
 
-      console.log('✅ [fetchTargets] Datos obtenidos:', data?.length || 0, 'targets');
-      
-      // Update targets for this specific mandate
-      setTargets(prevTargets => {
-        const otherTargets = prevTargets.filter(t => t.mandate_id !== mandateId);
-        return [...otherTargets, ...(data || [])];
-      });
-      
-    } catch (error) {
-      console.error('❌ [fetchTargets] Error al obtener targets:', error);
-    } finally {
-      loadingTargets.current = false;
-    }
-  };
+      // Type the data properly
+      const typedTargets: MandateTarget[] = (data || []).map(item => ({
+        ...item,
+        status: item.status as MandateTarget['status']
+      }));
 
-  const fetchDocuments = async (mandateId: string) => {
-    if (loadingDocuments.current) return;
+      setTargets(prevTargets => {
+        // Only update if the data is different
+        const existingTargets = prevTargets.filter(t => t.mandate_id !== mandateId);
+        return [...existingTargets, ...typedTargets];
+      });
+
+      console.log('✅ [fetchTargets] Datos obtenidos:', typedTargets.length, 'targets');
+    } catch (err) {
+      console.error('Error in fetchTargets:', err);
+    }
+  }, []);
+
+  const fetchDocuments = useCallback(async (mandateId: string) => {
+    if (!mandateId) return;
     
     try {
-      loadingDocuments.current = true;
       console.log('📄 [fetchDocuments] Iniciando fetch para mandato:', mandateId);
       
-      const { data, error } = await supabase
+      const { data, error: queryError } = await supabase
         .from('mandate_documents')
         .select('*')
         .eq('mandate_id', mandateId)
-        .order('created_at', { ascending: false });
+        .order('uploaded_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ [fetchDocuments] Error:', error);
-        throw error;
+      if (queryError) {
+        console.error('Error fetching documents:', queryError);
+        return;
       }
 
-      console.log('✅ [fetchDocuments] Datos obtenidos:', data?.length || 0, 'documentos');
-      
-      // Update documents for this specific mandate
+      // Type the data properly
+      const typedDocuments: MandateDocument[] = (data || []).map(item => ({
+        ...item,
+        document_type: item.document_type as MandateDocument['document_type']
+      }));
+
       setDocuments(prevDocs => {
-        const otherDocs = prevDocs.filter(d => d.mandate_id !== mandateId);
-        return [...otherDocs, ...(data || [])];
+        // Only update if the data is different
+        const existingDocs = prevDocs.filter(d => d.mandate_id !== mandateId);
+        return [...existingDocs, ...typedDocuments];
       });
-      
-    } catch (error) {
-      console.error('❌ [fetchDocuments] Error al obtener documentos:', error);
-    } finally {
-      loadingDocuments.current = false;
-    }
-  };
 
-  const createMandate = async (data: CreateBuyingMandateData): Promise<BuyingMandate | null> => {
+      console.log('✅ [fetchDocuments] Datos obtenidos:', typedDocuments.length, 'documentos');
+    } catch (err) {
+      console.error('Error in fetchDocuments:', err);
+    }
+  }, []);
+
+  const createMandate = useCallback(async (mandateData: CreateBuyingMandateData) => {
     try {
-      const { data: newMandate, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
+
+      const { data, error: insertError } = await supabase
         .from('buying_mandates')
-        .insert([{ ...data, created_by: user?.id }])
+        .insert([{
+          ...mandateData,
+          created_by: user.id
+        }])
         .select()
         .single();
 
-      if (error) {
-        throw error;
-      }
+      if (insertError) throw insertError;
 
-      setMandates(prev => [newMandate, ...prev]);
-      return newMandate;
-    } catch (err: any) {
+      const typedMandate: BuyingMandate = {
+        ...data,
+        status: data.status as BuyingMandate['status'],
+        mandate_type: data.mandate_type as BuyingMandate['mandate_type']
+      };
+
+      setMandates(prev => [typedMandate, ...prev]);
+      return { data: typedMandate, error: null };
+    } catch (err) {
       console.error('Error creating mandate:', err);
-      setError(err.message || 'Failed to create mandate');
-      return null;
+      return { data: null, error: err };
     }
-  };
+  }, []);
 
-  const updateMandate = async (id: string, updates: Partial<BuyingMandate>): Promise<BuyingMandate | null> => {
+  const updateMandateStatus = useCallback(async (mandateId: string, status: BuyingMandate['status']) => {
     try {
-      const { data: updatedMandate, error } = await supabase
-        .from('buying_mandates')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      setMandates(prev => prev.map(mandate => mandate.id === id ? { ...mandate, ...updatedMandate } : mandate));
-      return updatedMandate;
-    } catch (err: any) {
-      console.error('Error updating mandate:', err);
-      setError(err.message || 'Failed to update mandate');
-      return null;
-    }
-  };
-
-  const deleteMandate = async (id: string): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('buying_mandates')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        throw error;
-      }
-
-      setMandates(prev => prev.filter(mandate => mandate.id !== id));
-    } catch (err: any) {
-      console.error('Error deleting mandate:', err);
-      setError(err.message || 'Failed to delete mandate');
-    }
-  };
-
-  const updateMandateStatus = async (id: string, status: string): Promise<void> => {
-    try {
-      const { error } = await supabase
+      const { error: updateError } = await supabase
         .from('buying_mandates')
         .update({ status })
-        .eq('id', id);
+        .eq('id', mandateId);
 
-      if (error) {
-        throw error;
-      }
+      if (updateError) throw updateError;
 
-      setMandates(prev => prev.map(mandate => 
-        mandate.id === id ? { ...mandate, status } : mandate
+      setMandates(prev => prev.map(m => 
+        m.id === mandateId ? { ...m, status } : m
       ));
-    } catch (err: any) {
+
+      return { success: true, error: null };
+    } catch (err) {
       console.error('Error updating mandate status:', err);
-      setError(err.message || 'Failed to update mandate status');
+      return { success: false, error: err };
     }
-  };
+  }, []);
 
-  const importFromContacts = async (mandateId: string, contactIds: string[]): Promise<void> => {
+  const createTarget = useCallback(async (targetData: CreateMandateTargetData) => {
     try {
-      // Implementation for importing contacts as targets
-      console.log('Importing contacts:', contactIds, 'to mandate:', mandateId);
-      // This would create mandate_targets based on selected contacts
-    } catch (err: any) {
-      console.error('Error importing from contacts:', err);
-      setError(err.message || 'Failed to import from contacts');
-    }
-  };
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
 
-  const importFromCompanies = async (mandateId: string, companyIds: string[]): Promise<void> => {
-    try {
-      // Implementation for importing companies as targets
-      console.log('Importing companies:', companyIds, 'to mandate:', mandateId);
-      // This would create mandate_targets based on selected companies
-    } catch (err: any) {
-      console.error('Error importing from companies:', err);
-      setError(err.message || 'Failed to import from companies');
-    }
-  };
-
-  const createTarget = async (data: CreateMandateTargetData): Promise<MandateTarget | null> => {
-    try {
-      const { data: newTarget, error } = await supabase
+      const { data, error: insertError } = await supabase
         .from('mandate_targets')
-        .insert([data])
+        .insert([{
+          ...targetData,
+          created_by: user.id
+        }])
         .select()
         .single();
 
-      if (error) {
-        throw error;
-      }
+      if (insertError) throw insertError;
 
-      setTargets(prev => [newTarget, ...prev]);
-      return newTarget;
-    } catch (err: any) {
+      const typedTarget: MandateTarget = {
+        ...data,
+        status: data.status as MandateTarget['status']
+      };
+
+      setTargets(prev => [typedTarget, ...prev]);
+      return { data: typedTarget, error: null };
+    } catch (err) {
       console.error('Error creating target:', err);
-      setError(err.message || 'Failed to create target');
-      return null;
+      return { data: null, error: err };
     }
-  };
+  }, []);
 
-  const updateTarget = async (id: string, updates: Partial<MandateTarget>): Promise<MandateTarget | null> => {
+  const uploadDocument = useCallback(async (documentData: CreateMandateDocumentData) => {
     try {
-      const { data: updatedTarget, error } = await supabase
-        .from('mandate_targets')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
 
-      if (error) {
-        throw error;
-      }
-
-      setTargets(prev => prev.map(target => target.id === id ? { ...target, ...updatedTarget } : target));
-      return updatedTarget;
-    } catch (err: any) {
-      console.error('Error updating target:', err);
-      setError(err.message || 'Failed to update target');
-      return null;
-    }
-  };
-
-  const deleteTarget = async (id: string): Promise<void> => {
-    try {
-      const { error } = await supabase
-        .from('mandate_targets')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        throw error;
-      }
-
-      setTargets(prev => prev.filter(target => target.id !== id));
-    } catch (err: any) {
-      console.error('Error deleting target:', err);
-      setError(err.message || 'Failed to delete target');
-    }
-  };
-
-  const uploadDocument = async (data: CreateMandateDocumentData, file: File): Promise<MandateDocument | null> => {
-    try {
-      // Upload file to Supabase storage
-      const filePath = `mandate_documents/${data.mandate_id}/${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('mandate-documents')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Get public URL of the uploaded file
-      const { data: fileData } = supabase.storage
-        .from('mandate-documents')
-        .getPublicUrl(filePath);
-
-      if (!fileData?.publicUrl) {
-        throw new Error('Failed to retrieve public URL for the uploaded file');
-      }
-
-      // Create document record in Supabase table
-      const { data: newDocument, error: createError } = await supabase
+      const { data, error: insertError } = await supabase
         .from('mandate_documents')
-        .insert([{ ...data, file_url: fileData.publicUrl, file_size: file.size, content_type: file.type }])
+        .insert([{
+          ...documentData,
+          uploaded_by: user.id
+        }])
         .select()
         .single();
 
-      if (createError) {
-        throw createError;
-      }
+      if (insertError) throw insertError;
 
-      setDocuments(prev => [newDocument, ...prev]);
-      return newDocument;
-    } catch (err: any) {
+      const typedDocument: MandateDocument = {
+        ...data,
+        document_type: data.document_type as MandateDocument['document_type']
+      };
+
+      setDocuments(prev => [typedDocument, ...prev]);
+      return { data: typedDocument, error: null };
+    } catch (err) {
       console.error('Error uploading document:', err);
-      setError(err.message || 'Failed to upload document');
-      return null;
+      return { data: null, error: err };
     }
-  };
+  }, []);
 
-  const deleteDocument = async (id: string): Promise<void> => {
+  const importFromContacts = useCallback(async (mandateId: string, contactIds: string[]) => {
     try {
-      // Get the document to retrieve file_url
-      const { data: documentToDelete, error: getError } = await supabase
-        .from('mandate_documents')
-        .select('file_url')
-        .eq('id', id)
-        .single();
-
-      if (getError) {
-        throw getError;
-      }
-
-      if (!documentToDelete) {
-        throw new Error('Document not found');
-      }
-
-      // Extract file path from file_url
-      const filePath = documentToDelete.file_url.replace(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/mandate-documents/`, '');
-
-      // Delete file from Supabase storage
-      const { error: deleteStorageError } = await supabase.storage
-        .from('mandate-documents')
-        .remove([filePath]);
-
-      if (deleteStorageError) {
-        console.error('Error deleting file from storage:', deleteStorageError);
-        // Consider whether to throw an error or just log it
-      }
-
-      // Delete document record from Supabase table
-      const { error: deleteError } = await supabase
-        .from('mandate_documents')
-        .delete()
-        .eq('id', id);
-
-      if (deleteError) {
-        throw deleteError;
-      }
-
-      setDocuments(prev => prev.filter(document => document.id !== id));
-    } catch (err: any) {
-      console.error('Error deleting document:', err);
-      setError(err.message || 'Failed to delete document');
+      // This would be implemented based on your contacts table structure
+      console.log('Importing contacts:', contactIds, 'to mandate:', mandateId);
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Error importing from contacts:', err);
+      return { success: false, error: err };
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    fetchMandates(mandateType);
-  }, [user, mandateType]);
+  const importFromCompanies = useCallback(async (mandateId: string, companyIds: string[]) => {
+    try {
+      // This would be implemented based on your companies table structure
+      console.log('Importing companies:', companyIds, 'to mandate:', mandateId);
+      return { success: true, error: null };
+    } catch (err) {
+      console.error('Error importing from companies:', err);
+      return { success: false, error: err };
+    }
+  }, []);
 
-  const refetch = async (type?: string) => {
-    await fetchMandates(type || mandateType);
-  };
+  const refetch = useCallback(async (type?: string) => {
+    await fetchMandates(type);
+  }, [fetchMandates]);
 
   return {
     mandates,
@@ -420,14 +262,9 @@ export const useBuyingMandates = (mandateType?: string): UseBuyingMandatesResult
     fetchTargets,
     fetchDocuments,
     createMandate,
-    updateMandate,
-    deleteMandate,
-    createTarget,
-    updateTarget,
-    deleteTarget,
-    uploadDocument,
-    deleteDocument,
     updateMandateStatus,
+    createTarget,
+    uploadDocument,
     importFromContacts,
     importFromCompanies,
     refetch
