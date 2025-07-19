@@ -1,50 +1,38 @@
-import * as React from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Mail, Calendar } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Chrome, Mail } from 'lucide-react';
 
 interface ConnectButtonProps {
   provider: 'google' | 'microsoft';
-  onClick?: () => void;
+  onClick: () => void;
   disabled?: boolean;
-  className?: string;
 }
 
-const providerConfig = {
-  google: {
-    icon: Mail,
-    label: 'Connect Google Account',
-    connectingLabel: 'Connecting to Google...'
-  },
-  microsoft: {
-    icon: Calendar,
-    label: 'Connect Microsoft Account', 
-    connectingLabel: 'Connecting to Microsoft...'
-  }
-};
+export const ConnectButton = ({ provider, onClick, disabled }: ConnectButtonProps) => {
+  const config = {
+    google: {
+      icon: Chrome,
+      label: 'Conectar Google',
+      color: 'border-blue-200 hover:border-blue-300 text-blue-700'
+    },
+    microsoft: {
+      icon: Mail,
+      label: 'Conectar Microsoft',
+      color: 'border-orange-200 hover:border-orange-300 text-orange-700'
+    }
+  };
 
-export const ConnectButton = ({ 
-  provider, 
-  onClick, 
-  disabled, 
-  className 
-}: ConnectButtonProps) => {
-  const config = providerConfig[provider];
-  const Icon = config.icon;
+  const { icon: Icon, label, color } = config[provider];
 
   return (
     <Button
-      size="lg"
       variant="outline"
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        "flex-1 max-w-xs bg-transparent border-border hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring",
-        className
-      )}
+      className={`${color} ${disabled ? 'opacity-50' : ''}`}
     >
       <Icon className="h-4 w-4 mr-2" />
-      {disabled ? config.connectingLabel : config.label}
+      {label}
     </Button>
   );
 };

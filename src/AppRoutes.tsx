@@ -1,7 +1,9 @@
+
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AttioLayout } from '@/components/layout/AttioLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { SettingsLayout } from '@/components/settings/SettingsLayout';
 
 // Import new organized components
 import MandatesPage from '@/pages/MandatesPage';
@@ -16,6 +18,14 @@ import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
+
+// Import settings pages
+import SettingsPage from '@/pages/settings/SettingsPage';
+import ProfilePage from '@/pages/settings/ProfilePage';
+import AppearancePage from '@/pages/settings/AppearancePage';
+import EmailCalendarPage from '@/pages/settings/EmailCalendarPage';
+import GeneralPage from '@/pages/settings/GeneralPage';
+import CallIntelligencePage from '@/pages/settings/CallIntelligencePage';
 
 // Import the unified lead page
 const LeadPage = lazy(() => import('@/pages/LeadPage'));
@@ -108,7 +118,7 @@ export const AppRoutes = () => {
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
           
-          {/* Mandatos de Compra - NUEVA RUTA AGREGADA */}
+          {/* Mandatos de Compra */}
           <Route 
             path="/mandatos-compra" 
             element={
@@ -323,6 +333,12 @@ export const AppRoutes = () => {
             } 
           />
 
+          {/* HubSpot Data */}
+          <Route 
+            path="/hubspot-data" 
+            element={<HubSpotDatabase />}
+          />
+
           {/* Otras rutas */}
           <Route 
             path="/crm" 
@@ -331,10 +347,6 @@ export const AppRoutes = () => {
                 <HierarchicalCRM />
               </Suspense>
             } 
-          />
-          <Route 
-            path="/hubspot-data" 
-            element={<HubSpotDatabase />}
           />
           <Route 
             path="/debug" 
@@ -352,6 +364,30 @@ export const AppRoutes = () => {
           <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
           <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
           <Route path="/contacts/:id" element={<Navigate to="/contactos" replace />} />
+        </Route>
+
+        {/* Settings routes - Separate layout */}
+        <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>}>
+          <Route index element={<SettingsPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="appearance" element={<AppearancePage />} />
+          <Route path="email-calendar" element={<EmailCalendarPage />} />
+          <Route path="general" element={<GeneralPage />} />
+          <Route path="call-intelligence" element={<CallIntelligencePage />} />
+          <Route path="members-teams" element={<div>Members & Teams - Coming Soon</div>} />
+          <Route path="plans" element={<div>Plans - Coming Soon</div>} />
+          <Route path="billing" element={<div>Billing - Coming Soon</div>} />
+          <Route path="developers" element={<div>Developers - Coming Soon</div>} />
+          <Route path="security" element={<div>Security - Coming Soon</div>} />
+          <Route path="support" element={<div>Support - Coming Soon</div>} />
+          <Route path="expert-access" element={<div>Expert Access - Coming Soon</div>} />
+          <Route path="migrate-crm" element={<div>Migrate CRM - Coming Soon</div>} />
+          <Route path="apps" element={<div>Apps - Coming Soon</div>} />
+          <Route path="objects" element={<div>Objects - Coming Soon</div>} />
+          <Route path="lists" element={<div>Lists - Coming Soon</div>} />
+          <Route path="dashboards" element={<div>Dashboards - Coming Soon</div>} />
+          <Route path="sequences" element={<div>Sequences - Coming Soon</div>} />
+          <Route path="workflows" element={<div>Workflows - Coming Soon</div>} />
         </Route>
 
         {/* Catch all - redirect to dashboard */}

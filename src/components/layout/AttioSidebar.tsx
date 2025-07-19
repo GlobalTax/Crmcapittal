@@ -26,7 +26,6 @@ import {
   HandHeart,
   FolderOpen,
   PieChart,
-  FileX,
   Handshake
 } from 'lucide-react';
 
