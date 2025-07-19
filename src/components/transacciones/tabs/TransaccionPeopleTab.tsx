@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Transaccion } from '@/types/Transaccion';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Users, Mail, Phone } from 'lucide-react';
+import { Users, Mail, Phone } from 'lucide-react';
+import { useTransaccionPeople } from '@/hooks/useTransaccionPeople';
+import { AddPersonDialog } from '../dialogs/AddPersonDialog';
 
 interface AssociatedPerson {
   id: string;
@@ -21,51 +22,24 @@ interface TransaccionPeopleTabProps {
 }
 
 export const TransaccionPeopleTab = ({ transaccion }: TransaccionPeopleTabProps) => {
-  const [people, setPeople] = useState<AssociatedPerson[]>(() => {
-    const initialPeople: AssociatedPerson[] = [];
-    
-    // Add main contact if exists
-    if (transaccion.contact) {
-      initialPeople.push({
-        id: transaccion.contact.id,
-        name: transaccion.contact.name,
-        email: transaccion.contact.email,
-        phone: transaccion.contact.phone,
-        role: transaccion.contact.position || 'Contacto Principal',
-        company: transaccion.company?.name,
-        is_primary: true
-      });
-    }
-    
-    // Add transaction owner if different from contact
-    if (transaccion.propietario_transaccion && 
-        (!transaccion.contact || transaccion.propietario_transaccion !== transaccion.contact.name)) {
-      initialPeople.push({
-        id: 'owner',
-        name: transaccion.propietario_transaccion,
-        role: 'Responsable de la Transacción',
-        is_primary: false
-      });
-    }
-    
-    return initialPeople;
-  });
+  const { people, loading } = useTransaccionPeople(transaccion.id);
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h3 className="font-medium">Personas Asociadas</h3>
-        <Button size="sm" variant="outline">
-          <Plus className="h-4 w-4 mr-1" />
-          Agregar Persona
-        </Button>
+        <AddPersonDialog transaccionId={transaccion.id} />
       </div>
 
       {/* People List */}
       <ScrollArea className="h-[400px]">
         <div className="space-y-3">
-          {people.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Cargando personas...</p>
+            </div>
+          ) : people.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No hay personas asociadas</p>
