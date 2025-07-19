@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AttioLayout } from '@/components/layout/AttioLayout';
@@ -109,7 +110,7 @@ export const AppRoutes = () => {
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
 
-          {/* Buying Mandates (English routes for compatibility) */}
+          {/* Buying Mandates (English routes for compatibility) - Fixed routing */}
           <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
           <Route path="/buying-mandates/:id" element={<BuyingMandateDetailView />} />
 
