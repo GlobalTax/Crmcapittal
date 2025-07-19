@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BuyingMandate } from "@/types/BuyingMandate";
+import { useMandateNotes } from "@/hooks/useMandateNotes";
+import { useMandateTasks } from "@/hooks/useMandateTasks";
+import { useMandatePeople } from "@/hooks/useMandatePeople";
 import { 
   ArrowLeft, 
   FileText, 
@@ -35,6 +38,11 @@ export const BuyingMandateDetailView = () => {
   const [mandate, setMandate] = useState<BuyingMandate | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("summary");
+
+  // Real data hooks for mandate
+  const { notes, loading: notesLoading, createNote } = useMandateNotes(id || '');
+  const { tasks, loading: tasksLoading, createTask, toggleTaskCompletion } = useMandateTasks(id || '');
+  const { people, loading: peopleLoading, createPerson } = useMandatePeople(id || '');
 
   // Mock data for activities, tasks, etc.
   const mockActivities = [
@@ -392,40 +400,59 @@ export const BuyingMandateDetailView = () => {
             <TabsContent value="tasks" className="space-y-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Tareas Pendientes</CardTitle>
-                  <Button size="sm">
+                  <CardTitle>Tareas del Mandato</CardTitle>
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      // Implementar modal para crear tarea
+                      console.log('Crear nueva tarea');
+                    }}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Nueva Tarea
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {mockTasks.map((task) => (
-                      <div key={task.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          {getPriorityIcon(task.priority)}
-                          {task.completed ? (
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <div className="h-4 w-4 border-2 border-gray-300 rounded"></div>
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <p className={`text-sm font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                            {task.title}
-                          </p>
-                          {task.description && (
-                            <p className="text-xs text-muted-foreground">{task.description}</p>
-                          )}
-                          {task.due_date && (
-                            <p className="text-xs text-muted-foreground">
-                              Vence: {new Date(task.due_date).toLocaleDateString()}
+                  {tasksLoading ? (
+                    <div className="text-center py-8">Cargando tareas...</div>
+                  ) : tasks.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      No hay tareas registradas
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {tasks.map((task) => (
+                        <div key={task.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            {getPriorityIcon(task.priority)}
+                            <button 
+                              onClick={() => toggleTaskCompletion(task.id)}
+                              className="focus:outline-none"
+                            >
+                              {task.completed ? (
+                                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <div className="h-4 w-4 border-2 border-gray-300 rounded hover:border-gray-400"></div>
+                              )}
+                            </button>
+                          </div>
+                          <div className="flex-1">
+                            <p className={`text-sm font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                              {task.title}
                             </p>
-                          )}
+                            {task.description && (
+                              <p className="text-xs text-muted-foreground">{task.description}</p>
+                            )}
+                            {task.due_date && (
+                              <p className="text-xs text-muted-foreground">
+                                Vence: {new Date(task.due_date).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -434,43 +461,57 @@ export const BuyingMandateDetailView = () => {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Personas Involucradas</CardTitle>
-                  <Button size="sm">
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      // Implementar modal para crear persona
+                      console.log('Crear nueva persona');
+                    }}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Añadir Persona
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {mockPeople.map((person) => (
-                      <div key={person.id} className="flex items-center space-x-4 p-3 border rounded-lg">
-                        <Users className="h-8 w-8 text-muted-foreground" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{person.name}</p>
-                          {person.position && (
-                            <p className="text-xs text-muted-foreground">{person.position}</p>
-                          )}
-                          {person.company && (
-                            <p className="text-xs text-muted-foreground">{person.company}</p>
-                          )}
-                          <div className="flex items-center space-x-4 mt-1">
-                            {person.email && (
-                              <div className="flex items-center space-x-1">
-                                <Mail className="h-3 w-3" />
-                                <span className="text-xs">{person.email}</span>
-                              </div>
+                  {peopleLoading ? (
+                    <div className="text-center py-8">Cargando personas...</div>
+                  ) : people.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      No hay personas registradas
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {people.map((person) => (
+                        <div key={person.id} className="flex items-center space-x-4 p-3 border rounded-lg">
+                          <Users className="h-8 w-8 text-muted-foreground" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{person.name}</p>
+                            <p className="text-xs text-muted-foreground">{person.role}</p>
+                            {person.company && (
+                              <p className="text-xs text-muted-foreground">{person.company}</p>
                             )}
-                            {person.phone && (
-                              <div className="flex items-center space-x-1">
-                                <Phone className="h-3 w-3" />
-                                <span className="text-xs">{person.phone}</span>
-                              </div>
-                            )}
+                            <div className="flex items-center space-x-4 mt-1">
+                              {person.email && (
+                                <div className="flex items-center space-x-1">
+                                  <Mail className="h-3 w-3" />
+                                  <span className="text-xs">{person.email}</span>
+                                </div>
+                              )}
+                              {person.phone && (
+                                <div className="flex items-center space-x-1">
+                                  <Phone className="h-3 w-3" />
+                                  <span className="text-xs">{person.phone}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
+                          <Badge variant={person.is_primary ? "default" : "outline"}>
+                            {person.is_primary ? "Principal" : person.role}
+                          </Badge>
                         </div>
-                        <Badge variant="outline">{person.role_in_mandate}</Badge>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -479,15 +520,45 @@ export const BuyingMandateDetailView = () => {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Notas del Mandato</CardTitle>
-                  <Button size="sm">
+                  <Button 
+                    size="sm"
+                    onClick={() => {
+                      // Implementar modal para crear nota
+                      console.log('Crear nueva nota');
+                    }}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Nueva Nota
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground text-center py-8">
-                    No hay notas registradas
-                  </p>
+                  {notesLoading ? (
+                    <div className="text-center py-8">Cargando notas...</div>
+                  ) : notes.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      No hay notas registradas
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {notes.map((note) => (
+                        <div key={note.id} className="p-3 border rounded-lg">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm">{note.note}</p>
+                              <div className="flex items-center space-x-2 mt-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {note.note_type}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(note.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
