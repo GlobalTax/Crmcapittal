@@ -61,7 +61,8 @@ const sidebarSections: SidebarSection[] = [
       { title: "Mandatos de Venta", href: "/transacciones", icon: Briefcase },
       { title: "Mandatos de Compra", href: "/mandatos-compra", icon: FileText },
       { title: "Valoraciones", href: "/valoraciones", icon: Calculator },
-      { title: "Propuestas", href: "/proposals", icon: FileText },
+      { title: "Reconversiones", href: "/reconversiones", icon: RefreshCw },
+      { title: "Teaser Builder", href: "/teaser-builder", icon: FileImage },
     ]
   },
   {
@@ -73,10 +74,17 @@ const sidebarSections: SidebarSection[] = [
     ]
   },
   {
+    title: "ROD Builder",
+    items: [
+      { title: "Crear ROD", href: "/rod", icon: Target },
+      { title: "Gestionar Suscriptores", href: "/subscribers", icon: Users2 },
+      { title: "Campañas de Email", href: "/campaigns", icon: Send },
+    ]
+  },
+  {
     title: "Análisis",
     items: [
       { title: "eInforma Dashboard", href: "/einforma", icon: Database },
-      { title: "ROD Builder", href: "/rod", icon: Target },
     ]
   }
 ];
@@ -84,7 +92,7 @@ const sidebarSections: SidebarSection[] = [
 const adminSection: SidebarSection = {
   title: "Administración",
   items: [
-    { title: "Colaboradores", href: "/collaborators", icon: UserPlus },
+    { title: "Colaboradores", href: "/colaboradores", icon: UserPlus },
     { title: "Usuarios", href: "/users", icon: Users },
     { title: "Comisiones", href: "/comisiones", icon: DollarSign },
     { title: "Integraciones", href: "/integrations", icon: Zap },
