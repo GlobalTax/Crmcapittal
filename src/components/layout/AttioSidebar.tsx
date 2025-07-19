@@ -1,3 +1,4 @@
+
 import { NavLink, useLocation } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useLeads } from '@/hooks/useLeads';
@@ -21,7 +22,12 @@ import {
   Send,
   Calculator,
   RefreshCw,
-  FileImage
+  FileImage,
+  HandHeart,
+  FolderOpen,
+  PieChart,
+  FileX,
+  Handshake
 } from 'lucide-react';
 
 interface NavItem {
@@ -37,30 +43,43 @@ interface NavSection {
 
 const navigationSections: NavSection[] = [
   {
-    title: "Principal",
+    title: "Dashboard",
     items: [
       { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
-      { to: '/', label: 'Control Leads', icon: LayoutDashboard },
-      { to: '/gestion-leads', label: 'Gestión de Leads', icon: TrendingUp },
+      { to: '/', label: 'Control de Leads', icon: TrendingUp },
+    ]
+  },
+  {
+    title: "CRM & Captación",
+    items: [
+      { to: '/gestion-leads', label: 'Gestión de Leads', icon: Target },
+      { to: '/captacion', label: 'Entrada Comercial', icon: HandHeart },
       { to: '/contactos', label: 'Contactos', icon: Users },
       { to: '/empresas', label: 'Empresas', icon: Building2 },
     ]
   },
   {
-    title: "Ventas & Transacciones",
+    title: "M&A Operations",
     items: [
+      { to: '/mandatos', label: 'Gestión de Mandatos', icon: Handshake },
       { to: '/transacciones', label: 'Mandatos de Venta', icon: Briefcase },
-      { to: '/buying-mandates', label: 'Mandatos de Compra', icon: FileText },
-      { to: '/valoraciones', label: 'Valoraciones', icon: Calculator },
-      { to: '/reconversiones', label: 'Reconversiones', icon: RefreshCw },
-      { to: '/proposals', label: 'Propuestas', icon: FileText },
-      { to: '/documents', label: 'Documentos', icon: FileText },
+      { to: '/mandatos-compra', label: 'Mandatos de Compra', icon: FileText },
+      { to: '/deals', label: 'Negocios/Deals', icon: PieChart },
     ]
   },
   {
     title: "Servicios Complementarios",
     items: [
+      { to: '/valoraciones', label: 'Valoraciones', icon: Calculator },
+      { to: '/reconversiones', label: 'Reconversiones', icon: RefreshCw },
       { to: '/teaser-builder', label: 'Teaser Builder', icon: FileImage },
+    ]
+  },
+  {
+    title: "Ventas & Documentos",
+    items: [
+      { to: '/proposals', label: 'Propuestas', icon: FileText },
+      { to: '/documents', label: 'Documentos', icon: FolderOpen },
     ]
   },
   {
@@ -72,18 +91,18 @@ const navigationSections: NavSection[] = [
     ]
   },
   {
-    title: "Análisis & Data",
-    items: [
-      { to: '/hubspot-data', label: 'Base de Datos HubSpot', icon: Database },
-      { to: '/einforma', label: 'eInforma Dashboard', icon: Database },
-    ]
-  },
-  {
     title: "ROD Builder",
     items: [
       { to: '/rod', label: 'Crear ROD', icon: Target },
       { to: '/subscribers', label: 'Gestionar Suscriptores', icon: Users2 },
       { to: '/campaigns', label: 'Campañas de Email', icon: Send },
+    ]
+  },
+  {
+    title: "Análisis & Data",
+    items: [
+      { to: '/hubspot-data', label: 'Base de Datos HubSpot', icon: Database },
+      { to: '/einforma', label: 'eInforma Dashboard', icon: Database },
     ]
   }
 ];
@@ -91,7 +110,7 @@ const navigationSections: NavSection[] = [
 const adminSection: NavSection = {
   title: "Administración",
   items: [
-    { to: '/collaborators', label: 'Colaboradores', icon: UserPlus },
+    { to: '/colaboradores', label: 'Colaboradores', icon: UserPlus },
     { to: '/users', label: 'Gestión de Usuarios', icon: Users },
     { to: '/comisiones', label: 'Comisiones', icon: DollarSign },
     { to: '/integrations', label: 'Integraciones', icon: Zap },
@@ -155,7 +174,7 @@ export function AttioSidebar() {
                      >
                        <Icon className="w-4 h-4 flex-shrink-0" />
                        <span className="truncate">{item.label}</span>
-                       {/* Show leads counter for Control Leads */}
+                       {/* Show leads counter for Control de Leads */}
                        {item.to === '/' && (newLeadsCount > 0 || todayLeadsCount > 0) && (
                          <div className="ml-auto flex gap-1">
                            {newLeadsCount > 0 && (
@@ -169,6 +188,12 @@ export function AttioSidebar() {
                              </span>
                            )}
                          </div>
+                       )}
+                       {/* Show leads counter for Gestión de Leads */}
+                       {item.to === '/gestion-leads' && newLeadsCount > 0 && (
+                         <span className="ml-auto bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                           {newLeadsCount}
+                         </span>
                        )}
                      </NavLink>
                   </li>

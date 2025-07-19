@@ -24,7 +24,11 @@ import {
   Calculator,
   RefreshCw,
   FileImage,
-  ChevronDown
+  ChevronDown,
+  HandHeart,
+  FolderOpen,
+  PieChart,
+  Handshake
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -49,8 +53,10 @@ const sidebarSections: SidebarSection[] = [
     ]
   },
   {
-    title: "CRM",
+    title: "CRM & Captación",
     items: [
+      { title: "Gestión de Leads", href: "/gestion-leads", icon: Target },
+      { title: "Entrada Comercial", href: "/captacion", icon: HandHeart },
       { title: "Contactos", href: "/contactos", icon: Users },
       { title: "Empresas", href: "/empresas", icon: Building2 },
     ]
@@ -58,11 +64,25 @@ const sidebarSections: SidebarSection[] = [
   {
     title: "M&A Operations",
     items: [
+      { title: "Gestión de Mandatos", href: "/mandatos", icon: Handshake },
       { title: "Mandatos de Venta", href: "/transacciones", icon: Briefcase },
       { title: "Mandatos de Compra", href: "/mandatos-compra", icon: FileText },
+      { title: "Negocios/Deals", href: "/deals", icon: PieChart },
+    ]
+  },
+  {
+    title: "Servicios Complementarios",
+    items: [
       { title: "Valoraciones", href: "/valoraciones", icon: Calculator },
       { title: "Reconversiones", href: "/reconversiones", icon: RefreshCw },
       { title: "Teaser Builder", href: "/teaser-builder", icon: FileImage },
+    ]
+  },
+  {
+    title: "Ventas & Documentos",
+    items: [
+      { title: "Propuestas", href: "/proposals", icon: FileText },
+      { title: "Documentos", href: "/documents", icon: FolderOpen },
     ]
   },
   {
@@ -82,8 +102,9 @@ const sidebarSections: SidebarSection[] = [
     ]
   },
   {
-    title: "Análisis",
+    title: "Análisis & Data",
     items: [
+      { title: "Base de Datos HubSpot", href: "/hubspot-data", icon: Database },
       { title: "eInforma Dashboard", href: "/einforma", icon: Database },
     ]
   }
