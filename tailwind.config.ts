@@ -51,9 +51,9 @@ export default {
 			},
 			colors: {
 				primary: {
-					DEFAULT: 'hsl(220, 91%, 55%)',
-					hover: 'hsl(220, 91%, 45%)',
-					foreground: 'hsl(0, 0%, 100%)'
+					DEFAULT: 'hsl(var(--primary))',
+					hover: 'hsl(var(--primary-hover))',
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				neutral: {
 					0: 'hsl(0, 0%, 100%)',
@@ -61,12 +61,12 @@ export default {
 					900: 'hsl(0, 0%, 12%)',
 				},
 				success: {
-					DEFAULT: 'hsl(142, 76%, 36%)',
-					foreground: 'hsl(0, 0%, 100%)'
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
 				},
 				warning: {
-					DEFAULT: 'hsl(38, 92%, 50%)',
-					foreground: 'hsl(0, 0%, 100%)'
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
 				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
