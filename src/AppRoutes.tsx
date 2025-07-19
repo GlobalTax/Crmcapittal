@@ -46,8 +46,7 @@ const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const TeaserBuilder = lazy(() => import('@/pages/TeaserBuilder'));
-
-// Note: Settings routes can be added later from the original App.tsx
+const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
 
 const LoadingSkeleton = () => (
   <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -103,13 +102,59 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Mandatos (Spanish routes) */}
+          {/* M&A Operations - Mandatos */}
           <Route path="/mandatos" element={<MandatesPage />} />
           <Route path="/mandatos/:id" element={<MandateDetailPage />} />
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
+          
+          {/* Mandatos de Compra - NUEVA RUTA AGREGADA */}
+          <Route 
+            path="/mandatos-compra" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <BuyingMandates />
+              </Suspense>
+            } 
+          />
 
-          {/* Captación (Spanish routes) */}
+          {/* Transacciones/Mandatos de Venta */}
+          <Route path="/transacciones" element={<TransaccionesList />} />
+          <Route path="/transacciones/:id" element={<VentaMandatoView />} />
+
+          {/* Servicios Complementarios */}
+          <Route 
+            path="/valoraciones" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Valoraciones />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/reconversiones" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Reconversiones />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/teaser-builder" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <TeaserBuilder />
+              </Suspense>
+            } 
+          />
+
+          {/* CRM */}
+          <Route path="/empresas" element={<CompanyList />} />
+          <Route path="/empresas/:id" element={<CompanyDetail />} />
+          <Route path="/contactos" element={<ContactList />} />
+          <Route path="/contactos/:id" element={<ContactDetail />} />
+
+          {/* Leads y Captación */}
           <Route path="/captacion" element={<LeadsEntryPanel />} />
           <Route 
             path="/captacion/:id" 
@@ -119,8 +164,6 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-          
-          {/* Gestión de Leads route */}
           <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
           <Route 
             path="/gestion-leads/:id" 
@@ -130,8 +173,6 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-
-          {/* Unified leads route */}
           <Route path="/leads" element={<LeadsEntryPanel />} />
           <Route 
             path="/leads/:id" 
@@ -142,46 +183,20 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Empresas y Contactos (Spanish routes) */}
-          <Route path="/empresas" element={<CompanyList />} />
-          <Route path="/empresas/:id" element={<CompanyDetail />} />
-          <Route path="/contactos" element={<ContactList />} />
-          <Route path="/contactos/:id" element={<ContactDetail />} />
-
-          {/* Transacciones (Spanish routes) */}
-          <Route path="/transacciones" element={<TransaccionesList />} />
-          <Route path="/transacciones/:id" element={<VentaMandatoView />} />
-
-          {/* Redirects from old English routes to new Spanish routes */}
-          <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
-          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos" replace />} />
-          <Route path="/companies" element={<Navigate to="/empresas" replace />} />
-          <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
-          <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
-          <Route path="/contacts/:id" element={<Navigate to="/contactos" replace />} />
-
-          {/* Other routes */}
+          {/* Comunicación */}
           <Route 
-            path="/deals" 
+            path="/email" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <Deals />
+                <EmailSetup />
               </Suspense>
             } 
           />
           <Route 
-            path="/deals/:id" 
+            path="/calendar" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <DealPage />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/proposals" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Proposals />
+                <CalendarPage />
               </Suspense>
             } 
           />
@@ -193,92 +208,8 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-            <Route 
-              path="/email" 
-              element={
-                <Suspense fallback={<LoadingSkeleton />}>
-                  <EmailSetup />
-                </Suspense>
-              } 
-            />
-          <Route 
-            path="/calendar" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <CalendarPage />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/documents/*" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Documents />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/users" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <UserManagement />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/collaborators" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Collaborators />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/crm" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <HierarchicalCRM />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/integrations"
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Integrations />
-              </Suspense>
-            } 
-          />
-           <Route 
-             path="/hubspot-data" 
-             element={<HubSpotDatabase />}
-           />
-           <Route 
-             path="/einforma" 
-             element={
-               <Suspense fallback={<LoadingSkeleton />}>
-                 <EInformaDashboard />
-               </Suspense>
-             } 
-           />
-          <Route 
-            path="/debug" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <SystemDebug />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/comisiones" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <CommissionsPage />
-              </Suspense>
-            } 
-          />
 
-          {/* ROD Dashboard and Builder routes */}
+          {/* ROD Builder */}
           <Route 
             path="/rod" 
             element={
@@ -312,36 +243,119 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Servicios Complementarios */}
+          {/* Deals y Propuestas */}
           <Route 
-            path="/valoraciones" 
+            path="/deals" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <Valoraciones />
+                <Deals />
               </Suspense>
             } 
           />
           <Route 
-            path="/reconversiones" 
+            path="/deals/:id" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <Reconversiones />
+                <DealPage />
               </Suspense>
             } 
           />
           <Route 
-            path="/teaser-builder" 
+            path="/proposals" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <TeaserBuilder />
+                <Proposals />
               </Suspense>
             } 
           />
-        </Route>
-        
 
-        {/* Catch all - redirect to mandatos */}
-        <Route path="*" element={<Navigate to="/mandatos" replace />} />
+          {/* Documentos */}
+          <Route 
+            path="/documents/*" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Documents />
+              </Suspense>
+            } 
+          />
+
+          {/* Administración */}
+          <Route 
+            path="/users" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <UserManagement />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/colaboradores" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Collaborators />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/comisiones" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CommissionsPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/integrations"
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Integrations />
+              </Suspense>
+            } 
+          />
+
+          {/* Análisis */}
+          <Route 
+            path="/einforma" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <EInformaDashboard />
+              </Suspense>
+            } 
+          />
+
+          {/* Otras rutas */}
+          <Route 
+            path="/crm" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <HierarchicalCRM />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/hubspot-data" 
+            element={<HubSpotDatabase />}
+          />
+          <Route 
+            path="/debug" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <SystemDebug />
+              </Suspense>
+            } 
+          />
+
+          {/* Redirects from old English routes to new Spanish routes */}
+          <Route path="/buying-mandates" element={<Navigate to="/mandatos-compra" replace />} />
+          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos-compra" replace />} />
+          <Route path="/companies" element={<Navigate to="/empresas" replace />} />
+          <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
+          <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
+          <Route path="/contacts/:id" element={<Navigate to="/contactos" replace />} />
+        </Route>
+
+        {/* Catch all - redirect to dashboard */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
