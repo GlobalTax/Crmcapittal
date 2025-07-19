@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
@@ -23,16 +24,23 @@ import { BuyingMandate } from '@/types/BuyingMandate';
 import { useMandateNotes } from '@/hooks/useMandateNotes';
 import { useMandateTasks } from '@/hooks/useMandateTasks';
 import { useMandatePeople } from '@/hooks/useMandatePeople';
+import { useMandatoById } from '@/hooks/useMandatoById';
 import { CreateNoteForm } from './forms/CreateNoteForm';
 import { CreateTaskForm } from './forms/CreateTaskForm';
 import { CreatePersonForm } from './forms/CreatePersonForm';
 import { EmptyState } from '@/components/ui/EmptyState';
 
-interface BuyingMandateDetailViewProps {
-  mandate: BuyingMandate;
-}
+export const BuyingMandateDetailView = () => {
+  const { id } = useParams<{ id: string }>();
+  const { mandato: mandate, isLoading } = useMandatoById(id);
 
-export const BuyingMandateDetailView = ({ mandate }: BuyingMandateDetailViewProps) => {
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (!mandate) {
+    return <div>Mandato no encontrado</div>;
+  }
   const [activeTab, setActiveTab] = useState('overview');
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
