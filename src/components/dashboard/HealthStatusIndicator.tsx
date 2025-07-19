@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -11,39 +10,31 @@ export const HealthStatusIndicator = () => {
   const getStatusIcon = (status: 'healthy' | 'warning' | 'error') => {
     switch (status) {
       case 'healthy':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case 'warning':
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <Clock className="h-4 w-4 text-warning" />;
       case 'error':
-        return <AlertCircle className="h-4 w-4 text-red-600" />;
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
     }
   };
 
   const getStatusBadge = (status: 'healthy' | 'warning' | 'error') => {
-    const configs = {
-      healthy: { 
-        variant: 'default' as const, 
-        className: 'bg-green-100 text-green-800 border-green-200',
-        label: 'Operativo'
-      },
-      warning: { 
-        variant: 'secondary' as const, 
-        className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        label: 'Advertencia'
-      },
-      error: { 
-        variant: 'destructive' as const, 
-        className: 'bg-red-100 text-red-800 border-red-200',
-        label: 'Error'
-      }
+    const variants = {
+      healthy: 'default',
+      warning: 'secondary', 
+      error: 'destructive'
+    } as const;
+
+    const labels = {
+      healthy: 'Operativo',
+      warning: 'Advertencia',
+      error: 'Error'
     };
 
-    const config = configs[status];
-
     return (
-      <Badge variant={config.variant} className={`text-xs ${config.className}`}>
+      <Badge variant={variants[status]} className="text-xs">
         {getStatusIcon(status)}
-        <span className="ml-1">{config.label}</span>
+        <span className="ml-1">{labels[status]}</span>
       </Badge>
     );
   };
@@ -55,7 +46,7 @@ export const HealthStatusIndicator = () => {
           Estado del Sistema
           <button 
             onClick={checkHealth}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-gray-100"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             Actualizar
           </button>

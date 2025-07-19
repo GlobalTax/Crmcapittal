@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -18,8 +17,6 @@ export const useHealthCheck = () => {
   });
 
   const checkHealth = async () => {
-    console.log('🔍 Iniciando verificación de salud del sistema...');
-    
     const newHealth: HealthStatus = {
       database: 'healthy',
       hubspot: 'healthy',
@@ -29,73 +26,46 @@ export const useHealthCheck = () => {
 
     // Check database connectivity
     try {
-      console.log('🗄️ Verificando conexión a base de datos...');
-      const { error } = await supabase.from('companies').select('count').limit(1);
-      if (error) {
-        console.error('❌ Error en base de datos:', error);
-        newHealth.database = 'error';
-      } else {
-        console.log('✅ Base de datos conectada correctamente');
-      }
+      await supabase.from('companies').select('count').limit(1).single();
     } catch (error) {
-      console.error('❌ Excepción en verificación de base de datos:', error);
+      console.error('Database health check failed:', error);
       newHealth.database = 'error';
     }
 
     // Check HubSpot integration (basic test)
     try {
-      console.log('🔗 Verificando integración HubSpot...');
       const { error } = await supabase.functions.invoke('hubspot-import', {
         body: { importType: 'test' }
       });
       if (error?.message?.includes('403') || error?.message?.includes('permission')) {
-        console.warn('⚠️ HubSpot: problema de permisos');
         newHealth.hubspot = 'warning';
-      } else if (error) {
-        console.error('❌ HubSpot: error de conexión', error);
-        newHealth.hubspot = 'error';
-      } else {
-        console.log('✅ HubSpot conectado correctamente');
       }
     } catch (error) {
-      console.error('❌ Excepción en verificación de HubSpot:', error);
+      console.error('HubSpot health check failed:', error);
       newHealth.hubspot = 'error';
     }
 
-    // Check email service (improved test without database insertion)
+    // Check email service (test without sending)
     try {
-      console.log('📧 Verificando servicio de email...');
-      const { data, error } = await supabase.functions.invoke('send-tracked-email', {
-        body: { test: true } // Only test flag, no email data
+      // This is a passive check - just verify the function exists
+      const { error } = await supabase.functions.invoke('send-tracked-email', {
+        body: { test: true }
       });
-      
-      if (error) {
-        console.error('❌ Email: error en función', error);
-        newHealth.email = 'error';
-      } else if (data && !data.success) {
-        console.warn('⚠️ Email: servicio no configurado');
+      if (error && !error.message.includes('test')) {
         newHealth.email = 'warning';
-      } else {
-        console.log('✅ Servicio de email configurado correctamente');
       }
     } catch (error) {
-      console.error('❌ Excepción en verificación de email:', error);
+      console.error('Email health check failed:', error);
       newHealth.email = 'error';
     }
-
-    console.log('📊 Verificación completada:', {
-      database: newHealth.database,
-      hubspot: newHealth.hubspot,
-      email: newHealth.email
-    });
 
     setHealth(newHealth);
   };
 
   useEffect(() => {
     checkHealth();
-    // Check health every 10 minutes (reduced frequency)
-    const interval = setInterval(checkHealth, 10 * 60 * 1000);
+    // Check health every 5 minutes
+    const interval = setInterval(checkHealth, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 

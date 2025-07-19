@@ -18,7 +18,6 @@ interface EmailRequest {
   operation_id?: string;
   sender_name?: string;
   sender_email?: string;
-  test?: boolean; // Added for health checks
 }
 
 serve(async (req: Request) => {
@@ -28,72 +27,6 @@ serve(async (req: Request) => {
   }
 
   try {
-    const emailData: EmailRequest = await req.json();
-    console.log('Processing email request:', JSON.stringify({ 
-      test: emailData.test, 
-      hasRecipient: !!emailData.recipient_email 
-    }));
-
-    // Handle health check requests - don't process actual emails
-    if (emailData.test === true) {
-      console.log('Health check request received');
-      
-      // Check if RESEND_API_KEY is configured
-      const resendApiKey = Deno.env.get('RESEND_API_KEY');
-      if (!resendApiKey) {
-        console.log('RESEND_API_KEY not configured for health check');
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: 'Email service not configured. Please set up RESEND_API_KEY.'
-          }),
-          {
-            status: 500,
-            headers: {
-              'Content-Type': 'application/json',
-              ...corsHeaders
-            }
-          }
-        );
-      }
-
-      console.log('Health check passed - API key configured');
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: 'Email service is configured and ready'
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        }
-      );
-    }
-
-    // Validate required fields for actual email sending
-    if (!emailData.recipient_email || !emailData.content) {
-      console.error('Missing required fields:', { 
-        hasRecipient: !!emailData.recipient_email, 
-        hasContent: !!emailData.content 
-      });
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Missing required fields: recipient_email and content are required'
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        }
-      );
-    }
-
     // Check if RESEND_API_KEY is configured
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (!resendApiKey) {
@@ -119,14 +52,15 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    console.log('Creating email record in database');
+    const emailData: EmailRequest = await req.json();
+    console.log('Processing email request:', emailData);
 
     // Create email record in database first (let DB generate tracking_id)
     const { data: trackedEmail, error: dbError } = await supabase
       .from('tracked_emails')
       .insert({
         recipient_email: emailData.recipient_email,
-        subject: emailData.subject || 'Sin asunto',
+        subject: emailData.subject,
         content: emailData.content,
         lead_id: emailData.lead_id,
         contact_id: emailData.contact_id,
@@ -142,8 +76,6 @@ serve(async (req: Request) => {
       throw new Error(`Database error: ${dbError.message}`);
     }
 
-    console.log('Email record created with ID:', trackedEmail.id);
-
     // Build tracking pixel URL using the generated tracking_id from database
     const trackingPixelUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-email-open/${trackedEmail.tracking_id}`;
     
@@ -154,7 +86,7 @@ serve(async (req: Request) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${emailData.subject || 'Sin asunto'}</title>
+        <title>${emailData.subject}</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -169,7 +101,7 @@ serve(async (req: Request) => {
       <body>
         <div class="container">
           <div class="header">
-            <h2 style="margin: 0; color: #1f2937;">${emailData.subject || 'Sin asunto'}</h2>
+            <h2 style="margin: 0; color: #1f2937;">${emailData.subject}</h2>
           </div>
           
           <div class="content">
@@ -194,20 +126,19 @@ serve(async (req: Request) => {
     `;
 
     // Send email with Resend with better error handling
-    console.log('Sending email via Resend');
     let emailResponse;
     try {
       emailResponse = await resend.emails.send({
         from: emailData.sender_email || 'CRM System <onboarding@resend.dev>',
         to: [emailData.recipient_email],
-        subject: emailData.subject || 'Sin asunto',
+        subject: emailData.subject,
         html: htmlContent,
         headers: {
           'X-Entity-Ref-ID': trackedEmail.tracking_id,
         }
       });
 
-      console.log('Resend response:', emailResponse.data?.id ? 'Success' : 'Failed');
+      console.log('Resend response:', emailResponse);
     } catch (sendError) {
       console.error('Resend send error:', sendError);
       
@@ -232,7 +163,7 @@ serve(async (req: Request) => {
       throw new Error(`Email sending failed: ${emailResponse.error.message}`);
     }
 
-    console.log('Email sent successfully with ID:', emailResponse.data?.id);
+    console.log('Email sent successfully:', emailResponse);
 
     // Return success response
     return new Response(
@@ -256,7 +187,7 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Unknown error occurred'
+        error: error.message
       }),
       {
         status: 500,

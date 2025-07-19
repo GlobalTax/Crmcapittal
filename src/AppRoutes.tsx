@@ -1,9 +1,7 @@
-
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AttioLayout } from '@/components/layout/AttioLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { SettingsLayout } from '@/components/settings/SettingsLayout';
 
 // Import new organized components
 import MandatesPage from '@/pages/MandatesPage';
@@ -18,14 +16,6 @@ import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
-
-// Import settings pages
-import SettingsPage from '@/pages/settings/SettingsPage';
-import ProfilePage from '@/pages/settings/ProfilePage';
-import AppearancePage from '@/pages/settings/AppearancePage';
-import EmailCalendarPage from '@/pages/settings/EmailCalendarPage';
-import GeneralPage from '@/pages/settings/GeneralPage';
-import CallIntelligencePage from '@/pages/settings/CallIntelligencePage';
 
 // Import the unified lead page
 const LeadPage = lazy(() => import('@/pages/LeadPage'));
@@ -56,7 +46,8 @@ const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const TeaserBuilder = lazy(() => import('@/pages/TeaserBuilder'));
-const BuyingMandates = lazy(() => import('@/pages/BuyingMandates'));
+
+// Note: Settings routes can be added later from the original App.tsx
 
 const LoadingSkeleton = () => (
   <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -112,59 +103,13 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* M&A Operations - Mandatos */}
+          {/* Mandatos (Spanish routes) */}
           <Route path="/mandatos" element={<MandatesPage />} />
           <Route path="/mandatos/:id" element={<MandateDetailPage />} />
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
-          
-          {/* Mandatos de Compra */}
-          <Route 
-            path="/mandatos-compra" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <BuyingMandates />
-              </Suspense>
-            } 
-          />
 
-          {/* Transacciones/Mandatos de Venta */}
-          <Route path="/transacciones" element={<TransaccionesList />} />
-          <Route path="/transacciones/:id" element={<VentaMandatoView />} />
-
-          {/* Servicios Complementarios */}
-          <Route 
-            path="/valoraciones" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Valoraciones />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/reconversiones" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Reconversiones />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/teaser-builder" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <TeaserBuilder />
-              </Suspense>
-            } 
-          />
-
-          {/* CRM */}
-          <Route path="/empresas" element={<CompanyList />} />
-          <Route path="/empresas/:id" element={<CompanyDetail />} />
-          <Route path="/contactos" element={<ContactList />} />
-          <Route path="/contactos/:id" element={<ContactDetail />} />
-
-          {/* Leads y Captación */}
+          {/* Captación (Spanish routes) */}
           <Route path="/captacion" element={<LeadsEntryPanel />} />
           <Route 
             path="/captacion/:id" 
@@ -174,6 +119,8 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
+          
+          {/* Gestión de Leads route */}
           <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
           <Route 
             path="/gestion-leads/:id" 
@@ -183,6 +130,8 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
+
+          {/* Unified leads route */}
           <Route path="/leads" element={<LeadsEntryPanel />} />
           <Route 
             path="/leads/:id" 
@@ -193,20 +142,46 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Comunicación */}
+          {/* Empresas y Contactos (Spanish routes) */}
+          <Route path="/empresas" element={<CompanyList />} />
+          <Route path="/empresas/:id" element={<CompanyDetail />} />
+          <Route path="/contactos" element={<ContactList />} />
+          <Route path="/contactos/:id" element={<ContactDetail />} />
+
+          {/* Transacciones (Spanish routes) */}
+          <Route path="/transacciones" element={<TransaccionesList />} />
+          <Route path="/transacciones/:id" element={<VentaMandatoView />} />
+
+          {/* Redirects from old English routes to new Spanish routes */}
+          <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
+          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos" replace />} />
+          <Route path="/companies" element={<Navigate to="/empresas" replace />} />
+          <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
+          <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
+          <Route path="/contacts/:id" element={<Navigate to="/contactos" replace />} />
+
+          {/* Other routes */}
           <Route 
-            path="/email" 
+            path="/deals" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <EmailSetup />
+                <Deals />
               </Suspense>
             } 
           />
           <Route 
-            path="/calendar" 
+            path="/deals/:id" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <CalendarPage />
+                <DealPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/proposals" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Proposals />
               </Suspense>
             } 
           />
@@ -218,8 +193,92 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
+            <Route 
+              path="/email" 
+              element={
+                <Suspense fallback={<LoadingSkeleton />}>
+                  <EmailSetup />
+                </Suspense>
+              } 
+            />
+          <Route 
+            path="/calendar" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CalendarPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/documents/*" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Documents />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/users" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <UserManagement />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/collaborators" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Collaborators />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/crm" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <HierarchicalCRM />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/integrations"
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Integrations />
+              </Suspense>
+            } 
+          />
+           <Route 
+             path="/hubspot-data" 
+             element={<HubSpotDatabase />}
+           />
+           <Route 
+             path="/einforma" 
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <EInformaDashboard />
+               </Suspense>
+             } 
+           />
+          <Route 
+            path="/debug" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <SystemDebug />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/comisiones" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CommissionsPage />
+              </Suspense>
+            } 
+          />
 
-          {/* ROD Builder */}
+          {/* ROD Dashboard and Builder routes */}
           <Route 
             path="/rod" 
             element={
@@ -253,145 +312,36 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Deals y Propuestas */}
+          {/* Servicios Complementarios */}
           <Route 
-            path="/deals" 
+            path="/valoraciones" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <Deals />
+                <Valoraciones />
               </Suspense>
             } 
           />
           <Route 
-            path="/deals/:id" 
+            path="/reconversiones" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <DealPage />
+                <Reconversiones />
               </Suspense>
             } 
           />
           <Route 
-            path="/proposals" 
+            path="/teaser-builder" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <Proposals />
+                <TeaserBuilder />
               </Suspense>
             } 
           />
-
-          {/* Documentos */}
-          <Route 
-            path="/documents/*" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Documents />
-              </Suspense>
-            } 
-          />
-
-          {/* Administración */}
-          <Route 
-            path="/users" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <UserManagement />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/colaboradores" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Collaborators />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/comisiones" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <CommissionsPage />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/integrations"
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <Integrations />
-              </Suspense>
-            } 
-          />
-
-          {/* Análisis */}
-          <Route 
-            path="/einforma" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <EInformaDashboard />
-              </Suspense>
-            } 
-          />
-
-          {/* HubSpot Data */}
-          <Route 
-            path="/hubspot-data" 
-            element={<HubSpotDatabase />}
-          />
-
-          {/* Otras rutas */}
-          <Route 
-            path="/crm" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <HierarchicalCRM />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/debug" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <SystemDebug />
-              </Suspense>
-            } 
-          />
-
-          {/* Redirects from old English routes to new Spanish routes */}
-          <Route path="/buying-mandates" element={<Navigate to="/mandatos-compra" replace />} />
-          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos-compra" replace />} />
-          <Route path="/companies" element={<Navigate to="/empresas" replace />} />
-          <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
-          <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
-          <Route path="/contacts/:id" element={<Navigate to="/contactos" replace />} />
         </Route>
+        
 
-        {/* Settings routes - Separate layout */}
-        <Route path="/settings" element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>}>
-          <Route index element={<SettingsPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="appearance" element={<AppearancePage />} />
-          <Route path="email-calendar" element={<EmailCalendarPage />} />
-          <Route path="general" element={<GeneralPage />} />
-          <Route path="call-intelligence" element={<CallIntelligencePage />} />
-          <Route path="members-teams" element={<div>Members & Teams - Coming Soon</div>} />
-          <Route path="plans" element={<div>Plans - Coming Soon</div>} />
-          <Route path="billing" element={<div>Billing - Coming Soon</div>} />
-          <Route path="developers" element={<div>Developers - Coming Soon</div>} />
-          <Route path="security" element={<div>Security - Coming Soon</div>} />
-          <Route path="support" element={<div>Support - Coming Soon</div>} />
-          <Route path="expert-access" element={<div>Expert Access - Coming Soon</div>} />
-          <Route path="migrate-crm" element={<div>Migrate CRM - Coming Soon</div>} />
-          <Route path="apps" element={<div>Apps - Coming Soon</div>} />
-          <Route path="objects" element={<div>Objects - Coming Soon</div>} />
-          <Route path="lists" element={<div>Lists - Coming Soon</div>} />
-          <Route path="dashboards" element={<div>Dashboards - Coming Soon</div>} />
-          <Route path="sequences" element={<div>Sequences - Coming Soon</div>} />
-          <Route path="workflows" element={<div>Workflows - Coming Soon</div>} />
-        </Route>
-
-        {/* Catch all - redirect to dashboard */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Catch all - redirect to mandatos */}
+        <Route path="*" element={<Navigate to="/mandatos" replace />} />
       </Routes>
     </div>
   );

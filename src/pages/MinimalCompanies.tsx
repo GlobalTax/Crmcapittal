@@ -222,7 +222,7 @@ export default function MinimalCompanies() {
             data={tableData}
             columns={companyColumns}
             onRowClick={(row) => {
-              navigate(`/empresas/${row.id}`);
+              navigate(`/companies/${row.id}`);
             }}
             className=""
           />

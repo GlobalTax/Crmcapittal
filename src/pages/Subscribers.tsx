@@ -1,94 +1,212 @@
-
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
+// import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
-import { Plus, Users, Mail, Settings } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSubscribers } from '@/hooks/useSubscribers';
+import { CreateSubscriberDialog } from '@/components/subscribers/CreateSubscriberDialog';
+import { EditSubscriberDialog } from '@/components/subscribers/EditSubscriberDialog';
+import { Subscriber } from '@/types/Subscriber';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal, Plus, Filter } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-const Subscribers = () => {
+export default function Subscribers() {
+  const { subscribers, isLoading, deleteSubscriber } = useSubscribers();
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingSubscriber, setEditingSubscriber] = useState<Subscriber | null>(null);
+  const [segmentFilter, setSegmentFilter] = useState<string>('all');
+  const [hideUnsubscribed, setHideUnsubscribed] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Get unique segments for filter
+  const segments = Array.from(new Set(subscribers.map(s => s.segment))).filter(Boolean);
+
+  // Filter subscribers
+  const filteredSubscribers = subscribers.filter(subscriber => {
+    if (segmentFilter !== 'all' && subscriber.segment !== segmentFilter) return false;
+    if (hideUnsubscribed && subscriber.unsubscribed) return false;
+    if (searchTerm && !subscriber.email.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    return true;
+  });
+
+  const columns: ColumnDef<Subscriber>[] = [
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("email")}</div>
+      ),
+    },
+    {
+      accessorKey: "segment",
+      header: "Segmento",
+      cell: ({ row }) => (
+        <Badge variant="outline">{row.getValue("segment")}</Badge>
+      ),
+    },
+    {
+      accessorKey: "created_at",
+      header: "Fecha Creación",
+      cell: ({ row }) => {
+        const date = new Date(row.getValue("created_at"));
+        return <div>{date.toLocaleDateString('es-ES')}</div>;
+      },
+    },
+    {
+      accessorKey: "verified",
+      header: "Verificado",
+      cell: ({ row }) => (
+        <Badge variant={row.getValue("verified") ? "default" : "secondary"}>
+          {row.getValue("verified") ? "Sí" : "No"}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "unsubscribed",
+      header: "Desuscrito",
+      cell: ({ row }) => (
+        <Badge variant={row.getValue("unsubscribed") ? "destructive" : "default"}>
+          {row.getValue("unsubscribed") ? "Sí" : "No"}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const subscriber = row.original;
+        
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setEditingSubscriber(subscriber)}>
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => deleteSubscriber(subscriber.id)}
+                className="text-destructive"
+              >
+                Eliminar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  if (isLoading) {
+    return <div className="p-6">Cargando suscriptores...</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto p-6">
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-semibold text-foreground">
-              Gestión de Suscriptores
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Administra los suscriptores para los reportes ROD
+            <h1 className="text-3xl font-bold mb-2">Suscriptores</h1>
+            <p className="text-muted-foreground">
+              Gestiona los suscriptores de tus campañas de email
             </p>
           </div>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Añadir Suscriptor
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Nuevo Suscriptor
           </Button>
         </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Suscriptores
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">
-                Activos en el sistema
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Emails Enviados
-              </CardTitle>
-              <Mail className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">
-                Este mes
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Segmentos
-              </CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">
-                Configurados
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Empty State */}
-        <Card className="text-center py-12">
-          <CardContent>
-            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No hay suscriptores</h3>
-            <p className="text-muted-foreground mb-6">
-              Comienza añadiendo tu primer suscriptor para enviar reportes ROD
-            </p>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Añadir Primer Suscriptor
-            </Button>
-          </CardContent>
-        </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Filtros</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <Input
+                placeholder="Buscar por email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <Select value={segmentFilter} onValueChange={setSegmentFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Todos los segmentos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los segmentos</SelectItem>
+                {segments.map(segment => (
+                  <SelectItem key={segment} value={segment}>
+                    {segment}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="hide-unsubscribed"
+                checked={hideUnsubscribed}
+                onCheckedChange={(checked) => setHideUnsubscribed(!!checked)}
+              />
+              <label
+                htmlFor="hide-unsubscribed"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Ocultar desuscritos
+              </label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="mt-6">
+        <div className="border rounded-lg">
+          <div className="p-4">
+            <h3 className="text-lg font-medium mb-4">Suscriptores ({filteredSubscribers.length})</h3>
+            <div className="space-y-2">
+              {filteredSubscribers.map((subscriber) => (
+                <div key={subscriber.id} className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <div className="font-medium">{subscriber.email}</div>
+                    <div className="text-sm text-muted-foreground">{subscriber.segment}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge variant={subscriber.verified ? "default" : "secondary"}>
+                      {subscriber.verified ? "Verificado" : "No verificado"}
+                    </Badge>
+                    <Button size="sm" onClick={() => setEditingSubscriber(subscriber)}>
+                      Editar
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <CreateSubscriberDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      />
+
+      {editingSubscriber && (
+        <EditSubscriberDialog
+          subscriber={editingSubscriber}
+          open={!!editingSubscriber}
+          onOpenChange={(open) => !open && setEditingSubscriber(null)}
+        />
+      )}
     </div>
   );
-};
-
-export default Subscribers;
+}
