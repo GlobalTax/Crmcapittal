@@ -1,13 +1,13 @@
+
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Users, Building, Download } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Search, Users, Building } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useToast } from '@/hooks/use-toast';
@@ -151,7 +151,11 @@ export const ImportFromCRMDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {trigger && (
+        <div onClick={() => setOpen(true)}>
+          {trigger}
+        </div>
+      )}
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Importar desde CRM</DialogTitle>

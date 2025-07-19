@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { BuyingMandate, MandateTarget, MandateDocument, CreateBuyingMandateData, CreateMandateTargetData, CreateMandateDocumentData } from '@/types/BuyingMandate';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,10 +21,13 @@ interface UseBuyingMandatesResult {
   deleteTarget: (id: string) => Promise<void>;
   uploadDocument: (data: CreateMandateDocumentData, file: File) => Promise<MandateDocument | null>;
   deleteDocument: (id: string) => Promise<void>;
-  refetch: () => Promise<void>;
+  updateMandateStatus: (id: string, status: string) => Promise<void>;
+  importFromContacts: (mandateId: string, contactIds: string[]) => Promise<void>;
+  importFromCompanies: (mandateId: string, companyIds: string[]) => Promise<void>;
+  refetch: (type?: string) => Promise<void>;
 }
 
-export const useBuyingMandates = (mandateType?: string) => {
+export const useBuyingMandates = (mandateType?: string): UseBuyingMandatesResult => {
   const [mandates, setMandates] = useState<BuyingMandate[]>([]);
   const [targets, setTargets] = useState<MandateTarget[]>([]);
   const [documents, setDocuments] = useState<MandateDocument[]>([]);
@@ -62,7 +66,12 @@ export const useBuyingMandates = (mandateType?: string) => {
         throw error;
       }
 
-      setMandates(data || []);
+      // Cast the data to match our type
+      setMandates((data as any[])?.map(item => ({
+        ...item,
+        target_sectors: item.target_sectors || [],
+        target_locations: item.target_locations || []
+      })) || []);
     } catch (err: any) {
       console.error('Error fetching mandates:', err);
       setError(err.message || 'Failed to fetch mandates');
@@ -196,6 +205,48 @@ export const useBuyingMandates = (mandateType?: string) => {
     } catch (err: any) {
       console.error('Error deleting mandate:', err);
       setError(err.message || 'Failed to delete mandate');
+    }
+  };
+
+  const updateMandateStatus = async (id: string, status: string): Promise<void> => {
+    try {
+      const { error } = await supabase
+        .from('buying_mandates')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      setMandates(prev => prev.map(mandate => 
+        mandate.id === id ? { ...mandate, status } : mandate
+      ));
+    } catch (err: any) {
+      console.error('Error updating mandate status:', err);
+      setError(err.message || 'Failed to update mandate status');
+    }
+  };
+
+  const importFromContacts = async (mandateId: string, contactIds: string[]): Promise<void> => {
+    try {
+      // Implementation for importing contacts as targets
+      console.log('Importing contacts:', contactIds, 'to mandate:', mandateId);
+      // This would create mandate_targets based on selected contacts
+    } catch (err: any) {
+      console.error('Error importing from contacts:', err);
+      setError(err.message || 'Failed to import from contacts');
+    }
+  };
+
+  const importFromCompanies = async (mandateId: string, companyIds: string[]): Promise<void> => {
+    try {
+      // Implementation for importing companies as targets
+      console.log('Importing companies:', companyIds, 'to mandate:', mandateId);
+      // This would create mandate_targets based on selected companies
+    } catch (err: any) {
+      console.error('Error importing from companies:', err);
+      setError(err.message || 'Failed to import from companies');
     }
   };
 
@@ -355,8 +406,8 @@ export const useBuyingMandates = (mandateType?: string) => {
     fetchMandates(mandateType);
   }, [user, mandateType]);
 
-  const refetch = async () => {
-    await fetchMandates(mandateType);
+  const refetch = async (type?: string) => {
+    await fetchMandates(type || mandateType);
   };
 
   return {
@@ -376,6 +427,9 @@ export const useBuyingMandates = (mandateType?: string) => {
     deleteTarget,
     uploadDocument,
     deleteDocument,
-    refetch: fetchMandates
+    updateMandateStatus,
+    importFromContacts,
+    importFromCompanies,
+    refetch
   };
 };

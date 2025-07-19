@@ -1,30 +1,36 @@
 
+import React from 'react';
 import { LucideIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
-interface EmptyStateProps {
+export interface EmptyStateProps {
   icon: LucideIcon;
   title: string;
-  description: string;
-  action?: React.ReactNode;
-  className?: string;
+  subtitle?: string;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
-export const EmptyState = ({ 
+export const EmptyState: React.FC<EmptyStateProps> = ({ 
   icon: Icon, 
   title, 
-  description, 
-  action, 
-  className 
-}: EmptyStateProps) => {
+  subtitle, 
+  action 
+}) => {
   return (
-    <div className={cn("text-center py-12", className)}>
-      <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
-        <Icon className="h-12 w-12 text-muted-foreground" />
-      </div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-muted-foreground mb-6 max-w-md mx-auto">{description}</p>
-      {action && <div>{action}</div>}
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+      <Icon className="h-12 w-12 text-muted-foreground mb-4" />
+      <h3 className="text-lg font-medium text-foreground mb-2">{title}</h3>
+      {subtitle && (
+        <p className="text-muted-foreground mb-6 max-w-md">{subtitle}</p>
+      )}
+      {action && (
+        <Button onClick={action.onClick}>
+          {action.label}
+        </Button>
+      )}
     </div>
   );
 };
