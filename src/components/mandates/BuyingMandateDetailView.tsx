@@ -4,35 +4,48 @@ import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Plus, 
-  StickyNote, 
-  CheckSquare, 
+  Building2, 
   Users, 
-  User,
-  Calendar,
-  FileText,
-  Trash2,
-  Edit,
-  Phone,
-  Mail
+  FileText, 
+  CheckSquare, 
+  Plus,
+  Target,
+  Eye
 } from 'lucide-react';
 import { BuyingMandate } from '@/types/BuyingMandate';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { useMandateNotes } from '@/hooks/useMandateNotes';
 import { useMandateTasks } from '@/hooks/useMandateTasks';
 import { useMandatePeople } from '@/hooks/useMandatePeople';
+import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useMandatoById } from '@/hooks/useMandatoById';
 import { CreateNoteForm } from './forms/CreateNoteForm';
 import { CreateTaskForm } from './forms/CreateTaskForm';
 import { CreatePersonForm } from './forms/CreatePersonForm';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { MandatoTargetPanel } from './MandatoTargetPanel';
 
 export const BuyingMandateDetailView = () => {
   const { id } = useParams<{ id: string }>();
   const { mandato: mandate, isLoading } = useMandatoById(id);
+  const { targets, documents, fetchTargets, fetchDocuments } = useBuyingMandates();
+  
+  const [activeTab, setActiveTab] = useState('overview');
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [personDialogOpen, setPersonDialogOpen] = useState(false);
+
+  // Hooks para datos del mandato
+  const { notes, createNote, updateNote, deleteNote } = useMandateNotes(id || '');
+  const { tasks, createTask, updateTask, deleteTask } = useMandateTasks(id || '');
+  const { people, createPerson, updatePerson, deletePerson } = useMandatePeople(id || '');
+
+  // Filtrar targets y documentos para este mandato
+  const mandateTargets = targets.filter(t => t.mandate_id === id);
+  const mandateDocuments = documents.filter(d => d.mandate_id === id);
 
   if (isLoading) {
     return <div>Cargando...</div>;
@@ -41,17 +54,21 @@ export const BuyingMandateDetailView = () => {
   if (!mandate) {
     return <div>Mandato no encontrado</div>;
   }
-  const [activeTab, setActiveTab] = useState('overview');
-  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
-  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
-  const [personDialogOpen, setPersonDialogOpen] = useState(false);
 
-  const { notes, loading: notesLoading, deleteNote } = useMandateNotes(mandate.id);
-  const { tasks, loading: tasksLoading, toggleTaskCompletion, deleteTask } = useMandateTasks(mandate.id);
-  const { people, loading: peopleLoading, deletePerson } = useMandatePeople(mandate.id);
+  // Estadísticas de targets
+  const contactedTargets = mandateTargets.filter(t => t.contacted).length;
+  const interestedTargets = mandateTargets.filter(t => 
+    ['interested', 'nda_signed'].includes(t.status)
+  ).length;
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES');
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      active: 'bg-green-100 text-green-800',
+      paused: 'bg-yellow-100 text-yellow-800',
+      completed: 'bg-blue-100 text-blue-800',
+      cancelled: 'bg-red-100 text-red-800',
+    };
+    return variants[status as keyof typeof variants] || variants.active;
   };
 
   const formatCurrency = (amount?: number) => {
@@ -63,343 +80,361 @@ export const BuyingMandateDetailView = () => {
     }).format(amount);
   };
 
-  const getStatusBadge = (status: BuyingMandate['status']) => {
-    const statusConfig = {
-      active: { label: 'Activo', variant: 'default' as const },
-      paused: { label: 'Pausado', variant: 'secondary' as const },
-      completed: { label: 'Completado', variant: 'outline' as const },
-      cancelled: { label: 'Cancelado', variant: 'destructive' as const },
-    };
-    
-    const config = statusConfig[status];
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+  const handleEditTarget = (target: any) => {
+    // Función para editar target - se puede expandir más adelante
+    console.log('Edit target:', target);
   };
 
-  const getPriorityColor = (priority: string) => {
-    const colors = {
-      low: 'text-green-600',
-      medium: 'text-yellow-600',
-      high: 'text-orange-600',
-      urgent: 'text-red-600'
-    };
-    return colors[priority as keyof typeof colors] || 'text-gray-600';
-  };
-
-  const getPriorityLabel = (priority: string) => {
-    const labels = {
-      low: 'Baja',
-      medium: 'Media',
-      high: 'Alta',
-      urgent: 'Urgente'
-    };
-    return labels[priority as keyof typeof labels] || priority;
+  const handleViewDocuments = (target: any) => {
+    // Función para ver documentos del target
+    console.log('View documents for target:', target);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header del Mandato */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{mandate.mandate_name}</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold">{mandate.mandate_name}</h1>
+          <p className="text-muted-foreground mt-1">
             Cliente: {mandate.client_name} • Contacto: {mandate.client_contact}
           </p>
+          <div className="flex items-center gap-2 mt-2">
+            <Badge className={getStatusBadge(mandate.status)}>
+              {mandate.status}
+            </Badge>
+            <Badge variant="outline">
+              {mandate.mandate_type === 'compra' ? 'Mandato de Compra' : 'Mandato de Venta'}
+            </Badge>
+          </div>
         </div>
-        {getStatusBadge(mandate.status)}
       </div>
 
-      {/* Overview Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Resumen del Mandato</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <h4 className="font-medium mb-2">Sectores Objetivo</h4>
-              <div className="flex flex-wrap gap-1">
-                {mandate.target_sectors.map((sector) => (
-                  <Badge key={sector} variant="outline" className="text-xs">
-                    {sector}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Criterios Financieros</h4>
-              <div className="space-y-1 text-sm">
-                <div>Facturación: {formatCurrency(mandate.min_revenue)} - {formatCurrency(mandate.max_revenue)}</div>
-                <div>EBITDA: {formatCurrency(mandate.min_ebitda)} - {formatCurrency(mandate.max_ebitda)}</div>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Timeline</h4>
-              <div className="space-y-1 text-sm">
-                <div>Inicio: {formatDate(mandate.start_date)}</div>
-                {mandate.end_date && <div>Fin: {formatDate(mandate.end_date)}</div>}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Quick Stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Targets</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mandateTargets.length}</div>
+            <p className="text-xs text-muted-foreground">empresas objetivo</p>
+          </CardContent>
+        </Card>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="notes" className="flex items-center gap-2">
-            <StickyNote className="h-4 w-4" />
-            Notas ({notes.length})
-          </TabsTrigger>
-          <TabsTrigger value="tasks" className="flex items-center gap-2">
-            <CheckSquare className="h-4 w-4" />
-            Tareas ({tasks.length})
-          </TabsTrigger>
-          <TabsTrigger value="people" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Personas ({people.length})
-          </TabsTrigger>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Contactados</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{contactedTargets}</div>
+            <p className="text-xs text-muted-foreground">
+              {mandateTargets.length > 0 ? Math.round((contactedTargets / mandateTargets.length) * 100) : 0}% del total
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En Proceso</CardTitle>
+            <Eye className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{interestedTargets}</div>
+            <p className="text-xs text-muted-foreground">interesados/NDA firmado</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Documentos</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mandateDocuments.length}</div>
+            <p className="text-xs text-muted-foreground">archivos gestionados</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabs de Contenido */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Resumen</TabsTrigger>
+          <TabsTrigger value="targets">Targets</TabsTrigger>
+          <TabsTrigger value="notes">Notas</TabsTrigger>
+          <TabsTrigger value="tasks">Tareas</TabsTrigger>
+          <TabsTrigger value="people">Personas</TabsTrigger>
         </TabsList>
 
-        {/* Notes Tab */}
-        <TabsContent value="notes" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium">Notas del Mandato</h3>
-            <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nueva Nota
-                </Button>
-              </DialogTrigger>
-              <CreateNoteForm
-                mandateId={mandate.id}
-                onSuccess={() => setNoteDialogOpen(false)}
-              />
-            </Dialog>
-          </div>
+        {/* Tab de Resumen */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Información del Cliente */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Información del Cliente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <span className="text-sm font-medium">Cliente:</span>
+                  <p className="text-sm text-muted-foreground">{mandate.client_name}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium">Contacto:</span>
+                  <p className="text-sm text-muted-foreground">{mandate.client_contact}</p>
+                </div>
+                {mandate.client_email && (
+                  <div>
+                    <span className="text-sm font-medium">Email:</span>
+                    <p className="text-sm text-muted-foreground">{mandate.client_email}</p>
+                  </div>
+                )}
+                {mandate.client_phone && (
+                  <div>
+                    <span className="text-sm font-medium">Teléfono:</span>
+                    <p className="text-sm text-muted-foreground">{mandate.client_phone}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-          {notesLoading ? (
-            <div>Cargando notas...</div>
-          ) : notes.length === 0 ? (
-            <EmptyState
-              icon={StickyNote}
-              title="No hay notas aún"
-              subtitle="Añade la primera nota para hacer seguimiento de información importante sobre este mandato"
-              action={{
-                label: "Crear Primera Nota",
-                onClick: () => setNoteDialogOpen(true)
-              }}
-            />
-          ) : (
-            <div className="space-y-3">
-              {notes.map((note) => (
-                <Card key={note.id}>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-xs">
-                            {note.note_type}
+            {/* Criterios de Búsqueda */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Criterios de Búsqueda</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {mandate.target_sectors.length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium">Sectores:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {mandate.target_sectors.map((sector, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {sector}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {mandate.target_locations.length > 0 && (
+                  <div>
+                    <span className="text-sm font-medium">Ubicaciones:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {mandate.target_locations.map((location, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {location}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm font-medium">Facturación:</span>
+                    <p className="text-sm text-muted-foreground">
+                      {formatCurrency(mandate.min_revenue)} - {formatCurrency(mandate.max_revenue)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">EBITDA:</span>
+                    <p className="text-sm text-muted-foreground">
+                      {formatCurrency(mandate.min_ebitda)} - {formatCurrency(mandate.max_ebitda)}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Tab de Targets */}
+        <TabsContent value="targets">
+          <MandatoTargetPanel
+            targets={mandateTargets}
+            documents={mandateDocuments}
+            onEditTarget={handleEditTarget}
+            onViewDocuments={handleViewDocuments}
+          />
+        </TabsContent>
+
+        {/* Tab de Notas */}
+        <TabsContent value="notes">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Notas del Mandato
+                </CardTitle>
+                <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nueva Nota
+                    </Button>
+                  </DialogTrigger>
+                  <CreateNoteForm 
+                    onSubmit={createNote}
+                    onClose={() => setNoteDialogOpen(false)}
+                  />
+                </Dialog>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {notes.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="No hay notas"
+                  description="Añade la primera nota para este mandato"
+                  action={
+                    <Button onClick={() => setNoteDialogOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Crear Primera Nota
+                    </Button>
+                  }
+                />
+              ) : (
+                <div className="space-y-4">
+                  {notes.map((note) => (
+                    <div key={note.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium">{note.title}</h4>
+                        <Badge variant="outline">{note.type}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{note.content}</p>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(note.createdAt).toLocaleDateString('es-ES')}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab de Tareas */}
+        <TabsContent value="tasks">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <CheckSquare className="h-5 w-5" />
+                  Tareas del Mandato
+                </CardTitle>
+                <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nueva Tarea
+                    </Button>
+                  </DialogTrigger>
+                  <CreateTaskForm 
+                    onSubmit={createTask}
+                    onClose={() => setTaskDialogOpen(false)}
+                  />
+                </Dialog>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {tasks.length === 0 ? (
+                <EmptyState
+                  icon={CheckSquare}
+                  title="No hay tareas"
+                  description="Crea la primera tarea para este mandato"
+                  action={
+                    <Button onClick={() => setTaskDialogOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Crear Primera Tarea
+                    </Button>
+                  }
+                />
+              ) : (
+                <div className="space-y-4">
+                  {tasks.map((task) => (
+                    <div key={task.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium">{task.title}</h4>
+                        <div className="flex gap-2">
+                          <Badge variant="outline">{task.priority}</Badge>
+                          <Badge className={task.completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                            {task.completed ? 'Completada' : 'Pendiente'}
                           </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(note.created_at)}
-                          </span>
                         </div>
-                        <p className="text-sm whitespace-pre-wrap">{note.note}</p>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteNote(note.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
+                      <div className="text-xs text-muted-foreground">
+                        Vencimiento: {new Date(task.dueDate).toLocaleDateString('es-ES')}
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        {/* Tasks Tab */}
-        <TabsContent value="tasks" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium">Tareas del Mandato</h3>
-            <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nueva Tarea
-                </Button>
-              </DialogTrigger>
-              <CreateTaskForm
-                mandateId={mandate.id}
-                onSuccess={() => setTaskDialogOpen(false)}
-              />
-            </Dialog>
-          </div>
-
-          {tasksLoading ? (
-            <div>Cargando tareas...</div>
-          ) : tasks.length === 0 ? (
-            <EmptyState
-              icon={CheckSquare}
-              title="No hay tareas asignadas"
-              subtitle="Crea tareas para organizar el trabajo relacionado con este mandato"
-              action={{
-                label: "Crear Primera Tarea",
-                onClick: () => setTaskDialogOpen(true)
-              }}
-            />
-          ) : (
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <Card key={task.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 flex-1">
-                        <input
-                          type="checkbox"
-                          checked={task.completed}
-                          onChange={() => toggleTaskCompletion(task.id)}
-                          className="h-4 w-4"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                              {task.title}
-                            </h4>
-                            <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)}`}>
-                              {getPriorityLabel(task.priority)}
-                            </Badge>
-                          </div>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {task.description}
-                            </p>
-                          )}
-                          {task.due_date && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <Calendar className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">
-                                Vence: {formatDate(task.due_date)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+        {/* Tab de Personas */}
+        <TabsContent value="people">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Personas Involucradas
+                </CardTitle>
+                <Dialog open={personDialogOpen} onOpenChange={setPersonDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nueva Persona
+                    </Button>
+                  </DialogTrigger>
+                  <CreatePersonForm 
+                    onSubmit={createPerson}
+                    onClose={() => setPersonDialogOpen(false)}
+                  />
+                </Dialog>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {people.length === 0 ? (
+                <EmptyState
+                  icon={Users}
+                  title="No hay personas registradas"
+                  description="Añade la primera persona involucrada en este mandato"
+                  action={
+                    <Button onClick={() => setPersonDialogOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Añadir Primera Persona
+                    </Button>
+                  }
+                />
+              ) : (
+                <div className="space-y-4">
+                  {people.map((person) => (
+                    <div key={person.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium">{person.name}</h4>
+                        <Badge variant="outline">{person.role}</Badge>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteTask(task.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        {/* People Tab */}
-        <TabsContent value="people" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium">Personas Involucradas</h3>
-            <Dialog open={personDialogOpen} onOpenChange={setPersonDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nueva Persona
-                </Button>
-              </DialogTrigger>
-              <CreatePersonForm
-                mandateId={mandate.id}
-                onSuccess={() => setPersonDialogOpen(false)}
-              />
-            </Dialog>
-          </div>
-
-          {peopleLoading ? (
-            <div>Cargando personas...</div>
-          ) : people.length === 0 ? (
-            <EmptyState
-              icon={Users}
-              title="No hay personas registradas"
-              subtitle="Añade las personas clave involucradas en este mandato para mejor seguimiento"
-              action={{
-                label: "Añadir Primera Persona",
-                onClick: () => setPersonDialogOpen(true)
-              }}
-            />
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {people.map((person) => (
-                <Card key={person.id}>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                          <User className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-medium">{person.name}</h4>
-                            {person.is_primary && (
-                              <Badge variant="default" className="text-xs">
-                                Principal
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground capitalize">
-                            {person.role}
-                          </p>
-                          {person.company && (
-                            <p className="text-sm text-muted-foreground">
-                              {person.company}
-                            </p>
-                          )}
-                          <div className="flex flex-col gap-1 mt-2">
-                            {person.email && (
-                              <div className="flex items-center gap-1">
-                                <Mail className="h-3 w-3 text-muted-foreground" />
-                                <a 
-                                  href={`mailto:${person.email}`}
-                                  className="text-xs text-blue-600 hover:underline"
-                                >
-                                  {person.email}
-                                </a>
-                              </div>
-                            )}
-                            {person.phone && (
-                              <div className="flex items-center gap-1">
-                                <Phone className="h-3 w-3 text-muted-foreground" />
-                                <a 
-                                  href={`tel:${person.phone}`}
-                                  className="text-xs text-blue-600 hover:underline"
-                                >
-                                  {person.phone}
-                                </a>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                      <p className="text-sm text-muted-foreground mb-1">{person.company}</p>
+                      <div className="flex gap-4 text-sm text-muted-foreground">
+                        {person.email && <span>{person.email}</span>}
+                        {person.phone && <span>{person.phone}</span>}
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deletePerson(person.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
