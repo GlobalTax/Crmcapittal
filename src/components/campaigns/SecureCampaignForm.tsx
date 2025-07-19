@@ -99,9 +99,10 @@ export const SecureCampaignForm: React.FC<SecureCampaignFormProps> = ({ onSucces
 
       // Sanitizar datos antes del envío
       const sanitizedData = {
-        ...data,
         subject: sanitizeString(data.subject),
-        html_body: sanitizeString(data.html_body)
+        html_body: sanitizeString(data.html_body),
+        audience: data.audience,
+        opportunity_ids: data.opportunity_ids || []
       };
 
       secureLogger.info('Sending secure campaign', {

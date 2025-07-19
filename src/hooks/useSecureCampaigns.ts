@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Campaign, CreateCampaignData } from '@/types/Campaign';
-import { validateAndSanitize, validationSchemas } from '@/utils/validation';
+import { sanitizeAndValidate, validationSchemas } from '@/utils/validation';
 import { secureLogger } from '@/utils/secureLogger';
 import { securityMonitor, RateLimiter } from '@/utils/security';
 import { useAuth } from '@/contexts/AuthContext';
@@ -55,16 +55,7 @@ export const useSecureCampaigns = () => {
       }
 
       // Validar y sanitizar datos
-      const campaignSchema = validationSchemas.operation.extend({
-        subject: validationSchemas.email,
-        html_body: validationSchemas.contact.shape.name,
-        audience: validationSchemas.contact.shape.name
-      });
-
-      const { valid, data: sanitizedData, errors } = validateAndSanitize(
-        campaignData,
-        campaignSchema.partial()
-      );
+      const { valid, data: sanitizedData, errors } = sanitizeAndValidate(campaignData);
 
       if (!valid) {
         const errorMessage = `Datos de campaña inválidos: ${errors?.join(', ')}`;
@@ -131,7 +122,7 @@ export const useSecureCampaigns = () => {
   const createCampaignMutation = useMutation({
     mutationFn: async (campaignData: CreateCampaignData) => {
       // Validar y sanitizar datos
-      const { valid, data: sanitizedData, errors } = validateAndSanitize(campaignData);
+      const { valid, data: sanitizedData, errors } = sanitizeAndValidate(campaignData);
 
       if (!valid) {
         secureLogger.security('invalid_campaign_creation_data', 'medium', {

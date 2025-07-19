@@ -128,7 +128,7 @@ export class SecurityEnhancements {
    */
   public detectSQLInjection(input: string): boolean {
     const sqlPatterns = [
-      /('|(\\')|(;)|(--)|(\s+or\s+)|(\/\*)|(\*\/)|(\bUNION\b)|(\bSELECT\b)|(\bINSERT\b)|(\bDELETE\b)|(\bDROP\b)|(\bUPDATE\b)/i
+      /'|\\';|--|(\s+or\s+)|\/\*|\*\/|\bUNION\b|\bSELECT\b|\bINSERT\b|\bDELETE\b|\bDROP\b|\bUPDATE\b/i
     ];
     
     return sqlPatterns.some(pattern => pattern.test(input));
