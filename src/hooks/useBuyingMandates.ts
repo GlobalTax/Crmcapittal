@@ -248,8 +248,51 @@ export const useBuyingMandates = () => {
     }
   }, []);
 
-  const refetch = useCallback(async (type?: string) => {
-    await fetchMandates(type);
+  const updateTarget = useCallback(async (targetId: string, targetData: Partial<MandateTarget>) => {
+    try {
+      const { data, error } = await supabase
+        .from('mandate_targets')
+        .update(targetData)
+        .eq('id', targetId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setTargets(prev => prev.map(target => 
+        target.id === targetId ? { 
+          ...target, 
+          ...data,
+          status: data.status as MandateTarget['status']
+        } : target
+      ));
+
+      return { data, error: null };
+    } catch (error: any) {
+      console.error('Error updating target:', error);
+      return { data: null, error };
+    }
+  }, []);
+
+  const deleteTarget = useCallback(async (targetId: string) => {
+    try {
+      const { error } = await supabase
+        .from('mandate_targets')
+        .delete()
+        .eq('id', targetId);
+
+      if (error) throw error;
+
+      setTargets(prev => prev.filter(target => target.id !== targetId));
+      return { success: true, error: null };
+    } catch (error: any) {
+      console.error('Error deleting target:', error);
+      return { success: false, error };
+    }
+  }, []);
+
+  const refetch = useCallback(async () => {
+    await fetchMandates();
   }, [fetchMandates]);
 
   return {
@@ -264,6 +307,8 @@ export const useBuyingMandates = () => {
     createMandate,
     updateMandateStatus,
     createTarget,
+    updateTarget,
+    deleteTarget,
     uploadDocument,
     importFromContacts,
     importFromCompanies,
