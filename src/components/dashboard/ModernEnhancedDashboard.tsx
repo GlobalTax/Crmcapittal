@@ -42,7 +42,7 @@ export const ModernEnhancedDashboard = () => {
   }).length;
 
   const totalOperations = operations.length;
-  const activeOperations = operations.filter(op => op.status === 'ACTIVE').length;
+  const activeOperations = operations.filter(op => op.status === 'available').length;
 
   const totalRevenue = operations.reduce((sum, op) => sum + (op.amount || 0), 0);
   const monthlyRevenue = operations
@@ -197,7 +197,7 @@ export const ModernEnhancedDashboard = () => {
                     </td>
                     <td className="py-3 px-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {operation.type || 'M&A'}
+                        {operation.operation_type || 'M&A'}
                       </span>
                     </td>
                     <td className="py-3 px-4 font-medium text-gray-900">
@@ -205,13 +205,17 @@ export const ModernEnhancedDashboard = () => {
                     </td>
                     <td className="py-3 px-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        operation.status === 'ACTIVE' 
+                        operation.status === 'available' 
                           ? 'bg-green-100 text-green-800'
-                          : operation.status === 'PENDING'
+                          : operation.status === 'pending_review'
                           ? 'bg-yellow-100 text-yellow-800'
+                          : operation.status === 'approved'
+                          ? 'bg-blue-100 text-blue-800'
+                          : operation.status === 'in_process'
+                          ? 'bg-purple-100 text-purple-800'
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {operation.status || 'Activa'}
+                        {operation.status || 'Disponible'}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-gray-500">

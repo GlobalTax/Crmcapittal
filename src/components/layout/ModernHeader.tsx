@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, User, Filter, Download, Calendar, ChevronDown } from 'lucide-react';
+import { Search, Bell, User, Filter, Download, Calendar, ChevronDown, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
