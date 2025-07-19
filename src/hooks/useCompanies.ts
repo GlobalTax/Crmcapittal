@@ -324,12 +324,6 @@ export const useCompany = (companyId: string) => {
   return useQuery({
     queryKey: ["companies", companyId],
     queryFn: async () => {
-      console.log("🏢 Fetching individual company:", companyId);
-      
-      if (!companyId) {
-        throw new Error("Company ID is required");
-      }
-
       const { data, error } = await supabase
         .from("companies")
         .select(`
@@ -341,11 +335,10 @@ export const useCompany = (companyId: string) => {
         .single();
 
       if (error) {
-        console.error("❌ Error fetching company:", error);
+        console.error("Error fetching company:", error);
         throw error;
       }
 
-      console.log("✅ Successfully fetched company:", data?.name);
       return data as Company;
     },
     enabled: !!companyId,

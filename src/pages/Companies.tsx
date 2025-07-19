@@ -7,7 +7,6 @@ import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 
 const Companies = () => {
   const [page, setPage] = useState(1);
@@ -19,8 +18,6 @@ const Companies = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [currentCompanyIndex, setCurrentCompanyIndex] = useState(0);
-  
-  const navigate = useNavigate();
 
   // Keyboard shortcut for new company
   useEffect(() => {
@@ -52,8 +49,7 @@ const Companies = () => {
     isCreating,
     isUpdating,
     isDeleting,
-    useCompanyStats,
-    error
+    useCompanyStats
   } = useCompanies({ 
     page, 
     limit: 25, 
@@ -73,14 +69,8 @@ const Companies = () => {
     page,
     searchTerm,
     statusFilter,
-    typeFilter,
-    error
+    typeFilter
   });
-
-  // Log any errors
-  if (error) {
-    console.error("❌ Companies fetch error:", error);
-  }
 
   const handleEditCompany = (company: Company) => {
     console.log('✏️ handleEditCompany called with:', company.name);
@@ -88,22 +78,22 @@ const Companies = () => {
   };
 
   const handleUpdateCompany = (companyId: string, companyData: any) => {
-    console.log('🔄 Updating company:', companyId);
     updateCompany({ id: companyId, ...companyData });
   };
 
   const handleDeleteCompany = (companyId: string) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar esta empresa?")) {
-      console.log('🗑️ Deleting company:', companyId);
       deleteCompany(companyId);
     }
   };
 
   const handleViewCompany = (company: Company) => {
-    console.log('🔍 handleViewCompany called with:', company.name, 'ID:', company.id);
-    
-    // Navigate to dedicated company page instead of using drawer
-    navigate(`/empresas/${company.id}`);
+    console.log('🔍 handleViewCompany called with:', company.name);
+    const index = companies.findIndex(c => c.id === company.id);
+    setCurrentCompanyIndex(index >= 0 ? index : 0);
+    setViewingCompany(company);
+    setIsDrawerOpen(true);
+    console.log('🚪 CompanyDrawer should open now. isDrawerOpen:', true);
   };
 
   const handleNavigateCompany = (direction: 'prev' | 'next') => {
@@ -121,50 +111,19 @@ const Companies = () => {
   };
 
   const handleSearch = (term: string) => {
-    console.log('🔍 Search term changed:', term);
     setSearchTerm(term);
     setPage(1); // Reset to first page when searching
   };
 
   const handleStatusFilter = (status: string) => {
-    console.log('📊 Status filter changed:', status);
     setStatusFilter(status);
     setPage(1);
   };
 
   const handleTypeFilter = (type: string) => {
-    console.log('🏷️ Type filter changed:', type);
     setTypeFilter(type);
     setPage(1);
   };
-
-  // Show error state if there's an error
-  if (error && !isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">Empresas</h2>
-            <p className="text-muted-foreground">
-              Gestiona todas las empresas de tu pipeline de ventas.
-            </p>
-          </div>
-          <Button onClick={() => setIsCreateModalOpen(true)}>
-            + New company
-          </Button>
-        </div>
-        
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">Error al cargar empresas: {error.message}</p>
-            <Button onClick={() => window.location.reload()}>
-              Recargar página
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
