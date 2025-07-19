@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -159,9 +160,54 @@ export const useMandatePeople = (mandateId: string) => {
     }
   };
 
+  const seedExamplePeople = async () => {
+    if (people.length > 0) return; // Ya hay personas
+
+    const examplePeople = [
+      {
+        mandate_id: mandateId,
+        name: "Carlos Rodríguez",
+        email: "carlos.rodriguez@clientecorp.es",
+        phone: "+34 600 123 456",
+        role: "decision_maker",
+        company: "ClienteCorp S.L.",
+        is_primary: true
+      },
+      {
+        mandate_id: mandateId,
+        name: "Ana García",
+        email: "ana.garcia@clientecorp.es",
+        phone: "+34 600 234 567",
+        role: "financial",
+        company: "ClienteCorp S.L.",
+        is_primary: false
+      },
+      {
+        mandate_id: mandateId,
+        name: "Miguel Fernández",
+        email: "miguel.fernandez@legaladvisors.es",
+        phone: "+34 600 345 678",
+        role: "legal",
+        company: "Legal Advisors",
+        is_primary: false
+      }
+    ];
+
+    for (const personData of examplePeople) {
+      await createPerson(personData);
+    }
+  };
+
   useEffect(() => {
     fetchPeople();
   }, [mandateId]);
+
+  // Crear personas de ejemplo si no hay datos
+  useEffect(() => {
+    if (!loading && people.length === 0 && mandateId) {
+      seedExamplePeople();
+    }
+  }, [loading, people.length, mandateId]);
 
   return {
     people,

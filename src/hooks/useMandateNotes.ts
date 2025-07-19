@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -119,9 +120,42 @@ export const useMandateNotes = (mandateId: string) => {
     }
   };
 
+  const seedExampleNotes = async () => {
+    if (notes.length > 0) return; // Ya hay notas
+
+    const exampleNotes = [
+      {
+        mandate_id: mandateId,
+        note: "Reunión inicial con el cliente completada. Muestra interés en empresas del sector tecnológico con facturación entre 2-5M€.",
+        note_type: "meeting"
+      },
+      {
+        mandate_id: mandateId,
+        note: "Cliente busca específicamente empresas con capacidades de desarrollo de software y presencia digital consolidada.",
+        note_type: "client_feedback"
+      },
+      {
+        mandate_id: mandateId,
+        note: "Identificadas 3 empresas potenciales que cumplen criterios iniciales. Pendiente de enviar perfiles al cliente.",
+        note_type: "internal"
+      }
+    ];
+
+    for (const noteData of exampleNotes) {
+      await createNote(noteData);
+    }
+  };
+
   useEffect(() => {
     fetchNotes();
   }, [mandateId]);
+
+  // Crear notas de ejemplo si no hay datos
+  useEffect(() => {
+    if (!loading && notes.length === 0 && mandateId) {
+      seedExampleNotes();
+    }
+  }, [loading, notes.length, mandateId]);
 
   return {
     notes,

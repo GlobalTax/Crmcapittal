@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -166,9 +167,63 @@ export const useMandateTasks = (mandateId: string) => {
     return updateTask(taskId, { completed: !task.completed });
   };
 
+  const seedExampleTasks = async () => {
+    if (tasks.length > 0) return; // Ya hay tareas
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    const exampleTasks = [
+      {
+        mandate_id: mandateId,
+        title: "Revisar documentación legal del cliente",
+        description: "Analizar los términos del mandato y requisitos específicos del cliente",
+        completed: false,
+        priority: "high",
+        due_date: tomorrow.toISOString().split('T')[0]
+      },
+      {
+        mandate_id: mandateId,
+        title: "Identificar empresas objetivo sector tecnológico",
+        description: "Buscar empresas que cumplan criterios de facturación 2-5M€",
+        completed: true,
+        priority: "medium"
+      },
+      {
+        mandate_id: mandateId,
+        title: "Preparar perfiles de empresas candidatas",
+        description: "Crear presentaciones con información detallada de 3 empresas identificadas",
+        completed: false,
+        priority: "medium",
+        due_date: nextWeek.toISOString().split('T')[0]
+      },
+      {
+        mandate_id: mandateId,
+        title: "Agendar reunión de seguimiento con cliente",
+        description: "Coordinar próxima reunión para presentar candidatos",
+        completed: false,
+        priority: "low"
+      }
+    ];
+
+    for (const taskData of exampleTasks) {
+      await createTask(taskData);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
   }, [mandateId]);
+
+  // Crear tareas de ejemplo si no hay datos
+  useEffect(() => {
+    if (!loading && tasks.length === 0 && mandateId) {
+      seedExampleTasks();
+    }
+  }, [loading, tasks.length, mandateId]);
 
   return {
     tasks,

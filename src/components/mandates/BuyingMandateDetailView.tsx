@@ -1,696 +1,399 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { BuyingMandate } from "@/types/BuyingMandate";
-import { useMandateNotes } from "@/hooks/useMandateNotes";
-import { useMandateTasks } from "@/hooks/useMandateTasks";
-import { useMandatePeople } from "@/hooks/useMandatePeople";
+
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  ArrowLeft, 
-  FileText, 
-  Download, 
+  Plus, 
+  StickyNote, 
+  CheckSquare, 
   Users, 
-  Euro, 
-  Calendar, 
-  TrendingUp,
-  Building,
-  Phone,
-  Mail,
-  Target,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  Plus,
+  User,
+  Calendar,
+  FileText,
+  Trash2,
   Edit,
-  Trash2
-} from "lucide-react";
+  Phone,
+  Mail
+} from 'lucide-react';
+import { BuyingMandate } from '@/types/BuyingMandate';
+import { useMandateNotes } from '@/hooks/useMandateNotes';
+import { useMandateTasks } from '@/hooks/useMandateTasks';
+import { useMandatePeople } from '@/hooks/useMandatePeople';
+import { CreateNoteForm } from './forms/CreateNoteForm';
+import { CreateTaskForm } from './forms/CreateTaskForm';
+import { CreatePersonForm } from './forms/CreatePersonForm';
+import { EmptyState } from '@/components/ui/EmptyState';
 
-export const BuyingMandateDetailView = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  const [mandate, setMandate] = useState<BuyingMandate | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("summary");
+interface BuyingMandateDetailViewProps {
+  mandate: BuyingMandate;
+}
 
-  // Real data hooks for mandate
-  const { notes, loading: notesLoading, createNote } = useMandateNotes(id || '');
-  const { tasks, loading: tasksLoading, createTask, toggleTaskCompletion } = useMandateTasks(id || '');
-  const { people, loading: peopleLoading, createPerson } = useMandatePeople(id || '');
+export const BuyingMandateDetailView = ({ mandate }: BuyingMandateDetailViewProps) => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [personDialogOpen, setPersonDialogOpen] = useState(false);
 
-  // Mock data for activities, tasks, etc.
-  const mockActivities = [
-    {
-      id: '1',
-      title: 'Mandato creado',
-      description: 'Se ha iniciado el mandato de búsqueda para el cliente',
-      created_at: new Date().toISOString(),
-      activity_type: 'mandate_created'
-    },
-    {
-      id: '2',
-      title: 'Criterios definidos',
-      description: 'Se han establecido los criterios de búsqueda y sectores objetivo',
-      created_at: new Date(Date.now() - 86400000).toISOString(),
-      activity_type: 'criteria_set'
-    }
-  ];
+  const { notes, loading: notesLoading, deleteNote } = useMandateNotes(mandate.id);
+  const { tasks, loading: tasksLoading, toggleTaskCompletion, deleteTask } = useMandateTasks(mandate.id);
+  const { people, loading: peopleLoading, deletePerson } = useMandatePeople(mandate.id);
 
-  const mockTasks = [
-    {
-      id: '1',
-      title: 'Identificar empresas objetivo',
-      description: 'Buscar empresas que cumplan con los criterios establecidos',
-      completed: false,
-      priority: 'high',
-      due_date: new Date(Date.now() + 604800000).toISOString()
-    },
-    {
-      id: '2',
-      title: 'Preparar teaser inicial',
-      description: 'Crear documento de presentación para las empresas objetivo',
-      completed: false,
-      priority: 'medium',
-      due_date: new Date(Date.now() + 1209600000).toISOString()
-    }
-  ];
-
-  const mockDocuments = [
-    {
-      id: '1',
-      document_name: 'Mandato firmado',
-      document_type: 'legal',
-      file_url: '#',
-      is_confidential: true
-    },
-    {
-      id: '2',
-      document_name: 'Criterios de búsqueda',
-      document_type: 'general',
-      file_url: '#',
-      is_confidential: false
-    }
-  ];
-
-  const mockPeople = [
-    {
-      id: '1',
-      name: mandate?.client_contact || 'Contacto Principal',
-      email: mandate?.client_email,
-      phone: mandate?.client_phone,
-      company: mandate?.client_name,
-      role_in_mandate: 'Cliente',
-      position: 'Director General'
-    }
-  ];
-
-  const mockInterestedParties: any[] = [];
-
-  useEffect(() => {
-    if (id) {
-      fetchMandateData();
-    }
-  }, [id]);
-
-  const fetchMandateData = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch mandate details
-      const { data: mandateData, error: mandateError } = await supabase
-        .from('buying_mandates')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (mandateError) throw mandateError;
-      setMandate(mandateData as BuyingMandate);
-
-    } catch (error) {
-      console.error('Error fetching mandate data:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo cargar la información del mandato",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-ES');
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusMap = {
-      'active': { label: 'Activo', variant: 'default' as const, className: 'bg-green-100 text-green-800' },
-      'paused': { label: 'Pausado', variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800' },
-      'completed': { label: 'Completado', variant: 'outline' as const, className: 'bg-blue-100 text-blue-800' },
-      'cancelled': { label: 'Cancelado', variant: 'destructive' as const, className: 'bg-red-100 text-red-800' }
+  const formatCurrency = (amount?: number) => {
+    if (!amount) return 'No especificado';
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getStatusBadge = (status: BuyingMandate['status']) => {
+    const statusConfig = {
+      active: { label: 'Activo', variant: 'default' as const },
+      paused: { label: 'Pausado', variant: 'secondary' as const },
+      completed: { label: 'Completado', variant: 'outline' as const },
+      cancelled: { label: 'Cancelado', variant: 'destructive' as const },
     };
     
-    const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.active;
-    
-    return (
-      <Badge variant={statusInfo.variant} className={statusInfo.className}>
-        {statusInfo.label}
-      </Badge>
-    );
+    const config = statusConfig[status];
+    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case 'high':
-        return <AlertCircle className="h-4 w-4 text-orange-500" />;
-      case 'medium':
-        return <Clock className="h-4 w-4 text-blue-500" />;
-      case 'low':
-        return <Clock className="h-4 w-4 text-gray-500" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
-    }
+  const getPriorityColor = (priority: string) => {
+    const colors = {
+      low: 'text-green-600',
+      medium: 'text-yellow-600',
+      high: 'text-orange-600',
+      urgent: 'text-red-600'
+    };
+    return colors[priority as keyof typeof colors] || 'text-gray-600';
   };
 
-  if (loading) {
-    return <div className="flex items-center justify-center h-96">Cargando...</div>;
-  }
-
-  if (!mandate) {
-    return <div className="flex items-center justify-center h-96">Mandato no encontrado</div>;
-  }
+  const getPriorityLabel = (priority: string) => {
+    const labels = {
+      low: 'Baja',
+      medium: 'Media',
+      high: 'Alta',
+      urgent: 'Urgente'
+    };
+    return labels[priority as keyof typeof labels] || priority;
+  };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate('/buying-mandates')}
-            className="p-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{mandate.mandate_name}</h1>
-            <p className="text-muted-foreground">
-              Mandato de compra - {mandate.client_name}
-            </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{mandate.mandate_name}</h1>
+          <p className="text-muted-foreground">
+            Cliente: {mandate.client_name} • Contacto: {mandate.client_contact}
+          </p>
+        </div>
+        {getStatusBadge(mandate.status)}
+      </div>
+
+      {/* Overview Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Resumen del Mandato</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <h4 className="font-medium mb-2">Sectores Objetivo</h4>
+              <div className="flex flex-wrap gap-1">
+                {mandate.target_sectors.map((sector) => (
+                  <Badge key={sector} variant="outline" className="text-xs">
+                    {sector}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Criterios Financieros</h4>
+              <div className="space-y-1 text-sm">
+                <div>Facturación: {formatCurrency(mandate.min_revenue)} - {formatCurrency(mandate.max_revenue)}</div>
+                <div>EBITDA: {formatCurrency(mandate.min_ebitda)} - {formatCurrency(mandate.max_ebitda)}</div>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Timeline</h4>
+              <div className="space-y-1 text-sm">
+                <div>Inicio: {formatDate(mandate.start_date)}</div>
+                {mandate.end_date && <div>Fin: {formatDate(mandate.end_date)}</div>}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {getStatusBadge(mandate.status)}
-          <Button variant="outline" size="sm">
-            <FileText className="h-4 w-4 mr-2" />
-            Generar Informe
-          </Button>
-          <Button variant="outline" size="sm">
-            <Edit className="h-4 w-4 mr-2" />
-            Editar
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left side - 3/4 width */}
-        <div className="lg:col-span-3">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-7">
-              <TabsTrigger value="summary">Resumen</TabsTrigger>
-              <TabsTrigger value="activity">Actividad</TabsTrigger>
-              <TabsTrigger value="documents">Documentos</TabsTrigger>
-              <TabsTrigger value="tasks">Tareas</TabsTrigger>
-              <TabsTrigger value="people">Personas</TabsTrigger>
-              <TabsTrigger value="notes">Notas</TabsTrigger>
-              <TabsTrigger value="interested">Interesados</TabsTrigger>
-            </TabsList>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="notes" className="flex items-center gap-2">
+            <StickyNote className="h-4 w-4" />
+            Notas ({notes.length})
+          </TabsTrigger>
+          <TabsTrigger value="tasks" className="flex items-center gap-2">
+            <CheckSquare className="h-4 w-4" />
+            Tareas ({tasks.length})
+          </TabsTrigger>
+          <TabsTrigger value="people" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Personas ({people.length})
+          </TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="summary" className="space-y-4">
-              {/* KPI Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Presupuesto</CardTitle>
-                    <Euro className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {mandate.min_revenue && mandate.max_revenue 
-                        ? `€${(mandate.min_revenue / 1000000).toFixed(1)}M - €${(mandate.max_revenue / 1000000).toFixed(1)}M`
-                        : 'Por definir'
-                      }
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Rango de facturación objetivo
-                    </p>
-                  </CardContent>
-                </Card>
+        {/* Notes Tab */}
+        <TabsContent value="notes" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Notas del Mandato</h3>
+            <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nueva Nota
+                </Button>
+              </DialogTrigger>
+              <CreateNoteForm
+                mandateId={mandate.id}
+                onSuccess={() => setNoteDialogOpen(false)}
+              />
+            </Dialog>
+          </div>
 
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Targets Identificados</CardTitle>
-                    <Target className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">0</div>
-                    <p className="text-xs text-muted-foreground">
-                      Empresas identificadas
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Días Activo</CardTitle>
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {Math.floor((new Date().getTime() - new Date(mandate.start_date).getTime()) / (1000 * 60 * 60 * 24))}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Desde inicio del mandato
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Progreso</CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">25%</div>
-                    <p className="text-xs text-muted-foreground">
-                      Identificación en curso
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Sectores objetivo */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Criterios de Búsqueda</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Sectores Objetivo</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {mandate.target_sectors.map((sector, index) => (
-                        <Badge key={index} variant="outline">{sector}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-2">Ubicaciones</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {mandate.target_locations?.map((location, index) => (
-                        <Badge key={index} variant="outline">{location}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  {mandate.other_criteria && (
-                    <div>
-                      <h4 className="font-medium mb-2">Otros Criterios</h4>
-                      <p className="text-sm text-muted-foreground">{mandate.other_criteria}</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="activity" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Cronología de Actividades</CardTitle>
-                  <Button size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Actividad
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockActivities.map((activity) => (
-                      <div key={activity.id} className="flex items-start space-x-3 border-b pb-4">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full mt-1"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{activity.title}</p>
-                          {activity.description && (
-                            <p className="text-xs text-muted-foreground">{activity.description}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(activity.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="documents" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Documentos</CardTitle>
-                  <Button size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Subir Documento
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {mockDocuments.map((doc) => (
-                      <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <FileText className="h-4 w-4 text-blue-600" />
-                          <span className="text-sm font-medium">{doc.document_name}</span>
+          {notesLoading ? (
+            <div>Cargando notas...</div>
+          ) : notes.length === 0 ? (
+            <EmptyState
+              icon={StickyNote}
+              title="No hay notas aún"
+              subtitle="Añade la primera nota para hacer seguimiento de información importante sobre este mandato"
+              action={{
+                label: "Crear Primera Nota",
+                onClick: () => setNoteDialogOpen(true)
+              }}
+            />
+          ) : (
+            <div className="space-y-3">
+              {notes.map((note) => (
+                <Card key={note.id}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
                           <Badge variant="outline" className="text-xs">
-                            {doc.document_type}
+                            {note.note_type}
                           </Badge>
-                          {doc.is_confidential && (
-                            <Badge variant="secondary" className="text-xs">
-                              Confidencial
+                          <span className="text-xs text-muted-foreground">
+                            {formatDate(note.created_at)}
+                          </span>
+                        </div>
+                        <p className="text-sm whitespace-pre-wrap">{note.note}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteNote(note.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Tasks Tab */}
+        <TabsContent value="tasks" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Tareas del Mandato</h3>
+            <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nueva Tarea
+                </Button>
+              </DialogTrigger>
+              <CreateTaskForm
+                mandateId={mandate.id}
+                onSuccess={() => setTaskDialogOpen(false)}
+              />
+            </Dialog>
+          </div>
+
+          {tasksLoading ? (
+            <div>Cargando tareas...</div>
+          ) : tasks.length === 0 ? (
+            <EmptyState
+              icon={CheckSquare}
+              title="No hay tareas asignadas"
+              subtitle="Crea tareas para organizar el trabajo relacionado con este mandato"
+              action={{
+                label: "Crear Primera Tarea",
+                onClick: () => setTaskDialogOpen(true)
+              }}
+            />
+          ) : (
+            <div className="space-y-3">
+              {tasks.map((task) => (
+                <Card key={task.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1">
+                        <input
+                          type="checkbox"
+                          checked={task.completed}
+                          onChange={() => toggleTaskCompletion(task.id)}
+                          className="h-4 w-4"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                              {task.title}
+                            </h4>
+                            <Badge variant="outline" className={`text-xs ${getPriorityColor(task.priority)}`}>
+                              {getPriorityLabel(task.priority)}
                             </Badge>
+                          </div>
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {task.description}
+                            </p>
+                          )}
+                          {task.due_date && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <Calendar className="h-3 w-3 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground">
+                                Vence: {formatDate(task.due_date)}
+                              </span>
+                            </div>
                           )}
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteTask(task.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* People Tab */}
+        <TabsContent value="people" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium">Personas Involucradas</h3>
+            <Dialog open={personDialogOpen} onOpenChange={setPersonDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nueva Persona
+                </Button>
+              </DialogTrigger>
+              <CreatePersonForm
+                mandateId={mandate.id}
+                onSuccess={() => setPersonDialogOpen(false)}
+              />
+            </Dialog>
+          </div>
+
+          {peopleLoading ? (
+            <div>Cargando personas...</div>
+          ) : people.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="No hay personas registradas"
+              subtitle="Añade las personas clave involucradas en este mandato para mejor seguimiento"
+              action={{
+                label: "Añadir Primera Persona",
+                onClick: () => setPersonDialogOpen(true)
+              }}
+            />
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {people.map((person) => (
+                <Card key={person.id}>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <User className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium">{person.name}</h4>
+                            {person.is_primary && (
+                              <Badge variant="default" className="text-xs">
+                                Principal
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground capitalize">
+                            {person.role}
+                          </p>
+                          {person.company && (
+                            <p className="text-sm text-muted-foreground">
+                              {person.company}
+                            </p>
+                          )}
+                          <div className="flex flex-col gap-1 mt-2">
+                            {person.email && (
+                              <div className="flex items-center gap-1">
+                                <Mail className="h-3 w-3 text-muted-foreground" />
+                                <a 
+                                  href={`mailto:${person.email}`}
+                                  className="text-xs text-blue-600 hover:underline"
+                                >
+                                  {person.email}
+                                </a>
+                              </div>
+                            )}
+                            {person.phone && (
+                              <div className="flex items-center gap-1">
+                                <Phone className="h-3 w-3 text-muted-foreground" />
+                                <a 
+                                  href={`tel:${person.phone}`}
+                                  className="text-xs text-blue-600 hover:underline"
+                                >
+                                  {person.phone}
+                                </a>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="tasks" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Tareas del Mandato</CardTitle>
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      // Implementar modal para crear tarea
-                      console.log('Crear nueva tarea');
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Tarea
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {tasksLoading ? (
-                    <div className="text-center py-8">Cargando tareas...</div>
-                  ) : tasks.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">
-                      No hay tareas registradas
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {tasks.map((task) => (
-                        <div key={task.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            {getPriorityIcon(task.priority)}
-                            <button 
-                              onClick={() => toggleTaskCompletion(task.id)}
-                              className="focus:outline-none"
-                            >
-                              {task.completed ? (
-                                <CheckCircle2 className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <div className="h-4 w-4 border-2 border-gray-300 rounded hover:border-gray-400"></div>
-                              )}
-                            </button>
-                          </div>
-                          <div className="flex-1">
-                            <p className={`text-sm font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                              {task.title}
-                            </p>
-                            {task.description && (
-                              <p className="text-xs text-muted-foreground">{task.description}</p>
-                            )}
-                            {task.due_date && (
-                              <p className="text-xs text-muted-foreground">
-                                Vence: {new Date(task.due_date).toLocaleDateString()}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deletePerson(person.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="people" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Personas Involucradas</CardTitle>
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      // Implementar modal para crear persona
-                      console.log('Crear nueva persona');
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Añadir Persona
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {peopleLoading ? (
-                    <div className="text-center py-8">Cargando personas...</div>
-                  ) : people.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">
-                      No hay personas registradas
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {people.map((person) => (
-                        <div key={person.id} className="flex items-center space-x-4 p-3 border rounded-lg">
-                          <Users className="h-8 w-8 text-muted-foreground" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{person.name}</p>
-                            <p className="text-xs text-muted-foreground">{person.role}</p>
-                            {person.company && (
-                              <p className="text-xs text-muted-foreground">{person.company}</p>
-                            )}
-                            <div className="flex items-center space-x-4 mt-1">
-                              {person.email && (
-                                <div className="flex items-center space-x-1">
-                                  <Mail className="h-3 w-3" />
-                                  <span className="text-xs">{person.email}</span>
-                                </div>
-                              )}
-                              {person.phone && (
-                                <div className="flex items-center space-x-1">
-                                  <Phone className="h-3 w-3" />
-                                  <span className="text-xs">{person.phone}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <Badge variant={person.is_primary ? "default" : "outline"}>
-                            {person.is_primary ? "Principal" : person.role}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="notes" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Notas del Mandato</CardTitle>
-                  <Button 
-                    size="sm"
-                    onClick={() => {
-                      // Implementar modal para crear nota
-                      console.log('Crear nueva nota');
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nueva Nota
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {notesLoading ? (
-                    <div className="text-center py-8">Cargando notas...</div>
-                  ) : notes.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">
-                      No hay notas registradas
-                    </p>
-                  ) : (
-                    <div className="space-y-3">
-                      {notes.map((note) => (
-                        <div key={note.id} className="p-3 border rounded-lg">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <p className="text-sm">{note.note}</p>
-                              <div className="flex items-center space-x-2 mt-2">
-                                <Badge variant="outline" className="text-xs">
-                                  {note.note_type}
-                                </Badge>
-                                <span className="text-xs text-muted-foreground">
-                                  {new Date(note.created_at).toLocaleDateString()}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="interested" className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Partes Interesadas</CardTitle>
-                  <Button size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Añadir Interesado
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {mockInterestedParties.length === 0 ? (
-                      <p className="text-muted-foreground text-center py-8">
-                        No hay partes interesadas registradas
-                      </p>
-                    ) : (
-                      mockInterestedParties.map((party) => (
-                        <div key={party.id} className="flex items-center space-x-4 p-3 border rounded-lg">
-                          <Building className="h-8 w-8 text-muted-foreground" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{party.party_name}</p>
-                            {party.contact_person && (
-                              <p className="text-xs text-muted-foreground">
-                                Contacto: {party.contact_person}
-                              </p>
-                            )}
-                            {party.notes && (
-                              <p className="text-xs text-muted-foreground">{party.notes}</p>
-                            )}
-                          </div>
-                          <div className="flex flex-col space-y-1">
-                            <Badge variant="outline">{party.interest_level}</Badge>
-                            <Badge variant="secondary">{party.status}</Badge>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Right sidebar - 1/4 width */}
-        <div className="space-y-4">
-          {/* Client Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Información del Cliente</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Cliente</h4>
-                <p className="text-sm">{mandate.client_name}</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Contacto</h4>
-                <p className="text-sm">{mandate.client_contact}</p>
-              </div>
-              {mandate.client_email && (
-                <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{mandate.client_email}</span>
-                </div>
-              )}
-              {mandate.client_phone && (
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{mandate.client_phone}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Mandate Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Detalles del Mandato</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Tipo</h4>
-                <p className="text-sm capitalize">{mandate.mandate_type}</p>
-              </div>
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Fecha de Inicio</h4>
-                <p className="text-sm">{new Date(mandate.start_date).toLocaleDateString()}</p>
-              </div>
-              {mandate.end_date && (
-                <div>
-                  <h4 className="font-medium text-sm text-muted-foreground">Fecha de Fin</h4>
-                  <p className="text-sm">{new Date(mandate.end_date).toLocaleDateString()}</p>
-                </div>
-              )}
-              <div>
-                <h4 className="font-medium text-sm text-muted-foreground">Estado</h4>
-                {getStatusBadge(mandate.status)}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Acciones Rápidas</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Target className="h-4 w-4 mr-2" />
-                Añadir Target
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <FileText className="h-4 w-4 mr-2" />
-                Generar Teaser
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Mail className="h-4 w-4 mr-2" />
-                Contactar Cliente
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Calendar className="h-4 w-4 mr-2" />
-                Programar Seguimiento
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
