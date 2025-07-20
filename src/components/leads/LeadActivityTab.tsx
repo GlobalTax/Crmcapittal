@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Lead } from '@/types/Lead';
-import { useLeadActivities } from '@/hooks/useLeadActivities';
+import { useLeadActivities } from '@/hooks/useLeadActivitiesSimple';
 import { Activity, Clock, Mail, Phone, Calendar, Plus, FileText, CheckCircle, StickyNote, Upload, Edit } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';

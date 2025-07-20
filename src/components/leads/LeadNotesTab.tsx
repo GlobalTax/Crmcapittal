@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Lead } from '@/types/Lead';
-import { useLeadNotes } from '@/hooks/useLeadNotes';
+import { useLeadNotes } from '@/hooks/useLeadNotesSimple';
 import { Plus, Trash2, Edit, Save, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';

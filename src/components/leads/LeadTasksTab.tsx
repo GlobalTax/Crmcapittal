@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Lead } from '@/types/Lead';
-import { useLeadTasks } from '@/hooks/useLeadTasks';
+import { useLeadTasks } from '@/hooks/useLeadTasksSimple';
 import { Plus, Calendar, User, Trash2, Edit, Save, X, CheckCircle } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -17,7 +17,7 @@ interface LeadTasksTabProps {
 }
 
 export const LeadTasksTab = ({ lead }: LeadTasksTabProps) => {
-  const { tasks, isLoading, createTask, updateTask, deleteTask, completeTask, isCreating } = useLeadTasks(lead.id);
+  const { tasks, isLoading, createTask, updateTask, deleteTask, isCreating } = useLeadTasks(lead.id);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTask, setNewTask] = useState({

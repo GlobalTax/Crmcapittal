@@ -80,6 +80,18 @@ export interface Lead {
   // ROD fields
   highlighted?: boolean;
   rod_order?: number;
+  
+  // Pipeline fields added from migration
+  deal_value?: number;
+  estimated_close_date?: string;
+  probability?: number;
+  pipeline_stage_id?: string;
+  is_followed?: boolean;
+  last_activity_type?: string;
+  next_activity_date?: string;
+  won_date?: string;
+  lost_date?: string;
+  lost_reason?: string;
 }
 
 export interface CreateLeadData {
