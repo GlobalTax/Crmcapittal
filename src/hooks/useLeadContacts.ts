@@ -21,7 +21,7 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
       let query = supabase
         .from('contacts')
         .select('*')
-        .eq('lifecycle_stage', 'marketing_qualified_lead')
+        .eq('lifecycle_stage', 'lead')
         .order('created_at', { ascending: false });
 
       if (filters.status) {
@@ -57,7 +57,7 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
         company: leadData.company,
         position: leadData.position,
         contact_type: 'lead' as const,
-        lifecycle_stage: 'marketing_qualified_lead' as const,
+        lifecycle_stage: 'lead' as const, // Changed from 'marketing_qualified_lead' to 'lead'
         lead_score: leadData.lead_score || 0,
         lead_source: leadData.lead_source,
         lead_origin: leadData.lead_origin,
