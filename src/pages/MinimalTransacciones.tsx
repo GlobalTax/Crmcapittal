@@ -468,7 +468,7 @@ export default function MinimalTransacciones({
           <DialogHeader>
             <DialogTitle>Gestión de Etapas</DialogTitle>
           </DialogHeader>
-          <StageManagement pipelineType="DEAL" />
+          <StageManagement />
         </DialogContent>
       </Dialog>
     </div>
