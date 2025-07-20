@@ -1,71 +1,58 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { useStages } from '@/hooks/useStages';
 import { TransaccionesKanban } from '@/components/transacciones/TransaccionesKanban';
-// Removed non-existent components for now
+import { TransaccionForm } from '@/components/transacciones/TransaccionForm';
+import { TransaccionesTable } from '@/components/transacciones/TransaccionesTable';
 import { TransaccionDetailsSidebar } from '@/components/transacciones/TransaccionDetailsSidebar';
 import { StageManagement } from '@/components/transacciones/StageManagement';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Transaccion } from '@/types/Transaccion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { useMediaQuery } from '@/hooks/use-media-query';
 import { useToast } from '@/hooks/use-toast';
+import { Transaccion } from '@/types/Transaccion';
 import { 
   Plus, 
-  Search, 
-  Filter, 
   LayoutGrid, 
   Table, 
-  Settings,
-  RefreshCw,
-  Download,
-  FileText,
-  TrendingUp
+  Settings, 
+  TrendingUp, 
+  Euro, 
+  Calendar,
+  Filter,
+  Search
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface MinimalTransaccionesProps {
   title?: string;
   description?: string;
 }
 
-const MinimalTransacciones = ({ 
-  title = "Transacciones M&A",
-  description = "Gestiona las transacciones de fusiones y adquisiciones"
-}: MinimalTransaccionesProps) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStage, setSelectedStage] = useState<string>('all');
-  const [selectedPriority, setSelectedPriority] = useState<string>('all');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [currentView, setCurrentView] = useState<'kanban' | 'table'>('kanban');
+export default function MinimalTransacciones({ 
+  title = "Transacciones", 
+  description = "Gestiona todas las transacciones de M&A" 
+}: MinimalTransaccionesProps) {
+  const [activeTab, setActiveTab] = useState('kanban');
   const [showTransaccionForm, setShowTransaccionForm] = useState(false);
-  const [selectedTransaccion, setSelectedTransaccion] = useState<Transaccion | null>(null);
-  const [showDetailsSidebar, setShowDetailsSidebar] = useState(false);
   const [editingTransaccion, setEditingTransaccion] = useState<Transaccion | null>(null);
-  const [selectedStageForNew, setSelectedStageForNew] = useState<string>();
+  const [selectedTransaccion, setSelectedTransaccion] = useState<Transaccion | null>(null);
+  const [selectedStageForNew, setSelectedStageForNew] = useState<string | undefined>();
+  const [showStageManagement, setShowStageManagement] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStage, setFilterStage] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterPriority, setFilterPriority] = useState<string>('all');
 
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const { toast } = useToast();
-  
+
   const {
     transacciones,
     loading,
@@ -77,43 +64,66 @@ const MinimalTransacciones = ({
     refetch
   } = useTransacciones();
 
-  const { stages } = useStages('DEAL');
+  const { stages, loading: stagesLoading } = useStages('DEAL');
 
   // Filter transacciones based on search and filters
   const filteredTransacciones = useMemo(() => {
-    if (!transacciones) return [];
-
-    return transacciones.filter((transaccion) => {
-      const searchMatch = !searchTerm || 
+    return transacciones.filter(transaccion => {
+      const matchesSearch = searchTerm === '' || 
         transaccion.nombre_transaccion.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaccion.company?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         transaccion.contact?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const stageMatch = selectedStage === 'all' || transaccion.stage_id === selectedStage;
-      const priorityMatch = selectedPriority === 'all' || transaccion.prioridad === selectedPriority;
-      const typeMatch = selectedType === 'all' || transaccion.tipo_transaccion === selectedType;
+      const matchesStage = filterStage === 'all' || transaccion.stage?.id === filterStage;
+      const matchesType = filterType === 'all' || transaccion.tipo_transaccion === filterType;
+      const matchesPriority = filterPriority === 'all' || transaccion.prioridad === filterPriority;
 
-      return searchMatch && stageMatch && priorityMatch && typeMatch;
+      return matchesSearch && matchesStage && matchesType && matchesPriority;
     });
-  }, [transacciones, searchTerm, selectedStage, selectedPriority, selectedType]);
+  }, [transacciones, searchTerm, filterStage, filterType, filterPriority]);
 
-  // Statistics
+  // Calculate statistics
   const stats = useMemo(() => {
-    if (!transacciones) return { total: 0, totalValue: 0, highPriority: 0 };
+    const totalValue = filteredTransacciones.reduce((sum, t) => sum + (t.valor_transaccion || 0), 0);
+    const totalCount = filteredTransacciones.length;
+    const highPriorityCount = filteredTransacciones.filter(t => t.prioridad === 'alta' || t.prioridad === 'urgente').length;
+    const recentCount = filteredTransacciones.filter(t => {
+      const updatedDate = new Date(t.updated_at);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return updatedDate > weekAgo;
+    }).length;
 
-    const total = transacciones.length;
-    const totalValue = transacciones.reduce((sum, t) => sum + (t.valor_transaccion || 0), 0);
-    const highPriority = transacciones.filter(t => t.prioridad === 'alta' || t.prioridad === 'urgente').length;
+    return {
+      totalCount,
+      totalValue,
+      highPriorityCount,
+      recentCount
+    };
+  }, [filteredTransacciones]);
 
-    return { total, totalValue, highPriority };
+  // Get unique values for filters
+  const uniqueStages = useMemo(() => {
+    const stageMap = new Map();
+    transacciones.forEach(t => {
+      if (t.stage) {
+        stageMap.set(t.stage.id, t.stage);
+      }
+    });
+    return Array.from(stageMap.values());
   }, [transacciones]);
 
-  const handleCreateTransaccion = useCallback(async (data: any) => {
+  const uniqueTypes = useMemo(() => {
+    return [...new Set(transacciones.map(t => t.tipo_transaccion))];
+  }, [transacciones]);
+
+  const uniquePriorities = useMemo(() => {
+    return [...new Set(transacciones.map(t => t.prioridad))];
+  }, [transacciones]);
+
+  const handleCreateTransaccion = useCallback(async (transaccionData: Omit<Transaccion, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      await createTransaccion({
-        ...data,
-        stage_id: selectedStageForNew || undefined
-      });
+      await createTransaccion(transaccionData);
       setShowTransaccionForm(false);
       setSelectedStageForNew(undefined);
       toast({
@@ -121,45 +131,47 @@ const MinimalTransacciones = ({
         description: "La transacción ha sido creada exitosamente.",
       });
     } catch (error) {
-      toast({
-        title: "Error al crear transacción",
-        description: error instanceof Error ? error.message : "Error desconocido",
-        variant: "destructive",
-      });
+      console.error('Error creating transaccion:', error);
     }
-  }, [createTransaccion, selectedStageForNew, toast]);
+  }, [createTransaccion, toast]);
 
   const handleUpdateTransaccion = useCallback(async (id: string, updates: Partial<Transaccion>) => {
     try {
       await updateTransaccion(id, updates);
+      setShowTransaccionForm(false);
       setEditingTransaccion(null);
-      setShowDetailsSidebar(false);
       toast({
         title: "Transacción actualizada",
-        description: "La transacción ha sido actualizada exitosamente.",
+        description: "Los cambios han sido guardados exitosamente.",
       });
     } catch (error) {
-      toast({
-        title: "Error al actualizar transacción",
-        description: error instanceof Error ? error.message : "Error desconocido",
-        variant: "destructive",
-      });
+      console.error('Error updating transaccion:', error);
     }
   }, [updateTransaccion, toast]);
 
-  const handleViewTransaccion = useCallback((transaccion: Transaccion) => {
-    setSelectedTransaccion(transaccion);
-    setShowDetailsSidebar(true);
-  }, []);
+  const handleDeleteTransaccion = useCallback(async (id: string) => {
+    try {
+      await deleteTransaccion(id);
+      toast({
+        title: "Transacción eliminada",
+        description: "La transacción ha sido eliminada exitosamente.",
+      });
+    } catch (error) {
+      console.error('Error deleting transaccion:', error);
+    }
+  }, [deleteTransaccion, toast]);
 
   const handleEditTransaccion = useCallback((transaccion: Transaccion) => {
     setEditingTransaccion(transaccion);
     setShowTransaccionForm(true);
   }, []);
 
+  const handleViewTransaccion = useCallback((transaccion: Transaccion) => {
+    setSelectedTransaccion(transaccion);
+  }, []);
+
   const handleAddTransaccion = useCallback((stageId?: string) => {
     setSelectedStageForNew(stageId);
-    setEditingTransaccion(null);
     setShowTransaccionForm(true);
   }, []);
 
@@ -179,12 +191,12 @@ const MinimalTransacciones = ({
 
   const clearFilters = () => {
     setSearchTerm('');
-    setSelectedStage('all');
-    setSelectedPriority('all');
-    setSelectedType('all');
+    setFilterStage('all');
+    setFilterType('all');
+    setFilterPriority('all');
   };
 
-  if (loading) {
+  if (loading || stagesLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -194,12 +206,11 @@ const MinimalTransacciones = ({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <p className="text-destructive">Error: {error}</p>
-        <Button onClick={() => refetch()} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Reintentar
-        </Button>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-destructive mb-4">{error}</p>
+          <Button onClick={refetch}>Reintentar</Button>
+        </div>
       </div>
     );
   }
@@ -207,113 +218,160 @@ const MinimalTransacciones = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
           <p className="text-muted-foreground">{description}</p>
         </div>
-        
         <div className="flex items-center gap-2">
-          <Button onClick={() => handleAddTransaccion()} className="gap-2">
-            <Plus className="h-4 w-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowStageManagement(true)}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Gestionar Etapas
+          </Button>
+          <Button onClick={() => handleAddTransaccion()}>
+            <Plus className="h-4 w-4 mr-2" />
             Nueva Transacción
           </Button>
-          <StageManagement />
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">Total Transacciones</span>
-          </div>
-          <div className="text-2xl font-bold">{stats.total}</div>
-        </div>
-        
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-green-600" />
-            <span className="text-sm font-medium text-muted-foreground">Valor Total</span>
-          </div>
-          <div className="text-2xl font-bold text-green-600">{formatCurrency(stats.totalValue)}</div>
-        </div>
-        
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-full bg-red-500" />
-            <span className="text-sm font-medium text-muted-foreground">Alta Prioridad</span>
-          </div>
-          <div className="text-2xl font-bold">{stats.highPriority}</div>
-        </div>
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Transacciones</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalCount}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.recentCount} actualizadas esta semana
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
+            <Euro className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</div>
+            <p className="text-xs text-muted-foreground">
+              En {stats.totalCount} transacciones
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Alta Prioridad</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.highPriorityCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Requieren atención inmediata
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Promedio por Transacción</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats.totalCount > 0 ? formatCurrency(stats.totalValue / stats.totalCount) : '€0'}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Valor medio de transacciones
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Filters and Search */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-        <div className="relative flex-1 min-w-[300px]">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Buscar transacciones..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        
-        <div className="flex flex-wrap gap-2">
-          <Select value={selectedStage} onValueChange={setSelectedStage}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Etapa" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las etapas</SelectItem>
-              {stages?.map((stage) => (
-                <SelectItem key={stage.id} value={stage.id}>
-                  {stage.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filtros
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar transacciones..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
 
-          <Select value={selectedPriority} onValueChange={setSelectedPriority}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Prioridad" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas</SelectItem>
-              <SelectItem value="baja">Baja</SelectItem>
-              <SelectItem value="media">Media</SelectItem>
-              <SelectItem value="alta">Alta</SelectItem>
-              <SelectItem value="urgente">Urgente</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={filterStage} onValueChange={setFilterStage}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Etapa" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las etapas</SelectItem>
+                {uniqueStages.map((stage) => (
+                  <SelectItem key={stage.id} value={stage.id}>
+                    {stage.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="venta">Venta</SelectItem>
-              <SelectItem value="compra">Compra</SelectItem>
-              <SelectItem value="fusion">Fusión</SelectItem>
-              <SelectItem value="valoracion">Valoración</SelectItem>
-              <SelectItem value="consultoria">Consultoría</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={filterType} onValueChange={setFilterType}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los tipos</SelectItem>
+                {uniqueTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          {(searchTerm || selectedStage !== 'all' || selectedPriority !== 'all' || selectedType !== 'all') && (
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
-              Limpiar filtros
-            </Button>
-          )}
-        </div>
-      </div>
+            <Select value={filterPriority} onValueChange={setFilterPriority}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Prioridad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas</SelectItem>
+                {uniquePriorities.map((priority) => (
+                  <SelectItem key={priority} value={priority}>
+                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-      {/* View Toggle */}
-      <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as 'kanban' | 'table')}>
-        <TabsList className="grid w-fit grid-cols-2">
+            {(searchTerm || filterStage !== 'all' || filterType !== 'all' || filterPriority !== 'all') && (
+              <Button variant="ghost" size="sm" onClick={clearFilters}>
+                Limpiar filtros
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Main Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
           <TabsTrigger value="kanban" className="gap-2">
             <LayoutGrid className="h-4 w-4" />
             Kanban
@@ -337,42 +395,82 @@ const MinimalTransacciones = ({
         </TabsContent>
 
         <TabsContent value="table" className="space-y-4">
-          <div className="text-center py-8 text-muted-foreground">
-            Vista de tabla próximamente disponible
-          </div>
+          <TransaccionesTable
+            transacciones={filteredTransacciones}
+            onEdit={handleEditTransaccion}
+            onView={handleViewTransaccion}
+            onDelete={handleDeleteTransaccion}
+            onRefresh={refetch}
+          />
         </TabsContent>
       </Tabs>
 
-      {/* Create/Edit Dialog */}
+      {/* Dialogs and Drawers */}
       <Dialog open={showTransaccionForm} onOpenChange={setShowTransaccionForm}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingTransaccion ? 'Editar Transacción' : 'Nueva Transacción'}
             </DialogTitle>
           </DialogHeader>
-          <div className="text-center py-8 text-muted-foreground">
-            Formulario de transacciones próximamente disponible
-          </div>
+          <TransaccionForm
+            transaccion={editingTransaccion}
+            onSubmit={editingTransaccion ? 
+              (data) => handleUpdateTransaccion(editingTransaccion.id, data) : 
+              handleCreateTransaccion
+            }
+            onCancel={() => {
+              setShowTransaccionForm(false);
+              setEditingTransaccion(null);
+              setSelectedStageForNew(undefined);
+            }}
+            initialStageId={selectedStageForNew}
+          />
         </DialogContent>
       </Dialog>
 
-      {/* Details Sidebar */}
-      <Sheet open={showDetailsSidebar} onOpenChange={setShowDetailsSidebar}>
-        <SheetContent className="w-[400px] sm:w-[600px] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Detalles de la Transacción</SheetTitle>
-          </SheetHeader>
-          {selectedTransaccion && (
-            <TransaccionDetailsSidebar
-              transaccion={selectedTransaccion}
-              onUpdate={handleUpdateTransaccion}
-            />
+      {/* Transaccion Details Sidebar/Drawer */}
+      {selectedTransaccion && (
+        <>
+          {isDesktop ? (
+            <Dialog open={!!selectedTransaccion} onOpenChange={() => setSelectedTransaccion(null)}>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{selectedTransaccion.nombre_transaccion}</DialogTitle>
+                </DialogHeader>
+                <TransaccionDetailsSidebar
+                  transaccion={selectedTransaccion}
+                  onUpdate={(id, updates) => handleUpdateTransaccion(id, updates)}
+                />
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <Drawer open={!!selectedTransaccion} onOpenChange={() => setSelectedTransaccion(null)}>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>{selectedTransaccion.nombre_transaccion}</DrawerTitle>
+                </DrawerHeader>
+                <div className="px-4 pb-4">
+                  <TransaccionDetailsSidebar
+                    transaccion={selectedTransaccion}
+                    onUpdate={(id, updates) => handleUpdateTransaccion(id, updates)}
+                  />
+                </div>
+              </DrawerContent>
+            </Drawer>
           )}
-        </SheetContent>
-      </Sheet>
+        </>
+      )}
+
+      {/* Stage Management Dialog */}
+      <Dialog open={showStageManagement} onOpenChange={setShowStageManagement}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Gestión de Etapas</DialogTitle>
+          </DialogHeader>
+          <StageManagement pipelineType="DEAL" />
+        </DialogContent>
+      </Dialog>
     </div>
   );
-};
-
-export default MinimalTransacciones;
+}
