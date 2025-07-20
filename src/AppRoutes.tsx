@@ -23,6 +23,10 @@ const LeadPage = lazy(() => import('@/pages/LeadPage'));
 // Import CompanyPage directly - remove unnecessary wrapper
 const CompanyPage = lazy(() => import('@/pages/CompanyPage'));
 
+// Import new Sociedades components
+const Sociedades = lazy(() => import('@/pages/Sociedades'));
+const SociedadPage = lazy(() => import('@/pages/SociedadPage'));
+
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
@@ -160,6 +164,24 @@ export const AppRoutes = () => {
           />
           <Route path="/contactos" element={<ContactList />} />
           <Route path="/contactos/:id" element={<ContactDetail />} />
+
+          {/* Sociedades routes - NEW */}
+          <Route 
+            path="/sociedades" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <Sociedades />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/sociedades/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <SociedadPage />
+              </Suspense>
+            } 
+          />
 
           {/* Transacciones (Spanish routes) */}
           <Route path="/transacciones" element={<TransaccionesList />} />
