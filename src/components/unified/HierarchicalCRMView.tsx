@@ -37,7 +37,7 @@ export const HierarchicalCRMView: React.FC<HierarchicalCRMViewProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
 
   // Use the mandateType prop to filter mandates
-  const { mandates, isLoading, refetch } = useBuyingMandates(mandateType);
+  const { mandates, isLoading } = useBuyingMandates(mandateType);
 
   const filteredMandates = mandates.filter(mandate => 
     mandate.mandate_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -141,7 +141,7 @@ export const HierarchicalCRMView: React.FC<HierarchicalCRMViewProps> = ({
         ) : (
           <ImprovedMandatesTable 
             mandates={filteredMandates} 
-            onRefresh={refetch}
+            onRefresh={() => window.location.reload()}
           />
         )}
       </div>
