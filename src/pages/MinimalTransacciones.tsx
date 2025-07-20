@@ -1,349 +1,393 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/minimal/Button";
-import { Badge } from "@/components/ui/minimal/Badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
-import { useTransacciones } from "@/hooks/useTransacciones";
-import { useStages } from "@/hooks/useStages";
-import { Transaccion } from "@/types/Transaccion";
-import { TransaccionesKanban } from "@/components/transacciones/TransaccionesKanban";
-import { TransaccionFiltersComponent, TransaccionFilters } from "@/components/transacciones/TransaccionFilters";
-import { User, Briefcase, Building2, Users, TrendingUp, LayoutGrid, List, Plus, RefreshCw } from "lucide-react";
-import { StageManagement } from "@/components/transacciones/StageManagement";
 
-export default function MinimalTransacciones() {
-  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
-  const navigate = useNavigate();
-  const { transacciones, loading, error, updateTransaccionStage, refetch } = useTransacciones();
+import React, { useState, useMemo, useCallback } from 'react';
+import { useTransacciones } from '@/hooks/useTransacciones';
+import { useStages } from '@/hooks/useStages';
+import { TransaccionesKanban } from '@/components/transacciones/TransaccionesKanban';
+import { TransaccionForm } from '@/components/transacciones/TransaccionForm';
+import { TransaccionesTable } from '@/components/transacciones/TransaccionesTable';
+import { TransaccionDetailsSidebar } from '@/components/transacciones/TransaccionDetailsSidebar';
+import { StageManagement } from '@/components/transacciones/StageManagement';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Transaccion } from '@/types/Transaccion';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  LayoutGrid, 
+  Table, 
+  Settings,
+  RefreshCw,
+  Download,
+  FileText,
+  TrendingUp
+} from 'lucide-react';
+
+interface MinimalTransaccionesProps {
+  title?: string;
+  description?: string;
+}
+
+const MinimalTransacciones = ({ 
+  title = "Transacciones M&A",
+  description = "Gestiona las transacciones de fusiones y adquisiciones"
+}: MinimalTransaccionesProps) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStage, setSelectedStage] = useState<string>('all');
+  const [selectedPriority, setSelectedPriority] = useState<string>('all');
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [currentView, setCurrentView] = useState<'kanban' | 'table'>('kanban');
+  const [showTransaccionForm, setShowTransaccionForm] = useState(false);
+  const [selectedTransaccion, setSelectedTransaccion] = useState<Transaccion | null>(null);
+  const [showDetailsSidebar, setShowDetailsSidebar] = useState(false);
+  const [editingTransaccion, setEditingTransaccion] = useState<Transaccion | null>(null);
+  const [selectedStageForNew, setSelectedStageForNew] = useState<string>();
+
+  const { toast } = useToast();
+  
+  const {
+    transacciones,
+    loading,
+    error,
+    createTransaccion,
+    updateTransaccion,
+    deleteTransaccion,
+    updateStage,
+    refetch
+  } = useTransacciones();
+
   const { stages } = useStages('DEAL');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<TransaccionFilters>({
-    search: '',
-    tipo_transaccion: '',
-    prioridad: '',
-    sector: '',
-    propietario: '',
-    valor_min: '',
-    valor_max: '',
-    fecha_desde: undefined,
-    fecha_hasta: undefined,
-    stage_id: ''
-  });
 
-  // Search from topbar
-  useEffect(() => {
-    const handleSearch = (e: CustomEvent<{ query: string }>) => {
-      setFilters(prev => ({ ...prev, search: e.detail.query }));
-    };
+  // Filter transacciones based on search and filters
+  const filteredTransacciones = useMemo(() => {
+    if (!transacciones) return [];
 
-    window.addEventListener('transaccionesSearch', handleSearch as EventListener);
-    return () => window.removeEventListener('transaccionesSearch', handleSearch as EventListener);
-  }, []);
+    return transacciones.filter((transaccion) => {
+      const searchMatch = !searchTerm || 
+        transaccion.nombre_transaccion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        transaccion.company?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        transaccion.contact?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-  // Get unique values for filters
-  const uniqueValues = useMemo(() => {
-    const tipos = [...new Set(transacciones.map(t => t.tipo_transaccion).filter(Boolean))];
-    const sectores = [...new Set(transacciones.map(t => t.sector).filter(Boolean))];
-    const propietarios = [...new Set(transacciones.map(t => t.propietario_transaccion).filter(Boolean))];
-    
-    return { tipos, sectores, propietarios };
+      const stageMatch = selectedStage === 'all' || transaccion.stage_id === selectedStage;
+      const priorityMatch = selectedPriority === 'all' || transaccion.prioridad === selectedPriority;
+      const typeMatch = selectedType === 'all' || transaccion.tipo_transaccion === selectedType;
+
+      return searchMatch && stageMatch && priorityMatch && typeMatch;
+    });
+  }, [transacciones, searchTerm, selectedStage, selectedPriority, selectedType]);
+
+  // Statistics
+  const stats = useMemo(() => {
+    if (!transacciones) return { total: 0, totalValue: 0, highPriority: 0 };
+
+    const total = transacciones.length;
+    const totalValue = transacciones.reduce((sum, t) => sum + (t.valor_transaccion || 0), 0);
+    const highPriority = transacciones.filter(t => t.prioridad === 'alta' || t.prioridad === 'urgente').length;
+
+    return { total, totalValue, highPriority };
   }, [transacciones]);
 
-  // Apply filtering
-  const filteredTransacciones = useMemo(() => {
-    return transacciones.filter(transaccion => {
-      // Search filter
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        const matchesSearch = (
-          transaccion.nombre_transaccion?.toLowerCase().includes(searchLower) ||
-          transaccion.company?.name?.toLowerCase().includes(searchLower) ||
-          transaccion.contact?.name?.toLowerCase().includes(searchLower) ||
-          transaccion.descripcion?.toLowerCase().includes(searchLower)
-        );
-        if (!matchesSearch) return false;
-      }
+  const handleCreateTransaccion = useCallback(async (data: any) => {
+    try {
+      await createTransaccion({
+        ...data,
+        stage_id: selectedStageForNew || undefined
+      });
+      setShowTransaccionForm(false);
+      setSelectedStageForNew(undefined);
+      toast({
+        title: "Transacción creada",
+        description: "La transacción ha sido creada exitosamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error al crear transacción",
+        description: error instanceof Error ? error.message : "Error desconocido",
+        variant: "destructive",
+      });
+    }
+  }, [createTransaccion, selectedStageForNew, toast]);
 
-      // Type filter
-      if (filters.tipo_transaccion && transaccion.tipo_transaccion !== filters.tipo_transaccion) {
-        return false;
-      }
+  const handleUpdateTransaccion = useCallback(async (id: string, updates: Partial<Transaccion>) => {
+    try {
+      await updateTransaccion(id, updates);
+      setEditingTransaccion(null);
+      setShowDetailsSidebar(false);
+      toast({
+        title: "Transacción actualizada",
+        description: "La transacción ha sido actualizada exitosamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error al actualizar transacción",
+        description: error instanceof Error ? error.message : "Error desconocido",
+        variant: "destructive",
+      });
+    }
+  }, [updateTransaccion, toast]);
 
-      // Priority filter
-      if (filters.prioridad && transaccion.prioridad !== filters.prioridad) {
-        return false;
-      }
+  const handleViewTransaccion = useCallback((transaccion: Transaccion) => {
+    setSelectedTransaccion(transaccion);
+    setShowDetailsSidebar(true);
+  }, []);
 
-      // Stage filter
-      if (filters.stage_id && transaccion.stage_id !== filters.stage_id) {
-        return false;
-      }
+  const handleEditTransaccion = useCallback((transaccion: Transaccion) => {
+    setEditingTransaccion(transaccion);
+    setShowTransaccionForm(true);
+  }, []);
 
-      // Sector filter
-      if (filters.sector && transaccion.sector !== filters.sector) {
-        return false;
-      }
+  const handleAddTransaccion = useCallback((stageId?: string) => {
+    setSelectedStageForNew(stageId);
+    setEditingTransaccion(null);
+    setShowTransaccionForm(true);
+  }, []);
 
-      // Owner filter
-      if (filters.propietario && transaccion.propietario_transaccion !== filters.propietario) {
-        return false;
-      }
+  const handleStageUpdate = useCallback(async (transaccionId: string, stageId: string) => {
+    return updateStage(transaccionId, stageId);
+  }, [updateStage]);
 
-      // Value range filter
-      if (filters.valor_min || filters.valor_max) {
-        const valor = transaccion.valor_transaccion || 0;
-        if (filters.valor_min && valor < parseFloat(filters.valor_min)) return false;
-        if (filters.valor_max && valor > parseFloat(filters.valor_max)) return false;
-      }
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+      notation: amount > 999999 ? 'compact' : 'standard'
+    }).format(amount);
+  };
 
-      // Date range filter
-      if (filters.fecha_desde || filters.fecha_hasta) {
-        const fechaCreacion = new Date(transaccion.created_at);
-        if (filters.fecha_desde && fechaCreacion < filters.fecha_desde) return false;
-        if (filters.fecha_hasta && fechaCreacion > filters.fecha_hasta) return false;
-      }
-
-      return true;
-    });
-  }, [transacciones, filters]);
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedStage('all');
+    setSelectedPriority('all');
+    setSelectedType('all');
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Cargando transacciones...</p>
-        </div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <p className="text-red-600">Error: {error}</p>
-        </div>
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <p className="text-destructive">Error: {error}</p>
+        <Button onClick={() => refetch()} variant="outline">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Reintentar
+        </Button>
       </div>
     );
   }
 
-  const handleViewTransaccion = (transaccion: Transaccion) => {
-    navigate(`/transacciones/${transaccion.id}`);
-  };
-
-  const handleEditTransaccion = (transaccion: Transaccion) => {
-    navigate(`/transacciones/${transaccion.id}`);
-  };
-
-  const handleAddTransaccion = (stageId?: string) => {
-    navigate('/transacciones/new', { 
-      state: stageId ? { defaultStageId: stageId } : undefined 
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-7xl mx-auto px-6 py-8 space-y-8">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Transacciones M&A
-            </h1>
-            <p className="text-muted-foreground">
-              Gestiona tus transacciones de fusiones y adquisiciones
-            </p>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-3">
-            <Button 
-              variant="secondary" 
-              size="sm"
-              onClick={refetch}
-              className="gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Actualizar
-            </Button>
-            
-            {viewMode === 'kanban' && (
-              <StageManagement />
-            )}
-            
-            <div className="flex items-center rounded-lg border bg-muted p-1">
-              <Button
-                variant={viewMode === 'table' ? 'primary' : 'ghost'}
-                size="sm" 
-                onClick={() => setViewMode('table')}
-                className="h-8 px-3"
-              >
-                <List className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'kanban' ? 'primary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('kanban')}
-                className="h-8 px-3"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <Button 
-              variant="primary"
-              onClick={() => handleAddTransaccion()}
-              className="gap-2 font-medium"
-            >
-              <Plus className="h-4 w-4" />
-              Nueva Transacción
-            </Button>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+          <p className="text-muted-foreground">{description}</p>
         </div>
-
-      {/* Filters */}
-      <TransaccionFiltersComponent
-        filters={filters}
-        onFiltersChange={setFilters}
-        stages={stages}
-        uniqueValues={uniqueValues}
-      />
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="group">
-            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Total</p>
-                <p className="text-2xl font-bold text-card-foreground">{filteredTransacciones.length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="group">
-            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
-                <Briefcase className="h-6 w-6 text-success" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Activas</p>
-                <p className="text-2xl font-bold text-card-foreground">{filteredTransacciones.filter(t => t.is_active).length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="group">
-            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-warning/10">
-                <TrendingUp className="h-6 w-6 text-warning" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">En Progreso</p>
-                <p className="text-2xl font-bold text-card-foreground">{filteredTransacciones.filter(t => t.stage?.name === 'In Progress').length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="group">
-            <div className="flex items-center gap-4 p-6 rounded-lg border bg-card hover:shadow-md transition-all duration-200">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
-                <TrendingUp className="h-6 w-6 text-success" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Valor Total</p>
-                <p className="text-xl font-bold text-card-foreground">
-                  €{filteredTransacciones.reduce((sum, t) => sum + (t.valor_transaccion || 0), 0).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
+        
+        <div className="flex items-center gap-2">
+          <Button onClick={() => handleAddTransaccion()} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nueva Transacción
+          </Button>
+          <StageManagement />
         </div>
-
-        {/* Content */}
-        {viewMode === 'table' ? (
-          <div className="rounded-lg border bg-card shadow-sm">
-            <div className="border-b px-6 py-4">
-              <h3 className="font-semibold text-card-foreground">
-                {filteredTransacciones.length} transacciones
-              </h3>
-            </div>
-            <div className="p-6">
-              <Table>
-              <TableHeader>
-                <TableHead>Transacción</TableHead>
-                <TableHead>Empresa</TableHead>
-                <TableHead>Contacto</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Etapa</TableHead>
-                <TableHead>Responsable</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableHeader>
-              <TableBody>
-                {filteredTransacciones.map((transaccion) => (
-                  <TableRow key={transaccion.id}>
-                    <TableCell>
-                      <div className="font-medium">{transaccion.nombre_transaccion}</div>
-                    </TableCell>
-                    <TableCell>
-                      {transaccion.company?.name ? (
-                        <div className="flex items-center gap-1">
-                          <Building2 className="h-3 w-3" />
-                          {transaccion.company.name}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">N/A</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {transaccion.contact?.name ? (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {transaccion.contact.name}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">N/A</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {transaccion.valor_transaccion ? `€${transaccion.valor_transaccion.toLocaleString()}` : 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge color="blue">{transaccion.stage?.name || 'nueva'}</Badge>
-                    </TableCell>
-                    <TableCell>{transaccion.propietario_transaccion || 'Sin asignar'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex gap-2 justify-end">
-                        <button 
-                          onClick={() => handleViewTransaccion(transaccion)}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          Ver
-                        </button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-        ) : (
-          <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
-            <TransaccionesKanban
-              transacciones={filteredTransacciones}
-              onUpdateStage={updateTransaccionStage}
-              onEdit={handleEditTransaccion}
-              onView={handleViewTransaccion}
-              onAddTransaccion={handleAddTransaccion}
-              isLoading={loading}
-              onRefresh={refetch}
-            />
-          </div>
-        )}
       </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-card text-card-foreground rounded-lg border p-4">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">Total Transacciones</span>
+          </div>
+          <div className="text-2xl font-bold">{stats.total}</div>
+        </div>
+        
+        <div className="bg-card text-card-foreground rounded-lg border p-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-green-600" />
+            <span className="text-sm font-medium text-muted-foreground">Valor Total</span>
+          </div>
+          <div className="text-2xl font-bold text-green-600">{formatCurrency(stats.totalValue)}</div>
+        </div>
+        
+        <div className="bg-card text-card-foreground rounded-lg border p-4">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded-full bg-red-500" />
+            <span className="text-sm font-medium text-muted-foreground">Alta Prioridad</span>
+          </div>
+          <div className="text-2xl font-bold">{stats.highPriority}</div>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        <div className="relative flex-1 min-w-[300px]">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Buscar transacciones..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <Select value={selectedStage} onValueChange={setSelectedStage}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Etapa" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las etapas</SelectItem>
+              {stages?.map((stage) => (
+                <SelectItem key={stage.id} value={stage.id}>
+                  {stage.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Prioridad" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="baja">Baja</SelectItem>
+              <SelectItem value="media">Media</SelectItem>
+              <SelectItem value="alta">Alta</SelectItem>
+              <SelectItem value="urgente">Urgente</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedType} onValueChange={setSelectedType}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="venta">Venta</SelectItem>
+              <SelectItem value="compra">Compra</SelectItem>
+              <SelectItem value="fusion">Fusión</SelectItem>
+              <SelectItem value="valoracion">Valoración</SelectItem>
+              <SelectItem value="consultoria">Consultoría</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {(searchTerm || selectedStage !== 'all' || selectedPriority !== 'all' || selectedType !== 'all') && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              Limpiar filtros
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* View Toggle */}
+      <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as 'kanban' | 'table')}>
+        <TabsList className="grid w-fit grid-cols-2">
+          <TabsTrigger value="kanban" className="gap-2">
+            <LayoutGrid className="h-4 w-4" />
+            Kanban
+          </TabsTrigger>
+          <TabsTrigger value="table" className="gap-2">
+            <Table className="h-4 w-4" />
+            Tabla
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="kanban" className="space-y-4">
+          <TransaccionesKanban
+            transacciones={filteredTransacciones}
+            onUpdateStage={handleStageUpdate}
+            onEdit={handleEditTransaccion}
+            onView={handleViewTransaccion}
+            onAddTransaccion={handleAddTransaccion}
+            isLoading={loading}
+            onRefresh={refetch}
+          />
+        </TabsContent>
+
+        <TabsContent value="table" className="space-y-4">
+          <TransaccionesTable
+            transacciones={filteredTransacciones}
+            onEdit={handleEditTransaccion}
+            onView={handleViewTransaccion}
+            onDelete={deleteTransaccion}
+            onRefresh={refetch}
+          />
+        </TabsContent>
+      </Tabs>
+
+      {/* Create/Edit Dialog */}
+      <Dialog open={showTransaccionForm} onOpenChange={setShowTransaccionForm}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {editingTransaccion ? 'Editar Transacción' : 'Nueva Transacción'}
+            </DialogTitle>
+          </DialogHeader>
+          <TransaccionForm
+            transaccion={editingTransaccion}
+            onSubmit={editingTransaccion ? 
+              (data) => handleUpdateTransaccion(editingTransaccion.id, data) : 
+              handleCreateTransaccion
+            }
+            onCancel={() => {
+              setShowTransaccionForm(false);
+              setEditingTransaccion(null);
+              setSelectedStageForNew(undefined);
+            }}
+            initialStageId={selectedStageForNew}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Sidebar */}
+      <Sheet open={showDetailsSidebar} onOpenChange={setShowDetailsSidebar}>
+        <SheetContent className="w-[400px] sm:w-[600px] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Detalles de la Transacción</SheetTitle>
+          </SheetHeader>
+          {selectedTransaccion && (
+            <TransaccionDetailsSidebar
+              transaccion={selectedTransaccion}
+              onUpdate={handleUpdateTransaccion}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
-}
+};
+
+export default MinimalTransacciones;
