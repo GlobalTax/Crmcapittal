@@ -8,21 +8,11 @@ import {
   Building2, 
   Briefcase, 
   FileText, 
-  Mail, 
-  Calendar, 
-  Clock, 
-  UserPlus, 
-  Settings, 
-  Zap,
   TrendingUp,
-  Database,
   DollarSign,
-  Target,
-  Users2,
-  Send,
-  Calculator,
-  RefreshCw,
-  FileImage
+  UserPlus,
+  Settings,
+  Zap
 } from 'lucide-react';
 
 interface NavItem {
@@ -50,41 +40,9 @@ const navigationSections: NavSection[] = [
   {
     title: "Ventas & Transacciones",
     items: [
-      { to: '/transacciones', label: 'Mandatos de Venta', icon: Briefcase },
+      { to: '/transacciones', label: 'Transacciones', icon: Briefcase },
+      { to: '/transacciones/lista', label: 'Lista de Transacciones', icon: FileText },
       { to: '/buying-mandates', label: 'Mandatos de Compra', icon: FileText },
-      { to: '/valoraciones', label: 'Valoraciones', icon: Calculator },
-      { to: '/reconversiones', label: 'Reconversiones', icon: RefreshCw },
-      { to: '/proposals', label: 'Propuestas', icon: FileText },
-      { to: '/documents', label: 'Documentos', icon: FileText },
-    ]
-  },
-  {
-    title: "Servicios Complementarios",
-    items: [
-      { to: '/teaser-builder', label: 'Teaser Builder', icon: FileImage },
-    ]
-  },
-  {
-    title: "Comunicación",
-    items: [
-      { to: '/email', label: 'Email', icon: Mail },
-      { to: '/calendar', label: 'Calendario', icon: Calendar },
-      { to: '/time-tracking', label: 'Control de Tiempo', icon: Clock },
-    ]
-  },
-  {
-    title: "Análisis & Data",
-    items: [
-      { to: '/hubspot-data', label: 'Base de Datos HubSpot', icon: Database },
-      { to: '/einforma', label: 'eInforma Dashboard', icon: Database },
-    ]
-  },
-  {
-    title: "ROD Builder",
-    items: [
-      { to: '/rod', label: 'Crear ROD', icon: Target },
-      { to: '/subscribers', label: 'Gestionar Suscriptores', icon: Users2 },
-      { to: '/campaigns', label: 'Campañas de Email', icon: Send },
     ]
   }
 ];
@@ -93,7 +51,6 @@ const adminSection: NavSection = {
   title: "Administración",
   items: [
     { to: '/collaborators', label: 'Colaboradores', icon: UserPlus },
-    { to: '/users', label: 'Gestión de Usuarios', icon: Users },
     { to: '/commissions', label: 'Comisiones', icon: DollarSign },
     { to: '/settings', label: 'Integraciones', icon: Zap },
   ]
@@ -139,14 +96,15 @@ export function AttioSidebar() {
             </h2>
             <ul className="space-y-1">
               {section.items.map((item) => {
-                const isActive = location.pathname === item.to;
+                const isActive = location.pathname === item.to || 
+                  (item.to === '/transacciones' && location.pathname.startsWith('/transacciones/') && !location.pathname.includes('/lista'));
                 const Icon = item.icon;
                 
                 return (
                   <li key={item.to}>
                     <NavLink
                       to={item.to}
-                      className={({ isActive }) =>
+                      className={() =>
                         `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                           isActive
                             ? 'bg-neutral-0 text-neutral-900 shadow-sm'
@@ -192,7 +150,7 @@ export function AttioSidebar() {
             }`
           }
         >
-          <Settings className="w-4 h-4" />
+          <Settings className="w-4 w-4" />
           <span>Configuración</span>
         </NavLink>
       </div>
