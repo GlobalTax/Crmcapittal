@@ -1,5 +1,6 @@
-import MinimalCompanies from '@/pages/MinimalCompanies';
+
+import Sociedades from '@/pages/Sociedades';
 
 export default function CompanyList() {
-  return <MinimalCompanies />;
+  return <Sociedades />;
 }
