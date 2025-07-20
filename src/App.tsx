@@ -15,7 +15,7 @@ import PersonalDashboard from '@/pages/PersonalDashboard';
 import Companies from '@/pages/Companies';
 import CompanyPage from '@/pages/CompanyPage';
 import MinimalCompanies from '@/pages/MinimalCompanies';
-import MinimalContacts from '@/pages/MinimalContacts';
+import Contacts from '@/pages/Contacts';
 import MinimalProposals from '@/pages/MinimalProposals';
 import MinimalTimeTracking from '@/pages/MinimalTimeTracking';
 import MinimalDocuments from '@/pages/MinimalDocuments';
@@ -50,7 +50,7 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <Router>
         <AuthProvider>
           <TooltipProvider>
             <AppContent />
@@ -58,7 +58,7 @@ function App() {
             <Sonner />
           </TooltipProvider>
         </AuthProvider>
-      </BrowserRouter>
+      </Router>
     </QueryClientProvider>
   );
 }
@@ -86,7 +86,7 @@ function AppContent() {
         <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
         
         {/* Contactos routes */}
-        <Route path="/contactos" element={<MinimalContacts />} />
+        <Route path="/contactos" element={<Contacts />} />
         <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
         
         {/* Mandatos routes */}
