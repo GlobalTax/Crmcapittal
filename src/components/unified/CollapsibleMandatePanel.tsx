@@ -7,7 +7,7 @@ import { BuyingMandate } from '@/types/BuyingMandate';
 import { ImprovedMandateHeader } from '@/components/mandates/ImprovedMandateHeader';
 import { MandateQuickActions } from '@/components/mandates/MandateQuickActions';
 import { MandateRecentActivity } from '@/components/mandates/MandateRecentActivity';
-import { MandateCriteria } from '@/components/mandates/MandateCriteria';
+import { MandatoCriteria } from '@/components/mandates/MandatoCriteria';
 import { MandateProgress } from '@/components/mandates/MandateProgress';
 
 interface CollapsibleMandatePanelProps {
@@ -90,7 +90,7 @@ export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate }: Collapsib
               <MandateRecentActivity />
               
               {/* Criterios detallados */}
-              <MandateCriteria mandate={mandate} />
+              <MandatoCriteria mandate={mandate} />
             </div>
 
             {/* Sidebar */}
