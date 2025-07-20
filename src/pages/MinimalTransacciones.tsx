@@ -3,8 +3,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { useStages } from '@/hooks/useStages';
 import { TransaccionesKanban } from '@/components/transacciones/TransaccionesKanban';
-import { TransaccionForm } from '@/components/transacciones/TransaccionForm';
-import { TransaccionesTable } from '@/components/transacciones/TransaccionesTable';
+// Removed non-existent components for now
 import { TransaccionDetailsSidebar } from '@/components/transacciones/TransaccionDetailsSidebar';
 import { StageManagement } from '@/components/transacciones/StageManagement';
 import { Button } from '@/components/ui/button';
@@ -73,8 +72,8 @@ const MinimalTransacciones = ({
     error,
     createTransaccion,
     updateTransaccion,
+    updateTransaccionStage,
     deleteTransaccion,
-    updateStage,
     refetch
   } = useTransacciones();
 
@@ -165,8 +164,8 @@ const MinimalTransacciones = ({
   }, []);
 
   const handleStageUpdate = useCallback(async (transaccionId: string, stageId: string) => {
-    return updateStage(transaccionId, stageId);
-  }, [updateStage]);
+    return updateTransaccionStage(transaccionId, stageId);
+  }, [updateTransaccionStage]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-ES', {
@@ -338,13 +337,9 @@ const MinimalTransacciones = ({
         </TabsContent>
 
         <TabsContent value="table" className="space-y-4">
-          <TransaccionesTable
-            transacciones={filteredTransacciones}
-            onEdit={handleEditTransaccion}
-            onView={handleViewTransaccion}
-            onDelete={deleteTransaccion}
-            onRefresh={refetch}
-          />
+          <div className="text-center py-8 text-muted-foreground">
+            Vista de tabla próximamente disponible
+          </div>
         </TabsContent>
       </Tabs>
 
@@ -356,19 +351,9 @@ const MinimalTransacciones = ({
               {editingTransaccion ? 'Editar Transacción' : 'Nueva Transacción'}
             </DialogTitle>
           </DialogHeader>
-          <TransaccionForm
-            transaccion={editingTransaccion}
-            onSubmit={editingTransaccion ? 
-              (data) => handleUpdateTransaccion(editingTransaccion.id, data) : 
-              handleCreateTransaccion
-            }
-            onCancel={() => {
-              setShowTransaccionForm(false);
-              setEditingTransaccion(null);
-              setSelectedStageForNew(undefined);
-            }}
-            initialStageId={selectedStageForNew}
-          />
+          <div className="text-center py-8 text-muted-foreground">
+            Formulario de transacciones próximamente disponible
+          </div>
         </DialogContent>
       </Dialog>
 
