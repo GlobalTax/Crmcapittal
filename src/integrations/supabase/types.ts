@@ -3168,19 +3168,28 @@ export type Database = {
           converted_to_mandate_id: string | null
           created_at: string
           created_by: string | null
+          deal_value: number | null
           email: string
+          estimated_close_date: string | null
           highlighted: boolean | null
           id: string
+          is_followed: boolean | null
           job_title: string | null
+          last_activity_type: string | null
           lead_name: string | null
           lead_origin: string
           lead_score: number | null
           lead_type: Database["public"]["Enums"]["lead_type"] | null
+          lost_date: string | null
+          lost_reason: string | null
           message: string | null
           name: string
+          next_activity_date: string | null
           next_follow_up_date: string | null
           phone: string | null
+          pipeline_stage_id: string | null
           priority: string | null
+          probability: number | null
           quality: string | null
           rod_order: number | null
           source: string
@@ -3188,6 +3197,7 @@ export type Database = {
           status: Database["public"]["Enums"]["lead_status"]
           tags: string[] | null
           updated_at: string
+          won_date: string | null
         }
         Insert: {
           assigned_to_id?: string | null
@@ -3198,19 +3208,28 @@ export type Database = {
           converted_to_mandate_id?: string | null
           created_at?: string
           created_by?: string | null
+          deal_value?: number | null
           email: string
+          estimated_close_date?: string | null
           highlighted?: boolean | null
           id?: string
+          is_followed?: boolean | null
           job_title?: string | null
+          last_activity_type?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
           lead_type?: Database["public"]["Enums"]["lead_type"] | null
+          lost_date?: string | null
+          lost_reason?: string | null
           message?: string | null
           name: string
+          next_activity_date?: string | null
           next_follow_up_date?: string | null
           phone?: string | null
+          pipeline_stage_id?: string | null
           priority?: string | null
+          probability?: number | null
           quality?: string | null
           rod_order?: number | null
           source: string
@@ -3218,6 +3237,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           tags?: string[] | null
           updated_at?: string
+          won_date?: string | null
         }
         Update: {
           assigned_to_id?: string | null
@@ -3228,19 +3248,28 @@ export type Database = {
           converted_to_mandate_id?: string | null
           created_at?: string
           created_by?: string | null
+          deal_value?: number | null
           email?: string
+          estimated_close_date?: string | null
           highlighted?: boolean | null
           id?: string
+          is_followed?: boolean | null
           job_title?: string | null
+          last_activity_type?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
           lead_type?: Database["public"]["Enums"]["lead_type"] | null
+          lost_date?: string | null
+          lost_reason?: string | null
           message?: string | null
           name?: string
+          next_activity_date?: string | null
           next_follow_up_date?: string | null
           phone?: string | null
+          pipeline_stage_id?: string | null
           priority?: string | null
+          probability?: number | null
           quality?: string | null
           rod_order?: number | null
           source?: string
@@ -3248,6 +3277,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           tags?: string[] | null
           updated_at?: string
+          won_date?: string | null
         }
         Relationships: [
           {
@@ -3283,6 +3313,13 @@ export type Database = {
             columns: ["converted_to_mandate_id"]
             isOneToOne: false
             referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_pipeline_stage_id_fkey"
+            columns: ["pipeline_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_stages"
             referencedColumns: ["id"]
           },
           {
@@ -4484,6 +4521,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pipeline_stages: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          stage_order: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          stage_order: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          stage_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       pipelines: {
         Row: {

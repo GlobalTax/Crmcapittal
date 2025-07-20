@@ -17,6 +17,7 @@ interface PipelineStagesBarProps {
   onStageChange: (stageId: string) => void;
   onWin: () => void;
   onLose: () => void;
+  isUpdating?: boolean;
 }
 
 export const PipelineStagesBar = ({ 
@@ -24,7 +25,8 @@ export const PipelineStagesBar = ({
   stages, 
   onStageChange, 
   onWin, 
-  onLose 
+  onLose,
+  isUpdating = false 
 }: PipelineStagesBarProps) => {
   const currentStageIndex = stages.findIndex(s => s.id === lead.pipeline_stage_id) || 0;
 
@@ -63,6 +65,7 @@ export const PipelineStagesBar = ({
             onClick={onWin}
             className="bg-green-600 hover:bg-green-700 text-white"
             size="sm"
+            disabled={isUpdating}
           >
             <CheckCircle className="h-4 w-4 mr-2" />
             Ganado
@@ -72,6 +75,7 @@ export const PipelineStagesBar = ({
             variant="outline"
             size="sm"
             className="border-red-200 text-red-600 hover:bg-red-50"
+            disabled={isUpdating}
           >
             <XCircle className="h-4 w-4 mr-2" />
             Perdido

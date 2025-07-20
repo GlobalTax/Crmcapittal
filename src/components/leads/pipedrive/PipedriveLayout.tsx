@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Lead } from '@/types/Lead';
 import { PipedriveHeader } from './PipedriveHeader';
 import { PipelineStagesBar } from './PipelineStagesBar';
@@ -8,50 +7,71 @@ import { FocusSection } from './FocusSection';
 import { HistorySection } from './HistorySection';
 import { PersonSection } from './PersonSection';
 import { PipedriveMainContent } from './PipedriveMainContent';
-import { toast } from 'sonner';
+import { usePipelineStages } from '@/hooks/leads/usePipelineStages';
+import { useUpdateLead } from '@/hooks/leads/useUpdateLead';
+import { Loader2 } from 'lucide-react';
 
 interface PipedriveLayoutProps {
   lead: Lead;
 }
 
 export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
-  // Mock pipeline stages - in real app would come from API
-  const stages = [
-    { id: '1', name: 'Pipeline', color: '#6B7280', isActive: true },
-    { id: '2', name: 'Cualificado', color: '#3B82F6', isActive: true },
-    { id: '3', name: 'Propuesta', color: '#F59E0B', isActive: true },
-    { id: '4', name: 'Negociación', color: '#EF4444', isActive: true },
-    { id: '5', name: 'Ganado', color: '#10B981', isActive: true },
-    { id: '6', name: 'Perdido', color: '#6B7280', isActive: true }
-  ];
+  const { data: stages = [], isLoading: stagesLoading } = usePipelineStages();
+  const { updateStage, markWon, markLost, isUpdating } = useUpdateLead();
 
   const currentStage = stages.find(s => s.id === lead.pipeline_stage_id) || stages[0];
 
   const handleStageChange = (stageId: string) => {
     const stage = stages.find(s => s.id === stageId);
-    toast.info(`Cambiar etapa a: ${stage?.name}`);
+    if (stage) {
+      updateStage({
+        leadId: lead.id,
+        stageId,
+        stageName: stage.name,
+      });
+    }
   };
 
   const handleWin = () => {
-    toast.success('Deal marcado como Ganado');
+    markWon({
+      leadId: lead.id,
+      dealValue: lead.deal_value,
+    });
   };
 
   const handleLose = () => {
-    toast.info('Deal marcado como Perdido');
+    markLost({
+      leadId: lead.id,
+      lostReason: 'Marcado manualmente como perdido',
+    });
   };
+
+  if (stagesLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <PipedriveHeader currentStage={currentStage.name} />
+      <PipedriveHeader currentStage={currentStage?.name || 'Pipeline'} />
       
       {/* Pipeline Stages Bar */}
       <PipelineStagesBar
         lead={lead}
-        stages={stages}
+        stages={stages.map(stage => ({
+          id: stage.id,
+          name: stage.name,
+          color: stage.color,
+          isActive: stage.is_active,
+        }))}
         onStageChange={handleStageChange}
         onWin={handleWin}
         onLose={handleLose}
+        isUpdating={isUpdating}
       />
 
       {/* Main Content Area */}
