@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,9 +38,37 @@ export const RecordTable = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [savedView, setSavedView] = useState('All companies');
 
+  // Add debugging logs for props
+  console.log("🔍 RecordTable Debug:", {
+    companiesCount: companies.length,
+    onRowClickExists: !!onRowClick,
+    companiesData: companies.map(c => ({ id: c.id, name: c.name }))
+  });
+
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     onSearch?.(value);
+  };
+
+  const handleRowClick = (company: Company) => {
+    console.log("🖱️ Row clicked for company:", {
+      id: company.id,
+      name: company.name,
+      onRowClickExists: !!onRowClick
+    });
+    
+    if (!company.id) {
+      console.error("❌ Company ID is missing!", company);
+      return;
+    }
+    
+    if (!onRowClick) {
+      console.error("❌ onRowClick handler is not provided!");
+      return;
+    }
+    
+    console.log("✅ Calling onRowClick with company:", company.name);
+    onRowClick(company);
   };
 
   const getInitials = (name: string) => {
@@ -148,7 +177,13 @@ export const RecordTable = ({
                 <tr
                   key={company.id}
                   className="border-b border-border hover:bg-neutral-50 cursor-pointer"
-                  onClick={() => onRowClick?.(company)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("🖱️ Table row onClick triggered for:", company.name);
+                    handleRowClick(company);
+                  }}
+                  style={{ cursor: 'pointer' }}
                 >
                   <td className="p-3">
                     <div className="flex items-center gap-3">

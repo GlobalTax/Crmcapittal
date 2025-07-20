@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RecordTable } from "@/components/companies/RecordTable";
@@ -15,6 +16,12 @@ const Companies = () => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Add debugging for navigate function
+  console.log("🔍 Companies page debug:", {
+    navigateExists: !!navigate,
+    currentLocation: window.location.pathname
+  });
 
   // Keyboard shortcut for new company
   useEffect(() => {
@@ -66,7 +73,8 @@ const Companies = () => {
     page,
     searchTerm,
     statusFilter,
-    typeFilter
+    typeFilter,
+    companiesWithIds: companies.map(c => ({ id: c.id, name: c.name }))
   });
 
   const handleEditCompany = (company: Company) => {
@@ -85,9 +93,25 @@ const Companies = () => {
   };
 
   const handleViewCompany = (company: Company) => {
-    console.log('🔍 Navigating to company:', company.name, 'ID:', company.id);
-    // Navigate to the company detail page instead of opening drawer
-    navigate(`/empresas/${company.id}`);
+    console.log('🔍 handleViewCompany called with company:', {
+      id: company.id,
+      name: company.name,
+      fullCompanyObject: company
+    });
+    
+    if (!company.id) {
+      console.error('❌ Company ID is missing in handleViewCompany!', company);
+      return;
+    }
+    
+    console.log('🚀 About to navigate to:', `/empresas/${company.id}`);
+    
+    try {
+      navigate(`/empresas/${company.id}`);
+      console.log('✅ Navigation called successfully');
+    } catch (error) {
+      console.error('❌ Navigation failed:', error);
+    }
   };
 
   const handleSearch = (term: string) => {
