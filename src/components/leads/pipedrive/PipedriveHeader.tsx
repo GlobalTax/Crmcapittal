@@ -27,7 +27,7 @@ export const PipedriveHeader = ({ currentStage = "Pipeline" }: PipedriveHeaderPr
           
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="hover:text-foreground cursor-pointer">Pipeline</span>
-            <span>></span>
+            <span>{'>'}</span>
             <span className="text-foreground font-medium">{currentStage}</span>
           </div>
         </div>
