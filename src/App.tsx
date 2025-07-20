@@ -2,7 +2,6 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -27,7 +26,6 @@ function App() {
             <TooltipProvider>
               <AppContent />
               <Toaster position="top-right" />
-              <ReactQueryDevtools initialIsOpen={false} />
             </TooltipProvider>
           </NotificationProvider>
         </AuthProvider>
