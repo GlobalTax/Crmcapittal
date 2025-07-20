@@ -14,9 +14,9 @@ import { useMandatoById } from '@/hooks/useMandatoById';
 
 export default function MandatoDashboardView() {
   const { id } = useParams();
-  const { mandate, loading } = useMandatoById(id);
+  const { mandato, isLoading } = useMandatoById(id);
 
-  if (loading || !mandate) return <div>Cargando mandato...</div>;
+  if (isLoading || !mandato) return <div>Cargando mandato...</div>;
 
   // Mock data para los KPIs (necesario para el componente actual)
   const mockTargets: any[] = [];
@@ -28,11 +28,11 @@ export default function MandatoDashboardView() {
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-2xl">{mandate.mandate_name}</CardTitle>
+              <CardTitle className="text-2xl">{mandato.mandate_name}</CardTitle>
               <CardDescription className="text-base mt-2">
-                Cliente: <span className="font-medium">{mandate.client_name}</span><br />
-                Responsable: <span className="font-medium">{mandate.assigned_user_name ?? 'No asignado'}</span><br />
-                Estado: <Badge>{mandate.status}</Badge>
+                Cliente: <span className="font-medium">{mandato.client_name}</span><br />
+                Responsable: <span className="font-medium">{mandato.assigned_user_name ?? 'No asignado'}</span><br />
+                Estado: <Badge>{mandato.status}</Badge>
               </CardDescription>
             </div>
             <div className="flex gap-2">
@@ -71,19 +71,19 @@ export default function MandatoDashboardView() {
           />
         </TabsContent>
         <TabsContent value="docs">
-          <MandatoDocs mandateId={mandate.id} />
+          <MandatoDocs mandateId={mandato.id} />
         </TabsContent>
         <TabsContent value="activity">
-          <MandatoActivityLog mandateId={mandate.id} />
+          <MandatoActivityLog mandateId={mandato.id} />
         </TabsContent>
         <TabsContent value="criteria">
-          <MandatoCriteria mandate={mandate} />
+          <MandatoCriteria mandate={mandato} />
         </TabsContent>
         <TabsContent value="config">
-          <MandatoConfig mandate={mandate} />
+          <MandatoConfig mandate={mandato} />
         </TabsContent>
         <TabsContent value="access">
-          <MandatoClientAccess mandateId={mandate.id} />
+          <MandatoClientAccess mandateId={mandato.id} />
         </TabsContent>
       </Tabs>
     </div>

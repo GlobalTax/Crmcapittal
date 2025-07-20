@@ -1,21 +1,23 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { RecordTable } from "@/components/companies/RecordTable";
 import { CompanyModal } from "@/components/companies/CompanyModal";
+import { CompanyDrawer } from "@/components/companies/CompanyDrawer";
 import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
 import { Button } from "@/components/ui/button";
 
 const Companies = () => {
-  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [currentCompanyIndex, setCurrentCompanyIndex] = useState(0);
 
   // Keyboard shortcut for new company
   useEffect(() => {
@@ -58,7 +60,20 @@ const Companies = () => {
 
   const { data: stats, isLoading: statsLoading } = useCompanyStats();
 
+  // Add debug logging
+  console.log("📊 Companies page state:", {
+    companiesCount: companies.length,
+    totalCount,
+    isLoading,
+    isCreating,
+    page,
+    searchTerm,
+    statusFilter,
+    typeFilter
+  });
+
   const handleEditCompany = (company: Company) => {
+    console.log('✏️ handleEditCompany called with:', company.name);
     setEditingCompany(company);
   };
 
@@ -73,40 +88,31 @@ const Companies = () => {
   };
 
   const handleViewCompany = (company: Company) => {
-    console.log("🔍 [Companies] handleViewCompany called with company:", {
-      id: company.id,
-      name: company.name,
-      hasId: !!company.id,
-      idType: typeof company.id,
-      fullCompany: company
-    });
-    
-    if (!company.id) {
-      console.error("❌ [Companies] Company ID is missing or invalid:", {
-        company,
-        id: company.id,
-        idType: typeof company.id
-      });
-      alert("Error: ID de empresa no válido");
-      return;
-    }
+    console.log('🔍 handleViewCompany called with:', company.name);
+    const index = companies.findIndex(c => c.id === company.id);
+    setCurrentCompanyIndex(index >= 0 ? index : 0);
+    setViewingCompany(company);
+    setIsDrawerOpen(true);
+    console.log('🚪 CompanyDrawer should open now. isDrawerOpen:', true);
+  };
 
-    console.log("🚀 [Companies] Navigating to company page with ID:", company.id);
-    const targetPath = `/empresas/${company.id}`;
-    console.log("🚀 [Companies] Target path:", targetPath);
+  const handleNavigateCompany = (direction: 'prev' | 'next') => {
+    let newIndex = currentCompanyIndex;
+    if (direction === 'prev' && currentCompanyIndex > 0) {
+      newIndex = currentCompanyIndex - 1;
+    } else if (direction === 'next' && currentCompanyIndex < companies.length - 1) {
+      newIndex = currentCompanyIndex + 1;
+    }
     
-    try {
-      navigate(targetPath);
-      console.log("✅ [Companies] Navigation initiated successfully");
-    } catch (error) {
-      console.error("❌ [Companies] Navigation error:", error);
-      alert("Error al navegar a la página de la empresa");
+    if (newIndex !== currentCompanyIndex) {
+      setCurrentCompanyIndex(newIndex);
+      setViewingCompany(companies[newIndex]);
     }
   };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    setPage(1);
+    setPage(1); // Reset to first page when searching
   };
 
   const handleStatusFilter = (status: string) => {
@@ -140,7 +146,7 @@ const Companies = () => {
         onRowClick={handleViewCompany}
         onCreateCompany={() => setIsCreateModalOpen(true)}
         onSearch={handleSearch}
-        onFilter={() => {}}
+        onFilter={() => {}} // Placeholder
         isLoading={isLoading}
       />
 
@@ -150,6 +156,24 @@ const Companies = () => {
         onOpenChange={setIsCreateModalOpen}
         onCreateCompany={createCompany}
         isCreating={isCreating}
+      />
+
+      {/* Company Drawer */}
+      <CompanyDrawer
+        company={viewingCompany}
+        open={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false);
+          setViewingCompany(null);
+        }}
+        onEdit={(company) => {
+          setIsDrawerOpen(false);
+          setEditingCompany(company);
+        }}
+        onDelete={handleDeleteCompany}
+        companies={companies}
+        currentIndex={currentCompanyIndex}
+        onNavigate={handleNavigateCompany}
       />
 
       {/* Edit Company Dialog */}

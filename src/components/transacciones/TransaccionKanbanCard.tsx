@@ -66,34 +66,14 @@ const TransaccionKanbanCard = memo(({
     }).format(amount);
   };
 
-  const formatMillions = (amount?: number) => {
-    if (!amount) return '---';
-    if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)} M€`;
-    } else if (amount >= 1000) {
-      return `${Math.round(amount / 1000)} K€`;
-    }
-    return `${amount} €`;
-  };
-
-  const getCompanyInitials = (companyName?: string) => {
-    if (!companyName) return '?';
-    return companyName
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   const getPriorityColor = (prioridad?: string) => {
     const colors: Record<string, string> = {
-      'urgente': 'bg-red-500',
-      'alta': 'bg-orange-500',
-      'media': 'bg-blue-500',
-      'baja': 'bg-green-500'
+      'urgente': 'destructive',
+      'alta': 'destructive',
+      'media': 'default',
+      'baja': 'secondary'
     };
-    return colors[prioridad || 'media'] || 'bg-blue-500';
+    return colors[prioridad || 'media'] || 'default';
   };
 
   const getPriorityIcon = (prioridad?: string) => {
@@ -142,22 +122,25 @@ const TransaccionKanbanCard = memo(({
       `}
       onClick={handleCardClick}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            {/* Company Avatar */}
-            <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-xs font-medium text-primary">
-                {getCompanyInitials(transaccion.company?.name || transaccion.nombre_transaccion)}
-              </span>
-            </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-medium text-sm text-foreground truncate pr-2">
+              {transaccion.nombre_transaccion}
+            </h4>
             
-            {/* Company Name */}
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-sm text-foreground truncate">
-                {transaccion.company?.name || transaccion.nombre_transaccion}
-              </h4>
-            </div>
+            {/* Priority Badge */}
+            {transaccion.prioridad && transaccion.prioridad !== 'media' && (
+              <div className="flex items-center gap-1 mt-1">
+                {getPriorityIcon(transaccion.prioridad)}
+                <Badge 
+                  variant={getPriorityColor(transaccion.prioridad) as any}
+                  className="text-xs"
+                >
+                  {transaccion.prioridad}
+                </Badge>
+              </div>
+            )}
           </div>
           
           {/* Actions Menu */}
@@ -186,34 +169,75 @@ const TransaccionKanbanCard = memo(({
       </CardHeader>
 
       <CardContent className="pt-0 space-y-3">
-        {/* Financial Metrics */}
-        <div className="space-y-2">
-          {/* Facturación */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Facturación</span>
-            <span className="text-sm font-medium">
-              {formatMillions(transaccion.ingresos)}
-            </span>
-          </div>
-          
-          {/* EBITDA */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">EBITDA</span>
-            <span className="text-sm font-medium">
-              {formatMillions(transaccion.ebitda)}
-            </span>
-          </div>
-        </div>
-
-        {/* Priority */}
-        {transaccion.prioridad && (
-          <div className="flex items-center gap-2 pt-2 border-t border-border">
-            <div className={`w-2 h-2 rounded-full ${getPriorityColor(transaccion.prioridad)}`} />
-            <span className="text-xs text-muted-foreground capitalize">
-              Prioridad {transaccion.prioridad}
+        {/* Value */}
+        {transaccion.valor_transaccion && (
+          <div className="flex items-center gap-2 text-sm">
+            <Euro className="h-4 w-4 text-green-600" />
+            <span className="font-semibold text-green-600">
+              {formatCurrency(transaccion.valor_transaccion)}
             </span>
           </div>
         )}
+
+        {/* Company */}
+        {transaccion.company?.name && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Building2 className="h-3 w-3" />
+            <span className="truncate">{transaccion.company.name}</span>
+          </div>
+        )}
+
+        {/* Contact */}
+        {transaccion.contact?.name && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="h-3 w-3" />
+            <span className="truncate">{transaccion.contact.name}</span>
+          </div>
+        )}
+
+        {/* Close Date */}
+        {transaccion.fecha_cierre && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            <span className="text-xs">
+              Cierre: {formatDistanceToNow(new Date(transaccion.fecha_cierre), { 
+                addSuffix: true, 
+                locale: es 
+              })}
+            </span>
+          </div>
+        )}
+
+        {/* Owner */}
+        {transaccion.propietario_transaccion && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="w-3 h-3 rounded-full bg-primary flex-shrink-0" />
+            <span className="truncate text-xs">{transaccion.propietario_transaccion}</span>
+          </div>
+        )}
+
+        {/* Type & Sector */}
+        <div className="flex items-center gap-1 flex-wrap">
+          <Badge variant="outline" className="text-xs">
+            {transaccion.tipo_transaccion}
+          </Badge>
+          {transaccion.sector && (
+            <Badge variant="secondary" className="text-xs">
+              {transaccion.sector}
+            </Badge>
+          )}
+        </div>
+
+        {/* Last Activity */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground border-t border-border pt-2">
+          <Clock className="h-3 w-3" />
+          <span>
+            Actualizada {formatDistanceToNow(new Date(transaccion.updated_at), { 
+              addSuffix: true, 
+              locale: es 
+            })}
+          </span>
+        </div>
       </CardContent>
     </Card>
   );

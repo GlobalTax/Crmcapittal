@@ -10,12 +10,9 @@ import { TransaccionesKanban } from "@/components/transacciones/TransaccionesKan
 import { TransaccionFiltersComponent, TransaccionFilters } from "@/components/transacciones/TransaccionFilters";
 import { User, Briefcase, Building2, Users, TrendingUp, LayoutGrid, List, Plus, RefreshCw } from "lucide-react";
 import { StageManagement } from "@/components/transacciones/StageManagement";
-import { NewTransaccionModal } from "@/components/transacciones/NewTransaccionModal";
 
 export default function MinimalTransacciones() {
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>('kanban');
-  const [newTransaccionModalOpen, setNewTransaccionModalOpen] = useState(false);
-  const [defaultStageId, setDefaultStageId] = useState<string>('');
   const navigate = useNavigate();
   const { transacciones, loading, error, updateTransaccionStage, refetch } = useTransacciones();
   const { stages } = useStages('DEAL');
@@ -140,10 +137,9 @@ export default function MinimalTransacciones() {
   };
 
   const handleAddTransaccion = (stageId?: string) => {
-    if (stageId) {
-      setDefaultStageId(stageId);
-    }
-    setNewTransaccionModalOpen(true);
+    navigate('/transacciones/new', { 
+      state: stageId ? { defaultStageId: stageId } : undefined 
+    });
   };
 
   return (
@@ -347,13 +343,6 @@ export default function MinimalTransacciones() {
             />
           </div>
         )}
-
-        {/* Modals */}
-        <NewTransaccionModal
-          open={newTransaccionModalOpen}
-          onOpenChange={setNewTransaccionModalOpen}
-          defaultStageId={defaultStageId}
-        />
       </div>
     </div>
   );

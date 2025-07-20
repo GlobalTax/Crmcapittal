@@ -199,7 +199,7 @@ export const EnhancedDashboard = () => {
             
             {/* Activity Feed */}
             <div className="animate-fade-in delay-500">
-              <ActivityFeed />
+              <ActivityFeed activities={recentActivity} />
             </div>
 
             {/* Quick Actions */}

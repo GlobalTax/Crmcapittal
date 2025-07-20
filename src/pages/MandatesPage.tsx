@@ -9,10 +9,10 @@ import { Plus, RefreshCw, Target, TrendingUp, Briefcase, Building2 } from "lucid
 
 export default function MandatesPage() {
   const navigate = useNavigate();
-  const { mandates, isLoading, fetchMandates } = useBuyingMandates();
+  const { mandates, isLoading, fetchMandates } = useBuyingMandates('compra');
 
   const handleMandateCreated = () => {
-    fetchMandates('compra');
+    fetchMandates();
   };
 
   if (isLoading) {
@@ -40,7 +40,7 @@ export default function MandatesPage() {
           <div className="flex items-center space-x-3">
             <Button 
               variant="outline" 
-              onClick={() => fetchMandates('compra')}
+              onClick={fetchMandates}
               className="gap-2"
             >
               <RefreshCw className="h-4 w-4" />
@@ -116,7 +116,7 @@ export default function MandatesPage() {
         </div>
 
         {/* Main Table */}
-        <ImprovedMandatesTable mandates={mandates} onRefresh={() => fetchMandates('compra')} />
+        <ImprovedMandatesTable mandates={mandates} onRefresh={fetchMandates} />
       </div>
     </ErrorBoundary>
   );

@@ -3468,91 +3468,6 @@ export type Database = {
           },
         ]
       }
-      mandate_notes: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          mandate_id: string
-          note: string
-          note_type: string | null
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          mandate_id: string
-          note: string
-          note_type?: string | null
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          mandate_id?: string
-          note?: string
-          note_type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mandate_notes_mandate_id_fkey"
-            columns: ["mandate_id"]
-            isOneToOne: false
-            referencedRelation: "buying_mandates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mandate_people: {
-        Row: {
-          company: string | null
-          created_at: string
-          created_by: string | null
-          email: string | null
-          id: string
-          is_primary: boolean
-          mandate_id: string
-          name: string
-          phone: string | null
-          role: string
-          updated_at: string
-        }
-        Insert: {
-          company?: string | null
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          id?: string
-          is_primary?: boolean
-          mandate_id: string
-          name: string
-          phone?: string | null
-          role: string
-          updated_at?: string
-        }
-        Update: {
-          company?: string | null
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          id?: string
-          is_primary?: boolean
-          mandate_id?: string
-          name?: string
-          phone?: string | null
-          role?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mandate_people_mandate_id_fkey"
-            columns: ["mandate_id"]
-            isOneToOne: false
-            referencedRelation: "buying_mandates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       mandate_target_activities: {
         Row: {
           activity_data: Json | null
@@ -3734,56 +3649,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "mandate_targets_mandate_id_fkey"
-            columns: ["mandate_id"]
-            isOneToOne: false
-            referencedRelation: "buying_mandates"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      mandate_tasks: {
-        Row: {
-          assigned_to: string | null
-          completed: boolean
-          created_at: string
-          created_by: string | null
-          description: string | null
-          due_date: string | null
-          id: string
-          mandate_id: string
-          priority: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          assigned_to?: string | null
-          completed?: boolean
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          mandate_id: string
-          priority?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          assigned_to?: string | null
-          completed?: boolean
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          mandate_id?: string
-          priority?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "mandate_tasks_mandate_id_fkey"
             columns: ["mandate_id"]
             isOneToOne: false
             referencedRelation: "buying_mandates"
@@ -5236,7 +5101,6 @@ export type Database = {
           id: string
           key_highlights: string[] | null
           location: string | null
-          mandate_id: string | null
           revenue: number | null
           sector: string | null
           status: string
@@ -5260,7 +5124,6 @@ export type Database = {
           id?: string
           key_highlights?: string[] | null
           location?: string | null
-          mandate_id?: string | null
           revenue?: number | null
           sector?: string | null
           status?: string
@@ -5284,7 +5147,6 @@ export type Database = {
           id?: string
           key_highlights?: string[] | null
           location?: string | null
-          mandate_id?: string | null
           revenue?: number | null
           sector?: string | null
           status?: string
@@ -5294,13 +5156,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "teasers_mandate_id_fkey"
-            columns: ["mandate_id"]
-            isOneToOne: false
-            referencedRelation: "buying_mandates"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "teasers_transaction_id_fkey"
             columns: ["transaction_id"]
@@ -5742,117 +5597,6 @@ export type Database = {
           process_status?: string
           score?: number | null
           transaction_id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      transaction_notes: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          note: string
-          note_type: string | null
-          transaccion_id: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          note: string
-          note_type?: string | null
-          transaccion_id: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          note?: string
-          note_type?: string | null
-          transaccion_id?: string
-        }
-        Relationships: []
-      }
-      transaction_people: {
-        Row: {
-          company: string | null
-          created_at: string
-          created_by: string | null
-          email: string | null
-          id: string
-          is_primary: boolean
-          name: string
-          phone: string | null
-          role: string
-          transaccion_id: string
-          updated_at: string
-        }
-        Insert: {
-          company?: string | null
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          id?: string
-          is_primary?: boolean
-          name: string
-          phone?: string | null
-          role: string
-          transaccion_id: string
-          updated_at?: string
-        }
-        Update: {
-          company?: string | null
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          id?: string
-          is_primary?: boolean
-          name?: string
-          phone?: string | null
-          role?: string
-          transaccion_id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      transaction_tasks: {
-        Row: {
-          assigned_to: string | null
-          completed: boolean
-          created_at: string
-          created_by: string | null
-          description: string | null
-          due_date: string | null
-          id: string
-          priority: string | null
-          title: string
-          transaccion_id: string
-          updated_at: string
-        }
-        Insert: {
-          assigned_to?: string | null
-          completed?: boolean
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: string | null
-          title: string
-          transaccion_id: string
-          updated_at?: string
-        }
-        Update: {
-          assigned_to?: string | null
-          completed?: boolean
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: string | null
-          title?: string
-          transaccion_id?: string
           updated_at?: string
         }
         Relationships: []

@@ -12,15 +12,14 @@ import {
   Zap,
   Briefcase,
   TrendingUp,
-  DollarSign,
-  Building
+  DollarSign
 } from 'lucide-react';
 import { useUserRole } from '@/hooks/useUserRole';
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
   { to: '/contacts', label: 'Contactos', icon: <Users className="w-5 h-5" /> },
-  { to: '/sociedades', label: 'Sociedades', icon: <Building className="w-5 h-5" /> },
+  { to: '/companies', label: 'Empresas', icon: <Building2 className="w-5 h-5" /> },
   { to: '/negocios', label: 'Negocios', icon: <TrendingUp className="w-5 h-5" /> },
   { to: '/proposals', label: 'Propuestas', icon: <FileText className="w-5 h-5" /> },
   { to: '/mandatos', label: 'Mandatos', icon: <Briefcase className="w-5 h-5" /> },

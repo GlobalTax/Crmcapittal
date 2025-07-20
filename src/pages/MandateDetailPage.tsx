@@ -28,7 +28,7 @@ import { es } from 'date-fns/locale';
 export default function MandateDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { mandates, isLoading } = useBuyingMandates();
+  const { mandates, isLoading } = useBuyingMandates('compra');
   const [mandate, setMandate] = useState<BuyingMandate | null>(null);
 
   useEffect(() => {
