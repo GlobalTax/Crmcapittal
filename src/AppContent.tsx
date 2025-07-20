@@ -4,10 +4,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import Dashboard from '@/pages/Dashboard';
-import Profile from '@/pages/Profile';
-import Settings from '@/pages/settings';
-import Operations from '@/pages/Operations';
-import OperationDetail from '@/pages/OperationDetail';
+import PersonalDashboard from '@/pages/PersonalDashboard';
+import MinimalIntegrations from '@/pages/MinimalIntegrations';
+import OperationDetails from '@/pages/OperationDetails';
+import NegocioDetail from '@/pages/NegocioDetail';
 import Contacts from '@/pages/Contacts';
 import Companies from '@/pages/Companies';
 import MinimalTransacciones from '@/pages/MinimalTransacciones';
@@ -17,13 +17,13 @@ import Leads from '@/pages/Leads';
 import LeadPage from '@/pages/LeadPage';
 import ContactPage from '@/pages/ContactPage';
 import CompanyPage from '@/pages/CompanyPage';
-import Commissions from '@/pages/Commissions';
+import CommissionsPage from '@/pages/CommissionsPage';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 
 export default function AppContent() {
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
 
-  if (isLoading) {
+  if (loading) {
     return <LoadingSkeleton />;
   }
 
@@ -36,12 +36,12 @@ export default function AppContent() {
       <Routes>
         <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="settings/*" element={<Settings />} />
+        <Route path="profile" element={<PersonalDashboard />} />
+        <Route path="settings/*" element={<MinimalIntegrations />} />
         
         {/* Operations routes */}
-        <Route path="operations" element={<Operations />} />
-        <Route path="operations/:id" element={<OperationDetail />} />
+        <Route path="operations" element={<OperationDetails />} />
+        <Route path="operations/:id" element={<NegocioDetail />} />
         
         {/* CRM routes */}
         <Route path="contacts" element={<Contacts />} />
@@ -70,7 +70,7 @@ export default function AppContent() {
         
         {/* Collaborators and commissions */}
         <Route path="collaborators" element={<Collaborators />} />
-        <Route path="commissions" element={<Commissions />} />
+        <Route path="commissions" element={<CommissionsPage />} />
         
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
