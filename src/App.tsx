@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -15,6 +16,7 @@ import PersonalDashboard from '@/pages/PersonalDashboard';
 import CompaniesPage from '@/pages/CompaniesPage';
 import CompanyPage from '@/pages/CompanyPage';
 import Contacts from '@/pages/Contacts';
+import ContactPage from '@/pages/ContactPage';
 import MinimalProposals from '@/pages/MinimalProposals';
 import MinimalTimeTracking from '@/pages/MinimalTimeTracking';
 import MinimalDocuments from '@/pages/MinimalDocuments';
@@ -86,6 +88,7 @@ function AppContent() {
         
         {/* Contactos routes */}
         <Route path="/contactos" element={<Contacts />} />
+        <Route path="/contactos/:id" element={<ContactPage />} />
         <Route path="/contacts" element={<Navigate to="/contactos" replace />} />
         
         {/* Mandatos routes */}
