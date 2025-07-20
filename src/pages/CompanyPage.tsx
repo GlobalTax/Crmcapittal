@@ -26,16 +26,32 @@ export default function CompanyPage() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   
-  console.log("🔍 CompanyPage rendered with ID:", id);
+  console.log("🔍 [CompanyPage] Component rendered");
+  console.log("🔍 [CompanyPage] URL params ID:", {
+    id,
+    type: typeof id,
+    isUndefined: id === undefined,
+    isEmpty: id === '',
+    length: id?.length
+  });
+  console.log("🔍 [CompanyPage] Current URL:", window.location.href);
+  console.log("🔍 [CompanyPage] Current pathname:", window.location.pathname);
 
   const { data: company, isLoading, error } = useCompany(id);
   const { updateCompany, isUpdating } = useCompanies();
+
+  console.log("🔍 [CompanyPage] useCompany hook results:", {
+    company: company ? { id: company.id, name: company.name } : null,
+    isLoading,
+    error: error ? error.message : null,
+    hasData: !!company
+  });
 
   // Set document title when company loads
   useEffect(() => {
     if (company) {
       document.title = `Empresa • ${company.name}`;
-      console.log("📄 Document title set for:", company.name);
+      console.log("📄 [CompanyPage] Document title set for:", company.name);
     }
     return () => {
       document.title = 'Empresas';
@@ -48,27 +64,35 @@ export default function CompanyPage() {
   }, [id]);
 
   const handleUpdateCompany = (companyId: string, companyData: any) => {
-    console.log("🔄 Updating company:", companyId, companyData);
+    console.log("🔄 [CompanyPage] Updating company:", companyId, companyData);
     updateCompany({ id: companyId, ...companyData });
     setEditingCompany(null);
   };
 
   const handleEdit = (company: Company) => {
-    console.log("✏️ Editing company:", company.name);
+    console.log("✏️ [CompanyPage] Editing company:", company.name);
     setEditingCompany(company);
   };
 
   if (isLoading) {
-    console.log("⏳ Company loading...");
+    console.log("⏳ [CompanyPage] Company loading...");
     return <LoadingSkeleton />;
   }
 
   if (error) {
-    console.error("❌ Company error:", error);
+    console.error("❌ [CompanyPage] Company error:", error);
+    console.error("❌ [CompanyPage] Error details:", {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-muted-foreground mb-4">Error al cargar la empresa</p>
+          <p className="text-sm text-red-600 mb-4">
+            ID: {id} | Error: {error.message}
+          </p>
           <Button onClick={() => navigate('/empresas')}>
             Volver a empresas
           </Button>
@@ -78,11 +102,13 @@ export default function CompanyPage() {
   }
 
   if (!company) {
-    console.warn("⚠️ Company not found for ID:", id);
+    console.warn("⚠️ [CompanyPage] Company not found for ID:", id);
+    console.warn("⚠️ [CompanyPage] Company data:", company);
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-muted-foreground mb-4">Empresa no encontrada</p>
+          <p className="text-sm text-gray-600 mb-4">ID buscado: {id}</p>
           <Button onClick={() => navigate('/empresas')}>
             Volver a empresas
           </Button>
@@ -91,7 +117,11 @@ export default function CompanyPage() {
     );
   }
 
-  console.log("✅ Company loaded successfully:", company.name);
+  console.log("✅ [CompanyPage] Company loaded successfully:", {
+    id: company.id,
+    name: company.name,
+    hasEnrichment: !!company.enrichment_data
+  });
 
   return (
     <div className="min-h-screen bg-neutral-0 flex">

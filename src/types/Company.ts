@@ -1,4 +1,3 @@
-
 export type CompanySize = '1-10' | '11-50' | '51-200' | '201-500' | '500+';
 export type CompanyType = 'prospect' | 'cliente' | 'partner' | 'franquicia' | 'competidor' | 'target' | 'cliente_comprador' | 'cliente_vendedor';
 export type CompanyStatus = 'activa' | 'inactiva' | 'prospecto' | 'cliente' | 'perdida';
@@ -66,12 +65,13 @@ export interface Company {
   created_by?: string;
   last_activity_date?: string;
   
-  // Relaciones
+  // Relaciones - CAMPOS AGREGADOS para corregir el error
   contacts_count?: number;
   active_contacts?: string[]; // IDs de contactos
   deals_count?: number;
   active_deals?: string[]; // IDs de deals
   total_deal_value?: number;
+  opportunities_count?: number; // NUEVO: agregado para RecordTable
   
   // Métricas
   lead_score?: number;
@@ -89,6 +89,9 @@ export interface Company {
   
   // Identificación fiscal
   nif?: string;
+  
+  // Datos de enriquecimiento - NUEVO: agregado para el hook useCompany
+  enrichment_data?: any;
 }
 
 // Interface para la tabla de relaciones empresa-mandato

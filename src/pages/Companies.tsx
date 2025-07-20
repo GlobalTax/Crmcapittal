@@ -73,11 +73,34 @@ const Companies = () => {
   };
 
   const handleViewCompany = (company: Company) => {
-    console.log("🔍 Navigating to company:", company.name, "with ID:", company.id);
-    if (company.id) {
-      navigate(`/empresas/${company.id}`);
-    } else {
-      console.error("❌ Company ID is missing:", company);
+    console.log("🔍 [Companies] handleViewCompany called with company:", {
+      id: company.id,
+      name: company.name,
+      hasId: !!company.id,
+      idType: typeof company.id,
+      fullCompany: company
+    });
+    
+    if (!company.id) {
+      console.error("❌ [Companies] Company ID is missing or invalid:", {
+        company,
+        id: company.id,
+        idType: typeof company.id
+      });
+      alert("Error: ID de empresa no válido");
+      return;
+    }
+
+    console.log("🚀 [Companies] Navigating to company page with ID:", company.id);
+    const targetPath = `/empresas/${company.id}`;
+    console.log("🚀 [Companies] Target path:", targetPath);
+    
+    try {
+      navigate(targetPath);
+      console.log("✅ [Companies] Navigation initiated successfully");
+    } catch (error) {
+      console.error("❌ [Companies] Navigation error:", error);
+      alert("Error al navegar a la página de la empresa");
     }
   };
 
