@@ -40,11 +40,11 @@ const navigationSections: NavSection[] = [
   {
     title: "Principal",
     items: [
-      { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
+      { to: '/profile', label: 'Dashboard Personal', icon: LayoutDashboard },
       { to: '/', label: 'Control Leads', icon: LayoutDashboard },
-      { to: '/gestion-leads', label: 'Gestión de Leads', icon: TrendingUp },
-      { to: '/contactos', label: 'Contactos', icon: Users },
-      { to: '/empresas', label: 'Empresas', icon: Building2 },
+      { to: '/leads', label: 'Gestión de Leads', icon: TrendingUp },
+      { to: '/contacts', label: 'Contactos', icon: Users },
+      { to: '/companies', label: 'Empresas', icon: Building2 },
     ]
   },
   {
@@ -94,8 +94,8 @@ const adminSection: NavSection = {
   items: [
     { to: '/collaborators', label: 'Colaboradores', icon: UserPlus },
     { to: '/users', label: 'Gestión de Usuarios', icon: Users },
-    { to: '/comisiones', label: 'Comisiones', icon: DollarSign },
-    { to: '/integrations', label: 'Integraciones', icon: Zap },
+    { to: '/commissions', label: 'Comisiones', icon: DollarSign },
+    { to: '/settings', label: 'Integraciones', icon: Zap },
   ]
 };
 
