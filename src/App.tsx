@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -13,7 +12,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import Auth from '@/pages/Auth';
 import Dashboard from '@/pages/Dashboard';
 import PersonalDashboard from '@/pages/PersonalDashboard';
-import Companies from '@/pages/Companies';
+import CompaniesPage from '@/pages/CompaniesPage';
 import CompanyPage from '@/pages/CompanyPage';
 import Contacts from '@/pages/Contacts';
 import MinimalProposals from '@/pages/MinimalProposals';
@@ -77,8 +76,8 @@ function AppContent() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/personal" element={<PersonalDashboard />} />
         
-        {/* Empresas routes - Using full Companies component with drawer */}
-        <Route path="/empresas" element={<Companies />} />
+        {/* Empresas routes - Using new independent CompaniesPage */}
+        <Route path="/empresas" element={<CompaniesPage />} />
         <Route path="/empresas/:id" element={<CompanyPage />} />
         
         {/* Companies route redirect for compatibility */}

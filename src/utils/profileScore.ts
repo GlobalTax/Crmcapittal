@@ -1,7 +1,9 @@
-import { Company } from "@/types/Company";
 
-export interface ProfileScoreBreakdown {
+import { Company } from '@/types/Company';
+
+export interface ProfileScoreResult {
   score: number;
+  status: 'high' | 'medium' | 'low';
   color: string;
   icon: string;
   details: {
@@ -12,78 +14,92 @@ export interface ProfileScoreBreakdown {
   };
 }
 
-export const calculateProfileScore = (company: Company, enrichmentData?: any, contactsCount = 0, opportunitiesCount = 0): ProfileScoreBreakdown => {
-  let score = 0;
-  const details = {
-    basicInfo: 0,
-    contactInfo: 0,
-    businessInfo: 0,
-    relationshipData: 0
-  };
+export const calculateProfileScore = (
+  company: Company,
+  enrichmentData?: any,
+  contactsCount: number = 0,
+  opportunitiesCount: number = 0
+): ProfileScoreResult => {
+  let basicInfo = 0;
+  let contactInfo = 0;
+  let businessInfo = 0;
+  let relationshipData = 0;
 
-  // Basic Information (25 points)
-  if (company.name) details.basicInfo += 10;
-  if (company.domain) details.basicInfo += 5;
-  if (company.description) details.basicInfo += 5;
-  if (company.website) details.basicInfo += 5;
+  // Basic Info (25 points max)
+  if (company.name) basicInfo += 10;
+  if (company.domain) basicInfo += 5;
+  if (company.description) basicInfo += 5;
+  if (company.website) basicInfo += 5;
 
-  // Contact Information (20 points)
-  if (company.phone) details.contactInfo += 5;
-  if (company.address) details.contactInfo += 5;
-  if (company.city) details.contactInfo += 5;
-  if (company.state) details.contactInfo += 5;
+  // Contact Info (20 points max)
+  if (company.phone) contactInfo += 7;
+  if (company.address || company.city) contactInfo += 6;
+  if (company.city && company.state) contactInfo += 4;
+  if (company.postal_code) contactInfo += 3;
 
-  // Business Information (30 points)
-  if (company.industry || enrichmentData?.sector) details.businessInfo += 10;
-  if (company.annual_revenue || enrichmentData?.revenue) details.businessInfo += 10;
-  if (company.company_size) details.businessInfo += 5;
-  if (company.founded_year) details.businessInfo += 5;
+  // Business Info (30 points max)
+  if (company.industry || enrichmentData?.sector) businessInfo += 10;
+  if (company.annual_revenue || enrichmentData?.revenue) businessInfo += 10;
+  if (company.founded_year) businessInfo += 5;
+  if (company.company_size !== '1-10') businessInfo += 5;
 
-  // Relationship Data (25 points)
-  if (contactsCount > 0) details.relationshipData += 10;
-  if (opportunitiesCount > 0) details.relationshipData += 10;
-  if (company.last_contact_date) details.relationshipData += 5;
+  // Relationship Data (25 points max)
+  if (contactsCount > 0) relationshipData += 10;
+  if (contactsCount > 2) relationshipData += 5;
+  if (opportunitiesCount > 0) relationshipData += 7;
+  if (company.notes) relationshipData += 3;
 
-  score = details.basicInfo + details.contactInfo + details.businessInfo + details.relationshipData;
+  const totalScore = basicInfo + contactInfo + businessInfo + relationshipData;
 
-  // Determine color and icon based on score
+  let status: 'high' | 'medium' | 'low';
   let color: string;
   let icon: string;
-  
-  if (score >= 70) {
+
+  if (totalScore >= 70) {
+    status = 'high';
     color = 'text-green-600';
     icon = '🟢';
-  } else if (score >= 40) {
+  } else if (totalScore >= 40) {
+    status = 'medium';
     color = 'text-yellow-600';
-    icon = '🟠';
+    icon = '🟡';
   } else {
+    status = 'low';
     color = 'text-red-600';
     icon = '🔴';
   }
 
   return {
-    score,
+    score: totalScore,
+    status,
     color,
     icon,
-    details
+    details: {
+      basicInfo,
+      contactInfo,
+      businessInfo,
+      relationshipData
+    }
   };
 };
 
-export const formatRevenue = (revenue?: number): string => {
+export const formatRevenue = (revenue?: number | string): string => {
   if (!revenue) return '—';
   
-  if (revenue >= 1000000) {
-    return `€${(revenue / 1000000).toFixed(1)}M`;
-  } else if (revenue >= 1000) {
-    return `€${(revenue / 1000).toFixed(0)}K`;
+  const numRevenue = typeof revenue === 'string' ? parseFloat(revenue) : revenue;
+  if (isNaN(numRevenue)) return '—';
+  
+  if (numRevenue >= 1000000) {
+    return `€${(numRevenue / 1000000).toFixed(1)}M`;
+  } else if (numRevenue >= 1000) {
+    return `€${(numRevenue / 1000).toFixed(0)}K`;
   } else {
-    return `€${revenue.toLocaleString()}`;
+    return `€${numRevenue.toLocaleString()}`;
   }
 };
 
 export const formatLocation = (city?: string, state?: string): string => {
+  if (!city && !state) return '—';
   if (city && state) return `${city}, ${state}`;
-  if (city) return city;
-  if (state) return state;
-  return '—';
+  return city || state || '—';
 };
