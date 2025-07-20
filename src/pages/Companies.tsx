@@ -73,8 +73,11 @@ const Companies = () => {
   };
 
   const handleViewCompany = (company: Company) => {
+    console.log("🔍 Navigating to company:", company.name, "with ID:", company.id);
     if (company.id) {
       navigate(`/empresas/${company.id}`);
+    } else {
+      console.error("❌ Company ID is missing:", company);
     }
   };
 

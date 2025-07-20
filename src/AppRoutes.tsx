@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AttioLayout } from '@/components/layout/AttioLayout';
@@ -12,7 +11,6 @@ import MandateTargetPipeline from '@/components/targets/MandateTargetPipeline';
 import TransaccionesList from '@/components/transacciones/TransaccionesList';
 import VentaMandatoView from '@/components/transacciones/VentaMandatoView';
 import CompanyList from '@/components/empresas/CompanyList';
-import CompanyDetail from '@/components/empresas/CompanyDetail';
 import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
@@ -21,6 +19,9 @@ import { BuyingMandateDetailView } from '@/components/mandates/BuyingMandateDeta
 
 // Import the unified lead page
 const LeadPage = lazy(() => import('@/pages/LeadPage'));
+
+// Import CompanyPage directly - remove unnecessary wrapper
+const CompanyPage = lazy(() => import('@/pages/CompanyPage'));
 
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
@@ -147,9 +148,16 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Empresas y Contactos (Spanish routes) */}
+          {/* Empresas y Contactos (Spanish routes) - FIXED: Direct CompanyPage usage */}
           <Route path="/empresas" element={<CompanyList />} />
-          <Route path="/empresas/:id" element={<CompanyDetail />} />
+          <Route 
+            path="/empresas/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CompanyPage />
+              </Suspense>
+            } 
+          />
           <Route path="/contactos" element={<ContactList />} />
           <Route path="/contactos/:id" element={<ContactDetail />} />
 

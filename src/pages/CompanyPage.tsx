@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+
+import { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { CompanyHeader } from '@/components/companies/CompanyHeader';
@@ -13,121 +14,84 @@ import { CompanyEinformaTab } from '@/components/companies/CompanyEinformaTab';
 import { CompanyDocumentsTab } from '@/components/companies/CompanyDocumentsTab';
 import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
+import { useCompany } from '@/hooks/useCompany';
 import { useCompanies } from '@/hooks/useCompanies';
 import { Company } from '@/types/Company';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
+import { useState } from 'react';
 
 export default function CompanyPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [company, setCompany] = useState<Company | null>(null);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [localLoading, setLocalLoading] = useState(true);
   
-  const {
-    companies,
-    updateCompany,
-    isLoading: companiesLoading,
-    isUpdating
-  } = useCompanies({ 
-    page: 1, 
-    limit: 1000,
-    searchTerm: '', 
-    statusFilter: 'all', 
-    typeFilter: 'all' 
-  });
+  console.log("🔍 CompanyPage rendered with ID:", id);
 
-  // Handle legacy URL redirections (from drawer URLs)
+  const { data: company, isLoading, error } = useCompany(id);
+  const { updateCompany, isUpdating } = useCompanies();
+
+  // Set document title when company loads
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const drawerId = searchParams.get('drawer');
-    if (drawerId && drawerId !== id) {
-      navigate(`/empresas/${drawerId}`, { replace: true });
+    if (company) {
+      document.title = `Empresa • ${company.name}`;
+      console.log("📄 Document title set for:", company.name);
     }
-  }, [location.search, id, navigate]);
-
-  // Update loading state based on companies loading
-  useEffect(() => {
-    setLocalLoading(companiesLoading);
-  }, [companiesLoading]);
-
-  // Find the company once companies are loaded
-  useEffect(() => {
-    if (companies && id) {
-      const foundCompany = companies.find(c => c.id === id);
-      if (foundCompany) {
-        setCompany(foundCompany);
-        // Set document title
-        document.title = `Empresa • ${foundCompany.name}`;
-      } else if (!localLoading) {
-        // Company not found, redirect to companies list
-        navigate('/empresas', { replace: true });
-      }
-    }
-  }, [companies, id, navigate, localLoading]);
+    return () => {
+      document.title = 'Empresas';
+    };
+  }, [company]);
 
   // Scroll to top when company changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Clean up document title on unmount
-  useEffect(() => {
-    return () => {
-      document.title = 'Empresas';
-    };
-  }, []);
-
   const handleUpdateCompany = (companyId: string, companyData: any) => {
+    console.log("🔄 Updating company:", companyId, companyData);
     updateCompany({ id: companyId, ...companyData });
     setEditingCompany(null);
   };
 
   const handleEdit = (company: Company) => {
+    console.log("✏️ Editing company:", company.name);
     setEditingCompany(company);
   };
 
-  // Navigation between companies
-  const getCurrentCompanyIndex = () => {
-    if (!companies || !company) return -1;
-    return companies.findIndex(c => c.id === company.id);
-  };
-
-  const handlePrevious = () => {
-    if (!companies) return;
-    const currentIndex = getCurrentCompanyIndex();
-    if (currentIndex > 0) {
-      const previousCompany = companies[currentIndex - 1];
-      navigate(`/empresas/${previousCompany.id}`);
-    }
-  };
-
-  const handleNext = () => {
-    if (!companies) return;
-    const currentIndex = getCurrentCompanyIndex();
-    if (currentIndex < companies.length - 1) {
-      const nextCompany = companies[currentIndex + 1];
-      navigate(`/empresas/${nextCompany.id}`);
-    }
-  };
-
-  const currentIndex = getCurrentCompanyIndex();
-  const hasPrevious = currentIndex > 0;
-  const hasNext = companies ? currentIndex < companies.length - 1 : false;
-
-  if (localLoading) {
+  if (isLoading) {
+    console.log("⏳ Company loading...");
     return <LoadingSkeleton />;
   }
 
-  if (!company) {
+  if (error) {
+    console.error("❌ Company error:", error);
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Empresa no encontrada</p>
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Error al cargar la empresa</p>
+          <Button onClick={() => navigate('/empresas')}>
+            Volver a empresas
+          </Button>
+        </div>
       </div>
     );
   }
+
+  if (!company) {
+    console.warn("⚠️ Company not found for ID:", id);
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Empresa no encontrada</p>
+          <Button onClick={() => navigate('/empresas')}>
+            Volver a empresas
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  console.log("✅ Company loaded successfully:", company.name);
 
   return (
     <div className="min-h-screen bg-neutral-0 flex">
@@ -136,10 +100,10 @@ export default function CompanyPage() {
         <CompanyHeader
           company={company}
           onEdit={handleEdit}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          hasPrevious={hasPrevious}
-          hasNext={hasNext}
+          onPrevious={() => navigate('/empresas')}
+          onNext={() => navigate('/empresas')}
+          hasPrevious={false}
+          hasNext={false}
         />
 
         {/* Tabs Navigation */}
