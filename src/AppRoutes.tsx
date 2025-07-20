@@ -1,3 +1,4 @@
+
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AttioLayout } from '@/components/layout/AttioLayout';
@@ -16,6 +17,7 @@ import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
+import { BuyingMandateDetailView } from '@/components/mandates/BuyingMandateDetailView';
 
 // Import the unified lead page
 const LeadPage = lazy(() => import('@/pages/LeadPage'));
@@ -46,8 +48,6 @@ const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const TeaserBuilder = lazy(() => import('@/pages/TeaserBuilder'));
-
-// Note: Settings routes can be added later from the original App.tsx
 
 const LoadingSkeleton = () => (
   <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -106,8 +106,13 @@ export const AppRoutes = () => {
           {/* Mandatos (Spanish routes) */}
           <Route path="/mandatos" element={<MandatesPage />} />
           <Route path="/mandatos/:id" element={<MandateDetailPage />} />
+          <Route path="/mandatos/:id/detalle" element={<BuyingMandateDetailView />} />
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
+
+          {/* Buying Mandates (English routes for compatibility) - Fixed routing */}
+          <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
+          <Route path="/buying-mandates/:id" element={<BuyingMandateDetailView />} />
 
           {/* Captación (Spanish routes) */}
           <Route path="/captacion" element={<LeadsEntryPanel />} />
@@ -153,8 +158,6 @@ export const AppRoutes = () => {
           <Route path="/transacciones/:id" element={<VentaMandatoView />} />
 
           {/* Redirects from old English routes to new Spanish routes */}
-          <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
-          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos" replace />} />
           <Route path="/companies" element={<Navigate to="/empresas" replace />} />
           <Route path="/companies/:id" element={<Navigate to="/empresas" replace />} />
           <Route path="/contacts" element={<Navigate to="/contactos" replace />} />

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ContactHeader } from '@/components/contacts/ContactHeader';
 import { PersonOverviewTab } from '@/components/contacts/PersonOverviewTab';
 import { ContactTimeline } from '@/components/contacts/ContactTimeline';
-import { PersonRecordSidebar } from '@/components/contacts/PersonRecordSidebar';
+import { ContactLeftSidebar } from '@/components/contacts/sidebar/ContactLeftSidebar';
 import { EditContactDialog } from '@/components/contacts/EditContactDialog';
 import ContactFilesTab from '@/components/contacts/ContactFilesTab';
 import { ContactTasksTab } from '@/components/contacts/ContactTasksTab';
@@ -148,6 +148,11 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-neutral-0 flex">
+      {/* Left Sidebar - New Pipedrive-style layout */}
+      <div className="hidden lg:block">
+        <ContactLeftSidebar contact={contact} onEdit={handleEdit} />
+      </div>
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         <ContactHeader
@@ -216,68 +221,60 @@ export default function ContactPage() {
             </TabsList>
 
             {/* Tab Content */}
-            <div className="flex">
-              {/* Main Content Area */}
-              <div className="flex-1 overflow-y-auto">
-                <TabsContent value="overview" className="mt-0 p-6">
-                  <PersonOverviewTab contact={contact} />
-                </TabsContent>
-                
-                <TabsContent value="activity" className="mt-0 p-6">
-                  <ContactTimeline contact={contact} />
-                </TabsContent>
-                
-                <TabsContent value="emails" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Integración de email próximamente</p>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="calls" className="mt-0 p-6">
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Registro de llamadas próximamente</p>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="company" className="mt-0 p-6">
-                  <ContactCompanyTab 
-                    contactId={contact.id} 
-                    currentUserId={currentUserId} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="notes" className="mt-0 p-6">
-                  <ContactNotesTab 
-                    contactId={contact.id} 
-                    currentUserId={currentUserId} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="tasks" className="mt-0 p-6">
-                  <ContactTasksTab 
-                    contactId={contact.id} 
-                    currentUserId={currentUserId} 
-                  />
-                </TabsContent>
-                
-                <TabsContent value="files" className="mt-0 p-6">
-                  <ContactFilesTab 
-                    contactId={contact.id} 
-                    currentUserId={currentUserId} 
-                  />
-                </TabsContent>
-              </div>
+            <div className="overflow-y-auto">
+              <TabsContent value="overview" className="mt-0 p-6">
+                <PersonOverviewTab contact={contact} />
+              </TabsContent>
+              
+              <TabsContent value="activity" className="mt-0 p-6">
+                <ContactTimeline contact={contact} />
+              </TabsContent>
+              
+              <TabsContent value="emails" className="mt-0 p-6">
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Integración de email próximamente</p>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="calls" className="mt-0 p-6">
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">Registro de llamadas próximamente</p>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="company" className="mt-0 p-6">
+                <ContactCompanyTab 
+                  contactId={contact.id} 
+                  currentUserId={currentUserId} 
+                />
+              </TabsContent>
+              
+              <TabsContent value="notes" className="mt-0 p-6">
+                <ContactNotesTab 
+                  contactId={contact.id} 
+                  currentUserId={currentUserId} 
+                />
+              </TabsContent>
+              
+              <TabsContent value="tasks" className="mt-0 p-6">
+                <ContactTasksTab 
+                  contactId={contact.id} 
+                  currentUserId={currentUserId} 
+                />
+              </TabsContent>
+              
+              <TabsContent value="files" className="mt-0 p-6">
+                <ContactFilesTab 
+                  contactId={contact.id} 
+                  currentUserId={currentUserId} 
+                />
+              </TabsContent>
             </div>
           </Tabs>
         </div>
       </div>
 
-      {/* Right Sidebar - Hidden on mobile, collapsible on tablet */}
-      <div className="hidden lg:block w-80 border-l border-border bg-neutral-50 overflow-y-auto">
-        <PersonRecordSidebar contact={contact} onEdit={handleEdit} />
-      </div>
-
-      {/* Mobile Details Button */}
+      {/* Mobile Details Button - Updated for new layout */}
       <div className="fixed bottom-4 right-4 lg:hidden">
         <Button
           onClick={() => setActiveTab(activeTab === 'details' ? 'overview' : 'details')}
@@ -287,7 +284,7 @@ export default function ContactPage() {
         </Button>
       </div>
 
-      {/* Mobile Details Panel */}
+      {/* Mobile Details Panel - Updated to use new sidebar */}
       {activeTab === 'details' && (
         <div className="fixed inset-0 bg-background z-50 lg:hidden overflow-y-auto">
           <div className="flex items-center justify-between p-4 border-b border-border">
@@ -300,7 +297,7 @@ export default function ContactPage() {
               ×
             </Button>
           </div>
-          <PersonRecordSidebar contact={contact} onEdit={handleEdit} />
+          <ContactLeftSidebar contact={contact} onEdit={handleEdit} />
         </div>
       )}
 

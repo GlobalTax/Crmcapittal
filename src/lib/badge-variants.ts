@@ -12,10 +12,6 @@ export const badgeVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground",
         outline: "text-foreground",
-        warning:
-          "bg-yellow-500 text-yellow-50",
-        success:
-          "bg-green-500 text-green-50",
       },
     },
     defaultVariants: {

@@ -75,7 +75,7 @@ export const HierarchicalCRMView = ({
     fetchTargets, 
     fetchDocuments,
     isLoading: mandatesLoading 
-  } = useBuyingMandates('compra');
+  } = useBuyingMandates();
 
   // Load initial data
   useEffect(() => {

@@ -1,4 +1,4 @@
 
-import { AttioLayout } from "./layout/AttioLayout";
+import { MinimalLayout } from "./layout/MinimalLayout";
 
-export const Layout = AttioLayout;
+export const Layout = MinimalLayout;

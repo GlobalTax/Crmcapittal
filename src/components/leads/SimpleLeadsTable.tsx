@@ -1,237 +1,385 @@
-
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Phone, Mail, Edit, Trash2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLeadContacts } from "@/hooks/useLeadContacts";
-import { Contact } from "@/types/Contact";
+import { LeadStatus, LeadSource, LeadPriority, LeadQuality, Lead } from "@/types/Lead";
+import { Search, Plus, Phone, Mail, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CreateLeadDialog } from "./CreateLeadDialog";
+import { InlineEditCell } from "@/components/contacts/InlineEditCell";
+import { CompanySelector } from "./CompanySelector";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'NEW': return 'destructive';
-    case 'CONTACTED': return 'warning';
-    case 'QUALIFIED': return 'success';
-    case 'DISQUALIFIED': return 'secondary';
-    default: return 'default';
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case 'NEW': return 'Nuevo';
-    case 'CONTACTED': return 'Contactado';
-    case 'QUALIFIED': return 'Cualificado';
-    case 'DISQUALIFIED': return 'Descalificado';
-    default: return status || 'Sin estado';
-  }
-};
+import { toast } from "sonner";
+import { Company } from "@/types/Company";
 
 export const SimpleLeadsTable = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  
-  const { leads, isLoading, deleteLead, isDeleting } = useLeadContacts();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
+  const [sourceFilter, setSourceFilter] = useState<LeadSource | 'all'>('all');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
-  // Filter leads based on search term
-  const filteredLeads = leads.filter(lead => 
-    lead.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.company?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleSelectLead = (leadId: string) => {
-    setSelectedLeads(prev => 
-      prev.includes(leadId) 
-        ? prev.filter(id => id !== leadId)
-        : [...prev, leadId]
-    );
+  const filters = {
+    ...(statusFilter !== 'all' && { status: statusFilter as LeadStatus })
   };
 
-  const handleSelectAll = () => {
-    if (selectedLeads.length === filteredLeads.length) {
-      setSelectedLeads([]);
-    } else {
-      setSelectedLeads(filteredLeads.map(lead => lead.id));
+  const { leads, isLoading, createLead, updateLead, isCreating } = useLeadContacts(filters);
+
+  // Apply search filter
+  const filteredLeads = leads.filter(lead => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = 
+        lead.name.toLowerCase().includes(query) ||
+        (lead.email?.toLowerCase() || '').includes(query) ||
+        (lead.company?.toLowerCase() || '').includes(query) ||
+        (lead.position?.toLowerCase() || '').includes(query);
+      if (!matchesSearch) return false;
+    }
+    
+    if (sourceFilter !== 'all' && lead.lead_source !== sourceFilter) return false;
+    
+    return true;
+  });
+
+  // Options for dropdowns
+  const statusOptions = [
+    { value: 'NEW', label: 'Nuevo' },
+    { value: 'CONTACTED', label: 'Contactado' },
+    { value: 'QUALIFIED', label: 'Calificado' },
+    { value: 'DISQUALIFIED', label: 'Descalificado' },
+    { value: 'NURTURING', label: 'En seguimiento' },
+    { value: 'CONVERTED', label: 'Convertido' },
+    { value: 'LOST', label: 'Perdido' }
+  ];
+
+  const priorityOptions = [
+    { value: 'LOW', label: 'Baja' },
+    { value: 'MEDIUM', label: 'Media' },
+    { value: 'HIGH', label: 'Alta' },
+    { value: 'URGENT', label: 'Urgente' }
+  ];
+
+  const qualityOptions = [
+    { value: 'POOR', label: 'Pobre' },
+    { value: 'FAIR', label: 'Regular' },
+    { value: 'GOOD', label: 'Buena' },
+    { value: 'EXCELLENT', label: 'Excelente' }
+  ];
+
+  // Convert options to string arrays for InlineEditCell
+  const statusSelectOptions = statusOptions.map(opt => opt.value);
+  const prioritySelectOptions = priorityOptions.map(opt => opt.value);
+  const qualitySelectOptions = qualityOptions.map(opt => opt.value);
+
+  const handleUpdate = async (leadId: string, field: string, value: any) => {
+    try {
+      await updateLead({ id: leadId, updates: { [field]: value } as any });
+    } catch (error) {
+      console.error('Error updating lead:', error);
+      toast.error('Error al actualizar el lead');
     }
   };
 
-  const handleDeleteLead = (leadId: string) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este lead?')) {
-      deleteLead(leadId);
+  const handleCompanySelect = async (leadId: string, company: Company | null) => {
+    try {
+      await updateLead({ 
+        id: leadId, 
+        updates: { 
+          company_id: company?.id || null,
+          company: company?.name || null
+        } as any
+      });
+    } catch (error) {
+      console.error('Error updating lead company:', error);
+      toast.error('Error al actualizar la empresa del lead');
     }
   };
 
-  if (isLoading) {
+  const getStatusBadge = (status: LeadStatus) => {
+    const variants = {
+      'NEW': 'bg-blue-100 text-blue-800 border-blue-200',
+      'CONTACTED': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'QUALIFIED': 'bg-green-100 text-green-800 border-green-200',
+      'DISQUALIFIED': 'bg-red-100 text-red-800 border-red-200',
+      'NURTURING': 'bg-purple-100 text-purple-800 border-purple-200',
+      'CONVERTED': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      'LOST': 'bg-gray-100 text-gray-800 border-gray-200'
+    };
+
     return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div className="w-64 h-10 bg-muted animate-pulse rounded"></div>
-          <div className="w-32 h-10 bg-muted animate-pulse rounded"></div>
-        </div>
-        <div className="border rounded-lg">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="p-4 border-b last:border-b-0">
-              <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Badge variant="outline" className={variants[status]}>
+        {statusOptions.find(opt => opt.value === status)?.label || status}
+      </Badge>
     );
-  }
+  };
+
+  const getPriorityBadge = (priority?: LeadPriority) => {
+    if (!priority) return <span className="text-muted-foreground">-</span>;
+    
+    const variants = {
+      'LOW': 'bg-gray-100 text-gray-800 border-gray-200',
+      'MEDIUM': 'bg-blue-100 text-blue-800 border-blue-200',
+      'HIGH': 'bg-orange-100 text-orange-800 border-orange-200',
+      'URGENT': 'bg-red-100 text-red-800 border-red-200'
+    };
+
+    return (
+      <Badge variant="outline" className={variants[priority]}>
+        {priorityOptions.find(opt => opt.value === priority)?.label || priority}
+      </Badge>
+    );
+  };
+
+  const getQualityBadge = (quality?: LeadQuality) => {
+    if (!quality) return <span className="text-muted-foreground">-</span>;
+    
+    const variants = {
+      'POOR': 'bg-red-100 text-red-800 border-red-200',
+      'FAIR': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      'GOOD': 'bg-green-100 text-green-800 border-green-200',
+      'EXCELLENT': 'bg-emerald-100 text-emerald-800 border-emerald-200'
+    };
+
+    return (
+      <Badge variant="outline" className={variants[quality]}>
+        {qualityOptions.find(opt => opt.value === quality)?.label || quality}
+      </Badge>
+    );
+  };
+
+  const handleViewLead = (leadId: string) => {
+    navigate(`/leads/${leadId}`);
+  };
+
+  const handleCall = (phone: string) => {
+    window.open(`tel:${phone}`, '_self');
+  };
+
+  const handleEmail = (email: string) => {
+    window.open(`mailto:${email}`, '_self');
+  };
 
   return (
     <div className="space-y-4">
-      {/* Search and Actions */}
-      <div className="flex justify-between items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Buscar leads..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Lead
-          </Button>
-        </div>
-      </div>
-
-      {/* Results summary */}
-      <div className="text-sm text-muted-foreground">
-        Mostrando {filteredLeads.length} de {leads.length} leads
-        {selectedLeads.length > 0 && ` • ${selectedLeads.length} seleccionados`}
-      </div>
-
-      {/* Leads Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-left p-4 font-medium">
-                  <input
-                    type="checkbox"
-                    checked={selectedLeads.length === filteredLeads.length && filteredLeads.length > 0}
-                    onChange={handleSelectAll}
-                    className="rounded"
-                  />
-                </th>
-                <th className="text-left p-4 font-medium">Nombre</th>
-                <th className="text-left p-4 font-medium">Email</th>
-                <th className="text-left p-4 font-medium">Empresa</th>
-                <th className="text-left p-4 font-medium">Estado</th>
-                <th className="text-left p-4 font-medium">Puntuación</th>
-                <th className="text-left p-4 font-medium">Fecha</th>
-                <th className="text-left p-4 font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeads.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="text-center p-8 text-muted-foreground">
-                    {searchTerm ? 'No se encontraron leads que coincidan con la búsqueda' : 'No hay leads registrados'}
-                  </td>
-                </tr>
-              ) : (
-                filteredLeads.map((lead) => (
-                  <tr key={lead.id} className="border-t hover:bg-muted/25">
-                    <td className="p-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedLeads.includes(lead.id)}
-                        onChange={() => handleSelectLead(lead.id)}
-                        className="rounded"
-                      />
-                    </td>
-                    <td className="p-4">
-                      <div className="font-medium">{lead.name}</div>
-                      {lead.position && (
-                        <div className="text-sm text-muted-foreground">{lead.position}</div>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <span>{lead.email}</span>
-                        {lead.email && (
-                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                            <Mail className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div>{lead.company || '-'}</div>
-                    </td>
-                    <td className="p-4">
-                      <Badge variant={getStatusColor(lead.lead_status || '')}>
-                        {getStatusLabel(lead.lead_status || '')}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium">{lead.lead_score || 0}</span>
-                        <span className="text-xs text-muted-foreground">pts</span>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="text-sm">
-                        {format(new Date(lead.created_at), 'dd/MM/yyyy', { locale: es })}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-1">
-                        {lead.phone && (
-                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                            <Phone className="h-3 w-3" />
-                          </Button>
-                        )}
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                          onClick={() => handleDeleteLead(lead.id)}
-                          disabled={isDeleting}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Bulk actions */}
-      {selectedLeads.length > 0 && (
-        <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
-          <span className="text-sm font-medium">{selectedLeads.length} leads seleccionados</span>
-          <div className="flex items-center gap-2 ml-auto">
-            <Button size="sm" variant="outline">
-              Cambiar estado
-            </Button>
-            <Button size="sm" variant="outline">
-              Asignar usuario
-            </Button>
-            <Button size="sm" variant="destructive">
-              Eliminar seleccionados
-            </Button>
+      {/* Header with search and filters */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4 flex-1">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Buscar leads..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
+          
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los estados</SelectItem>
+              {statusOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sourceFilter} onValueChange={(value) => setSourceFilter(value as LeadSource | 'all')}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Fuente" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las fuentes</SelectItem>
+              <SelectItem value="website_form">Formulario web</SelectItem>
+              <SelectItem value="linkedin">LinkedIn</SelectItem>
+              <SelectItem value="referral">Referencia</SelectItem>
+              <SelectItem value="email_campaign">Campaña email</SelectItem>
+              <SelectItem value="social_media">Redes sociales</SelectItem>
+              <SelectItem value="cold_outreach">Contacto directo</SelectItem>
+              <SelectItem value="event">Evento</SelectItem>
+              <SelectItem value="other">Otro</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      )}
+
+        <Button onClick={() => setShowCreateDialog(true)} className="ml-4">
+          <Plus className="h-4 w-4 mr-2" />
+          Crear lead
+        </Button>
+      </div>
+
+      {/* Table */}
+      <div className="border rounded-lg bg-white overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[250px]">Oportunidad / Contacto</TableHead>
+              <TableHead className="min-w-[200px]">Email</TableHead>
+              <TableHead className="min-w-[120px]">Teléfono</TableHead>
+              <TableHead className="min-w-[150px]">Empresa</TableHead>
+              <TableHead className="min-w-[120px]">Valor Estimado</TableHead>
+              <TableHead className="min-w-[120px]">Estado</TableHead>
+              <TableHead className="min-w-[120px]">Prioridad</TableHead>
+              <TableHead className="min-w-[100px]">Puntuación</TableHead>
+              <TableHead className="min-w-[100px]">Fuente</TableHead>
+              <TableHead className="min-w-[120px]">Próximo contacto</TableHead>
+              <TableHead className="min-w-[120px]">Fecha creación</TableHead>
+              <TableHead className="min-w-[100px]">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={12} className="text-center py-8">
+                  Cargando leads...
+                </TableCell>
+              </TableRow>
+            ) : filteredLeads.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={12} className="text-center py-8">
+                  No se encontraron leads
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredLeads.map((lead) => (
+                <TableRow key={lead.id} className="hover:bg-gray-50">
+                  <TableCell>
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => handleViewLead(lead.id)}
+                        className="font-medium text-primary hover:text-primary-hover hover:underline cursor-pointer text-left block"
+                      >
+                        {lead.name}
+                      </button>
+                      <div className="text-xs text-muted-foreground">
+                        Contacto: {lead.name?.split(' - ')[0] || 'Sin contacto'}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={lead.email}
+                      type="email"
+                      onSave={(value) => handleUpdate(lead.id, 'email', value)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={lead.phone || ''}
+                      type="phone"
+                      onSave={(value) => handleUpdate(lead.id, 'phone', value || null)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <CompanySelector
+                      value={lead.company_id}
+                      companyName={lead.company}
+                      onSelect={(company) => handleCompanySelect(lead.id, company)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={(lead as any).estimated_value?.toString() || ''}
+                      type="text"
+                      onSave={(value) => handleUpdate(lead.id, 'estimated_value', value ? parseFloat(value as string) : null)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={lead.lead_status || ''}
+                      type="select"
+                      options={statusSelectOptions}
+                      onSave={(value) => handleUpdate(lead.id, 'lead_status', value)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={lead.lead_priority || ''}
+                      type="select"
+                      options={prioritySelectOptions}
+                      onSave={(value) => handleUpdate(lead.id, 'lead_priority', value || null)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={(lead.lead_score || 0).toString()}
+                      type="text"
+                      onSave={(value) => handleUpdate(lead.id, 'lead_score', parseInt(value as string) || 0)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground capitalize">
+                      {(lead.lead_source || '').replace('_', ' ')}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <InlineEditCell
+                      value={lead.next_follow_up_date || ''}
+                      type="date"
+                      onSave={(value) => handleUpdate(lead.id, 'next_follow_up_date', value || null)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">
+                      {format(new Date(lead.created_at), "dd MMM yyyy", { locale: es })}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewLead(lead.id)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      {lead.phone && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCall(lead.phone!)}
+                        >
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEmail(lead.email)}
+                      >
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination placeholder */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Mostrando {filteredLeads.length} de {leads.length} leads
+        </p>
+      </div>
+
+      <CreateLeadDialog
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onCreateLead={createLead}
+        isCreating={isCreating}
+      />
     </div>
   );
 };

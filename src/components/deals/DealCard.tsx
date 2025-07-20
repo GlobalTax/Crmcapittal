@@ -26,7 +26,7 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`/transacciones?dealId=${deal.id}`);
+    navigate(`/deals/${deal.id}`);
   };
 
   const style = {

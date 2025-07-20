@@ -54,7 +54,7 @@ export const DealHeader = ({
   };
 
   const handleBackToDeals = () => {
-    navigate('/transacciones');
+    navigate('/deals');
   };
 
   const handleQuickAction = (type: 'contact' | 'negocio' | 'proposal') => {

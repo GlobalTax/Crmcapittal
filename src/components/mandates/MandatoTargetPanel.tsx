@@ -1,13 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { MandateTarget } from '@/types/BuyingMandate';
+import { Button } from '@/components/ui/button';
+import { Plus, Upload } from 'lucide-react';
+import { MandateTarget, MandateDocument } from '@/types/BuyingMandate';
 import { TargetDataTable } from './TargetDataTable';
 import { TargetFiltersPanel } from './TargetFiltersPanel';
 import { MandateTargetsPipeline } from './MandateTargetsPipeline';
+import { ImportFromCRMDialog } from './ImportFromCRMDialog';
+import { MandateTargetsDialog } from './MandateTargetsDialog';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface MandatoTargetPanelProps {
   targets: MandateTarget[];
-  documents: any[];
+  documents: MandateDocument[];
   onEditTarget: (target: MandateTarget) => void;
   onViewDocuments: (target: MandateTarget) => void;
 }
@@ -20,6 +26,8 @@ export const MandatoTargetPanel = ({
 }: MandatoTargetPanelProps) => {
   const [filteredTargets, setFilteredTargets] = useState<MandateTarget[]>(targets);
   const [viewMode, setViewMode] = useState<'table' | 'pipeline'>('table');
+  const [showTargetsDialog, setShowTargetsDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   useEffect(() => {
     setFilteredTargets(targets);
@@ -29,9 +37,40 @@ export const MandatoTargetPanel = ({
     setFilteredTargets(filtered);
   };
 
+  // Si no hay targets, mostrar estado vacío
+  if (targets.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <EmptyState
+            icon={Plus}
+            title="No hay targets identificados"
+            subtitle="Los targets son las empresas objetivo para este mandato de M&A. Puedes añadirlos manualmente o importarlos desde el CRM."
+            action={{
+              label: "Añadir Target Manual",
+              onClick: () => setShowTargetsDialog(true)
+            }}
+          />
+          
+          {/* Dialogs */}
+          <MandateTargetsDialog
+            mandate={{ id: targets[0]?.mandate_id } as any}
+            open={showTargetsDialog}
+            onOpenChange={setShowTargetsDialog}
+          />
+          
+          <ImportFromCRMDialog
+            mandateId={targets[0]?.mandate_id || ''}
+            onImported={() => {}}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Filters and View Toggle */}
+      {/* Header con acciones */}
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1">
           <TargetFiltersPanel 
@@ -48,10 +87,24 @@ export const MandatoTargetPanel = ({
             <option value="table">Vista Tabla</option>
             <option value="pipeline">Vista Pipeline</option>
           </select>
+          <ImportFromCRMDialog
+            mandateId={targets[0]?.mandate_id || ''}
+            onImported={() => {}}
+            trigger={
+              <Button variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Importar CRM
+              </Button>
+            }
+          />
+          <Button onClick={() => setShowTargetsDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Añadir Target
+          </Button>
         </div>
       </div>
 
-      {/* Content based on view mode */}
+      {/* Contenido basado en el modo de vista */}
       {viewMode === 'table' ? (
         <Card>
           <CardContent className="p-6">
@@ -70,6 +123,18 @@ export const MandatoTargetPanel = ({
           onTargetClick={onViewDocuments}
         />
       )}
+
+      {/* Dialogs */}
+      <MandateTargetsDialog
+        mandate={{ id: targets[0]?.mandate_id } as any}
+        open={showTargetsDialog}
+        onOpenChange={setShowTargetsDialog}
+      />
+      
+      <ImportFromCRMDialog
+        mandateId={targets[0]?.mandate_id || ''}
+        onImported={() => {}}
+      />
     </div>
   );
 };

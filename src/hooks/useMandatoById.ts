@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useBuyingMandates } from './useBuyingMandates';
 import { BuyingMandate } from '@/types/BuyingMandate';
@@ -37,5 +38,9 @@ export const useMandatoById = (id?: string) => {
     }
   }, [id, mandates, mandatesLoading, fetchMandates]);
 
-  return { mandato, isLoading };
+  return { 
+    mandate: mandato, 
+    loading: isLoading, 
+    error: mandato === null && !isLoading ? 'Mandato no encontrado' : null 
+  };
 };

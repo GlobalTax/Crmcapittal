@@ -8,7 +8,7 @@ export interface TransaccionTask {
   title: string;
   description?: string;
   completed: boolean;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: string;
   due_date?: string;
   assigned_to?: string;
   created_by?: string;
@@ -32,11 +32,17 @@ export const useTransaccionTasks = (transaccionId: string) => {
       setLoading(true);
       setError(null);
 
-      // Use contact_tasks table but filter by transaccion
-      // For now, we'll use mock data since the relationship isn't established
-      const mockTasks: TransaccionTask[] = [];
+      const { data, error } = await supabase
+        .from('transaction_tasks')
+        .select('*')
+        .eq('transaccion_id', transaccionId)
+        .order('created_at', { ascending: false });
 
-      setTasks(mockTasks);
+      if (error) {
+        throw error;
+      }
+
+      setTasks(data || []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar las tareas';
       setError(errorMessage);
@@ -50,22 +56,31 @@ export const useTransaccionTasks = (transaccionId: string) => {
     try {
       const { data: user } = await supabase.auth.getUser();
       
-      const newTask: TransaccionTask = {
-        ...taskData,
-        id: Date.now().toString(),
-        created_by: user?.user?.id,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
+      if (!user?.user?.id) {
+        throw new Error('Usuario no autenticado');
+      }
 
-      setTasks(prev => [newTask, ...prev]);
+      const { data, error } = await supabase
+        .from('transaction_tasks')
+        .insert({
+          ...taskData,
+          created_by: user.user.id
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setTasks(prev => [data, ...prev]);
       
       toast({
         title: "Tarea creada",
         description: `${taskData.title} ha sido creada correctamente.`,
       });
 
-      return { data: newTask, error: null };
+      return { data, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al crear la tarea';
       toast({
@@ -80,9 +95,18 @@ export const useTransaccionTasks = (transaccionId: string) => {
 
   const updateTask = async (taskId: string, updates: Partial<TransaccionTask>) => {
     try {
+      const { error } = await supabase
+        .from('transaction_tasks')
+        .update(updates)
+        .eq('id', taskId);
+
+      if (error) {
+        throw error;
+      }
+
       setTasks(prev => prev.map(task => 
         task.id === taskId 
-          ? { ...task, ...updates, updated_at: new Date().toISOString() }
+          ? { ...task, ...updates }
           : task
       ));
       
@@ -106,6 +130,15 @@ export const useTransaccionTasks = (transaccionId: string) => {
 
   const deleteTask = async (taskId: string) => {
     try {
+      const { error } = await supabase
+        .from('transaction_tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) {
+        throw error;
+      }
+
       setTasks(prev => prev.filter(task => task.id !== taskId));
       
       toast({
