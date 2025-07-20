@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,12 +49,19 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
         throw new Error('Usuario no autenticado');
       }
 
-      // Create contact with generated lead name
+      // Create contact with only valid contact fields
       const contactData = {
-        ...leadData,
-        contact_type: 'lead',
-        lifecycle_stage: 'marketing_qualified_lead',
+        name: leadData.name,
+        email: leadData.email,
+        phone: leadData.phone,
+        company: leadData.company,
+        position: leadData.position,
+        contact_type: 'lead' as const,
+        lifecycle_stage: 'marketing_qualified_lead' as const,
         lead_score: leadData.lead_score || 0,
+        lead_source: leadData.lead_source,
+        lead_origin: leadData.lead_origin,
+        notes: leadData.notes,
         created_by: user.id,
       };
 
@@ -69,7 +77,6 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
       }
 
       // Also create in leads table for lead management
-      // Extract the original name or opportunity name from the generated lead name
       const opportunityName = leadData.opportunity_name || leadData.name || '';
       const leadNameMatch = leadData.name?.match(/^(.+) - \d{2}\/\d{2}\/\d{4}$/);
       const extractedOpportunityName = leadNameMatch ? leadNameMatch[1] : opportunityName;
@@ -81,14 +88,12 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
         email: leadData.email,
         phone: leadData.phone,
         company_name: leadData.company,
+        job_title: leadData.position,
         message: leadData.notes,
         source: leadData.lead_source || 'other',
         lead_origin: leadData.lead_origin || 'manual',
         status: 'NEW' as const,
         lead_score: leadData.lead_score || 0,
-        estimated_value: leadData.estimated_value || null,
-        close_date: leadData.close_date || null,
-        probability: leadData.probability || 50,
       };
 
       const { error: leadError } = await supabase
@@ -117,6 +122,26 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
   // Update lead
   const updateLeadMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateContactData }) => {
+      // Update in contacts table first
+      const contactUpdates = {
+        name: updates.name,
+        email: updates.email,
+        phone: updates.phone,
+        company: updates.company,
+        position: updates.position,
+        lead_score: updates.lead_score,
+        notes: updates.notes
+      };
+
+      const { data: contactData, error: contactError } = await supabase
+        .from('contacts')
+        .update(contactUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (contactError) throw contactError;
+
       // Update in dedicated leads table
       const leadUpdates = {
         name: updates.name,
@@ -128,15 +153,16 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
         message: updates.notes
       };
 
-      const { data, error } = await supabase
+      const { error: leadError } = await supabase
         .from('leads')
         .update(leadUpdates)
-        .eq('id', id)
-        .select()
-        .single();
+        .eq('id', id);
 
-      if (error) throw error;
-      return data as any; // Lead data structure is different
+      if (leadError) {
+        console.warn('Error updating lead record:', leadError);
+      }
+
+      return contactData as Contact;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead-contacts'] });
@@ -151,13 +177,23 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
   // Delete lead
   const deleteLeadMutation = useMutation({
     mutationFn: async (id: string) => {
+      // Delete from contacts table
+      const { error: contactError } = await supabase
+        .from('contacts')
+        .delete()
+        .eq('id', id);
+
+      if (contactError) throw contactError;
+
       // Delete from dedicated leads table
-      const { error } = await supabase
+      const { error: leadError } = await supabase
         .from('leads')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (leadError) {
+        console.warn('Error deleting lead record:', leadError);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead-contacts'] });
