@@ -15,10 +15,7 @@ export const useCompany = (companyId: string | undefined) => {
       
       const { data, error } = await supabase
         .from("companies")
-        .select(`
-          *,
-          company_enrichments!inner(enrichment_data)
-        `)
+        .select("*")
         .eq("id", companyId)
         .single();
 
@@ -44,11 +41,17 @@ export const useCompany = (companyId: string | undefined) => {
           .eq("company_id", companyId)
           .neq("status", "closed");
 
-        const enrichmentData = data.company_enrichments?.[0]?.enrichment_data;
+        // Get enrichment data separately
+        const { data: enrichmentData } = await supabase
+          .from("company_enrichments")
+          .select("enrichment_data")
+          .eq("company_id", companyId)
+          .limit(1)
+          .maybeSingle();
 
         return {
           ...data,
-          enrichment_data: enrichmentData,
+          enrichment_data: enrichmentData?.enrichment_data || null,
           contacts_count: contactsCount || 0,
           opportunities_count: opportunitiesCount || 0,
         } as Company;
