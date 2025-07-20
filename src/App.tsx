@@ -100,17 +100,7 @@ function App() {
   );
 }
 
-import { AppRoutes } from './AppRoutes';
-
 function AppContent() {
-  useKeyboardShortcuts();
-  
-  return (
-    <AppRoutes />
-  );
-}
-
-function AppContentOld() {
   useKeyboardShortcuts();
   
   return (
@@ -481,5 +471,6 @@ function AppContentOld() {
     </div>
   );
 }
+
 
 export default App;
