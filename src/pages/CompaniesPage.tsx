@@ -74,7 +74,7 @@ const CompaniesPage = () => {
 
   // Get unique sectors for sector distribution
   const sectorDistribution = companies.reduce((acc: Record<string, number>, company) => {
-    const sector = company.sector || company.industry || 'Sin sector';
+    const sector = company.industry || 'Sin sector';
     acc[sector] = (acc[sector] || 0) + 1;
     return acc;
   }, {});
