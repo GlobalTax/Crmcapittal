@@ -34,24 +34,7 @@ const AppContent: React.FC = () => {
               path="/*"
               element={
                 <ProtectedRoute>
-                  <AttioLayout>
-                    <Suspense fallback={<div>Cargando...</div>}>
-                      <Routes>
-                        <Route path="/" element={<Navigate to="/personal" replace />} />
-                        <Route path="/personal" element={<MinimalPersonalDashboard />} />
-                        <Route path="/dashboard" element={<PersonalDashboard />} />
-                        <Route path="/contacts" element={<Contacts />} />
-                        <Route path="/companies" element={<Companies />} />
-                        <Route path="/deals" element={<Deals />} />
-                        <Route path="/transacciones" element={<MinimalTransacciones />} />
-                        <Route path="/selling-mandates" element={<SellingMandates />} />
-                        <Route path="/buying-mandates" element={<BuyingMandates />} />
-                        <Route path="/collaborators" element={<Collaborators />} />
-                        <Route path="/leads" element={<Leads />} />
-                      </Routes>
-                    </Suspense>
-                    <FloatingLeadsWidget />
-                  </AttioLayout>
+                  <AttioLayoutWithWidget />
                 </ProtectedRoute>
               }
             />
@@ -59,6 +42,70 @@ const AppContent: React.FC = () => {
         </div>
       </ErrorBoundary>
     </ThemeProvider>
+  );
+};
+
+// Componente wrapper que incluye AttioLayout y FloatingLeadsWidget
+const AttioLayoutWithWidget: React.FC = () => {
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<AttioLayout />}>
+          <Route index element={<Navigate to="/personal" replace />} />
+          <Route path="personal" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <MinimalPersonalDashboard />
+            </Suspense>
+          } />
+          <Route path="dashboard" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <PersonalDashboard />
+            </Suspense>
+          } />
+          <Route path="contacts" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <Contacts />
+            </Suspense>
+          } />
+          <Route path="companies" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <Companies />
+            </Suspense>
+          } />
+          <Route path="deals" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <Deals />
+            </Suspense>
+          } />
+          <Route path="transacciones" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <MinimalTransacciones />
+            </Suspense>
+          } />
+          <Route path="selling-mandates" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <SellingMandates />
+            </Suspense>
+          } />
+          <Route path="buying-mandates" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <BuyingMandates />
+            </Suspense>
+          } />
+          <Route path="collaborators" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <Collaborators />
+            </Suspense>
+          } />
+          <Route path="leads" element={
+            <Suspense fallback={<div>Cargando...</div>}>
+              <Leads />
+            </Suspense>
+          } />
+        </Route>
+      </Routes>
+      <FloatingLeadsWidget />
+    </>
   );
 };
 
