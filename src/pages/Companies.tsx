@@ -17,12 +17,6 @@ const Companies = () => {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Add debugging for navigate function
-  console.log("🔍 Companies page debug:", {
-    navigateExists: !!navigate,
-    currentLocation: window.location.pathname
-  });
-
   // Keyboard shortcut for new company
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,21 +58,7 @@ const Companies = () => {
 
   const { data: stats, isLoading: statsLoading } = useCompanyStats();
 
-  // Add debug logging
-  console.log("📊 Companies page state:", {
-    companiesCount: companies.length,
-    totalCount,
-    isLoading,
-    isCreating,
-    page,
-    searchTerm,
-    statusFilter,
-    typeFilter,
-    companiesWithIds: companies.map(c => ({ id: c.id, name: c.name }))
-  });
-
   const handleEditCompany = (company: Company) => {
-    console.log('✏️ handleEditCompany called with:', company.name);
     setEditingCompany(company);
   };
 
@@ -93,30 +73,14 @@ const Companies = () => {
   };
 
   const handleViewCompany = (company: Company) => {
-    console.log('🔍 handleViewCompany called with company:', {
-      id: company.id,
-      name: company.name,
-      fullCompanyObject: company
-    });
-    
-    if (!company.id) {
-      console.error('❌ Company ID is missing in handleViewCompany!', company);
-      return;
-    }
-    
-    console.log('🚀 About to navigate to:', `/empresas/${company.id}`);
-    
-    try {
+    if (company.id) {
       navigate(`/empresas/${company.id}`);
-      console.log('✅ Navigation called successfully');
-    } catch (error) {
-      console.error('❌ Navigation failed:', error);
     }
   };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    setPage(1); // Reset to first page when searching
+    setPage(1);
   };
 
   const handleStatusFilter = (status: string) => {
@@ -150,7 +114,7 @@ const Companies = () => {
         onRowClick={handleViewCompany}
         onCreateCompany={() => setIsCreateModalOpen(true)}
         onSearch={handleSearch}
-        onFilter={() => {}} // Placeholder
+        onFilter={() => {}}
         isLoading={isLoading}
       />
 
