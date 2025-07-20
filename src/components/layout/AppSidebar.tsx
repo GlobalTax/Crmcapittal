@@ -51,10 +51,6 @@ const sidebarData: SidebarSection[] = [
         title: "Transacciones",
         href: "/transacciones",
       },
-      {
-        title: "Negocios",
-        href: "/deals",
-      },
     ],
   },
   {

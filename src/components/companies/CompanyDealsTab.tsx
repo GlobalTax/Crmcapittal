@@ -156,14 +156,14 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => navigate(`/negocios?dealId=${deal.id}`)}
+                    onClick={() => navigate(`/transacciones?dealId=${deal.id}`)}
                   >
                     Ver
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => navigate(`/negocios?dealId=${deal.id}&edit=true`)}
+                    onClick={() => navigate(`/transacciones?dealId=${deal.id}&edit=true`)}
                   >
                     Editar
                   </Button>

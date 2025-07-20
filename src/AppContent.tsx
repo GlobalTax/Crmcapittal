@@ -10,7 +10,6 @@ import PersonalDashboard from '@/pages/PersonalDashboard';
 import MinimalPersonalDashboard from '@/pages/MinimalPersonalDashboard';
 import Contacts from '@/pages/Contacts';
 import Companies from '@/pages/Companies';
-import Deals from '@/pages/Deals';
 import MinimalTransacciones from '@/pages/MinimalTransacciones';
 import SellingMandates from '@/pages/SellingMandates';
 import BuyingMandates from '@/pages/BuyingMandates';
@@ -70,11 +69,6 @@ const AttioLayoutWithWidget: React.FC = () => {
           <Route path="companies" element={
             <Suspense fallback={<div>Cargando...</div>}>
               <Companies />
-            </Suspense>
-          } />
-          <Route path="deals" element={
-            <Suspense fallback={<div>Cargando...</div>}>
-              <Deals />
             </Suspense>
           } />
           <Route path="transacciones" element={
