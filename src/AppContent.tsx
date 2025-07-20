@@ -11,7 +11,6 @@ import MinimalPersonalDashboard from '@/pages/MinimalPersonalDashboard';
 import Contacts from '@/pages/Contacts';
 import Companies from '@/pages/Companies';
 import MinimalTransacciones from '@/pages/MinimalTransacciones';
-import SellingMandates from '@/pages/SellingMandates';
 import BuyingMandates from '@/pages/BuyingMandates';
 import Collaborators from '@/pages/Collaborators';
 import Leads from '@/pages/Leads';
@@ -74,11 +73,6 @@ const AttioLayoutWithWidget: React.FC = () => {
           <Route path="transacciones" element={
             <Suspense fallback={<div>Cargando...</div>}>
               <MinimalTransacciones />
-            </Suspense>
-          } />
-          <Route path="selling-mandates" element={
-            <Suspense fallback={<div>Cargando...</div>}>
-              <SellingMandates />
             </Suspense>
           } />
           <Route path="buying-mandates" element={
