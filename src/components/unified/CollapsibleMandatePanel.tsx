@@ -1,184 +1,253 @@
 
-import { useNavigate } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, FileText, Activity, Settings, Users, BarChart3 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  ChevronDown, 
+  ChevronRight, 
+  Building2, 
+  MapPin, 
+  Euro, 
+  Calendar,
+  Users,
+  Target,
+  Plus,
+  Eye
+} from 'lucide-react';
 import { BuyingMandate } from '@/types/BuyingMandate';
-import { ImprovedMandateHeader } from '@/components/mandates/ImprovedMandateHeader';
-import { MandateQuickActions } from '@/components/mandates/MandateQuickActions';
-import { MandateRecentActivity } from '@/components/mandates/MandateRecentActivity';
 import { MandatoCriteria } from '@/components/mandates/MandatoCriteria';
-import { MandateProgress } from '@/components/mandates/MandateProgress';
 
 interface CollapsibleMandatePanelProps {
   mandate: BuyingMandate;
-  onEdit: (mandate: BuyingMandate) => void;
-  onUpdate?: (mandate: BuyingMandate) => void;
+  mandateType?: 'compra' | 'venta';
 }
 
-export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate }: CollapsibleMandatePanelProps) => {
-  const navigate = useNavigate();
+const CollapsibleMandatePanel: React.FC<CollapsibleMandatePanelProps> = ({ 
+  mandate,
+  mandateType = 'compra'
+}) => {
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    overview: true,
+    criteria: false,
+    targets: true,
+    activity: false,
+  });
 
-  // Mock data - en producción vendría de los hooks correspondientes
-  const mockStats = {
-    totalTargets: 24,
-    contactedTargets: 8,
-    interestedTargets: 3,
-    documentsCount: 12
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
-  const handleAddTarget = () => {
-    console.log('Añadir nuevo target');
-    // Implementar lógica para añadir target
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      active: { label: 'Activo', className: 'bg-green-100 text-green-800 border-green-200' },
+      paused: { label: 'Pausado', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+      completed: { label: 'Completado', className: 'bg-blue-100 text-blue-800 border-blue-200' },
+      cancelled: { label: 'Cancelado', className: 'bg-red-100 text-red-800 border-red-200' },
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
+    return (
+      <Badge className={`${config.className} font-medium`}>
+        {config.label}
+      </Badge>
+    );
   };
 
-  const handleBulkContact = () => {
-    console.log('Contacto masivo');
-    // Implementar lógica para contacto masivo
+  const formatCurrency = (amount: number | null | undefined) => {
+    if (!amount) return 'No especificado';
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
-  const handleScheduleFollowup = () => {
-    console.log('Programar seguimiento');
-    // Implementar lógica para programar seguimiento
-  };
-
-  const handleExportData = () => {
-    console.log('Exportar datos');
-    // Implementar lógica para exportar datos
-  };
+  const SectionHeader: React.FC<{
+    title: string;
+    icon: React.ReactNode;
+    sectionKey: string;
+    count?: number;
+  }> = ({ title, icon, sectionKey, count }) => (
+    <button
+      onClick={() => toggleSection(sectionKey)}
+      className="flex items-center justify-between w-full p-4 hover:bg-muted/50 transition-colors"
+    >
+      <div className="flex items-center space-x-3">
+        {icon}
+        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        {count !== undefined && (
+          <Badge variant="secondary" className="ml-2">
+            {count}
+          </Badge>
+        )}
+      </div>
+      {expandedSections[sectionKey] ? (
+        <ChevronDown className="h-5 w-5 text-muted-foreground" />
+      ) : (
+        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+      )}
+    </button>
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Header mejorado */}
-      <ImprovedMandateHeader 
-        mandate={mandate}
-        totalTargets={mockStats.totalTargets}
-        contactedTargets={mockStats.contactedTargets}
-        interestedTargets={mockStats.interestedTargets}
-        onEdit={onEdit}
-      />
+    <div className="space-y-4">
+      {/* Mandate Overview Card */}
+      <Card>
+        <SectionHeader
+          title={`Información del ${mandateType === 'venta' ? 'Mandato de Venta' : 'Mandato'}`}
+          icon={<Building2 className="h-5 w-5 text-primary" />}
+          sectionKey="overview"
+        />
+        
+        {expandedSections.overview && (
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Client Information */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-muted-foreground">Cliente</h4>
+                <div>
+                  <p className="font-semibold text-foreground">{mandate.client_name}</p>
+                  <p className="text-sm text-muted-foreground">{mandate.client_contact}</p>
+                  {mandate.client_email && (
+                    <p className="text-sm text-muted-foreground">{mandate.client_email}</p>
+                  )}
+                  {mandate.client_phone && (
+                    <p className="text-sm text-muted-foreground">{mandate.client_phone}</p>
+                  )}
+                </div>
+              </div>
 
-      {/* Contenido organizado en pestañas */}
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Resumen</span>
-          </TabsTrigger>
-          <TabsTrigger value="targets" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            <span className="hidden sm:inline">Targets</span>
-          </TabsTrigger>
-          <TabsTrigger value="activity" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            <span className="hidden sm:inline">Actividad</span>
-          </TabsTrigger>
-          <TabsTrigger value="documents" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Documentos</span>
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            <span className="hidden sm:inline">Config</span>
-          </TabsTrigger>
-        </TabsList>
+              {/* Status & Dates */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-muted-foreground">Estado y Fechas</h4>
+                <div className="space-y-2">
+                  {getStatusBadge(mandate.status)}
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>Inicio: {new Date(mandate.start_date).toLocaleDateString('es-ES')}</span>
+                  </div>
+                  {mandate.end_date && (
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>Fin: {new Date(mandate.end_date).toLocaleDateString('es-ES')}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-        <TabsContent value="overview" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Columna principal */}
-            <div className="lg:col-span-2 space-y-6">
-              <MandateRecentActivity />
-              
-              {/* Criterios detallados */}
-              <MandatoCriteria mandate={mandate} />
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              <MandateQuickActions 
-                mandate={mandate}
-                onAddTarget={handleAddTarget}
-                onBulkContact={handleBulkContact}
-                onScheduleFollowup={handleScheduleFollowup}
-                onExportData={handleExportData}
-              />
-              
-              <MandateProgress 
-                totalTargets={mockStats.totalTargets}
-                contactedTargets={mockStats.contactedTargets}
-                className="lg:block"
-              />
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="targets" className="mt-6">
-          <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/25">
-            <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">Gestión de Targets</h3>
-            <p className="text-muted-foreground mb-4">
-              Aquí se mostrará la lista completa de targets y el pipeline de seguimiento
-            </p>
-            <Button onClick={() => navigate(`/mandatos/${mandate.id}/targets`)}>
-              <Target className="h-4 w-4 mr-2" />
-              Ver Todos los Targets
-            </Button>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="activity" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <MandateRecentActivity />
-            </div>
-            <div>
-              <div className="text-center py-8 bg-muted/30 rounded-lg border">
-                <Activity className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Timeline completo próximamente</p>
+              {/* Financial Criteria Summary */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-muted-foreground">{mandateType === 'venta' ? 'Valoración' : 'Criterios Financieros'}</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Euro className="h-4 w-4 text-muted-foreground" />
+                    <span>Facturación: {formatCurrency(mandate.min_revenue)} - {formatCurrency(mandate.max_revenue)}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Euro className="h-4 w-4 text-muted-foreground" />
+                    <span>EBITDA: {formatCurrency(mandate.min_ebitda)} - {formatCurrency(mandate.max_ebitda)}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </TabsContent>
 
-        <TabsContent value="documents" className="mt-6">
-          <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/25">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">Documentos del Mandato</h3>
-            <p className="text-muted-foreground mb-4">
-              Gestiona todos los documentos relacionados con este mandato
-            </p>
-            <div className="flex justify-center gap-2">
-              <Button variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                Subir Documento
-              </Button>
-              <Button onClick={() => navigate(`/mandatos/${mandate.id}/documentos`)}>
-                Ver Documentos
-              </Button>
-            </div>
-          </div>
-        </TabsContent>
+            {/* Sectors & Locations */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-medium text-muted-foreground mb-3">Sectores Objetivo</h4>
+                <div className="flex flex-wrap gap-2">
+                  {mandate.target_sectors && mandate.target_sectors.length > 0 ? (
+                    mandate.target_sectors.map((sector, index) => (
+                      <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700">
+                        {sector}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Sin sectores específicos</span>
+                  )}
+                </div>
+              </div>
 
-        <TabsContent value="settings" className="mt-6">
-          <div className="text-center py-12 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/25">
-            <Settings className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">Configuración del Mandato</h3>
-            <p className="text-muted-foreground mb-4">
-              Modifica los criterios, configuraciones y accesos del mandato
-            </p>
-            <div className="flex justify-center gap-2">
-              <Button variant="outline" onClick={() => onEdit(mandate)}>
-                <Settings className="h-4 w-4 mr-2" />
-                Editar Configuración
-              </Button>
-              <Button variant="outline">
-                <Users className="h-4 w-4 mr-2" />
-                Gestionar Accesos
-              </Button>
+              <div>
+                <h4 className="font-medium text-muted-foreground mb-3">Ubicaciones Objetivo</h4>
+                <div className="flex flex-wrap gap-2">
+                  {mandate.target_locations && mandate.target_locations.length > 0 ? (
+                    mandate.target_locations.map((location, index) => (
+                      <Badge key={index} variant="secondary" className="bg-green-50 text-green-700">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {location}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Sin ubicaciones específicas</span>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Detailed Criteria Card */}
+      <Card>
+        <SectionHeader
+          title="Criterios Detallados"
+          icon={<Target className="h-5 w-5 text-primary" />}
+          sectionKey="criteria"
+        />
+        
+        {expandedSections.criteria && (
+          <CardContent className="pt-0">
+            <MandatoCriteria mandate={mandate} />
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Targets Section */}
+      <Card>
+        <SectionHeader
+          title={`${mandateType === 'venta' ? 'Compradores Potenciales' : 'Targets'}`}
+          icon={<Users className="h-5 w-5 text-primary" />}
+          sectionKey="targets"
+          count={0}
+        />
+        
+        {expandedSections.targets && (
+          <CardContent className="pt-0">
+            <div className="text-center py-12 space-y-4">
+              <Target className="h-12 w-12 text-muted-foreground mx-auto" />
+              <div>
+                <h4 className="text-lg font-medium text-foreground">
+                  {mandateType === 'venta' ? 'No hay compradores potenciales identificados' : 'No hay targets identificados'}
+                </h4>
+                <p className="text-muted-foreground">
+                  {mandateType === 'venta' 
+                    ? 'Comienza agregando compradores potenciales interesados en esta oportunidad de venta'
+                    : 'Comienza agregando empresas objetivo que cumplan con los criterios del mandato'
+                  }
+                </p>
+              </div>
+              <div className="flex justify-center space-x-3">
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {mandateType === 'venta' ? 'Agregar Comprador' : 'Agregar Target'}
+                </Button>
+                <Button variant="outline">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Buscar en Base de Datos
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 };
+
+export default CollapsibleMandatePanel;

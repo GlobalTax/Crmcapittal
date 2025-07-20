@@ -1,3 +1,4 @@
+
 import { HierarchicalCRMView } from '@/components/unified/HierarchicalCRMView';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
@@ -14,7 +15,10 @@ export default function SellingMandates() {
           </div>
         </div>
 
-        <HierarchicalCRMView initialLevel="mandates" />
+        <HierarchicalCRMView 
+          initialLevel="mandates" 
+          mandateType="venta"
+        />
       </div>
     </ErrorBoundary>
   );
