@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,9 +12,12 @@ import { TransaccionNotesTab } from '@/components/transacciones/tabs/Transaccion
 import { TransaccionDocumentsTab } from '@/components/transacciones/tabs/TransaccionDocumentsTab';
 import { TransaccionInteresadosTab } from '@/components/transacciones/tabs/TransaccionInteresadosTab';
 import { TransaccionDetailsSidebar } from '@/components/transacciones/TransaccionDetailsSidebar';
+import { TransaccionesListSidebar } from '@/components/transacciones/TransaccionesListSidebar';
 import { useTransaccion } from '@/hooks/useTransaccion';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
+import { Link } from 'react-router-dom';
+import { List } from 'lucide-react';
 
 export default function TransaccionPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,10 +25,17 @@ export default function TransaccionPage() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   
-  const { transaccion, isLoading: transaccionLoading, updateTransaccion } = useTransaccion(id || '');
   const { transacciones, loading: transaccionesLoading } = useTransacciones();
+  const { transaccion, isLoading: transaccionLoading, updateTransaccion } = useTransaccion(id || '');
   
   const isLoading = transaccionLoading || transaccionesLoading;
+
+  // If no ID is provided and we have transactions, redirect to the first one
+  useEffect(() => {
+    if (!id && transacciones && transacciones.length > 0 && !transaccionesLoading) {
+      navigate(`/transacciones/${transacciones[0].id}`, { replace: true });
+    }
+  }, [id, transacciones, transaccionesLoading, navigate]);
 
   // Handle legacy URL redirections
   useEffect(() => {
@@ -40,10 +51,14 @@ export default function TransaccionPage() {
     if (transaccion) {
       document.title = `Transacción • ${transaccion.nombre_transaccion}`;
     } else if (!isLoading && id) {
-      // Transacción not found, redirect to transactions list
-      navigate('/transacciones', { replace: true });
+      // Transacción not found, redirect to first transaction or list
+      if (transacciones && transacciones.length > 0) {
+        navigate(`/transacciones/${transacciones[0].id}`, { replace: true });
+      } else {
+        navigate('/transacciones/lista', { replace: true });
+      }
     }
-  }, [transaccion, id, navigate, isLoading]);
+  }, [transaccion, id, navigate, isLoading, transacciones]);
 
   // Scroll to top when transaction changes
   useEffect(() => {
@@ -85,20 +100,54 @@ export default function TransaccionPage() {
   const hasPrevious = currentIndex > 0;
   const hasNext = transacciones ? currentIndex < transacciones.length - 1 : false;
 
+  // Show loading while we're fetching data
   if (isLoading) {
     return <LoadingSkeleton />;
   }
 
-  if (!transaccion) {
+  // If no transactions exist, show empty state
+  if (!transacciones || transacciones.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Transacción no encontrada</p>
+      <div className="flex items-center justify-center h-64 flex-col gap-4">
+        <p className="text-muted-foreground">No hay transacciones disponibles</p>
+        <Link to="/transacciones/lista">
+          <Button variant="outline">
+            <List className="h-4 w-4 mr-2" />
+            Ir a la vista de lista para crear una transacción
+          </Button>
+        </Link>
       </div>
     );
   }
 
+  // If we have transactions but no specific one selected yet, show loading
+  if (!transaccion && id) {
+    return <LoadingSkeleton />;
+  }
+
+  // If no ID but we have transactions, we're redirecting
+  if (!id) {
+    return <LoadingSkeleton />;
+  }
+
   return (
     <div className="min-h-screen bg-neutral-0 flex">
+      {/* Left sidebar with transactions list */}
+      <div className="hidden lg:block w-80 border-r border-border bg-neutral-50 overflow-y-auto">
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-lg">Transacciones</h2>
+            <Link to="/transacciones/lista">
+              <Button variant="outline" size="sm">
+                <List className="h-4 w-4 mr-1" />
+                Vista Lista
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <TransaccionesListSidebar />
+      </div>
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         <TransaccionHeader

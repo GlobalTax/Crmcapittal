@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -18,6 +17,7 @@ import NegocioDetail from '@/pages/NegocioDetail';
 import Contacts from '@/pages/Contacts';
 import Companies from '@/pages/Companies';
 import MinimalTransacciones from '@/pages/MinimalTransacciones';
+import TransaccionPage from '@/pages/TransaccionPage';
 import BuyingMandates from '@/pages/BuyingMandates';
 import Collaborators from '@/pages/Collaborators';
 import Leads from '@/pages/Leads';
@@ -72,8 +72,10 @@ function AppRoutes() {
         <Route path="captacion" element={<LeadsEntryPanel />} />
         <Route path="captacion/:id" element={<LeadPage />} />
         
-        {/* Transaction and mandate routes */}
-        <Route path="transacciones" element={<MinimalTransacciones />} />
+        {/* Transaction routes */}
+        <Route path="transacciones" element={<TransaccionPage />} />
+        <Route path="transacciones/:id" element={<TransaccionPage />} />
+        <Route path="transacciones/lista" element={<MinimalTransacciones />} />
         <Route path="buying-mandates" element={<BuyingMandates />} />
         
         {/* Collaborators and commissions */}
