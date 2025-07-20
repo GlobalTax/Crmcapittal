@@ -41,13 +41,13 @@ export const useSociedades = (options: UseSociedadesOptions = {}) => {
       // Aplicar filtro de estado
       if (statusFilter !== "all") {
         console.log("🔍 [useSociedades] Aplicando filtro de estado:", statusFilter);
-        query = query.eq("company_status", statusFilter);
+        query = query.eq("company_status", statusFilter as any);
       }
       
       // Aplicar filtro de tipo
       if (typeFilter !== "all") {
         console.log("🔍 [useSociedades] Aplicando filtro de tipo:", typeFilter);
-        query = query.eq("company_type", typeFilter);
+        query = query.eq("company_type", typeFilter as any);
       }
 
       // Aplicar paginación
