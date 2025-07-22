@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Search, Command } from 'lucide-react';
@@ -108,17 +109,8 @@ export function AttioTopbar() {
             </div>
           </div>
 
-          {/* Right: Context Actions & Avatar */}
+          {/* Right: User Menu */}
           <div className="flex items-center gap-4">
-            {/* Context actions can be added here based on current route */}
-            <Button variant="ghost" size="sm" className="text-gray-600">
-              Filtros
-            </Button>
-            
-            <Button variant="ghost" size="sm" className="text-gray-600">
-              Exportar
-            </Button>
-
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -137,16 +129,6 @@ export function AttioTopbar() {
                     <p className="text-xs text-gray-500">Usuario activo</p>
                   </div>
                 </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <span>Mi perfil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Configuración</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Ayuda y soporte</span>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <span>Cerrar sesión</span>

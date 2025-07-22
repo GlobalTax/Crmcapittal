@@ -110,8 +110,6 @@ export function ContactsTable({
           <p className="text-gray-600 mt-1">Gestiona todos tus contactos y leads</p>
         </div>
         <div className="flex space-x-3">
-          <Button variant="secondary">Filtros</Button>
-          <Button variant="secondary">Exportar</Button>
           <CreateContactDialog onCreateContact={onCreateContact} isCreating={isCreating} />
         </div>
       </div>
