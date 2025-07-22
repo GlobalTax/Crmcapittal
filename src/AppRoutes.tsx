@@ -29,7 +29,7 @@ const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
 const Deals = lazy(() => import('@/pages/Deals'));
 const DealPage = lazy(() => import('@/pages/DealPage'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));
-const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
+// const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const EmailSetup = lazy(() => import('@/pages/EmailSetup'));
 const CalendarPage = lazy(() => import('@/pages/MinimalCalendar'));
 const Documents = lazy(() => import('@/pages/MinimalDocuments'));
@@ -188,14 +188,14 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-          <Route 
+          {/* <Route 
             path="/time-tracking" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <TimeTracking />
               </Suspense>
             } 
-          />
+          /> */}
             <Route 
               path="/email" 
               element={

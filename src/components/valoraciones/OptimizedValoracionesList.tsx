@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Download, Filter } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { format } from 'date-fns';
+import { format as formatDate } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -76,8 +76,8 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
             <h3 className="font-semibold text-lg">{valoracion.company_name}</h3>
             <p className="text-muted-foreground">{valoracion.client_name}</p>
           </div>
-          <Badge variant={valoracion.current_phase === 'completed' ? 'default' : 'secondary'}>
-            {valoracion.current_phase || 'Pendiente'}
+          <Badge variant={valoracion.status === 'completed' ? 'default' : 'secondary'}>
+            {valoracion.status || 'Pendiente'}
           </Badge>
         </div>
       </CardHeader>
@@ -86,11 +86,11 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground">Creado:</span>
-            <p>{format(new Date(valoracion.created_at), 'dd/MM/yyyy', { locale: es })}</p>
+            <p>{formatDate(new Date(valoracion.created_at), 'dd/MM/yyyy', { locale: es })}</p>
           </div>
           <div>
             <span className="text-muted-foreground">Actualizado:</span>
-            <p>{format(new Date(valoracion.updated_at), 'dd/MM/yyyy', { locale: es })}</p>
+            <p>{formatDate(new Date(valoracion.updated_at), 'dd/MM/yyyy', { locale: es })}</p>
           </div>
         </div>
         
@@ -117,13 +117,13 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
     const exportData = filteredData.map(v => ({
       'Empresa': v.company_name,
       'Cliente': v.client_name,
-      'Fase': v.current_phase,
+      'Estado': v.status,
       'Descripción': v.company_description,
-      'Creado': format === 'excel' ? new Date(v.created_at) : format(new Date(v.created_at), 'dd/MM/yyyy'),
-      'Actualizado': format === 'excel' ? new Date(v.updated_at) : format(new Date(v.updated_at), 'dd/MM/yyyy')
+      'Creado': format === 'excel' ? new Date(v.created_at) : formatDate(new Date(v.created_at), 'dd/MM/yyyy'),
+      'Actualizado': format === 'excel' ? new Date(v.updated_at) : formatDate(new Date(v.updated_at), 'dd/MM/yyyy')
     }));
     
-    const timestamp = format(new Date(), 'yyyy-MM-dd_HH-mm');
+    const timestamp = formatDate(new Date(), 'yyyy-MM-dd_HH-mm');
     const filename = `valoraciones_${timestamp}.${format === 'excel' ? 'xlsx' : format}`;
     
     await startExport({
@@ -172,13 +172,13 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
         </div>
         
         <div className="flex gap-2 flex-wrap">
-          <Select value={filters.current_phase || 'all'} onValueChange={(value) => updateFilter('current_phase', value)}>
+          <Select value={filters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
             <SelectTrigger className="w-[180px]">
               <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filtrar por fase" />
+              <SelectValue placeholder="Filtrar por estado" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todas las fases</SelectItem>
+              <SelectItem value="all">Todos los estados</SelectItem>
               <SelectItem value="pending">Pendiente</SelectItem>
               <SelectItem value="in_progress">En progreso</SelectItem>
               <SelectItem value="completed">Completado</SelectItem>
