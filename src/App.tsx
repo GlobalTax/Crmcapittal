@@ -1,6 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient } from './QueryClient';
+import { Toaster } from './components/ui/sonner';
+import ProtectedRoute from './components/ProtectedRoute';
+import Auth from './pages/Auth';
 import Leads from './pages/Leads';
 import { PipedriveStyleLeadDetail } from './components/leads/PipedriveStyleLeadDetail';
 import Contacts from './pages/Contacts';
@@ -19,7 +22,8 @@ function App() {
     <QueryClient>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<DashboardLayout />} >
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} >
             <Route index element={<Navigate to="/leads" replace />} />
             <Route path="/leads" element={<Leads />} />
             <Route path="/leads/:id" element={<PipedriveStyleLeadDetail />} />
@@ -33,6 +37,7 @@ function App() {
             <Route path="/reconversiones/:id" element={<ReconversionDetail />} />
           </Route>
         </Routes>
+        <Toaster />
       </BrowserRouter>
     </QueryClient>
   );
