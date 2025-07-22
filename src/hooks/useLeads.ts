@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
@@ -23,8 +22,14 @@ export const useLeads = (filters?: {
 
   const createMutation = useMutation({
     mutationFn: async (leadData: CreateLeadData) => {
+      // Ensure service_type is included with default fallback
+      const leadPayload = {
+        ...leadData,
+        service_type: leadData.service_type || 'mandato_venta'
+      };
+      
       // Create the lead first
-      const lead = await leadsService.createLead(leadData);
+      const lead = await leadsService.createLead(leadPayload);
       
       // Auto-convert to contact, company, and deal
       try {

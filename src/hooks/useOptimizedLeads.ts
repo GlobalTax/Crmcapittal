@@ -55,8 +55,13 @@ export const useOptimizedLeads = (filters?: {
 
   const createMutation = useMutation({
     mutationFn: async (leadData: any) => {
-      // Create the lead first
-      const lead = await leadsService.createLead(leadData);
+      // Create the lead first with service_type
+      const leadPayload = {
+        ...leadData,
+        service_type: leadData.service_type || 'mandato_venta' // Default fallback
+      };
+      
+      const lead = await leadsService.createLead(leadPayload);
       
       // Auto-convert to contact, company, and deal
       try {

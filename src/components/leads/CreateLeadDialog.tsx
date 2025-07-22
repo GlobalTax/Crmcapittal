@@ -21,12 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
-import { CreateLeadData, LeadSource, LeadOrigin } from "@/types/Lead";
+import { CreateLeadData, LeadSource, LeadOrigin, LeadServiceType } from "@/types/Lead";
 import { CreateContactData, Contact } from "@/types/Contact";
 import { ContactSelector } from "./ContactSelector";
 
 interface CreateLeadDialogProps {
-  onCreateLead: (data: CreateContactData & { opportunity_name: string; estimated_value?: number; close_date?: string; probability?: number }) => void;
+  onCreateLead: (data: CreateContactData & { opportunity_name: string; estimated_value?: number; close_date?: string; probability?: number; service_type: LeadServiceType }) => void;
   isCreating?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
@@ -41,6 +41,12 @@ const leadSources = [
   { value: 'other', label: 'Otro' }
 ] as const;
 
+const serviceTypes = [
+  { value: 'mandato_venta', label: 'Mandato de Venta', description: 'Venta de empresas' },
+  { value: 'mandato_compra', label: 'Mandato de Compra', description: 'Búsqueda de empresas para adquirir' },
+  { value: 'valoracion_empresa', label: 'Valoración de Empresa', description: 'Servicios de valoración empresarial' }
+] as const;
+
 export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: CreateLeadDialogProps) => {
   const [open, setOpen] = useState(false);
   
@@ -51,6 +57,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
   // Lead opportunity data
   const [opportunityData, setOpportunityData] = useState({
     opportunity_name: '',
+    service_type: 'mandato_venta' as LeadServiceType,
     estimated_value: '',
     close_date: '',
     probability: '50',
@@ -120,6 +127,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
     const leadData = {
       ...contactData,
       opportunity_name: opportunityData.opportunity_name,
+      service_type: opportunityData.service_type,
       estimated_value: opportunityData.estimated_value ? parseFloat(opportunityData.estimated_value) : undefined,
       close_date: opportunityData.close_date || undefined,
       probability: parseInt(opportunityData.probability)
@@ -131,6 +139,7 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
     setDialogOpen(false);
     setOpportunityData({
       opportunity_name: '',
+      service_type: 'mandato_venta',
       estimated_value: '',
       close_date: '',
       probability: '50',
@@ -187,6 +196,28 @@ export const CreateLeadDialog = ({ onCreateLead, isCreating, isOpen, onClose }: 
                   placeholder="ej: Consultoría RRHH - Empresa ABC"
                   required
                 />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="service_type">Tipo de Servicio *</Label>
+                <Select 
+                  value={opportunityData.service_type} 
+                  onValueChange={(value: LeadServiceType) => handleOpportunityChange('service_type', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar tipo de servicio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {serviceTypes.map((service) => (
+                      <SelectItem key={service.value} value={service.value}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{service.label}</span>
+                          <span className="text-xs text-muted-foreground">{service.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
