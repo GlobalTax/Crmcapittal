@@ -1,4 +1,3 @@
-
 export interface ValidationError {
   file: string;
   error: string;
@@ -30,6 +29,12 @@ export const FILE_VALIDATION_CONFIGS: Record<string, FileValidationConfig> = {
     maxSize: 10 * 1024 * 1024, // 10MB
     maxFiles: 1,
     allowedTypes: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "text/csv"]
+  },
+  // Nueva configuración estricta para leads/propuestas
+  leadDocuments: {
+    maxSize: 10 * 1024 * 1024, // 10MB
+    maxFiles: 5,
+    allowedTypes: ["application/pdf", "image/png", "image/jpeg"]
   }
 };
 

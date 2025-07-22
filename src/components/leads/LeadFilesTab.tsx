@@ -1,12 +1,13 @@
+
 import { useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lead } from '@/types/Lead';
 import { useLeadFiles } from '@/hooks/useLeadFiles';
-import { Upload, Download, Trash2, FileText, Image, File } from 'lucide-react';
+import { StrictFileUploader } from '@/components/StrictFileUploader';
+import { Download, Trash2, FileText, Image, File } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useDropzone } from 'react-dropzone';
 
 interface LeadFilesTabProps {
   lead: Lead;
@@ -15,17 +16,11 @@ interface LeadFilesTabProps {
 export const LeadFilesTab = ({ lead }: LeadFilesTabProps) => {
   const { files, isLoading, uploadFile, deleteFile, isUploading } = useLeadFiles(lead.id);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    acceptedFiles.forEach((file) => {
+  const handleValidFiles = useCallback((validFiles: File[]) => {
+    validFiles.forEach((file) => {
       uploadFile({ file, leadId: lead.id });
     });
   }, [uploadFile, lead.id]);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: true,
-    maxSize: 10 * 1024 * 1024, // 10MB
-  });
 
   const formatFileSize = (bytes: number | null) => {
     if (!bytes) return 'Tamaño desconocido';
@@ -41,7 +36,7 @@ export const LeadFilesTab = ({ lead }: LeadFilesTabProps) => {
     
     if (contentType.startsWith('image/')) {
       return <Image className="h-8 w-8" />;
-    } else if (contentType.includes('pdf') || contentType.includes('document')) {
+    } else if (contentType.includes('pdf')) {
       return <FileText className="h-8 w-8" />;
     } else {
       return <File className="h-8 w-8" />;
@@ -88,29 +83,11 @@ export const LeadFilesTab = ({ lead }: LeadFilesTabProps) => {
           <CardTitle className="text-lg">Archivos del Lead</CardTitle>
         </CardHeader>
         <CardContent>
-          <div
-            {...getRootProps()}
-            className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-              isDragActive
-                ? 'border-primary bg-primary/5'
-                : 'border-muted-foreground/25 hover:border-primary/50'
-            }`}
-          >
-            <input {...getInputProps()} />
-            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            {isDragActive ? (
-              <p className="text-lg">Suelta los archivos aquí...</p>
-            ) : (
-              <div>
-                <p className="text-lg mb-2">
-                  Arrastra archivos aquí o haz clic para seleccionar
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Máximo 10MB por archivo
-                </p>
-              </div>
-            )}
-          </div>
+          <StrictFileUploader
+            onFilesValid={handleValidFiles}
+            multiple={true}
+            disabled={isUploading}
+          />
           {isUploading && (
             <div className="mt-4 p-4 bg-primary/5 rounded-lg">
               <p className="text-sm text-primary">Subiendo archivo...</p>

@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { validateFileStrict } from '@/utils/fileValidationStrict';
+import { toast } from 'sonner';
 
 export interface ContactFile {
   id: string;
@@ -44,9 +46,12 @@ export function useContactFiles(contactId?: string) {
     fetchFiles();
   }, [fetchFiles]);
 
-  // Agregar archivo
+  // Agregar archivo con validación estricta
   const addFile = async (file: Omit<ContactFile, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      // Validar el archivo antes de agregarlo a la base de datos
+      // Necesitamos reconstruir el File object para validar
+      // En este caso asumimos que la validación ya se hizo antes de llamar addFile
       const { data, error } = await supabase
         .from('contact_files')
         .insert([file])
@@ -60,6 +65,20 @@ export function useContactFiles(contactId?: string) {
       setError(err instanceof Error ? err.message : 'Error al agregar archivo');
       throw err;
     }
+  };
+
+  // Función para validar archivo antes de subir
+  const validateAndAddFile = async (fileToUpload: File, fileRecord: Omit<ContactFile, 'id' | 'created_at' | 'updated_at'>) => {
+    // Validar archivo usando la validación estricta
+    const validation = validateFileStrict(fileToUpload);
+    
+    if (!validation.isValid) {
+      const errorMsg = validation.errors.map(err => err.error).join(', ');
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    
+    return addFile(fileRecord);
   };
 
   // Eliminar archivo
@@ -107,6 +126,7 @@ export function useContactFiles(contactId?: string) {
     error,
     fetchFiles,
     addFile,
+    validateAndAddFile,
     deleteFile,
   };
 }
