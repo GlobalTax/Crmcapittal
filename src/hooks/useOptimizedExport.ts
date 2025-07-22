@@ -54,15 +54,15 @@ export function useOptimizedExport() {
 
       switch (format) {
         case 'csv': {
-          await exportToCsv(data, headers, filename, chunkSize);
+          await exportToCsv(data, headers, filename, chunkSize, setProgress);
           break;
         }
         case 'excel': {
-          await exportToExcel(data, headers, filename, chunkSize);
+          await exportToExcel(data, headers, filename, chunkSize, setProgress);
           break;
         }
         case 'pdf': {
-          await exportToPdf(data, headers, filename, chunkSize);
+          await exportToPdf(data, headers, filename, chunkSize, setProgress);
           break;
         }
         default:
@@ -90,7 +90,8 @@ export function useOptimizedExport() {
     data: Record<string, any>[], 
     headers: string[], 
     filename: string,
-    chunkSize: number
+    chunkSize: number,
+    setProgress: (progress: number) => void
   ) => {
     let csvContent = '';
     
@@ -101,8 +102,6 @@ export function useOptimizedExport() {
     
     // Procesar los datos en bloques
     for (let i = 0; i < data.length; i += chunkSize) {
-      if (!isExporting) break; // Permitir cancelación
-      
       const chunk = data.slice(i, i + chunkSize);
       
       // Añadir filas
@@ -137,7 +136,8 @@ export function useOptimizedExport() {
     data: Record<string, any>[], 
     headers: string[], 
     filename: string,
-    chunkSize: number
+    chunkSize: number,
+    setProgress: (progress: number) => void
   ) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Datos');
@@ -149,8 +149,6 @@ export function useOptimizedExport() {
     
     // Procesar los datos en bloques
     for (let i = 0; i < data.length; i += chunkSize) {
-      if (!isExporting) break; // Permitir cancelación
-      
       const chunk = data.slice(i, i + chunkSize);
       
       // Añadir filas
@@ -177,7 +175,8 @@ export function useOptimizedExport() {
     data: Record<string, any>[], 
     headers: string[], 
     filename: string,
-    chunkSize: number
+    chunkSize: number,
+    setProgress: (progress: number) => void
   ) => {
     const doc = new jsPDF();
     
@@ -187,8 +186,6 @@ export function useOptimizedExport() {
     
     // Procesar los datos en bloques
     for (let i = 0; i < data.length; i += chunkSize) {
-      if (!isExporting) break; // Permitir cancelación
-      
       const chunk = data.slice(i, i + chunkSize);
       
       // Añadir filas

@@ -243,7 +243,10 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
                 min={1}
                 max={totalPages}
                 value={currentPage}
-                onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
+                onChange={(e) => {
+                  const page = parseInt(e.target.value) || 1;
+                  goToPage(page);
+                }}
                 className="w-20 text-center"
               />
               <span className="text-sm">de {totalPages}</span>
