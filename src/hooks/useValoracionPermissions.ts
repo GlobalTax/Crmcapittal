@@ -37,12 +37,11 @@ export const useValoracionPermissions = (valoracion?: Valoracion): ValoracionPer
 
     const isAdmin = role === 'admin' || role === 'superadmin';
     const isSuperAdmin = role === 'superadmin';
-    const isOwner = valoracion.created_by === user.id;
-    const isAssigned = valoracion.assigned_to === user.email; // Assuming assigned_to stores email
+    const isAssigned = valoracion.assigned_to === user.email;
 
-    // Base permissions
-    const canView = isAdmin || isOwner || isAssigned;
-    const canEdit = isAdmin || isOwner || isAssigned;
+    // Base permissions - admins can see all, assigned users can see their own
+    const canView = isAdmin || isAssigned;
+    const canEdit = isAdmin || isAssigned;
 
     if (!canView) {
       return {
@@ -67,10 +66,10 @@ export const useValoracionPermissions = (valoracion?: Valoracion): ValoracionPer
     switch (valoracion.status) {
       case 'requested':
         // Can advance to 'in_process'
-        canAdvancePhase = isAdmin || isOwner || isAssigned;
+        canAdvancePhase = isAdmin || isAssigned;
         nextPhaseRequiresConfirmation = true;
         if (!canAdvancePhase) {
-          disabledReason = 'Solo el creador, asignado o administradores pueden iniciar el proceso';
+          disabledReason = 'Solo el responsable asignado o administradores pueden iniciar el proceso';
         }
         break;
 
