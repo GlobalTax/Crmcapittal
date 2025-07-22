@@ -1,12 +1,10 @@
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { OptimizedValoracionesList } from '@/components/valoraciones/OptimizedValoracionesList';
+import type { Database } from '@/integrations/supabase/types';
 
-// Lazy load the heavy component
-const OptimizedValoracionesList = React.lazy(() => 
-  import('@/components/valoraciones/OptimizedValoracionesList').then(module => ({
-    default: module.OptimizedValoracionesList
-  }))
-);
+type Valoracion = Database['public']['Tables']['valoraciones']['Row'];
 
 const LoadingSkeleton = () => (
   <div className="space-y-4">
@@ -29,6 +27,20 @@ const LoadingSkeleton = () => (
 );
 
 export default function Valoraciones() {
+  const [selectedValoracion, setSelectedValoracion] = useState<Valoracion | null>(null);
+  
+  const handleViewValoracion = (valoracion: Valoracion) => {
+    setSelectedValoracion(valoracion);
+    // Aquí podrías abrir un modal o redirigir a una página de detalle
+    console.log('Ver valoración:', valoracion);
+  };
+  
+  const handleEditValoracion = (valoracion: Valoracion) => {
+    setSelectedValoracion(valoracion);
+    // Aquí podrías abrir un formulario de edición
+    console.log('Editar valoración:', valoracion);
+  };
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-6">
@@ -41,9 +53,10 @@ export default function Valoraciones() {
           </div>
         </div>
 
-        <Suspense fallback={<LoadingSkeleton />}>
-          <OptimizedValoracionesList />
-        </Suspense>
+        <OptimizedValoracionesList
+          onView={handleViewValoracion}
+          onEdit={handleEditValoracion}
+        />
       </div>
     </div>
   );

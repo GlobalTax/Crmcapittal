@@ -1,11 +1,9 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useValoraciones } from '@/hooks/useValoraciones';
 import { useOptimizedSearch } from '@/hooks/useOptimizedSearch';
 import { useVirtualizedPagination } from '@/hooks/useVirtualizedPagination';
 import { useOptimizedExport } from '@/hooks/useOptimizedExport';
-import { VirtualizedList } from '@/components/ui/VirtualizedList';
-import { ExportProgress } from '@/components/ui/ExportProgress';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { format as formatDate } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { ExportProgress } from '@/components/ui/ExportProgress';
 import type { Database } from '@/integrations/supabase/types';
 
 type Valoracion = Database['public']['Tables']['valoraciones']['Row'];
@@ -67,8 +66,8 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
   // Exportación optimizada
   const { isExporting, progress, startExport, cancelExport } = useOptimizedExport();
   
-  // Renderizar item de valoración
-  const renderValoracionItem = useMemo(() => (valoracion: Valoracion, index: number) => (
+  // Renderizar item de valoración - usando useCallback para evitar recreaciones innecesarias
+  const renderValoracionItem = useCallback((valoracion: Valoracion, index: number) => (
     <Card key={valoracion.id} className="mb-4 hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
@@ -112,27 +111,27 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
     </Card>
   ), [onView, onEdit]);
   
-  // Manejo de exportación
-  const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
+  // Manejo de exportación - usando useCallback para evitar recreaciones en cada render
+  const handleExport = useCallback(async (exportFormat: 'pdf' | 'excel' | 'csv') => {
     const exportData = filteredData.map(v => ({
       'Empresa': v.company_name,
       'Cliente': v.client_name,
       'Estado': v.status,
       'Descripción': v.company_description,
-      'Creado': format === 'excel' ? new Date(v.created_at) : formatDate(new Date(v.created_at), 'dd/MM/yyyy'),
-      'Actualizado': format === 'excel' ? new Date(v.updated_at) : formatDate(new Date(v.updated_at), 'dd/MM/yyyy')
+      'Creado': exportFormat === 'excel' ? new Date(v.created_at) : formatDate(new Date(v.created_at), 'dd/MM/yyyy'),
+      'Actualizado': exportFormat === 'excel' ? new Date(v.updated_at) : formatDate(new Date(v.updated_at), 'dd/MM/yyyy')
     }));
     
     const timestamp = formatDate(new Date(), 'yyyy-MM-dd_HH-mm');
-    const filename = `valoraciones_${timestamp}.${format === 'excel' ? 'xlsx' : format}`;
+    const filename = `valoraciones_${timestamp}.${exportFormat === 'excel' ? 'xlsx' : exportFormat}`;
     
     await startExport({
-      format,
+      format: exportFormat,
       data: exportData,
       filename,
       includeHeaders: true
     });
-  };
+  }, [filteredData, startExport]);
   
   if (loading) {
     return (
@@ -172,7 +171,10 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
         </div>
         
         <div className="flex gap-2 flex-wrap">
-          <Select value={filters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
+          <Select 
+            value={filters.status || 'all'} 
+            onValueChange={(value) => updateFilter('status', value)}
+          >
             <SelectTrigger className="w-[180px]">
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Filtrar por estado" />
@@ -219,7 +221,7 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
         </span>
       </div>
       
-      {/* Lista virtualizada */}
+      {/* Lista de valoraciones */}
       {currentPageData.length > 0 ? (
         <div className="space-y-4">
           {currentPageData.map((valoracion, index) => renderValoracionItem(valoracion, index))}

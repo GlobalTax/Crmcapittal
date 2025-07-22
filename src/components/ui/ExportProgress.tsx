@@ -1,19 +1,13 @@
 
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
-import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 
 interface ExportProgressProps {
   isVisible: boolean;
-  progress: {
-    current: number;
-    total: number;
-    percentage: number;
-    message: string;
-  };
-  onCancel?: () => void;
+  progress: number;
+  onCancel: () => void;
 }
 
 export const ExportProgress: React.FC<ExportProgressProps> = ({
@@ -22,54 +16,27 @@ export const ExportProgress: React.FC<ExportProgressProps> = ({
   onCancel
 }) => {
   if (!isVisible) return null;
-  
-  const isComplete = progress.percentage >= 100;
-  
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="w-96 max-w-[90vw]">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              {isComplete ? (
-                <Download className="h-5 w-5 text-green-600" />
-              ) : (
-                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-              )}
-              <h3 className="font-semibold">
-                {isComplete ? 'Exportación Completada' : 'Exportando Datos'}
-              </h3>
-            </div>
-            
-            {onCancel && !isComplete && (
-              <Button variant="ghost" size="sm" onClick={onCancel}>
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-          
-          <div className="space-y-3">
-            <Progress value={progress.percentage} className="w-full" />
-            
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>{progress.current} / {progress.total}</span>
-              <span>{progress.percentage}%</span>
-            </div>
-            
-            <p className="text-sm text-muted-foreground">
-              {progress.message}
-            </p>
-          </div>
-          
-          {isComplete && (
-            <div className="mt-4 text-center">
-              <p className="text-sm text-green-600 font-medium">
-                ✅ Descarga iniciada automáticamente
-              </p>
-            </div>
+    <div className="fixed bottom-4 right-4 w-80 bg-card rounded-lg shadow-lg border p-4 z-50 animate-in slide-in-from-bottom-5">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-medium">Exportando datos</h3>
+        <Button variant="ghost" size="icon" onClick={onCancel} className="h-6 w-6">
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="space-y-2">
+        <Progress value={progress} className="h-2" />
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>{progress}% completado</span>
+          {progress < 100 && (
+            <Button variant="ghost" size="sm" className="h-6 px-2 py-0 text-xs" onClick={onCancel}>
+              Cancelar
+            </Button>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
