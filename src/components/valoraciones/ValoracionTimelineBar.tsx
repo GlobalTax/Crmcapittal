@@ -1,35 +1,48 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ValoracionStatus } from '@/types/Valoracion';
 import { VALORACION_PHASES, getPhaseOrder, getPhaseIndex } from '@/utils/valoracionPhases';
-import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ChevronRight } from 'lucide-react';
+import { SecureButton } from './SecureButton';
+import { ConfirmAdvancePhaseDialog } from './ConfirmAdvancePhaseDialog';
+import { useValoracionPermissions } from '@/hooks/useValoracionPermissions';
+import { Valoracion } from '@/types/Valoracion';
 
 interface ValoracionTimelineBarProps {
-  currentStatus: ValoracionStatus;
+  valoracion: Valoracion;
   onAdvancePhase?: (nextPhase: ValoracionStatus) => void;
-  canEdit?: boolean;
   className?: string;
 }
 
 export const ValoracionTimelineBar = ({ 
-  currentStatus, 
-  onAdvancePhase, 
-  canEdit = false,
+  valoracion,
+  onAdvancePhase,
   className = "" 
 }: ValoracionTimelineBarProps) => {
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const permissions = useValoracionPermissions(valoracion);
   const phases = getPhaseOrder();
-  const currentIndex = getPhaseIndex(currentStatus);
+  const currentIndex = getPhaseIndex(valoracion.status);
 
   const handleAdvance = () => {
-    if (currentIndex < phases.length - 1 && onAdvancePhase) {
+    if (permissions.nextPhaseRequiresConfirmation) {
+      setShowConfirmDialog(true);
+    } else if (currentIndex < phases.length - 1 && onAdvancePhase) {
       const nextPhase = phases[currentIndex + 1];
       onAdvancePhase(nextPhase);
     }
   };
 
-  const canAdvance = canEdit && currentIndex < phases.length - 1;
+  const handleConfirmAdvance = () => {
+    if (currentIndex < phases.length - 1 && onAdvancePhase) {
+      const nextPhase = phases[currentIndex + 1];
+      onAdvancePhase(nextPhase);
+    }
+    setShowConfirmDialog(false);
+  };
+
+  const isDelivering = valoracion.status === 'completed';
 
   return (
     <TooltipProvider>
@@ -94,17 +107,29 @@ export const ValoracionTimelineBar = ({
         })}
 
         {/* Advance Button */}
-        {canAdvance && (
-          <Button
+        {currentIndex < phases.length - 1 && (
+          <SecureButton
+            hasPermission={permissions.canAdvancePhase}
+            disabledReason={permissions.disabledReason}
             onClick={handleAdvance}
             size="sm"
-            className="ml-4 animate-pulse"
+            className={permissions.canAdvancePhase ? "ml-4 animate-pulse" : "ml-4"}
           >
             <ChevronRight className="w-4 h-4 mr-1" />
-            Avanzar Fase
-          </Button>
+            {isDelivering ? 'Entregar al Cliente' : 'Avanzar Fase'}
+          </SecureButton>
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmAdvancePhaseDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmAdvance}
+        currentStatus={valoracion.status}
+        companyName={valoracion.company_name}
+        isDelivering={isDelivering}
+      />
     </TooltipProvider>
   );
 };

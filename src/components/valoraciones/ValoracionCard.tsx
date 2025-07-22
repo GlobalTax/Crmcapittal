@@ -4,32 +4,30 @@ import { Valoracion } from '@/types/Valoracion';
 import { VALORACION_PHASES } from '@/utils/valoracionPhases';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Building2, User, Calendar, MoreVertical, Eye, Edit, Archive } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { SecureButton } from './SecureButton';
+import { useValoracionPermissions } from '@/hooks/useValoracionPermissions';
 
 interface ValoracionCardProps {
   valoracion: Valoracion;
   onView?: (valoracion: Valoracion) => void;
   onEdit?: (valoracion: Valoracion) => void;
   onArchive?: (valoracion: Valoracion) => void;
-  canEdit?: boolean;
-  canArchive?: boolean;
 }
 
 export const ValoracionCard = ({ 
   valoracion, 
   onView, 
   onEdit, 
-  onArchive,
-  canEdit = false,
-  canArchive = false 
+  onArchive
 }: ValoracionCardProps) => {
   const phase = VALORACION_PHASES[valoracion.status];
+  const permissions = useValoracionPermissions(valoracion);
   
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -53,9 +51,21 @@ export const ValoracionCard = ({
     );
   };
 
+  if (!permissions.canView) {
+    return (
+      <Card className="opacity-50">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-center text-muted-foreground">
+            <p>Sin permisos para ver esta valoración</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <TooltipProvider>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => onView?.(valoracion)}>
+      <Card className="hover:shadow-md transition-shadow cursor-pointer group" onClick={() => permissions.canView && onView?.(valoracion)}>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="space-y-2 flex-1">
@@ -94,22 +104,28 @@ export const ValoracionCard = ({
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                  <SecureButton 
+                    hasPermission={permissions.canView}
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-8 h-8 p-0"
+                    showLockIcon={false}
+                  >
                     <MoreVertical className="w-4 h-4" />
-                  </Button>
+                  </SecureButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onView?.(valoracion); }}>
                     <Eye className="w-4 h-4 mr-2" />
                     Ver detalles
                   </DropdownMenuItem>
-                  {canEdit && (
+                  {permissions.canEdit && (
                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit?.(valoracion); }}>
                       <Edit className="w-4 h-4 mr-2" />
                       Editar
                     </DropdownMenuItem>
                   )}
-                  {canArchive && (
+                  {permissions.canArchive && (
                     <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onArchive?.(valoracion); }}>
                       <Archive className="w-4 h-4 mr-2" />
                       Archivar

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Calculator, Plus, FileText, TrendingUp, Filter, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,8 @@ export default function Valoraciones() {
     status: (v.status as ValoracionStatus) || 'requested',
     priority: undefined, // Add this when database is updated
     estimated_delivery: undefined, // Add this when database is updated
-    assigned_to: undefined // Add this when database is updated
+    assigned_to: undefined, // Add this when database is updated
+    created_by: v.created_by || undefined
   }));
 
   // Filter valoraciones
@@ -52,6 +52,10 @@ export default function Valoraciones() {
   const handleAdvancePhase = async (valoracion: Valoracion, nextPhase: ValoracionStatus) => {
     try {
       await updateValoracion(valoracion.id, { status: nextPhase });
+      // Update selected valoracion if it's the same one
+      if (selectedValoracion?.id === valoracion.id) {
+        setSelectedValoracion({ ...selectedValoracion, status: nextPhase });
+      }
     } catch (error) {
       console.error('Error advancing phase:', error);
     }
@@ -170,13 +174,11 @@ export default function Valoraciones() {
           <ValoracionHeader
             valoracion={selectedValoracion}
             onShowHistory={() => handleShowHistory(selectedValoracion)}
-            canEdit={true}
           />
           
           <ValoracionTimelineBar
-            currentStatus={selectedValoracion.status}
+            valoracion={selectedValoracion}
             onAdvancePhase={(nextPhase) => handleAdvancePhase(selectedValoracion, nextPhase)}
-            canEdit={true}
           />
         </div>
       )}
@@ -211,8 +213,6 @@ export default function Valoraciones() {
                 key={valoracion.id}
                 valoracion={valoracion}
                 onView={handleViewValoracion}
-                canEdit={true}
-                canArchive={true}
               />
             ))}
           </div>

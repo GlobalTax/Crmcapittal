@@ -1,33 +1,44 @@
-
 import React from 'react';
 import { Valoracion } from '@/types/Valoracion';
 import { VALORACION_PHASES } from '@/utils/valoracionPhases';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Building2, User, Calendar, History, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { SecureButton } from './SecureButton';
+import { useValoracionPermissions } from '@/hooks/useValoracionPermissions';
 
 interface ValoracionHeaderProps {
   valoracion: Valoracion;
   onShowHistory?: () => void;
   onEdit?: () => void;
-  canEdit?: boolean;
 }
 
 export const ValoracionHeader = ({ 
   valoracion, 
   onShowHistory, 
-  onEdit, 
-  canEdit = false 
+  onEdit
 }: ValoracionHeaderProps) => {
   const phase = VALORACION_PHASES[valoracion.status];
+  const permissions = useValoracionPermissions(valoracion);
   
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
+
+  if (!permissions.canView) {
+    return (
+      <Card className="border-l-4 border-red-500">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center text-muted-foreground">
+            <p>No tienes permisos para ver esta valoración</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-l-4" style={{ borderLeftColor: phase.color }}>
@@ -55,16 +66,26 @@ export const ValoracionHeader = ({
             <Badge className={`${phase.bgColor} ${phase.textColor} border-0`}>
               {phase.icon} {phase.label}
             </Badge>
-            {canEdit && (
-              <Button variant="outline" size="sm" onClick={onEdit}>
-                <Edit className="w-4 h-4 mr-1" />
-                Editar
-              </Button>
-            )}
-            <Button variant="outline" size="sm" onClick={onShowHistory}>
+            <SecureButton 
+              hasPermission={permissions.canEdit}
+              disabledReason={permissions.disabledReason}
+              variant="outline" 
+              size="sm" 
+              onClick={onEdit}
+            >
+              <Edit className="w-4 h-4 mr-1" />
+              Editar
+            </SecureButton>
+            <SecureButton 
+              hasPermission={permissions.canView}
+              variant="outline" 
+              size="sm" 
+              onClick={onShowHistory}
+              showLockIcon={false}
+            >
               <History className="w-4 h-4 mr-1" />
               Historial
-            </Button>
+            </SecureButton>
           </div>
         </div>
       </CardHeader>
