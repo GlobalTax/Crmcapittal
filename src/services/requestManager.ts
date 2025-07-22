@@ -1,6 +1,7 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
-import { secureLogger } from '@/utils/secureLogger';
+import { logger } from '@/utils/logger';
 
 interface RequestConfig {
   key: string;
@@ -35,7 +36,7 @@ class RequestManager {
     // Check cache first
     const cached = this.getFromCache<T>(config.key);
     if (cached) {
-      secureLogger.debug(`Cache hit for ${config.key}`);
+      logger.debug(`Cache hit for ${config.key}`);
       return cached;
     }
 
@@ -95,7 +96,7 @@ class RequestManager {
       const delay = this.intervals[config.priority];
       await this.sleep(delay);
 
-      secureLogger.debug(`🚀 Executing request: ${config.key}`, { priority: config.priority });
+      logger.debug(`🚀 Executing request: ${config.key}`, { priority: config.priority });
       await config.fn();
 
       // Reset rate limit counter on success
@@ -103,16 +104,16 @@ class RequestManager {
       
     } catch (error: any) {
       // Secure error logging without exposing sensitive data
-      secureLogger.error(`Request failed: ${config.key}`, {
+      logger.error(`Request failed: ${config.key}`, {
         priority: config.priority,
         activeRequests: this.activeRequests,
         queueLength: this.queue.length
-      }, error);
+      });
       
       // Handle rate limiting
       if (error.status === 429 || error.message?.includes('429')) {
         this.handleRateLimit();
-        secureLogger.security('rate_limit_exceeded', 'medium', {
+        logger.warn('Rate limit exceeded', {
           key: config.key,
           rateLimitHits: this.rateLimitHits
         });
@@ -131,7 +132,7 @@ class RequestManager {
 
   private handleRateLimit() {
     this.rateLimitHits++;
-    secureLogger.warn(`Rate limit hit #${this.rateLimitHits}`, {
+    logger.warn(`Rate limit hit #${this.rateLimitHits}`, {
       currentDelay: this.rateLimitDelay,
       maxConcurrent: this.maxConcurrent
     });
@@ -142,7 +143,7 @@ class RequestManager {
     // Reduce concurrent requests
     this.maxConcurrent = Math.max(1, this.maxConcurrent - 1);
     
-    secureLogger.info(`Adjusted rate limiting settings`, {
+    logger.info(`Adjusted rate limiting settings`, {
       delay: this.rateLimitDelay,
       concurrent: this.maxConcurrent
     });
@@ -254,7 +255,7 @@ export const supabaseQuery = async <T>(
       const { data, error } = await queryBuilder(query);
       
       if (error) {
-        secureLogger.error(`Supabase query error for ${table}`, { table, cacheKey }, error);
+        logger.error(`Supabase query error for ${table}`, { table, cacheKey, error });
         throw error;
       }
       

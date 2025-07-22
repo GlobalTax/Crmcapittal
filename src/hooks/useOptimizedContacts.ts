@@ -1,7 +1,9 @@
+
 import { useState, useCallback, useEffect } from 'react';
 import { Contact, CreateContactData, UpdateContactData } from '@/types/Contact';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/logger';
 
 export const useOptimizedContacts = () => {
   const { toast } = useToast();
@@ -15,6 +17,8 @@ export const useOptimizedContacts = () => {
     setError(null);
     
     try {
+      logger.debug('Fetching contacts...');
+      
       const { data, error: fetchError } = await supabase
         .from('contacts')
         .select('*')
@@ -24,13 +28,17 @@ export const useOptimizedContacts = () => {
       if (fetchError) {
         setError(fetchError.message);
         setContacts([]);
+        logger.error('Error fetching contacts', fetchError);
         return;
       }
       
       setContacts(data as Contact[] || []);
+      logger.debug('Contacts fetched successfully', { count: data?.length || 0 });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
       setContacts([]);
+      logger.error('Unexpected error fetching contacts', err);
     } finally {
       setIsLoading(false);
     }
@@ -55,6 +63,8 @@ export const useOptimizedContacts = () => {
 
   const createContact = useCallback(async (contactData: CreateContactData) => {
     try {
+      logger.info('Creating contact', { contactData });
+      
       const { data: user } = await supabase.auth.getUser();
       
       if (!user?.user?.id) {
@@ -86,6 +96,8 @@ export const useOptimizedContacts = () => {
       return data as Contact;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al crear contacto';
+      logger.error('Error creating contact', err);
+      
       toast({
         title: "Error",
         description: errorMessage,
@@ -97,6 +109,8 @@ export const useOptimizedContacts = () => {
 
   const updateContact = useCallback(async (id: string, updates: UpdateContactData) => {
     try {
+      logger.info('Updating contact', { id, updates });
+      
       const { data, error } = await supabase
         .from('contacts')
         .update(updates)
@@ -117,6 +131,8 @@ export const useOptimizedContacts = () => {
       return data as Contact;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al actualizar contacto';
+      logger.error('Error updating contact', err);
+      
       toast({
         title: "Error",
         description: errorMessage,
@@ -128,6 +144,8 @@ export const useOptimizedContacts = () => {
 
   const deleteContact = useCallback(async (id: string) => {
     try {
+      logger.info('Deleting contact', { id });
+      
       const { error } = await supabase
         .from('contacts')
         .update({ is_active: false })
@@ -146,6 +164,8 @@ export const useOptimizedContacts = () => {
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al eliminar contacto';
+      logger.error('Error deleting contact', err);
+      
       toast({
         title: "Error",
         description: errorMessage,

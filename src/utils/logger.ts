@@ -1,76 +1,66 @@
-type LogLevel = 'info' | 'warn' | 'error' | 'debug';
+
+// Sistema de logging para reemplazar console.logs
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogEntry {
   level: LogLevel;
   message: string;
-  timestamp: string;
-  context?: Record<string, any>;
-  error?: Error;
+  timestamp: Date;
+  data?: any;
 }
 
 class Logger {
   private isDevelopment = import.meta.env.DEV;
-
-  private formatMessage(entry: LogEntry): string {
-    const prefix = `[${entry.timestamp}] [${entry.level.toUpperCase()}]`;
-    let message = `${prefix} ${entry.message}`;
-    
-    if (entry.context && Object.keys(entry.context).length > 0) {
-      message += ` | Context: ${JSON.stringify(entry.context)}`;
-    }
-    
-    return message;
-  }
-
-  private log(level: LogLevel, message: string, context?: Record<string, any>, error?: Error) {
+  private logs: LogEntry[] = [];
+  
+  private log(level: LogLevel, message: string, data?: any) {
     const entry: LogEntry = {
       level,
       message,
-      timestamp: new Date().toISOString(),
-      context,
-      error
+      timestamp: new Date(),
+      data
     };
-
-    const formattedMessage = this.formatMessage(entry);
-
-    // In development, always log to console
+    
+    this.logs.push(entry);
+    
+    // Solo mostrar en desarrollo
     if (this.isDevelopment) {
-      switch (level) {
-        case 'error':
-          console.error(formattedMessage, error || '');
-          break;
-        case 'warn':
-          console.warn(formattedMessage);
-          break;
-        case 'info':
-          console.info(formattedMessage);
-          break;
-        case 'debug':
-          console.debug(formattedMessage);
-          break;
+      const logMethod = console[level] || console.log;
+      if (data) {
+        logMethod(`[${level.toUpperCase()}] ${message}`, data);
+      } else {
+        logMethod(`[${level.toUpperCase()}] ${message}`);
       }
     }
-
-    // In production, only log errors and warnings
-    if (!this.isDevelopment && (level === 'error' || level === 'warn')) {
-      console[level](formattedMessage, error || '');
+    
+    // Mantener solo los últimos 1000 logs
+    if (this.logs.length > 1000) {
+      this.logs = this.logs.slice(-1000);
     }
   }
-
-  info(message: string, context?: Record<string, any>) {
-    this.log('info', message, context);
+  
+  debug(message: string, data?: any) {
+    this.log('debug', message, data);
   }
-
-  warn(message: string, context?: Record<string, any>) {
-    this.log('warn', message, context);
+  
+  info(message: string, data?: any) {
+    this.log('info', message, data);
   }
-
-  error(message: string, context?: Record<string, any>, error?: Error) {
-    this.log('error', message, context, error);
+  
+  warn(message: string, data?: any) {
+    this.log('warn', message, data);
   }
-
-  debug(message: string, context?: Record<string, any>) {
-    this.log('debug', message, context);
+  
+  error(message: string, data?: any) {
+    this.log('error', message, data);
+  }
+  
+  getLogs(): LogEntry[] {
+    return [...this.logs];
+  }
+  
+  clearLogs() {
+    this.logs = [];
   }
 }
 

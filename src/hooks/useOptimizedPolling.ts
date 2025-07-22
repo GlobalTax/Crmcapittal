@@ -1,5 +1,7 @@
+
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { requestManager } from '@/services/requestManager';
+import { logger } from '@/utils/logger';
 
 interface UseOptimizedPollingOptions {
   queryKey: string;
@@ -98,9 +100,13 @@ export const useOptimizedPolling = ({
         setData(result);
         setLastFetch(Date.now());
         retryCountRef.current = 0; // Reset retry counter on success
+        
+        logger.debug(`Polling data updated: ${queryKey}`, {
+          recordCount: Array.isArray(result) ? result.length : 'N/A'
+        });
       }
     } catch (err) {
-      console.error(`Polling error for ${queryKey}:`, err);
+      logger.error(`Polling error for ${queryKey}`, err);
       
       if (mountedRef.current) {
         setError(err instanceof Error ? err : new Error('Unknown error'));
@@ -116,7 +122,7 @@ export const useOptimizedPolling = ({
             retryCountRef.current++;
             const retryDelay = Math.min(1000 * Math.pow(2, retryCountRef.current), 10000);
             
-            console.log(`Retrying ${queryKey} in ${retryDelay}ms (attempt ${retryCountRef.current}/${maxRetries})`);
+            logger.info(`Retrying ${queryKey} in ${retryDelay}ms (attempt ${retryCountRef.current}/${maxRetries})`);
             
             setTimeout(() => {
               if (mountedRef.current) {
