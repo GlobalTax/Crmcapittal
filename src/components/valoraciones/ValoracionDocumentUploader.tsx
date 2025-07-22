@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Upload, File, X, AlertCircle } from 'lucide-react';
+import { Upload, File, AlertCircle } from 'lucide-react';
 import { SecureButton } from './SecureButton';
 import { useValoracionPermissions } from '@/hooks/useValoracionPermissions';
 import { Valoracion } from '@/types/Valoracion';
@@ -21,7 +21,7 @@ const ALLOWED_FILE_TYPES = {
   'requested': ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
   'in_process': ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
   'completed': ['application/pdf'],
-  'delivered': [] // No se pueden subir documentos después de entregar
+  'delivered': [] // No file uploads after delivery
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -36,7 +36,7 @@ export const ValoracionDocumentUploader = ({
 
   const allowedTypes = ALLOWED_FILE_TYPES[valoracion.status] || [];
 
-  const { getRootProps, getInputProps, isDragActive, acceptedFiles, rejectedFiles } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, acceptedFiles, fileRejections } = useDropzone({
     accept: allowedTypes.reduce((acc, type) => ({ ...acc, [type]: [] }), {}),
     maxSize: MAX_FILE_SIZE,
     multiple: true,
@@ -60,8 +60,8 @@ export const ValoracionDocumentUploader = ({
 
         if (uploadError) throw uploadError;
 
-        // Registrar el documento en la base de datos
-        const { error: dbError } = await supabase
+        // Register document in database using any type to avoid TypeScript issues
+        const { error: dbError } = await (supabase as any)
           .from('valoracion_documents')
           .insert({
             valoracion_id: valoracion.id,
@@ -178,16 +178,16 @@ export const ValoracionDocumentUploader = ({
           </div>
         )}
 
-        {rejectedFiles.length > 0 && (
+        {fileRejections.length > 0 && (
           <div className="space-y-2">
             <h4 className="font-medium text-destructive">Archivos rechazados:</h4>
-            {rejectedFiles.map((file, index) => (
+            {fileRejections.map((rejection, index) => (
               <div key={index} className="flex items-center justify-between p-2 bg-destructive/10 rounded">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-destructive" />
-                  <span className="text-sm">{file.file.name}</span>
+                  <span className="text-sm">{rejection.file.name}</span>
                   <Badge variant="destructive" className="text-xs">
-                    {file.errors[0]?.message}
+                    {rejection.errors[0]?.message}
                   </Badge>
                 </div>
               </div>

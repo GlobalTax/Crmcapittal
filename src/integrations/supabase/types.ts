@@ -6213,6 +6213,97 @@ export type Database = {
         }
         Relationships: []
       }
+      valoracion_documents: {
+        Row: {
+          content_type: string
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          updated_at: string
+          uploaded_by: string | null
+          valoracion_id: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          valoracion_id: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          valoracion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoracion_documents_valoracion_id_fkey"
+            columns: ["valoracion_id"]
+            isOneToOne: false
+            referencedRelation: "valoraciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      valoracion_security_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+          valoracion_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+          valoracion_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+          valoracion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoracion_security_logs_valoracion_id_fkey"
+            columns: ["valoracion_id"]
+            isOneToOne: false
+            referencedRelation: "valoraciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       valoraciones: {
         Row: {
           assigned_to: string | null

@@ -38,12 +38,12 @@ export const ClientValoracionView = () => {
       }
 
       try {
-        // Buscar valoración por token de cliente
-        const { data: valoracionData, error: valoracionError } = await supabase
+        // Note: Using any type to avoid TypeScript issues with missing table definitions
+        const { data: valoracionData, error: valoracionError } = await (supabase as any)
           .from('valoraciones')
           .select('*')
           .eq('client_access_token', token)
-          .eq('status', 'delivered') // Solo valoraciones entregadas
+          .eq('status', 'delivered')
           .single();
 
         if (valoracionError || !valoracionData) {
@@ -54,8 +54,8 @@ export const ClientValoracionView = () => {
 
         setValoracion(valoracionData as Valoracion);
 
-        // Obtener solo documentos entregables
-        const { data: documentsData, error: documentsError } = await supabase
+        // Get only deliverable documents
+        const { data: documentsData, error: documentsError } = await (supabase as any)
           .from('valoracion_documents')
           .select('*')
           .eq('valoracion_id', valoracionData.id)
@@ -77,21 +77,21 @@ export const ClientValoracionView = () => {
     fetchValoracionByToken();
   }, [token]);
 
-  const downloadDocument = async (document: ValoracionDocument) => {
+  const downloadDocument = async (doc: ValoracionDocument) => {
     try {
       const { data, error } = await supabase.storage
         .from('valoracion-documents')
-        .download(document.file_path);
+        .download(doc.file_path);
 
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = document.file_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const linkElement = window.document.createElement('a');
+      linkElement.href = url;
+      linkElement.download = doc.file_name;
+      window.document.body.appendChild(linkElement);
+      linkElement.click();
+      window.document.body.removeChild(linkElement);
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading document:', error);
@@ -126,7 +126,7 @@ export const ClientValoracionView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header simplificado para cliente */}
+      {/* Header for client */}
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
@@ -142,7 +142,7 @@ export const ClientValoracionView = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Información de la empresa */}
+        {/* Company information */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export const ClientValoracionView = () => {
           </CardContent>
         </Card>
 
-        {/* Documentos entregables */}
+        {/* Deliverable documents */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -208,24 +208,24 @@ export const ClientValoracionView = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {documents.map((document) => (
+                {documents.map((doc) => (
                   <div 
-                    key={document.id}
+                    key={doc.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50"
                   >
                     <div className="flex items-center gap-3">
                       <FileText className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="font-medium">{document.file_name}</p>
+                        <p className="font-medium">{doc.file_name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {(document.file_size / 1024 / 1024).toFixed(2)} MB • 
-                          {format(new Date(document.created_at), 'dd MMM yyyy', { locale: es })}
+                          {(doc.file_size / 1024 / 1024).toFixed(2)} MB • 
+                          {format(new Date(doc.created_at), 'dd MMM yyyy', { locale: es })}
                         </p>
                       </div>
                     </div>
                     
                     <Button
-                      onClick={() => downloadDocument(document)}
+                      onClick={() => downloadDocument(doc)}
                       className="flex items-center gap-2"
                     >
                       <Download className="w-4 h-4" />

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { FileText, Download, Eye, Trash2, Upload } from 'lucide-react';
+import { FileText, Download, Trash2 } from 'lucide-react';
 import { Valoracion } from '@/types/Valoracion';
 import { useValoracionPermissions } from '@/hooks/useValoracionPermissions';
 import { SecureButton } from './SecureButton';
@@ -40,7 +40,8 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
 
   const fetchDocuments = async () => {
     try {
-      const { data, error } = await supabase
+      // Using any type to avoid TypeScript issues
+      const { data, error } = await (supabase as any)
         .from('valoracion_documents')
         .select('*')
         .eq('valoracion_id', valoracion.id)
@@ -60,31 +61,31 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
     }
   };
 
-  const downloadDocument = async (document: ValoracionDocument) => {
+  const downloadDocument = async (doc: ValoracionDocument) => {
     try {
       const { data, error } = await supabase.storage
         .from('valoracion-documents')
-        .download(document.file_path);
+        .download(doc.file_path);
 
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = document.file_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const linkElement = window.document.createElement('a');
+      linkElement.href = url;
+      linkElement.download = doc.file_name;
+      window.document.body.appendChild(linkElement);
+      linkElement.click();
+      window.document.body.removeChild(linkElement);
       URL.revokeObjectURL(url);
 
-      // Log de seguridad para descarga
-      await supabase.from('valoracion_security_logs').insert({
+      // Security log for download using any to avoid TypeScript issues
+      await (supabase as any).from('valoracion_security_logs').insert({
         valoracion_id: valoracion.id,
         action: 'document_download',
         details: {
-          document_id: document.id,
-          document_name: document.file_name,
-          document_type: document.document_type
+          document_id: doc.id,
+          document_name: doc.file_name,
+          document_type: doc.document_type
         },
         user_id: (await supabase.auth.getUser()).data.user?.id
       });
@@ -99,22 +100,22 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
     }
   };
 
-  const deleteDocument = async (document: ValoracionDocument) => {
+  const deleteDocument = async (doc: ValoracionDocument) => {
     if (!permissions.canEdit) return;
 
     try {
-      // Eliminar archivo del storage
+      // Delete file from storage
       const { error: storageError } = await supabase.storage
         .from('valoracion-documents')
-        .remove([document.file_path]);
+        .remove([doc.file_path]);
 
       if (storageError) throw storageError;
 
-      // Eliminar registro de la base de datos
-      const { error: dbError } = await supabase
+      // Delete record from database using any to avoid TypeScript issues
+      const { error: dbError } = await (supabase as any)
         .from('valoracion_documents')
         .delete()
-        .eq('id', document.id);
+        .eq('id', doc.id);
 
       if (dbError) throw dbError;
 
@@ -142,14 +143,14 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
     return '📎';
   };
 
-  const canDownload = (document: ValoracionDocument) => {
-    // Los documentos entregables siempre se pueden descargar si se puede ver la valoración
-    if (document.document_type === 'deliverable') return permissions.canView;
-    // Los documentos internos solo si se puede editar
+  const canDownload = (doc: ValoracionDocument) => {
+    // Deliverable documents can always be downloaded if you can view the valoracion
+    if (doc.document_type === 'deliverable') return permissions.canView;
+    // Internal documents only if you can edit
     return permissions.canEdit;
   };
 
-  const canDelete = (document: ValoracionDocument) => {
+  const canDelete = (doc: ValoracionDocument) => {
     return permissions.canEdit && valoracion.status !== 'delivered';
   };
 
@@ -175,7 +176,7 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Documentos entregables */}
+        {/* Deliverable documents */}
         {deliverableDocuments.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -184,41 +185,41 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
               </Badge>
             </div>
             <div className="space-y-2">
-              {deliverableDocuments.map((document) => (
+              {deliverableDocuments.map((doc) => (
                 <div 
-                  key={document.id}
+                  key={doc.id}
                   className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg">{getDocumentIcon(document.content_type)}</span>
+                    <span className="text-lg">{getDocumentIcon(doc.content_type)}</span>
                     <div>
-                      <p className="font-medium">{document.file_name}</p>
+                      <p className="font-medium">{doc.file_name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {(document.file_size / 1024 / 1024).toFixed(2)} MB • 
-                        {format(new Date(document.created_at), 'dd MMM yyyy HH:mm', { locale: es })}
+                        {(doc.file_size / 1024 / 1024).toFixed(2)} MB • 
+                        {format(new Date(doc.created_at), 'dd MMM yyyy HH:mm', { locale: es })}
                       </p>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     <SecureButton
-                      hasPermission={canDownload(document)}
+                      hasPermission={canDownload(doc)}
                       disabledReason="Sin permisos para descargar este documento"
                       variant="outline"
                       size="sm"
-                      onClick={() => downloadDocument(document)}
+                      onClick={() => downloadDocument(doc)}
                       showLockIcon={false}
                     >
                       <Download className="w-4 h-4" />
                     </SecureButton>
                     
-                    {canDelete(document) && (
+                    {canDelete(doc) && (
                       <SecureButton
-                        hasPermission={canDelete(document)}
+                        hasPermission={canDelete(doc)}
                         disabledReason="No se puede eliminar este documento"
                         variant="outline"
                         size="sm"
-                        onClick={() => deleteDocument(document)}
+                        onClick={() => deleteDocument(doc)}
                         showLockIcon={false}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -231,12 +232,12 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
           </div>
         )}
 
-        {/* Separador si hay ambos tipos */}
+        {/* Separator if both types exist */}
         {deliverableDocuments.length > 0 && internalDocuments.length > 0 && permissions.canEdit && (
           <Separator />
         )}
 
-        {/* Documentos internos - solo visibles para editores */}
+        {/* Internal documents - only visible to editors */}
         {internalDocuments.length > 0 && permissions.canEdit && (
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -245,18 +246,18 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
               </Badge>
             </div>
             <div className="space-y-2">
-              {internalDocuments.map((document) => (
+              {internalDocuments.map((doc) => (
                 <div 
-                  key={document.id}
+                  key={doc.id}
                   className="flex items-center justify-between p-3 border rounded-lg bg-muted/30"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-lg">{getDocumentIcon(document.content_type)}</span>
+                    <span className="text-lg">{getDocumentIcon(doc.content_type)}</span>
                     <div>
-                      <p className="font-medium">{document.file_name}</p>
+                      <p className="font-medium">{doc.file_name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {(document.file_size / 1024 / 1024).toFixed(2)} MB • 
-                        {format(new Date(document.created_at), 'dd MMM yyyy HH:mm', { locale: es })}
+                        {(doc.file_size / 1024 / 1024).toFixed(2)} MB • 
+                        {format(new Date(doc.created_at), 'dd MMM yyyy HH:mm', { locale: es })}
                       </p>
                     </div>
                   </div>
@@ -265,16 +266,16 @@ export const ValoracionDocumentsList = ({ valoracion, onRefresh }: ValoracionDoc
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => downloadDocument(document)}
+                      onClick={() => downloadDocument(doc)}
                     >
                       <Download className="w-4 h-4" />
                     </Button>
                     
-                    {canDelete(document) && (
+                    {canDelete(doc) && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => deleteDocument(document)}
+                        onClick={() => deleteDocument(doc)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
