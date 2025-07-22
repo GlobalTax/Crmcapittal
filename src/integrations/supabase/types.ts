@@ -3192,6 +3192,7 @@ export type Database = {
           probability: number | null
           quality: string | null
           rod_order: number | null
+          service_type: string | null
           source: string
           stage_id: string | null
           status: Database["public"]["Enums"]["lead_status"]
@@ -3232,6 +3233,7 @@ export type Database = {
           probability?: number | null
           quality?: string | null
           rod_order?: number | null
+          service_type?: string | null
           source: string
           stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
@@ -3272,6 +3274,7 @@ export type Database = {
           probability?: number | null
           quality?: string | null
           rod_order?: number | null
+          service_type?: string | null
           source?: string
           stage_id?: string | null
           status?: Database["public"]["Enums"]["lead_status"]

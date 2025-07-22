@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource, LeadOrigin, LeadPriority, LeadQuality } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource, LeadOrigin, LeadServiceType, LeadPriority, LeadQuality } from '@/types/Lead';
 
 export const fetchLeads = async (filters?: {
   status?: LeadStatus;
@@ -57,6 +57,7 @@ export const fetchLeads = async (filters?: {
     source: lead.source as LeadSource,
     status: lead.status as LeadStatus,
     lead_origin: lead.lead_origin as LeadOrigin,
+    service_type: lead.service_type as LeadServiceType,
     priority: lead.priority as LeadPriority,
     quality: lead.quality as LeadQuality,
     // Add fields that don't exist in leads table yet, with default values
@@ -116,6 +117,7 @@ export const fetchLeadById = async (id: string): Promise<Lead | null> => {
     source: data.source as LeadSource,
     status: data.status as LeadStatus,
     lead_origin: data.lead_origin as LeadOrigin,
+    service_type: data.service_type as LeadServiceType,
     priority: data.priority as LeadPriority,
     quality: data.quality as LeadQuality,
     // Add fields that don't exist in leads table yet, with default values
@@ -175,6 +177,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     source: data.source as LeadSource,
     status: data.status as LeadStatus,
     lead_origin: data.lead_origin as LeadOrigin,
+    service_type: data.service_type as LeadServiceType,
     priority: data.priority as LeadPriority,
     quality: data.quality as LeadQuality,
     // Add fields that don't exist in leads table yet
@@ -243,6 +246,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
     source: data.source as LeadSource,
     status: data.status as LeadStatus,
     lead_origin: data.lead_origin as LeadOrigin,
+    service_type: data.service_type as LeadServiceType,
     priority: data.priority as LeadPriority,
     quality: data.quality as LeadQuality,
     // Add fields that don't exist in leads table yet

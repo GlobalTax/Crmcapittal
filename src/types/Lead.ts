@@ -5,6 +5,8 @@ export type LeadSource = 'website_form' | 'lead_marker' | 'capittal_market' | 'l
 
 export type LeadOrigin = 'manual' | 'webform' | 'import';
 
+export type LeadServiceType = 'mandato_venta' | 'mandato_compra' | 'valoracion_empresa';
+
 export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
 export type LeadQuality = 'POOR' | 'FAIR' | 'GOOD' | 'EXCELLENT';
@@ -21,6 +23,7 @@ export interface Lead {
   message?: string;
   source: LeadSource;
   lead_origin?: LeadOrigin;
+  service_type?: LeadServiceType;
   status: LeadStatus;
   priority?: LeadPriority;
   quality?: LeadQuality;
@@ -105,6 +108,7 @@ export interface CreateLeadData {
   message?: string;
   source: LeadSource;
   lead_origin?: LeadOrigin;
+  service_type?: LeadServiceType;
   priority?: LeadPriority;
   quality?: LeadQuality;
   lead_score?: number;
@@ -122,6 +126,7 @@ export interface UpdateLeadData {
   job_title?: string;
   message?: string;
   source?: LeadSource;
+  service_type?: LeadServiceType;
   status?: LeadStatus;
   priority?: LeadPriority;
   quality?: LeadQuality;
