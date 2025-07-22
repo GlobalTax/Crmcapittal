@@ -9,6 +9,7 @@ import { ValoracionCard } from '@/components/valoraciones/ValoracionCard';
 import { ValoracionHeader } from '@/components/valoraciones/ValoracionHeader';
 import { ValoracionTimelineBar } from '@/components/valoraciones/ValoracionTimelineBar';
 import { ValoracionHistoryModal } from '@/components/valoraciones/ValoracionHistoryModal';
+import { CreateValoracionForm } from '@/components/valoraciones/CreateValoracionForm';
 import { Valoracion, ValoracionStatus } from '@/types/Valoracion';
 import { VALORACION_PHASES } from '@/utils/valoracionPhases';
 
@@ -16,6 +17,7 @@ export default function Valoraciones() {
   const { valoraciones, loading, error, createValoracion, updateValoracion } = useValoraciones();
   const [selectedValoracion, setSelectedValoracion] = useState<Valoracion | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ValoracionStatus | 'all'>('all');
 
@@ -37,16 +39,16 @@ export default function Valoraciones() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleCreateValoracion = async () => {
+  const handleCreateValoracion = async (data: any) => {
     try {
-      await createValoracion({
-        company_name: 'Nueva Empresa',
-        client_name: 'Nuevo Cliente',
-        status: 'requested'
-      });
+      await createValoracion(data);
     } catch (error) {
       console.error('Error creating valoración:', error);
     }
+  };
+
+  const handleOpenCreateForm = () => {
+    setShowCreateForm(true);
   };
 
   const handleAdvancePhase = async (valoracion: Valoracion, nextPhase: ValoracionStatus) => {
@@ -105,7 +107,7 @@ export default function Valoraciones() {
             Gestiona y crea valoraciones de empresas con seguimiento de fases
           </p>
         </div>
-        <Button onClick={handleCreateValoracion}>
+        <Button onClick={handleOpenCreateForm}>
           <Plus className="w-4 h-4 mr-2" />
           Nueva Valoración
         </Button>
@@ -199,7 +201,7 @@ export default function Valoraciones() {
                 }
               </p>
               {!searchTerm && statusFilter === 'all' && (
-                <Button onClick={handleCreateValoracion}>
+                <Button onClick={handleOpenCreateForm}>
                   <Plus className="w-4 h-4 mr-2" />
                   Crear Primera Valoración
                 </Button>
@@ -224,6 +226,12 @@ export default function Valoraciones() {
         valoracion={selectedValoracion}
         isOpen={showHistory}
         onClose={() => setShowHistory(false)}
+      />
+
+      <CreateValoracionForm
+        open={showCreateForm}
+        onOpenChange={setShowCreateForm}
+        onSubmit={handleCreateValoracion}
       />
     </div>
   );
