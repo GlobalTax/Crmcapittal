@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient } from './QueryClient';
 import Leads from './pages/Leads';
 import { PipedriveStyleLeadDetail } from './components/leads/PipedriveStyleLeadDetail';
@@ -20,6 +20,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<DashboardLayout />} >
+            <Route index element={<Navigate to="/leads" replace />} />
             <Route path="/leads" element={<Leads />} />
             <Route path="/leads/:id" element={<PipedriveStyleLeadDetail />} />
             <Route path="/contacts" element={<Contacts />} />

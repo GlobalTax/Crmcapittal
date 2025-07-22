@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface ReconversionCandidate {
   id: string;
@@ -46,6 +47,25 @@ export interface CreateReconversionCandidateData {
   assigned_to?: string;
 }
 
+export interface UpdateReconversionCandidateData {
+  company_id?: string;
+  company_name?: string;
+  company_sector?: string;
+  company_location?: string;
+  company_revenue?: number;
+  company_ebitda?: number;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  contact_status?: string;
+  contact_date?: string;
+  contact_method?: string;
+  contact_notes?: string;
+  match_score?: number;
+  match_criteria?: any;
+  assigned_to?: string;
+}
+
 export function useReconversionCandidates(reconversionId?: string) {
   const [candidates, setCandidates] = useState<ReconversionCandidate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +80,7 @@ export function useReconversionCandidates(reconversionId?: string) {
 
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('reconversion_candidates' as any)
         .select('*')
@@ -69,7 +90,9 @@ export function useReconversionCandidates(reconversionId?: string) {
       if (error) throw error;
       setCandidates((data || []) as unknown as ReconversionCandidate[]);
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al cargar candidatos';
       setError(err as Error);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -85,16 +108,18 @@ export function useReconversionCandidates(reconversionId?: string) {
 
       if (error) throw error;
       
-      const newCandidate = data as unknown as ReconversionCandidate;
-      setCandidates(prev => [newCandidate, ...prev]);
-      return newCandidate;
+      setCandidates(prev => [data as unknown as ReconversionCandidate, ...prev]);
+      toast.success('Candidato agregado correctamente');
+      return data as unknown as ReconversionCandidate;
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al agregar candidato';
       setError(err as Error);
+      toast.error(errorMessage);
       throw err;
     }
   };
 
-  const updateCandidate = async (id: string, updates: Partial<CreateReconversionCandidateData>) => {
+  const updateCandidate = async (id: string, updates: UpdateReconversionCandidateData) => {
     try {
       const { data, error } = await supabase
         .from('reconversion_candidates' as any)
@@ -105,13 +130,15 @@ export function useReconversionCandidates(reconversionId?: string) {
 
       if (error) throw error;
 
-      const updatedCandidate = data as unknown as ReconversionCandidate;
       setCandidates(prev => 
-        prev.map(c => c.id === id ? { ...c, ...updatedCandidate } : c)
+        prev.map(c => c.id === id ? { ...c, ...(data as unknown as ReconversionCandidate) } : c)
       );
-      return updatedCandidate;
+      toast.success('Candidato actualizado correctamente');
+      return data as unknown as ReconversionCandidate;
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al actualizar candidato';
       setError(err as Error);
+      toast.error(errorMessage);
       throw err;
     }
   };
@@ -126,8 +153,11 @@ export function useReconversionCandidates(reconversionId?: string) {
       if (error) throw error;
 
       setCandidates(prev => prev.filter(c => c.id !== id));
+      toast.success('Candidato eliminado correctamente');
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error al eliminar candidato';
       setError(err as Error);
+      toast.error(errorMessage);
       throw err;
     }
   };
