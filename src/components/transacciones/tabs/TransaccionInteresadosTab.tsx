@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Mail, Phone, Building2, User, TrendingUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Mail, Phone, Building2, User, TrendingUp, RefreshCw } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useTransactionInterested, TransactionInterestedParty } from '@/hooks/useTransactionInterested';
+import { CreateReconversionModal } from '@/components/reconversiones/CreateReconversionModal';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -232,6 +233,8 @@ export const TransaccionInteresadosTab = ({ transaccionId }: TransaccionInteresa
   const { interestedParties, isLoading, addInterestedParty, updateInterestedParty, deleteInterestedParty } = useTransactionInterested(transaccionId);
   const [selectedInteresado, setSelectedInteresado] = useState<TransactionInterestedParty | undefined>();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showReconversionModal, setShowReconversionModal] = useState(false);
+  const [selectedForReconversion, setSelectedForReconversion] = useState<TransactionInterestedParty | undefined>();
 
   const handleSave = async (data: any) => {
     try {
@@ -432,6 +435,19 @@ export const TransaccionInteresadosTab = ({ transaccionId }: TransaccionInteresa
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
+                        {interesado.process_status === 'closed_lost' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedForReconversion(interesado);
+                              setShowReconversionModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -441,6 +457,27 @@ export const TransaccionInteresadosTab = ({ transaccionId }: TransaccionInteresa
           )}
         </CardContent>
       </Card>
+
+      {/* Reconversion Modal */}
+      {selectedForReconversion && (
+        <CreateReconversionModal
+          open={showReconversionModal}
+          onOpenChange={setShowReconversionModal}
+          rejectedTarget={{
+            id: selectedForReconversion.id,
+            company_name: selectedForReconversion.company || '',
+            contact_name: selectedForReconversion.name,
+            contact_email: selectedForReconversion.email || '',
+            contact_phone: selectedForReconversion.phone || '',
+            status: 'rejected' as const,
+            mandate_id: transaccionId,
+            contacted: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }}
+          mandateId={transaccionId}
+        />
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
   Building2, 
@@ -10,13 +11,15 @@ import {
   MapPin, 
   TrendingUp, 
   Calendar,
-  FileText
+  FileText,
+  RefreshCw
 } from 'lucide-react';
 import { FloatingEditButton } from './collapsible/FloatingEditButton';
 import { EntityHeader } from './collapsible/EntityHeader';
 import { EssentialInfo, EssentialField } from './collapsible/EssentialInfo';
 import { CollapsibleSection } from './collapsible/CollapsibleSection';
 import { MandateTarget } from '@/types/BuyingMandate';
+import { CreateReconversionModal } from '@/components/reconversiones/CreateReconversionModal';
 
 interface CollapsibleTargetPanelProps {
   target: MandateTarget;
@@ -26,6 +29,7 @@ interface CollapsibleTargetPanelProps {
 
 export const CollapsibleTargetPanel = ({ target, onEdit, onUpdate }: CollapsibleTargetPanelProps) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [showReconversionModal, setShowReconversionModal] = useState(false);
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => {
@@ -195,6 +199,28 @@ export const CollapsibleTargetPanel = ({ target, onEdit, onUpdate }: Collapsible
           </CollapsibleSection>
         )}
 
+        {/* Reconversion Button for Rejected Targets */}
+        {target.status === 'rejected' && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-red-800">Comprador Rechazado</h4>
+                <p className="text-xs text-red-600 mt-1">
+                  Este comprador fue rechazado pero podría ser interesante para futuras oportunidades
+                </p>
+              </div>
+              <Button 
+                onClick={() => setShowReconversionModal(true)}
+                size="sm"
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Crear Reconversión
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Metadata */}
         <Separator />
         <div className="flex justify-between items-center text-xs text-muted-foreground">
@@ -202,6 +228,14 @@ export const CollapsibleTargetPanel = ({ target, onEdit, onUpdate }: Collapsible
           <span>Actualizado: {new Date(target.updated_at).toLocaleDateString('es-ES')}</span>
         </div>
       </CardContent>
+
+      {/* Reconversion Modal */}
+      <CreateReconversionModal
+        open={showReconversionModal}
+        onOpenChange={setShowReconversionModal}
+        rejectedTarget={target}
+        mandateId={target.mandate_id}
+      />
     </Card>
   );
 };

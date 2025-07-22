@@ -4858,6 +4858,8 @@ export type Database = {
       reconversiones: {
         Row: {
           assigned_to: string | null
+          buyer_company_name: string | null
+          buyer_contact_info: Json | null
           company_name: string | null
           contact_email: string | null
           contact_name: string
@@ -4866,8 +4868,12 @@ export type Database = {
           created_at: string
           created_by: string | null
           deal_structure_preferences: string[] | null
+          ebitda_range_max: number | null
+          ebitda_range_min: number | null
           id: string
           investment_capacity: number | null
+          investment_capacity_max: number | null
+          investment_capacity_min: number | null
           max_ebitda: number | null
           max_revenue: number | null
           min_ebitda: number | null
@@ -4877,15 +4883,21 @@ export type Database = {
           notes: string | null
           original_lead_id: string | null
           original_mandate_id: string | null
+          original_rejection_reason: string | null
           rejection_reason: string
+          revenue_range_max: number | null
+          revenue_range_min: number | null
           status: string
           target_locations: string[] | null
           target_sectors: string[] | null
+          timeline_horizon: string | null
           timeline_preference: string | null
           updated_at: string
         }
         Insert: {
           assigned_to?: string | null
+          buyer_company_name?: string | null
+          buyer_contact_info?: Json | null
           company_name?: string | null
           contact_email?: string | null
           contact_name: string
@@ -4894,8 +4906,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deal_structure_preferences?: string[] | null
+          ebitda_range_max?: number | null
+          ebitda_range_min?: number | null
           id?: string
           investment_capacity?: number | null
+          investment_capacity_max?: number | null
+          investment_capacity_min?: number | null
           max_ebitda?: number | null
           max_revenue?: number | null
           min_ebitda?: number | null
@@ -4905,15 +4921,21 @@ export type Database = {
           notes?: string | null
           original_lead_id?: string | null
           original_mandate_id?: string | null
+          original_rejection_reason?: string | null
           rejection_reason: string
+          revenue_range_max?: number | null
+          revenue_range_min?: number | null
           status?: string
           target_locations?: string[] | null
           target_sectors?: string[] | null
+          timeline_horizon?: string | null
           timeline_preference?: string | null
           updated_at?: string
         }
         Update: {
           assigned_to?: string | null
+          buyer_company_name?: string | null
+          buyer_contact_info?: Json | null
           company_name?: string | null
           contact_email?: string | null
           contact_name?: string
@@ -4922,8 +4944,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deal_structure_preferences?: string[] | null
+          ebitda_range_max?: number | null
+          ebitda_range_min?: number | null
           id?: string
           investment_capacity?: number | null
+          investment_capacity_max?: number | null
+          investment_capacity_min?: number | null
           max_ebitda?: number | null
           max_revenue?: number | null
           min_ebitda?: number | null
@@ -4933,10 +4959,14 @@ export type Database = {
           notes?: string | null
           original_lead_id?: string | null
           original_mandate_id?: string | null
+          original_rejection_reason?: string | null
           rejection_reason?: string
+          revenue_range_max?: number | null
+          revenue_range_min?: number | null
           status?: string
           target_locations?: string[] | null
           target_sectors?: string[] | null
+          timeline_horizon?: string | null
           timeline_preference?: string | null
           updated_at?: string
         }
