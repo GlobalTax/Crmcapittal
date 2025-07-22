@@ -89,10 +89,12 @@ export function ReconversionDetailView() {
           <Badge className={getStatusColor(reconversion.status)}>
             {reconversion.status}
           </Badge>
-          <ReconversionActions 
-            reconversion={reconversion} 
-            onUpdate={updateReconversion}
-          />
+        <ReconversionActions 
+          reconversion={reconversion} 
+          onUpdate={async (id, updates) => {
+            await updateReconversion(id, updates);
+          }}
+        />
         </div>
       </div>
 
@@ -203,16 +205,7 @@ export function ReconversionDetailView() {
                   <Calendar className="h-3 w-3" />
                   Creada: {format(new Date(reconversion.created_at), 'dd MMM yyyy', { locale: es })}
                 </p>
-                {reconversion.paused_at && (
-                  <p className="text-sm text-yellow-600">
-                    Pausada: {format(new Date(reconversion.paused_at), 'dd MMM yyyy', { locale: es })}
-                  </p>
-                )}
-                {reconversion.closed_at && (
-                  <p className="text-sm text-red-600">
-                    Cerrada: {format(new Date(reconversion.closed_at), 'dd MMM yyyy', { locale: es })}
-                  </p>
-                )}
+              {/* Paused and closed dates will be handled by the actions component */}
               </div>
             </div>
           </div>
