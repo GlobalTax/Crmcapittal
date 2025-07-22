@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { logger } from '@/utils/logger';
 
 interface VirtualizedPaginationConfig {
@@ -31,7 +31,22 @@ export function useVirtualizedPagination<T>(
     
     const pageData = data.slice(startIndex, endIndex);
     
-    // Cachear la página
+    logger.debug(`Page ${currentPage} data loaded`, {
+      startIndex,
+      endIndex,
+      itemCount: pageData.length,
+      cacheSize: cachedPages.size
+    });
+    
+    return pageData.slice(0, pageSize); // Solo mostrar el tamaño real de página
+  }, [data, currentPage, pageSize, virtualPageSize, cachedPages.size]);
+  
+  // Efecto para manejar el cache por separado
+  useEffect(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + virtualPageSize, data.length);
+    const pageData = data.slice(startIndex, endIndex);
+    
     setCachedPages(prev => {
       const newCache = new Map(prev);
       newCache.set(currentPage, pageData);
@@ -44,16 +59,7 @@ export function useVirtualizedPagination<T>(
       
       return newCache;
     });
-    
-    logger.debug(`Page ${currentPage} data loaded`, {
-      startIndex,
-      endIndex,
-      itemCount: pageData.length,
-      cacheSize: cachedPages.size
-    });
-    
-    return pageData.slice(0, pageSize); // Solo mostrar el tamaño real de página
-  }, [data, currentPage, pageSize, virtualPageSize, maxCachedPages]);
+  }, [currentPage, pageSize, virtualPageSize, maxCachedPages, data]);
   
   const goToPage = useCallback((page: number) => {
     const validPage = Math.max(1, Math.min(page, totalPages));
