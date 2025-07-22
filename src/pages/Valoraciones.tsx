@@ -295,7 +295,13 @@ export default function Valoraciones() {
           {viewMode === 'kanban' ? (
             <ValoracionesKanban
               valoraciones={filteredValoraciones}
-              onUpdateStatus={handleAdvancePhase}
+              onUpdateStatus={(valoracionId: string, status: ValoracionStatus) => {
+                const valoracion = filteredValoraciones.find(v => v.id === valoracionId);
+                if (valoracion) {
+                  return handleAdvancePhase(valoracion, status);
+                }
+                return Promise.resolve();
+              }}
               onEdit={handleEditValoracion}
               onView={handleViewValoracion}
               onAddValoracion={(status) => {
