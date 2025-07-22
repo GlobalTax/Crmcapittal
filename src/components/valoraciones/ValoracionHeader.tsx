@@ -4,7 +4,7 @@ import { VALORACION_PHASES } from '@/utils/valoracionPhases';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Building2, User, Calendar, History, Edit } from 'lucide-react';
+import { Building2, User, Calendar, History, Edit, Upload, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SecureButton } from './SecureButton';
@@ -14,12 +14,16 @@ interface ValoracionHeaderProps {
   valoracion: Valoracion;
   onShowHistory?: () => void;
   onEdit?: () => void;
+  onShowUploader?: () => void;
+  onGenerateClientLink?: () => void;
 }
 
 export const ValoracionHeader = ({ 
   valoracion, 
   onShowHistory, 
-  onEdit
+  onEdit,
+  onShowUploader,
+  onGenerateClientLink
 }: ValoracionHeaderProps) => {
   const phase = VALORACION_PHASES[valoracion.status];
   const permissions = useValoracionPermissions(valoracion);
@@ -62,10 +66,37 @@ export const ValoracionHeader = ({
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <Badge className={`${phase.bgColor} ${phase.textColor} border-0`}>
               {phase.icon} {phase.label}
             </Badge>
+            
+            {/* Botón para subir documentos */}
+            <SecureButton 
+              hasPermission={permissions.canUploadDocuments}
+              disabledReason={permissions.disabledReason}
+              variant="outline" 
+              size="sm" 
+              onClick={onShowUploader}
+            >
+              <Upload className="w-4 h-4 mr-1" />
+              Subir Documento
+            </SecureButton>
+            
+            {/* Botón para generar enlace de cliente */}
+            {valoracion.status === 'delivered' && (
+              <SecureButton 
+                hasPermission={permissions.canView}
+                variant="outline" 
+                size="sm" 
+                onClick={onGenerateClientLink}
+                showLockIcon={false}
+              >
+                <ExternalLink className="w-4 h-4 mr-1" />
+                Enlace Cliente
+              </SecureButton>
+            )}
+            
             <SecureButton 
               hasPermission={permissions.canEdit}
               disabledReason={permissions.disabledReason}
@@ -76,6 +107,7 @@ export const ValoracionHeader = ({
               <Edit className="w-4 h-4 mr-1" />
               Editar
             </SecureButton>
+            
             <SecureButton 
               hasPermission={permissions.canView}
               variant="outline" 

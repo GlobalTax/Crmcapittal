@@ -4,34 +4,39 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useValoraciones } from '@/hooks/useValoraciones';
 import { ValoracionCard } from '@/components/valoraciones/ValoracionCard';
 import { ValoracionHeader } from '@/components/valoraciones/ValoracionHeader';
 import { ValoracionTimelineBar } from '@/components/valoraciones/ValoracionTimelineBar';
 import { ValoracionHistoryModal } from '@/components/valoraciones/ValoracionHistoryModal';
 import { CreateValoracionForm } from '@/components/valoraciones/CreateValoracionForm';
+import { ValoracionDocumentUploader } from '@/components/valoraciones/ValoracionDocumentUploader';
+import { ValoracionDocumentsList } from '@/components/valoraciones/ValoracionDocumentsList';
 import { Valoracion, ValoracionStatus } from '@/types/Valoracion';
 import { VALORACION_PHASES } from '@/utils/valoracionPhases';
+import { useValoracionSecurity } from '@/hooks/useValoracionSecurity';
+import { toast } from '@/hooks/useToast';
 
 export default function Valoraciones() {
   const { valoraciones, loading, error, createValoracion, updateValoracion } = useValoraciones();
+  const { logPhaseChange, generateClientAccessToken } = useValoracionSecurity();
   const [selectedValoracion, setSelectedValoracion] = useState<Valoracion | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ValoracionStatus | 'all'>('all');
 
-  // Convert database valoraciones to typed Valoracion objects
   const typedValoraciones: Valoracion[] = valoraciones.map(v => ({
     ...v,
     status: (v.status as ValoracionStatus) || 'requested',
-    priority: undefined, // Add this when database is updated
-    estimated_delivery: undefined, // Add this when database is updated
-    assigned_to: undefined, // Add this when database is updated
+    priority: undefined,
+    estimated_delivery: undefined,
+    assigned_to: undefined,
     created_by: v.created_by || undefined
   }));
 
-  // Filter valoraciones
   const filteredValoraciones = typedValoraciones.filter(valoracion => {
     const matchesSearch = valoracion.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          valoracion.client_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -47,19 +52,49 @@ export default function Valoraciones() {
     }
   };
 
-  const handleOpenCreateForm = () => {
-    setShowCreateForm(true);
-  };
-
   const handleAdvancePhase = async (valoracion: Valoracion, nextPhase: ValoracionStatus) => {
     try {
+      const previousPhase = valoracion.status;
       await updateValoracion(valoracion.id, { status: nextPhase });
-      // Update selected valoracion if it's the same one
+      
+      // Log del cambio de fase
+      await logPhaseChange(valoracion.id, previousPhase, nextPhase);
+      
       if (selectedValoracion?.id === valoracion.id) {
         setSelectedValoracion({ ...selectedValoracion, status: nextPhase });
       }
     } catch (error) {
       console.error('Error advancing phase:', error);
+    }
+  };
+
+  const handleGenerateClientLink = async (valoracion: Valoracion) => {
+    if (valoracion.status !== 'delivered') {
+      toast({
+        title: 'Acción no disponible',
+        description: 'Solo se puede generar enlace para valoraciones entregadas',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const token = await generateClientAccessToken(valoracion.id);
+      const clientUrl = `${window.location.origin}/client/valoracion/${token}`;
+      
+      await navigator.clipboard.writeText(clientUrl);
+      
+      toast({
+        title: 'Enlace generado',
+        description: 'El enlace del cliente se ha copiado al portapapeles'
+      });
+    } catch (error) {
+      console.error('Error generating client link:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo generar el enlace del cliente',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -99,7 +134,6 @@ export default function Valoraciones() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Valoraciones</h1>
@@ -107,13 +141,12 @@ export default function Valoraciones() {
             Gestiona y crea valoraciones de empresas con seguimiento de fases
           </p>
         </div>
-        <Button onClick={handleOpenCreateForm}>
+        <Button onClick={() => setShowCreateForm(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Nueva Valoración
         </Button>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -143,7 +176,6 @@ export default function Valoraciones() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -170,22 +202,29 @@ export default function Valoraciones() {
         </Select>
       </div>
 
-      {/* Selected Valoracion Details */}
       {selectedValoracion && (
         <div className="space-y-4">
           <ValoracionHeader
             valoracion={selectedValoracion}
             onShowHistory={() => handleShowHistory(selectedValoracion)}
+            onShowUploader={() => setShowUploader(true)}
+            onGenerateClientLink={() => handleGenerateClientLink(selectedValoracion)}
           />
           
           <ValoracionTimelineBar
             valoracion={selectedValoracion}
             onAdvancePhase={(nextPhase) => handleAdvancePhase(selectedValoracion, nextPhase)}
           />
+
+          <ValoracionDocumentsList
+            valoracion={selectedValoracion}
+            onRefresh={() => {
+              // Trigger refresh if needed
+            }}
+          />
         </div>
       )}
 
-      {/* Valoraciones Grid */}
       <div className="space-y-4">
         {filteredValoraciones.length === 0 ? (
           <Card>
@@ -201,7 +240,7 @@ export default function Valoraciones() {
                 }
               </p>
               {!searchTerm && statusFilter === 'all' && (
-                <Button onClick={handleOpenCreateForm}>
+                <Button onClick={() => setShowCreateForm(true)}>
                   <Plus className="w-4 h-4 mr-2" />
                   Crear Primera Valoración
                 </Button>
@@ -221,7 +260,6 @@ export default function Valoraciones() {
         )}
       </div>
 
-      {/* History Modal */}
       <ValoracionHistoryModal
         valoracion={selectedValoracion}
         isOpen={showHistory}
@@ -233,6 +271,23 @@ export default function Valoraciones() {
         onOpenChange={setShowCreateForm}
         onSubmit={handleCreateValoracion}
       />
+
+      <Dialog open={showUploader} onOpenChange={setShowUploader}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Subir Documentos</DialogTitle>
+          </DialogHeader>
+          {selectedValoracion && (
+            <ValoracionDocumentUploader
+              valoracion={selectedValoracion}
+              onUploadComplete={() => {
+                setShowUploader(false);
+                // Refresh documents list if needed
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
