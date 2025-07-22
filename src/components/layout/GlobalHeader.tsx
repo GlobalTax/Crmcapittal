@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { Search, Bell, Settings } from "lucide-react";
 
 export const GlobalHeader = () => {
@@ -66,16 +65,6 @@ export const GlobalHeader = () => {
                 <p className="text-xs text-muted-foreground">Administrador</p>
               </div>
             </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <span>Mi Perfil</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>Configuración</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <span>Ayuda</span>
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
               <span>Cerrar sesión</span>
