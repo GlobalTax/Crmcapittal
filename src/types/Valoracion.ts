@@ -1,6 +1,8 @@
 
 export interface Valoracion {
   id: string;
+  company_id?: string;
+  contact_id?: string;
   company_name: string;
   client_name: string;
   company_sector?: string;
@@ -12,10 +14,17 @@ export interface Valoracion {
   estimated_delivery?: string;
   priority?: ValoracionPriority;
   phase_history?: ValoracionPhaseHistory[];
+  fee_quoted?: number;
+  fee_charged?: number;
+  payment_status?: PaymentStatus;
+  fee_currency?: string;
+  payment_date?: string;
+  payment_notes?: string;
 }
 
 export type ValoracionStatus = 'requested' | 'in_process' | 'completed' | 'delivered';
 export type ValoracionPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type PaymentStatus = 'pending' | 'partial' | 'paid' | 'overdue';
 
 export interface ValoracionPhaseHistory {
   id: string;

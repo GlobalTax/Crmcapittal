@@ -6318,9 +6318,15 @@ export type Database = {
           delivery_date: string | null
           estimated_value_max: number | null
           estimated_value_min: number | null
+          fee_charged: number | null
+          fee_currency: string | null
+          fee_quoted: number | null
           final_valuation_amount: number | null
           id: string
           notes: string | null
+          payment_date: string | null
+          payment_notes: string | null
+          payment_status: string | null
           priority: string
           requested_date: string
           status: string
@@ -6342,9 +6348,15 @@ export type Database = {
           delivery_date?: string | null
           estimated_value_max?: number | null
           estimated_value_min?: number | null
+          fee_charged?: number | null
+          fee_currency?: string | null
+          fee_quoted?: number | null
           final_valuation_amount?: number | null
           id?: string
           notes?: string | null
+          payment_date?: string | null
+          payment_notes?: string | null
+          payment_status?: string | null
           priority?: string
           requested_date?: string
           status?: string
@@ -6366,9 +6378,15 @@ export type Database = {
           delivery_date?: string | null
           estimated_value_max?: number | null
           estimated_value_min?: number | null
+          fee_charged?: number | null
+          fee_currency?: string | null
+          fee_quoted?: number | null
           final_valuation_amount?: number | null
           id?: string
           notes?: string | null
+          payment_date?: string | null
+          payment_notes?: string | null
+          payment_status?: string | null
           priority?: string
           requested_date?: string
           status?: string

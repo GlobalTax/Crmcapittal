@@ -95,7 +95,10 @@ export const useValoracionSecurity = () => {
       
       const { error } = await supabase
         .from('valoraciones')
-        .update({ client_access_token: token })
+        .update({ 
+          notes: `Token de acceso generado: ${token}`,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', valoracionId);
 
       if (error) throw error;

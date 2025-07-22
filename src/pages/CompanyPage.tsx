@@ -13,6 +13,7 @@ import { CompanyEinformaTab } from '@/components/companies/CompanyEinformaTab';
 import { CompanyDocumentsTab } from '@/components/companies/CompanyDocumentsTab';
 import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
+import { CompanyValoracionesTab } from '@/components/companies/CompanyValoracionesTab';
 import { useCompanies } from '@/hooks/useCompanies';
 import { Company } from '@/types/Company';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
@@ -195,6 +196,12 @@ export default function CompanyPage() {
                  >
                    Documentos
                  </TabsTrigger>
+                 <TabsTrigger 
+                   value="valoraciones"
+                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                 >
+                   Valoraciones
+                 </TabsTrigger>
               </div>
             </TabsList>
 
@@ -232,6 +239,10 @@ export default function CompanyPage() {
                  
                  <TabsContent value="documents" className="mt-0 p-6">
                    <CompanyDocumentsTab company={company} />
+                 </TabsContent>
+                 
+                 <TabsContent value="valoraciones" className="mt-0 p-6">
+                   <CompanyValoracionesTab company={company} />
                  </TabsContent>
               </div>
             </div>

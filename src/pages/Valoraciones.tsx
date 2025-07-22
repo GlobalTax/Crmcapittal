@@ -34,7 +34,8 @@ export default function Valoraciones() {
     priority: undefined,
     estimated_delivery: undefined,
     assigned_to: undefined,
-    created_by: v.created_by || undefined
+    created_by: v.created_by || undefined,
+    payment_status: (v.payment_status as any) || 'pending'
   }));
 
   const filteredValoraciones = typedValoraciones.filter(valoracion => {

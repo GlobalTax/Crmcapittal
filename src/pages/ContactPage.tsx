@@ -11,6 +11,7 @@ import ContactFilesTab from '@/components/contacts/ContactFilesTab';
 import { ContactTasksTab } from '@/components/contacts/ContactTasksTab';
 import { ContactNotesTab } from '@/components/contacts/ContactNotesTab';
 import { ContactCompanyTab } from '@/components/contacts/ContactCompanyTab';
+import { ContactValoracionesTab } from '@/components/contacts/ContactValoracionesTab';
 import { useOptimizedContacts } from '@/hooks/useOptimizedContacts';
 import { Contact, UpdateContactData } from '@/types/Contact';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
@@ -217,6 +218,12 @@ export default function ContactPage() {
                 >
                   Archivos
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="valoraciones"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
+                >
+                  Valoraciones
+                </TabsTrigger>
               </div>
             </TabsList>
 
@@ -268,6 +275,10 @@ export default function ContactPage() {
                   contactId={contact.id} 
                   currentUserId={currentUserId} 
                 />
+              </TabsContent>
+              
+              <TabsContent value="valoraciones" className="mt-0 p-6">
+                <ContactValoracionesTab contact={contact} />
               </TabsContent>
             </div>
           </Tabs>
