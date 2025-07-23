@@ -4855,6 +4855,62 @@ export type Database = {
         }
         Relationships: []
       }
+      reconversion_audit_logs: {
+        Row: {
+          action_description: string
+          action_type: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          new_data: Json | null
+          old_data: Json | null
+          reconversion_id: string
+          severity: string | null
+          user_agent: string | null
+          user_email: string | null
+          user_id: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          new_data?: Json | null
+          old_data?: Json | null
+          reconversion_id: string
+          severity?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          new_data?: Json | null
+          old_data?: Json | null
+          reconversion_id?: string
+          severity?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconversion_audit_logs_reconversion_id_fkey"
+            columns: ["reconversion_id"]
+            isOneToOne: false
+            referencedRelation: "reconversiones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reconversiones: {
         Row: {
           assigned_to: string | null
@@ -6803,6 +6859,10 @@ export type Database = {
           manager_position: string
         }[]
       }
+      has_reconversion_permission: {
+        Args: { p_reconversion_id: string; p_action?: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -6813,6 +6873,18 @@ export type Database = {
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      log_reconversion_audit: {
+        Args: {
+          p_reconversion_id: string
+          p_action_type: string
+          p_action_description: string
+          p_old_data?: Json
+          p_new_data?: Json
+          p_severity?: string
+          p_metadata?: Json
+        }
+        Returns: string
       }
       log_security_event: {
         Args: {
@@ -6833,6 +6905,10 @@ export type Database = {
           _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
         }
+        Returns: Json
+      }
+      sanitize_reconversion_data: {
+        Args: { p_data: Json }
         Returns: Json
       }
       set_environment_variables: {
