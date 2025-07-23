@@ -188,15 +188,12 @@ export function ValoracionDetailPanel({
                           {format(new Date(valoracion.created_at), 'dd/MM/yyyy', { locale: es })}
                         </p>
                       </div>
-                      {valoracion.estimated_delivery && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Entrega Estimada</label>
-                          <p className="text-sm flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            {format(new Date(valoracion.estimated_delivery), 'dd/MM/yyyy', { locale: es })}
-                          </p>
-                        </div>
-                      )}
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Estado</label>
+                        <p className="text-sm">
+                          {valoracion.status || 'En proceso'}
+                        </p>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
