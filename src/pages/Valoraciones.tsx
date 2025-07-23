@@ -1,23 +1,28 @@
 
 import React, { useState } from 'react';
 import { OptimizedValoracionesList } from '@/components/valoraciones/OptimizedValoracionesList';
+import { ValoracionDetailPanel } from '@/components/valoraciones/ValoracionDetailPanel';
 import type { Database } from '@/integrations/supabase/types';
 
 type Valoracion = Database['public']['Tables']['valoraciones']['Row'];
 
 export default function Valoraciones() {
   const [selectedValoracion, setSelectedValoracion] = useState<Valoracion | null>(null);
+  const [detailPanelOpen, setDetailPanelOpen] = useState(false);
   
   const handleViewValoracion = (valoracion: Valoracion) => {
     setSelectedValoracion(valoracion);
-    // Aquí podrías abrir un modal o redirigir a una página de detalle
-    console.log('Ver valoración:', valoracion);
+    setDetailPanelOpen(true);
   };
   
   const handleEditValoracion = (valoracion: Valoracion) => {
     setSelectedValoracion(valoracion);
-    // Aquí podrías abrir un formulario de edición
-    console.log('Editar valoración:', valoracion);
+    setDetailPanelOpen(true);
+  };
+
+  const handleCloseDetailPanel = () => {
+    setDetailPanelOpen(false);
+    setSelectedValoracion(null);
   };
   
   return (
@@ -35,6 +40,13 @@ export default function Valoraciones() {
         <OptimizedValoracionesList
           onView={handleViewValoracion}
           onEdit={handleEditValoracion}
+        />
+
+        <ValoracionDetailPanel
+          valoracion={selectedValoracion}
+          open={detailPanelOpen}
+          onOpenChange={setDetailPanelOpen}
+          onClose={handleCloseDetailPanel}
         />
       </div>
     </div>

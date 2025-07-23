@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -24,24 +25,36 @@ export function useValoracionComments(valoracionId?: string) {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('valoracion_comments' as any)
-        .select(`
-          *,
-          user:user_id (
-            email
-          )
-        `)
+      // Primero obtenemos los comentarios
+      const { data: commentsData, error: commentsError } = await supabase
+        .from('valoracion_comments')
+        .select('*')
         .eq('valoracion_id', valoracionId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (commentsError) throw commentsError;
 
-      const commentsWithUserInfo = (data as any)?.map((comment: any) => ({
-        ...comment,
-        user_email: comment.user?.email || 'Usuario desconocido',
-        user_name: comment.user?.email?.split('@')[0] || 'Usuario'
-      })) || [];
+      // Luego obtenemos la información de usuarios para cada comentario
+      const commentsWithUserInfo = await Promise.all(
+        (commentsData || []).map(async (comment) => {
+          try {
+            const { data: userData, error: userError } = await supabase.auth.admin.getUserById(comment.user_id);
+            
+            return {
+              ...comment,
+              user_email: userData?.user?.email || 'Usuario desconocido',
+              user_name: userData?.user?.email?.split('@')[0] || 'Usuario'
+            };
+          } catch (error) {
+            console.warn('Error loading user info for comment:', comment.id, error);
+            return {
+              ...comment,
+              user_email: 'Usuario desconocido',
+              user_name: 'Usuario'
+            };
+          }
+        })
+      );
 
       setComments(commentsWithUserInfo);
     } catch (error) {
@@ -60,10 +73,14 @@ export function useValoracionComments(valoracionId?: string) {
     if (!valoracionId) return;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
+
       const { error } = await supabase
-        .from('valoracion_comments' as any)
+        .from('valoracion_comments')
         .insert({
           valoracion_id: valoracionId,
+          user_id: user.id,
           ...commentData,
           metadata: commentData.metadata || {}
         });
@@ -71,7 +88,7 @@ export function useValoracionComments(valoracionId?: string) {
       if (error) throw error;
 
       toast.success('Comentario añadido');
-      loadComments(); // Reload to get updated list
+      await loadComments(); // Reload to get updated list
     } catch (error) {
       console.error('Error adding comment:', error);
       toast.error('Error al añadir comentario');
@@ -85,14 +102,14 @@ export function useValoracionComments(valoracionId?: string) {
   }) => {
     try {
       const { error } = await supabase
-        .from('valoracion_comments' as any)
+        .from('valoracion_comments')
         .update(updates)
         .eq('id', commentId);
 
       if (error) throw error;
 
       toast.success('Comentario actualizado');
-      loadComments();
+      await loadComments();
     } catch (error) {
       console.error('Error updating comment:', error);
       toast.error('Error al actualizar comentario');
@@ -103,14 +120,14 @@ export function useValoracionComments(valoracionId?: string) {
   const deleteComment = async (commentId: string) => {
     try {
       const { error } = await supabase
-        .from('valoracion_comments' as any)
+        .from('valoracion_comments')
         .delete()
         .eq('id', commentId);
 
       if (error) throw error;
 
       toast.success('Comentario eliminado');
-      loadComments();
+      await loadComments();
     } catch (error) {
       console.error('Error deleting comment:', error);
       toast.error('Error al eliminar comentario');
