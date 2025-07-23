@@ -361,9 +361,9 @@ export const ContactDetailsDialog = ({
                 <div>
                   <span className="font-medium">Actualizado:</span> {formatDate(contact.updated_at)}
                 </div>
-                {contact.last_interaction_date && (
+                {contact.last_contact_date && (
                   <div>
-                    <span className="font-medium">Última interacción:</span> {formatDate(contact.last_interaction_date)}
+                    <span className="font-medium">Última interacción:</span> {formatDate(contact.last_contact_date)}
                   </div>
                 )}
               </div>

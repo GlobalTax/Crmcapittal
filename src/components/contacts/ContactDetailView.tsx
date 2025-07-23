@@ -602,7 +602,7 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                   </div>
                 )}
 
-                {contact.last_interaction_date && (
+                {contact.last_contact_date && (
                   <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                       <Activity className="w-4 h-4 text-green-600" />
@@ -611,7 +611,7 @@ export const ContactDetailView = ({ contact, onBack, onEdit, onDelete }: Contact
                       <div className="font-medium text-sm">Última interacción</div>
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="w-3 h-3" />
-                        {formatDate(contact.last_interaction_date)}
+                        {formatDate(contact.last_contact_date)}
                       </div>
                     </div>
                   </div>

@@ -57,7 +57,7 @@ export const PersonRecordTable = ({
     let strength = 0;
     if (contact.email) strength += 25;
     if (contact.phone) strength += 25;
-    if (contact.last_interaction_date) strength += 30;
+    if (contact.last_contact_date) strength += 30;
     if (contact.company) strength += 20;
     
     if (strength >= 80) return { label: 'Fuerte', color: 'hsl(158, 100%, 38%)' }; // green
@@ -225,7 +225,7 @@ export const PersonRecordTable = ({
                   </td>
                   <td className="p-3">
                     <div className="text-sm">
-                      {formatLastInteraction(contact.last_interaction_date)}
+                      {formatLastInteraction(contact.last_contact_date)}
                     </div>
                   </td>
                   <td className="p-3">

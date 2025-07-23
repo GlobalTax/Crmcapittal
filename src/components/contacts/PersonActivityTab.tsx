@@ -46,13 +46,13 @@ export const PersonActivityTab = ({ contact }: PersonActivityTabProps) => {
   }
 
   // Last interaction
-  if (contact.last_interaction_date) {
+  if (contact.last_contact_date) {
     activities.push({
       id: 'interaction',
       type: 'contacted',
       title: 'Last interaction',
       description: 'Latest interaction recorded',
-      date: contact.last_interaction_date,
+      date: contact.last_contact_date,
       icon: Calendar,
       color: 'bg-purple-500'
     });

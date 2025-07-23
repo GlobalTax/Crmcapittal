@@ -72,9 +72,9 @@ export const LeadHeader = ({
                 <h1 className="text-xl font-semibold">{lead.name || lead.email}</h1>
                 <LeadStatusBadge status={lead.status} />
               </div>
-              {lead.company_name && (
+              {lead.company && (
                 <p className="text-sm text-muted-foreground">
-                  {lead.job_title ? `${lead.job_title} at ${lead.company_name}` : lead.company_name}
+                  {lead.position ? `${lead.position} at ${lead.company}` : lead.company}
                 </p>
               )}
             </div>

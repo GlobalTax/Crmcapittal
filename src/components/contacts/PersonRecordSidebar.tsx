@@ -232,8 +232,8 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
               <div className="text-xs text-muted-foreground space-y-1">
                 <div>Creado: {new Date(contact.created_at).toLocaleDateString('es-ES')}</div>
                 <div>Actualizado: {new Date(contact.updated_at).toLocaleDateString('es-ES')}</div>
-                {contact.last_interaction_date && (
-                  <div>Última interacción: {new Date(contact.last_interaction_date).toLocaleDateString('es-ES')}</div>
+                {contact.last_contact_date && (
+                  <div>Última interacción: {new Date(contact.last_contact_date).toLocaleDateString('es-ES')}</div>
                 )}
               </div>
             </div>

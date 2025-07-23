@@ -71,10 +71,10 @@ export const ExportLeadsDialog = ({ leads }: ExportLeadsDialogProps) => {
         row.push(lead.name, lead.status, lead.source, lead.priority || 'MEDIUM', lead.quality || 'FAIR');
       }
       if (includeFields.contactInfo) {
-        row.push(lead.email, lead.phone || '', lead.job_title || '');
+        row.push(lead.email, lead.phone || '', lead.position || '');
       }
       if (includeFields.companyInfo) {
-        row.push(lead.company_name || '');
+        row.push(lead.company || '');
       }
       if (includeFields.metrics) {
         row.push(lead.lead_score || 0, lead.follow_up_count || 0);
@@ -129,10 +129,10 @@ export const ExportLeadsDialog = ({ leads }: ExportLeadsDialogProps) => {
       if (includeFields.contactInfo) {
         exportLead.email = lead.email;
         exportLead.phone = lead.phone;
-        exportLead.job_title = lead.job_title;
+        exportLead.position = lead.position;
       }
       if (includeFields.companyInfo) {
-        exportLead.company_name = lead.company_name;
+        exportLead.company = lead.company;
       }
       if (includeFields.metrics) {
         exportLead.lead_score = lead.lead_score;

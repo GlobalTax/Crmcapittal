@@ -138,11 +138,11 @@ export const EmailTemplateDialog = ({ lead }: EmailTemplateDialogProps) => {
       .replace(/\{\{name\}\}/g, lead.name)
       .replace(/\{\{email\}\}/g, lead.email)
       .replace(/\{\{phone\}\}/g, lead.phone || '')
-      .replace(/\{\{company_name\}\}/g, lead.company_name || '')
-      .replace(/\{\{job_title\}\}/g, lead.job_title || '')
-      .replace(/\{\{#if company_name\}\}(.*?)\{\{\/if\}\}/g, lead.company_name ? '$1' : '')
-      .replace(/\{\{company_name \|\| "tu empresa"\}\}/g, lead.company_name || 'tu empresa')
-      .replace(/\{\{company_name \|\| "tu proyecto"\}\}/g, lead.company_name || 'tu proyecto');
+      .replace(/\{\{company_name\}\}/g, lead.company || '')
+      .replace(/\{\{job_title\}\}/g, lead.position || '')
+      .replace(/\{\{#if company_name\}\}(.*?)\{\{\/if\}\}/g, lead.company ? '$1' : '')
+      .replace(/\{\{company_name \|\| "tu empresa"\}\}/g, lead.company || 'tu empresa')
+      .replace(/\{\{company_name \|\| "tu proyecto"\}\}/g, lead.company || 'tu proyecto');
   };
 
   const getPreviewContent = () => {
@@ -196,8 +196,8 @@ export const EmailTemplateDialog = ({ lead }: EmailTemplateDialogProps) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Badge variant="outline">{lead.email}</Badge>
-              {lead.company_name && (
-                <Badge variant="outline">{lead.company_name}</Badge>
+              {lead.company && (
+                <Badge variant="outline">{lead.company}</Badge>
               )}
             </div>
             <div className="flex gap-2">

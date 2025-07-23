@@ -12,7 +12,7 @@ export const PersonOverviewTab = ({ contact }: PersonOverviewTabProps) => {
     let strength = 0;
     if (contact.email) strength += 25;
     if (contact.phone) strength += 25;
-    if (contact.last_interaction_date) strength += 30;
+    if (contact.last_contact_date) strength += 30;
     if (contact.company) strength += 20;
     
     if (strength >= 80) return { label: 'Fuerte', color: 'text-green-600' };
@@ -125,13 +125,13 @@ export const PersonOverviewTab = ({ contact }: PersonOverviewTabProps) => {
             </div>
           )}
 
-          {contact.last_interaction_date && (
+          {contact.last_contact_date && (
             <div className="flex items-start gap-3 p-3 bg-neutral-50 rounded-lg">
               <div className="w-2 h-2 rounded-full bg-purple-500 mt-2"></div>
               <div className="flex-1">
                 <p className="text-sm">Última interacción</p>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(contact.last_interaction_date).toLocaleDateString('es-ES', {
+                  {new Date(contact.last_contact_date).toLocaleDateString('es-ES', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
@@ -141,7 +141,7 @@ export const PersonOverviewTab = ({ contact }: PersonOverviewTabProps) => {
             </div>
           )}
 
-          {(!contact.last_interaction_date && contact.updated_at === contact.created_at) && (
+          {(!contact.last_contact_date && contact.updated_at === contact.created_at) && (
             <div className="text-center py-6">
               <p className="text-sm text-muted-foreground">Sin actividad reciente</p>
               <p className="text-xs text-muted-foreground">La actividad aparecerá aquí cuando ocurra</p>

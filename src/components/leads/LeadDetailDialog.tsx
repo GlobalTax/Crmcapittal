@@ -74,17 +74,17 @@ export const LeadDetailDialog = ({ open, onOpenChange, lead }: LeadDetailDialogP
                 )}
               </div>
 
-              {lead.company_name && (
+              {lead.company && (
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{lead.company_name}</span>
+                  <span className="text-sm">{lead.company}</span>
                 </div>
               )}
 
-              {lead.job_title && (
+              {lead.position && (
                 <div className="flex items-center gap-2">
                   <Tag className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{lead.job_title}</span>
+                  <span className="text-sm">{lead.position}</span>
                 </div>
               )}
             </div>

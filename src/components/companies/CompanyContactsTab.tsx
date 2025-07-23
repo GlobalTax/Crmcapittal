@@ -159,9 +159,9 @@ export const CompanyContactsTab = ({ company }: CompanyContactsTabProps) => {
                   )}
                 </div>
 
-                {contact.last_interaction_date && (
+                {contact.last_contact_date && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    Último contacto: {new Date(contact.last_interaction_date).toLocaleDateString('es-ES')}
+                    Último contacto: {new Date(contact.last_contact_date).toLocaleDateString('es-ES')}
                   </p>
                 )}
               </div>

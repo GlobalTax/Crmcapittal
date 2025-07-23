@@ -19,7 +19,8 @@ export type {
   ContactType,
   ContactStatus,
   ContactPriority,
-  ContactSource
+  ContactSource,
+  LifecycleStage as ContactLifecycleStage
 } from './Contact';
 
 export type {
@@ -37,5 +38,6 @@ export type {
   CompanyStatus,
   BusinessSegment,
   TransactionInterest,
-  GeographicScope
+  GeographicScope,
+  LifecycleStage as CompanyLifecycleStage
 } from './Company';

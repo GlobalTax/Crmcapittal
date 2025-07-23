@@ -62,7 +62,7 @@ export const ConvertLeadDialog = ({
             <div className="text-sm text-gray-600 space-y-1">
               <p><strong>Nombre:</strong> {lead.name}</p>
               <p><strong>Email:</strong> {lead.email}</p>
-              {lead.company_name && <p><strong>Empresa:</strong> {lead.company_name}</p>}
+              {lead.company && <p><strong>Empresa:</strong> {lead.company}</p>}
               {lead.phone && <p><strong>Teléfono:</strong> {lead.phone}</p>}
             </div>
           </div>
@@ -85,8 +85,8 @@ export const ConvertLeadDialog = ({
               <Building2 className="h-4 w-4 text-green-600" />
               <Label htmlFor="create-company" className="text-sm font-medium flex-1">
                 Crear Empresa
-                {lead.company_name && (
-                  <span className="text-gray-500 block text-xs">({lead.company_name})</span>
+                {lead.company && (
+                  <span className="text-gray-500 block text-xs">({lead.company})</span>
                 )}
               </Label>
             </div>
