@@ -12,7 +12,7 @@ export interface ReconversionAuditLog {
   new_data?: any;
   user_id: string;
   user_email?: string;
-  ip_address?: string;
+  ip_address?: string | null;
   user_agent?: string;
   severity: string;
   metadata?: any;
@@ -48,7 +48,7 @@ export function useReconversionAuditLogs(reconversionId?: string) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLogs(data || []);
+      setLogs((data || []) as ReconversionAuditLog[]);
     } catch (err) {
       setError(err as Error);
     } finally {

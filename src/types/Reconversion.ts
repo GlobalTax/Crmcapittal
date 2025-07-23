@@ -1,7 +1,7 @@
 
-export type ReconversionStatus = 'activa' | 'en_matching' | 'pausada' | 'cerrada';
+export type ReconversionStatus = 'active' | 'matching' | 'paused' | 'closed';
 
-export type ReconversionPriority = 'baja' | 'media' | 'alta' | 'urgente';
+export type ReconversionPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export interface Reconversion {
   id: string;
@@ -9,17 +9,17 @@ export interface Reconversion {
   contact_name: string;
   contact_email?: string;
   contact_phone?: string;
-  original_rejection_reason: string;
+  rejection_reason: string;
   target_sectors?: string[];
   investment_capacity_min?: number;
   investment_capacity_max?: number;
   geographic_preferences?: string[];
   business_model_preferences?: string[];
-  priority: ReconversionPriority;
-  status: ReconversionStatus;
+  priority?: ReconversionPriority;
+  status?: ReconversionStatus;
   notes?: string;
   assigned_to?: string;
-  created_by: string;
+  created_by?: string;
   created_at: string;
   updated_at: string;
 }

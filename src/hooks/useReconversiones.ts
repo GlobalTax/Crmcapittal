@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
@@ -52,7 +51,7 @@ export function useReconversiones() {
 
       const { data, error } = await supabase
         .from('reconversiones')
-        .insert([finalData])
+        .insert(finalData as any)
         .select()
         .single();
 
@@ -90,7 +89,7 @@ export function useReconversiones() {
 
       const { data, error } = await supabase
         .from('reconversiones')
-        .update(finalUpdates)
+        .update(finalUpdates as any)
         .eq('id', id)
         .select()
         .single();

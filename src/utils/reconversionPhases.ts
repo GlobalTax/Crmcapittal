@@ -1,4 +1,3 @@
-
 import { ReconversionStatus, ReconversionPriority } from '@/types/Reconversion';
 
 export interface ReconversionPhase {
@@ -11,7 +10,7 @@ export interface ReconversionPhase {
 }
 
 export const RECONVERSION_PHASES: Record<ReconversionStatus, ReconversionPhase> = {
-  activa: {
+  active: {
     label: 'Activa',
     description: 'Reconversión en proceso activo',
     icon: '🔄',
@@ -19,7 +18,7 @@ export const RECONVERSION_PHASES: Record<ReconversionStatus, ReconversionPhase> 
     bgColor: 'bg-primary/10',
     textColor: 'text-primary'
   },
-  en_matching: {
+  matching: {
     label: 'En Matching',
     description: 'Buscando coincidencias activamente',
     icon: '🎯',
@@ -27,7 +26,7 @@ export const RECONVERSION_PHASES: Record<ReconversionStatus, ReconversionPhase> 
     bgColor: 'bg-warning/10',
     textColor: 'text-warning-foreground'
   },
-  pausada: {
+  paused: {
     label: 'Pausada',
     description: 'Temporalmente suspendida',
     icon: '⏸️',
@@ -35,7 +34,7 @@ export const RECONVERSION_PHASES: Record<ReconversionStatus, ReconversionPhase> 
     bgColor: 'bg-muted/50',
     textColor: 'text-muted-foreground'
   },
-  cerrada: {
+  closed: {
     label: 'Cerrada',
     description: 'Proceso finalizado',
     icon: '✅',
@@ -46,7 +45,7 @@ export const RECONVERSION_PHASES: Record<ReconversionStatus, ReconversionPhase> 
 };
 
 export const RECONVERSION_PRIORITIES: Record<ReconversionPriority, ReconversionPhase> = {
-  baja: {
+  low: {
     label: 'Baja',
     description: 'Prioridad baja',
     icon: '🟢',
@@ -54,7 +53,7 @@ export const RECONVERSION_PRIORITIES: Record<ReconversionPriority, ReconversionP
     bgColor: 'bg-success/10',
     textColor: 'text-success-foreground'
   },
-  media: {
+  medium: {
     label: 'Media',
     description: 'Prioridad media',
     icon: '🟡',
@@ -62,7 +61,7 @@ export const RECONVERSION_PRIORITIES: Record<ReconversionPriority, ReconversionP
     bgColor: 'bg-warning/10',
     textColor: 'text-warning-foreground'
   },
-  alta: {
+  high: {
     label: 'Alta',
     description: 'Prioridad alta',
     icon: '🟠',
@@ -70,7 +69,7 @@ export const RECONVERSION_PRIORITIES: Record<ReconversionPriority, ReconversionP
     bgColor: 'bg-orange-100',
     textColor: 'text-orange-800'
   },
-  urgente: {
+  urgent: {
     label: 'Urgente',
     description: 'Requiere atención inmediata',
     icon: '🔴',

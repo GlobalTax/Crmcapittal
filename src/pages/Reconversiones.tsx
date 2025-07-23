@@ -9,8 +9,8 @@ import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
 import { useReconversionFilters } from '@/hooks/useReconversionFilters';
 import { EnhancedReconversionCard } from '@/components/reconversiones/EnhancedReconversionCard';
 import { ReconversionFilters } from '@/components/reconversiones/ReconversionFilters';
-import { ReconversionAuditPanel } from '@/components/reconversiones/ReconversionAuditPanel';
 import { Toggle } from '@/components/ui/toggle';
+import type { Database } from '@/integrations/supabase/types';
 
 export default function Reconversiones() {
   const { reconversiones, loading, error, createReconversion } = useReconversiones();
@@ -24,7 +24,7 @@ export default function Reconversiones() {
     clearFilters,
     hasActiveFilters,
     filteredReconversiones
-  } = useReconversionFilters(reconversiones);
+  } = useReconversionFilters(reconversiones as any);
 
   if (loading) {
     return (
@@ -61,9 +61,7 @@ export default function Reconversiones() {
       await createReconversion({
         company_name: 'Nueva Empresa',
         contact_name: 'Nuevo Cliente',
-        original_rejection_reason: 'Evaluación inicial',
-        priority: 'media',
-        status: 'activa'
+        rejection_reason: 'Evaluación inicial'
       });
     } catch (error) {
       // Error ya manejado en el hook
@@ -72,10 +70,10 @@ export default function Reconversiones() {
 
   const stats = {
     total: reconversiones.length,
-    activas: reconversiones.filter(r => r.status === 'activa').length,
-    enMatching: reconversiones.filter(r => r.status === 'en_matching').length,
-    completadas: reconversiones.filter(r => r.status === 'cerrada').length,
-    urgentes: reconversiones.filter(r => r.priority === 'urgente').length
+    activas: reconversiones.filter(r => r.status === 'active').length,
+    enMatching: reconversiones.filter(r => r.status === 'matching').length,
+    completadas: reconversiones.filter(r => r.status === 'closed').length,
+    urgentes: reconversiones.filter(r => (r as any).priority === 'high').length
   };
 
   return (

@@ -43,7 +43,7 @@ export function useReconversionFilters(reconversiones: Reconversion[]) {
         const searchableText = [
           reconversion.company_name,
           reconversion.contact_name,
-          reconversion.original_rejection_reason,
+          reconversion.rejection_reason,
           reconversion.notes,
           ...(reconversion.target_sectors || [])
         ].join(' ').toLowerCase();

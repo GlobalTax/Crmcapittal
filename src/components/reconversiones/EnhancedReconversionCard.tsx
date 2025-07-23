@@ -139,14 +139,14 @@ export function EnhancedReconversionCard({
           </div>
         )}
 
-        {/* Original Rejection Reason */}
-        {reconversion.original_rejection_reason && (
+        {/* Rejection Reason */}
+        {reconversion.rejection_reason && (
           <div className="text-sm">
             <p className="text-muted-foreground mb-1">Motivo original:</p>
             <p className="text-foreground line-clamp-2">
               {canViewSensitive 
-                ? reconversion.original_rejection_reason 
-                : maskSensitiveData(reconversion.original_rejection_reason)
+                ? reconversion.rejection_reason 
+                : maskSensitiveData(reconversion.rejection_reason)
               }
             </p>
           </div>
@@ -167,7 +167,7 @@ export function EnhancedReconversionCard({
             </SecureButton>
           )}
 
-          {onStartMatching && reconversion.status === 'activa' && (
+          {onStartMatching && reconversion.status === 'active' && (
             <SecureButton
               hasPermission={canWrite}
               variant="default"
