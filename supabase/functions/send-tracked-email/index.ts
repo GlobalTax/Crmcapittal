@@ -27,6 +27,62 @@ serve(async (req: Request) => {
   }
 
   try {
+    // Validate request data first
+    const emailData: EmailRequest = await req.json();
+    console.log('Processing email request:', emailData);
+
+    // Validate required fields
+    if (!emailData.recipient_email) {
+      console.error('Missing recipient_email in request');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'recipient_email es requerido'
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
+    if (!emailData.subject) {
+      console.error('Missing subject in request');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'subject es requerido'
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
+    if (!emailData.content) {
+      console.error('Missing content in request');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'content es requerido'
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
     // Check if RESEND_API_KEY is configured
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (!resendApiKey) {
@@ -51,9 +107,6 @@ serve(async (req: Request) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
-
-    const emailData: EmailRequest = await req.json();
-    console.log('Processing email request:', emailData);
 
     // Create email record in database first (let DB generate tracking_id)
     const { data: trackedEmail, error: dbError } = await supabase

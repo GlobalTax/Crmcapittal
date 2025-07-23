@@ -1,12 +1,12 @@
 
 import { Outlet } from "react-router-dom";
-import { LegalCrmSidebar } from "./LegalCrmSidebar";
+import { AppSidebar } from "./AppSidebar";
 import { GlobalHeader } from "./GlobalHeader";
 
 export const DashboardLayout = () => {
   return (
     <div className="min-h-screen flex w-full bg-background">
-      <LegalCrmSidebar />
+      <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <GlobalHeader />
         <div className="flex-1 overflow-auto bg-background">

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,17 +29,19 @@ export const useUserRole = () => {
 
       if (error) {
         console.error('Error fetching user role:', error);
-        setRole(null);
+        // Set default role instead of null to prevent render issues
+        setRole('user');
       } else {
         const userRole = data as UserRole;
-        setRole(userRole);
+        setRole(userRole || 'user'); // Default to 'user' if null
         
         // Cache the result
-        roleCache.set(userId, { role: userRole, timestamp: Date.now() });
+        roleCache.set(userId, { role: userRole || 'user', timestamp: Date.now() });
       }
     } catch (err) {
       console.error('Error in fetchUserRole:', err);
-      setRole(null);
+      // Set default role to prevent render issues
+      setRole('user');
     } finally {
       setLoading(false);
     }
@@ -46,7 +49,7 @@ export const useUserRole = () => {
 
   useEffect(() => {
     if (!user?.id) {
-      setRole(null);
+      setRole('user'); // Default role for unauthenticated users
       setLoading(false);
       return;
     }
@@ -55,5 +58,5 @@ export const useUserRole = () => {
   }, [user?.id, fetchUserRole]);
 
   // Memoize the return value to prevent unnecessary re-renders
-  return useMemo(() => ({ role, loading }), [role, loading]);
+  return useMemo(() => ({ role: role || 'user', loading }), [role, loading]);
 };
