@@ -201,7 +201,7 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
         <DialogHeader>
           <DialogTitle>Targets - {mandate.mandate_name}</DialogTitle>
           <DialogDescription>
-            Cliente: {mandate.client_name} | Sectores: {mandate.target_sectors.join(', ')}
+            Cliente: {mandate.client_name} | Sectores: {mandate.target_sectors?.join(', ') || 'No especificado'}
           </DialogDescription>
         </DialogHeader>
 
