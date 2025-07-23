@@ -22,6 +22,32 @@ export interface Valoracion {
   payment_notes?: string;
 }
 
+export interface ValoracionDocument {
+  id: string;
+  valoracion_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  content_type: string;
+  document_type: 'deliverable' | 'internal';
+  review_status: DocumentReviewStatus;
+  created_at: string;
+  updated_at: string;
+  uploaded_by: string;
+}
+
+export interface ValoracionDocumentReview {
+  id: string;
+  document_id: string;
+  previous_status?: DocumentReviewStatus;
+  new_status: DocumentReviewStatus;
+  reviewed_by?: string;
+  review_notes?: string;
+  created_at: string;
+}
+
+export type DocumentReviewStatus = 'pending' | 'approved' | 'rejected' | 'under_review';
+
 export type ValoracionStatus = 'requested' | 'in_process' | 'completed' | 'delivered';
 export type ValoracionPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type PaymentStatus = 'pending' | 'partial' | 'paid' | 'overdue';

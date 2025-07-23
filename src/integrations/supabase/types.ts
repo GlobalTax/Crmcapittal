@@ -6355,6 +6355,44 @@ export type Database = {
         }
         Relationships: []
       }
+      valoracion_document_reviews: {
+        Row: {
+          created_at: string
+          document_id: string
+          id: string
+          new_status: string
+          previous_status: string | null
+          review_notes: string | null
+          reviewed_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          id?: string
+          new_status: string
+          previous_status?: string | null
+          review_notes?: string | null
+          reviewed_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          id?: string
+          new_status?: string
+          previous_status?: string | null
+          review_notes?: string | null
+          reviewed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoracion_document_reviews_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "valoracion_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       valoracion_documents: {
         Row: {
           content_type: string
@@ -6364,6 +6402,7 @@ export type Database = {
           file_path: string
           file_size: number
           id: string
+          review_status: string
           updated_at: string
           uploaded_by: string | null
           valoracion_id: string
@@ -6376,6 +6415,7 @@ export type Database = {
           file_path: string
           file_size: number
           id?: string
+          review_status?: string
           updated_at?: string
           uploaded_by?: string | null
           valoracion_id: string
@@ -6388,6 +6428,7 @@ export type Database = {
           file_path?: string
           file_size?: number
           id?: string
+          review_status?: string
           updated_at?: string
           uploaded_by?: string | null
           valoracion_id?: string
