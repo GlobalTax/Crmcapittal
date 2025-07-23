@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { Company, CreateCompanyData, UpdateCompanyData } from '@/types/Company';
+import { Company, CreateCompanyData, UpdateCompanyData } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/utils/logger';

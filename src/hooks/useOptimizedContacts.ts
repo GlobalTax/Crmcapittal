@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { Contact, CreateContactData, UpdateContactData } from '@/types/Contact';
+import { Contact, CreateContactData, UpdateContactData } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/utils/logger';
@@ -73,7 +73,10 @@ export const useOptimizedContacts = () => {
 
       const insertData = {
         ...contactData,
-        created_by: user.user.id
+        created_by: user.user.id,
+        // Ensure default values for required fields
+        contact_status: contactData.contact_status || 'active',
+        contact_roles: contactData.contact_roles || ['other'],
       };
       
       const { data, error } = await supabase

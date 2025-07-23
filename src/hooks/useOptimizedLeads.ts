@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types';
 import * as leadsService from '@/services/leadsService';
 import { toast } from 'sonner';
 import { useOptimizedPolling } from './useOptimizedPolling';
@@ -14,9 +13,7 @@ export const useOptimizedLeads = (filters?: {
 }) => {
   const queryClient = useQueryClient();
   const { processLeadChanges } = useNotifications();
-  const cacheKey = `leads_${JSON.stringify(filters || {})}`;
 
-  // Usar datos optimizados con cache y debounce
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -48,7 +45,7 @@ export const useOptimizedLeads = (filters?: {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchData();
-    }, 100); // Small debounce to prevent rapid refetches
+    }, 100);
 
     return () => clearTimeout(timeoutId);
   }, [JSON.stringify(filters || {})]);
@@ -61,21 +58,19 @@ export const useOptimizedLeads = (filters?: {
   }, [leads, processLeadChanges]);
 
   const createMutation = useMutation({
-    mutationFn: async (leadData: any) => {
+    mutationFn: async (leadData: CreateLeadData) => {
       logger.info('Creating new lead', { leadData });
       
-      // Create the lead first with service_type
       const leadPayload = {
         ...leadData,
-        service_type: leadData.service_type || 'mandato_venta' // Default fallback
+        service_type: leadData.service_type || 'mandato_venta'
       };
       
       const lead = await leadsService.createLead(leadPayload);
       
-      // Auto-convert to contact, company, and deal
       try {
         const result = await leadsService.convertLeadToContact(lead.id, {
-          createCompany: Boolean(leadData.company_name),
+          createCompany: Boolean(leadData.company),
           createDeal: true
         });
         
