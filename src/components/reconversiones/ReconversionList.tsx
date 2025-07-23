@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, Edit, Trash2, Building, User, Mail, Phone, Target, MapPin, Euro } from 'lucide-react';
 import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
 import { ReconversionStatusBadge } from './ReconversionStatusBadge';
+import { EnhancedReconversionCard } from './EnhancedReconversionCard';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { Database } from '@/integrations/supabase/types';

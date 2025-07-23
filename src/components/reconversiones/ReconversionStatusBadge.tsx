@@ -1,88 +1,58 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ReconversionStatus, ReconversionPriority } from '@/types/Reconversion';
-import { RECONVERSION_PHASES, RECONVERSION_PRIORITIES, LEGACY_STATUS_MAPPING, LEGACY_PRIORITY_MAPPING } from '@/utils/reconversionPhases';
+import { cn } from '@/lib/utils';
+
+type ReconversionStatus = 'draft' | 'active' | 'matching' | 'closed' | 'rejected' | 'paused';
 
 interface ReconversionStatusBadgeProps {
   status: ReconversionStatus;
-  priority?: ReconversionPriority;
-  showTooltip?: boolean;
+  priority?: any; // Acepta cualquier prioridad para compatibilidad
   className?: string;
 }
 
-export function ReconversionStatusBadge({ 
-  status, 
-  priority, 
-  showTooltip = true, 
-  className 
-}: ReconversionStatusBadgeProps) {
-  // Normalizar status para compatibilidad con BD
-  const normalizedStatus = LEGACY_STATUS_MAPPING[status as string] || status;
-  const normalizedPriority = priority ? (LEGACY_PRIORITY_MAPPING[priority as string] || priority) : null;
+const statusConfig = {
+  draft: {
+    label: 'Borrador',
+    variant: 'secondary' as const,
+    className: 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+  },
+  active: {
+    label: 'Activa',
+    variant: 'default' as const,
+    className: 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+  },
+  matching: {
+    label: 'En Matching',
+    variant: 'outline' as const,
+    className: 'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-100'
+  },
+  closed: {
+    label: 'Cerrada',
+    variant: 'default' as const,
+    className: 'bg-green-100 text-green-800 hover:bg-green-100'
+  },
+  rejected: {
+    label: 'Rechazada',
+    variant: 'destructive' as const,
+    className: 'bg-red-100 text-red-800 hover:bg-red-100'
+  },
+  paused: {
+    label: 'Pausada',
+    variant: 'secondary' as const,
+    className: 'bg-orange-100 text-orange-800 hover:bg-orange-100'
+  }
+};
 
-  const phase = RECONVERSION_PHASES[normalizedStatus] || {
-    label: status || 'Desconocido',
-    description: 'Estado no reconocido',
-    icon: '❓',
-    color: 'hsl(var(--muted))',
-    bgColor: 'bg-muted/50',
-    textColor: 'text-muted-foreground'
-  };
+export function ReconversionStatusBadge({ status, priority, className }: ReconversionStatusBadgeProps) {
+  const config = statusConfig[status] || statusConfig.draft;
   
-  const priorityPhase = normalizedPriority ? (RECONVERSION_PRIORITIES[normalizedPriority] || {
-    label: priority || 'Desconocida',
-    description: 'Prioridad no reconocida',
-    icon: '❓',
-    color: 'hsl(var(--muted))',
-    bgColor: 'bg-muted/50',
-    textColor: 'text-muted-foreground'
-  }) : null;
-
-  const badge = (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Badge 
-        variant="outline" 
-        className={`${phase.bgColor} ${phase.textColor} border-current/20`}
-      >
-        <span className="mr-1">{phase.icon}</span>
-        {phase.label}
-      </Badge>
-      
-      {priorityPhase && (
-        <Badge 
-          variant="outline" 
-          className={`${priorityPhase.bgColor} ${priorityPhase.textColor} border-current/20`}
-        >
-          <span className="mr-1">{priorityPhase.icon}</span>
-          {priorityPhase.label}
-        </Badge>
-      )}
-    </div>
-  );
-
-  if (!showTooltip) return badge;
-
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {badge}
-        </TooltipTrigger>
-        <TooltipContent side="top">
-          <div className="space-y-1">
-            <p className="font-medium">{phase.label}</p>
-            <p className="text-xs text-muted-foreground">{phase.description}</p>
-            {priorityPhase && (
-              <>
-                <hr className="my-1" />
-                <p className="text-xs"><strong>Prioridad:</strong> {priorityPhase.label}</p>
-              </>
-            )}
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Badge 
+      variant={config.variant}
+      className={cn(config.className, className)}
+    >
+      {config.label}
+    </Badge>
   );
 }
