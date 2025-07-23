@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -27,8 +28,13 @@ const sidebarData: SidebarSection[] = [
         href: "/crm",
       },
       {
-        title: "Entrada Comercial",
-        href: "/captacion",
+        title: "Control Leads",
+        href: "/control-leads",
+        badge: "1",
+      },
+      {
+        title: "Gestión de Leads",
+        href: "/leads",
       },
       {
         title: "Contactos",
@@ -50,6 +56,14 @@ const sidebarData: SidebarSection[] = [
       {
         title: "Transacciones",
         href: "/transacciones",
+      },
+      {
+        title: "Valoraciones",
+        href: "/valoraciones",
+      },
+      {
+        title: "Reconversiones",
+        href: "/reconversiones",
       },
       {
         title: "Negocios",
@@ -100,6 +114,10 @@ const sidebarData: SidebarSection[] = [
     title: "ROD Builder",
     items: [
       {
+        title: "Teaser Builder",
+        href: "/teaser-builder",
+      },
+      {
         title: "Crear ROD",
         href: "/rod",
       },
@@ -117,8 +135,12 @@ const sidebarData: SidebarSection[] = [
     title: "Administración",
     items: [
       {
+        title: "Base de Datos HubSpot",
+        href: "/hubspot",
+      },
+      {
         title: "Gestión de Mandatos",
-        href: "/mandatos",
+        href: "/admin-mandatos",
       },
       {
         title: "Colaboradores",
@@ -131,6 +153,10 @@ const sidebarData: SidebarSection[] = [
       {
         title: "Integraciones",
         href: "/integrations",
+      },
+      {
+        title: "Comisiones",
+        href: "/comisiones",
       },
     ],
   },
