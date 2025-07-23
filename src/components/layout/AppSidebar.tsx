@@ -164,9 +164,37 @@ const sidebarData: SidebarSection[] = [
 
 export const AppSidebar = () => {
   const location = useLocation();
-  const { role } = useUserRole();
+  const { role, loading } = useUserRole();
+
+  // Debug logs to see what's happening
+  console.log('AppSidebar: Rendering sidebar');
+  console.log('AppSidebar: Role:', role);
+  console.log('AppSidebar: Loading:', loading);
+  console.log('AppSidebar: Location:', location.pathname);
 
   const isAdmin = role === 'admin' || role === 'superadmin';
+  console.log('AppSidebar: IsAdmin:', isAdmin);
+
+  // Add a loading state
+  if (loading) {
+    console.log('AppSidebar: Still loading role, showing loading state');
+    return (
+      <div className="w-64 bg-gray-900 text-white h-full overflow-y-auto">
+        <div className="p-4">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-700 rounded mb-4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-700 rounded"></div>
+              <div className="h-4 bg-gray-700 rounded"></div>
+              <div className="h-4 bg-gray-700 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('AppSidebar: Rendering full sidebar');
 
   return (
     <div className="w-64 bg-gray-900 text-white h-full overflow-y-auto">
@@ -183,8 +211,11 @@ export const AppSidebar = () => {
 
         <nav className="space-y-6">
           {sidebarData.map((section) => {
+            console.log('AppSidebar: Rendering section:', section.title);
+            
             // Hide admin section for non-admin users
             if (section.title === "Administración" && !isAdmin) {
+              console.log('AppSidebar: Hiding admin section for non-admin user');
               return null;
             }
 
