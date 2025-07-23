@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient } from './QueryClient';
+import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './components/ui/sonner';
 import ProtectedRoute from './components/ProtectedRoute';
 import Auth from './pages/Auth';
@@ -19,8 +20,9 @@ import ReconversionDetail from "@/pages/ReconversionDetail";
 
 function App() {
   return (
-    <QueryClient>
-      <BrowserRouter>
+    <AuthProvider>
+      <QueryClient>
+        <BrowserRouter>
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>} >
@@ -38,8 +40,9 @@ function App() {
           </Route>
         </Routes>
         <Toaster />
-      </BrowserRouter>
-    </QueryClient>
+        </BrowserRouter>
+      </QueryClient>
+    </AuthProvider>
   );
 }
 
