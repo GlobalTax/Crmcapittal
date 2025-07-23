@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
+import { useReconversionAlerts } from '@/hooks/useReconversionAlerts';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -12,6 +13,7 @@ export function useReconversiones() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { validateAction } = useReconversionSecurity();
+  const { validateAndShowAlerts, showSuccessAlert, showErrorAlert } = useReconversionAlerts();
 
   const fetchReconversiones = async () => {
     try {
@@ -32,14 +34,23 @@ export function useReconversiones() {
 
   const createReconversion = async (reconversionData: CreateReconversionData) => {
     try {
-      // Validar datos antes de crear
+      // Validar datos con alertas
+      const alertErrors = validateAndShowAlerts(reconversionData as any, { showToast: true });
+      const hasErrors = alertErrors.some(e => e.severity === 'error');
+
+      if (hasErrors) {
+        showErrorAlert('Corrige los errores antes de continuar', 'Revisa los campos marcados en rojo');
+        throw new Error('Datos inválidos');
+      }
+
+      // Validar permisos de seguridad
       const validation = await validateAction({
         action: 'create',
         data: reconversionData
       });
 
       if (!validation.valid) {
-        toast.error('Datos inválidos: ' + validation.errors.join(', '));
+        showErrorAlert('Datos inválidos: ' + validation.errors.join(', '));
         throw new Error(validation.errors.join(', '));
       }
 
@@ -58,11 +69,11 @@ export function useReconversiones() {
       if (error) throw error;
       
       setReconversiones(prev => [data, ...prev]);
-      toast.success('Reconversión creada exitosamente');
+      showSuccessAlert('Reconversión creada exitosamente', `Se ha creado la reconversión para ${data.company_name}`);
       return data;
     } catch (err) {
       setError(err as Error);
-      toast.error('Error al crear reconversión');
+      showErrorAlert('Error al crear reconversión', 'Verifica los datos e inténtalo de nuevo');
       throw err;
     }
   };
@@ -100,7 +111,7 @@ export function useReconversiones() {
         prev.map(r => r.id === id ? { ...r, ...data } : r)
       );
       
-      toast.success('Reconversión actualizada exitosamente');
+      showSuccessAlert('Reconversión actualizada exitosamente', `Se ha actualizado la reconversión ${data.company_name}`);
       return data;
     } catch (err) {
       setError(err as Error);
@@ -165,7 +176,7 @@ export function useReconversiones() {
         prev.map(r => r.id === id ? { ...r, ...data } : r)
       );
       
-      toast.success('Reconversión asignada exitosamente');
+      showSuccessAlert('Reconversión asignada exitosamente', `Se ha asignado la reconversión ${data.company_name}`);
       return data;
     } catch (err) {
       setError(err as Error);

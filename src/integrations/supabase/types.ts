@@ -4911,6 +4911,62 @@ export type Database = {
           },
         ]
       }
+      reconversion_notifications: {
+        Row: {
+          created_at: string
+          email_sent_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          notification_type: string
+          recipient_email: string
+          recipient_user_id: string
+          reconversion_id: string
+          sent_email: boolean | null
+          sent_in_app: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          notification_type: string
+          recipient_email: string
+          recipient_user_id: string
+          reconversion_id: string
+          sent_email?: boolean | null
+          sent_in_app?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          recipient_email?: string
+          recipient_user_id?: string
+          reconversion_id?: string
+          sent_email?: boolean | null
+          sent_in_app?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconversion_notifications_reconversion_id_fkey"
+            columns: ["reconversion_id"]
+            isOneToOne: false
+            referencedRelation: "reconversiones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reconversiones: {
         Row: {
           assigned_to: string | null
@@ -6910,6 +6966,17 @@ export type Database = {
       sanitize_reconversion_data: {
         Args: { p_data: Json }
         Returns: Json
+      }
+      send_reconversion_notification: {
+        Args: {
+          p_reconversion_id: string
+          p_notification_type: string
+          p_recipient_user_id: string
+          p_title: string
+          p_message: string
+          p_metadata?: Json
+        }
+        Returns: string
       }
       set_environment_variables: {
         Args: Record<PropertyKey, never>

@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, Settings } from "lucide-react";
+import { Search, Settings } from "lucide-react";
+import { ReconversionNotificationPanel } from "@/components/reconversiones/ReconversionNotificationPanel";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 export const GlobalHeader = () => {
   const { user, signOut } = useAuth();
@@ -39,10 +41,11 @@ export const GlobalHeader = () => {
 
       {/* Right Side */}
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-4 h-4" />
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></span>
-        </Button>
+        {/* Notificaciones generales */}
+        <NotificationCenter />
+        
+        {/* Notificaciones de reconversiones */}
+        <ReconversionNotificationPanel />
         
         <Button variant="ghost" size="icon">
           <Settings className="w-4 h-4" />
