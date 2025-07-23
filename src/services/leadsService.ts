@@ -37,14 +37,7 @@ export const fetchLeads = async (filters?: {
   try {
     let query = supabase
       .from('leads')
-      .select(`
-        *,
-        assigned_to:assigned_to_id(
-          id,
-          first_name,
-          last_name
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (filters?.status) {
@@ -65,7 +58,8 @@ export const fetchLeads = async (filters?: {
 
     return (data || []).map(lead => ({
       ...lead,
-      status: mapStatusFromDb(lead.status)
+      status: mapStatusFromDb(lead.status),
+      assigned_to: null // Simplified - remove relationship query for now
     })) as Lead[];
   } catch (error) {
     logger.error('Error in fetchLeads:', error);
@@ -77,14 +71,7 @@ export const fetchLeadById = async (id: string): Promise<Lead> => {
   try {
     const { data, error } = await supabase
       .from('leads')
-      .select(`
-        *,
-        assigned_to:assigned_to_id(
-          id,
-          first_name,
-          last_name
-        )
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 
@@ -95,7 +82,8 @@ export const fetchLeadById = async (id: string): Promise<Lead> => {
 
     return {
       ...data,
-      status: mapStatusFromDb(data.status)
+      status: mapStatusFromDb(data.status),
+      assigned_to: null // Simplified - remove relationship query for now
     } as Lead;
   } catch (error) {
     logger.error('Error in fetchLeadById:', error);
@@ -278,7 +266,7 @@ export const convertLeadToContact = async (
     // Create deal if requested
     if (options.createDeal) {
       const dealData = {
-        title: `Oportunidad - ${lead.name}`,
+        deal_name: `Oportunidad - ${lead.name}`,
         description: lead.message || 'Oportunidad creada desde lead',
         contact_id: contact.id,
         company_id: companyId,

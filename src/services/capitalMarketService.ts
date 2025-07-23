@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { CreateLeadData, LeadSource, Lead } from '@/types/Lead';
-import { triggerAutomation } from './leadsService';
+// import { triggerAutomation } from './leadsService'; // Removed until implemented
 import { DatabaseService } from './databaseService';
 
 export interface CapitalMarketLead {
@@ -98,9 +98,9 @@ export class CapitalMarketService {
       lead_nurturing: []
     };
 
-    // Trigger automation workflows
-    triggerAutomation('lead_created', transformedLead);
-    triggerAutomation('capital_market_lead_imported', transformedLead);
+    // Trigger automation workflows (commented until implemented)
+    // triggerAutomation('lead_created', transformedLead);
+    // triggerAutomation('capital_market_lead_imported', transformedLead);
 
     // Start nurturing sequence if applicable
     await this.startNurturingSequence(transformedLead);

@@ -8,7 +8,7 @@ export type ContactPriority = 'low' | 'medium' | 'high';
 export type ContactStatus = 'active' | 'blocked' | 'archived';
 export type ContactSource = 'web' | 'referido' | 'cold_outreach' | 'networking' | 'franquicia' | 'marketing' | 'mandate_targets' | 'leads';
 export type EcosystemRole = 'entrepreneur' | 'investor' | 'advisor' | 'broker' | 'lawyer' | 'banker';
-export type LifecycleStage = 'customer' | 'marketing_qualified_lead' | 'sales_qualified_lead' | 'opportunity' | 'evangelist';
+export type ContactLifecycleStage = 'customer' | 'marketing_qualified_lead' | 'sales_qualified_lead' | 'opportunity' | 'evangelist';
 
 export interface DealPreferences {
   preferred_sectors?: string[];
@@ -42,7 +42,7 @@ export interface Contact extends BaseEntity, ContactInfo, BusinessInfo, SocialLi
   deal_preferences?: DealPreferences | null;
   time_zone?: string;
   language_preference?: string;
-  lifecycle_stage?: LifecycleStage;
+  lifecycle_stage?: ContactLifecycleStage;
   
   // Ecosystem segmentation
   ecosystem_role?: EcosystemRole;
@@ -94,7 +94,7 @@ export interface CreateContactData extends Omit<Contact, keyof BaseEntity> {
   contact_source?: string;
   contact_roles?: ContactRole[];
   contact_status?: ContactStatus;
-  lifecycle_stage?: LifecycleStage;
+  lifecycle_stage?: ContactLifecycleStage;
   ecosystem_role?: EcosystemRole;
   
   // All other fields from Contact interface are optional

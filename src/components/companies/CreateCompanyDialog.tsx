@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Building2, Globe, Phone, MapPin, Users, TrendingUp, Tag, Link, Award, Search, Loader2, CheckCircle } from "lucide-react";
-import { CompanySize, CompanyType, CompanyStatus, LifecycleStage, CreateCompanyData } from "@/types/Company";
+import { CompanySize, CompanyType, CompanyStatus, CompanyLifecycleStage, CreateCompanyData } from "@/types/Company";
 import { einformaService } from "@/services/einformaService";
 import { toast } from "sonner";
 
@@ -40,7 +40,7 @@ export const CreateCompanyDialog = ({ onCreateCompany, isCreating }: CreateCompa
     company_size: "11-50" as CompanySize,
     company_type: "prospect" as CompanyType,
     company_status: "prospecto" as CompanyStatus,
-    lifecycle_stage: "lead" as LifecycleStage,
+    lifecycle_stage: "lead" as CompanyLifecycleStage,
     annual_revenue: 0,
     founded_year: new Date().getFullYear(),
     owner_id: "",
@@ -173,7 +173,7 @@ export const CreateCompanyDialog = ({ onCreateCompany, isCreating }: CreateCompa
       company_size: "11-50" as CompanySize,
       company_type: "prospect" as CompanyType,
       company_status: "prospecto" as CompanyStatus,
-      lifecycle_stage: "lead" as LifecycleStage,
+      lifecycle_stage: "lead" as CompanyLifecycleStage,
       annual_revenue: 0,
       founded_year: new Date().getFullYear(),
       owner_id: "",

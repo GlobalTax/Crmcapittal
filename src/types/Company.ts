@@ -4,7 +4,7 @@ import { BaseEntity, ContactInfo, BusinessInfo, AddressInfo, SocialLinks, Entity
 export type CompanySize = '1-10' | '11-50' | '51-200' | '201-500' | '500+';
 export type CompanyType = 'prospect' | 'cliente' | 'partner' | 'franquicia' | 'competidor' | 'target' | 'cliente_comprador' | 'cliente_vendedor';
 export type CompanyStatus = 'activa' | 'inactiva' | 'prospecto' | 'cliente' | 'perdida';
-export type LifecycleStage = 'lead' | 'marketing_qualified_lead' | 'sales_qualified_lead' | 'opportunity' | 'customer' | 'evangelist';
+export type CompanyLifecycleStage = 'lead' | 'marketing_qualified_lead' | 'sales_qualified_lead' | 'opportunity' | 'customer' | 'evangelist';
 export type BusinessSegment = 'pyme' | 'mid_market' | 'enterprise' | 'family_office' | 'investment_fund';
 export type TransactionInterest = 'compra' | 'venta' | 'ambos' | 'ninguno';
 export type GeographicScope = 'local' | 'regional' | 'nacional' | 'internacional';
@@ -24,7 +24,7 @@ export interface Company extends BaseEntity, AddressInfo, SocialLinks, EntityMet
   company_size: CompanySize;
   company_type: CompanyType;
   company_status: CompanyStatus;
-  lifecycle_stage: LifecycleStage;
+  lifecycle_stage: CompanyLifecycleStage;
   
   // Financial information
   annual_revenue?: number;
@@ -71,7 +71,7 @@ export interface CreateCompanyData extends Omit<Company, keyof BaseEntity> {
   company_size: CompanySize;
   company_type: CompanyType;
   company_status: CompanyStatus;
-  lifecycle_stage: LifecycleStage;
+  lifecycle_stage: CompanyLifecycleStage;
   is_target_account: boolean;
   is_key_account: boolean;
   is_franquicia: boolean;

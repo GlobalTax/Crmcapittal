@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useLeadContacts } from "@/hooks/useLeadContacts";
+import { useLeads } from "@/hooks/useLeads";
 import { LeadStatus, LeadSource, LeadPriority, LeadQuality, Lead } from "@/types/Lead";
 import { Search, Plus, Phone, Mail, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +27,7 @@ export const SimpleLeadsTable = () => {
     ...(statusFilter !== 'all' && { status: statusFilter as LeadStatus })
   };
 
-  const { leads, isLoading, createLead, updateLead, isCreating } = useLeadContacts(filters);
+  const { leads, isLoading, createLead, updateLead, isCreating } = useLeads(filters);
 
   // Apply search filter
   const filteredLeads = leads.filter(lead => {
@@ -41,7 +41,7 @@ export const SimpleLeadsTable = () => {
       if (!matchesSearch) return false;
     }
     
-    if (sourceFilter !== 'all' && lead.lead_source !== sourceFilter) return false;
+    if (sourceFilter !== 'all' && lead.source !== sourceFilter) return false;
     
     return true;
   });
@@ -295,30 +295,28 @@ export const SimpleLeadsTable = () => {
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={lead.lead_status || ''}
+                      value={lead.status || ''}
                       type="select"
                       options={statusSelectOptions}
-                      onSave={(value) => handleUpdate(lead.id, 'lead_status', value)}
+                      onSave={(value) => handleUpdate(lead.id, 'status', value)}
                     />
                   </TableCell>
                   <TableCell>
                     <InlineEditCell
-                      value={lead.lead_priority || ''}
+                      value={lead.priority || ''}
                       type="select"
                       options={prioritySelectOptions}
-                      onSave={(value) => handleUpdate(lead.id, 'lead_priority', value || null)}
+                      onSave={(value) => handleUpdate(lead.id, 'priority', value || null)}
                     />
                   </TableCell>
                   <TableCell>
-                    <InlineEditCell
-                      value={(lead.lead_score || 0).toString()}
-                      type="text"
-                      onSave={(value) => handleUpdate(lead.id, 'lead_score', parseInt(value as string) || 0)}
-                    />
+                    <span className="text-sm">
+                      {lead.lead_score || 0}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground capitalize">
-                      {(lead.lead_source || '').replace('_', ' ')}
+                      {(lead.source || '').replace('_', ' ')}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -375,8 +373,8 @@ export const SimpleLeadsTable = () => {
       </div>
 
       <CreateLeadDialog
-        isOpen={showCreateDialog}
-        onClose={() => setShowCreateDialog(false)}
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
         onCreateLead={createLead}
         isCreating={isCreating}
       />

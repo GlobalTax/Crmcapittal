@@ -7,7 +7,7 @@
 // Base types
 export * from './Base';
 
-// Entity types - Import Contact first to establish LifecycleStage
+// Entity types
 export * from './Contact';
 export * from './Lead';
 export * from './Company';

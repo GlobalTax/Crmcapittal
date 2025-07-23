@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Company, UpdateCompanyData, CompanySize, CompanyType, CompanyStatus, LifecycleStage } from "@/types/Company";
+import { Company, UpdateCompanyData, CompanySize, CompanyType, CompanyStatus, CompanyLifecycleStage } from "@/types/Company";
 import {
   Dialog,
   DialogContent,

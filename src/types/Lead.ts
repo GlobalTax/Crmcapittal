@@ -120,4 +120,7 @@ export interface UpdateLeadData extends Partial<CreateLeadData> {
   first_contact_date?: string;
   last_contact_date?: string;
   next_follow_up_date?: string;
+  converted_to_contact_id?: string;
+  converted_to_deal_id?: string;
+  conversion_date?: string;
 }
