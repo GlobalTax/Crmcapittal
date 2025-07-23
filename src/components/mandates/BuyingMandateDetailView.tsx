@@ -9,6 +9,7 @@ import { ArrowLeft, FileText, Users, Target, ClipboardList } from 'lucide-react'
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useMandatoById } from '@/hooks/useMandatoById';
 import { MandatoTargetPanel } from './MandatoTargetPanel';
+import { ReconversionRelatedList } from '@/components/reconversiones/ReconversionRelatedList';
 
 export const BuyingMandateDetailView = () => {
   const { id } = useParams<{ id: string }>();
@@ -227,10 +228,17 @@ export const BuyingMandateDetailView = () => {
               </CardContent>
             </Card>
           </div>
+          
+          {/* Reconversiones Relacionadas */}
+          <ReconversionRelatedList 
+            entityType="mandate" 
+            entityId={mandate.id} 
+            entityName={mandate.mandate_name} 
+          />
         </TabsContent>
 
         <TabsContent value="targets">
-          <MandatoTargetPanel 
+          <MandatoTargetPanel
             targets={mandateTargets}
             documents={mandateDocuments}
             onEditTarget={handleEditTarget}

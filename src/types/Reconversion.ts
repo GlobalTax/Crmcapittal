@@ -1,4 +1,3 @@
-
 export type ReconversionStatus = 'active' | 'matching' | 'paused' | 'closed';
 
 export type ReconversionPriority = 'low' | 'medium' | 'high' | 'urgent';
@@ -20,8 +19,21 @@ export interface Reconversion {
   notes?: string;
   assigned_to?: string;
   created_by?: string;
+  original_lead_id?: string;
+  original_mandate_id?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface ReconversionWithRelations extends Reconversion {
+  original_lead_name?: string;
+  original_lead_email?: string;
+  original_lead_company?: string;
+  original_lead_status?: string;
+  original_mandate_name?: string;
+  original_mandate_client?: string;
+  original_mandate_status?: string;
+  original_mandate_sectors?: string[];
 }
 
 export interface ReconversionComment {
@@ -41,6 +53,17 @@ export interface ReconversionActivity {
   action_title: string;
   action_description?: string;
   user_id: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+}
+
+export interface ReconversionStatusHistory {
+  id: string;
+  reconversion_id: string;
+  previous_status?: string;
+  new_status: string;
+  changed_by?: string;
+  change_reason?: string;
   metadata?: Record<string, any>;
   created_at: string;
 }
