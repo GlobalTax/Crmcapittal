@@ -87,14 +87,14 @@ export interface Lead extends BaseEntity, ContactInfo, BusinessInfo, EntityMetad
   } | null;
 }
 
-export interface CreateLeadData extends Omit<Lead, keyof BaseEntity> {
+export interface CreateLeadData {
   // Required fields
   name: string;
   email: string;
   source: LeadSource;
   status?: LeadStatus;
   
-  // Make all other fields optional for creation
+  // Optional fields
   lead_name?: string;
   phone?: string;
   company?: string;
@@ -107,6 +107,7 @@ export interface CreateLeadData extends Omit<Lead, keyof BaseEntity> {
   quality?: LeadQuality;
   form_data?: Record<string, unknown>;
   tags?: string[];
+  lead_score?: number;
   
   // Temporary compatibility - support both old and new field names
   company_name?: string; // Legacy field, use company instead
