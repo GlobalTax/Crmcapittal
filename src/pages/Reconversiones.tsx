@@ -4,16 +4,17 @@ import { RefreshCw, Plus, FileText, TrendingUp, Shield, Grid, List, Filter } fro
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useReconversiones } from '@/hooks/useReconversiones';
+import { useReconversions } from '@/hooks/useReconversions';
 import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
 import { useReconversionFilters } from '@/hooks/useReconversionFilters';
-import { EnhancedReconversionCard } from '@/components/reconversiones/EnhancedReconversionCard';
+import { ReconversionList } from '@/components/reconversiones/ReconversionList';
+import { ReconversionCreateDialog } from '@/components/reconversiones/ReconversionCreateDialog';
 import { ReconversionFilters } from '@/components/reconversiones/ReconversionFilters';
 import { Toggle } from '@/components/ui/toggle';
 import type { Database } from '@/integrations/supabase/types';
 
 export default function Reconversiones() {
-  const { reconversiones, loading, error, createReconversion } = useReconversiones();
+  const { reconversiones, loading, error, createReconversion, updateReconversion, deleteReconversion } = useReconversions();
   const { isAdmin } = useReconversionSecurity();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
@@ -127,10 +128,7 @@ export default function Reconversiones() {
             )}
           </Button>
 
-          <Button onClick={handleCreateReconversion}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nueva Reconversión
-          </Button>
+           <ReconversionCreateDialog onCreateReconversion={createReconversion} />
         </div>
       </div>
 
@@ -238,32 +236,19 @@ export default function Reconversiones() {
                       : 'Comienza creando tu primer proceso de reconversión'
                     }
                   </p>
-                  {!hasActiveFilters && (
-                    <Button onClick={handleCreateReconversion}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Crear Primera Reconversión
-                    </Button>
-                  )}
+                   {!hasActiveFilters && (
+                     <ReconversionCreateDialog onCreateReconversion={createReconversion} />
+                   )}
                 </CardContent>
               </Card>
             ) : (
-              <div className={
-                viewMode === 'grid' 
-                  ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
-                  : 'space-y-4'
-              }>
-                {filteredReconversiones.map((reconversion) => (
-                  <EnhancedReconversionCard
-                    key={reconversion.id}
-                    reconversion={reconversion}
-                    onViewDetails={() => console.log('Ver detalles:', reconversion.id)}
-                    onEdit={() => console.log('Editar:', reconversion.id)}
-                    onDelete={() => console.log('Eliminar:', reconversion.id)}
-                    onViewComments={() => console.log('Ver comentarios:', reconversion.id)}
-                    onStartMatching={() => console.log('Iniciar matching:', reconversion.id)}
-                  />
-                ))}
-              </div>
+              <ReconversionList
+                reconversiones={filteredReconversiones as any}
+                onView={(reconversion) => console.log('Ver detalles:', reconversion.id)}
+                onEdit={(reconversion) => console.log('Editar:', reconversion.id)}
+                onDelete={(reconversion) => console.log('Eliminar:', reconversion.id)}
+                viewMode={viewMode}
+              />
             )}
           </div>
         </TabsContent>
