@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 import { Resend } from "npm:resend@2.0.0";
@@ -18,6 +17,7 @@ interface EmailRequest {
   operation_id?: string;
   sender_name?: string;
   sender_email?: string;
+  test?: boolean;
 }
 
 serve(async (req: Request) => {
@@ -31,7 +31,26 @@ serve(async (req: Request) => {
     const emailData: EmailRequest = await req.json();
     console.log('Processing email request:', emailData);
 
-    // Validate required fields
+    // Handle test requests from health check
+    if (emailData.test === true) {
+      console.log('Test request received from health check');
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Email service is operational',
+          test: true
+        }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
+    // Validate required fields for actual email sending
     if (!emailData.recipient_email) {
       console.error('Missing recipient_email in request');
       return new Response(

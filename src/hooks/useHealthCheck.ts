@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -45,13 +46,18 @@ export const useHealthCheck = () => {
       newHealth.hubspot = 'error';
     }
 
-    // Check email service (test without sending)
+    // Check email service with proper test request
     try {
-      // This is a passive check - just verify the function exists
-      const { error } = await supabase.functions.invoke('send-tracked-email', {
+      const { data, error } = await supabase.functions.invoke('send-tracked-email', {
         body: { test: true }
       });
-      if (error && !error.message.includes('test')) {
+      
+      if (error) {
+        console.error('Email health check failed:', error);
+        newHealth.email = 'error';
+      } else if (data?.success === true && data?.test === true) {
+        newHealth.email = 'healthy';
+      } else {
         newHealth.email = 'warning';
       }
     } catch (error) {
