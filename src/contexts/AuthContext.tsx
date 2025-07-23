@@ -34,7 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get initial session first
     const getInitialSession = async () => {
       try {
-        console.log('AuthProvider: Getting initial session');
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
           console.error('AuthProvider: Error getting initial session:', error);
@@ -46,7 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('AuthProvider: Error in getInitialSession:', error);
       } finally {
-        console.log('AuthProvider: Setting loading to false after initial session check');
         setLoading(false);
       }
     };
@@ -63,7 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Only set loading to false after we've handled the auth state change
         if (loading) {
-          console.log('AuthProvider: Setting loading to false after auth state change');
           setLoading(false);
         }
       }
@@ -148,8 +145,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     signInWithProvider,
   };
-
-  console.log('AuthProvider: Rendering with user:', user?.email || 'no user', 'loading:', loading);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

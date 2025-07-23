@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -28,13 +27,8 @@ const sidebarData: SidebarSection[] = [
         href: "/crm",
       },
       {
-        title: "Control Leads",
-        href: "/control-leads",
-        badge: "1",
-      },
-      {
-        title: "Gestión de Leads",
-        href: "/leads",
+        title: "Entrada Comercial",
+        href: "/captacion",
       },
       {
         title: "Contactos",
@@ -56,14 +50,6 @@ const sidebarData: SidebarSection[] = [
       {
         title: "Transacciones",
         href: "/transacciones",
-      },
-      {
-        title: "Valoraciones",
-        href: "/valoraciones",
-      },
-      {
-        title: "Reconversiones",
-        href: "/reconversiones",
       },
       {
         title: "Negocios",
@@ -114,10 +100,6 @@ const sidebarData: SidebarSection[] = [
     title: "ROD Builder",
     items: [
       {
-        title: "Teaser Builder",
-        href: "/teaser-builder",
-      },
-      {
         title: "Crear ROD",
         href: "/rod",
       },
@@ -135,12 +117,8 @@ const sidebarData: SidebarSection[] = [
     title: "Administración",
     items: [
       {
-        title: "Base de Datos HubSpot",
-        href: "/hubspot",
-      },
-      {
         title: "Gestión de Mandatos",
-        href: "/admin-mandatos",
+        href: "/mandatos",
       },
       {
         title: "Colaboradores",
@@ -154,47 +132,15 @@ const sidebarData: SidebarSection[] = [
         title: "Integraciones",
         href: "/integrations",
       },
-      {
-        title: "Comisiones",
-        href: "/comisiones",
-      },
     ],
   },
 ];
 
 export const AppSidebar = () => {
   const location = useLocation();
-  const { role, loading } = useUserRole();
-
-  // Debug logs to see what's happening
-  console.log('AppSidebar: Rendering sidebar');
-  console.log('AppSidebar: Role:', role);
-  console.log('AppSidebar: Loading:', loading);
-  console.log('AppSidebar: Location:', location.pathname);
+  const { role } = useUserRole();
 
   const isAdmin = role === 'admin' || role === 'superadmin';
-  console.log('AppSidebar: IsAdmin:', isAdmin);
-
-  // Add a loading state
-  if (loading) {
-    console.log('AppSidebar: Still loading role, showing loading state');
-    return (
-      <div className="w-64 bg-gray-900 text-white h-full overflow-y-auto">
-        <div className="p-4">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-700 rounded mb-4"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-700 rounded"></div>
-              <div className="h-4 bg-gray-700 rounded"></div>
-              <div className="h-4 bg-gray-700 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  console.log('AppSidebar: Rendering full sidebar');
 
   return (
     <div className="w-64 bg-gray-900 text-white h-full overflow-y-auto">
@@ -211,11 +157,8 @@ export const AppSidebar = () => {
 
         <nav className="space-y-6">
           {sidebarData.map((section) => {
-            console.log('AppSidebar: Rendering section:', section.title);
-            
             // Hide admin section for non-admin users
             if (section.title === "Administración" && !isAdmin) {
-              console.log('AppSidebar: Hiding admin section for non-admin user');
               return null;
             }
 

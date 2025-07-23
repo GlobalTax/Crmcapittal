@@ -1,25 +1,11 @@
-
-import React, { useState } from 'react';
-import { RefreshCw, Plus, FileText, TrendingUp, Search, Filter } from 'lucide-react';
+import React from 'react';
+import { RefreshCw, Plus, FileText, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useReconversiones } from '@/hooks/useReconversiones';
-import { ReconversionCard } from '@/components/reconversiones/ReconversionCard';
 
 export default function Reconversiones() {
   const { reconversiones, loading, error, createReconversion } = useReconversiones();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-
-  // Filtrar reconversiones
-  const filteredReconversiones = reconversiones.filter(reconversion => {
-    const matchesSearch = reconversion.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         reconversion.contact_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || reconversion.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
 
   if (loading) {
     return (
@@ -69,9 +55,6 @@ export default function Reconversiones() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{reconversiones.length}</div>
-            <p className="text-xs text-muted-foreground">
-              procesos registrados
-            </p>
           </CardContent>
         </Card>
         <Card>
@@ -83,9 +66,6 @@ export default function Reconversiones() {
             <div className="text-2xl font-bold">
               {reconversiones.filter(r => r.status === 'en_progreso').length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              activos actualmente
-            </p>
           </CardContent>
         </Card>
         <Card>
@@ -97,87 +77,64 @@ export default function Reconversiones() {
             <div className="text-2xl font-bold">
               {reconversiones.filter(r => r.status === 'completada').length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              finalizadas con éxito
-            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filtros */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filtros y Búsqueda
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por empresa o cliente..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filtrar por estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="pendiente">Pendiente</SelectItem>
-                <SelectItem value="en_progreso">En Progreso</SelectItem>
-                <SelectItem value="pausada">Pausada</SelectItem>
-                <SelectItem value="completada">Completada</SelectItem>
-                <SelectItem value="cerrada">Cerrada</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Lista de Reconversiones */}
+      {/* Reconversiones List */}
       <div className="space-y-4">
-        {filteredReconversiones.length === 0 ? (
+        {reconversiones.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <RefreshCw className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
-                {reconversiones.length === 0 ? 'No hay reconversiones' : 'No se encontraron resultados'}
-              </h3>
+              <h3 className="text-lg font-semibold mb-2">No hay reconversiones</h3>
               <p className="text-muted-foreground text-center mb-4">
-                {reconversiones.length === 0 
-                  ? 'Comienza creando tu primer proceso de reconversión'
-                  : 'Intenta ajustar los filtros de búsqueda'
-                }
+                Comienza creando tu primer proceso de reconversión
               </p>
-              {reconversiones.length === 0 && (
-                <Button onClick={() => createReconversion({
-                  company_name: 'Nueva Empresa',
-                  contact_name: 'Nuevo Cliente',
-                  rejection_reason: 'Evaluación inicial'
-                })}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear Primera Reconversión
-                </Button>
-              )}
+              <Button onClick={() => createReconversion({
+                company_name: 'Nueva Empresa',
+                contact_name: 'Nuevo Cliente',
+                rejection_reason: 'Evaluación inicial'
+              })}>
+                <Plus className="w-4 h-4 mr-2" />
+                Crear Primera Reconversión
+              </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredReconversiones.map((reconversion) => (
-              <ReconversionCard 
-                key={reconversion.id} 
-                reconversion={reconversion} 
-              />
-            ))}
-          </div>
+          reconversiones.map((reconversion) => (
+            <Card key={reconversion.id}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{reconversion.company_name || 'Sin nombre'}</CardTitle>
+                    <CardDescription>
+                      Cliente: {reconversion.contact_name}
+                      {reconversion.target_sectors && reconversion.target_sectors.length > 0 && 
+                        ` • Sectores objetivo: ${reconversion.target_sectors.join(', ')}`
+                      }
+                    </CardDescription>
+                  </div>
+                  <div className="text-right">
+                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      reconversion.status === 'completada' 
+                        ? 'bg-green-100 text-green-800' 
+                        : reconversion.status === 'en_progreso'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {reconversion.status}
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              {reconversion.notes && (
+                <CardContent>
+                  <p className="text-muted-foreground">{reconversion.notes}</p>
+                </CardContent>
+              )}
+            </Card>
+          ))
         )}
       </div>
     </div>
