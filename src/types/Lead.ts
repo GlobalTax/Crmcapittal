@@ -20,6 +20,10 @@ export interface Lead extends BaseEntity, ContactInfo, BusinessInfo, EntityMetad
   quality?: LeadQuality;
   assigned_to_id?: string;
   
+  // Temporary compatibility - support both old and new field names
+  company_name?: string; // Legacy field, use company instead
+  job_title?: string;    // Legacy field, use position instead
+  
   // Advanced form data and tracking
   form_data?: {
     form_type?: string;
@@ -88,6 +92,7 @@ export interface CreateLeadData extends Omit<Lead, keyof BaseEntity> {
   name: string;
   email: string;
   source: LeadSource;
+  status?: LeadStatus;
   
   // Make all other fields optional for creation
   lead_name?: string;
@@ -102,6 +107,10 @@ export interface CreateLeadData extends Omit<Lead, keyof BaseEntity> {
   quality?: LeadQuality;
   form_data?: Record<string, unknown>;
   tags?: string[];
+  
+  // Temporary compatibility - support both old and new field names
+  company_name?: string; // Legacy field, use company instead
+  job_title?: string;    // Legacy field, use position instead
 }
 
 export interface UpdateLeadData extends Partial<CreateLeadData> {
