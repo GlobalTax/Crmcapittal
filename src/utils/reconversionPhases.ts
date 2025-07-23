@@ -44,6 +44,14 @@ export const RECONVERSION_PHASES: Record<ReconversionStatus, ReconversionPhase> 
   }
 };
 
+// Mapeo adicional para compatibilidad con valores de base de datos
+export const LEGACY_STATUS_MAPPING: Record<string, ReconversionStatus> = {
+  'activa': 'active',
+  'en_matching': 'matching',
+  'pausada': 'paused',
+  'cerrada': 'closed'
+};
+
 export const RECONVERSION_PRIORITIES: Record<ReconversionPriority, ReconversionPhase> = {
   low: {
     label: 'Baja',
@@ -77,6 +85,14 @@ export const RECONVERSION_PRIORITIES: Record<ReconversionPriority, ReconversionP
     bgColor: 'bg-destructive/10',
     textColor: 'text-destructive-foreground'
   }
+};
+
+// Mapeo adicional para compatibilidad con valores de base de datos
+export const LEGACY_PRIORITY_MAPPING: Record<string, ReconversionPriority> = {
+  'baja': 'low',
+  'media': 'medium', 
+  'alta': 'high',
+  'urgente': 'urgent'
 };
 
 export const formatCurrency = (amount: number): string => {

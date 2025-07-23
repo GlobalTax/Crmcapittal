@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ReconversionStatus, ReconversionPriority } from '@/types/Reconversion';
-import { RECONVERSION_PHASES, RECONVERSION_PRIORITIES } from '@/utils/reconversionPhases';
+import { RECONVERSION_PHASES, RECONVERSION_PRIORITIES, LEGACY_STATUS_MAPPING, LEGACY_PRIORITY_MAPPING } from '@/utils/reconversionPhases';
 
 interface ReconversionStatusBadgeProps {
   status: ReconversionStatus;
@@ -18,8 +18,27 @@ export function ReconversionStatusBadge({
   showTooltip = true, 
   className 
 }: ReconversionStatusBadgeProps) {
-  const phase = RECONVERSION_PHASES[status];
-  const priorityPhase = priority ? RECONVERSION_PRIORITIES[priority] : null;
+  // Normalizar status para compatibilidad con BD
+  const normalizedStatus = LEGACY_STATUS_MAPPING[status as string] || status;
+  const normalizedPriority = priority ? (LEGACY_PRIORITY_MAPPING[priority as string] || priority) : null;
+
+  const phase = RECONVERSION_PHASES[normalizedStatus] || {
+    label: status || 'Desconocido',
+    description: 'Estado no reconocido',
+    icon: '❓',
+    color: 'hsl(var(--muted))',
+    bgColor: 'bg-muted/50',
+    textColor: 'text-muted-foreground'
+  };
+  
+  const priorityPhase = normalizedPriority ? (RECONVERSION_PRIORITIES[normalizedPriority] || {
+    label: priority || 'Desconocida',
+    description: 'Prioridad no reconocida',
+    icon: '❓',
+    color: 'hsl(var(--muted))',
+    bgColor: 'bg-muted/50',
+    textColor: 'text-muted-foreground'
+  }) : null;
 
   const badge = (
     <div className={`flex items-center gap-2 ${className}`}>
