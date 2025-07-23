@@ -1,411 +1,362 @@
+
 import { supabase } from '@/integrations/supabase/client';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadSource, LeadOrigin, LeadServiceType, LeadPriority, LeadQuality } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
+import { logger } from '@/utils/logger';
+
+// Database compatible LeadStatus values
+type DbLeadStatus = "NEW" | "CONTACTED" | "QUALIFIED" | "DISQUALIFIED";
+
+// Map our LeadStatus to database compatible values
+const mapStatusToDb = (status: LeadStatus): DbLeadStatus => {
+  switch (status) {
+    case 'NEW':
+    case 'CONTACTED':
+    case 'QUALIFIED':
+    case 'DISQUALIFIED':
+      return status;
+    case 'NURTURING':
+      return 'CONTACTED'; // Map NURTURING to CONTACTED for DB compatibility
+    case 'CONVERTED':
+      return 'QUALIFIED'; // Map CONVERTED to QUALIFIED for DB compatibility
+    case 'LOST':
+      return 'DISQUALIFIED'; // Map LOST to DISQUALIFIED for DB compatibility
+    default:
+      return 'NEW';
+  }
+};
+
+// Map database status back to our LeadStatus
+const mapStatusFromDb = (status: string): LeadStatus => {
+  return status as LeadStatus;
+};
 
 export const fetchLeads = async (filters?: {
   status?: LeadStatus;
   assigned_to_id?: string;
 }): Promise<Lead[]> => {
-  // Fetch from dedicated leads table
-  let query = supabase
-    .from('leads')
-    .select('*')
-    .order('created_at', { ascending: false });
+  try {
+    let query = supabase
+      .from('leads')
+      .select(`
+        *,
+        assigned_to:assigned_to_id(
+          id,
+          first_name,
+          last_name
+        )
+      `)
+      .order('created_at', { ascending: false });
 
-  // Apply filters
-  if (filters?.status) {
-    // Only filter by valid database status values
-    const validDbStatuses = ['NEW', 'CONTACTED', 'QUALIFIED', 'DISQUALIFIED'] as const;
-    type DbLeadStatus = typeof validDbStatuses[number];
-    
-    if (validDbStatuses.includes(filters.status as DbLeadStatus)) {
-      query = query.eq('status', filters.status as DbLeadStatus);
+    if (filters?.status) {
+      const dbStatus = mapStatusToDb(filters.status);
+      query = query.eq('status', dbStatus);
     }
-  }
 
-  if (filters?.assigned_to_id) {
-    query = query.eq('assigned_to_id', filters.assigned_to_id);
-  }
+    if (filters?.assigned_to_id) {
+      query = query.eq('assigned_to_id', filters.assigned_to_id);
+    }
 
-  const { data, error } = await query;
+    const { data, error } = await query;
 
-  if (error) {
-    console.error('Error fetching leads:', error);
+    if (error) {
+      logger.error('Error fetching leads:', error);
+      throw error;
+    }
+
+    return (data || []).map(lead => ({
+      ...lead,
+      status: mapStatusFromDb(lead.status)
+    })) as Lead[];
+  } catch (error) {
+    logger.error('Error in fetchLeads:', error);
     throw error;
   }
-
-  // Fetch user profiles for assigned users
-  const assignedUserIds = (data || [])
-    .map(lead => lead.assigned_to_id)
-    .filter(Boolean);
-
-  let userProfiles: Array<{ id: string; first_name?: string; last_name?: string }> = [];
-  if (assignedUserIds.length > 0) {
-    const { data: profiles, error: profilesError } = await supabase
-      .from('user_profiles')
-      .select('id, first_name, last_name')
-      .in('id', assignedUserIds);
-    
-    if (!profilesError && profiles) {
-      userProfiles = profiles;
-    }
-  }
-
-  // Transform the data to match our Lead interface
-  const transformedData = (data || []).map(lead => ({
-    ...lead,
-    // Ensure proper types
-    source: lead.source as LeadSource,
-    status: lead.status as LeadStatus,
-    lead_origin: lead.lead_origin as LeadOrigin,
-    service_type: lead.service_type as LeadServiceType,
-    priority: lead.priority as LeadPriority,
-    quality: lead.quality as LeadQuality,
-    // Add fields that don't exist in leads table yet, with default values
-    follow_up_count: 0,
-    email_opens: 0,
-    email_clicks: 0,
-    website_visits: 0,
-    content_downloads: 0,
-    tags: lead.tags || [],
-    form_data: {},
-    assigned_to: lead.assigned_to_id 
-      ? userProfiles.find(profile => profile.id === lead.assigned_to_id) || null
-      : null,
-    lead_nurturing: []
-  }));
-
-  return transformedData;
 };
 
-export const fetchLeadById = async (id: string): Promise<Lead | null> => {
-  console.log('Fetching lead by ID:', id);
-  
-  // Fetch from the dedicated leads table
-  const { data, error } = await supabase
-    .from('leads')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
+export const fetchLeadById = async (id: string): Promise<Lead> => {
+  try {
+    const { data, error } = await supabase
+      .from('leads')
+      .select(`
+        *,
+        assigned_to:assigned_to_id(
+          id,
+          first_name,
+          last_name
+        )
+      `)
+      .eq('id', id)
+      .single();
 
-  if (error) {
-    console.error('Error fetching lead:', error);
+    if (error) {
+      logger.error('Error fetching lead by id:', error);
+      throw error;
+    }
+
+    return {
+      ...data,
+      status: mapStatusFromDb(data.status)
+    } as Lead;
+  } catch (error) {
+    logger.error('Error in fetchLeadById:', error);
     throw error;
   }
-
-  if (!data) {
-    return null;
-  }
-
-  // Fetch user profile if assigned
-  let assignedTo = null;
-  if (data.assigned_to_id) {
-    const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('id, first_name, last_name')
-      .eq('id', data.assigned_to_id)
-      .maybeSingle();
-    
-    if (!profileError && profile) {
-      assignedTo = profile;
-    }
-  }
-
-  // Transform the data to match our Lead interface 
-  const transformedData = {
-    ...data,
-    // Ensure proper types
-    source: data.source as LeadSource,
-    status: data.status as LeadStatus,
-    lead_origin: data.lead_origin as LeadOrigin,
-    service_type: data.service_type as LeadServiceType,
-    priority: data.priority as LeadPriority,
-    quality: data.quality as LeadQuality,
-    // Add fields that don't exist in leads table yet, with default values
-    follow_up_count: 0,
-    email_opens: 0,
-    email_clicks: 0,
-    website_visits: 0,
-    content_downloads: 0,
-    tags: data.tags || [],
-    form_data: {},
-    assigned_to: assignedTo
-  };
-
-  console.log('Lead fetched successfully:', transformedData);
-  return transformedData;
 };
 
 export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
-  console.log('Creating lead:', leadData);
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      throw new Error('Usuario no autenticado');
+    }
 
-  // Get current user ID
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('User not authenticated');
+    const dbLeadData = {
+      name: leadData.name,
+      email: leadData.email,
+      phone: leadData.phone,
+      company_name: leadData.company || leadData.company_name,
+      job_title: leadData.position || leadData.job_title,
+      message: leadData.message,
+      source: leadData.source,
+      lead_origin: leadData.lead_origin || 'manual',
+      service_type: leadData.service_type || 'mandato_venta',
+      status: mapStatusToDb(leadData.status || 'NEW'),
+      priority: leadData.priority || 'MEDIUM',
+      quality: leadData.quality || 'FAIR',
+      lead_score: leadData.lead_score || 0,
+      tags: leadData.tags || [],
+      created_by: user.id,
+      assigned_to_id: user.id,
+    };
 
-  // Create in dedicated leads table
-  const leadInsertData = {
-    name: leadData.name,
-    email: leadData.email,
-    phone: leadData.phone,
-    company_name: leadData.company_name || leadData.company,
-    job_title: leadData.job_title || leadData.position,
-    source: leadData.source,
-    status: leadData.status || 'NEW' as const,
-    lead_score: leadData.lead_score || 0,
-    lead_origin: leadData.lead_origin || 'manual',
-    message: leadData.message,
-    tags: leadData.tags || [],
-    created_by: user.id,
-    assigned_to_id: user.id // Automatically assign to creator
-  };
+    const { data, error } = await supabase
+      .from('leads')
+      .insert(dbLeadData)
+      .select()
+      .single();
 
-  const { data, error } = await supabase
-    .from('leads')
-    .insert([leadInsertData])
-    .select()
-    .single();
+    if (error) {
+      logger.error('Error creating lead:', error);
+      throw error;
+    }
 
-  if (error) {
-    console.error('Error creating lead:', error);
+    return {
+      ...data,
+      status: mapStatusFromDb(data.status)
+    } as Lead;
+  } catch (error) {
+    logger.error('Error in createLead:', error);
     throw error;
   }
-
-  // Transform the data to match our Lead interface
-  const transformedData = {
-    ...data,
-    // Ensure proper types
-    source: data.source as LeadSource,
-    status: data.status as LeadStatus,
-    lead_origin: data.lead_origin as LeadOrigin,
-    service_type: data.service_type as LeadServiceType,
-    priority: data.priority as LeadPriority,
-    quality: data.quality as LeadQuality,
-    // Add fields that don't exist in leads table yet
-    follow_up_count: 0,
-    email_opens: 0,
-    email_clicks: 0,
-    website_visits: 0,
-    content_downloads: 0,
-    tags: data.tags || [],
-    form_data: leadData.form_data || {},
-    assigned_to: null
-  };
-
-  console.log('Lead created successfully:', transformedData);
-  return transformedData;
 };
 
 export const updateLead = async (id: string, updates: UpdateLeadData): Promise<Lead> => {
-  console.log('Updating lead:', id, updates);
+  try {
+    const dbUpdates: any = { ...updates };
+    
+    // Map status to database compatible value
+    if (updates.status) {
+      dbUpdates.status = mapStatusToDb(updates.status);
+    }
 
-  // Update in dedicated leads table - filter compatible fields
-  const updateData: any = {};
-  if (updates.name) updateData.name = updates.name;
-  if (updates.email) updateData.email = updates.email;
-  if (updates.phone) updateData.phone = updates.phone;
-  if (updates.company_name) updateData.company_name = updates.company_name;
-  if (updates.job_title) updateData.job_title = updates.job_title;
-  if (updates.source) updateData.source = updates.source;
-  if (updates.status) updateData.status = updates.status;
-  if (updates.priority) updateData.priority = updates.priority;
-  if (updates.quality) updateData.quality = updates.quality;
-  if (updates.lead_score !== undefined) updateData.lead_score = updates.lead_score;
-  if (updates.assigned_to_id) updateData.assigned_to_id = updates.assigned_to_id;
-  if (updates.tags) updateData.tags = updates.tags;
+    // Handle legacy field mappings
+    if (updates.company) {
+      dbUpdates.company_name = updates.company;
+      delete dbUpdates.company;
+    }
+    if (updates.position) {
+      dbUpdates.job_title = updates.position;
+      delete dbUpdates.position;
+    }
 
-  const { data, error } = await supabase
-    .from('leads')
-    .update(updateData)
-    .eq('id', id)
-    .select('*')
-    .single();
+    const { data, error } = await supabase
+      .from('leads')
+      .update(dbUpdates)
+      .eq('id', id)
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Error updating lead:', error);
+    if (error) {
+      logger.error('Error updating lead:', error);
+      throw error;
+    }
+
+    return {
+      ...data,
+      status: mapStatusFromDb(data.status)
+    } as Lead;
+  } catch (error) {
+    logger.error('Error in updateLead:', error);
     throw error;
   }
-
-  // Fetch user profile if assigned
-  let assignedTo = null;
-  if (data.assigned_to_id) {
-    const { data: profile, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('id, first_name, last_name')
-      .eq('id', data.assigned_to_id)
-      .maybeSingle();
-    
-    if (!profileError && profile) {
-      assignedTo = profile;
-    }
-  }
-
-  // Transform the data to match our Lead interface
-  const transformedData = {
-    ...data,
-    // Ensure proper types
-    source: data.source as LeadSource,
-    status: data.status as LeadStatus,
-    lead_origin: data.lead_origin as LeadOrigin,
-    service_type: data.service_type as LeadServiceType,
-    priority: data.priority as LeadPriority,
-    quality: data.quality as LeadQuality,
-    // Add fields that don't exist in leads table yet
-    follow_up_count: 0,
-    email_opens: 0,
-    email_clicks: 0,
-    website_visits: 0,
-    content_downloads: 0,
-    tags: data.tags || [],
-    form_data: {},
-    assigned_to: assignedTo
-  };
-
-  console.log('Lead updated successfully:', transformedData);
-  return transformedData;
 };
 
 export const deleteLead = async (id: string): Promise<void> => {
-  console.log('Deleting lead:', id);
+  try {
+    const { error } = await supabase
+      .from('leads')
+      .delete()
+      .eq('id', id);
 
-  // Delete from dedicated leads table
-  const { error } = await supabase
-    .from('leads')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    console.error('Error deleting lead:', error);
+    if (error) {
+      logger.error('Error deleting lead:', error);
+      throw error;
+    }
+  } catch (error) {
+    logger.error('Error in deleteLead:', error);
     throw error;
   }
-
-  console.log('Lead deleted successfully');
 };
 
 export const convertLeadToContact = async (
   leadId: string,
-  options: { createCompany: boolean; createDeal: boolean; }
+  options: { createCompany: boolean; createDeal: boolean }
 ): Promise<{ contactId: string; companyId?: string; dealId?: string }> => {
-  console.log('Converting lead to contact:', leadId, options);
-
-  // First get the lead data from leads table
-  const { data: leadData, error: leadError } = await supabase
-    .from('leads')
-    .select('*')
-    .eq('id', leadId);
-
-  if (leadError || !leadData || leadData.length === 0) {
-    throw new Error('Lead not found');
-  }
-
-  const lead = leadData[0];
-
-  // Get current user ID
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    throw new Error('User not authenticated');
-  }
-
-  let companyId: string | undefined;
-
-  // Create company if requested and company_name exists
-  if (options.createCompany && lead.company_name) {
-    const companyData = {
-      name: lead.company_name,
-      created_by: user.id,
-      company_type: 'prospect' as const,
-      company_status: 'prospecto' as const,
-      lifecycle_stage: 'customer' as const
-    };
-
-    const { data: company, error: companyError } = await supabase
-      .from('companies')
-      .insert([companyData])
-      .select()
-      .single();
-
-    if (companyError) {
-      console.warn('Error creating company:', companyError);
-    } else {
-      companyId = company.id;
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      throw new Error('Usuario no autenticado');
     }
-  }
 
-  // Create contact
-  const contactData = {
-    name: lead.name,
-    email: lead.email,
-    phone: lead.phone,
-    company: lead.company_name,
-    company_id: companyId,
-    contact_type: 'prospect',
-    contact_source: lead.source,
-    notes: lead.message,
-    lifecycle_stage: 'customer',
-    created_by: user.id
-  };
+    // Get lead data
+    const lead = await fetchLeadById(leadId);
 
-  const { data: contact, error: contactError } = await supabase
-    .from('contacts')
-    .insert([contactData])
-    .select()
-    .single();
-
-  if (contactError) {
-    console.error('Error creating contact:', contactError);
-    throw contactError;
-  }
-
-  let dealId: string | undefined;
-
-  // Create deal if requested
-  if (options.createDeal) {
-    const dealData = {
-      deal_name: `Oportunidad - ${lead.name}`,
-      company_name: lead.company_name,
-      contact_name: lead.name,
-      contact_email: lead.email,
-      contact_phone: lead.phone,
-      contact_id: contact.id,
+    // Create contact
+    const contactData = {
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      company: lead.company_name,
+      position: lead.job_title,
+      contact_type: 'cliente',
+      lifecycle_stage: 'marketing_qualified_lead',
+      lead_score: lead.lead_score || 0,
       lead_source: lead.source,
-      deal_type: 'venta',
-      priority: 'media',
-      description: lead.message,
-      created_by: user.id
+      notes: lead.message,
+      created_by: user.id,
     };
 
-    const { data: deal, error: dealError } = await supabase
-      .from('deals')
-      .insert([dealData])
+    const { data: contact, error: contactError } = await supabase
+      .from('contacts')
+      .insert(contactData)
       .select()
       .single();
 
-    if (dealError) {
-      console.error('Error creating deal:', dealError);
-    } else {
-      dealId = deal.id;
+    if (contactError) {
+      throw contactError;
     }
+
+    let companyId: string | undefined;
+    let dealId: string | undefined;
+
+    // Create company if requested and company name exists
+    if (options.createCompany && lead.company_name) {
+      const companyData = {
+        name: lead.company_name,
+        website: `https://${lead.company_name.toLowerCase().replace(/\s+/g, '')}.com`,
+        sector: 'No especificado',
+        created_by: user.id,
+      };
+
+      const { data: company, error: companyError } = await supabase
+        .from('companies')
+        .insert(companyData)
+        .select()
+        .single();
+
+      if (!companyError && company) {
+        companyId = company.id;
+        
+        // Update contact with company reference
+        await supabase
+          .from('contacts')
+          .update({ company_id: companyId })
+          .eq('id', contact.id);
+      }
+    }
+
+    // Create deal if requested
+    if (options.createDeal) {
+      const dealData = {
+        title: `Oportunidad - ${lead.name}`,
+        description: lead.message || 'Oportunidad creada desde lead',
+        contact_id: contact.id,
+        company_id: companyId,
+        stage: 'initial_contact',
+        amount: 0,
+        probability: 25,
+        created_by: user.id,
+      };
+
+      const { data: deal, error: dealError } = await supabase
+        .from('deals')
+        .insert(dealData)
+        .select()
+        .single();
+
+      if (!dealError && deal) {
+        dealId = deal.id;
+      }
+    }
+
+    // Mark lead as converted
+    await updateLead(leadId, {
+      status: 'CONVERTED',
+      converted_to_contact_id: contact.id,
+      converted_to_deal_id: dealId,
+    });
+
+    return {
+      contactId: contact.id,
+      companyId,
+      dealId,
+    };
+  } catch (error) {
+    logger.error('Error in convertLeadToContact:', error);
+    throw error;
   }
-
-  // Delete the lead from leads table after conversion
-  await supabase
-    .from('leads')
-    .delete()
-    .eq('id', leadId);
-
-  console.log('Lead converted successfully:', { 
-    contactId: contact.id, 
-    companyId, 
-    dealId 
-  });
-  
-  return { 
-    contactId: contact.id, 
-    companyId, 
-    dealId 
-  };
 };
 
-// Export placeholder for missing function
-export const triggerAutomation = (event?: string, data?: any) => {
-  console.log('Automation triggered:', event, data);
+export const bulkInsertLeads = async (leads: CreateLeadData[]): Promise<Lead[]> => {
+  try {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      throw new Error('Usuario no autenticado');
+    }
+
+    const dbLeadsData = leads.map(leadData => ({
+      name: leadData.name,
+      email: leadData.email,
+      phone: leadData.phone || '',
+      company_name: leadData.company || leadData.company_name || '',
+      job_title: leadData.position || leadData.job_title || '',
+      source: leadData.source,
+      status: mapStatusToDb(leadData.status || 'NEW'),
+      lead_score: leadData.lead_score || 0,
+      lead_origin: leadData.lead_origin || 'manual',
+      service_type: leadData.service_type || 'mandato_venta',
+      message: leadData.message || '',
+      tags: leadData.tags || [],
+      created_by: user.id,
+      assigned_to_id: user.id,
+    }));
+
+    const { data, error } = await supabase
+      .from('leads')
+      .insert(dbLeadsData)
+      .select();
+
+    if (error) {
+      logger.error('Error bulk inserting leads:', error);
+      throw error;
+    }
+
+    return (data || []).map(lead => ({
+      ...lead,
+      status: mapStatusFromDb(lead.status)
+    })) as Lead[];
+  } catch (error) {
+    logger.error('Error in bulkInsertLeads:', error);
+    throw error;
+  }
 };

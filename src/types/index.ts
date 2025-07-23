@@ -1,3 +1,4 @@
+
 /**
  * Centralized type exports for the application
  * This file provides a single entry point for all type definitions
@@ -6,7 +7,7 @@
 // Base types
 export * from './Base';
 
-// Entity types
+// Entity types - Import Contact first to establish LifecycleStage
 export * from './Contact';
 export * from './Lead';
 export * from './Company';

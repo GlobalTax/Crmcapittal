@@ -1,430 +1,224 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useOptimizedLeads } from "@/hooks/useOptimizedLeads";
-import { LeadsTable } from "@/components/leads/LeadsTable";
-import { CreateLeadDialog } from "@/components/leads/CreateLeadDialog";
-import { IntelligentAlerts } from "@/components/leads/IntelligentAlerts";
-import { LeadStatus, LeadSource, LeadPriority } from "@/types/Lead";
-import { StatsCard } from "@/components/dashboard/StatsCard";
-import { AlertData } from "@/hooks/useIntelligentAlerts";
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { 
-  AlertCircle, 
-  Users, 
-  TrendingUp, 
-  UserCheck, 
   Search, 
-  RefreshCw, 
-  Filter,
-  Clock,
-  Calendar,
-  UserPlus,
-  Phone,
-  Mail,
-  Eye,
-  CheckSquare
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+  Filter, 
+  Plus, 
+  Download, 
+  Upload, 
+  MoreHorizontal,
+  Star,
+  TrendingUp,
+  Users,
+  Target,
+  ArrowUpRight
+} from 'lucide-react';
+import { useOptimizedLeads } from '@/hooks/useOptimizedLeads';
+import { useLeadsCache } from '@/hooks/useLeadsCache';
+import { LeadStatus, LeadSource, Lead, CreateLeadData } from '@/types/Lead';
+import { CollapsibleLeadPanel } from '@/components/unified/CollapsibleLeadPanel';
+import { ConvertLeadDialog } from '@/components/leads/ConvertLeadDialog';
+import { CreateLeadDialog } from '@/components/leads/CreateLeadDialog';
+import { LeadEditDialog } from '@/components/leads/LeadEditDialog';
 
-interface LeadControlCenterProps {
-  onViewLead?: (leadId: string) => void;
-}
-
-export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
+export const LeadControlCenter = () => {
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   const [sourceFilter, setSourceFilter] = useState<LeadSource | 'all'>('all');
-  const [priorityFilter, setPriorityFilter] = useState<LeadPriority | 'all'>('all');
-  const [assignedFilter, setAssignedFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showConvertDialog, setShowConvertDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const filters = {
-    ...(statusFilter !== 'all' && { status: statusFilter as LeadStatus }),
-    ...(assignedFilter !== 'all' && { assigned_to_id: assignedFilter })
+    ...(statusFilter !== 'all' && { status: statusFilter }),
   };
 
   const {
     leads,
     isLoading,
+    error,
+    refetch,
     createLead,
     updateLead,
     deleteLead,
     convertLead,
     isCreating,
+    isUpdating,
+    isDeleting,
     isConverting,
-    refetch
   } = useOptimizedLeads(filters);
 
-  // Manual refresh with visual feedback
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await refetch();
-    setTimeout(() => setIsRefreshing(false), 1000); // Give visual feedback
-  };
+  const { metrics } = useLeadsCache(leads, 'control-center');
 
-  // Filter leads by date
-  const getFilteredLeadsByDate = (allLeads: typeof leads) => {
-    if (dateFilter === 'all') return allLeads;
+  // Filter leads locally for search and source
+  const filteredLeads = leads.filter(lead => {
+    const matchesSearch = !searchTerm || 
+      lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (lead.company_name && lead.company_name.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const week = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const month = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-    return allLeads.filter(lead => {
-      const createdAt = new Date(lead.created_at);
-      switch (dateFilter) {
-        case 'today': return createdAt >= today;
-        case 'week': return createdAt >= week;
-        case 'month': return createdAt >= month;
-        default: return true;
-      }
-    });
-  };
-
-  // Apply all filters
-  const filteredLeads = getFilteredLeadsByDate(leads).filter(lead => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch = 
-        lead.name.toLowerCase().includes(query) ||
-        lead.email.toLowerCase().includes(query) ||
-        lead.company_name?.toLowerCase().includes(query);
-      if (!matchesSearch) return false;
-    }
+    const matchesSource = sourceFilter === 'all' || lead.source === sourceFilter;
     
-    if (sourceFilter !== 'all' && lead.source !== sourceFilter) return false;
-    
-    // Only filter by priority if it's not 'all' and lead has a priority value
-    if (priorityFilter !== 'all' && lead.priority && lead.priority !== priorityFilter) return false;
-    
-    return true;
+    return matchesSearch && matchesSource;
   });
 
-  // Calculate stats for all leads and filtered
-  const allStats = {
-    total: leads.length,
-    new: leads.filter(l => l.status === 'NEW').length,
-    contacted: leads.filter(l => l.status === 'CONTACTED').length,
-    qualified: leads.filter(l => l.status === 'QUALIFIED').length,
+  const handleCreateLead = (data: CreateLeadData) => {
+    createLead(data);
+    setShowCreateDialog(false);
   };
 
-  // Critical alerts
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-
-  const newLeadsToday = leads.filter(lead => 
-    lead.status === 'NEW' && new Date(lead.created_at) >= today
-  );
-
-  const unassignedOldLeads = leads.filter(lead => 
-    lead.status === 'NEW' && 
-    !lead.assigned_to_id && 
-    new Date(lead.created_at) < yesterday
-  );
-
-  const stats = [
-    {
-      title: "Total Leads",
-      value: allStats.total,
-      description: "Leads en el sistema",
-      icon: Users,
-      onClick: () => {
-        setStatusFilter('all');
-        setDateFilter('all');
-      }
-    },
-    {
-      title: "Nuevos",
-      value: allStats.new,
-      description: "Pendientes de contacto",
-      icon: AlertCircle,
-      onClick: () => {
-        setStatusFilter('NEW');
-        setDateFilter('all');
-      }
-    },
-    {
-      title: "Contactados",
-      value: allStats.contacted,
-      description: "En proceso",
-      icon: TrendingUp,
-      onClick: () => {
-        setStatusFilter('CONTACTED');
-        setDateFilter('all');
-      }
-    },
-    {
-      title: "Calificados",
-      value: allStats.qualified,
-      description: "Listos para conversión",
-      icon: UserCheck,
-      onClick: () => {
-        setStatusFilter('QUALIFIED');
-        setDateFilter('all');
-      }
-    },
-  ];
-
-  // Quick filter buttons
-  const quickFilters = [
-    { label: "Todos", value: "all", count: allStats.total },
-    { label: "Hoy", value: "today", count: newLeadsToday.length },
-    { label: "Esta semana", value: "week", count: 0 }, // Calculate if needed
-    { label: "Sin asignar", value: "unassigned", count: unassignedOldLeads.length },
-  ];
-
-  const handleAssignLead = (leadId: string, userId: string) => {
-    updateLead({ id: leadId, updates: { assigned_to_id: userId } });
+  const handleEditLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setShowEditDialog(true);
   };
 
-  const handleDeleteLead = (leadId: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este lead?')) {
-      deleteLead(leadId);
+  const handleUpdateLead = (updates: any) => {
+    if (selectedLead) {
+      updateLead({ id: selectedLead.id, updates });
+      setShowEditDialog(false);
+      setSelectedLead(null);
     }
   };
 
-  const handleConvertLead = (leadId: string, options: { createCompany: boolean; createDeal: boolean }) => {
+  const handleConvertLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setShowConvertDialog(true);
+  };
+
+  const handleConfirmConvert = (leadId: string, options: { createCompany: boolean; createDeal: boolean }) => {
     convertLead({ leadId, options });
+    setShowConvertDialog(false);
+    setSelectedLead(null);
   };
 
-  const handleBulkAction = (action: string) => {
-    if (selectedLeads.length === 0) return;
-    
-    switch (action) {
-      case 'assign':
-        // Implement bulk assignment
-        break;
-      case 'delete':
-        if (confirm(`¿Eliminar ${selectedLeads.length} leads seleccionados?`)) {
-          selectedLeads.forEach(id => deleteLead(id));
-          setSelectedLeads([]);
-        }
-        break;
-      case 'convert':
-        // Implement bulk conversion
-        break;
-    }
+  const getStatusColor = (status: LeadStatus) => {
+    const colors = {
+      NEW: 'bg-blue-100 text-blue-800',
+      CONTACTED: 'bg-yellow-100 text-yellow-800',
+      QUALIFIED: 'bg-green-100 text-green-800',
+      DISQUALIFIED: 'bg-red-100 text-red-800',
+      NURTURING: 'bg-purple-100 text-purple-800',
+      CONVERTED: 'bg-emerald-100 text-emerald-800',
+      LOST: 'bg-gray-100 text-gray-800'
+    };
+    return colors[status] || colors.NEW;
   };
 
-  const handleAlertAction = (alert: AlertData) => {
-    // Apply filters based on alert type
-    switch (alert.type) {
-      case 'lead_not_contacted':
-        setStatusFilter('NEW');
-        setDateFilter('all');
-        setSearchQuery('');
-        break;
-      case 'lead_stagnant':
-        setStatusFilter('all');
-        setDateFilter('all');
-        setSearchQuery('');
-        // Additional filter logic for stagnant leads
-        break;
-      case 'deal_inactive':
-        // This would require navigation to deals page or separate handling
-        console.log('Navigate to deals with inactive filter');
-        break;
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-destructive">Error al cargar los leads</p>
+        <Button onClick={() => refetch()} className="mt-4">
+          Reintentar
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6" data-tour="leads-section">
-      {/* Header */}
+    <div className="space-y-6">
+      {/* Header with metrics */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Control Center - Leads</h1>
+          <h1 className="text-2xl font-bold">Centro de Control de Leads</h1>
           <p className="text-muted-foreground">
-            Gestiona y convierte tus leads en oportunidades de negocio
+            Gestiona y convierte tus leads de manera eficiente
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Actualizar
-          </Button>
-          <CreateLeadDialog onCreateLead={createLead} isCreating={isCreating} />
-        </div>
+        <Button onClick={() => setShowCreateDialog(true)} disabled={isCreating}>
+          <Plus className="h-4 w-4 mr-2" />
+          Nuevo Lead
+        </Button>
       </div>
 
-      {/* Intelligent Alerts */}
-      <Card className="border-orange-200 bg-orange-50">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-orange-600" />
-              <span className="font-medium text-orange-800">Alertas Inteligentes</span>
-              <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-200">
-                1 elementos requieren atención
-              </Badge>
-            </div>
-            <Button variant="outline" size="sm" className="border-orange-200 text-orange-700 hover:bg-orange-100">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Actualizar
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Alert Detail */}
-      <Card className="border-amber-200 bg-amber-50">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-amber-100 p-2 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-amber-600" />
-              </div>
+      {/* Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-amber-800">Oportunidades inactivas</h4>
-                <p className="text-sm text-amber-600">1 oportunidades sin actividad reciente</p>
+                <p className="text-sm text-muted-foreground">Total Leads</p>
+                <p className="text-2xl font-bold">{metrics.totalLeads}</p>
               </div>
+              <Users className="h-8 w-8 text-blue-500" />
             </div>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-              Programar Actividad
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Critical Alerts Panel */}
-      {(newLeadsToday.length > 0 || unassignedOldLeads.length > 0) && (
-        <Card className="border-orange-200 bg-orange-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-orange-800 flex items-center gap-2">
-              <AlertCircle className="h-5 w-5" />
-              Alertas Críticas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {newLeadsToday.length > 0 && (
-              <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                <div>
-                  <h4 className="font-medium text-orange-800">
-                    {newLeadsToday.length} leads nuevos hoy
-                  </h4>
-                  <p className="text-sm text-orange-600">Requieren atención inmediata</p>
-                </div>
-                <Button 
-                  size="sm" 
-                  onClick={() => setDateFilter('today')}
-                  className="bg-orange-600 hover:bg-orange-700"
-                >
-                  Ver Leads
-                </Button>
-              </div>
-            )}
-            
-            {unassignedOldLeads.length > 0 && (
-              <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                <div>
-                  <h4 className="font-medium text-red-800">
-                    {unassignedOldLeads.length} leads sin asignar (+24h)
-                  </h4>
-                  <p className="text-sm text-red-600">Leads antiguos sin responsable</p>
-                </div>
-                <Button 
-                  size="sm" 
-                  variant="destructive"
-                  onClick={() => {
-                    setStatusFilter('NEW');
-                    setAssignedFilter('unassigned');
-                  }}
-                >
-                  Asignar
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
-      )}
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, index) => (
-          <div key={index} onClick={stat.onClick} className="cursor-pointer">
-            <StatsCard {...stat} />
-          </div>
-        ))}
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Tasa Conversión</p>
+                <p className="text-2xl font-bold">{metrics.conversionRate}%</p>
+              </div>
+              <Target className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Score Promedio</p>
+                <p className="text-2xl font-bold">{metrics.averageScore}</p>
+              </div>
+              <Star className="h-8 w-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Nuevos Hoy</p>
+                <p className="text-2xl font-bold">
+                  {leads.filter(l => 
+                    new Date(l.created_at).toDateString() === new Date().toDateString()
+                  ).length}
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Quick Filters */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant={dateFilter === 'all' ? "default" : "outline"}
-          size="sm"
-          onClick={() => setDateFilter('all')}
-          className="h-8"
-        >
-          Todos
-          <Badge variant="secondary" className="ml-2 h-5 bg-blue-100 text-blue-800">
-            3
-          </Badge>
-        </Button>
-        <Button
-          variant={dateFilter === 'today' ? "default" : "outline"}
-          size="sm"
-          onClick={() => setDateFilter('today')}
-          className="h-8"
-        >
-          Hoy
-        </Button>
-        <Button
-          variant={dateFilter === 'week' ? "default" : "outline"}
-          size="sm"
-          onClick={() => setDateFilter('week')}
-          className="h-8"
-        >
-          Esta semana
-        </Button>
-        <Button
-          variant={dateFilter === 'unassigned' ? "default" : "outline"}
-          size="sm"
-          onClick={() => setAssignedFilter('unassigned')}
-          className="h-8"
-        >
-          Sin asignar
-        </Button>
-      </div>
-
-      {/* Advanced Filters */}
+      {/* Filters */}
       <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filtros Avanzados
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-            {/* Search */}
-            <div className="lg:col-span-2">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Buscar leads..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar por nombre, email o empresa..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
-
-            {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
-              <SelectTrigger>
+            
+            <Select value={statusFilter} onValueChange={(value: LeadStatus | 'all') => setStatusFilter(value)}>
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>
@@ -433,14 +227,14 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
                 <SelectItem value="CONTACTED">Contactado</SelectItem>
                 <SelectItem value="QUALIFIED">Calificado</SelectItem>
                 <SelectItem value="DISQUALIFIED">Descalificado</SelectItem>
-                <SelectItem value="NURTURING">Nurturing</SelectItem>
+                <SelectItem value="NURTURING">Nutriendo</SelectItem>
                 <SelectItem value="CONVERTED">Convertido</SelectItem>
+                <SelectItem value="LOST">Perdido</SelectItem>
               </SelectContent>
             </Select>
-
-            {/* Source Filter */}
-            <Select value={sourceFilter} onValueChange={(value) => setSourceFilter(value as LeadSource | 'all')}>
-              <SelectTrigger>
+            
+            <Select value={sourceFilter} onValueChange={(value: LeadSource | 'all') => setSourceFilter(value)}>
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Fuente" />
               </SelectTrigger>
               <SelectContent>
@@ -450,93 +244,101 @@ export const LeadControlCenter = ({ onViewLead }: LeadControlCenterProps) => {
                 <SelectItem value="capittal_market">Capital Market</SelectItem>
                 <SelectItem value="linkedin">LinkedIn</SelectItem>
                 <SelectItem value="referral">Referido</SelectItem>
-                <SelectItem value="email_campaign">Email Campaign</SelectItem>
+                <SelectItem value="email_campaign">Campaña Email</SelectItem>
+                <SelectItem value="social_media">Redes Sociales</SelectItem>
+                <SelectItem value="cold_outreach">Prospección</SelectItem>
+                <SelectItem value="event">Evento</SelectItem>
+                <SelectItem value="other">Otro</SelectItem>
               </SelectContent>
             </Select>
-
-            {/* Priority Filter */}
-            <Select value={priorityFilter} onValueChange={(value) => setPriorityFilter(value as LeadPriority | 'all')}>
-              <SelectTrigger>
-                <SelectValue placeholder="Prioridad" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas las prioridades</SelectItem>
-                <SelectItem value="URGENT">Urgente</SelectItem>
-                <SelectItem value="HIGH">Alta</SelectItem>
-                <SelectItem value="MEDIUM">Media</SelectItem>
-                <SelectItem value="LOW">Baja</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Clear Filters */}
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setStatusFilter('all');
-                setSourceFilter('all');
-                setPriorityFilter('all');
-                setAssignedFilter('all');
-                setDateFilter('all');
-                setSearchQuery('');
-              }}
-            >
-              Limpiar
-            </Button>
-          </div>
-
-          {/* Results summary */}
-          <div className="text-sm text-muted-foreground">
-            Mostrando {filteredLeads.length} de 3 leads
           </div>
         </CardContent>
       </Card>
 
-      {/* Bulk Actions */}
-      {selectedLeads.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="h-4 w-4 text-blue-600" />
-                <span className="font-medium text-blue-800">
-                  1 leads seleccionados
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('assign')}>
-                  <UserPlus className="h-4 w-4 mr-1" />
-                  Asignar
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handleBulkAction('convert')}>
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  Convertir
-                </Button>
-                <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
-                  <CheckSquare className="h-4 w-4 mr-1" />
-                  Eliminar
-                </Button>
+      {/* Results Summary */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Mostrando {filteredLeads.length} de {leads.length} leads
+        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Exportar
+          </Button>
+          <Button variant="outline" size="sm">
+            <Upload className="h-4 w-4 mr-2" />
+            Importar
+          </Button>
+        </div>
+      </div>
+
+      {/* Leads List */}
+      <div className="grid gap-4">
+        {filteredLeads.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground">No se encontraron leads con los filtros aplicados</p>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredLeads.map((lead) => (
+            <div key={lead.id} className="relative">
+              <CollapsibleLeadPanel
+                lead={lead}
+                onEdit={handleEditLead}
+                onUpdate={handleUpdateLead}
+              />
+              
+              {/* Quick Actions */}
+              <div className="absolute top-4 right-16 flex gap-2">
+                {lead.status !== 'CONVERTED' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleConvertLead(lead)}
+                    disabled={isConverting}
+                  >
+                    <ArrowUpRight className="h-4 w-4 mr-1" />
+                    Convertir
+                  </Button>
+                )}
+                <Badge 
+                  variant="outline" 
+                  className={getStatusColor(lead.status)}
+                >
+                  {lead.status}
+                </Badge>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ))
+        )}
+      </div>
 
-      {/* Leads Table */}
-      <Card>
-        <CardContent className="p-6">
-          <LeadsTable
-            leads={filteredLeads}
-            onViewLead={onViewLead || ((leadId) => console.log('Ver lead:', leadId))}
-            onDeleteLead={handleDeleteLead}
-            onAssignLead={handleAssignLead}
-            onConvertLead={handleConvertLead}
-            isLoading={isLoading}
-            isConverting={isConverting}
-            selectedLeads={selectedLeads}
-            onSelectionChange={setSelectedLeads}
-          />
-        </CardContent>
-      </Card>
+      {/* Dialogs */}
+      <CreateLeadDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreateLead={handleCreateLead}
+        isCreating={isCreating}
+      />
+
+      <ConvertLeadDialog
+        open={showConvertDialog}
+        onOpenChange={setShowConvertDialog}
+        lead={selectedLead}
+        onConvert={handleConfirmConvert}
+        isConverting={isConverting}
+      />
+
+      {selectedLead && (
+        <LeadEditDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          lead={selectedLead}
+          onUpdateLead={handleUpdateLead}
+          isUpdating={isUpdating}
+        />
+      )}
     </div>
   );
 };
