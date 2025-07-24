@@ -1,3 +1,7 @@
 export { useVirtualization } from './useVirtualization';
 export { useDebounce } from './useDebounce';
 export { usePerformanceMonitor } from './performance/usePerformanceMonitor';
+export { useAsyncOperation } from './performance/useAsyncOperation';
+export { useOptimizedTable } from './performance/useOptimizedTable';
+export { useBatchedQueries } from './performance/useBatchedQueries';
+export { usePerformanceOptimizer } from './performance/usePerformanceOptimizer';

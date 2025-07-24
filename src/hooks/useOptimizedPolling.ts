@@ -17,7 +17,7 @@ interface UseOptimizedPollingOptions {
 export const useOptimizedPolling = ({
   queryKey,
   queryFn,
-  interval = 60000, // 1 minute for production
+  interval = 300000, // 5 minutes for production
   priority = 'medium',
   enabled = true,
   cacheTtl = 300000, // 5 minutes cache
@@ -71,13 +71,13 @@ export const useOptimizedPolling = ({
     
     let newInterval = interval;
     
-    // DISABLED: Keep aggressive polling for debugging
-    // if (!isTabVisible) {
-    //   newInterval = interval * 3; // 3x slower when hidden
-    // }
-    // else if (inactiveTime > 300000) {
-    //   newInterval = interval * 2; // 2x slower when inactive
-    // }
+    // Smart polling: adjust based on user activity
+    if (!isTabVisible) {
+      newInterval = interval * 3; // 3x slower when hidden
+    }
+    else if (inactiveTime > 300000) {
+      newInterval = interval * 2; // 2x slower when inactive
+    }
     
     setCurrentInterval(newInterval);
   }, [isTabVisible, lastActivity, interval]);

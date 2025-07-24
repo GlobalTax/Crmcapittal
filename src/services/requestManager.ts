@@ -20,16 +20,16 @@ class RequestManager {
   private queue: RequestConfig[] = [];
   private cache: Map<string, CacheEntry> = new Map();
   private processingQueue = false;
-  private rateLimitDelay = 200; // 200ms between requests
-  private maxConcurrent = 3;
+  private rateLimitDelay = 100; // 100ms between requests
+  private maxConcurrent = 5;
   private activeRequests = 0;
   private rateLimitHits = 0;
 
   // Rate limiting configuration based on current usage
   private readonly intervals = {
-    high: 1000,    // 1 second for critical requests
-    medium: 2000,  // 2 seconds for normal requests  
-    low: 5000      // 5 seconds for background requests
+    high: 300,     // 300ms for critical requests
+    medium: 500,   // 500ms for normal requests  
+    low: 1000      // 1 second for background requests
   };
 
   async request<T>(config: RequestConfig): Promise<T> {

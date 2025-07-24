@@ -1,5 +1,5 @@
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Operation } from '@/types/Operation';
 import { useOperations } from '@/hooks/useOperations';
 import { useOperationsPagination } from './useOperationsPagination';
@@ -59,6 +59,11 @@ export const useOperationsOptimized = (filters: FilterState, pageSize: number = 
       return value !== '';
     });
   }, [filters]);
+
+  // Auto-reset pagination when filters change
+  useEffect(() => {
+    resetPagination();
+  }, [hasActiveFilters, resetPagination]);
 
   return {
     // Datos
