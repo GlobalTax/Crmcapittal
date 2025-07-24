@@ -1,320 +1,296 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Valoracion } from '@/types/Valoracion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import {
-  Building2,
-  User,
-  Calendar,
-  FileText,
-  MessageSquare,
-  BarChart3,
-  X,
-  Edit,
-  Euro
-} from 'lucide-react';
-import { ValoracionCommentForm } from './ValoracionCommentForm';
-import { ValoracionActivityPanel } from './ValoracionActivityPanel';
-import { useValoracionComments } from '@/hooks/useValoracionComments';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { X, Edit, Share, Download } from 'lucide-react';
+import { VALORACION_PHASES } from '@/utils/valoracionPhases';
+import { formatCurrency } from '@/utils/format';
+import { ValoracionDocumentsList } from './ValoracionDocumentsList';
+import { ValoracionHistoryModal } from './ValoracionHistoryModal';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { Database } from '@/integrations/supabase/types';
-
-type Valoracion = Database['public']['Tables']['valoraciones']['Row'];
 
 interface ValoracionDetailPanelProps {
-  valoracion: Valoracion | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  valoracion: Valoracion;
   onClose: () => void;
+  onEdit: (valoracion: Valoracion) => void;
+  onGenerateClientLink?: (valoracion: Valoracion) => void;
+  className?: string;
 }
 
-const getStatusColor = (status: string) => {
-  const colors = {
-    requested: 'bg-yellow-100 text-yellow-800',
-    in_process: 'bg-blue-100 text-blue-800',
-    completed: 'bg-green-100 text-green-800',
-    delivered: 'bg-emerald-100 text-emerald-800'
-  };
-  return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-};
-
-const getStatusLabel = (status: string) => {
-  const labels = {
-    requested: 'Solicitada',
-    in_process: 'En Proceso',
-    completed: 'Completada',
-    delivered: 'Entregada'
-  };
-  return labels[status as keyof typeof labels] || status;
-};
-
-export function ValoracionDetailPanel({ 
-  valoracion, 
-  open, 
-  onOpenChange, 
-  onClose 
-}: ValoracionDetailPanelProps) {
-  const [activeTab, setActiveTab] = useState('overview');
+export const ValoracionDetailPanel: React.FC<ValoracionDetailPanelProps> = ({
+  valoracion,
+  onClose,
+  onEdit,
+  onGenerateClientLink,
+  className = ""
+}) => {
+  const [activeTab, setActiveTab] = useState('details');
+  const [showHistory, setShowHistory] = useState(false);
   
-  const {
-    comments,
-    loading: commentsLoading,
-    addComment
-  } = useValoracionComments(valoracion?.id);
+  const phase = VALORACION_PHASES[valoracion.status];
+  
+  const getPaymentStatusText = (status: string) => {
+    switch (status) {
+      case 'paid': return 'Pagado';
+      case 'partial': return 'Parcial';
+      case 'overdue': return 'Vencido';
+      default: return 'Pendiente';
+    }
+  };
 
-  if (!valoracion) return null;
-
-  const handleCommentSubmit = async (commentData: {
-    comment_text: string;
-    comment_type: any;
-    metadata?: Record<string, any>;
-  }) => {
-    await addComment(commentData);
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case 'paid': return 'bg-green-100 text-green-800';
+      case 'partial': return 'bg-yellow-100 text-yellow-800';
+      case 'overdue': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
-        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div className="flex items-center gap-3">
-            <Building2 className="h-6 w-6" />
-            <div>
-              <DialogTitle className="text-xl">{valoracion.company_name}</DialogTitle>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge className={getStatusColor(valoracion.status)}>
-                  {getStatusLabel(valoracion.status)}
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  Cliente: {valoracion.client_name}
-                </span>
-              </div>
-            </div>
+    <div className={`h-full flex flex-col bg-background ${className}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center gap-4">
+          <div className="text-2xl">{phase.icon}</div>
+          <div>
+            <h2 className="text-xl font-semibold">{valoracion.company_name}</h2>
+            <p className="text-muted-foreground">Cliente: {valoracion.client_name}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Edit className="h-4 w-4 mr-2" />
-              Editar
+          <Badge className={phase.bgColor + ' ' + phase.textColor}>
+            {phase.label}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => onEdit(valoracion)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Editar
+          </Button>
+          
+          {onGenerateClientLink && valoracion.status === 'delivered' && (
+            <Button variant="outline" size="sm" onClick={() => onGenerateClientLink(valoracion)}>
+              <Share className="h-4 w-4 mr-2" />
+              Enlace Cliente
             </Button>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogHeader>
+          )}
+          
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
-        <div className="flex-1 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Resumen</TabsTrigger>
-              <TabsTrigger value="comments">
-                Comentarios
-                {comments.length > 0 && (
-                  <Badge variant="secondary" className="ml-2">
-                    {comments.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="activity">Actividad</TabsTrigger>
-              <TabsTrigger value="documents">Documentos</TabsTrigger>
-            </TabsList>
+      {/* Tabs */}
+      <div className="flex-1 p-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="details">Detalles</TabsTrigger>
+            <TabsTrigger value="documents">Documentos</TabsTrigger>
+            <TabsTrigger value="comments">Comentarios</TabsTrigger>
+            <TabsTrigger value="history">Historial</TabsTrigger>
+            <TabsTrigger value="audit">Auditoría</TabsTrigger>
+          </TabsList>
 
-            <div className="flex-1 overflow-y-auto mt-4">
-              <TabsContent value="overview" className="space-y-6 mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Información General */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Building2 className="h-5 w-5" />
-                        Información General
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Empresa</label>
-                        <p className="text-sm">{valoracion.company_name}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Cliente</label>
-                        <p className="text-sm">{valoracion.client_name}</p>
-                      </div>
-                      {valoracion.company_sector && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Sector</label>
-                          <p className="text-sm">{valoracion.company_sector}</p>
-                        </div>
-                      )}
-                      {valoracion.company_description && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Descripción</label>
-                          <p className="text-sm">{valoracion.company_description}</p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Detalles del Proyecto */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <FileText className="h-5 w-5" />
-                        Detalles del Proyecto
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Estado</label>
-                        <Badge className={getStatusColor(valoracion.status)}>
-                          {getStatusLabel(valoracion.status)}
-                        </Badge>
-                      </div>
-                      {valoracion.assigned_to && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Asignado a</label>
-                          <p className="text-sm flex items-center gap-2">
-                            <User className="h-4 w-4" />
-                            {valoracion.assigned_to}
-                          </p>
-                        </div>
-                      )}
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Fecha de Creación</label>
-                        <p className="text-sm flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          {format(new Date(valoracion.created_at), 'dd/MM/yyyy', { locale: es })}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Estado</label>
-                        <p className="text-sm">
-                          {valoracion.status || 'En proceso'}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Información Financiera */}
-                {(valoracion.fee_quoted || valoracion.fee_charged) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Euro className="h-5 w-5" />
-                        Información Financiera
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {valoracion.fee_quoted && (
-                          <div>
-                            <label className="text-sm font-medium text-muted-foreground">Honorarios Cotizados</label>
-                            <p className="text-lg font-semibold">
-                              {valoracion.fee_quoted.toLocaleString('es-ES')} {valoracion.fee_currency || 'EUR'}
-                            </p>
-                          </div>
-                        )}
-                        {valoracion.fee_charged && (
-                          <div>
-                            <label className="text-sm font-medium text-muted-foreground">Honorarios Facturados</label>
-                            <p className="text-lg font-semibold">
-                              {valoracion.fee_charged.toLocaleString('es-ES')} {valoracion.fee_currency || 'EUR'}
-                            </p>
-                          </div>
-                        )}
-                        {valoracion.payment_status && (
-                          <div>
-                            <label className="text-sm font-medium text-muted-foreground">Estado de Pago</label>
-                            <Badge variant={valoracion.payment_status === 'paid' ? 'default' : 'secondary'}>
-                              {valoracion.payment_status === 'paid' ? 'Pagado' : 
-                               valoracion.payment_status === 'pending' ? 'Pendiente' :
-                               valoracion.payment_status === 'partial' ? 'Parcial' : 'Vencido'}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </TabsContent>
-
-              <TabsContent value="comments" className="space-y-6 mt-0">
-                <ValoracionCommentForm onSubmit={handleCommentSubmit} loading={commentsLoading} />
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5" />
-                    Historial de Comentarios ({comments.length})
-                  </h3>
+          {/* Details Tab */}
+          <TabsContent value="details" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* General Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Información General</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Empresa</label>
+                    <p className="text-sm">{valoracion.company_name}</p>
+                  </div>
                   
-                  {comments.length === 0 ? (
-                    <Card>
-                      <CardContent className="text-center py-8">
-                        <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                        <p className="text-muted-foreground">
-                          No hay comentarios aún. ¡Añade el primero!
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <div className="space-y-4">
-                      {comments.map((comment) => (
-                        <Card key={comment.id}>
-                          <CardContent className="pt-6">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline">
-                                  {comment.comment_type === 'note' ? 'Nota' :
-                                   comment.comment_type === 'status_change' ? 'Cambio de Estado' :
-                                   comment.comment_type === 'phase_change' ? 'Cambio de Fase' :
-                                   comment.comment_type === 'approval' ? 'Aprobación' :
-                                   comment.comment_type === 'rejection' ? 'Rechazo' :
-                                   comment.comment_type === 'document_update' ? 'Documento' :
-                                   'Asignación'}
-                                </Badge>
-                                <span className="text-sm font-medium">{comment.user_name}</span>
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                {format(new Date(comment.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
-                              </span>
-                            </div>
-                            <p className="text-sm">{comment.comment_text}</p>
-                          </CardContent>
-                        </Card>
-                      ))}
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Cliente</label>
+                    <p className="text-sm">{valoracion.client_name}</p>
+                  </div>
+                  
+                  {valoracion.company_sector && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Sector</label>
+                      <p className="text-sm">{valoracion.company_sector}</p>
                     </div>
                   )}
-                </div>
-              </TabsContent>
+                  
+                  {valoracion.company_description && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Descripción</label>
+                      <p className="text-sm">{valoracion.company_description}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-              <TabsContent value="activity" className="mt-0">
-                <ValoracionActivityPanel valoracionId={valoracion.id} />
-              </TabsContent>
-
-              <TabsContent value="documents" className="mt-0">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Documentos
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-center text-muted-foreground py-8">
-                      Sistema de documentos en desarrollo
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+              {/* Financial Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Información Financiera</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {valoracion.fee_quoted && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Honorarios Cotizados</label>
+                      <p className="text-sm font-semibold">
+                        {formatCurrency(valoracion.fee_quoted, valoracion.fee_currency)}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {valoracion.fee_charged && valoracion.fee_charged > 0 && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Honorarios Cobrados</label>
+                      <p className="text-sm font-semibold text-green-600">
+                        {formatCurrency(valoracion.fee_charged, valoracion.fee_currency)}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {valoracion.payment_status && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Estado de Pago</label>
+                      <Badge className={`mt-1 ${getPaymentStatusColor(valoracion.payment_status)}`}>
+                        {getPaymentStatusText(valoracion.payment_status)}
+                      </Badge>
+                    </div>
+                  )}
+                  
+                  {valoracion.payment_date && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Fecha de Pago</label>
+                      <p className="text-sm">
+                        {format(new Date(valoracion.payment_date), 'dd/MM/yyyy', { locale: es })}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
-          </Tabs>
-        </div>
-      </DialogContent>
-    </Dialog>
+
+            {/* Dates */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Fechas Importantes</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Fecha de Creación</label>
+                  <p className="text-sm">
+                    {format(new Date(valoracion.created_at), 'dd/MM/yyyy HH:mm', { locale: es })}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Última Actualización</label>
+                  <p className="text-sm">
+                    {format(new Date(valoracion.updated_at), 'dd/MM/yyyy HH:mm', { locale: es })}
+                  </p>
+                </div>
+                
+                {valoracion.estimated_delivery && (
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Entrega Estimada</label>
+                    <p className="text-sm">
+                      {format(new Date(valoracion.estimated_delivery), 'dd/MM/yyyy', { locale: es })}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Documents Tab */}
+          <TabsContent value="documents">
+            <Card>
+              <CardHeader>
+                <CardTitle>Documentos</CardTitle>
+                <CardDescription>
+                  Gestiona los documentos asociados a esta valoración
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ValoracionDocumentsList
+                  valoracion={valoracion}
+                  onRefresh={() => {
+                    // Trigger refresh if needed
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Comments Tab */}
+          <TabsContent value="comments">
+            <Card>
+              <CardHeader>
+                <CardTitle>Comentarios</CardTitle>
+                <CardDescription>
+                  Comentarios internos sobre esta valoración
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Sistema de comentarios en desarrollo</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history">
+            <Card>
+              <CardHeader>
+                <CardTitle>Historial de Cambios</CardTitle>
+                <CardDescription>
+                  Registro de cambios de fase y actividad
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowHistory(true)}
+                  className="w-full"
+                >
+                  Ver Historial Completo
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Audit Tab */}
+          <TabsContent value="audit">
+            <Card>
+              <CardHeader>
+                <CardTitle>Auditoría</CardTitle>
+                <CardDescription>
+                  Logs de seguridad y accesos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Sistema de auditoría en desarrollo</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* History Modal */}
+      <ValoracionHistoryModal
+        valoracion={valoracion}
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+      />
+    </div>
   );
-}
+};

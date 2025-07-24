@@ -1,239 +1,283 @@
-
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Search, 
-  Filter, 
-  Eye, 
-  Edit, 
-  MoreHorizontal,
-  Euro,
-  Calendar,
-  Building2,
-  User
-} from 'lucide-react';
+import React, { useMemo, useCallback } from 'react';
+import { ValoracionesSearchBar } from './ValoracionesSearchBar';
+import { ValoracionesExportButtons } from './ValoracionesExportButtons';
+import { ValoracionCard } from './ValoracionCard';
+import { ValoracionesPagination } from './ValoracionesPagination';
+import { ExportProgress } from '@/components/ui/ExportProgress';
 import { useValoraciones } from '@/hooks/useValoraciones';
-import { VALORACION_PHASES } from '@/utils/valoracionPhases';
+import { useOptimizedSearch } from '@/hooks/useOptimizedSearch';
+import { useVirtualizedPagination } from '@/hooks/useVirtualizedPagination';
+import { useOptimizedExport } from '@/hooks/useOptimizedExport';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { formatCurrency } from '@/utils/format';
 import type { Database } from '@/integrations/supabase/types';
 
 type Valoracion = Database['public']['Tables']['valoraciones']['Row'];
 
 interface OptimizedValoracionesListProps {
-  onView?: (valoracion: Valoracion) => void;
   onEdit?: (valoracion: Valoracion) => void;
+  onView?: (valoracion: Valoracion) => void;
 }
 
-export function OptimizedValoracionesList({ onView, onEdit }: OptimizedValoracionesListProps) {
-  const navigate = useNavigate();
-  const { valoraciones, loading } = useValoraciones();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
-
-  const filteredValoraciones = useMemo(() => {
-    return valoraciones.filter(valoracion => {
-      const matchesSearch = 
-        valoracion.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        valoracion.client_name.toLowerCase().includes(searchTerm.toLowerCase());
+export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps> = ({
+  onEdit,
+  onView
+}) => {
+  const { valoraciones, loading, refetch } = useValoraciones();
+  
+  // Búsqueda optimizada
+  const {
+    searchTerm,
+    setSearchTerm,
+    filters,
+    updateFilter,
+    clearFilters,
+    filteredData,
+    isSearching,
+    hasActiveFilters,
+    resultCount,
+    totalCount
+  } = useOptimizedSearch({
+    data: valoraciones,
+    searchFields: ['company_name', 'client_name', 'company_sector', 'company_description'],
+    debounceMs: 300,
+    minSearchLength: 2
+  });
+  
+  // Paginación virtualizada
+  const {
+    currentPageData,
+    currentPage,
+    totalPages,
+    totalItems,
+    pageSize,
+    goToPage,
+    goToNextPage,
+    goToPreviousPage,
+    hasNextPage,
+    hasPreviousPage
+  } = useVirtualizedPagination(filteredData, {
+    pageSize: 12,
+    virtualPageSize: 24,
+    maxCachedPages: 5
+  });
+  
+  // Exportación optimizada
+  const { isExporting, progress, startExport, cancelExport } = useOptimizedExport();
+  
+  // Manejo de exportación - usando useCallback para evitar recreaciones
+  const handleExport = useCallback(async (exportFormat: 'pdf' | 'excel' | 'csv') => {
+    try {
+      const exportData = filteredData.map(v => ({
+        'Empresa': v.company_name,
+        'Cliente': v.client_name,
+        'Sector': v.company_sector || '',
+        'Estado': v.status,
+        'Descripción': v.company_description || '',
+        'Asignado a': v.assigned_to || 'Sin asignar',
+        'Prioridad': v.priority || 'Sin prioridad',
+        'Creado': exportFormat === 'excel' ? new Date(v.created_at) : format(new Date(v.created_at), 'dd/MM/yyyy'),
+        'Actualizado': exportFormat === 'excel' ? new Date(v.updated_at) : format(new Date(v.updated_at), 'dd/MM/yyyy')
+      }));
       
-      const matchesStatus = statusFilter === 'all' || valoracion.status === statusFilter;
-      const matchesPriority = priorityFilter === 'all' || valoracion.priority === priorityFilter;
+      const timestamp = format(new Date(), 'yyyy-MM-dd_HH-mm');
+      const filename = `valoraciones_${timestamp}.${exportFormat === 'excel' ? 'xlsx' : exportFormat}`;
       
-      return matchesSearch && matchesStatus && matchesPriority;
-    });
-  }, [valoraciones, searchTerm, statusFilter, priorityFilter]);
-
-  const handleViewValoracion = (valoracion: Valoracion) => {
-    navigate(`/valoraciones/${valoracion.id}`);
-  };
-
-  const handleEditValoracion = (valoracion: Valoracion) => {
-    if (onEdit) {
-      onEdit(valoracion);
+      await startExport({
+        format: exportFormat,
+        data: exportData,
+        filename,
+        includeHeaders: true
+      });
+      
+      toast.success(`Exportación ${exportFormat.toUpperCase()} completada`);
+    } catch (error) {
+      toast.error(`Error al exportar: ${error instanceof Error ? error.message : 'Error desconocido'}`);
     }
-  };
+  }, [filteredData, startExport]);
+  
+  // Renderizado optimizado del componente de búsqueda
+  const SearchComponent = useMemo(() => (
+    <ValoracionesSearchBar
+      searchTerm={searchTerm}
+      onSearchChange={setSearchTerm}
+      onClearSearch={clearFilters}
+      placeholder="Buscar por empresa, cliente o sector..."
+    />
+  ), [searchTerm, setSearchTerm, clearFilters]);
+
+  // Renderizado optimizado de botones de exportación
+  const ExportButtons = useMemo(() => (
+    <ValoracionesExportButtons
+      onExport={handleExport}
+      isExporting={isExporting}
+    />
+  ), [handleExport, isExporting]);
+
+  // Renderizado optimizado de la paginación
+  const PaginationComponent = useMemo(() => (
+    <ValoracionesPagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      totalItems={totalItems}
+      pageSize={pageSize}
+      onPageChange={goToPage}
+      onNextPage={goToNextPage}
+      onPreviousPage={goToPreviousPage}
+    />
+  ), [currentPage, totalPages, totalItems, pageSize, goToPage, goToNextPage, goToPreviousPage]);
 
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-10 w-64 bg-gray-200 animate-pulse rounded-md"></div>
-            <div className="h-10 w-32 bg-gray-200 animate-pulse rounded-md"></div>
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="bg-card rounded-lg border p-6 animate-pulse">
+            <div className="flex justify-between items-start mb-4">
+              <div className="space-y-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <Skeleton className="h-6 w-20" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
           </div>
-        </div>
-        <div className="grid gap-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-32 bg-gray-200 animate-pulse rounded-lg"></div>
-          ))}
-        </div>
+        ))}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Filtros */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por empresa o cliente..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos los estados</SelectItem>
-            <SelectItem value="requested">Solicitada</SelectItem>
-            <SelectItem value="in_process">En Proceso</SelectItem>
-            <SelectItem value="completed">Completada</SelectItem>
-            <SelectItem value="delivered">Entregada</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Prioridad" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas las prioridades</SelectItem>
-            <SelectItem value="low">Baja</SelectItem>
-            <SelectItem value="medium">Media</SelectItem>
-            <SelectItem value="high">Alta</SelectItem>
-            <SelectItem value="urgent">Urgente</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Lista de valoraciones */}
-      <div className="grid gap-4">
-        {filteredValoraciones.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No se encontraron valoraciones</h3>
-              <p className="text-muted-foreground text-center">
-                {searchTerm || statusFilter !== 'all' || priorityFilter !== 'all' 
-                  ? 'Intenta ajustar los filtros de búsqueda'
-                  : 'No hay valoraciones creadas aún'
-                }
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredValoraciones.map((valoracion) => {
-            const phase = VALORACION_PHASES[valoracion.status];
-            const daysSinceCreation = Math.floor((Date.now() - new Date(valoracion.created_at).getTime()) / (1000 * 60 * 60 * 24));
+        {/* Controles de búsqueda y filtros */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex-1 max-w-md">
+            {SearchComponent}
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Select value={filters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Filtrar por estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                <SelectItem value="requested">Solicitado</SelectItem>
+                <SelectItem value="in_process">En proceso</SelectItem>
+                <SelectItem value="completed">Completado</SelectItem>
+                <SelectItem value="delivered">Entregado</SelectItem>
+              </SelectContent>
+            </Select>
             
-            return (
-              <Card key={valoracion.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CardTitle className="text-lg">{valoracion.company_name}</CardTitle>
-                        <Badge variant="outline" className={`${phase.bgColor} ${phase.textColor}`}>
-                          {phase.icon} {phase.label}
-                        </Badge>
-                        {valoracion.priority && valoracion.priority !== 'medium' && (
-                          <Badge variant={valoracion.priority === 'urgent' ? 'destructive' : 'secondary'}>
-                            {valoracion.priority === 'urgent' ? 'Urgente' : 
-                             valoracion.priority === 'high' ? 'Alta' : 'Baja'}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          <span>{valoracion.client_name}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          <span>{format(new Date(valoracion.created_at), 'dd/MM/yyyy', { locale: es })}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span>{daysSinceCreation} días</span>
-                        </div>
-                      </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refetch}
+              disabled={loading}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Actualizar
+            </Button>
+            
+            {ExportButtons}
+          </div>
+        </div>
+
+        {/* Estadísticas */}
+        <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <span>
+            Mostrando {resultCount} de {totalCount} valoraciones
+            {isSearching && <span className="ml-2 text-primary">🔍 Buscando...</span>}
+          </span>
+          {hasActiveFilters && (
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              Limpiar filtros
+            </Button>
+          )}
+        </div>
+
+        {/* Lista de valoraciones */}
+        {currentPageData.length > 0 ? (
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {currentPageData.map((valoracion) => (
+                <div key={valoracion.id} className="bg-card rounded-lg border p-6 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-semibold text-lg">{valoracion.company_name}</h3>
+                      <p className="text-muted-foreground">{valoracion.client_name}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleViewValoracion(valoracion)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Ver
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditValoracion(valoracion)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-2">
-                      <Euro className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">
-                          {valoracion.fee_quoted ? formatCurrency(valoracion.fee_quoted) : 'Por definir'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Cotizado</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">
-                          {valoracion.company_sector || 'Sin sector'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Sector</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">
-                          {valoracion.assigned_to || 'Sin asignar'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Asignado</p>
-                      </div>
-                    </div>
+                    <span className="text-sm px-2 py-1 bg-primary/10 text-primary rounded">
+                      {valoracion.status}
+                    </span>
                   </div>
                   
-                  {valoracion.company_description && (
-                    <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
-                      {valoracion.company_description}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })
+                  <div className="space-y-2">
+                    {valoracion.company_sector && (
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Sector:</strong> {valoracion.company_sector}
+                      </p>
+                    )}
+                    {valoracion.company_description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {valoracion.company_description}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => onView?.(valoracion)}
+                      className="flex-1"
+                    >
+                      Ver
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      onClick={() => onEdit?.(valoracion)}
+                      className="flex-1"
+                    >
+                      Editar
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {PaginationComponent}
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              {hasActiveFilters 
+                ? 'No se encontraron valoraciones con los filtros aplicados.'
+                : 'No hay valoraciones disponibles.'
+              }
+            </p>
+            {hasActiveFilters && (
+              <Button variant="outline" onClick={clearFilters} className="mt-4">
+                Limpiar filtros
+              </Button>
+            )}
+          </div>
         )}
-      </div>
+
+        {/* Progreso de exportación */}
+        <ExportProgress
+          isVisible={isExporting}
+          progress={progress}
+          onCancel={cancelExport}
+        />
     </div>
   );
-}
+};

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,9 +24,26 @@ export function useValoracionComments(valoracionId?: string) {
     
     setLoading(true);
     try {
-      // Temporalmente devolvemos array vacío hasta que la tabla exista
-      console.log('Comments table not yet created for valoracion:', valoracionId);
-      setComments([]);
+      const { data, error } = await supabase
+        .from('valoracion_comments' as any)
+        .select(`
+          *,
+          user:user_id (
+            email
+          )
+        `)
+        .eq('valoracion_id', valoracionId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const commentsWithUserInfo = (data as any)?.map((comment: any) => ({
+        ...comment,
+        user_email: comment.user?.email || 'Usuario desconocido',
+        user_name: comment.user?.email?.split('@')[0] || 'Usuario'
+      })) || [];
+
+      setComments(commentsWithUserInfo);
     } catch (error) {
       console.error('Error loading comments:', error);
       toast.error('Error al cargar comentarios');
@@ -44,8 +60,18 @@ export function useValoracionComments(valoracionId?: string) {
     if (!valoracionId) return;
 
     try {
-      // Temporalmente mostramos mensaje hasta que la tabla exista
-      toast.info('Sistema de comentarios en desarrollo');
+      const { error } = await supabase
+        .from('valoracion_comments' as any)
+        .insert({
+          valoracion_id: valoracionId,
+          ...commentData,
+          metadata: commentData.metadata || {}
+        });
+
+      if (error) throw error;
+
+      toast.success('Comentario añadido');
+      loadComments(); // Reload to get updated list
     } catch (error) {
       console.error('Error adding comment:', error);
       toast.error('Error al añadir comentario');
@@ -58,7 +84,15 @@ export function useValoracionComments(valoracionId?: string) {
     metadata?: Record<string, any>;
   }) => {
     try {
-      toast.info('Sistema de comentarios en desarrollo');
+      const { error } = await supabase
+        .from('valoracion_comments' as any)
+        .update(updates)
+        .eq('id', commentId);
+
+      if (error) throw error;
+
+      toast.success('Comentario actualizado');
+      loadComments();
     } catch (error) {
       console.error('Error updating comment:', error);
       toast.error('Error al actualizar comentario');
@@ -68,7 +102,15 @@ export function useValoracionComments(valoracionId?: string) {
 
   const deleteComment = async (commentId: string) => {
     try {
-      toast.info('Sistema de comentarios en desarrollo');
+      const { error } = await supabase
+        .from('valoracion_comments' as any)
+        .delete()
+        .eq('id', commentId);
+
+      if (error) throw error;
+
+      toast.success('Comentario eliminado');
+      loadComments();
     } catch (error) {
       console.error('Error deleting comment:', error);
       toast.error('Error al eliminar comentario');
