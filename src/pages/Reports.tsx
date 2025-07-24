@@ -1,8 +1,12 @@
-export default function Reports() {
+import React from 'react';
+
+const Reports = () => {
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Reportes</h1>
-      <p className="text-muted-foreground">Analíticas y reportes del sistema</p>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Reportes</h1>
+      <p>Análisis y reportes del sistema</p>
     </div>
   );
-}
+};
+
+export default Reports;

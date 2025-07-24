@@ -1,17 +1,10 @@
-import { useParams } from 'react-router-dom';
+import React from 'react';
 
-export function ClientMandateView() {
-  const { accessToken } = useParams();
-
+export const ClientMandateView = () => {
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Vista Cliente Mandato</h1>
-      <p className="text-muted-foreground">
-        Token de acceso: {accessToken}
-      </p>
-      <p className="text-muted-foreground mt-2">
-        Vista de solo lectura para clientes
-      </p>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Vista de Mandato Cliente</h1>
+      <p>Información del mandato para el cliente</p>
     </div>
   );
-}
+};

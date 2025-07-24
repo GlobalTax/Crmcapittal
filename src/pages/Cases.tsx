@@ -1,8 +1,12 @@
-export default function Cases() {
+import React from 'react';
+
+const Cases = () => {
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Casos</h1>
-      <p className="text-muted-foreground">Gestión de casos</p>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Casos</h1>
+      <p>Gestión de casos legales</p>
     </div>
   );
-}
+};
+
+export default Cases;
