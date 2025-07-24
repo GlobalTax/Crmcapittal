@@ -24,6 +24,7 @@ const LeadPage = lazy(() => import('@/pages/LeadPage'));
 
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
+const AuthCallback = lazy(() => import('@/components/auth/AuthCallback'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
 const Deals = lazy(() => import('@/pages/Deals'));
@@ -62,12 +63,20 @@ export const AppRoutes = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Routes>
-        {/* Public auth route */}
+        {/* Public auth routes */}
         <Route 
           path="/auth" 
           element={
             <Suspense fallback={<LoadingSkeleton />}>
               <Auth />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/auth/callback" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <AuthCallback />
             </Suspense>
           } 
         />

@@ -7,12 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { Mail } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const { signIn, signUp, signInWithProvider, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -84,6 +86,33 @@ const Auth = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setOauthLoading(true);
+    
+    try {
+      // Store the intended destination before OAuth redirect
+      sessionStorage.setItem('auth_redirect', from);
+      
+      const { error } = await signInWithProvider('google');
+      if (error) {
+        toast({
+          title: "Error de autenticación",
+          description: error.message,
+          variant: "destructive",
+        });
+        setOauthLoading(false);
+      }
+      // Note: We don't set loading to false here because the user will be redirected
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Ha ocurrido un error inesperado con Google OAuth.",
+        variant: "destructive",
+      });
+      setOauthLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -130,8 +159,30 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || oauthLoading}>
                   {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+                </Button>
+                
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      O continúa con
+                    </span>
+                  </div>
+                </div>
+                
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleGoogleSignIn}
+                  disabled={loading || oauthLoading}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  {oauthLoading ? "Conectando con Google..." : "Continuar con Google"}
                 </Button>
               </form>
             </TabsContent>
@@ -160,8 +211,30 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || oauthLoading}>
                   {loading ? "Registrando..." : "Registrarse"}
+                </Button>
+                
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      O continúa con
+                    </span>
+                  </div>
+                </div>
+                
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={handleGoogleSignIn}
+                  disabled={loading || oauthLoading}
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  {oauthLoading ? "Conectando con Google..." : "Continuar con Google"}
                 </Button>
               </form>
             </TabsContent>
