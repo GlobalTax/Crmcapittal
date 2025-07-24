@@ -295,6 +295,22 @@ export const useBuyingMandates = () => {
     await fetchMandates();
   }, [fetchMandates]);
 
+  const getMandateNavigation = useCallback((currentMandateId: string) => {
+    const currentIndex = mandates.findIndex(m => m.id === currentMandateId);
+    const hasPrevious = currentIndex > 0;
+    const hasNext = currentIndex < mandates.length - 1;
+    const previousMandate = hasPrevious ? mandates[currentIndex - 1] : null;
+    const nextMandate = hasNext ? mandates[currentIndex + 1] : null;
+    
+    return {
+      currentIndex,
+      hasPrevious,
+      hasNext,
+      previousMandate,
+      nextMandate
+    };
+  }, [mandates]);
+
   return {
     mandates,
     targets,
@@ -312,6 +328,7 @@ export const useBuyingMandates = () => {
     uploadDocument,
     importFromContacts,
     importFromCompanies,
+    getMandateNavigation,
     refetch
   };
 };
