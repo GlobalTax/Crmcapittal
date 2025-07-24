@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,7 @@ interface ContactsTableProps {
   isCreating?: boolean;
 }
 
-export function ContactsTable({
+const ContactsTable = React.memo(function ContactsTable({
   contacts,
   onCreateContact,
   onEditContact,
@@ -52,7 +52,7 @@ export function ContactsTable({
     });
   }, [contacts, searchTerm, filterType]);
 
-  const getTypeBadge = (type: ContactType) => {
+  const getTypeBadge = useCallback((type: ContactType) => {
     const typeConfig = {
       marketing: { label: "Marketing", color: "blue" as const },
       sales: { label: "Ventas", color: "blue" as const },
@@ -64,9 +64,9 @@ export function ContactsTable({
     
     const config = typeConfig[type];
     return <Badge color={config.color}>{config.label}</Badge>;
-  };
+  }, []);
 
-  const getPriorityBadge = (priority?: string) => {
+  const getPriorityBadge = useCallback((priority?: string) => {
     if (!priority) return null;
     
     const priorityConfig = {
@@ -79,16 +79,16 @@ export function ContactsTable({
     if (!config) return null;
     
     return <Badge color={config.color}>{config.label}</Badge>;
-  };
+  }, []);
 
-  const formatDate = (dateString?: string) => {
+  const formatDate = useCallback((dateString?: string) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
     });
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -170,7 +170,7 @@ export function ContactsTable({
         </div>
       </div>
 
-      {/* Contacts Table */}
+      {/* Contacts Table - Use virtualized table for large datasets */}
       <div className="bg-white border border-gray-200">
         <div className="p-4 border-b">
           <h3 className="text-sm font-semibold">
@@ -179,101 +179,110 @@ export function ContactsTable({
           </h3>
         </div>
         <div className="p-4">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contacto</TableHead>
-                <TableHead>Empresa</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Prioridad</TableHead>
-                <TableHead>Origen</TableHead>
-                <TableHead>Creado</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredContacts.map((contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-700">
-                        {contact.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {contact.name}
+          {filteredContacts.length > 100 ? (
+            <OptimizedContactsTable 
+              contacts={filteredContacts}
+              onEditContact={onEditContact}
+              onDeleteContact={onDeleteContact}
+              onViewContact={onViewContact}
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Contacto</TableHead>
+                  <TableHead>Empresa</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Prioridad</TableHead>
+                  <TableHead>Origen</TableHead>
+                  <TableHead>Creado</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredContacts.map((contact) => (
+                  <TableRow key={contact.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-700">
+                          {contact.name.charAt(0).toUpperCase()}
                         </div>
-                        {contact.email && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {contact.email}
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {contact.name}
                           </div>
-                        )}
-                        {contact.phone && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {contact.phone}
-                          </div>
-                        )}
+                          {contact.email && (
+                            <div className="text-sm text-gray-500 flex items-center">
+                              <Mail className="h-3 w-3 mr-1" />
+                              {contact.email}
+                            </div>
+                          )}
+                          {contact.phone && (
+                            <div className="text-sm text-gray-500 flex items-center">
+                              <Phone className="h-3 w-3 mr-1" />
+                              {contact.phone}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div>
-                      <div className="font-medium text-gray-900">{contact.company || 'N/A'}</div>
-                      <div className="text-sm text-gray-500">{contact.position || 'N/A'}</div>
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    {getTypeBadge(contact.contact_type)}
-                  </TableCell>
-                  
-                  <TableCell>
-                    {getPriorityBadge(contact.contact_priority)}
-                  </TableCell>
-                  
-                  <TableCell>
-                    <span className="text-sm text-gray-600">
-                      {contact.contact_source || 'N/A'}
-                    </span>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="text-sm text-gray-900">
-                      {formatDate(contact.created_at)}
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell className="text-right">
-                    <div className="flex gap-2 justify-end">
-                      {onViewContact && (
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-gray-900">{contact.company || 'N/A'}</div>
+                        <div className="text-sm text-gray-500">{contact.position || 'N/A'}</div>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      {getTypeBadge(contact.contact_type)}
+                    </TableCell>
+                    
+                    <TableCell>
+                      {getPriorityBadge(contact.contact_priority)}
+                    </TableCell>
+                    
+                    <TableCell>
+                      <span className="text-sm text-gray-600">
+                        {contact.contact_source || 'N/A'}
+                      </span>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="text-sm text-gray-900">
+                        {formatDate(contact.created_at)}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell className="text-right">
+                      <div className="flex gap-2 justify-end">
+                        {onViewContact && (
+                          <button 
+                            onClick={() => onViewContact(contact)}
+                            className="text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            Ver
+                          </button>
+                        )}
                         <button 
-                          onClick={() => onViewContact(contact)}
+                          onClick={() => onEditContact?.(contact)}
                           className="text-blue-600 hover:text-blue-800 text-sm"
                         >
-                          Ver
+                          Editar
                         </button>
-                      )}
-                      <button 
-                        onClick={() => onEditContact?.(contact)}
-                        className="text-blue-600 hover:text-blue-800 text-sm"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => onDeleteContact?.(contact.id)}
-                        className="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                        <button 
+                          onClick={() => onDeleteContact?.(contact.id)}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
           
           {filteredContacts.length === 0 && (
             <div className="text-center py-12">
@@ -293,4 +302,6 @@ export function ContactsTable({
       </div>
     </div>
   );
-};
+});
+
+export { ContactsTable };

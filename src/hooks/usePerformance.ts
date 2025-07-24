@@ -5,3 +5,5 @@ export { useAsyncOperation } from './performance/useAsyncOperation';
 export { useOptimizedTable } from './performance/useOptimizedTable';
 export { useBatchedQueries } from './performance/useBatchedQueries';
 export { usePerformanceOptimizer } from './performance/usePerformanceOptimizer';
+export { useMemoryMonitor } from './performance/useMemoryMonitor';
+export { useRenderTracker } from './performance/useRenderTracker';

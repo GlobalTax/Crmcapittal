@@ -4,6 +4,8 @@ import { useLeads } from '@/hooks/useLeads';
 import { useNegocios } from '@/hooks/useNegocios';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
+import { useBatchedQueries } from '@/hooks/performance/useBatchedQueries';
+import { usePerformanceMonitor } from '@/hooks/performance/usePerformanceMonitor';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardCard } from './DashboardCard';
 import { KPIMetrics } from './KPIMetrics';
@@ -25,7 +27,10 @@ import {
   BarChart3
 } from 'lucide-react';
 
-export const EnhancedDashboard = () => {
+const EnhancedDashboard = React.memo(() => {
+  const { renderCount } = usePerformanceMonitor('EnhancedDashboard');
+  const { addToBatch } = useBatchedQueries();
+  
   const { role, loading: roleLoading } = useUserRole();
   const { operations, loading: operationsLoading } = useOperations();
   const { leads, isLoading: leadsLoading } = useLeads({});
@@ -254,4 +259,6 @@ export const EnhancedDashboard = () => {
       </div>
     </div>
   );
-};
+});
+
+export { EnhancedDashboard };
