@@ -218,10 +218,17 @@ export const CollapsibleMandatePanel = ({ mandate, onEdit, onUpdate }: Collapsib
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end">
-        <Button onClick={() => navigate(`/mandatos/${mandate.id}`)}>
+      <div className="flex justify-end gap-2">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate(`/mandatos/${mandate.id}`)}
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          Vista Clásica
+        </Button>
+        <Button onClick={() => navigate(`/mandatos/${mandate.id}/vista-detallada`)}>
           <Target className="h-4 w-4 mr-2" />
-          Ver Mandato Completo
+          Vista Detallada
         </Button>
       </div>
     </div>

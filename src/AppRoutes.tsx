@@ -17,7 +17,6 @@ import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
 import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
-import { BuyingMandateDetailView as LegacyBuyingMandateDetailView } from '@/components/mandates/BuyingMandateDetailView';
 
 // Import the unified lead page and enhanced mandate detail view
 const LeadPage = lazy(() => import('@/pages/LeadPage'));
@@ -115,14 +114,14 @@ export const AppRoutes = () => {
 
           {/* Mandatos (Spanish routes) */}
           <Route path="/mandatos" element={<MandatesPage />} />
-          <Route path="/mandatos/:id" element={<MandateDetailPage />} />
-          <Route path="/mandatos/:id/detalle" element={<LegacyBuyingMandateDetailView />} />
+          <Route path="/mandatos/:id" element={<Navigate to="/mandatos/:id/vista-detallada" />} />
+          <Route path="/mandatos/:id/detalle" element={<Navigate to="/mandatos/:id/vista-detallada" replace />} />
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
 
           {/* Buying Mandates (English routes for compatibility) - Fixed routing */}
           <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
-          <Route path="/buying-mandates/:id" element={<LegacyBuyingMandateDetailView />} />
+          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos/:id/vista-detallada" replace />} />
           
           {/* New enhanced mandate detail view */}
           <Route 

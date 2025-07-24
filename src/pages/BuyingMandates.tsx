@@ -2,14 +2,20 @@ import { HierarchicalCRMView } from '@/components/unified/HierarchicalCRMView';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { BuyingMandateTeaserModal } from '@/components/mandates/BuyingMandateTeaserModal';
 import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
-import { useState } from 'react';
+import { Eye, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 
 export default function BuyingMandates() {
   const navigate = useNavigate();
   const [selectedMandateForTeaser, setSelectedMandateForTeaser] = useState<any>(null);
   const [showTeaserModal, setShowTeaserModal] = useState(false);
+  const { mandates, fetchMandates } = useBuyingMandates();
+
+  useEffect(() => {
+    fetchMandates();
+  }, [fetchMandates]);
 
   const handleCreateTeaser = (mandate: any) => {
     setSelectedMandateForTeaser(mandate);
@@ -18,6 +24,10 @@ export default function BuyingMandates() {
 
   const handleViewEnhancedDetail = (mandateId: string) => {
     navigate(`/mandatos/${mandateId}/vista-detallada`);
+  };
+
+  const getFirstMandateId = () => {
+    return mandates && mandates.length > 0 ? mandates[0].id : null;
   };
 
   return (
@@ -34,13 +44,19 @@ export default function BuyingMandates() {
             <Button 
               variant="outline" 
               onClick={() => {
-                // Navigate to a sample mandate with enhanced view
-                // In a real app, this would be based on selected mandate
-                handleViewEnhancedDetail('sample-id');
+                const firstMandateId = getFirstMandateId();
+                if (firstMandateId) {
+                  handleViewEnhancedDetail(firstMandateId);
+                }
               }}
+              disabled={!getFirstMandateId()}
             >
               <Eye className="h-4 w-4 mr-2" />
               Vista Detallada
+            </Button>
+            <Button onClick={() => navigate('/mandatos/nuevo')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Mandato
             </Button>
           </div>
         </div>
