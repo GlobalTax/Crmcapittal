@@ -5,7 +5,6 @@ import { AttioLayout } from '@/components/layout/AttioLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Import new organized components
-import MandateTargetPipeline from '@/components/targets/MandateTargetPipeline';
 import TransaccionesList from '@/components/transacciones/TransaccionesList';
 import VentaMandatoView from '@/components/transacciones/VentaMandatoView';
 import CompanyList from '@/components/empresas/CompanyList';
