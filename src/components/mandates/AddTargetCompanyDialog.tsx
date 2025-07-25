@@ -18,9 +18,10 @@ interface AddTargetCompanyDialogProps {
   mandate: BuyingMandate | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onTargetAdded?: () => void;
 }
 
-export const AddTargetCompanyDialog = ({ mandate, open, onOpenChange }: AddTargetCompanyDialogProps) => {
+export const AddTargetCompanyDialog = ({ mandate, open, onOpenChange, onTargetAdded }: AddTargetCompanyDialogProps) => {
   const [activeTab, setActiveTab] = useState('create');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCompanies, setSelectedCompanies] = useState<Company[]>([]);
@@ -105,6 +106,7 @@ export const AddTargetCompanyDialog = ({ mandate, open, onOpenChange }: AddTarge
           title: "Empresa añadida",
           description: `${formData.company_name} ha sido añadida como target al mandato`,
         });
+        onTargetAdded?.();
         handleClose();
       } else {
         throw new Error('No se pudo crear el target');
@@ -167,6 +169,7 @@ export const AddTargetCompanyDialog = ({ mandate, open, onOpenChange }: AddTarge
         description: `${successCount} de ${selectedCompanies.length} empresas añadidas al mandato`,
       });
 
+      onTargetAdded?.();
       handleClose();
     } catch (error) {
       console.error('Error adding selected companies:', error);

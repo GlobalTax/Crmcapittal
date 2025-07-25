@@ -138,9 +138,6 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
             <Plus className="h-4 w-4 mr-2" />
             Añadir Empresa
           </Button>
-          <Button variant="outline" onClick={() => setShowTargetsDialog(true)}>
-            Gestionar Pipeline
-          </Button>
         </div>
       </div>
 
@@ -293,14 +290,13 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
         mandate={mandate}
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
+        onTargetAdded={() => {
+          if (mandate?.id) {
+            fetchTargets(mandate.id);
+          }
+        }}
       />
 
-      {/* Diálogo de gestión de pipeline */}
-      <MandateTargetsDialog
-        mandate={mandate}
-        open={showTargetsDialog}
-        onOpenChange={setShowTargetsDialog}
-      />
     </div>
   );
 };

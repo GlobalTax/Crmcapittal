@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { MandatoKPIHeader } from '@/components/mandates/MandatoKPIHeader';
-// MandatoTargetPanel removed - using new implementation
+import { MandateTargetsTab } from '@/components/mandates/tabs/MandateTargetsTab';
+import { MandatePipelineTab } from '@/components/mandates/tabs/MandatePipelineTab';
 import { MandatoDocs } from '@/components/mandates/MandatoDocs';
 import { MandatoActivityLog } from '@/components/mandates/MandatoActivityLog';
 import { MandatoCriteria } from '@/components/mandates/MandatoCriteria';
@@ -55,6 +56,7 @@ export default function MandatoDashboardView() {
       <Tabs defaultValue="targets" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="targets">🎯 Targets</TabsTrigger>
+          <TabsTrigger value="pipeline">📊 Pipeline</TabsTrigger>
           <TabsTrigger value="docs">📄 Documentos</TabsTrigger>
           <TabsTrigger value="activity">📘 Actividad</TabsTrigger>
           <TabsTrigger value="criteria">🗺️ Criterios</TabsTrigger>
@@ -63,9 +65,10 @@ export default function MandatoDashboardView() {
         </TabsList>
 
         <TabsContent value="targets">
-          <div className="p-6 text-center text-muted-foreground">
-            Funcionalidad migrada a la nueva vista de mandatos
-          </div>
+          <MandateTargetsTab mandate={mandate} />
+        </TabsContent>
+        <TabsContent value="pipeline">
+          <MandatePipelineTab mandate={mandate} />
         </TabsContent>
         <TabsContent value="docs">
           <MandatoDocs mandateId={mandate.id} />
