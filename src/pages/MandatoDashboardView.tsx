@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { MandatoKPIHeader } from '@/components/mandates/MandatoKPIHeader';
-import { MandatoTargetPanel } from '@/components/mandates/MandatoTargetPanel';
+// MandatoTargetPanel removed - using new implementation
 import { MandatoDocs } from '@/components/mandates/MandatoDocs';
 import { MandatoActivityLog } from '@/components/mandates/MandatoActivityLog';
 import { MandatoCriteria } from '@/components/mandates/MandatoCriteria';
@@ -63,12 +63,9 @@ export default function MandatoDashboardView() {
         </TabsList>
 
         <TabsContent value="targets">
-          <MandatoTargetPanel 
-            targets={mockTargets}
-            documents={mockDocuments}
-            onEditTarget={() => {}}
-            onViewDocuments={() => {}}
-          />
+          <div className="p-6 text-center text-muted-foreground">
+            Funcionalidad migrada a la nueva vista de mandatos
+          </div>
         </TabsContent>
         <TabsContent value="docs">
           <MandatoDocs mandateId={mandate.id} />

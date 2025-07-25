@@ -5,9 +5,6 @@ import { AttioLayout } from '@/components/layout/AttioLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Import new organized components
-import MandatesPage from '@/pages/MandatesPage';
-import MandateDetailPage from '@/pages/MandateDetailPage';
-import MandatoTargetPanel from '@/components/targets/MandatoTargetPanel';
 import MandateTargetPipeline from '@/components/targets/MandateTargetPipeline';
 import TransaccionesList from '@/components/transacciones/TransaccionesList';
 import VentaMandatoView from '@/components/transacciones/VentaMandatoView';
@@ -131,8 +128,8 @@ export const AppRoutes = () => {
           <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos/:id" replace />} />
           <Route path="/mandatos/:id/detalle" element={<Navigate to="/mandatos/:id" replace />} />
           <Route path="/mandatos/:id/vista-detallada" element={<Navigate to="/mandatos/:id" replace />} />
-          <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
-          <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
+          <Route path="/mandatos/:id/targets" element={<Navigate to="/mandatos" replace />} />
+          <Route path="/mandatos/:id/targets/pipeline" element={<Navigate to="/mandatos" replace />} />
 
           {/* Captación (Spanish routes) */}
           <Route path="/captacion" element={<LeadsEntryPanel />} />
