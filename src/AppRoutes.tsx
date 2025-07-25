@@ -20,7 +20,8 @@ import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
 
 // Import the unified lead page and enhanced mandate detail view
 const LeadPage = lazy(() => import('@/pages/LeadPage'));
-const BuyingMandateDetailView = lazy(() => import('@/pages/BuyingMandateDetailView'));
+const NewBuyingMandatesView = lazy(() => import('@/pages/NewBuyingMandatesView'));
+
 
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
@@ -112,33 +113,26 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Mandatos (Spanish routes) */}
-          <Route path="/mandatos" element={<MandatesPage />} />
-          <Route 
-            path="/mandatos/:id" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <BuyingMandateDetailView />
-              </Suspense>
-            } 
-          />
-          <Route path="/mandatos/:id/detalle" element={<Navigate to="/mandatos/:id/vista-detallada" replace />} />
+          {/* Mandatos (Spanish routes) - Simplified */}
+          <Route path="/mandatos" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <NewBuyingMandatesView />
+            </Suspense>
+          } />
+          <Route path="/mandatos/:id" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <NewBuyingMandatesView />
+            </Suspense>
+          } />
+          <Route path="/mandatos/nuevo" element={<Navigate to="/mandatos" replace />} />
+
+          {/* Legacy redirects */}
+          <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
+          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos/:id" replace />} />
+          <Route path="/mandatos/:id/detalle" element={<Navigate to="/mandatos/:id" replace />} />
+          <Route path="/mandatos/:id/vista-detallada" element={<Navigate to="/mandatos/:id" replace />} />
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />
-
-          {/* Buying Mandates (English routes for compatibility) - Fixed routing */}
-          <Route path="/buying-mandates" element={<Navigate to="/mandatos" replace />} />
-          <Route path="/buying-mandates/:id" element={<Navigate to="/mandatos/:id/vista-detallada" replace />} />
-          
-          {/* New enhanced mandate detail view */}
-          <Route 
-            path="/mandatos/:id/vista-detallada" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <BuyingMandateDetailView />
-              </Suspense>
-            } 
-          />
 
           {/* Captación (Spanish routes) */}
           <Route path="/captacion" element={<LeadsEntryPanel />} />
