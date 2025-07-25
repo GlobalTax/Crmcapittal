@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, Search, Building2, MapPin, Euro, Phone, Mail, Calendar, FileText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MandateTargetsDialog } from '@/components/mandates/MandateTargetsDialog';
+import { AddTargetCompanyDialog } from '@/components/mandates/AddTargetCompanyDialog';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 
 interface MandateTargetsTabProps {
@@ -16,6 +17,7 @@ interface MandateTargetsTabProps {
 export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [showAddDialog, setShowAddDialog] = useState(false);
   const [showTargetsDialog, setShowTargetsDialog] = useState(false);
   const { targets, fetchTargets, isLoading } = useBuyingMandates();
 
@@ -131,10 +133,15 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
             Gestiona las empresas objetivo para este mandato de compra
           </p>
         </div>
-          <Button onClick={() => setShowTargetsDialog(true)}>
+        <div className="flex items-center space-x-2">
+          <Button onClick={() => setShowAddDialog(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Añadir Empresa
           </Button>
+          <Button variant="outline" onClick={() => setShowTargetsDialog(true)}>
+            Gestionar Pipeline
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -272,7 +279,7 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
                   : "Añade empresas objetivo para comenzar el seguimiento"
                 }
               </p>
-              <Button onClick={() => setShowTargetsDialog(true)}>
+              <Button onClick={() => setShowAddDialog(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Añadir Primera Empresa
               </Button>
@@ -281,7 +288,14 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
         </TabsContent>
       </Tabs>
 
-      {/* Diálogo de gestión de targets */}
+      {/* Diálogo para añadir empresas */}
+      <AddTargetCompanyDialog
+        mandate={mandate}
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+      />
+
+      {/* Diálogo de gestión de pipeline */}
       <MandateTargetsDialog
         mandate={mandate}
         open={showTargetsDialog}
