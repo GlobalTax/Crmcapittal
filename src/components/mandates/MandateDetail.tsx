@@ -13,6 +13,9 @@ import { MandateTargetsTab } from './tabs/MandateTargetsTab';
 import { MandateTasksTab } from './tabs/MandateTasksTab';
 import { MandateDocumentsTab } from './tabs/MandateDocumentsTab';
 import { MandateActivityTab } from './tabs/MandateActivityTab';
+import { MandatePeopleTab } from './tabs/MandatePeopleTab';
+import { MandateNotesTab } from './tabs/MandateNotesTab';
+import { MandateReportsTab } from './tabs/MandateReportsTab';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -183,95 +186,61 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
         </CardContent>
       </Card>
 
-      {/* Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Resumen</TabsTrigger>
-          <TabsTrigger value="targets">Objetivos</TabsTrigger>
-          <TabsTrigger value="documents">Documentos</TabsTrigger>
-          <TabsTrigger value="activity">Actividad</TabsTrigger>
-        </TabsList>
+      {/* Main Content with Sidebar Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-8">
+              <TabsTrigger value="overview">Resumen</TabsTrigger>
+              <TabsTrigger value="targets">Objetivos</TabsTrigger>
+              <TabsTrigger value="tasks">Tareas</TabsTrigger>
+              <TabsTrigger value="people">Personas</TabsTrigger>
+              <TabsTrigger value="documents">Documentos</TabsTrigger>
+              <TabsTrigger value="notes">Notas</TabsTrigger>
+              <TabsTrigger value="activity">Actividad</TabsTrigger>
+              <TabsTrigger value="reports">Reportes</TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Información General</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Estado</label>
-                  <p className="mt-1">
-                    <Badge variant={getStatusVariant(mandate.status)}>
-                      {getStatusLabel(mandate.status)}
-                    </Badge>
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Tipo de Mandato</label>
-                  <p className="mt-1">
-                    <Badge variant="outline">
-                      {getTypeLabel(mandate.mandate_type)}
-                    </Badge>
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Cliente</label>
-                  <p className="mt-1">{mandate.client_name || 'No especificado'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Fecha de Creación</label>
-                  <p className="mt-1">
-                    {format(new Date(mandate.created_at), 'dd MMM yyyy', { locale: es })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            <TabsContent value="overview">
+              <MandateOverviewTab mandate={mandate} />
+            </TabsContent>
 
-        <TabsContent value="targets" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Empresas Objetivo</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Funcionalidad de objetivos en desarrollo</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            <TabsContent value="targets">
+              <MandateTargetsTab mandate={mandate} />
+            </TabsContent>
 
-        <TabsContent value="documents" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Documentos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Funcionalidad de documentos en desarrollo</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            <TabsContent value="tasks">
+              <MandateTasksTab mandate={mandate} />
+            </TabsContent>
 
-        <TabsContent value="activity" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Actividad Reciente</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Historial de actividad en desarrollo</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="people">
+              <MandatePeopleTab mandate={mandate} />
+            </TabsContent>
+
+            <TabsContent value="documents">
+              <MandateDocumentsTab mandate={mandate} />
+            </TabsContent>
+
+            <TabsContent value="notes">
+              <MandateNotesTab mandate={mandate} />
+            </TabsContent>
+
+            <TabsContent value="activity">
+              <MandateActivityTab mandate={mandate} />
+            </TabsContent>
+
+            <TabsContent value="reports">
+              <MandateReportsTab mandate={mandate} />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Sidebar */}
+        <div className="lg:col-span-1">
+          <MandateDetailsSidebar mandate={mandate} />
+        </div>
+      </div>
     </div>
   );
 };
