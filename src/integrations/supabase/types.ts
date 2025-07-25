@@ -6496,6 +6496,53 @@ export type Database = {
           },
         ]
       }
+      valoracion_methods: {
+        Row: {
+          calculation_date: string | null
+          comentario: string | null
+          confidence_level: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          metodo: string
+          resultado: number | null
+          updated_at: string
+          valoracion_id: string
+        }
+        Insert: {
+          calculation_date?: string | null
+          comentario?: string | null
+          confidence_level?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metodo: string
+          resultado?: number | null
+          updated_at?: string
+          valoracion_id: string
+        }
+        Update: {
+          calculation_date?: string | null
+          comentario?: string | null
+          confidence_level?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metodo?: string
+          resultado?: number | null
+          updated_at?: string
+          valoracion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoracion_methods_valoracion_id_fkey"
+            columns: ["valoracion_id"]
+            isOneToOne: false
+            referencedRelation: "valoraciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       valoracion_security_logs: {
         Row: {
           action: string
