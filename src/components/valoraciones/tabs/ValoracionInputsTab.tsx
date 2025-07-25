@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Save, X, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Save, X, Edit2, Trash2, Upload, FileSpreadsheet } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -33,6 +33,7 @@ export const ValoracionInputsTab: React.FC<ValoracionInputsTabProps> = ({ valora
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [formData, setFormData] = useState({
     clave: '',
     valor: '',
@@ -158,6 +159,56 @@ export const ValoracionInputsTab: React.FC<ValoracionInputsTabProps> = ({ valora
     setShowAddForm(false);
   };
 
+  const handleExcelImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+      toast({ 
+        title: "Error", 
+        description: "Solo se permiten archivos Excel (.xlsx, .xls)", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    setImporting(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('valoracionId', valoracion.id);
+
+      const { data, error } = await supabase.functions.invoke('process-excel-valoracion', {
+        body: formData
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      fetchInputs();
+      toast({ 
+        title: "Éxito", 
+        description: `Excel procesado correctamente. ${data.inputsCreated} inputs importados.` 
+      });
+
+      // Reset file input
+      event.target.value = '';
+      
+    } catch (error) {
+      console.error('Error importing Excel:', error);
+      toast({ 
+        title: "Error", 
+        description: "No se pudo procesar el archivo Excel", 
+        variant: "destructive" 
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const renderInputField = (input: ValoracionInput) => {
     switch (input.tipo_dato) {
       case 'number':
@@ -222,10 +273,34 @@ export const ValoracionInputsTab: React.FC<ValoracionInputsTabProps> = ({ valora
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Inputs de Valoración</h3>
-        <Button onClick={() => setShowAddForm(true)} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Agregar Input
-        </Button>
+        <div className="flex gap-2">
+          <div className="relative">
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleExcelImport}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              disabled={importing}
+            />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={importing}
+              className="flex items-center gap-2"
+            >
+              {importing ? (
+                <Upload className="h-4 w-4 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="h-4 w-4" />
+              )}
+              {importing ? 'Procesando...' : 'Importar Excel'}
+            </Button>
+          </div>
+          <Button onClick={() => setShowAddForm(true)} size="sm">
+            <Plus className="h-4 w-4 mr-2" />
+            Agregar Input
+          </Button>
+        </div>
       </div>
 
       {/* Add/Edit Form */}
