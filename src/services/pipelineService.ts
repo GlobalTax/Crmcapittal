@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { PipelineType } from '@/types/Pipeline';
 
 // Valid pipeline types as defined in the database
-const VALID_PIPELINE_TYPES: PipelineType[] = ['OPERACION', 'PROYECTO', 'LEAD', 'TARGET_COMPANY', 'DEAL'];
+const VALID_PIPELINE_TYPES: PipelineType[] = ['OPERACION', 'PROYECTO', 'LEAD', 'TARGET_COMPANY', 'DEAL', 'MANDATE'];
 
 export const getDefaultPipelineByType = async (type: PipelineType) => {
   try {

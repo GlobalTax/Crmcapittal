@@ -3,7 +3,7 @@ import { Stage, PipelineType } from '@/types/Pipeline';
 import { supabase } from '@/integrations/supabase/client';
 import { getDefaultPipelineByType } from '@/services/pipelineService';
 
-const VALID_PIPELINE_TYPES: PipelineType[] = ['OPERACION', 'PROYECTO', 'LEAD', 'TARGET_COMPANY', 'DEAL'];
+const VALID_PIPELINE_TYPES: PipelineType[] = ['OPERACION', 'PROYECTO', 'LEAD', 'TARGET_COMPANY', 'DEAL', 'MANDATE'];
 
 export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
   const [stages, setStages] = useState<Stage[]>([]);
