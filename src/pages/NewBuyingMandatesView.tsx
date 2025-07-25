@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { MandatesList } from '@/components/mandates/MandatesList';
+import MandatesList from '@/components/mandates/MandatesList';
 import { MandateDetail } from '@/components/mandates/MandateDetail';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 

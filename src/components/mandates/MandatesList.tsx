@@ -20,7 +20,7 @@ interface MandatesListProps {
   isLoading: boolean;
 }
 
-export const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }: MandatesListProps) => {
+const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }: MandatesListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<Record<string, any>>({});
   const { mandateViewPreference, updateMandateViewPreference } = useViewPreferences();
@@ -237,3 +237,5 @@ export const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }
     </div>
   );
 };
+
+export default MandatesList;
