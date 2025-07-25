@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { MandatoKPIHeader } from '@/components/mandates/MandatoKPIHeader';
 import { MandateTargetsTab } from '@/components/mandates/tabs/MandateTargetsTab';
-import { MandatePipelineTab } from '@/components/mandates/tabs/MandatePipelineTab';
+import { MandateTargetsTable } from '@/components/mandates/tabs/MandateTargetsTable';
 import { MandatoDocs } from '@/components/mandates/MandatoDocs';
 import { MandatoActivityLog } from '@/components/mandates/MandatoActivityLog';
 import { MandatoCriteria } from '@/components/mandates/MandatoCriteria';
@@ -56,7 +56,7 @@ export default function MandatoDashboardView() {
       <Tabs defaultValue="targets" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="targets">🎯 Targets</TabsTrigger>
-          <TabsTrigger value="pipeline">📊 Pipeline</TabsTrigger>
+          <TabsTrigger value="table">📋 Tabla</TabsTrigger>
           <TabsTrigger value="docs">📄 Documentos</TabsTrigger>
           <TabsTrigger value="activity">📘 Actividad</TabsTrigger>
           <TabsTrigger value="criteria">🗺️ Criterios</TabsTrigger>
@@ -67,8 +67,8 @@ export default function MandatoDashboardView() {
         <TabsContent value="targets">
           <MandateTargetsTab mandate={mandate} />
         </TabsContent>
-        <TabsContent value="pipeline">
-          <MandatePipelineTab mandate={mandate} />
+        <TabsContent value="table">
+          <MandateTargetsTable mandate={mandate} />
         </TabsContent>
         <TabsContent value="docs">
           <MandatoDocs mandateId={mandate.id} />
