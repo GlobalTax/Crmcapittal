@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, Building2, MapPin, Euro, Phone, Mail, Calendar, FileText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MandateTargetsDialog } from '@/components/mandates/MandateTargetsDialog';
+import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 
 interface MandateTargetsTabProps {
   mandate: BuyingMandate;
@@ -14,6 +16,14 @@ interface MandateTargetsTabProps {
 export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [showTargetsDialog, setShowTargetsDialog] = useState(false);
+  const { targets, fetchTargets, isLoading } = useBuyingMandates();
+
+  useEffect(() => {
+    if (mandate?.id) {
+      fetchTargets(mandate.id);
+    }
+  }, [mandate?.id, fetchTargets]);
 
   // Mock data - in real app this would come from the mandate targets
   const mockTargets = [
@@ -92,20 +102,23 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
     );
   };
 
-  const filteredTargets = mockTargets.filter(target => {
+  // Usar datos reales de targets en lugar de mock data
+  const targetsToUse = targets.length > 0 ? targets : mockTargets;
+
+  const filteredTargets = targetsToUse.filter(target => {
     const matchesSearch = target.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         target.sector.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         target.location.toLowerCase().includes(searchTerm.toLowerCase());
+                         target.sector?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         target.location?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === 'all' || target.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
 
   const statusCounts = {
-    all: mockTargets.length,
-    pending: mockTargets.filter(t => t.status === 'pending').length,
-    contacted: mockTargets.filter(t => t.status === 'contacted').length,
-    interested: mockTargets.filter(t => t.status === 'interested').length,
-    rejected: mockTargets.filter(t => t.status === 'rejected').length
+    all: targetsToUse.length,
+    pending: targetsToUse.filter(t => t.status === 'pending').length,
+    contacted: targetsToUse.filter(t => t.status === 'contacted').length,
+    interested: targetsToUse.filter(t => t.status === 'interested').length,
+    rejected: targetsToUse.filter(t => t.status === 'rejected').length
   };
 
   return (
@@ -118,10 +131,10 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
             Gestiona las empresas objetivo para este mandato de compra
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Añadir Empresa
-        </Button>
+          <Button onClick={() => setShowTargetsDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Añadir Empresa
+          </Button>
       </div>
 
       {/* Search and Filters */}
@@ -259,7 +272,7 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
                   : "Añade empresas objetivo para comenzar el seguimiento"
                 }
               </p>
-              <Button>
+              <Button onClick={() => setShowTargetsDialog(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Añadir Primera Empresa
               </Button>
@@ -267,6 +280,13 @@ export const MandateTargetsTab = ({ mandate }: MandateTargetsTabProps) => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Diálogo de gestión de targets */}
+      <MandateTargetsDialog
+        mandate={mandate}
+        open={showTargetsDialog}
+        onOpenChange={setShowTargetsDialog}
+      />
     </div>
   );
 };
