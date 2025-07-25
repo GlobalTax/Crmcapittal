@@ -114,7 +114,14 @@ export const AppRoutes = () => {
 
           {/* Mandatos (Spanish routes) */}
           <Route path="/mandatos" element={<MandatesPage />} />
-          <Route path="/mandatos/:id" element={<Navigate to="/mandatos/:id/vista-detallada" />} />
+          <Route 
+            path="/mandatos/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <BuyingMandateDetailView />
+              </Suspense>
+            } 
+          />
           <Route path="/mandatos/:id/detalle" element={<Navigate to="/mandatos/:id/vista-detallada" replace />} />
           <Route path="/mandatos/:id/targets" element={<MandatoTargetPanel />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<MandateTargetPipeline />} />

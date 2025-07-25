@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ChevronRight, Users, Building2, FileText, Target, ArrowLeft, Plus } from 'lucide-react';
+import { ChevronRight, Users, Building2, FileText, Target, ArrowLeft, Plus, RefreshCw } from 'lucide-react';
 
 // Import existing components
 import { LeadControlCenter } from '@/components/leads/LeadControlCenter';
@@ -81,6 +81,11 @@ export const HierarchicalCRMView = ({
   useEffect(() => {
     fetchMandates();
   }, [fetchMandates]);
+
+  // Manual refresh function
+  const handleRefreshMandates = () => {
+    fetchMandates();
+  };
 
   // Load targets when mandate is selected
   useEffect(() => {
@@ -339,6 +344,15 @@ export const HierarchicalCRMView = ({
                     </Badge>
                   )}
                 </div>
+                <Button 
+                  variant="outline" 
+                  onClick={handleRefreshMandates}
+                  disabled={mandatesLoading}
+                  className="gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Actualizar
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
