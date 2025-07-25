@@ -7,6 +7,12 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { ArrowLeft, RefreshCw, Calendar, User, MapPin, DollarSign, Target, FileText, Building2 } from 'lucide-react';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { MandateNavigation } from './MandateNavigation';
+import { MandateDetailsSidebar } from './MandateDetailsSidebar';
+import { MandateOverviewTab } from './tabs/MandateOverviewTab';
+import { MandateTargetsTab } from './tabs/MandateTargetsTab';
+import { MandateTasksTab } from './tabs/MandateTasksTab';
+import { MandateDocumentsTab } from './tabs/MandateDocumentsTab';
+import { MandateActivityTab } from './tabs/MandateActivityTab';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
