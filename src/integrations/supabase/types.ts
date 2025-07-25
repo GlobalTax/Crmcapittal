@@ -6443,6 +6443,59 @@ export type Database = {
           },
         ]
       }
+      valoracion_inputs: {
+        Row: {
+          clave: string
+          created_at: string
+          created_by: string | null
+          descripcion: string | null
+          id: string
+          obligatorio: boolean
+          orden_display: number | null
+          tipo_dato: string
+          updated_at: string
+          validacion_reglas: Json | null
+          valor: Json
+          valoracion_id: string
+        }
+        Insert: {
+          clave: string
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          obligatorio?: boolean
+          orden_display?: number | null
+          tipo_dato: string
+          updated_at?: string
+          validacion_reglas?: Json | null
+          valor: Json
+          valoracion_id: string
+        }
+        Update: {
+          clave?: string
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          obligatorio?: boolean
+          orden_display?: number | null
+          tipo_dato?: string
+          updated_at?: string
+          validacion_reglas?: Json | null
+          valor?: Json
+          valoracion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoracion_inputs_valoracion_id_fkey"
+            columns: ["valoracion_id"]
+            isOneToOne: false
+            referencedRelation: "valoraciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       valoracion_security_logs: {
         Row: {
           action: string
@@ -6519,7 +6572,9 @@ export type Database = {
           solicitante_id: number | null
           status: string
           updated_at: string
+          valoracion_eqty: number | null
           valoración_eqty: number | null
+          valoracion_ev: number | null
           valoración_ev: number | null
           valuation_method: string[] | null
           valuation_report_url: string | null
@@ -6556,7 +6611,9 @@ export type Database = {
           solicitante_id?: number | null
           status?: string
           updated_at?: string
+          valoracion_eqty?: number | null
           valoración_eqty?: number | null
+          valoracion_ev?: number | null
           valoración_ev?: number | null
           valuation_method?: string[] | null
           valuation_report_url?: string | null
@@ -6593,7 +6650,9 @@ export type Database = {
           solicitante_id?: number | null
           status?: string
           updated_at?: string
+          valoracion_eqty?: number | null
           valoración_eqty?: number | null
+          valoracion_ev?: number | null
           valoración_ev?: number | null
           valuation_method?: string[] | null
           valuation_report_url?: string | null
