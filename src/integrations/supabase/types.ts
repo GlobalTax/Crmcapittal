@@ -6489,6 +6489,7 @@ export type Database = {
       }
       valoraciones: {
         Row: {
+          analista_id: string | null
           assigned_to: string | null
           client_email: string | null
           client_name: string
@@ -6506,19 +6507,26 @@ export type Database = {
           fee_quoted: number | null
           final_valuation_amount: number | null
           id: string
+          last_activity_at: string | null
+          metodo_preferente: string | null
           notes: string | null
           payment_date: string | null
           payment_notes: string | null
           payment_status: string | null
+          pdf_url: string | null
           priority: string
           requested_date: string
+          solicitante_id: number | null
           status: string
           updated_at: string
+          valoración_eqty: number | null
+          valoración_ev: number | null
           valuation_method: string[] | null
           valuation_report_url: string | null
           valuation_type: string
         }
         Insert: {
+          analista_id?: string | null
           assigned_to?: string | null
           client_email?: string | null
           client_name: string
@@ -6536,19 +6544,26 @@ export type Database = {
           fee_quoted?: number | null
           final_valuation_amount?: number | null
           id?: string
+          last_activity_at?: string | null
+          metodo_preferente?: string | null
           notes?: string | null
           payment_date?: string | null
           payment_notes?: string | null
           payment_status?: string | null
+          pdf_url?: string | null
           priority?: string
           requested_date?: string
+          solicitante_id?: number | null
           status?: string
           updated_at?: string
+          valoración_eqty?: number | null
+          valoración_ev?: number | null
           valuation_method?: string[] | null
           valuation_report_url?: string | null
           valuation_type?: string
         }
         Update: {
+          analista_id?: string | null
           assigned_to?: string | null
           client_email?: string | null
           client_name?: string
@@ -6566,19 +6581,40 @@ export type Database = {
           fee_quoted?: number | null
           final_valuation_amount?: number | null
           id?: string
+          last_activity_at?: string | null
+          metodo_preferente?: string | null
           notes?: string | null
           payment_date?: string | null
           payment_notes?: string | null
           payment_status?: string | null
+          pdf_url?: string | null
           priority?: string
           requested_date?: string
+          solicitante_id?: number | null
           status?: string
           updated_at?: string
+          valoración_eqty?: number | null
+          valoración_ev?: number | null
           valuation_method?: string[] | null
           valuation_report_url?: string | null
           valuation_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "valoraciones_analista_id_fkey"
+            columns: ["analista_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "valoraciones_solicitante_id_fkey"
+            columns: ["solicitante_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["regid"]
+          },
+        ]
       }
     }
     Views: {
