@@ -6587,6 +6587,59 @@ export type Database = {
           },
         ]
       }
+      valoracion_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          title: string
+          updated_at: string
+          valoracion_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          title: string
+          updated_at?: string
+          valoracion_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          title?: string
+          updated_at?: string
+          valoracion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "valoracion_tasks_valoracion_id_fkey"
+            columns: ["valoracion_id"]
+            isOneToOne: false
+            referencedRelation: "valoraciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       valoraciones: {
         Row: {
           analista_id: string | null
