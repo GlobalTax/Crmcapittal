@@ -20,6 +20,7 @@ export interface Valoracion {
   fee_currency?: string;
   payment_date?: string;
   payment_notes?: string;
+  valoracion_ev?: number;
 }
 
 export interface ValoracionDocument {

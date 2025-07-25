@@ -138,7 +138,7 @@ export const ValoracionCard = ({
         </CardHeader>
         
         <CardContent className="pt-0">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <Avatar className="w-6 h-6">
@@ -156,6 +156,17 @@ export const ValoracionCard = ({
               <Calendar className="w-3 h-3" />
               <span>{format(new Date(valoracion.created_at), 'dd MMM', { locale: es })}</span>
             </div>
+          </div>
+          
+          {/* Valor estimado */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Valor Estimado:</span>
+            <span className="text-lg font-bold text-primary">
+              {valoracion.valoracion_ev 
+                ? `€${valoracion.valoracion_ev.toLocaleString('es-ES')}`
+                : '–'
+              }
+            </span>
           </div>
           
           {valoracion.company_description && (

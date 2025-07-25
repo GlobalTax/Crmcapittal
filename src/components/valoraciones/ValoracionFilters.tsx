@@ -17,6 +17,8 @@ interface ValoracionFiltersProps {
   onPaymentStatusFilterChange: (value: string) => void;
   assignedToFilter: string;
   onAssignedToFilterChange: (value: string) => void;
+  priorityFilter: string;
+  onPriorityFilterChange: (value: string) => void;
   dateRangeFilter: { from?: Date; to?: Date };
   onDateRangeFilterChange: (range: { from?: Date; to?: Date }) => void;
   onClearFilters: () => void;
@@ -32,6 +34,8 @@ export const ValoracionFilters: React.FC<ValoracionFiltersProps> = ({
   onPaymentStatusFilterChange,
   assignedToFilter,
   onAssignedToFilterChange,
+  priorityFilter,
+  onPriorityFilterChange,
   dateRangeFilter,
   onDateRangeFilterChange,
   onClearFilters,
@@ -44,7 +48,7 @@ export const ValoracionFilters: React.FC<ValoracionFiltersProps> = ({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por empresa, cliente o descripción..."
+            placeholder="Buscar por empresa, cliente, analista o €EV..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
@@ -63,6 +67,20 @@ export const ValoracionFilters: React.FC<ValoracionFiltersProps> = ({
                 {phase.icon} {phase.label}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+
+        {/* Priority Filter */}
+        <Select value={priorityFilter} onValueChange={onPriorityFilterChange}>
+          <SelectTrigger className="w-full sm:w-48">
+            <SelectValue placeholder="Prioridad" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas las prioridades</SelectItem>
+            <SelectItem value="urgent">🔴 Urgente</SelectItem>
+            <SelectItem value="high">🟠 Alta</SelectItem>
+            <SelectItem value="medium">🟡 Media</SelectItem>
+            <SelectItem value="low">🟢 Baja</SelectItem>
           </SelectContent>
         </Select>
 
@@ -108,6 +126,16 @@ export const ValoracionFilters: React.FC<ValoracionFiltersProps> = ({
               <X 
                 className="h-3 w-3 cursor-pointer" 
                 onClick={() => onStatusFilterChange('all')}
+              />
+            </Badge>
+          )}
+          
+          {priorityFilter !== 'all' && (
+            <Badge variant="secondary" className="gap-1">
+              Prioridad: {priorityFilter}
+              <X 
+                className="h-3 w-3 cursor-pointer" 
+                onClick={() => onPriorityFilterChange('all')}
               />
             </Badge>
           )}

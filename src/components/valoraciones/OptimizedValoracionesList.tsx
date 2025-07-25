@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { ValoracionesSearchBar } from './ValoracionesSearchBar';
+import { ValoracionFilters } from './ValoracionFilters';
 import { ValoracionesExportButtons } from './ValoracionesExportButtons';
 import { ValoracionCard } from './ValoracionCard';
 import { ValoracionesPagination } from './ValoracionesPagination';
@@ -156,38 +157,36 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
   return (
     <div className="space-y-6">
         {/* Controles de búsqueda y filtros */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex-1 max-w-md">
-            {SearchComponent}
-          </div>
+        <ValoracionFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          statusFilter={filters.status || 'all'}
+          onStatusFilterChange={(value) => updateFilter('status', value)}
+          priorityFilter={filters.priority || 'all'}
+          onPriorityFilterChange={(value) => updateFilter('priority', value)}
+          paymentStatusFilter={filters.payment_status || 'all'}
+          onPaymentStatusFilterChange={(value) => updateFilter('payment_status', value)}
+          assignedToFilter={filters.assigned_to || ''}
+          onAssignedToFilterChange={(value) => updateFilter('assigned_to', value)}
+          dateRangeFilter={{ from: undefined, to: undefined }}
+          onDateRangeFilterChange={() => {}}
+          onClearFilters={clearFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refetch}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
+          </Button>
           
-          <div className="flex items-center gap-3">
-            <Select value={filters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Filtrar por estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="requested">Solicitado</SelectItem>
-                <SelectItem value="in_process">En proceso</SelectItem>
-                <SelectItem value="completed">Completado</SelectItem>
-                <SelectItem value="delivered">Entregado</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refetch}
-              disabled={loading}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Actualizar
-            </Button>
-            
-            {ExportButtons}
-          </div>
+          {ExportButtons}
         </div>
 
         {/* Estadísticas */}
