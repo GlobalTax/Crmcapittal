@@ -8,6 +8,10 @@ import { BuyingMandate } from '@/types/BuyingMandate';
 import { MandateCard } from './MandateCard';
 import { MandateFilters } from './MandateFilters';
 import { CreateMandateDialog } from './CreateMandateDialog';
+import { PipelineViewToggle } from './PipelineViewToggle';
+import { MandateKanban } from './MandateKanban';
+import { useViewPreferences } from '@/hooks/useViewPreferences';
+import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 
 interface MandatesListProps {
   mandates: BuyingMandate[];
@@ -19,6 +23,8 @@ interface MandatesListProps {
 export const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }: MandatesListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<Record<string, any>>({});
+  const { mandateViewPreference, updateMandateViewPreference } = useViewPreferences();
+  const { updateMandateStatus } = useBuyingMandates();
 
   // Filter mandates based on search and filters
   const filteredMandates = mandates.filter(mandate => {
@@ -39,6 +45,20 @@ export const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }
 
   const handleMandateCreated = () => {
     onRefresh();
+  };
+
+  const handleStatusUpdate = async (mandateId: string, status: BuyingMandate['status']) => {
+    return await updateMandateStatus(mandateId, status);
+  };
+
+  const handleMandateEdit = (mandate: BuyingMandate) => {
+    // Navigate to mandate detail for editing
+    onMandateSelect(mandate.id);
+  };
+
+  const handleMandateView = (mandate: BuyingMandate) => {
+    // Navigate to mandate detail
+    onMandateSelect(mandate.id);
   };
 
   return (
@@ -138,7 +158,7 @@ export const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }
         </Card>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search, Filters and View Toggle */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -149,23 +169,40 @@ export const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }
             className="pl-10"
           />
         </div>
-        <MandateFilters 
-          filters={selectedFilters}
-          onFiltersChange={setSelectedFilters}
-          mandates={mandates}
-        />
+        <div className="flex items-center gap-4">
+          <MandateFilters 
+            filters={selectedFilters}
+            onFiltersChange={setSelectedFilters}
+            mandates={mandates}
+          />
+          <PipelineViewToggle
+            currentView={mandateViewPreference}
+            onViewChange={updateMandateViewPreference}
+          />
+        </div>
       </div>
 
-      {/* Mandates Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredMandates.map((mandate) => (
-          <MandateCard 
-            key={mandate.id}
-            mandate={mandate}
-            onSelect={() => onMandateSelect(mandate.id)}
-          />
-        ))}
-      </div>
+      {/* Conditional View: Grid or Pipeline */}
+      {mandateViewPreference === 'table' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredMandates.map((mandate) => (
+            <MandateCard 
+              key={mandate.id}
+              mandate={mandate}
+              onSelect={() => onMandateSelect(mandate.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <MandateKanban
+          mandates={filteredMandates}
+          onUpdateStatus={handleStatusUpdate}
+          onEdit={handleMandateEdit}
+          onView={handleMandateView}
+          isLoading={isLoading}
+          onRefresh={onRefresh}
+        />
+      )}
 
       {/* Empty state */}
       {filteredMandates.length === 0 && (

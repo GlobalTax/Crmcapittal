@@ -1,38 +1,45 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { BuyingMandate } from '@/types/BuyingMandate';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { 
   Building2, 
-  Calendar, 
   User, 
-  Eye, 
+  Calendar, 
+  MapPin, 
+  Euro, 
+  MoreVertical,
+  Eye,
   Edit,
-  Target,
-  Euro
+  Target
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface MandateKanbanCardProps {
   mandate: BuyingMandate;
   onEdit: (mandate: BuyingMandate) => void;
   onView?: (mandate: BuyingMandate) => void;
-  isLoading?: boolean;
   isSelected?: boolean;
-  onSelect?: (id: string) => void;
+  onSelectItem?: (id: string) => void;
 }
 
-export const MandateKanbanCard: React.FC<MandateKanbanCardProps> = ({
-  mandate,
-  onEdit,
+const MandateKanbanCard = memo(({ 
+  mandate, 
+  onEdit, 
   onView,
-  isLoading = false,
   isSelected = false,
-  onSelect
-}) => {
+  onSelectItem
+}: MandateKanbanCardProps) => {
   const {
     attributes,
     listeners,
@@ -40,139 +47,204 @@ export const MandateKanbanCard: React.FC<MandateKanbanCardProps> = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({
-    id: mandate.id,
-  });
+  } = useSortable({ id: mandate.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onSelect) {
-      onSelect(mandate.id);
+  const getMandateTypeColor = (type: string) => {
+    switch (type) {
+      case 'compra': return 'bg-blue-100 text-blue-800';
+      case 'venta': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const handleEdit = (e: React.MouseEvent) => {
+  const getMandateTypeText = (type: string) => {
+    switch (type) {
+      case 'compra': return 'Compra';
+      case 'venta': return 'Venta';
+      default: return type;
+    }
+  };
+
+  const formatCurrency = (value: number | undefined) => {
+    if (!value) return 'N/A';
+    return new Intl.NumberFormat('es-ES', { 
+      style: 'currency', 
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+      notation: value > 999999 ? 'compact' : 'standard'
+    }).format(value);
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (onSelectItem) {
+      onSelectItem(mandate.id);
+    } else if (onView) {
+      onView(mandate);
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     onEdit(mandate);
   };
 
-  const handleView = (e: React.MouseEvent) => {
+  const handleViewClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     if (onView) {
       onView(mandate);
     }
   };
 
-  const getMandateTypeColor = (type: string) => {
-    switch (type) {
-      case 'compra':
-        return 'bg-blue-100 text-blue-800';
-      case 'venta':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
-    <div
+    <Card
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      onClick={handleCardClick}
       className={`
-        bg-white rounded-lg p-4 shadow-sm border cursor-pointer transition-all
-        hover:shadow-md hover:border-gray-300
-        ${isDragging ? 'opacity-50 shadow-lg' : ''}
-        ${isSelected ? 'ring-2 ring-blue-500 border-blue-300' : 'border-gray-200'}
-        ${isLoading ? 'pointer-events-none' : ''}
+        group cursor-grab active:cursor-grabbing transition-all duration-200 hover:shadow-md
+        ${isDragging ? 'opacity-50 scale-105 shadow-lg' : ''}
+        ${isSelected ? 'ring-2 ring-primary ring-opacity-50' : ''}
+        bg-card border-border hover:border-primary/20
       `}
+      onClick={handleCardClick}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0">
-          <h4 className="font-medium text-gray-900 truncate">
-            {mandate.mandate_name}
-          </h4>
-          <p className="text-sm text-gray-600 mt-1">
-            {mandate.client_name}
-          </p>
-        </div>
-        
-        <Badge className={`ml-2 ${getMandateTypeColor(mandate.mandate_type)}`}>
-          {mandate.mandate_type}
-        </Badge>
-      </div>
-
-      {/* Content */}
-      <div className="space-y-2 mb-3">
-        {/* Assigned User */}
-        {mandate.assigned_user_name && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <User className="h-3 w-3" />
-            <span className="truncate">{mandate.assigned_user_name}</span>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            {/* Mandate Avatar */}
+            <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+              <Building2 className="h-5 w-5 text-primary" />
+            </div>
+            
+            {/* Mandate Info */}
+            <div className="flex-1 min-w-0">
+              <h4 className="font-semibold text-sm text-foreground truncate">
+                {mandate.mandate_name}
+              </h4>
+              <p className="text-xs text-muted-foreground truncate">
+                {mandate.client_name}
+              </p>
+            </div>
           </div>
-        )}
+          
+          {/* Actions Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {onView && (
+                <DropdownMenuItem onClick={handleViewClick}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver detalles
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onClick={handleEditClick}>
+                <Edit className="h-4 w-4 mr-2" />
+                Editar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+
+      <CardContent className="pt-0 space-y-3">
+        {/* Mandate Type */}
+        <div className="flex items-center gap-2">
+          <Badge className={`text-xs ${getMandateTypeColor(mandate.mandate_type)}`}>
+            {getMandateTypeText(mandate.mandate_type)}
+          </Badge>
+        </div>
 
         {/* Target Sectors */}
         {mandate.target_sectors && mandate.target_sectors.length > 0 && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Target className="h-3 w-3" />
-            <span className="truncate">
-              {mandate.target_sectors.slice(0, 2).join(', ')}
-              {mandate.target_sectors.length > 2 && ` +${mandate.target_sectors.length - 2}`}
-            </span>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Target className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Sectores:</span>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {mandate.target_sectors.slice(0, 2).map((sector, idx) => (
+                <Badge key={idx} variant="outline" className="text-xs">
+                  {sector}
+                </Badge>
+              ))}
+              {mandate.target_sectors.length > 2 && (
+                <Badge variant="outline" className="text-xs">
+                  +{mandate.target_sectors.length - 2}
+                </Badge>
+              )}
+            </div>
           </div>
         )}
 
         {/* Revenue Range */}
         {(mandate.min_revenue || mandate.max_revenue) && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Euro className="h-3 w-3" />
-            <span className="truncate">
-              {mandate.min_revenue ? `${(mandate.min_revenue / 1000000).toFixed(1)}M` : '0'}
-              {' - '}
-              {mandate.max_revenue ? `${(mandate.max_revenue / 1000000).toFixed(1)}M` : '∞'}
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Euro className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Facturación:</span>
+            </div>
+            <div className="text-xs font-medium">
+              {formatCurrency(mandate.min_revenue)} - {formatCurrency(mandate.max_revenue)}
+            </div>
+          </div>
+        )}
+
+        {/* Target Locations */}
+        {mandate.target_locations && mandate.target_locations.length > 0 && (
+          <div className="flex items-center gap-2">
+            <MapPin className="h-3 w-3 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground truncate">
+              {mandate.target_locations.slice(0, 2).join(', ')}
+              {mandate.target_locations.length > 2 && ` +${mandate.target_locations.length - 2}`}
             </span>
           </div>
         )}
 
-        {/* Created Date */}
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Calendar className="h-3 w-3" />
-          <span>{format(new Date(mandate.created_at), 'dd MMM yyyy', { locale: es })}</span>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center justify-end gap-1 pt-2 border-t border-gray-100">
-        {onView && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleView}
-            className="h-8 px-2"
-            title="Ver detalles"
-          >
-            <Eye className="h-3 w-3" />
-          </Button>
+        {/* Assigned User */}
+        {mandate.assigned_user_name && (
+          <div className="flex items-center gap-2">
+            <User className="h-3 w-3 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground truncate">
+              {mandate.assigned_user_name}
+            </span>
+          </div>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleEdit}
-          className="h-8 px-2"
-          title="Editar mandato"
-        >
-          <Edit className="h-3 w-3" />
-        </Button>
-      </div>
-    </div>
+
+        {/* Creation Date */}
+        <div className="flex items-center gap-2 pt-2 border-t border-border">
+          <Calendar className="h-3 w-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">
+            {formatDistanceToNow(new Date(mandate.created_at), { 
+              addSuffix: true, 
+              locale: es 
+            })}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
+});
+
+MandateKanbanCard.displayName = 'MandateKanbanCard';
+
+export { MandateKanbanCard };

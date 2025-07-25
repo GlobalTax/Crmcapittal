@@ -1,103 +1,148 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { MandateKanbanCard } from './MandateKanbanCard';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Target } from 'lucide-react';
 
 interface MandateKanbanColumnProps {
   stage: {
     id: string;
     name: string;
     color: string;
+    description?: string;
   };
   mandates: BuyingMandate[];
   onEdit: (mandate: BuyingMandate) => void;
   onView?: (mandate: BuyingMandate) => void;
-  onAddMandate?: (stageId: string) => void;
+  onAddMandate?: (status: BuyingMandate['status']) => void;
   isLoading?: boolean;
   selectedIds?: string[];
   onSelectItem?: (id: string) => void;
 }
 
-export const MandateKanbanColumn: React.FC<MandateKanbanColumnProps> = ({
-  stage,
-  mandates,
-  onEdit,
-  onView,
+const MandateKanbanColumn = memo(({ 
+  stage, 
+  mandates, 
+  onEdit, 
+  onView, 
   onAddMandate,
   isLoading = false,
   selectedIds = [],
   onSelectItem
-}) => {
+}: MandateKanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
   });
 
   return (
-    <div 
-      ref={setNodeRef}
-      className={`flex flex-col w-80 min-w-80 bg-gray-50 rounded-lg p-4 transition-colors ${
-        isOver ? 'bg-blue-50 border-2 border-blue-300' : 'border border-gray-200'
-      }`}
-    >
+    <div className="min-w-[360px] flex-shrink-0">
       {/* Column Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div 
-            className="w-3 h-3 rounded-full" 
-            style={{ backgroundColor: stage.color }}
-          />
-          <h3 className="font-medium text-gray-900">{stage.name}</h3>
-          <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
-            {mandates.length}
-          </span>
+      <div className="mb-6 px-1">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-3 h-3 rounded-full shadow-sm"
+              style={{ backgroundColor: stage.color }}
+            />
+            <div>
+              <h3 className="text-base font-semibold text-foreground">
+                {stage.name}
+              </h3>
+              {stage.description && (
+                <p className="text-xs text-muted-foreground">
+                  {stage.description}
+                </p>
+              )}
+            </div>
+            <div className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+              {mandates.length}
+            </div>
+          </div>
+          
+          {onAddMandate && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onAddMandate(stage.id as BuyingMandate['status'])}
+              className="h-7 w-7 p-0 opacity-60 hover:opacity-100 transition-opacity"
+              aria-label={`Añadir mandato en ${stage.name}`}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
-        
-        {onAddMandate && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onAddMandate(stage.id)}
-            className="h-8 w-8 p-0"
-            title="Añadir mandato"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        )}
       </div>
 
-      {/* Cards Container */}
-      <div className="flex-1 space-y-3 overflow-y-auto max-h-[600px]">
-        {mandates.map((mandate) => (
+      {/* Droppable Area */}
+      <div
+        ref={setNodeRef}
+        className={`
+          min-h-[500px] space-y-4 p-3 rounded-xl transition-all duration-300 bg-muted/30
+          ${isOver 
+            ? 'bg-primary/10 border-2 border-dashed border-primary/50 scale-[1.01] shadow-lg' 
+            : 'border border-transparent'
+          }
+          ${isLoading ? 'opacity-50' : ''}
+        `}
+      >
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
+        )}
+
+        {/* Cards */}
+        {!isLoading && mandates.map((mandate, index) => (
           <MandateKanbanCard
             key={mandate.id}
             mandate={mandate}
             onEdit={onEdit}
             onView={onView}
-            isLoading={isLoading}
             isSelected={selectedIds.includes(mandate.id)}
-            onSelect={onSelectItem}
+            onSelectItem={onSelectItem}
           />
         ))}
-        
-        {mandates.length === 0 && (
-          <div className="text-center text-gray-400 py-8">
-            <p className="text-sm">No hay mandatos</p>
+
+        {/* Empty State */}
+        {!isLoading && mandates.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+              <Target className="h-6 w-6 text-primary" />
+            </div>
+            <p className="text-sm font-medium text-foreground mb-1">
+              Sin mandatos
+            </p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Añade tu primer mandato en esta etapa
+            </p>
             {onAddMandate && (
               <Button
-                variant="ghost"
                 size="sm"
-                onClick={() => onAddMandate(stage.id)}
-                className="mt-2 text-xs"
+                onClick={() => onAddMandate(stage.id as BuyingMandate['status'])}
+                className="gap-2 font-medium"
               >
-                <Plus className="h-3 w-3 mr-1" />
-                Añadir primero
+                <Plus className="h-4 w-4" />
+                Nuevo mandato
               </Button>
             )}
+          </div>
+        )}
+
+        {/* Drop Indicator */}
+        {isOver && (
+          <div className="border-2 border-dashed border-primary/60 rounded-xl p-6 bg-primary/10 text-center backdrop-blur-sm">
+            <p className="text-sm text-primary font-semibold">
+              Soltar aquí para mover a {stage.name}
+            </p>
           </div>
         )}
       </div>
     </div>
   );
-};
+});
+
+MandateKanbanColumn.displayName = 'MandateKanbanColumn';
+
+export { MandateKanbanColumn };
