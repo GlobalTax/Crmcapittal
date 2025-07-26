@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
@@ -31,13 +30,16 @@ const validateWithBackend = async (action: string, data: any, valoracionId?: str
 };
 
 export function useValoraciones() {
-  const [valoraciones, setValoraciones] = useState<Valoracion[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchValoraciones = async () => {
-    try {
-      setLoading(true);
+  const {
+    data: valoraciones = [],
+    isLoading: loading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['valoraciones_v3'], // Force cache refresh
+    queryFn: async () => {
       console.log('🔍 Fetching valoraciones with correct query...');
       
       const { data, error } = await supabase
@@ -51,20 +53,14 @@ export function useValoraciones() {
       }
       
       console.log('✅ Successfully fetched valoraciones:', data?.length || 0);
-      setValoraciones(data || []);
-    } catch (err) {
-      console.error('❌ Error in fetchValoraciones:', err);
-      setError(err as Error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data as Valoracion[];
+    },
+    retry: 3,
+    retryDelay: 1000,
+  });
 
-  const createValoracion = async (valoracionData: CreateValoracionData) => {
-    try {
-      setLoading(true);
-      setError(null);
-
+  const createMutation = useMutation({
+    mutationFn: async (valoracionData: CreateValoracionData) => {
       // Sanitizar datos de entrada
       const sanitizedData = {
         ...valoracionData,
@@ -93,24 +89,21 @@ export function useValoraciones() {
         throw error;
       }
 
-      setValoraciones(prev => [data, ...prev]);
-      toast.success('Valoración creada exitosamente');
       return data;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al crear valoración';
-      setError(err as Error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['valoraciones_v3'] });
+      toast.success('Valoración creada exitosamente');
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Error al crear valoración';
+      console.error('Error creating valoracion:', error);
       toast.error(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
-  const updateValoracion = async (id: string, updates: Partial<CreateValoracionData>) => {
-    try {
-      setLoading(true);
-      setError(null);
-
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<CreateValoracionData> }) => {
       // Sanitizar datos de actualización
       const sanitizedUpdates = { ...updates };
       if (updates.company_name) {
@@ -152,26 +145,21 @@ export function useValoraciones() {
         throw error;
       }
 
-      setValoraciones(prev => 
-        prev.map(v => v.id === id ? { ...v, ...data } : v)
-      );
-      toast.success('Valoración actualizada exitosamente');
       return data;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al actualizar valoración';
-      setError(err as Error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['valoraciones_v3'] });
+      toast.success('Valoración actualizada exitosamente');
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Error al actualizar valoración';
+      console.error('Error updating valoracion:', error);
       toast.error(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
-  const deleteValoracion = async (id: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
       // Validar con backend antes de eliminar
       await validateWithBackend('delete', {}, id);
 
@@ -187,29 +175,30 @@ export function useValoraciones() {
         throw error;
       }
 
-      setValoraciones(prev => prev.filter(v => v.id !== id));
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['valoraciones_v3'] });
       toast.success('Valoración eliminada exitosamente');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al eliminar valoración';
-      setError(err as Error);
+    },
+    onError: (error) => {
+      const message = error instanceof Error ? error.message : 'Error al eliminar valoración';
+      console.error('Error deleting valoracion:', error);
       toast.error(message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchValoraciones();
-  }, []);
+    },
+  });
 
   return {
     valoraciones,
     loading,
     error,
-    createValoracion,
-    updateValoracion,
-    deleteValoracion,
-    refetch: fetchValoraciones
+    createValoracion: createMutation.mutate,
+    updateValoracion: (id: string, updates: Partial<CreateValoracionData>) => 
+      updateMutation.mutate({ id, updates }),
+    deleteValoracion: deleteMutation.mutate,
+    refetch,
+    isCreating: createMutation.isPending,
+    isUpdating: updateMutation.isPending,
+    isDeleting: deleteMutation.isPending,
   };
 }

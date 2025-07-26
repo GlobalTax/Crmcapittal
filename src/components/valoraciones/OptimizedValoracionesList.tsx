@@ -178,7 +178,7 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
           <Button
             variant="outline"
             size="sm"
-            onClick={refetch}
+            onClick={() => refetch()}
             disabled={loading}
             className="flex items-center gap-2"
           >

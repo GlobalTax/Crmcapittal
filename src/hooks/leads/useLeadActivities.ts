@@ -11,7 +11,7 @@ export function useLeadActivities(leadId: string) {
 
   // Fetch lead activities
   const activitiesQuery = useQuery({
-    queryKey: ['lead-activities', leadId],
+    queryKey: ['lead_activities_v3', leadId], // Force cache refresh
     queryFn: async () => {
       if (!leadId) return [];
       
@@ -56,7 +56,7 @@ export function useLeadActivities(leadId: string) {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lead-activities', leadId] });
+      queryClient.invalidateQueries({ queryKey: ['lead_activities_v3', leadId] });
       toast.success('Actividad añadida exitosamente');
     },
     onError: (error) => {
