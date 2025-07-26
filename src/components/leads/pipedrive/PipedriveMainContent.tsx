@@ -365,9 +365,9 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                           <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                             {getActivityIcon(activity.activity_type)}
                             <div className="flex-1">
-                              <div className="font-medium">{activity.title}</div>
+                              <div className="font-medium">{activity.activity_type.replace('_', ' ')}</div>
                               <div className="text-sm text-muted-foreground">
-                                {format(new Date(activity.activity_date), 'dd MMM yyyy, HH:mm', { locale: es })}
+                                {format(new Date(activity.created_at), 'dd MMM yyyy, HH:mm', { locale: es })}
                               </div>
                             </div>
                           </div>
@@ -408,24 +408,17 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                               {getActivityIcon(activity.activity_type)}
                             </div>
                             <div className="flex-1">
-                              <div className="font-semibold mb-1">{activity.title}</div>
-                              {activity.description && (
+                              <div className="font-semibold mb-1">{activity.activity_type.replace('_', ' ')}</div>
+                              {activity.activity_data && (
                                 <div className="text-sm text-muted-foreground mb-2">
-                                  {activity.description}
+                                  {JSON.stringify(activity.activity_data)}
                                 </div>
                               )}
                               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                 <span>
-                                  {format(new Date(activity.activity_date), 'dd MMM yyyy, HH:mm', { locale: es })}
+                                  {format(new Date(activity.created_at), 'dd MMM yyyy, HH:mm', { locale: es })}
                                 </span>
-                                {activity.duration_minutes && (
-                                  <span>{activity.duration_minutes} min</span>
-                                )}
-                                {activity.outcome && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {activity.outcome}
-                                  </Badge>
-                                )}
+                                <span>Puntos: {activity.points_awarded}</span>
                               </div>
                             </div>
                           </div>

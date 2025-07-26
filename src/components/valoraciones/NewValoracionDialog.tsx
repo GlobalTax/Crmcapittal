@@ -106,7 +106,7 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
         company_name: formData.company?.name || '',
         client_name: formData.client_name,
         priority: formData.priority,
-        valoracion_method: formData.valuation_method,
+        valuation_method: formData.valuation_method ? [formData.valuation_method] : null,
         assigned_to: formData.assigned_analyst,
         company_description: formData.description,
       };
