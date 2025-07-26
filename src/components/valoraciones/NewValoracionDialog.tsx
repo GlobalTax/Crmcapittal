@@ -103,6 +103,8 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
     
     try {
       const valoracionData = {
+        company_id: formData.company?.id || null,
+        contact_id: formData.client?.id || null,
         company_name: formData.company?.name || '',
         client_name: formData.client_name,
         priority: formData.priority,
