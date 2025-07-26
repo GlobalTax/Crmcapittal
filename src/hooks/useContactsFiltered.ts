@@ -25,9 +25,9 @@ export const useContactsFiltered = (options: UseContactsFilteredOptions = {}) =>
         query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,position.ilike.%${search}%`);
       }
 
-      // Apply company filter
+      // Apply company filter - allow both company contacts and leads
       if (companyId) {
-        query = query.eq('company_id', companyId);
+        query = query.or(`company_id.eq.${companyId},and(company_id.is.null,lifecycle_stage.eq.marketing_qualified_lead),and(company_id.is.null,lifecycle_stage.eq.sales_qualified_lead),contact_type.eq.lead`);
       }
 
       // Apply limit
