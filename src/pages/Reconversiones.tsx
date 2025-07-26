@@ -12,12 +12,13 @@ import { NewReconversionDialog } from '@/components/reconversiones/NewReconversi
 import { ReconversionDetailDrawer } from '@/components/reconversiones/ReconversionDetailDrawer';
 import { ReconversionFilters } from '@/components/reconversiones/ReconversionFilters';
 import { Toggle } from '@/components/ui/toggle';
+import { ReconversionKanbanView } from '@/components/reconversiones/ReconversionKanbanView';
 import type { Database } from '@/integrations/supabase/types';
 
 export default function Reconversiones() {
   const { reconversiones, loading, error, createReconversion, updateReconversion, deleteReconversion } = useReconversions();
   const { isAdmin } = useReconversionSecurity();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'kanban'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedReconversion, setSelectedReconversion] = useState<any>(null);
   const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
@@ -119,6 +120,14 @@ export default function Reconversiones() {
               size="sm"
             >
               <List className="h-4 w-4" />
+            </Toggle>
+            <Toggle
+              pressed={viewMode === 'kanban'}
+              onPressedChange={() => setViewMode('kanban')}
+              variant="outline"
+              size="sm"
+            >
+              <RefreshCw className="h-4 w-4" />
             </Toggle>
           </div>
 
@@ -250,13 +259,26 @@ export default function Reconversiones() {
                    )}
                 </CardContent>
               </Card>
+            ) : viewMode === 'kanban' ? (
+              <ReconversionKanbanView
+                reconversiones={filteredReconversiones as any}
+                onView={handleViewReconversion}
+                onEdit={handleEditReconversion}
+                onUpdateStatus={async (reconversionId: string, status: string) => {
+                  try {
+                    await updateReconversion(reconversionId, { status });
+                  } catch (error) {
+                    throw error;
+                  }
+                }}
+              />
             ) : (
               <ReconversionList
                 reconversiones={filteredReconversiones as any}
                 onView={handleViewReconversion}
                 onEdit={handleEditReconversion}
                 onDelete={(reconversion) => console.log('Eliminar:', reconversion.id)}
-                viewMode={viewMode}
+                viewMode={viewMode as 'grid' | 'list'}
               />
             )}
           </div>
