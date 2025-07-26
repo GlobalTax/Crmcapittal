@@ -7228,6 +7228,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      test_auth_uid: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       update_lead_score: {
         Args: { p_lead_id: string; p_points_to_add: number }
         Returns: undefined

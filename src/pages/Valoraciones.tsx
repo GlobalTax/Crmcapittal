@@ -9,6 +9,7 @@ import { NewValoracionDialog } from '@/components/valoraciones/NewValoracionDial
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { useValoraciones } from '@/hooks/useValoraciones';
+import { AuthDebugPanel } from '@/components/debug/AuthDebugPanel';
 import type { Valoracion, ValoracionStatus } from '@/types/Valoracion';
 type ViewMode = 'list' | 'kanban';
 
@@ -93,6 +94,9 @@ export default function Valoraciones() {
 
       {/* Floating Action Button */}
       <FloatingActionButton onSuccess={handleNewValoracionSuccess} />
+      
+      {/* Auth Debug Panel - solo para desarrollo */}
+      {import.meta.env.DEV && <AuthDebugPanel />}
     </div>
   );
 }

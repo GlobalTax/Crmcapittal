@@ -8,10 +8,7 @@ export const AuthDebugPanel: React.FC = () => {
 
   const testAuthUID = async () => {
     try {
-      const { data, error } = await supabase.rpc('test_auth_uid');
-      console.log('🔍 Testing auth.uid():', { data, error });
-      
-      // También probar una consulta directa
+      // En lugar de usar rpc, hacemos una consulta directa para ver si el auth funciona
       const { data: testQuery, error: testError } = await supabase
         .from('companies')
         .select('count')
@@ -19,7 +16,15 @@ export const AuthDebugPanel: React.FC = () => {
       
       console.log('🔍 Test companies query:', { testQuery, testError });
       
-      return { data, error, testQuery, testError };
+      // También probamos la función RPC si existe
+      try {
+        const { data, error } = await supabase.rpc('test_auth_uid');
+        console.log('🔍 Testing auth.uid():', { data, error });
+        return { data, error, testQuery, testError };
+      } catch (rpcError) {
+        console.log('🔍 RPC function not available, only testing direct query');
+        return { testQuery, testError };
+      }
     } catch (error) {
       console.error('🔍 Error testing auth:', error);
       return { error };
