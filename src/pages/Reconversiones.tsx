@@ -10,7 +10,7 @@ import { useReconversionFilters } from '@/hooks/useReconversionFilters';
 import { ReconversionList } from '@/components/reconversiones/ReconversionList';
 import { NewReconversionDialog } from '@/components/reconversiones/NewReconversionDialog';
 import { ReconversionDetailDrawer } from '@/components/reconversiones/ReconversionDetailDrawer';
-import { ReconversionFilters } from '@/components/reconversiones/ReconversionFilters';
+import { AdvancedReconversionFilters } from '@/components/reconversiones/AdvancedReconversionFilters';
 import { Toggle } from '@/components/ui/toggle';
 import { ReconversionKanbanView } from '@/components/reconversiones/ReconversionKanbanView';
 import type { Database } from '@/integrations/supabase/types';
@@ -157,7 +157,7 @@ export default function Reconversiones() {
             <CardTitle className="text-lg">Filtros de búsqueda</CardTitle>
           </CardHeader>
           <CardContent>
-            <ReconversionFilters
+            <AdvancedReconversionFilters
               filters={filters}
               onFiltersChange={updateFilters}
               onClearFilters={clearFilters}
