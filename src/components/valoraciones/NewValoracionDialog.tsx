@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useValoraciones } from '@/hooks/useValoraciones';
+import { AutocompletedCompanySelector } from '@/components/valoraciones/AutocompletedCompanySelector';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Loader2, ChevronLeft, ChevronRight, Building, User, Settings, Check } from 'lucide-react';
 import { ValoracionPriority } from '@/types/Valoracion';
@@ -177,12 +178,10 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
       
       <div className="space-y-2">
         <Label htmlFor="company_name">Nombre de la empresa *</Label>
-        <Input
-          id="company_name"
+        <AutocompletedCompanySelector
           value={formData.company_name}
-          onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
-          placeholder="Nombre de la empresa"
-          required
+          onValueChange={(value) => setFormData(prev => ({ ...prev, company_name: value }))}
+          placeholder="Buscar y seleccionar empresa..."
         />
       </div>
     </div>
