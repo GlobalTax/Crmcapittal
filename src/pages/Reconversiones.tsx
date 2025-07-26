@@ -276,9 +276,9 @@ export default function Reconversiones() {
               <ReconversionList
                 reconversiones={filteredReconversiones as any}
                 onView={handleViewReconversion}
-                onEdit={handleEditReconversion}
-                onDelete={(reconversion) => console.log('Eliminar:', reconversion.id)}
-                viewMode={viewMode as 'grid' | 'list'}
+                hasFilters={hasActiveFilters}
+                onClearFilters={clearFilters}
+                onCreateNew={() => console.log('Create new')}
               />
             )}
           </div>
