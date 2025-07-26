@@ -5,16 +5,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AppRoutes } from '@/AppRoutes';
-import { enableQueryDebugging } from '@/utils/queryDebugger';
-
-// Enable query debugging to catch problematic queries
-enableQueryDebugging();
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0, // NEVER use stale data during debugging
-      gcTime: 0, // Don't cache anything during debugging
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
       retry: 1,
     },
   },

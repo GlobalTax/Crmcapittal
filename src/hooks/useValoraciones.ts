@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import type { Valoracion } from '@/types/Valoracion';
 import type { Database } from '@/integrations/supabase/types';
 
-type Valoracion = Database['public']['Tables']['valoraciones']['Row'];
 type CreateValoracionData = Database['public']['Tables']['valoraciones']['Insert'];
 
 // Función para sanitizar inputs
@@ -38,28 +38,26 @@ export function useValoraciones() {
     error,
     refetch
   } = useQuery({
-    queryKey: [`valoraciones_cache_bust_${Date.now()}`], // EXTREME cache busting
+    queryKey: ['valoraciones'],
     queryFn: async () => {
-      console.log('🔥 EXTREME CACHE BUST - Fetching valoraciones with timestamp:', Date.now());
-      
       const { data, error } = await supabase
         .from('valoraciones')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ CACHE BUST - Error fetching valoraciones:', error);
-        console.error('❌ CACHE BUST - Error details:', JSON.stringify(error, null, 2));
         throw error;
       }
       
-      console.log('✅ CACHE BUST - Successfully fetched valoraciones:', data?.length || 0);
-      return data as Valoracion[];
+      return data.map(item => ({
+        ...item,
+        status: item.status as Valoracion['status'],
+        priority: item.priority as Valoracion['priority'],
+        payment_status: item.payment_status as Valoracion['payment_status']
+      })) as Valoracion[];
     },
     retry: 1,
-    retryDelay: 500,
-    staleTime: 0, // Never use stale data
-    gcTime: 0, // Don't cache at all
+    retryDelay: 500
   });
 
   const createMutation = useMutation({
@@ -95,7 +93,7 @@ export function useValoraciones() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['valoraciones_v3'] });
+      queryClient.invalidateQueries({ queryKey: ['valoraciones'] });
       toast.success('Valoración creada exitosamente');
     },
     onError: (error) => {
@@ -151,7 +149,7 @@ export function useValoraciones() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['valoraciones_v3'] });
+      queryClient.invalidateQueries({ queryKey: ['valoraciones'] });
       toast.success('Valoración actualizada exitosamente');
     },
     onError: (error) => {
@@ -181,7 +179,7 @@ export function useValoraciones() {
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['valoraciones_v3'] });
+      queryClient.invalidateQueries({ queryKey: ['valoraciones'] });
       toast.success('Valoración eliminada exitosamente');
     },
     onError: (error) => {

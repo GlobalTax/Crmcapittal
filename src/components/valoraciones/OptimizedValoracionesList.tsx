@@ -15,9 +15,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import type { Database } from '@/integrations/supabase/types';
-
-type Valoracion = Database['public']['Tables']['valoraciones']['Row'];
+import type { Valoracion } from '@/types/Valoracion';
 
 interface OptimizedValoracionesListProps {
   onEdit?: (valoracion: Valoracion) => void;
@@ -207,49 +205,12 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {currentPageData.map((valoracion) => (
-                <div key={valoracion.id} className="bg-card rounded-lg border p-6 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-semibold text-lg">{valoracion.company_name}</h3>
-                      <p className="text-muted-foreground">{valoracion.client_name}</p>
-                    </div>
-                    <span className="text-sm px-2 py-1 bg-primary/10 text-primary rounded">
-                      {valoracion.status}
-                    </span>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {valoracion.company_sector && (
-                      <p className="text-sm text-muted-foreground">
-                        <strong>Sector:</strong> {valoracion.company_sector}
-                      </p>
-                    )}
-                    {valoracion.company_description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {valoracion.company_description}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="flex gap-2 mt-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => onView?.(valoracion)}
-                      className="flex-1"
-                    >
-                      Ver
-                    </Button>
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      onClick={() => onEdit?.(valoracion)}
-                      className="flex-1"
-                    >
-                      Editar
-                    </Button>
-                  </div>
-                </div>
+                <ValoracionCard
+                  key={valoracion.id}
+                  valoracion={valoracion}
+                  onView={onView}
+                  onEdit={onEdit}
+                />
               ))}
             </div>
             
