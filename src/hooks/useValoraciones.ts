@@ -38,9 +38,9 @@ export function useValoraciones() {
     error,
     refetch
   } = useQuery({
-    queryKey: ['valoraciones_v3'], // Force cache refresh
+    queryKey: [`valoraciones_cache_bust_${Date.now()}`], // EXTREME cache busting
     queryFn: async () => {
-      console.log('🔍 Fetching valoraciones with correct query...');
+      console.log('🔥 EXTREME CACHE BUST - Fetching valoraciones with timestamp:', Date.now());
       
       const { data, error } = await supabase
         .from('valoraciones')
@@ -48,15 +48,18 @@ export function useValoraciones() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Error fetching valoraciones:', error);
+        console.error('❌ CACHE BUST - Error fetching valoraciones:', error);
+        console.error('❌ CACHE BUST - Error details:', JSON.stringify(error, null, 2));
         throw error;
       }
       
-      console.log('✅ Successfully fetched valoraciones:', data?.length || 0);
+      console.log('✅ CACHE BUST - Successfully fetched valoraciones:', data?.length || 0);
       return data as Valoracion[];
     },
-    retry: 3,
-    retryDelay: 1000,
+    retry: 1,
+    retryDelay: 500,
+    staleTime: 0, // Never use stale data
+    gcTime: 0, // Don't cache at all
   });
 
   const createMutation = useMutation({

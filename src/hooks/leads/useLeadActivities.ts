@@ -9,13 +9,13 @@ type CreateActivityData = Database['public']['Tables']['lead_activities']['Inser
 export function useLeadActivities(leadId: string) {
   const queryClient = useQueryClient();
 
-  // Fetch lead activities
+  // Fetch lead activities with EXTREME cache busting
   const activitiesQuery = useQuery({
-    queryKey: ['lead_activities_v3', leadId], // Force cache refresh
+    queryKey: [`lead_activities_extreme_bust_${leadId}_${Date.now()}`],
     queryFn: async () => {
       if (!leadId) return [];
       
-      console.log('Fetching lead activities for:', leadId);
+      console.log('🔥 EXTREME CACHE BUST - Fetching lead activities for:', leadId, 'at:', Date.now());
       
       const { data, error } = await supabase
         .from('lead_activities')
@@ -24,16 +24,18 @@ export function useLeadActivities(leadId: string) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching lead activities:', error);
+        console.error('❌ CACHE BUST - Lead activities error:', error);
+        console.error('❌ CACHE BUST - Lead activities error details:', JSON.stringify(error, null, 2));
         throw error;
       }
       
-      console.log('Lead activities fetched:', data);
+      console.log('✅ CACHE BUST - Lead activities fetched:', data?.length || 0);
       return data as LeadActivity[];
     },
     enabled: !!leadId,
-    retry: 3,
-    retryDelay: 1000,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
   });
 
   // Create lead activity
