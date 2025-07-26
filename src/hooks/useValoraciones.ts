@@ -117,16 +117,8 @@ export function useValoraciones() {
         sanitizedUpdates.company_description = sanitizeInput(updates.company_description);
       }
 
-      // Validar con backend si es cambio de asociación
-      const hasAssociationChange = Object.keys(updates).some(key => 
-        key === 'company_id' || key === 'contact_id'
-      );
-      
-      if (hasAssociationChange) {
-        await validateWithBackend('association_change', sanitizedUpdates, id);
-      } else {
-        await validateWithBackend('update', sanitizedUpdates, id);
-      }
+      // Validar con backend
+      await validateWithBackend('update', sanitizedUpdates, id);
 
       const { data, error } = await supabase
         .from('valoraciones')

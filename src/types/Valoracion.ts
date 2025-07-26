@@ -1,10 +1,9 @@
 
 export interface Valoracion {
   id: string;
-  company_id?: string;
-  contact_id?: string;
   company_name: string;
   client_name: string;
+  client_email?: string;
   company_sector?: string;
   company_description?: string;
   status: ValoracionStatus;

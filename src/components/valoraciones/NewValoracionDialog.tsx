@@ -15,10 +15,6 @@ import { useValoraciones } from '@/hooks/useValoraciones';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Loader2, ChevronLeft, ChevronRight, Building, User, Settings, Check } from 'lucide-react';
 import { ValoracionPriority } from '@/types/Valoracion';
-import { AutocompletedCompanySelector } from './AutocompletedCompanySelector';
-import { AutocompletedContactSelector } from './AutocompletedContactSelector';
-import { Company } from '@/types/Company';
-import { Contact } from '@/types/Contact';
 
 interface NewValoracionDialogProps {
   children?: React.ReactNode;
@@ -34,12 +30,9 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
 
   const [formData, setFormData] = useState({
     // Step 1: Company
-    company_id: '',
-    company: null as Company | null,
+    company_name: '',
     
     // Step 2: Client & Analyst
-    client_id: '',
-    client: null as Contact | null,
     client_name: '',
     client_email: '',
     assigned_analyst: '',
@@ -61,7 +54,7 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!formData.company_id;
+        return !!formData.company_name;
       case 2:
         return !!formData.client_name && !!formData.assigned_analyst;
       case 3:
@@ -103,12 +96,10 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
     
     try {
       const valoracionData = {
-        company_id: formData.company?.id || null,
-        contact_id: formData.client?.id || null,
-        company_name: formData.company?.name || '',
+        company_name: formData.company_name,
         client_name: formData.client_name,
+        client_email: formData.client_email || null,
         priority: formData.priority,
-        valuation_method: formData.valuation_method ? [formData.valuation_method] : null,
         assigned_to: formData.assigned_analyst,
         company_description: formData.description,
       };
@@ -122,10 +113,7 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
       
       // Reset form
       setFormData({
-        company_id: '',
-        company: null,
-        client_id: '',
-        client: null,
+        company_name: '',
         client_name: '',
         client_email: '',
         assigned_analyst: '',
@@ -188,31 +176,15 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
       </div>
       
       <div className="space-y-2">
-        <Label>Empresa *</Label>
-        <AutocompletedCompanySelector
-          value={formData.company_id}
-          onValueChange={(companyId, company) => {
-            setFormData(prev => ({
-              ...prev,
-              company_id: companyId || '',
-              company: company
-            }));
-          }}
-          placeholder="Buscar empresa..."
+        <Label htmlFor="company_name">Nombre de la empresa *</Label>
+        <Input
+          id="company_name"
+          value={formData.company_name}
+          onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
+          placeholder="Nombre de la empresa"
+          required
         />
       </div>
-      
-      {formData.company && (
-        <div className="p-4 border rounded-lg bg-muted/50">
-          <h4 className="font-medium">{formData.company.name}</h4>
-          {formData.company.industry && (
-            <p className="text-sm text-muted-foreground">{formData.company.industry}</p>
-          )}
-          {formData.company.city && (
-            <p className="text-sm text-muted-foreground">{formData.company.city}</p>
-          )}
-        </div>
-      )}
     </div>
   );
 
@@ -223,35 +195,15 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
         <p className="text-sm text-muted-foreground">Define quién solicita y quién realizará la valoración</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Cliente (Solicitante) *</Label>
-          <AutocompletedContactSelector
-            value={formData.client_id}
-            companyId={formData.company_id}
-            onValueChange={(contactId, contact) => {
-              setFormData(prev => ({
-                ...prev,
-                client_id: contactId || '',
-                client: contact,
-                client_name: contact?.name || prev.client_name,
-                client_email: contact?.email || prev.client_email
-              }));
-            }}
-            placeholder="Buscar contacto..."
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="client_name">Nombre del solicitante *</Label>
-          <Input
-            id="client_name"
-            value={formData.client_name}
-            onChange={(e) => setFormData(prev => ({ ...prev, client_name: e.target.value }))}
-            placeholder="Nombre completo"
-            required
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="client_name">Nombre del solicitante *</Label>
+        <Input
+          id="client_name"
+          value={formData.client_name}
+          onChange={(e) => setFormData(prev => ({ ...prev, client_name: e.target.value }))}
+          placeholder="Nombre completo"
+          required
+        />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
