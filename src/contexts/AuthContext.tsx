@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   signInWithProvider: (provider: 'microsoft' | 'google') => Promise<{ error: any }>;
+  refreshSession: () => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +40,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('AuthProvider: Error getting initial session:', error);
         } else {
           console.log('AuthProvider: Initial session', session?.user?.email || 'no session');
+          console.log('AuthProvider: Session details:', {
+            userId: session?.user?.id,
+            email: session?.user?.email,
+            accessToken: session?.access_token ? 'present' : 'missing',
+            refreshToken: session?.refresh_token ? 'present' : 'missing'
+          });
           setSession(session);
           setUser(session?.user ?? null);
         }
@@ -55,6 +62,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('AuthProvider: Auth state changed', event, session?.user?.email || 'no user');
+        console.log('AuthProvider: Event details:', {
+          event,
+          userId: session?.user?.id,
+          email: session?.user?.email,
+          hasAccessToken: !!session?.access_token,
+          hasRefreshToken: !!session?.refresh_token
+        });
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -136,6 +150,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const refreshSession = async () => {
+    console.log('AuthProvider: Refreshing session manually');
+    try {
+      const { data: { session }, error } = await supabase.auth.refreshSession();
+      if (error) {
+        console.error('AuthProvider: Error refreshing session:', error);
+      } else {
+        console.log('AuthProvider: Session refreshed successfully', session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+      return { error };
+    } catch (error) {
+      console.error('AuthProvider: Exception refreshing session:', error);
+      return { error };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -144,6 +176,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     signOut,
     signInWithProvider,
+    refreshSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
