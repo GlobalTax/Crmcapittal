@@ -14,6 +14,7 @@ import { Mail, Users, Send, Eye, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { SecureHtmlRenderer } from '@/components/security/SecureHtmlRenderer';
 
 export default function CampaignBuilder() {
   const navigate = useNavigate();
@@ -203,11 +204,11 @@ export default function CampaignBuilder() {
                     <div className="border-b pb-2 mb-4">
                       <strong>Asunto:</strong> {formData.subject || 'Sin asunto'}
                     </div>
-                    <div 
+                    <SecureHtmlRenderer 
+                      content={formData.content.replace(/\n/g, '<br>')}
                       className="prose max-w-none"
-                      dangerouslySetInnerHTML={{ 
-                        __html: formData.content.replace(/\n/g, '<br>') 
-                      }}
+                      allowBasicFormatting={false}
+                      maxLength={10000}
                     />
                   </div>
                 </CardContent>

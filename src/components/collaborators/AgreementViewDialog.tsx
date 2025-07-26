@@ -6,6 +6,7 @@ import { Collaborator } from '@/types/Collaborator';
 import { useDocuments } from '@/hooks/useDocuments';
 import { Download, Send, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { SecureHtmlRenderer } from '@/components/security/SecureHtmlRenderer';
 
 interface AgreementViewDialogProps {
   collaborator: Collaborator | null;
@@ -147,11 +148,11 @@ export const AgreementViewDialog: React.FC<AgreementViewDialogProps> = ({
 
         {agreement && (
           <div className="mt-6">
-            <div 
+            <SecureHtmlRenderer 
+              content={processContent(agreement.content?.content || '')}
               className="prose max-w-none border rounded-lg p-6 bg-white min-h-[400px] text-sm"
-              dangerouslySetInnerHTML={{ 
-                __html: processContent(agreement.content?.content || '') 
-              }}
+              allowBasicFormatting={true}
+              maxLength={50000}
             />
           </div>
         )}

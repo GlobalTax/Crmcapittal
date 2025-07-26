@@ -7641,6 +7641,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_api_configuration: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       validate_input_security: {
         Args: { input_text: string }
         Returns: string

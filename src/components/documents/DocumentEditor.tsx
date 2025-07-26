@@ -14,6 +14,7 @@ import { Document, DocumentTemplate } from '@/types/Document';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { SecureHtmlRenderer, processContentSecurely } from '@/components/security/SecureHtmlRenderer';
 
 interface DocumentEditorProps {
   document?: Document;
@@ -98,7 +99,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
     try {
       // Create a temporary div with the processed content
       const tempDiv = window.document.createElement('div');
-      tempDiv.innerHTML = processContent(content);
+      tempDiv.innerHTML = processContentSecurely(processContent(content));
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '-9999px';
       tempDiv.style.width = '800px';
@@ -273,9 +274,11 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
               <CardTitle>Vista Previa</CardTitle>
             </CardHeader>
             <CardContent>
-              <div 
+              <SecureHtmlRenderer 
+                content={processContent(content)}
                 className="prose max-w-none border rounded-lg p-4 bg-white min-h-[200px]"
-                dangerouslySetInnerHTML={{ __html: processContent(content) }}
+                allowBasicFormatting={true}
+                maxLength={50000}
               />
             </CardContent>
           </Card>
