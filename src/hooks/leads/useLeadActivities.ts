@@ -48,7 +48,7 @@ export const useLeadActivities = (leadId: string) => {
         .from('lead_activities')
         .select('*')
         .eq('lead_id', leadId)
-        .order('activity_date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching lead activities:', error);
