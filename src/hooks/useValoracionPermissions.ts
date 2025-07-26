@@ -62,7 +62,7 @@ export const useValoracionPermissions = (valoracion?: any) => {
       const isAdmin = userRoles && userRoles.length > 0;
       
       // Verificar si el usuario está asignado a la valoración
-      const isAssigned = valoracion.assigned_to === user?.email;
+      const isAssigned = valoracion.assigned_to === user?.id;
 
       // Verificar permisos sobre la empresa asociada
       let companyPermissions = { canView: false, canEdit: false };
