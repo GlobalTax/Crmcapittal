@@ -180,7 +180,13 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
         <Label htmlFor="company_name">Nombre de la empresa *</Label>
         <AutocompletedCompanySelector
           value={formData.company_name}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, company_name: value }))}
+          onValueChange={(companyId, company) => {
+            // Store the company name, not the ID
+            setFormData(prev => ({ 
+              ...prev, 
+              company_name: company?.name || '' 
+            }));
+          }}
           placeholder="Buscar y seleccionar empresa..."
         />
       </div>

@@ -146,7 +146,7 @@ export const ValoracionCard = ({
                     {valoracion.assigned_to ? getInitials(valoracion.assigned_to) : '?'}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm text-muted-foreground">
+                <span className={`text-sm ${valoracion.assigned_to ? 'text-muted-foreground' : 'text-orange-600 font-medium'}`}>
                   {valoracion.assigned_to || 'Sin asignar'}
                 </span>
               </div>
@@ -164,7 +164,7 @@ export const ValoracionCard = ({
             <span className="text-lg font-bold text-primary">
               {valoracion.valoracion_ev 
                 ? `€${valoracion.valoracion_ev.toLocaleString('es-ES')}`
-                : '–'
+                : <span className="text-muted-foreground text-sm font-normal">Pendiente</span>
               }
             </span>
           </div>
