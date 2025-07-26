@@ -4855,6 +4855,47 @@ export type Database = {
         }
         Relationships: []
       }
+      reconversion_approvals: {
+        Row: {
+          aprobado: boolean | null
+          aprobado_en: string | null
+          aprobado_por_id: string | null
+          comentario: string | null
+          created_at: string
+          etapa: string
+          id: string
+          reconversion_id: string
+        }
+        Insert: {
+          aprobado?: boolean | null
+          aprobado_en?: string | null
+          aprobado_por_id?: string | null
+          comentario?: string | null
+          created_at?: string
+          etapa: string
+          id?: string
+          reconversion_id: string
+        }
+        Update: {
+          aprobado?: boolean | null
+          aprobado_en?: string | null
+          aprobado_por_id?: string | null
+          comentario?: string | null
+          created_at?: string
+          etapa?: string
+          id?: string
+          reconversion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconversion_approvals_reconversion_id_fkey"
+            columns: ["reconversion_id"]
+            isOneToOne: false
+            referencedRelation: "reconversiones_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reconversion_audit_logs: {
         Row: {
           action_description: string
@@ -4911,6 +4952,50 @@ export type Database = {
           },
         ]
       }
+      reconversion_matches: {
+        Row: {
+          created_at: string
+          enviado_al_comprador: boolean
+          etapa_match: string | null
+          fecha_envio: string | null
+          id: string
+          reconversion_id: string
+          score: number | null
+          target_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enviado_al_comprador?: boolean
+          etapa_match?: string | null
+          fecha_envio?: string | null
+          id?: string
+          reconversion_id: string
+          score?: number | null
+          target_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enviado_al_comprador?: boolean
+          etapa_match?: string | null
+          fecha_envio?: string | null
+          id?: string
+          reconversion_id?: string
+          score?: number | null
+          target_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconversion_matches_reconversion_id_fkey"
+            columns: ["reconversion_id"]
+            isOneToOne: false
+            referencedRelation: "reconversiones_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reconversion_notifications: {
         Row: {
           created_at: string
@@ -4963,6 +5048,41 @@ export type Database = {
             columns: ["reconversion_id"]
             isOneToOne: false
             referencedRelation: "reconversiones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reconversion_preferences: {
+        Row: {
+          clave: string
+          created_at: string
+          id: string
+          reconversion_id: string
+          updated_at: string
+          valor: string | null
+        }
+        Insert: {
+          clave: string
+          created_at?: string
+          id?: string
+          reconversion_id: string
+          updated_at?: string
+          valor?: string | null
+        }
+        Update: {
+          clave?: string
+          created_at?: string
+          id?: string
+          reconversion_id?: string
+          updated_at?: string
+          valor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconversion_preferences_reconversion_id_fkey"
+            columns: ["reconversion_id"]
+            isOneToOne: false
+            referencedRelation: "reconversiones_new"
             referencedColumns: ["id"]
           },
         ]
@@ -5083,6 +5203,161 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reconversiones_new: {
+        Row: {
+          assigned_to: string | null
+          business_model_preferences: string[] | null
+          company_name: string | null
+          comprador_id: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contacto_id: string | null
+          created_at: string
+          created_by: string | null
+          estado: Database["public"]["Enums"]["reconversion_estado_type"]
+          estrategia: string | null
+          fecha_objetivo_cierre: string | null
+          geographic_preferences: string[] | null
+          id: string
+          investment_capacity_max: number | null
+          investment_capacity_min: number | null
+          last_activity_at: string
+          mandato_origen_id: string | null
+          motive: string | null
+          notes: string | null
+          original_lead_id: string | null
+          original_mandate_id: string | null
+          pipeline_owner_id: string | null
+          porcentaje_objetivo: number | null
+          prioridad: Database["public"]["Enums"]["reconversion_prioridad_type"]
+          rejection_reason: string | null
+          subfase: Database["public"]["Enums"]["reconversion_subfase_type"]
+          target_sectors: string[] | null
+          ticket_max: number | null
+          ticket_min: number | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          business_model_preferences?: string[] | null
+          company_name?: string | null
+          comprador_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contacto_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          estado?: Database["public"]["Enums"]["reconversion_estado_type"]
+          estrategia?: string | null
+          fecha_objetivo_cierre?: string | null
+          geographic_preferences?: string[] | null
+          id?: string
+          investment_capacity_max?: number | null
+          investment_capacity_min?: number | null
+          last_activity_at?: string
+          mandato_origen_id?: string | null
+          motive?: string | null
+          notes?: string | null
+          original_lead_id?: string | null
+          original_mandate_id?: string | null
+          pipeline_owner_id?: string | null
+          porcentaje_objetivo?: number | null
+          prioridad?: Database["public"]["Enums"]["reconversion_prioridad_type"]
+          rejection_reason?: string | null
+          subfase?: Database["public"]["Enums"]["reconversion_subfase_type"]
+          target_sectors?: string[] | null
+          ticket_max?: number | null
+          ticket_min?: number | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          business_model_preferences?: string[] | null
+          company_name?: string | null
+          comprador_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contacto_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          estado?: Database["public"]["Enums"]["reconversion_estado_type"]
+          estrategia?: string | null
+          fecha_objetivo_cierre?: string | null
+          geographic_preferences?: string[] | null
+          id?: string
+          investment_capacity_max?: number | null
+          investment_capacity_min?: number | null
+          last_activity_at?: string
+          mandato_origen_id?: string | null
+          motive?: string | null
+          notes?: string | null
+          original_lead_id?: string | null
+          original_mandate_id?: string | null
+          pipeline_owner_id?: string | null
+          porcentaje_objetivo?: number | null
+          prioridad?: Database["public"]["Enums"]["reconversion_prioridad_type"]
+          rejection_reason?: string | null
+          subfase?: Database["public"]["Enums"]["reconversion_subfase_type"]
+          target_sectors?: string[] | null
+          ticket_max?: number | null
+          ticket_min?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconversiones_new_comprador_id_fkey"
+            columns: ["comprador_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reconversiones_new_comprador_id_fkey"
+            columns: ["comprador_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reconversiones_new_comprador_id_fkey"
+            columns: ["comprador_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reconversiones_new_contacto_id_fkey"
+            columns: ["contacto_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reconversiones_new_contacto_id_fkey"
+            columns: ["contacto_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reconversiones_new_contacto_id_fkey"
+            columns: ["contacto_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reconversiones_new_mandato_origen_id_fkey"
+            columns: ["mandato_origen_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recurring_fees: {
         Row: {
@@ -7100,6 +7375,18 @@ export type Database = {
           },
         ]
       }
+      vw_reconversion_kpi: {
+        Row: {
+          activas: number | null
+          canceladas: number | null
+          cerradas: number | null
+          matching: number | null
+          negociando: number | null
+          total: number | null
+          urgentes: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       auto_assign_lead: {
@@ -7337,6 +7624,20 @@ export type Database = {
       mandate_relationship_type: "target" | "buyer" | "seller" | "advisor"
       nurturing_status: "ACTIVE" | "PAUSED" | "COMPLETED" | "FAILED"
       recipient_type: "collaborator" | "employee"
+      reconversion_estado_type:
+        | "activa"
+        | "matching"
+        | "negociando"
+        | "cerrada"
+        | "cancelada"
+      reconversion_prioridad_type: "baja" | "media" | "alta" | "critica"
+      reconversion_subfase_type:
+        | "prospecting"
+        | "nda"
+        | "loi"
+        | "dd"
+        | "signing"
+        | "closed"
       target_status:
         | "IDENTIFIED"
         | "RESEARCHING"
@@ -7579,6 +7880,22 @@ export const Constants = {
       mandate_relationship_type: ["target", "buyer", "seller", "advisor"],
       nurturing_status: ["ACTIVE", "PAUSED", "COMPLETED", "FAILED"],
       recipient_type: ["collaborator", "employee"],
+      reconversion_estado_type: [
+        "activa",
+        "matching",
+        "negociando",
+        "cerrada",
+        "cancelada",
+      ],
+      reconversion_prioridad_type: ["baja", "media", "alta", "critica"],
+      reconversion_subfase_type: [
+        "prospecting",
+        "nda",
+        "loi",
+        "dd",
+        "signing",
+        "closed",
+      ],
       target_status: [
         "IDENTIFIED",
         "RESEARCHING",
