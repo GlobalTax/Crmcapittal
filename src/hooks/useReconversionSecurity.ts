@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSecureInput } from '@/hooks/useSecureInput';
+import { useSecurityMonitor } from '@/hooks/useSecurityMonitor';
 
 interface ValidationRequest {
   action: 'create' | 'update' | 'delete' | 'assignment_change';
@@ -19,31 +21,66 @@ export function useReconversionSecurity() {
   const [validating, setValidating] = useState(false);
   const { role } = useUserRole();
   const { user } = useAuth();
+  const { sanitizeInput } = useSecureInput();
+  const { logUnauthorizedAccess, logSuspiciousActivity } = useSecurityMonitor();
 
   const validateAction = async (request: ValidationRequest): Promise<ValidationResult> => {
     setValidating(true);
     
     try {
+      // Sanitize input data before sending
+      const sanitizedRequest = {
+        ...request,
+        data: request.data ? sanitizeInputData(request.data) : undefined
+      };
+
       const { data, error } = await supabase.functions.invoke('validate-reconversion-security', {
-        body: request
+        body: sanitizedRequest
       });
 
       if (error) {
         console.error('Error validating reconversion action:', error);
+        logSuspiciousActivity('validation_error', { error: error.message }).catch(console.error);
         return { valid: false, errors: ['Error de validación del servidor'] };
       }
 
       return data as ValidationResult;
     } catch (err) {
       console.error('Error calling validation function:', err);
+      logSuspiciousActivity('validation_exception', { error: String(err) }).catch(console.error);
       return { valid: false, errors: ['Error de conexión'] };
     } finally {
       setValidating(false);
     }
   };
 
+  const sanitizeInputData = (data: any): any => {
+    if (typeof data === 'string') {
+      return sanitizeInput(data, { maxLength: 5000 });
+    }
+    
+    if (Array.isArray(data)) {
+      return data.map(sanitizeInputData);
+    }
+    
+    if (typeof data === 'object' && data !== null) {
+      const sanitized: any = {};
+      for (const [key, value] of Object.entries(data)) {
+        sanitized[key] = sanitizeInputData(value);
+      }
+      return sanitized;
+    }
+    
+    return data;
+  };
+
   const hasPermission = (reconversion: any, action: 'read' | 'write' | 'delete' = 'read') => {
-    if (!reconversion || !user) return false;
+    if (!reconversion || !user) {
+      if (reconversion) {
+        logUnauthorizedAccess('reconversion', action).catch(console.error);
+      }
+      return false;
+    }
     
     const currentUserId = user.id;
     
@@ -54,6 +91,7 @@ export function useReconversionSecurity() {
 
     // Solo delete requiere admin
     if (action === 'delete') {
+      logUnauthorizedAccess(`reconversion:${reconversion.id}`, 'delete_attempt_non_admin').catch(console.error);
       return false;
     }
 
@@ -64,12 +102,20 @@ export function useReconversionSecurity() {
     
     // Para lectura: permitir si es creador, asignado, pipeline owner o admin
     if (action === 'read') {
-      return isCreator || isAssigned || isPipelineOwner;
+      const hasAccess = isCreator || isAssigned || isPipelineOwner;
+      if (!hasAccess) {
+        logUnauthorizedAccess(`reconversion:${reconversion.id}`, 'read_attempt').catch(console.error);
+      }
+      return hasAccess;
     }
     
     // Para escritura: permitir si es creador, asignado o admin
     if (action === 'write') {
-      return isCreator || isAssigned;
+      const hasAccess = isCreator || isAssigned;
+      if (!hasAccess) {
+        logUnauthorizedAccess(`reconversion:${reconversion.id}`, 'write_attempt').catch(console.error);
+      }
+      return hasAccess;
     }
     
     return false;

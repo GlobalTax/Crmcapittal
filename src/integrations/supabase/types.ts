@@ -7484,6 +7484,10 @@ export type Database = {
         Args: { reconversion_data: Json; user_id?: string }
         Returns: string
       }
+      create_security_audit_trail: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       delete_user_completely: {
         Args: { _user_id: string }
         Returns: Json
@@ -7491,6 +7495,10 @@ export type Database = {
       diagnostico_net_queue: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      enforce_session_timeout: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       get_current_user_role_safe: {
         Args: Record<PropertyKey, never>
