@@ -7633,6 +7633,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_input_security: {
+        Args: { input_text: string }
+        Returns: string
+      }
+      validate_session_security: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       activity_type:
