@@ -7387,6 +7387,18 @@ export type Database = {
         }
         Relationships: []
       }
+      vw_reconversion_kpi_secure: {
+        Row: {
+          activas: number | null
+          canceladas: number | null
+          cerradas: number | null
+          matching: number | null
+          negociando: number | null
+          total: number | null
+          urgentes: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       auto_assign_lead: {
