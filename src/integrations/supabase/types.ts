@@ -4952,6 +4952,59 @@ export type Database = {
           },
         ]
       }
+      reconversion_documents: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          document_name: string
+          document_type: string
+          file_url: string | null
+          id: string
+          reconversion_id: string
+          sent_at: string | null
+          sent_to: string | null
+          signed_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          document_name: string
+          document_type: string
+          file_url?: string | null
+          id?: string
+          reconversion_id: string
+          sent_at?: string | null
+          sent_to?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          document_name?: string
+          document_type?: string
+          file_url?: string | null
+          id?: string
+          reconversion_id?: string
+          sent_at?: string | null
+          sent_to?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reconversion_documents_reconversion_id_fkey"
+            columns: ["reconversion_id"]
+            isOneToOne: false
+            referencedRelation: "reconversiones_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reconversion_matches: {
         Row: {
           created_at: string
@@ -7427,6 +7480,10 @@ export type Database = {
         Args: { p_lead_id: string }
         Returns: number
       }
+      create_reconversion_with_workflow: {
+        Args: { reconversion_data: Json; user_id?: string }
+        Returns: string
+      }
       delete_user_completely: {
         Args: { _user_id: string }
         Returns: Json
@@ -7513,6 +7570,10 @@ export type Database = {
       obtener_token_integraloop: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      process_reconversion_closure: {
+        Args: { reconversion_id: string; closure_data: Json; user_id?: string }
+        Returns: boolean
       }
       remove_user_role: {
         Args: {
