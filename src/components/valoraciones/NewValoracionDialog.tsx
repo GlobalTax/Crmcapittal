@@ -32,10 +32,9 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
     // Step 1: Company
     company_name: '',
     
-    // Step 2: Client & Analyst
+    // Step 2: Client
     client_name: '',
     client_email: '',
-    assigned_analyst: '',
     
     // Step 3: Valuation Config
     valuation_method: '',
@@ -47,7 +46,7 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
 
   const steps = [
     { number: 1, title: 'Empresa', icon: Building, description: 'Selecciona la empresa a valorar' },
-    { number: 2, title: 'Solicitante', icon: User, description: 'Cliente y analista asignado' },
+    { number: 2, title: 'Solicitante', icon: User, description: 'Información del cliente' },
     { number: 3, title: 'Configuración', icon: Settings, description: 'Método y preferencias' }
   ];
 
@@ -56,7 +55,7 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
       case 1:
         return !!formData.company_name;
       case 2:
-        return !!formData.client_name && !!formData.assigned_analyst;
+        return !!formData.client_name;
       case 3:
         return !!formData.valuation_method && !!formData.currency;
       default:
@@ -100,8 +99,10 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
         client_name: formData.client_name,
         client_email: formData.client_email || null,
         priority: formData.priority,
-        assigned_to: formData.assigned_analyst,
+        assigned_to: null, // Temporarily null until UUID selector is implemented
         company_description: formData.description,
+        valuation_type: 'general',
+        status: 'requested',
       };
 
       await createValoracion(valoracionData);
@@ -116,7 +117,6 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
         company_name: '',
         client_name: '',
         client_email: '',
-        assigned_analyst: '',
         valuation_method: '',
         currency: 'EUR',
         priority: 'medium',
@@ -191,8 +191,8 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
   const renderStep2 = () => (
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <h3 className="text-lg font-semibold">Solicitante y analista</h3>
-        <p className="text-sm text-muted-foreground">Define quién solicita y quién realizará la valoración</p>
+        <h3 className="text-lg font-semibold">Información del solicitante</h3>
+        <p className="text-sm text-muted-foreground">Define quién solicita la valoración</p>
       </div>
       
       <div className="space-y-2">
@@ -206,28 +206,15 @@ export const NewValoracionDialog = ({ children, onSuccess }: NewValoracionDialog
         />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="client_email">Email del solicitante</Label>
-          <Input
-            id="client_email"
-            type="email"
-            value={formData.client_email}
-            onChange={(e) => setFormData(prev => ({ ...prev, client_email: e.target.value }))}
-            placeholder="email@empresa.com"
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="assigned_analyst">Analista asignado *</Label>
-          <Input
-            id="assigned_analyst"
-            value={formData.assigned_analyst}
-            onChange={(e) => setFormData(prev => ({ ...prev, assigned_analyst: e.target.value }))}
-            placeholder="Nombre del analista"
-            required
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="client_email">Email del solicitante</Label>
+        <Input
+          id="client_email"
+          type="email"
+          value={formData.client_email}
+          onChange={(e) => setFormData(prev => ({ ...prev, client_email: e.target.value }))}
+          placeholder="email@empresa.com"
+        />
       </div>
     </div>
   );
