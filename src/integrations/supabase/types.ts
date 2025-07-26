@@ -7417,6 +7417,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_current_user_role_safe: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_integraloop_config: {
         Args: Record<PropertyKey, never>
         Returns: Json
