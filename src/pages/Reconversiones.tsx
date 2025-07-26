@@ -8,7 +8,7 @@ import { useReconversions } from '@/hooks/useReconversions';
 import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
 import { useReconversionFilters } from '@/hooks/useReconversionFilters';
 import { ReconversionList } from '@/components/reconversiones/ReconversionList';
-import { ReconversionCreateDialog } from '@/components/reconversiones/ReconversionCreateDialog';
+import { NewReconversionDialog } from '@/components/reconversiones/NewReconversionDialog';
 import { ReconversionFilters } from '@/components/reconversiones/ReconversionFilters';
 import { Toggle } from '@/components/ui/toggle';
 import type { Database } from '@/integrations/supabase/types';
@@ -128,7 +128,7 @@ export default function Reconversiones() {
             )}
           </Button>
 
-           <ReconversionCreateDialog onCreateReconversion={createReconversion} />
+           <NewReconversionDialog onCreateReconversion={createReconversion} />
         </div>
       </div>
 
@@ -237,7 +237,7 @@ export default function Reconversiones() {
                     }
                   </p>
                    {!hasActiveFilters && (
-                     <ReconversionCreateDialog onCreateReconversion={createReconversion} />
+                     <NewReconversionDialog onCreateReconversion={createReconversion} />
                    )}
                 </CardContent>
               </Card>
