@@ -38,14 +38,22 @@ export function useValoraciones() {
   const fetchValoraciones = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Fetching valoraciones with correct query...');
+      
       const { data, error } = await supabase
         .from('valoraciones')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching valoraciones:', error);
+        throw error;
+      }
+      
+      console.log('✅ Successfully fetched valoraciones:', data?.length || 0);
       setValoraciones(data || []);
     } catch (err) {
+      console.error('❌ Error in fetchValoraciones:', err);
       setError(err as Error);
     } finally {
       setLoading(false);

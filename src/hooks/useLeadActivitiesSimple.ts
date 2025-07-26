@@ -8,7 +8,6 @@ export interface LeadActivity {
   activity_type: 'call' | 'meeting' | 'email' | 'task' | 'note' | 'stage_change';
   title: string;
   description?: string;
-  activity_date: string;
   duration_minutes?: number;
   outcome?: 'completed' | 'no_answer' | 'busy' | 'rescheduled';
   next_action?: string;
@@ -25,7 +24,7 @@ export interface CreateLeadActivityData {
   activity_type: LeadActivity['activity_type'];
   title: string;
   description?: string;
-  activity_date?: string;
+  created_at?: string;
   duration_minutes?: number;
   outcome?: string;
   next_action?: string;

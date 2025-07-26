@@ -69,7 +69,7 @@ export const ActivityTimeline = ({ negocio }: ActivityTimelineProps) => {
         .from('negocio_activities')
         .select('*')
         .eq('negocio_id', negocio.id)
-        .order('activity_date', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setActivities(data || []);
