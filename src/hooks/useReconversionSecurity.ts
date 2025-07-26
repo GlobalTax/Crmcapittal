@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ValidationRequest {
   action: 'create' | 'update' | 'delete' | 'assignment_change';
@@ -17,6 +18,7 @@ interface ValidationResult {
 export function useReconversionSecurity() {
   const [validating, setValidating] = useState(false);
   const { role } = useUserRole();
+  const { user } = useAuth();
 
   const validateAction = async (request: ValidationRequest): Promise<ValidationResult> => {
     setValidating(true);
@@ -41,11 +43,9 @@ export function useReconversionSecurity() {
   };
 
   const hasPermission = (reconversion: any, action: 'read' | 'write' | 'delete' = 'read') => {
-    if (!reconversion) return false;
+    if (!reconversion || !user) return false;
     
-    // Obtener el usuario actual de forma síncrona
-    const currentUser = supabase.auth.getUser();
-    const currentUserId = currentUser.then(({ data }) => data.user?.id);
+    const currentUserId = user.id;
     
     // Admins tienen todos los permisos
     if (role === 'admin' || role === 'superadmin') {
@@ -57,8 +57,22 @@ export function useReconversionSecurity() {
       return false;
     }
 
-    // Para verificación temporal, permitir acceso si hay sesión
-    return true; // Temporalmente permisivo mientras arreglamos la autenticación async
+    // Verificar si el usuario tiene permisos sobre esta reconversión
+    const isCreator = reconversion.created_by === currentUserId;
+    const isAssigned = reconversion.assigned_to === currentUserId;
+    const isPipelineOwner = reconversion.pipeline_owner_id === currentUserId;
+    
+    // Para lectura: permitir si es creador, asignado, pipeline owner o admin
+    if (action === 'read') {
+      return isCreator || isAssigned || isPipelineOwner;
+    }
+    
+    // Para escritura: permitir si es creador, asignado o admin
+    if (action === 'write') {
+      return isCreator || isAssigned;
+    }
+    
+    return false;
   };
 
   const canViewSensitiveData = (reconversion: any) => {
