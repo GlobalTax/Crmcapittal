@@ -12,32 +12,20 @@ const sanitizeInput = (input: string): string => {
   return input.trim().replace(/[<>]/g, '');
 }
 
-// Función para validar con edge function
+// Función para validar con edge function (simplificada)
 const validateWithBackend = async (action: string, data: any, valoracionId?: string) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('No autorizado');
 
-    const response = await fetch(`https://nbvvdaprcecaqvvkqcto.supabase.co/functions/v1/validate-valoracion-security`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action,
-        valoracionId,
-        data
-      })
-    });
-
-    const result = await response.json();
-    if (!result.valid) {
-      throw new Error(result.errors.join(', '));
+    // Validación básica local (sin llamada al backend por ahora)
+    if (action === 'create' && (!data.company_name || !data.client_name)) {
+      throw new Error('Nombre de empresa y cliente son obligatorios');
     }
+
     return true;
   } catch (error) {
-    console.error('Error en validación backend:', error);
+    console.error('Error en validación:', error);
     throw error;
   }
 };

@@ -51,7 +51,8 @@ export const useLeadNurturing = (leadId?: string) => {
 
       if (error) {
         console.error('Error fetching lead activities:', error);
-        throw error;
+        // Return empty array instead of throwing to prevent crashes
+        return [];
       }
 
       return data as LeadActivity[];

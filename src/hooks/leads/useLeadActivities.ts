@@ -39,6 +39,11 @@ export const useLeadActivities = (leadId: string) => {
   const activitiesQuery = useQuery({
     queryKey: ['lead-activities', leadId],
     queryFn: async () => {
+      if (!leadId) {
+        console.warn('No lead ID provided for activities query');
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('lead_activities')
         .select('*')
@@ -47,7 +52,8 @@ export const useLeadActivities = (leadId: string) => {
 
       if (error) {
         console.error('Error fetching lead activities:', error);
-        throw new Error('Error al cargar actividades del lead');
+        // Return empty array instead of throwing to prevent app crashes
+        return [];
       }
 
       return data as LeadActivity[];

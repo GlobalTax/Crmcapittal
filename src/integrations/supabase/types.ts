@@ -6673,9 +6673,7 @@ export type Database = {
           status: string
           updated_at: string
           valoracion_eqty: number | null
-          valoración_eqty: number | null
           valoracion_ev: number | null
-          valoración_ev: number | null
           valuation_method: string[] | null
           valuation_report_url: string | null
           valuation_type: string
@@ -6712,9 +6710,7 @@ export type Database = {
           status?: string
           updated_at?: string
           valoracion_eqty?: number | null
-          valoración_eqty?: number | null
           valoracion_ev?: number | null
-          valoración_ev?: number | null
           valuation_method?: string[] | null
           valuation_report_url?: string | null
           valuation_type?: string
@@ -6751,9 +6747,7 @@ export type Database = {
           status?: string
           updated_at?: string
           valoracion_eqty?: number | null
-          valoración_eqty?: number | null
           valoracion_ev?: number | null
-          valoración_ev?: number | null
           valuation_method?: string[] | null
           valuation_report_url?: string | null
           valuation_type?: string
