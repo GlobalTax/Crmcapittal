@@ -5216,15 +5216,21 @@ export type Database = {
           contacto_id: string | null
           created_at: string
           created_by: string | null
+          enterprise_value: number | null
+          equity_percentage: number | null
           estado: Database["public"]["Enums"]["reconversion_estado_type"]
           estrategia: string | null
+          fecha_cierre: string | null
           fecha_objetivo_cierre: string | null
           geographic_preferences: string[] | null
           id: string
           investment_capacity_max: number | null
           investment_capacity_min: number | null
           last_activity_at: string
+          last_matching_at: string | null
           mandato_origen_id: string | null
+          matched_targets_count: number | null
+          matched_targets_data: Json | null
           motive: string | null
           notes: string | null
           original_lead_id: string | null
@@ -5250,15 +5256,21 @@ export type Database = {
           contacto_id?: string | null
           created_at?: string
           created_by?: string | null
+          enterprise_value?: number | null
+          equity_percentage?: number | null
           estado?: Database["public"]["Enums"]["reconversion_estado_type"]
           estrategia?: string | null
+          fecha_cierre?: string | null
           fecha_objetivo_cierre?: string | null
           geographic_preferences?: string[] | null
           id?: string
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
           last_activity_at?: string
+          last_matching_at?: string | null
           mandato_origen_id?: string | null
+          matched_targets_count?: number | null
+          matched_targets_data?: Json | null
           motive?: string | null
           notes?: string | null
           original_lead_id?: string | null
@@ -5284,15 +5296,21 @@ export type Database = {
           contacto_id?: string | null
           created_at?: string
           created_by?: string | null
+          enterprise_value?: number | null
+          equity_percentage?: number | null
           estado?: Database["public"]["Enums"]["reconversion_estado_type"]
           estrategia?: string | null
+          fecha_cierre?: string | null
           fecha_objetivo_cierre?: string | null
           geographic_preferences?: string[] | null
           id?: string
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
           last_activity_at?: string
+          last_matching_at?: string | null
           mandato_origen_id?: string | null
+          matched_targets_count?: number | null
+          matched_targets_data?: Json | null
           motive?: string | null
           notes?: string | null
           original_lead_id?: string | null
@@ -7551,6 +7569,8 @@ export type Database = {
         | "WEBSITE_VISIT"
         | "DOCUMENT_DOWNLOADED"
       app_role: "superadmin" | "admin" | "user"
+      approval_stage: "loi" | "preliminary" | "final" | "closing"
+      approval_type: "loi" | "contract" | "final_terms" | "closing"
       business_segment:
         | "pyme"
         | "mid_market"
@@ -7647,6 +7667,7 @@ export type Database = {
         | "cerrada"
         | "cancelada"
       reconversion_prioridad_type: "baja" | "media" | "alta" | "critica"
+      reconversion_subfase: "prospecting" | "nda" | "loi" | "dd" | "signing"
       reconversion_subfase_type:
         | "prospecting"
         | "nda"
@@ -7664,6 +7685,15 @@ export type Database = {
         | "ARCHIVED"
         | "CONVERTED_TO_DEAL"
       task_status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "ON_HOLD"
+      task_type:
+        | "validation"
+        | "document"
+        | "review"
+        | "closing"
+        | "finance"
+        | "communication"
+        | "research"
+        | "follow_up"
       transaction_interest: "compra" | "venta" | "ambos" | "ninguno"
     }
     CompositeTypes: {
@@ -7803,6 +7833,8 @@ export const Constants = {
         "DOCUMENT_DOWNLOADED",
       ],
       app_role: ["superadmin", "admin", "user"],
+      approval_stage: ["loi", "preliminary", "final", "closing"],
+      approval_type: ["loi", "contract", "final_terms", "closing"],
       business_segment: [
         "pyme",
         "mid_market",
@@ -7904,6 +7936,7 @@ export const Constants = {
         "cancelada",
       ],
       reconversion_prioridad_type: ["baja", "media", "alta", "critica"],
+      reconversion_subfase: ["prospecting", "nda", "loi", "dd", "signing"],
       reconversion_subfase_type: [
         "prospecting",
         "nda",
@@ -7923,6 +7956,16 @@ export const Constants = {
         "CONVERTED_TO_DEAL",
       ],
       task_status: ["PENDING", "IN_PROGRESS", "COMPLETED", "ON_HOLD"],
+      task_type: [
+        "validation",
+        "document",
+        "review",
+        "closing",
+        "finance",
+        "communication",
+        "research",
+        "follow_up",
+      ],
       transaction_interest: ["compra", "venta", "ambos", "ninguno"],
     },
   },
