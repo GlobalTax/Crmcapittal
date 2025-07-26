@@ -9,6 +9,7 @@ import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
 import { useReconversionFilters } from '@/hooks/useReconversionFilters';
 import { ReconversionList } from '@/components/reconversiones/ReconversionList';
 import { NewReconversionDialog } from '@/components/reconversiones/NewReconversionDialog';
+import { ReconversionDetailDrawer } from '@/components/reconversiones/ReconversionDetailDrawer';
 import { ReconversionFilters } from '@/components/reconversiones/ReconversionFilters';
 import { Toggle } from '@/components/ui/toggle';
 import type { Database } from '@/integrations/supabase/types';
@@ -18,6 +19,8 @@ export default function Reconversiones() {
   const { isAdmin } = useReconversionSecurity();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedReconversion, setSelectedReconversion] = useState<any>(null);
+  const [isDetailDrawerOpen, setIsDetailDrawerOpen] = useState(false);
   
   const {
     filters,
@@ -57,16 +60,22 @@ export default function Reconversiones() {
     );
   }
 
-  const handleCreateReconversion = async () => {
+  const handleCreateReconversion = async (formData: any) => {
     try {
-      await createReconversion({
-        company_name: 'Nueva Empresa',
-        contact_name: 'Nuevo Cliente',
-        rejection_reason: 'Evaluación inicial'
-      });
+      await createReconversion(formData);
     } catch (error) {
       // Error ya manejado en el hook
     }
+  };
+
+  const handleViewReconversion = (reconversion: any) => {
+    setSelectedReconversion(reconversion);
+    setIsDetailDrawerOpen(true);
+  };
+
+  const handleEditReconversion = (reconversion: any) => {
+    console.log('Editar reconversión:', reconversion);
+    // TODO: Implementar edición
   };
 
   const stats = {
@@ -128,7 +137,7 @@ export default function Reconversiones() {
             )}
           </Button>
 
-           <NewReconversionDialog onCreateReconversion={createReconversion} />
+           <NewReconversionDialog onCreateReconversion={handleCreateReconversion} />
         </div>
       </div>
 
@@ -237,20 +246,34 @@ export default function Reconversiones() {
                     }
                   </p>
                    {!hasActiveFilters && (
-                     <NewReconversionDialog onCreateReconversion={createReconversion} />
+                     <NewReconversionDialog onCreateReconversion={handleCreateReconversion} />
                    )}
                 </CardContent>
               </Card>
             ) : (
               <ReconversionList
                 reconversiones={filteredReconversiones as any}
-                onView={(reconversion) => console.log('Ver detalles:', reconversion.id)}
-                onEdit={(reconversion) => console.log('Editar:', reconversion.id)}
+                onView={handleViewReconversion}
+                onEdit={handleEditReconversion}
                 onDelete={(reconversion) => console.log('Eliminar:', reconversion.id)}
                 viewMode={viewMode}
               />
             )}
           </div>
+
+          {/* Detail Drawer */}
+          <ReconversionDetailDrawer
+            reconversion={selectedReconversion}
+            open={isDetailDrawerOpen}
+            onClose={() => {
+              setIsDetailDrawerOpen(false);
+              setSelectedReconversion(null);
+            }}
+            onEdit={(reconversion) => {
+              handleEditReconversion(reconversion);
+              setIsDetailDrawerOpen(false);
+            }}
+          />
         </TabsContent>
 
         {isAdmin && (
