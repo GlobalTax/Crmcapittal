@@ -7503,6 +7503,13 @@ export type Database = {
         }
         Returns: string
       }
+      match_targets_for_reconversion: {
+        Args: { reconversion_id: string }
+        Returns: {
+          target_count: number
+          matched_companies: Json
+        }[]
+      }
       obtener_token_integraloop: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -7556,6 +7563,14 @@ export type Database = {
       update_lead_score: {
         Args: { p_lead_id: string; p_points_to_add: number }
         Returns: undefined
+      }
+      update_reconversion_subfase: {
+        Args: {
+          reconversion_id: string
+          new_subfase: Database["public"]["Enums"]["reconversion_subfase"]
+          user_id?: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
