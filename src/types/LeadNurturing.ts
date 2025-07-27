@@ -71,13 +71,22 @@ export interface NurturingStep {
 
 export interface LeadScoringRule {
   id: string;
-  name: string;
+  nombre: string;
   description?: string;
-  trigger_condition: {
+  condicion: {
     activity_type: ActivityType;
     criteria: Record<string, any>;
   };
-  points_awarded: number;
-  is_active: boolean;
+  valor: number;
+  activo: boolean;
   created_at: string;
+}
+
+export interface LeadScoreLog {
+  id: string;
+  lead_id: string;
+  regla: string;
+  delta: number;
+  total: number;
+  fecha: string;
 }

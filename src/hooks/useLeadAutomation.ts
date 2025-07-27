@@ -39,20 +39,20 @@ export const useLeadAutomation = () => {
       activityType: string;
       activityData?: Record<string, any>;
     }) => {
-      // Get active scoring rules
+      // Get active scoring rules with new column names
       const { data: rules, error } = await supabase
         .from('lead_scoring_rules')
         .select('*')
-        .eq('is_active', true);
+        .eq('activo', true);
 
       if (error) {
         throw error;
       }
 
-      // Find matching rules
+      // Find matching rules using new column names
       const matchingRules = rules?.filter(rule => {
-        const condition = rule.trigger_condition as any;
-        return condition.activity_type === activityType;
+        const condition = rule.condicion as any;
+        return condition?.activity_type === activityType;
       }) || [];
 
       let totalPoints = 0;
@@ -66,11 +66,19 @@ export const useLeadAutomation = () => {
             lead_id: leadId,
             activity_type: activityType as any,
             activity_data: activityData || {},
-            points_awarded: rule.points_awarded,
+            points_awarded: rule.valor,
             created_by: null
           });
 
-        totalPoints += rule.points_awarded;
+        // Log score change using the new function
+        await supabase.rpc('log_lead_score_change', {
+          p_lead_id: leadId,
+          p_regla: rule.nombre,
+          p_delta: rule.valor,
+          p_total: totalPoints + rule.valor
+        });
+
+        totalPoints += rule.valor;
       }
 
       if (totalPoints > 0) {

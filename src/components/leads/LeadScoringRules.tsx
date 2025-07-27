@@ -15,14 +15,14 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface LeadScoringRule {
   id: string;
-  name: string;
+  nombre: string;
   description?: string;
-  trigger_condition: {
+  condicion: {
     activity_type: ActivityType;
     criteria: Record<string, any>;
   };
-  points_awarded: number;
-  is_active: boolean;
+  valor: number;
+  activo: boolean;
   created_at: string;
 }
 
@@ -32,11 +32,11 @@ export const LeadScoringRules = () => {
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
-    name: '',
+    nombre: '',
     description: '',
     activity_type: 'EMAIL_OPENED' as ActivityType,
-    points_awarded: 5,
-    is_active: true
+    valor: 5,
+    activo: true
   });
 
   // Fetch scoring rules
@@ -49,13 +49,13 @@ export const LeadScoringRules = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as LeadScoringRule[];
+      return data as any[];
     }
   });
 
   // Create/Update rule mutation
   const saveMutation = useMutation({
-    mutationFn: async (ruleData: Omit<LeadScoringRule, 'id' | 'created_at'>) => {
+    mutationFn: async (ruleData: any) => {
       if (editingRule) {
         const { data, error } = await supabase
           .from('lead_scoring_rules')
@@ -108,22 +108,22 @@ export const LeadScoringRules = () => {
     setIsOpen(false);
     setEditingRule(null);
     setFormData({
-      name: '',
+      nombre: '',
       description: '',
       activity_type: 'EMAIL_OPENED' as ActivityType,
-      points_awarded: 5,
-      is_active: true
+      valor: 5,
+      activo: true
     });
   };
 
-  const handleEdit = (rule: LeadScoringRule) => {
+  const handleEdit = (rule: any) => {
     setEditingRule(rule);
     setFormData({
-      name: rule.name,
+      nombre: rule.nombre,
       description: rule.description || '',
-      activity_type: rule.trigger_condition.activity_type,
-      points_awarded: rule.points_awarded,
-      is_active: rule.is_active
+      activity_type: rule.condicion.activity_type,
+      valor: rule.valor,
+      activo: rule.activo
     });
     setIsOpen(true);
   };
@@ -131,14 +131,14 @@ export const LeadScoringRules = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     saveMutation.mutate({
-      name: formData.name,
+      nombre: formData.nombre,
       description: formData.description,
-      trigger_condition: {
+      condicion: {
         activity_type: formData.activity_type,
         criteria: {}
       },
-      points_awarded: formData.points_awarded,
-      is_active: formData.is_active
+      valor: formData.valor,
+      activo: formData.activo
     });
   };
 
@@ -177,8 +177,8 @@ export const LeadScoringRules = () => {
                 <div>
                   <Label>Nombre</Label>
                   <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    value={formData.nombre}
+                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
                     required
                   />
                 </div>
@@ -211,16 +211,16 @@ export const LeadScoringRules = () => {
                   <Label>Puntos Otorgados</Label>
                   <Input
                     type="number"
-                    value={formData.points_awarded}
-                    onChange={(e) => setFormData(prev => ({ ...prev, points_awarded: parseInt(e.target.value) || 0 }))}
+                    value={formData.valor}
+                    onChange={(e) => setFormData(prev => ({ ...prev, valor: parseInt(e.target.value) || 0 }))}
                     min="1"
                     max="100"
                   />
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                    checked={formData.activo}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, activo: checked }))}
                   />
                   <Label>Regla Activa</Label>
                 </div>
@@ -248,21 +248,21 @@ export const LeadScoringRules = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {rules.map((rule) => (
+            {rules.map((rule: any) => (
               <div key={rule.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-medium">{rule.name}</h4>
-                    <Badge variant={rule.is_active ? "default" : "secondary"}>
-                      {rule.is_active ? 'Activa' : 'Inactiva'}
+                    <h4 className="font-medium">{rule.nombre}</h4>
+                    <Badge variant={rule.activo ? "default" : "secondary"}>
+                      {rule.activo ? 'Activa' : 'Inactiva'}
                     </Badge>
                   </div>
                   {rule.description && (
                     <p className="text-sm text-muted-foreground mt-1">{rule.description}</p>
                   )}
                   <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                    <span>Trigger: {activityTypes.find(t => t.value === rule.trigger_condition.activity_type)?.label}</span>
-                    <span>Puntos: +{rule.points_awarded}</span>
+                    <span>Trigger: {activityTypes.find(t => t.value === rule.condicion?.activity_type)?.label}</span>
+                    <span>Puntos: +{rule.valor}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">

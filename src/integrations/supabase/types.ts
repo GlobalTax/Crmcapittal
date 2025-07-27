@@ -2954,33 +2954,68 @@ export type Database = {
           },
         ]
       }
+      lead_score_logs: {
+        Row: {
+          delta: number
+          fecha: string
+          id: string
+          lead_id: string
+          regla: string
+          total: number
+        }
+        Insert: {
+          delta: number
+          fecha?: string
+          id?: string
+          lead_id: string
+          regla: string
+          total: number
+        }
+        Update: {
+          delta?: number
+          fecha?: string
+          id?: string
+          lead_id?: string
+          regla?: string
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_score_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_scoring_rules: {
         Row: {
+          activo: boolean
+          condicion: Json
           created_at: string
           description: string | null
           id: string
-          is_active: boolean
-          name: string
-          points_awarded: number
-          trigger_condition: Json
+          nombre: string
+          valor: number
         }
         Insert: {
+          activo?: boolean
+          condicion: Json
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean
-          name: string
-          points_awarded: number
-          trigger_condition: Json
+          nombre: string
+          valor: number
         }
         Update: {
+          activo?: boolean
+          condicion?: Json
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean
-          name?: string
-          points_awarded?: number
-          trigger_condition?: Json
+          nombre?: string
+          valor?: number
         }
         Relationships: []
       }
@@ -7632,6 +7667,15 @@ export type Database = {
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      log_lead_score_change: {
+        Args: {
+          p_lead_id: string
+          p_regla: string
+          p_delta: number
+          p_total: number
+        }
+        Returns: string
       }
       log_reconversion_audit: {
         Args: {
