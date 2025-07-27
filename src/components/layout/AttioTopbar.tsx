@@ -35,16 +35,37 @@ const routeTitles: Record<string, string> = {
 
 export function AttioTopbar() {
   const location = useLocation();
-  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
+  
+  // Safety check for auth context
+  let user = null;
+  let signOut = null;
+  
+  try {
+    const auth = useAuth();
+    user = auth.user;
+    signOut = auth.signOut;
+  } catch (error) {
+    console.error('AttioTopbar: Auth context not available:', error);
+    // Return a loading state instead of crashing
+    return (
+      <header className="sticky top-0 z-40 w-full border-b bg-neutral-0/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-0/60 shadow-sm">
+        <div className="flex h-16 items-center justify-center px-6 py-3">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        </div>
+      </header>
+    );
+  }
 
   const currentTitle = routeTitles[location.pathname] || 'Dashboard';
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
+    if (signOut) {
+      await signOut();
+      navigate('/auth');
+    }
   };
 
   // Global search shortcut

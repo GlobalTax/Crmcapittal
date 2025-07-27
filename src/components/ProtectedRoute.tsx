@@ -8,10 +8,25 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, loading } = useAuth();
+  const [hasChecked, setHasChecked] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const [hasChecked, setHasChecked] = useState(false);
+  
+  // Safety check for auth context
+  let user = null;
+  let loading = true;
+  
+  try {
+    const auth = useAuth();
+    user = auth.user;
+    loading = auth.loading;
+  } catch (error) {
+    console.error('ProtectedRoute: Auth context not available:', error);
+    setAuthError('Authentication system not available');
+    // For now, show loading while we try to recover
+    loading = true;
+  }
 
   useEffect(() => {
     if (!loading) {
@@ -27,6 +42,19 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
     }
   }, [user, loading, navigate, location.pathname]);
+
+  // Show error state if auth system is broken
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">⚠️</div>
+          <p className="text-slate-600">Error en el sistema de autenticación</p>
+          <p className="text-slate-500 text-sm mt-2">Intenta recargar la página</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show loading while auth is being determined
   if (loading || !hasChecked) {
