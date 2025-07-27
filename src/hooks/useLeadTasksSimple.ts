@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export interface LeadTask {
@@ -36,16 +37,46 @@ export const useLeadTasks = (leadId: string) => {
   } = useQuery({
     queryKey: ['lead_tasks', leadId],
     queryFn: async () => {
-      // For now, return empty array since the table might not be reflected in types yet
-      return [] as LeadTask[];
+      const { data, error } = await supabase
+        .from('lead_tasks')
+        .select('*')
+        .eq('lead_id', leadId)
+        .order('due_date', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching lead tasks:', error);
+        throw new Error('Error al cargar tareas del lead');
+      }
+
+      return data as LeadTask[];
     },
     enabled: !!leadId,
   });
 
   const createMutation = useMutation({
     mutationFn: async (taskData: CreateLeadTaskData) => {
-      // Placeholder - will be implemented once types are updated
-      return {} as LeadTask;
+      const { data: userData } = await supabase.auth.getUser();
+      
+      const { data, error } = await supabase
+        .from('lead_tasks')
+        .insert({
+          lead_id: taskData.lead_id,
+          title: taskData.title,
+          description: taskData.description,
+          due_date: taskData.due_date,
+          priority: taskData.priority || 'medium',
+          assigned_to: taskData.assigned_to,
+          created_by: userData.user?.id,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating task:', error);
+        throw new Error('Error al crear tarea');
+      }
+
+      return data as LeadTask;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead_tasks', leadId] });
@@ -59,8 +90,19 @@ export const useLeadTasks = (leadId: string) => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<LeadTask> }) => {
-      // Placeholder - will be implemented once types are updated
-      return {} as LeadTask;
+      const { data, error } = await supabase
+        .from('lead_tasks')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating task:', error);
+        throw new Error('Error al actualizar tarea');
+      }
+
+      return data as LeadTask;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead_tasks', leadId] });
@@ -74,8 +116,15 @@ export const useLeadTasks = (leadId: string) => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      // Placeholder - will be implemented once types are updated
-      return;
+      const { error } = await supabase
+        .from('lead_tasks')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting task:', error);
+        throw new Error('Error al eliminar tarea');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead_tasks', leadId] });
