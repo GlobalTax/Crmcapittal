@@ -12,7 +12,17 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 export const useUserRole = () => {
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  
+  // Safe auth access with error handling
+  let user = null;
+  try {
+    const auth = useAuth();
+    user = auth.user;
+  } catch (error) {
+    console.log('useUserRole: Auth context not available, using default role');
+    // Return default values when auth context is not available
+    return useMemo(() => ({ role: 'user' as UserRole, loading: false }), []);
+  }
 
   const fetchUserRole = useCallback(async (userId: string) => {
     // Check cache first
