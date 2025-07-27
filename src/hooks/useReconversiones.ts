@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
-import { useReconversionAlerts } from '@/hooks/useReconversionAlerts';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -12,12 +10,11 @@ export function useReconversiones() {
   const [reconversiones, setReconversiones] = useState<Reconversion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { validateAction } = useReconversionSecurity();
-  const { validateAndShowAlerts, showSuccessAlert, showErrorAlert } = useReconversionAlerts();
 
-  const fetchReconversiones = async () => {
+  const fetchReconversiones = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('reconversiones')
         .select('*')
@@ -26,81 +23,40 @@ export function useReconversiones() {
       if (error) throw error;
       setReconversiones(data || []);
     } catch (err) {
+      console.error('Error fetching reconversiones:', err);
       setError(err as Error);
+      toast.error('Error al cargar reconversiones');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const createReconversion = async (reconversionData: CreateReconversionData) => {
+  const createReconversion = useCallback(async (reconversionData: CreateReconversionData) => {
     try {
-      // Validar datos con alertas
-      const alertErrors = validateAndShowAlerts(reconversionData as any, { showToast: true });
-      const hasErrors = alertErrors.some(e => e.severity === 'error');
-
-      if (hasErrors) {
-        showErrorAlert('Corrige los errores antes de continuar', 'Revisa los campos marcados en rojo');
-        throw new Error('Datos inválidos');
-      }
-
-      // Validar permisos de seguridad
-      const validation = await validateAction({
-        action: 'create',
-        data: reconversionData
-      });
-
-      if (!validation.valid) {
-        showErrorAlert('Datos inválidos: ' + validation.errors.join(', '));
-        throw new Error(validation.errors.join(', '));
-      }
-
-      // Sanitizar datos usando la función de la base de datos
-      const { data: sanitizedData } = await supabase
-        .rpc('sanitize_reconversion_data', { p_data: reconversionData });
-
-      const finalData = sanitizedData || reconversionData;
-
       const { data, error } = await supabase
         .from('reconversiones')
-        .insert(finalData as any)
+        .insert(reconversionData)
         .select()
         .single();
 
       if (error) throw error;
       
       setReconversiones(prev => [data, ...prev]);
-      showSuccessAlert('Reconversión creada exitosamente', `Se ha creado la reconversión para ${data.company_name}`);
+      toast.success('Reconversión creada exitosamente');
       return data;
     } catch (err) {
+      console.error('Error creating reconversion:', err);
       setError(err as Error);
-      showErrorAlert('Error al crear reconversión', 'Verifica los datos e inténtalo de nuevo');
+      toast.error('Error al crear reconversión');
       throw err;
     }
-  };
+  }, []);
 
-  const updateReconversion = async (id: string, updates: Partial<CreateReconversionData>) => {
+  const updateReconversion = useCallback(async (id: string, updates: Partial<CreateReconversionData>) => {
     try {
-      // Validar datos antes de actualizar
-      const validation = await validateAction({
-        action: 'update',
-        reconversionId: id,
-        data: updates
-      });
-
-      if (!validation.valid) {
-        toast.error('Datos inválidos: ' + validation.errors.join(', '));
-        throw new Error(validation.errors.join(', '));
-      }
-
-      // Sanitizar datos
-      const { data: sanitizedData } = await supabase
-        .rpc('sanitize_reconversion_data', { p_data: updates });
-
-      const finalUpdates = sanitizedData || updates;
-
       const { data, error } = await supabase
         .from('reconversiones')
-        .update(finalUpdates as any)
+        .update(updates)
         .eq('id', id)
         .select()
         .single();
@@ -111,28 +67,18 @@ export function useReconversiones() {
         prev.map(r => r.id === id ? { ...r, ...data } : r)
       );
       
-      showSuccessAlert('Reconversión actualizada exitosamente', `Se ha actualizado la reconversión ${data.company_name}`);
+      toast.success('Reconversión actualizada exitosamente');
       return data;
     } catch (err) {
+      console.error('Error updating reconversion:', err);
       setError(err as Error);
       toast.error('Error al actualizar reconversión');
       throw err;
     }
-  };
+  }, []);
 
-  const deleteReconversion = async (id: string) => {
+  const deleteReconversion = useCallback(async (id: string) => {
     try {
-      // Validar permisos de eliminación
-      const validation = await validateAction({
-        action: 'delete',
-        reconversionId: id
-      });
-
-      if (!validation.valid) {
-        toast.error('Sin permisos: ' + validation.errors.join(', '));
-        throw new Error(validation.errors.join(', '));
-      }
-
       const { error } = await supabase
         .from('reconversiones')
         .delete()
@@ -143,26 +89,15 @@ export function useReconversiones() {
       setReconversiones(prev => prev.filter(r => r.id !== id));
       toast.success('Reconversión eliminada exitosamente');
     } catch (err) {
+      console.error('Error deleting reconversion:', err);
       setError(err as Error);
       toast.error('Error al eliminar reconversión');
       throw err;
     }
-  };
+  }, []);
 
-  const assignReconversion = async (id: string, assignedTo: string) => {
+  const assignReconversion = useCallback(async (id: string, assignedTo: string) => {
     try {
-      // Validar cambio de asignación
-      const validation = await validateAction({
-        action: 'assignment_change',
-        reconversionId: id,
-        data: { assigned_to: assignedTo }
-      });
-
-      if (!validation.valid) {
-        toast.error('Error de asignación: ' + validation.errors.join(', '));
-        throw new Error(validation.errors.join(', '));
-      }
-
       const { data, error } = await supabase
         .from('reconversiones')
         .update({ assigned_to: assignedTo })
@@ -176,18 +111,19 @@ export function useReconversiones() {
         prev.map(r => r.id === id ? { ...r, ...data } : r)
       );
       
-      showSuccessAlert('Reconversión asignada exitosamente', `Se ha asignado la reconversión ${data.company_name}`);
+      toast.success('Reconversión asignada exitosamente');
       return data;
     } catch (err) {
+      console.error('Error assigning reconversion:', err);
       setError(err as Error);
       toast.error('Error al asignar reconversión');
       throw err;
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchReconversiones();
-  }, []);
+  }, [fetchReconversiones]);
 
   return {
     reconversiones,
