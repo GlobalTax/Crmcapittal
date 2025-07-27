@@ -5568,6 +5568,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_status: {
+        Row: {
+          audit_type: string
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          fix_required: string | null
+          id: string
+          status: string
+        }
+        Insert: {
+          audit_type: string
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          fix_required?: string | null
+          id?: string
+          status?: string
+        }
+        Update: {
+          audit_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          fix_required?: string | null
+          id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       security_logs: {
         Row: {
           created_at: string | null
