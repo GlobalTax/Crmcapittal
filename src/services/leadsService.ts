@@ -1,6 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadStage } from '@/types/Lead';
 import { logger } from '@/utils/logger';
 
 // Database compatible LeadStatus values
@@ -32,12 +31,18 @@ const mapStatusFromDb = (status: string): LeadStatus => {
 
 export const fetchLeads = async (filters?: {
   status?: LeadStatus;
-  assigned_to_id?: string;
+  stage?: LeadStage;
+  sector_id?: string;
+  owner_id?: string;
 }): Promise<Lead[]> => {
   try {
     let query = supabase
       .from('leads')
-      .select('*')
+      .select(`
+        *,
+        sector:sectores(id, nombre, descripcion),
+        owner:user_profiles!owner_id(id, first_name, last_name, email)
+      `)
       .order('created_at', { ascending: false });
 
     if (filters?.status) {
@@ -45,8 +50,16 @@ export const fetchLeads = async (filters?: {
       query = query.eq('status', dbStatus);
     }
 
-    if (filters?.assigned_to_id) {
-      query = query.eq('assigned_to_id', filters.assigned_to_id);
+    if (filters?.stage) {
+      query = query.eq('stage', filters.stage);
+    }
+
+    if (filters?.sector_id) {
+      query = query.eq('sector_id', filters.sector_id);
+    }
+
+    if (filters?.owner_id) {
+      query = query.eq('owner_id', filters.owner_id);
     }
 
     const { data, error } = await query;
@@ -59,7 +72,7 @@ export const fetchLeads = async (filters?: {
     return (data || []).map(lead => ({
       ...lead,
       status: mapStatusFromDb(lead.status),
-      assigned_to: null // Simplified - remove relationship query for now
+      assigned_to: null // Keep for compatibility
     })) as Lead[];
   } catch (error) {
     logger.error('Error in fetchLeads:', error);
@@ -71,7 +84,11 @@ export const fetchLeadById = async (id: string): Promise<Lead> => {
   try {
     const { data, error } = await supabase
       .from('leads')
-      .select('*')
+      .select(`
+        *,
+        sector:sectores(id, nombre, descripcion),
+        owner:user_profiles!owner_id(id, first_name, last_name, email)
+      `)
       .eq('id', id)
       .single();
 
@@ -83,7 +100,7 @@ export const fetchLeadById = async (id: string): Promise<Lead> => {
     return {
       ...data,
       status: mapStatusFromDb(data.status),
-      assigned_to: null // Simplified - remove relationship query for now
+      assigned_to: null // Keep for compatibility
     } as Lead;
   } catch (error) {
     logger.error('Error in fetchLeadById:', error);
@@ -115,12 +132,28 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
       tags: leadData.tags || [],
       created_by: user.id,
       assigned_to_id: user.id,
+      
+      // New fields
+      valor_estimado: leadData.valor_estimado || 0,
+      stage: leadData.stage || 'pipeline',
+      prob_conversion: leadData.prob_conversion || 0,
+      source_detail: leadData.source_detail,
+      sector_id: leadData.sector_id,
+      owner_id: leadData.owner_id || user.id,
+      last_contacted: leadData.last_contacted,
+      next_action_date: leadData.next_action_date,
+      aipersona: leadData.aipersona || {},
+      extra: leadData.extra || {},
     };
 
     const { data, error } = await supabase
       .from('leads')
       .insert(dbLeadData)
-      .select()
+      .select(`
+        *,
+        sector:sectores(id, nombre, descripcion),
+        owner:user_profiles!owner_id(id, first_name, last_name, email)
+      `)
       .single();
 
     if (error) {
@@ -161,7 +194,11 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
       .from('leads')
       .update(dbUpdates)
       .eq('id', id)
-      .select()
+      .select(`
+        *,
+        sector:sectores(id, nombre, descripcion),
+        owner:user_profiles!owner_id(id, first_name, last_name, email)
+      `)
       .single();
 
     if (error) {
@@ -271,8 +308,8 @@ export const convertLeadToContact = async (
         contact_id: contact.id,
         company_id: companyId,
         stage: 'initial_contact',
-        amount: 0,
-        probability: 25,
+        amount: lead.valor_estimado || 0,
+        probability: lead.prob_conversion || 25,
         created_by: user.id,
       };
 
@@ -290,6 +327,7 @@ export const convertLeadToContact = async (
     // Mark lead as converted
     await updateLead(leadId, {
       status: 'CONVERTED',
+      stage: 'ganado',
       converted_to_contact_id: contact.id,
       converted_to_deal_id: dealId,
     });
@@ -327,12 +365,26 @@ export const bulkInsertLeads = async (leads: CreateLeadData[]): Promise<Lead[]> 
       tags: leadData.tags || [],
       created_by: user.id,
       assigned_to_id: user.id,
+      
+      // New fields
+      valor_estimado: leadData.valor_estimado || 0,
+      stage: leadData.stage || 'pipeline',
+      prob_conversion: leadData.prob_conversion || 0,
+      source_detail: leadData.source_detail,
+      sector_id: leadData.sector_id,
+      owner_id: leadData.owner_id || user.id,
+      aipersona: leadData.aipersona || {},
+      extra: leadData.extra || {},
     }));
 
     const { data, error } = await supabase
       .from('leads')
       .insert(dbLeadsData)
-      .select();
+      .select(`
+        *,
+        sector:sectores(id, nombre, descripcion),
+        owner:user_profiles!owner_id(id, first_name, last_name, email)
+      `);
 
     if (error) {
       logger.error('Error bulk inserting leads:', error);

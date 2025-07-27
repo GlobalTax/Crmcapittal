@@ -1,12 +1,15 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Lead, CreateLeadData, UpdateLeadData, LeadStatus } from '@/types/Lead';
+import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadStage } from '@/types/Lead';
 import * as leadsService from '@/services/leadsService';
 import { toast } from 'sonner';
 
 export const useLeads = (filters?: {
   status?: LeadStatus;
-  assigned_to_id?: string;
+  stage?: LeadStage;
+  sector_id?: string;
+  owner_id?: string;
 }) => {
   const queryClient = useQueryClient();
 
@@ -34,7 +37,7 @@ export const useLeads = (filters?: {
       // Auto-convert to contact, company, and deal
       try {
         const result = await leadsService.convertLeadToContact(lead.id, {
-          createCompany: Boolean(leadData.company_name),
+          createCompany: Boolean(leadData.company_name || leadData.company),
           createDeal: true
         });
         

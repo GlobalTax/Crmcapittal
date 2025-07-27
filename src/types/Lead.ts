@@ -8,9 +8,12 @@ export type LeadServiceType = 'mandato_venta' | 'mandato_compra' | 'valoracion_e
 export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 export type LeadQuality = 'POOR' | 'FAIR' | 'GOOD' | 'EXCELLENT';
 
+// New enum for lead stages based on database
+export type LeadStage = 'pipeline' | 'cualificado' | 'propuesta' | 'negociacion' | 'ganado' | 'perdido';
+
 export interface Lead extends BaseEntity, ContactInfo, BusinessInfo, EntityMetadata, ActivityTracking, ScoringInfo {
   // Core lead info
-  lead_name?: string; // Alternative name field
+  lead_name?: string;
   message?: string;
   source: LeadSource;
   lead_origin?: LeadOrigin;
@@ -19,6 +22,19 @@ export interface Lead extends BaseEntity, ContactInfo, BusinessInfo, EntityMetad
   priority?: LeadPriority;
   quality?: LeadQuality;
   assigned_to_id?: string;
+  
+  // New database fields
+  valor_estimado?: number;
+  stage: LeadStage;
+  prob_conversion?: number; // 0-100
+  source_detail?: string;
+  sector_id?: string;
+  owner_id?: string;
+  last_contacted?: string;
+  next_action_date?: string;
+  lost_reason?: string;
+  aipersona?: Record<string, any>;
+  extra?: Record<string, any>;
   
   // Temporary compatibility - support both old and new field names
   company_name?: string; // Legacy field, use company instead
@@ -74,16 +90,28 @@ export interface Lead extends BaseEntity, ContactInfo, BusinessInfo, EntityMetad
   pipeline_stage_id?: string;
   is_followed?: boolean;
   last_activity_type?: string;
-  next_activity_date?: string;
   won_date?: string;
   lost_date?: string;
-  lost_reason?: string;
   
   // Relations
   assigned_to?: {
     id: string;
     first_name?: string;
     last_name?: string;
+  } | null;
+  
+  // New relations
+  sector?: {
+    id: string;
+    nombre: string;
+    descripcion?: string;
+  } | null;
+  
+  owner?: {
+    id: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
   } | null;
 }
 
@@ -109,6 +137,18 @@ export interface CreateLeadData {
   tags?: string[];
   lead_score?: number;
   
+  // New fields
+  valor_estimado?: number;
+  stage?: LeadStage;
+  prob_conversion?: number;
+  source_detail?: string;
+  sector_id?: string;
+  owner_id?: string;
+  last_contacted?: string;
+  next_action_date?: string;
+  aipersona?: Record<string, any>;
+  extra?: Record<string, any>;
+  
   // Temporary compatibility - support both old and new field names
   company_name?: string; // Legacy field, use company instead
   job_title?: string;    // Legacy field, use position instead
@@ -116,6 +156,7 @@ export interface CreateLeadData {
 
 export interface UpdateLeadData extends Partial<CreateLeadData> {
   status?: LeadStatus;
+  stage?: LeadStage;
   assigned_to_id?: string;
   first_contact_date?: string;
   last_contact_date?: string;
@@ -123,4 +164,5 @@ export interface UpdateLeadData extends Partial<CreateLeadData> {
   converted_to_contact_id?: string;
   converted_to_deal_id?: string;
   conversion_date?: string;
+  lost_reason?: string;
 }
