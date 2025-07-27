@@ -45,6 +45,7 @@ const Subscribers = lazy(() => import('@/pages/Subscribers'));
 const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
+const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
 const TeaserBuilder = lazy(() => import('@/pages/TeaserBuilder'));
 
 const LoadingSkeleton = () => (
@@ -344,7 +345,15 @@ export const AppRoutes = () => {
             path="/reconversiones" 
             element={
               <Suspense fallback={<LoadingSkeleton />}>
-                <Reconversiones />
+                <ReconversionesView />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="/reconversiones/:id" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ReconversionesView />
               </Suspense>
             } 
           />
