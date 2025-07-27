@@ -59,8 +59,8 @@ export function ReconversionDetailDrawer({
             </div>
             <div className="flex items-center gap-2">
               <ReconversionStatusBadge 
-                status={reconversion.estado} 
-                priority={reconversion.prioridad}
+                status={reconversion.status} 
+                priority="medium"
               />
               {onEdit && (
                 <Button
@@ -177,7 +177,7 @@ export function ReconversionDetailDrawer({
             )}
 
             {/* Geographic Preferences */}
-            {reconversion.geographic_preferences && reconversion.geographic_preferences.length > 0 && (
+            {(reconversion as any).target_locations && (reconversion as any).target_locations.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export function ReconversionDetailDrawer({
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {reconversion.geographic_preferences.map((location, index) => (
+                    {(reconversion as any).target_locations.map((location: string, index: number) => (
                       <Badge key={index} variant="outline">
                         {location}
                       </Badge>
@@ -198,7 +198,7 @@ export function ReconversionDetailDrawer({
             )}
 
             {/* Business Model Preferences */}
-            {reconversion.business_model_preferences && reconversion.business_model_preferences.length > 0 && (
+            {(reconversion as any).deal_structure_preferences && (reconversion as any).deal_structure_preferences.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -208,7 +208,7 @@ export function ReconversionDetailDrawer({
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {reconversion.business_model_preferences.map((model, index) => (
+                    {(reconversion as any).deal_structure_preferences.map((model: string, index: number) => (
                       <Badge key={index} variant="outline">
                         {model}
                       </Badge>

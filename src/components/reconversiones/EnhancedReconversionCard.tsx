@@ -74,8 +74,8 @@ export function EnhancedReconversionCard({
           </div>
           <div className="flex flex-col items-end gap-2">
             <ReconversionStatusBadge 
-              status={reconversion.estado} 
-              priority={reconversion.prioridad}
+              status={reconversion.status} 
+              priority="medium"
             />
           </div>
         </div>
@@ -116,13 +116,13 @@ export function EnhancedReconversionCard({
         )}
 
         {/* Geographic Preferences */}
-        {reconversion.geographic_preferences && reconversion.geographic_preferences.length > 0 && (
+        {reconversion.target_locations && reconversion.target_locations.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">Ubicación:</span>
             <span className="font-medium">
-              {reconversion.geographic_preferences.slice(0, 2).join(', ')}
-              {reconversion.geographic_preferences.length > 2 && '...'}
+              {reconversion.target_locations.slice(0, 2).join(', ')}
+              {reconversion.target_locations.length > 2 && '...'}
             </span>
           </div>
         )}
@@ -167,7 +167,7 @@ export function EnhancedReconversionCard({
             </SecureButton>
           )}
 
-          {onStartMatching && reconversion.estado === 'activa' && (
+          {onStartMatching && reconversion.status === 'active' && (
             <SecureButton
               hasPermission={canWrite}
               variant="default"

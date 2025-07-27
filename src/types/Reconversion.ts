@@ -4,8 +4,10 @@ export type ReconversionStatus = 'active' | 'matching' | 'paused' | 'closed';
 
 export type ReconversionPriority = 'low' | 'medium' | 'high' | 'urgent' | 'baja' | 'media' | 'alta' | 'critica';
 
-// Use the database type directly for consistency
-export type Reconversion = Database['public']['Tables']['reconversiones_new']['Row'];
+// Use the database type directly for consistency - using 'reconversiones' table (the one with data)
+export type Reconversion = Database['public']['Tables']['reconversiones']['Row'];
+export type CreateReconversionData = Database['public']['Tables']['reconversiones']['Insert'];
+export type UpdateReconversionData = Database['public']['Tables']['reconversiones']['Update'];
 
 // Legacy interface for backward compatibility
 export interface ReconversionLegacy {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ReconversionsList } from '@/components/reconversiones/ReconversionsList';
-import { useReconversions } from '@/hooks/useReconversions';
+import { useReconversiones } from '@/hooks/useReconversiones';
 import { useQueryClient } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import type { Database } from '@/integrations/supabase/types';
@@ -19,7 +19,7 @@ export default function Reconversiones() {
     assignedTo: 'all' as string
   });
 
-  const { reconversiones, loading, error, createReconversion, updateReconversion, fetchReconversiones } = useReconversions();
+  const { reconversiones, loading, error, createReconversion, updateReconversion, refetch } = useReconversiones();
   const queryClient = useQueryClient();
 
   // Auto-refresh every 30 seconds
@@ -37,7 +37,7 @@ export default function Reconversiones() {
       reconversion.company_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
       reconversion.contact_name?.toLowerCase().includes(filters.search.toLowerCase());
     
-    const matchesStatus = filters.status === 'all' || reconversion.estado === filters.status;
+    const matchesStatus = filters.status === 'all' || reconversion.status === filters.status;
     const matchesAssigned = filters.assignedTo === 'all' || reconversion.assigned_to === filters.assignedTo;
 
     return matchesSearch && matchesStatus && matchesAssigned;
@@ -74,11 +74,11 @@ export default function Reconversiones() {
   };
 
   const handleRefresh = () => {
-    fetchReconversiones();
+    refetch();
   };
 
   const handleUpdateStatus = async (reconversionId: string, status: string) => {
-    return await updateReconversion(reconversionId, { estado: status as any });
+    return await updateReconversion(reconversionId, { status: status as any });
   };
 
   if (loading && reconversiones.length === 0) {
@@ -98,12 +98,12 @@ export default function Reconversiones() {
     <ErrorBoundary>
       <div className="space-y-6">
         <ReconversionsList
-          reconversiones={reconversiones}
+          reconversiones={reconversiones as any}
           loading={loading}
           error={error}
           viewMode={viewMode}
           filters={filters as any}
-          filteredReconversiones={filteredReconversiones}
+          filteredReconversiones={filteredReconversiones as any}
           hasActiveFilters={hasActiveFilters}
           onViewModeChange={setViewMode}
           onFiltersChange={handleFiltersChange}

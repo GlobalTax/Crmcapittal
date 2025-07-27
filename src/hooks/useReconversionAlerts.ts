@@ -92,9 +92,9 @@ export function useReconversionAlerts() {
       });
     }
 
-    if (!data.geographic_preferences || data.geographic_preferences.length === 0) {
+    if (!data.target_locations || data.target_locations.length === 0) {
       errors.push({
-        field: 'geographic_preferences',
+        field: 'target_locations',
         message: 'Las preferencias geográficas ayudan a encontrar mejores opciones',
         severity: 'info'
       });
