@@ -7587,6 +7587,13 @@ export type Database = {
       }
     }
     Functions: {
+      assign_user_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: Json
+      }
       auto_assign_lead: {
         Args: { p_lead_id: string }
         Returns: string
@@ -7690,13 +7697,20 @@ export type Database = {
         Returns: string
       }
       log_security_event: {
-        Args: {
-          p_event_type: string
-          p_severity: string
-          p_description: string
-          p_metadata?: Json
-          p_user_id?: string
-        }
+        Args:
+          | {
+              p_event_type: string
+              p_severity: string
+              p_description: string
+              p_metadata?: Json
+              p_user_id?: string
+            }
+          | {
+              p_event_type: string
+              p_severity?: string
+              p_description?: string
+              p_metadata?: Json
+            }
         Returns: string
       }
       match_targets_for_reconversion: {

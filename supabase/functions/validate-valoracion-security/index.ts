@@ -47,8 +47,33 @@ serve(async (req) => {
     const { action, valoracionId, data } = await req.json()
     console.log(`Validating ${action} for user ${user.id}`)
 
-    // For now, allow all operations - this simplifies the validation
-    // In production, you would implement specific business logic here
+    // SECURITY FIX: Implement rate limiting
+    const rateLimitCheck = await supabase.rpc('check_rate_limit', {
+      p_identifier: `valoracion_security_${user.id}`,
+      p_max_requests: 50,
+      p_window_minutes: 15
+    })
+
+    if (!rateLimitCheck.data) {
+      return new Response(
+        JSON.stringify({ valid: false, errors: ['Rate limit exceeded. Please wait before trying again.'] }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // SECURITY FIX: Log all validation attempts
+    await supabase.rpc('log_security_event', {
+      p_event_type: 'valoracion_security_validation',
+      p_severity: 'low',
+      p_description: `Validation attempt for ${action}`,
+      p_metadata: {
+        action,
+        valoracion_id: valoracionId,
+        user_id: user.id,
+        request_data: data
+      }
+    })
+
     let validationResult = { valid: true, errors: [] }
 
     switch (action) {

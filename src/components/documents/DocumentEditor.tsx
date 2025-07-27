@@ -97,9 +97,12 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
 
   const handleExportPDF = async () => {
     try {
-      // Create a temporary div with the processed content
+      // Create a temporary div with the processed content - SECURITY FIX: Single sanitization pass
+      const processedContent = processContent(content);
+      const sanitizedContent = processContentSecurely(processedContent);
+      
       const tempDiv = window.document.createElement('div');
-      tempDiv.innerHTML = processContentSecurely(processContent(content));
+      tempDiv.innerHTML = sanitizedContent;
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '-9999px';
       tempDiv.style.width = '800px';
