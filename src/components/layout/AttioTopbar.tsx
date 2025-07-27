@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useSafeAuth } from '@/hooks/useSafeAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Search, Command } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,8 +38,19 @@ export function AttioTopbar() {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   
-  // Safe auth access
-  const { user, signOut } = useSafeAuth();
+  // Safe auth access with inline error handling
+  let user = null;
+  let signOut = async () => {};
+  
+  try {
+    const auth = useAuth();
+    user = auth.user;
+    signOut = auth.signOut;
+  } catch (error) {
+    console.log('AttioTopbar: Auth context not available, using defaults');
+    user = null;
+    signOut = async () => {};
+  }
 
   const currentTitle = routeTitles[location.pathname] || 'Dashboard';
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
