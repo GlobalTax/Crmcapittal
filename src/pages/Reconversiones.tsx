@@ -11,12 +11,6 @@ type Reconversion = Database['public']['Tables']['reconversiones']['Row'];
 export default function Reconversiones() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
-  // Debug log para rastrear el problema
-  console.log('🔍 Reconversiones page loaded:', { 
-    currentPath: window.location.pathname,
-    id 
-  });
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'kanban'>('grid');
   const [filters, setFilters] = useState({
     search: '',
