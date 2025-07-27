@@ -36,26 +36,24 @@ export const fetchLeads = async (filters?: {
   owner_id?: string;
 }): Promise<Lead[]> => {
   try {
-    let query = supabase
-      .from('leads')
-      .select('*')
-      .order('created_at', { ascending: false });
+    let query = supabase.from('leads').select('*').order('created_at', { ascending: false });
 
+    // Apply filters without complex type constraints
     if (filters?.status) {
       const dbStatus = mapStatusToDb(filters.status);
-      query = query.eq('status', dbStatus);
+      query = (query as any).eq('status', dbStatus);
     }
 
     if (filters?.stage) {
-      query = query.eq('stage', filters.stage);
+      query = (query as any).eq('stage', filters.stage);
     }
 
     if (filters?.sector_id) {
-      query = query.eq('sector_id', filters.sector_id);
+      query = (query as any).eq('sector_id', filters.sector_id);
     }
 
     if (filters?.owner_id) {
-      query = query.eq('owner_id', filters.owner_id);
+      query = (query as any).eq('owner_id', filters.owner_id);
     }
 
     const { data, error } = await query;
@@ -65,10 +63,10 @@ export const fetchLeads = async (filters?: {
       throw error;
     }
 
-    return (data || []).map(lead => ({
+    return (data || []).map((lead: any) => ({
       ...lead,
       status: mapStatusFromDb(lead.status || 'NEW'),
-      stage: (lead as any).stage || 'pipeline',
+      stage: lead.stage || 'pipeline',
       assigned_to: null // Keep for compatibility
     })) as Lead[];
   } catch (error) {
@@ -92,7 +90,7 @@ export const fetchLeadById = async (id: string): Promise<Lead> => {
 
     return {
       ...data,
-      status: mapStatusFromDb(data.status || 'NEW'),
+      status: mapStatusFromDb((data as any).status || 'NEW'),
       stage: (data as any).stage || 'pipeline',
       assigned_to: null // Keep for compatibility
     } as Lead;
@@ -153,7 +151,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
 
     return {
       ...data,
-      status: mapStatusFromDb(data.status || 'NEW'),
+      status: mapStatusFromDb((data as any).status || 'NEW'),
       stage: (data as any).stage || 'pipeline'
     } as Lead;
   } catch (error) {
@@ -195,7 +193,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
 
     return {
       ...data,
-      status: mapStatusFromDb(data.status || 'NEW'),
+      status: mapStatusFromDb((data as any).status || 'NEW'),
       stage: (data as any).stage || 'pipeline'
     } as Lead;
   } catch (error) {
@@ -375,10 +373,10 @@ export const bulkInsertLeads = async (leads: CreateLeadData[]): Promise<Lead[]> 
       throw error;
     }
 
-    return (data || []).map(lead => ({
+    return (data || []).map((lead: any) => ({
       ...lead,
       status: mapStatusFromDb(lead.status || 'NEW'),
-      stage: (lead as any).stage || 'pipeline'
+      stage: lead.stage || 'pipeline'
     })) as Lead[];
   } catch (error) {
     logger.error('Error in bulkInsertLeads:', error);
