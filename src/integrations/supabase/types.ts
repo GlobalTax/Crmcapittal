@@ -7476,6 +7476,15 @@ export type Database = {
           },
         ]
       }
+      security_status_summary: {
+        Row: {
+          completed_items: number | null
+          completion_percentage: number | null
+          pending_items: number | null
+          total_items: number | null
+        }
+        Relationships: []
+      }
       vw_reconversion_kpi: {
         Row: {
           activas: number | null
