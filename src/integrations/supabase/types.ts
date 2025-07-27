@@ -7632,6 +7632,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      fn_recalcular_score_lead: {
+        Args: { p_lead_id: string }
+        Returns: undefined
+      }
       get_current_user_role_safe: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
