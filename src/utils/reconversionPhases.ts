@@ -84,6 +84,38 @@ export const RECONVERSION_PRIORITIES: Record<ReconversionPriority, ReconversionP
     color: 'hsl(var(--destructive))',
     bgColor: 'bg-destructive/10',
     textColor: 'text-destructive-foreground'
+  },
+  baja: {
+    label: 'Baja',
+    description: 'Prioridad baja',
+    icon: '🟢',
+    color: 'hsl(var(--success))',
+    bgColor: 'bg-success/10',
+    textColor: 'text-success-foreground'
+  },
+  media: {
+    label: 'Media',
+    description: 'Prioridad media',
+    icon: '🟡',
+    color: 'hsl(var(--warning))',
+    bgColor: 'bg-warning/10',
+    textColor: 'text-warning-foreground'
+  },
+  alta: {
+    label: 'Alta',
+    description: 'Prioridad alta',
+    icon: '🟠',
+    color: 'hsl(221.2 83.2% 53.3%)',
+    bgColor: 'bg-orange-100',
+    textColor: 'text-orange-800'
+  },
+  critica: {
+    label: 'Crítica',
+    description: 'Requiere atención inmediata',
+    icon: '🔴',
+    color: 'hsl(var(--destructive))',
+    bgColor: 'bg-destructive/10',
+    textColor: 'text-destructive-foreground'
   }
 };
 

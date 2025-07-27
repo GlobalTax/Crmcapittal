@@ -96,12 +96,12 @@ export default function ReconversionesView() {
       <div className="space-y-6">
         {!id ? (
           <ReconversionsList
-            reconversiones={filteredReconversiones}
+            reconversiones={filteredReconversiones as any}
             loading={loading}
             error={null}
             viewMode={viewMode}
             filters={filters}
-            filteredReconversiones={filteredReconversiones}
+            filteredReconversiones={filteredReconversiones as any}
             hasActiveFilters={filters.search !== '' || filters.status !== 'all' || filters.assignedTo !== 'all'}
             onViewModeChange={setViewMode}
             onFiltersChange={handleFiltersChange}

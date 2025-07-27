@@ -89,7 +89,7 @@ export function ReconversionsList({
       </div>
 
       {/* Stats */}
-      <ReconversionStats reconversiones={reconversiones} />
+      <ReconversionStats reconversiones={reconversiones as any} />
 
       {/* Filters */}
       <ReconversionFilters 
@@ -139,7 +139,7 @@ export function ReconversionsList({
           {filteredReconversiones.map((reconversion) => (
             <ReconversionCard
               key={reconversion.id}
-              reconversion={reconversion}
+              reconversion={reconversion as any}
               onSelect={() => onView(reconversion)}
             />
           ))}
