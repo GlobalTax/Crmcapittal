@@ -7561,6 +7561,16 @@ export type Database = {
         }
         Relationships: []
       }
+      vw_leads_kpi: {
+        Row: {
+          avg_dias_contacto: number | null
+          leads_hot: number | null
+          tasa_conversion: number | null
+          total_leads: number | null
+          valor_pipeline: number | null
+        }
+        Relationships: []
+      }
       vw_reconversion_kpi: {
         Row: {
           activas: number | null
