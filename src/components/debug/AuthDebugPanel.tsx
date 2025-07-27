@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, createAuthenticatedQuery } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 
 export const AuthDebugPanel: React.FC = () => {
@@ -8,22 +8,48 @@ export const AuthDebugPanel: React.FC = () => {
 
   const testAuthUID = async () => {
     try {
-      // En lugar de usar rpc, hacemos una consulta directa para ver si el auth funciona
-      const { data: testQuery, error: testError } = await supabase
-        .from('companies')
-        .select('count')
-        .limit(1);
+      console.log('🔍 Testing authentication...');
       
-      console.log('🔍 Test companies query:', { testQuery, testError });
+      // Test current session
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      console.log('🔍 Session check:', { 
+        hasSession: !!sessionData.session,
+        hasUser: !!sessionData.session?.user,
+        userId: sessionData.session?.user?.id,
+        hasAccessToken: !!sessionData.session?.access_token,
+        sessionError 
+      });
       
-      // También probamos la función RPC si existe
+      // Test authenticated query using our wrapper
+      const result = await createAuthenticatedQuery(async () => {
+        return await supabase
+          .from('companies')
+          .select('count')
+          .limit(1);
+      });
+      
+      console.log('🔍 Authenticated query test:', { 
+        data: result.data, 
+        error: result.error,
+        success: !result.error 
+      });
+      
+      // Test RPC function if exists
       try {
-        const { data, error } = await supabase.rpc('test_auth_uid');
-        console.log('🔍 Testing auth.uid():', { data, error });
-        return { data, error, testQuery, testError };
+        const { data: rpcData, error: rpcError } = await supabase.rpc('test_auth_uid');
+        console.log('🔍 RPC test_auth_uid:', { data: rpcData, error: rpcError });
+        return { 
+          sessionTest: { data: sessionData, error: sessionError },
+          queryTest: result,
+          rpcTest: { data: rpcData, error: rpcError }
+        };
       } catch (rpcError) {
-        console.log('🔍 RPC function not available, only testing direct query');
-        return { testQuery, testError };
+        console.log('🔍 RPC function not available');
+        return { 
+          sessionTest: { data: sessionData, error: sessionError },
+          queryTest: result,
+          rpcTest: { error: 'RPC not available' }
+        };
       }
     } catch (error) {
       console.error('🔍 Error testing auth:', error);

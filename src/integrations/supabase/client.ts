@@ -6,7 +6,61 @@ import type { Database } from './types';
 const SUPABASE_URL = 'https://nbvvdaprcecaqvvkqcto.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idnZkYXByY2VjYXF2dmtxY3RvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3MTQxMDEsImV4cCI6MjA2NTI5MDEwMX0.U-xmTVjSKNxSjCugemIdIqSLDuFEMt8BuvH0IifJAfo';
 
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
+// Create client with enhanced configuration for better auth handling
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'x-client-info': 'supabase-js-web',
+    },
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+});
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+// Enhanced query wrapper with automatic session verification
+export const createAuthenticatedQuery = async <T>(
+  queryFn: () => Promise<{ data: T | null; error: any }>
+): Promise<{ data: T | null; error: any }> => {
+  try {
+    // Verify session before making the query
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError) {
+      console.error('Session error before query:', sessionError);
+      return { data: null, error: sessionError };
+    }
+    
+    if (!session) {
+      console.error('No active session found');
+      return { data: null, error: new Error('No active session') };
+    }
+    
+    // Make the query
+    const result = await queryFn();
+    
+    // If we get a 401 or auth error, try to refresh the session
+    if (result.error && (result.error.code === '401' || result.error.message?.includes('auth'))) {
+      console.log('Auth error detected, attempting session refresh...');
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (!refreshError) {
+        // Retry the query after refresh
+        return await queryFn();
+      }
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error in authenticated query:', error);
+    return { data: null, error };
+  }
+};
