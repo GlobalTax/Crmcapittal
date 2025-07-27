@@ -2819,6 +2819,47 @@ export type Database = {
           },
         ]
       }
+      lead_interactions: {
+        Row: {
+          created_at: string
+          detalle: string | null
+          fecha: string
+          id: string
+          lead_id: string
+          tipo: Database["public"]["Enums"]["interaction_type"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detalle?: string | null
+          fecha?: string
+          id?: string
+          lead_id: string
+          tipo: Database["public"]["Enums"]["interaction_type"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detalle?: string | null
+          fecha?: string
+          id?: string
+          lead_id?: string
+          tipo?: Database["public"]["Enums"]["interaction_type"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_notes: {
         Row: {
           created_at: string | null
@@ -7769,6 +7810,7 @@ export type Database = {
         | "banker"
       email_status: "SENT" | "OPENED" | "CLICKED"
       geographic_scope: "local" | "regional" | "nacional" | "internacional"
+      interaction_type: "email" | "llamada" | "reunion" | "nota" | "task"
       lead_source:
         | "WEBSITE_FORM"
         | "CAPITAL_MARKET"
@@ -8033,6 +8075,7 @@ export const Constants = {
       ],
       email_status: ["SENT", "OPENED", "CLICKED"],
       geographic_scope: ["local", "regional", "nacional", "internacional"],
+      interaction_type: ["email", "llamada", "reunion", "nota", "task"],
       lead_source: [
         "WEBSITE_FORM",
         "CAPITAL_MARKET",
