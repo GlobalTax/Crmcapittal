@@ -38,11 +38,7 @@ export const fetchLeads = async (filters?: {
   try {
     let query = supabase
       .from('leads')
-      .select(`
-        *,
-        sector:sectores(id, nombre, descripcion),
-        owner:user_profiles!owner_id(id, first_name, last_name, email)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (filters?.status) {
@@ -71,7 +67,8 @@ export const fetchLeads = async (filters?: {
 
     return (data || []).map(lead => ({
       ...lead,
-      status: mapStatusFromDb(lead.status),
+      status: mapStatusFromDb(lead.status || 'NEW'),
+      stage: (lead as any).stage || 'pipeline',
       assigned_to: null // Keep for compatibility
     })) as Lead[];
   } catch (error) {
@@ -84,11 +81,7 @@ export const fetchLeadById = async (id: string): Promise<Lead> => {
   try {
     const { data, error } = await supabase
       .from('leads')
-      .select(`
-        *,
-        sector:sectores(id, nombre, descripcion),
-        owner:user_profiles!owner_id(id, first_name, last_name, email)
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 
@@ -99,7 +92,8 @@ export const fetchLeadById = async (id: string): Promise<Lead> => {
 
     return {
       ...data,
-      status: mapStatusFromDb(data.status),
+      status: mapStatusFromDb(data.status || 'NEW'),
+      stage: (data as any).stage || 'pipeline',
       assigned_to: null // Keep for compatibility
     } as Lead;
   } catch (error) {
@@ -149,11 +143,7 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
     const { data, error } = await supabase
       .from('leads')
       .insert(dbLeadData)
-      .select(`
-        *,
-        sector:sectores(id, nombre, descripcion),
-        owner:user_profiles!owner_id(id, first_name, last_name, email)
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -163,7 +153,8 @@ export const createLead = async (leadData: CreateLeadData): Promise<Lead> => {
 
     return {
       ...data,
-      status: mapStatusFromDb(data.status)
+      status: mapStatusFromDb(data.status || 'NEW'),
+      stage: (data as any).stage || 'pipeline'
     } as Lead;
   } catch (error) {
     logger.error('Error in createLead:', error);
@@ -194,11 +185,7 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
       .from('leads')
       .update(dbUpdates)
       .eq('id', id)
-      .select(`
-        *,
-        sector:sectores(id, nombre, descripcion),
-        owner:user_profiles!owner_id(id, first_name, last_name, email)
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -208,7 +195,8 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
 
     return {
       ...data,
-      status: mapStatusFromDb(data.status)
+      status: mapStatusFromDb(data.status || 'NEW'),
+      stage: (data as any).stage || 'pipeline'
     } as Lead;
   } catch (error) {
     logger.error('Error in updateLead:', error);
@@ -380,11 +368,7 @@ export const bulkInsertLeads = async (leads: CreateLeadData[]): Promise<Lead[]> 
     const { data, error } = await supabase
       .from('leads')
       .insert(dbLeadsData)
-      .select(`
-        *,
-        sector:sectores(id, nombre, descripcion),
-        owner:user_profiles!owner_id(id, first_name, last_name, email)
-      `);
+      .select('*');
 
     if (error) {
       logger.error('Error bulk inserting leads:', error);
@@ -393,7 +377,8 @@ export const bulkInsertLeads = async (leads: CreateLeadData[]): Promise<Lead[]> 
 
     return (data || []).map(lead => ({
       ...lead,
-      status: mapStatusFromDb(lead.status)
+      status: mapStatusFromDb(lead.status || 'NEW'),
+      stage: (lead as any).stage || 'pipeline'
     })) as Lead[];
   } catch (error) {
     logger.error('Error in bulkInsertLeads:', error);

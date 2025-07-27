@@ -62,6 +62,7 @@ export const LeadManagementDashboard = ({
       job_title: "CEO",
       message: "Interesada en servicios de valoración para posible venta",
       source: "website_form",
+      stage: "pipeline",
       form_data: {
         form_type: "consultation_request",
         utm_source: "google",
@@ -94,6 +95,7 @@ export const LeadManagementDashboard = ({
       job_title: "Director Financiero",
       message: "Necesito asesoramiento para adquisición",
       source: "lead_marker",
+      stage: "cualificado",
       form_data: {
         form_type: "demo_request",
         referrer_url: "https://leadmarker.com"
@@ -124,6 +126,7 @@ export const LeadManagementDashboard = ({
       job_title: "Founder",
       message: "Startup busca funding, posible exit strategy",
       source: "capittal_market",
+      stage: "propuesta",
       form_data: {
         form_type: "consultation_request",
         external_source: "capittal_market_platform"

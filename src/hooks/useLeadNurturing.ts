@@ -191,6 +191,7 @@ export const useLeadScoring = () => {
           company_name: lead.company_name,
           source: (lead.source as any) || 'other',
           status: lead.status,
+          stage: 'pipeline',
           lead_score: nurturingData?.lead_score || 0,
           created_at: lead.created_at,
           updated_at: lead.updated_at,

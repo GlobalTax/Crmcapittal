@@ -13,7 +13,7 @@ import { AgendaPanel } from "@/components/dashboard/AgendaPanel";
 
 export default function MinimalPersonalDashboard() {
   const { user } = useAuth();
-  const { leads } = useLeads({ assigned_to_id: user?.id });
+  const { leads } = useLeads({ owner_id: user?.id });
   const { tasks, getTodayTasks, getCompletedTasks } = usePersonalTasks();
 
   const todayTasks = getTodayTasks();

@@ -25,7 +25,7 @@ export interface Lead extends BaseEntity, ContactInfo, BusinessInfo, EntityMetad
   
   // New database fields
   valor_estimado?: number;
-  stage: LeadStage;
+  stage?: LeadStage;
   prob_conversion?: number; // 0-100
   source_detail?: string;
   sector_id?: string;
