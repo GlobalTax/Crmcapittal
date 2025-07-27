@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSafeAuth } from '@/hooks/useSafeAuth';
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
@@ -13,20 +13,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Safety check for auth context
-  let user = null;
-  let loading = true;
-  
-  try {
-    const auth = useAuth();
-    user = auth.user;
-    loading = auth.loading;
-  } catch (error) {
-    console.error('ProtectedRoute: Auth context not available:', error);
-    setAuthError('Authentication system not available');
-    // For now, show loading while we try to recover
-    loading = true;
-  }
+  // Safe auth access
+  const { user, loading } = useSafeAuth();
 
   useEffect(() => {
     if (!loading) {

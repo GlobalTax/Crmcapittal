@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSafeAuth } from '@/hooks/useSafeAuth';
 
 export type UserRole = 'superadmin' | 'admin' | 'user' | null;
 
@@ -13,16 +13,8 @@ export const useUserRole = () => {
   const [role, setRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
   
-  // Safe auth access with error handling
-  let user = null;
-  try {
-    const auth = useAuth();
-    user = auth.user;
-  } catch (error) {
-    console.log('useUserRole: Auth context not available, using default role');
-    // Return default values when auth context is not available
-    return useMemo(() => ({ role: 'user' as UserRole, loading: false }), []);
-  }
+  // Safe auth access - useSafeAuth handles when context is not available
+  const { user } = useSafeAuth();
 
   const fetchUserRole = useCallback(async (userId: string) => {
     // Check cache first

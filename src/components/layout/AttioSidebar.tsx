@@ -101,25 +101,9 @@ const adminSection: NavSection = {
 export function AttioSidebar() {
   const location = useLocation();
   
-  // Safe role access with fallback
-  let role = 'user';
-  try {
-    const { role: userRole } = useUserRole();
-    role = userRole || 'user';
-  } catch (error) {
-    console.log('AttioSidebar: Using default role due to auth context unavailable');
-    role = 'user';
-  }
+  const { role } = useUserRole();
   
-  // Safe leads access with fallback
-  let leads = [];
-  try {
-    const { leads: userLeads } = useLeads();
-    leads = userLeads || [];
-  } catch (error) {
-    console.log('AttioSidebar: Using empty leads array due to context unavailable');
-    leads = [];
-  }
+  const { leads } = useLeads();
   
   const isAdmin = role === 'admin' || role === 'superadmin';
 
