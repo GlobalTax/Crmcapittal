@@ -74,8 +74,8 @@ export function EnhancedReconversionCard({
           </div>
           <div className="flex flex-col items-end gap-2">
             <ReconversionStatusBadge 
-              status={reconversion.status} 
-              priority={reconversion.priority}
+              status={reconversion.estado} 
+              priority={reconversion.prioridad}
             />
           </div>
         </div>
@@ -167,7 +167,7 @@ export function EnhancedReconversionCard({
             </SecureButton>
           )}
 
-          {onStartMatching && reconversion.status === 'active' && (
+          {onStartMatching && reconversion.estado === 'activa' && (
             <SecureButton
               hasPermission={canWrite}
               variant="default"

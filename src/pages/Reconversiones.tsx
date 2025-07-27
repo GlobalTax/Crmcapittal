@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import type { Database } from '@/integrations/supabase/types';
 
-type Reconversion = Database['public']['Tables']['reconversiones']['Row'];
+type Reconversion = Database['public']['Tables']['reconversiones_new']['Row'];
 
 export default function Reconversiones() {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +37,7 @@ export default function Reconversiones() {
       reconversion.company_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
       reconversion.contact_name?.toLowerCase().includes(filters.search.toLowerCase());
     
-    const matchesStatus = filters.status === 'all' || reconversion.status === filters.status;
+    const matchesStatus = filters.status === 'all' || reconversion.estado === filters.status;
     const matchesAssigned = filters.assignedTo === 'all' || reconversion.assigned_to === filters.assignedTo;
 
     return matchesSearch && matchesStatus && matchesAssigned;
@@ -78,7 +78,7 @@ export default function Reconversiones() {
   };
 
   const handleUpdateStatus = async (reconversionId: string, status: string) => {
-    return await updateReconversion(reconversionId, { status: status as any });
+    return await updateReconversion(reconversionId, { estado: status as any });
   };
 
   if (loading && reconversiones.length === 0) {

@@ -11,7 +11,7 @@ import { Plus, RefreshCw, Download } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 import type { ReconversionFilters as FilterType } from '@/types/Reconversion';
 
-type Reconversion = Database['public']['Tables']['reconversiones']['Row'];
+type Reconversion = Database['public']['Tables']['reconversiones_new']['Row'];
 
 interface ReconversionsListProps {
   reconversiones: Reconversion[];

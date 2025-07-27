@@ -71,9 +71,9 @@ export function OptimizedReconversionCard({
   };
 
   return (
-    <Card className={`relative overflow-hidden border-l-4 ${getStatusColor(reconversion.status)} hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] group cursor-pointer ${className}`}>
+    <Card className={`relative overflow-hidden border-l-4 ${getStatusColor(reconversion.estado)} hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] group cursor-pointer ${className}`}>
       {/* Status indicator dot */}
-      <div className={`absolute top-3 right-3 w-3 h-3 rounded-full ${getStatusColor(reconversion.status)} pulse`} />
+      <div className={`absolute top-3 right-3 w-3 h-3 rounded-full ${getStatusColor(reconversion.estado)} pulse`} />
       
       {/* Gradient overlay for visual appeal */}
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -88,8 +88,8 @@ export function OptimizedReconversionCard({
                 </AvatarFallback>
               </Avatar>
               {/* Priority indicator */}
-              {reconversion.priority && reconversion.priority !== 'low' && (
-                <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${getPriorityColor(reconversion.priority)} flex items-center justify-center`}>
+              {reconversion.prioridad && reconversion.prioridad !== 'baja' && (
+                <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-background ${getPriorityColor(reconversion.prioridad)} flex items-center justify-center`}>
                   <div className="w-2 h-2 rounded-full bg-current" />
                 </div>
               )}
@@ -122,8 +122,8 @@ export function OptimizedReconversionCard({
 
           <div className="flex flex-col items-end gap-2">
             <ReconversionStatusBadge 
-              status={reconversion.status} 
-              priority={reconversion.priority}
+              status={reconversion.estado} 
+              priority={reconversion.prioridad}
             />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -144,7 +144,7 @@ export function OptimizedReconversionCard({
                     Editar
                   </DropdownMenuItem>
                 )}
-                {onStartMatching && reconversion.status === 'active' && (
+                {onStartMatching && reconversion.estado === 'activa' && (
                   <DropdownMenuItem onClick={onStartMatching} className="cursor-pointer">
                     <Target className="h-4 w-4 mr-2" />
                     Iniciar matching
@@ -254,7 +254,7 @@ export function OptimizedReconversionCard({
                 <Edit className="h-4 w-4" />
               </Button>
             )}
-            {onStartMatching && reconversion.status === 'active' && (
+            {onStartMatching && reconversion.estado === 'activa' && (
               <Button 
                 variant="ghost" 
                 size="sm" 

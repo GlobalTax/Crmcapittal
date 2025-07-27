@@ -1,19 +1,25 @@
+import type { Database } from '@/integrations/supabase/types';
+
 export type ReconversionStatus = 'active' | 'matching' | 'paused' | 'closed';
 
-export type ReconversionPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type ReconversionPriority = 'low' | 'medium' | 'high' | 'urgent' | 'baja' | 'media' | 'alta' | 'critica';
 
-export interface Reconversion {
+// Use the database type directly for consistency
+export type Reconversion = Database['public']['Tables']['reconversiones_new']['Row'];
+
+// Legacy interface for backward compatibility
+export interface ReconversionLegacy {
   id: string;
-  company_name: string;
-  contact_name: string;
+  company_name?: string;
+  contact_name?: string;
   contact_email?: string;
   contact_phone?: string;
-  rejection_reason: string;
-  target_sectors?: string[];
+  rejection_reason?: string;
+  target_sectors?: string[] | null;
   investment_capacity_min?: number;
   investment_capacity_max?: number;
-  geographic_preferences?: string[];
-  business_model_preferences?: string[];
+  geographic_preferences?: string[] | null;
+  business_model_preferences?: string[] | null;
   priority?: ReconversionPriority;
   status?: ReconversionStatus;
   notes?: string;

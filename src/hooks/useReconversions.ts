@@ -4,7 +4,7 @@ import { useReconversionSecurity } from '@/hooks/useReconversionSecurity';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 
-type Reconversion = Database['public']['Tables']['reconversiones']['Row'];
+type Reconversion = Database['public']['Tables']['reconversiones_new']['Row'];
 
 export function useReconversions() {
   const [reconversiones, setReconversiones] = useState<Reconversion[]>([]);
@@ -18,7 +18,7 @@ export function useReconversions() {
       setError(null);
 
       const { data, error: fetchError } = await supabase
-        .from('reconversiones')
+        .from('reconversiones_new')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -50,13 +50,16 @@ export function useReconversions() {
       const reconversionData = {
         ...data,
         created_by: user.user.id,
-        status: data.status || 'draft',
+        estado: data.estado || 'activa',
+        subfase: data.subfase || 'prospecting',
+        prioridad: data.prioridad || 'media',
         contact_name: data.contact_name || 'Sin nombre',
-        rejection_reason: data.rejection_reason || 'Sin especificar'
+        rejection_reason: data.rejection_reason || 'Sin especificar',
+        last_activity_at: new Date().toISOString()
       } as any;
 
       const { data: newReconversion, error } = await supabase
-        .from('reconversiones')
+        .from('reconversiones_new')
         .insert(reconversionData)
         .select()
         .single();
@@ -82,7 +85,7 @@ export function useReconversions() {
       }
 
       const { data: updatedReconversion, error } = await supabase
-        .from('reconversiones')
+        .from('reconversiones_new')
         .update(data)
         .eq('id', id)
         .select()
@@ -111,7 +114,7 @@ export function useReconversions() {
       }
 
       const { error } = await supabase
-        .from('reconversiones')
+        .from('reconversiones_new')
         .delete()
         .eq('id', id);
 

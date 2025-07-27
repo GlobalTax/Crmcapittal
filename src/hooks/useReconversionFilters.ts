@@ -54,12 +54,12 @@ export function useReconversionFilters(reconversiones: Reconversion[]) {
       }
 
       // Status filter
-      if (filters.status !== 'all' && reconversion.status !== filters.status) {
+      if (filters.status !== 'all' && reconversion.estado !== filters.status) {
         return false;
       }
 
-      // Priority filter
-      if (filters.priority !== 'all' && reconversion.priority !== filters.priority) {
+      // Priority filter  
+      if (filters.priority !== 'all' && reconversion.prioridad !== filters.priority) {
         return false;
       }
 

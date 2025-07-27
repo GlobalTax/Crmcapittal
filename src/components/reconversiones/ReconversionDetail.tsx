@@ -10,14 +10,17 @@ import { es } from 'date-fns/locale';
 import { formatInvestmentRange } from '@/utils/reconversionPhases';
 import { ReconversionStatusBadge } from './ReconversionStatusBadge';
 import type { Reconversion } from '@/types/Reconversion';
+import type { Database } from '@/integrations/supabase/types';
+
+type ReconversionRow = Database['public']['Tables']['reconversiones_new']['Row'];
 
 interface ReconversionDetailProps {
   reconversionId: string;
-  reconversiones: Reconversion[];
+  reconversiones: ReconversionRow[];
   onBackToList: () => void;
   onRefresh: () => void;
   isLoading: boolean;
-  onUpdate?: (id: string, updates: Partial<Reconversion>) => void;
+  onUpdate?: (id: string, updates: Partial<ReconversionRow>) => void;
 }
 
 // Helper functions for status display
@@ -74,7 +77,7 @@ export const ReconversionDetail = ({
   isLoading,
   onUpdate 
 }: ReconversionDetailProps) => {
-  const [reconversion, setReconversion] = useState<Reconversion | null>(null);
+  const [reconversion, setReconversion] = useState<ReconversionRow | null>(null);
   const [activeTab, setActiveTab] = useState('preferences');
 
   useEffect(() => {
@@ -120,7 +123,7 @@ export const ReconversionDetail = ({
                 <BreadcrumbLink onClick={onBackToList}>Reconversiones</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
-              <BreadcrumbPage>{reconversion.company_name}</BreadcrumbPage>
+              <BreadcrumbPage>{reconversion.company_name || 'Reconversión'}</BreadcrumbPage>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
@@ -137,12 +140,12 @@ export const ReconversionDetail = ({
             <div className="flex-1 min-w-0">
               <CardTitle className="flex items-center gap-2 text-2xl">
                 <Building className="h-6 w-6" />
-                {reconversion.company_name}
+                {reconversion.company_name || 'Sin nombre de empresa'}
               </CardTitle>
               <div className="flex items-center gap-4 mt-2">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <User className="h-4 w-4" />
-                  {reconversion.contact_name}
+                  {reconversion.contact_name || 'Sin nombre de contacto'}
                 </div>
                 {reconversion.contact_email && (
                   <div className="flex items-center gap-2 text-muted-foreground">
@@ -154,8 +157,8 @@ export const ReconversionDetail = ({
             </div>
             <div className="flex items-center gap-3">
               <ReconversionStatusBadge 
-                status={reconversion.status} 
-                priority={reconversion.priority}
+                status={reconversion.estado} 
+                priority={reconversion.prioridad}
               />
               {onUpdate && (
                 <Button variant="outline" size="sm">
@@ -204,7 +207,7 @@ export const ReconversionDetail = ({
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{reconversion.contact_email}</span>
+                      <span className="text-sm">{reconversion.contact_email || 'Sin email'}</span>
                     </div>
                     {reconversion.contact_phone && (
                       <div className="flex items-center gap-2">
@@ -244,7 +247,7 @@ export const ReconversionDetail = ({
               </Card>
 
               {/* Target Sectors */}
-              {reconversion.target_sectors && reconversion.target_sectors.length > 0 && (
+              {reconversion.target_sectors && Array.isArray(reconversion.target_sectors) && reconversion.target_sectors.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -265,7 +268,7 @@ export const ReconversionDetail = ({
               )}
 
               {/* Geographic Preferences */}
-              {reconversion.geographic_preferences && reconversion.geographic_preferences.length > 0 && (
+              {reconversion.geographic_preferences && Array.isArray(reconversion.geographic_preferences) && reconversion.geographic_preferences.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -286,7 +289,7 @@ export const ReconversionDetail = ({
               )}
 
               {/* Business Model Preferences */}
-              {reconversion.business_model_preferences && reconversion.business_model_preferences.length > 0 && (
+              {reconversion.business_model_preferences && Array.isArray(reconversion.business_model_preferences) && reconversion.business_model_preferences.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -312,7 +315,7 @@ export const ReconversionDetail = ({
                   <CardTitle>Motivo del Rechazo Original</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm">{reconversion.rejection_reason}</p>
+                  <p className="text-sm">{reconversion.rejection_reason || 'Sin motivo especificado'}</p>
                 </CardContent>
               </Card>
 
@@ -421,14 +424,14 @@ export const ReconversionDetail = ({
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm font-medium">Estado</p>
-                <Badge variant={getStatusVariant(reconversion.status || 'active')}>
-                  {getStatusLabel(reconversion.status || 'active')}
+                <Badge variant={getStatusVariant(reconversion.estado || 'activa')}>
+                  {getStatusLabel(reconversion.estado || 'activa')}
                 </Badge>
               </div>
               <div>
                 <p className="text-sm font-medium">Prioridad</p>
                 <Badge variant="outline">
-                  {getPriorityLabel(reconversion.priority || 'medium')}
+                  {getPriorityLabel(reconversion.prioridad || 'media')}
                 </Badge>
               </div>
               {reconversion.assigned_to && (

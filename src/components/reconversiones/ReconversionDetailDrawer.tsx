@@ -59,8 +59,8 @@ export function ReconversionDetailDrawer({
             </div>
             <div className="flex items-center gap-2">
               <ReconversionStatusBadge 
-                status={reconversion.status} 
-                priority={reconversion.priority}
+                status={reconversion.estado} 
+                priority={reconversion.prioridad}
               />
               {onEdit && (
                 <Button
