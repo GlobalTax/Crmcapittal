@@ -32,12 +32,9 @@ export default function ReconversionesView() {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [refetch]);
+  }, []); // Remove refetch dependency to prevent infinite loop
 
-  // Initial load
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+  // The hook already fetches on mount, no need for additional useEffect
 
   const handleReconversionSelect = (reconversion: any) => {
     navigate(`/reconversiones/${reconversion.id}`);

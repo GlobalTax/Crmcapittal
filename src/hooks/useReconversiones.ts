@@ -121,9 +121,10 @@ export function useReconversiones() {
     }
   }, []);
 
+  // Only fetch on mount to prevent infinite loops
   useEffect(() => {
     fetchReconversiones();
-  }, [fetchReconversiones]);
+  }, []); // Empty dependency array
 
   return {
     reconversiones,
