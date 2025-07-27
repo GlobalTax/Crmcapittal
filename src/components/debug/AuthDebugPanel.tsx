@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase, createAuthenticatedQuery } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 
 export const AuthDebugPanel: React.FC = () => {
@@ -20,19 +20,12 @@ export const AuthDebugPanel: React.FC = () => {
         sessionError 
       });
       
-      // Test authenticated query using our wrapper
-      const result = await createAuthenticatedQuery(async () => {
-        return await supabase
-          .from('companies')
-          .select('count')
-          .limit(1);
-      });
+      // Test direct query
+      console.log('🔧 Testing direct query...');
+      const { data: queryData, error: queryError } = await supabase.from('leads').select('count').limit(1);
+      console.log('✅ Direct query result:', { data: queryData, error: queryError });
       
-      console.log('🔍 Authenticated query test:', { 
-        data: result.data, 
-        error: result.error,
-        success: !result.error 
-      });
+      const result = { data: queryData, error: queryError };
       
       // Test RPC function if exists
       try {

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Negocio } from '@/types/Negocio';
-import { supabase, createAuthenticatedQuery } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const useNegocios = (pipelineId?: string) => {
@@ -15,45 +15,41 @@ export const useNegocios = (pipelineId?: string) => {
       setLoading(true);
       setError(null);
       
-      const result = await createAuthenticatedQuery(async () => {
-        let query = supabase
-          .from('negocios')
-          .select(`
-            *,
-            stages!stage_id (
-              id,
-              name,
-              color,
-              order_index,
-              pipeline_id
-            ),
-            contacts!contact_id (
-              id,
-              name,
-              email,
-              phone,
-              position
-            ),
-            companies!company_id (
-              id,
-              name,
-              industry,
-              website
-            )
-          `)
-          .eq('is_active', true)
-          .order('created_at', { ascending: false });
+      let query = supabase
+        .from('negocios')
+        .select(`
+          *,
+          stages!stage_id (
+            id,
+            name,
+            color,
+            order_index,
+            pipeline_id
+          ),
+          contacts!contact_id (
+            id,
+            name,
+            email,
+            phone,
+            position
+          ),
+          companies!company_id (
+            id,
+            name,
+            industry,
+            website
+          )
+        `)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-        if (pipelineId) {
-          query = query.eq('stages.pipeline_id', pipelineId);
-        }
+      if (pipelineId) {
+        query = query.eq('stages.pipeline_id', pipelineId);
+      }
 
-        return await query;
-      });
+      const { data, error } = await query;
 
-      if (result.error) throw result.error;
-      
-      const data = result.data;
+      if (error) throw error;
       
       const transformedData = (data || []).map(negocio => ({
         id: negocio.id,

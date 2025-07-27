@@ -1,4 +1,4 @@
-import { supabase, createAuthenticatedQuery } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadStage } from '@/types/Lead';
 import { logger } from '@/utils/logger';
 
@@ -36,37 +36,32 @@ export const fetchLeads = async (filters?: {
   owner_id?: string;
 }): Promise<Lead[]> => {
   try {
-    // Use authenticated query wrapper
-    const result = await createAuthenticatedQuery(async () => {
-      let query = supabase.from('leads').select('*').order('created_at', { ascending: false });
+    let query = supabase.from('leads').select('*').order('created_at', { ascending: false });
 
-      // Apply filters without complex type constraints
-      if (filters?.status) {
-        const dbStatus = mapStatusToDb(filters.status);
-        query = (query as any).eq('status', dbStatus);
-      }
-
-      if (filters?.stage) {
-        query = (query as any).eq('stage', filters.stage);
-      }
-
-      if (filters?.sector_id) {
-        query = (query as any).eq('sector_id', filters.sector_id);
-      }
-
-      if (filters?.owner_id) {
-        query = (query as any).eq('owner_id', filters.owner_id);
-      }
-
-      return await query;
-    });
-
-    if (result.error) {
-      logger.error('Error fetching leads:', result.error);
-      throw result.error;
+    // Apply filters without complex type constraints
+    if (filters?.status) {
+      const dbStatus = mapStatusToDb(filters.status);
+      query = (query as any).eq('status', dbStatus);
     }
 
-    const data = result.data || [];
+    if (filters?.stage) {
+      query = (query as any).eq('stage', filters.stage);
+    }
+
+    if (filters?.sector_id) {
+      query = (query as any).eq('sector_id', filters.sector_id);
+    }
+
+    if (filters?.owner_id) {
+      query = (query as any).eq('owner_id', filters.owner_id);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      logger.error('Error fetching leads:', error);
+      throw error;
+    }
     return data.map((lead: any) => ({
       ...lead,
       status: mapStatusFromDb(lead.status || 'NEW'),

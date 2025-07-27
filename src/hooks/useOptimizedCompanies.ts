@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Company, CreateCompanyData, UpdateCompanyData } from '@/types';
-import { supabase, createAuthenticatedQuery } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/utils/logger';
 
@@ -19,22 +19,20 @@ export const useOptimizedCompanies = () => {
     try {
       logger.debug('Fetching companies...');
       
-      const result = await createAuthenticatedQuery(async () => {
-        return await supabase
-          .from('companies')
-          .select('*')
-          .order('created_at', { ascending: false });
-      });
+      const { data, error } = await supabase
+        .from('companies')
+        .select('*')
+        .order('created_at', { ascending: false });
       
-      if (result.error) {
-        setError(result.error.message);
+      if (error) {
+        setError(error.message);
         setCompanies([]);
-        logger.error('Error fetching companies', result.error);
+        logger.error('Error fetching companies', error);
         return;
       }
       
-      setCompanies(result.data as Company[] || []);
-      logger.debug('Companies fetched successfully', { count: result.data?.length || 0 });
+      setCompanies(data as Company[] || []);
+      logger.debug('Companies fetched successfully', { count: data?.length || 0 });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(errorMessage);
