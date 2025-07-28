@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SecureInput } from '@/components/security/SecureInput';
+import { useSecureInput } from '@/hooks/useSecureInput';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { CreateLeadData, LeadSource, LeadServiceType, LeadPriority, LeadQuality } from '@/types/Lead';
@@ -21,6 +22,7 @@ export const CreateLeadDialog = ({
   onCreateLead, 
   isCreating 
 }: CreateLeadDialogProps) => {
+  const { sanitizeInput, validateEmail } = useSecureInput();
   const [formData, setFormData] = useState<CreateLeadData>({
     name: '',
     email: '',
@@ -56,6 +58,10 @@ export const CreateLeadDialog = ({
   };
 
   const handleInputChange = (field: keyof CreateLeadData, value: string | number) => {
+    // Sanitize text inputs for security
+    if (typeof value === 'string') {
+      value = sanitizeInput(value, { maxLength: field === 'message' ? 2000 : 500 });
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -69,49 +75,66 @@ export const CreateLeadDialog = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="name">Nombre *</Label>
-            <Input
+            <SecureInput
               id="name"
               value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
+              onChange={(value) => handleInputChange('name', value)}
+              enableSanitization={true}
+              maxLength={200}
               required
             />
           </div>
 
           <div>
             <Label htmlFor="email">Email *</Label>
-            <Input
+            <SecureInput
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
+              onChange={(value) => {
+                if (value && !validateEmail(value)) {
+                  // Email validation will be shown by the SecureInput component
+                  return;
+                }
+                handleInputChange('email', value);
+              }}
+              enableSanitization={true}
+              maxLength={320}
               required
             />
           </div>
 
           <div>
             <Label htmlFor="phone">Teléfono</Label>
-            <Input
+            <SecureInput
               id="phone"
               value={formData.phone || ''}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
+              onChange={(value) => handleInputChange('phone', value)}
+              enableSanitization={true}
+              maxLength={50}
+              allowedChars={/^[\d\+\s\-\(\)]+$/}
             />
           </div>
 
           <div>
             <Label htmlFor="company">Empresa</Label>
-            <Input
+            <SecureInput
               id="company"
               value={formData.company || ''}
-              onChange={(e) => handleInputChange('company', e.target.value)}
+              onChange={(value) => handleInputChange('company', value)}
+              enableSanitization={true}
+              maxLength={200}
             />
           </div>
 
           <div>
             <Label htmlFor="position">Cargo</Label>
-            <Input
+            <SecureInput
               id="position"
               value={formData.position || ''}
-              onChange={(e) => handleInputChange('position', e.target.value)}
+              onChange={(value) => handleInputChange('position', value)}
+              enableSanitization={true}
+              maxLength={200}
             />
           </div>
 

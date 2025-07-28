@@ -7674,6 +7674,10 @@ export type Database = {
         Args: { p_lead_id: string }
         Returns: number
       }
+      check_auth_rate_limit: {
+        Args: { p_identifier: string }
+        Returns: boolean
+      }
       check_auto_assignment_system: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -7946,6 +7950,10 @@ export type Database = {
       validate_session_security: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      validate_user_input: {
+        Args: { p_input: string; p_input_type?: string; p_max_length?: number }
+        Returns: string
       }
     }
     Enums: {

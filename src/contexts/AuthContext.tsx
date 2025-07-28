@@ -2,6 +2,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useSecureInput } from '@/hooks/useSecureInput';
+import { useRateLimit } from '@/utils/rateLimit';
 
 interface AuthContextType {
   user: User | null;
@@ -33,6 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const { validateEmail } = useSecureInput();
+  const { checkRateLimit } = useRateLimit();
 
   useEffect(() => {
     console.log('AuthProvider: Setting up auth listeners');
@@ -93,6 +97,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     console.log('AuthProvider: Attempting sign in for', email);
+    
+    // Input validation
+    if (!validateEmail(email)) {
+      return { error: { message: 'Email format is invalid' } };
+    }
+    
+    // Rate limiting
+    if (!checkRateLimit('login', email)) {
+      return { error: { message: 'Too many login attempts. Please try again later.' } };
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -107,6 +122,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string) => {
     console.log('AuthProvider: Attempting sign up for', email);
+    
+    // Input validation
+    if (!validateEmail(email)) {
+      return { error: { message: 'Email format is invalid' } };
+    }
+    
+    if (password.length < 8) {
+      return { error: { message: 'Password should be at least 8 characters long' } };
+    }
+    
+    // Rate limiting
+    if (!checkRateLimit('signup', email)) {
+      return { error: { message: 'Too many signup attempts. Please try again later.' } };
+    }
+    
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
