@@ -7836,6 +7836,16 @@ export type Database = {
             }
         Returns: string
       }
+      log_security_event_enhanced: {
+        Args: {
+          p_event_type: string
+          p_severity?: string
+          p_description?: string
+          p_metadata?: Json
+          p_table_name?: string
+        }
+        Returns: string
+      }
       match_targets_for_reconversion: {
         Args: { reconversion_id: string }
         Returns: {
@@ -7864,6 +7874,10 @@ export type Database = {
       }
       sanitize_input: {
         Args: { p_input: string }
+        Returns: string
+      }
+      sanitize_input_enhanced: {
+        Args: { p_input: string; p_max_length?: number }
         Returns: string
       }
       sanitize_reconversion_data: {
