@@ -7690,6 +7690,25 @@ export type Database = {
         Args: { p_identifier: string; p_action?: string }
         Returns: boolean
       }
+      create_deal_from_won_lead: {
+        Args: { p_lead_id: string; p_deal_value?: number }
+        Returns: Json
+      }
+      create_lead_task: {
+        Args: {
+          p_lead_id: string
+          p_title: string
+          p_description?: string
+          p_due_date?: string
+          p_priority?: string
+          p_assigned_to?: string
+        }
+        Returns: string
+      }
+      create_proposal_from_lead: {
+        Args: { p_lead_id: string }
+        Returns: string
+      }
       create_qualification_task: {
         Args: { p_lead_id: string; p_assigned_to: string }
         Returns: string

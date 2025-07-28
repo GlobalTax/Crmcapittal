@@ -6,6 +6,7 @@ export interface UpdateLeadStageData {
   leadId: string;
   stageId: string;
   stageName: string;
+  lost_reason?: string;
 }
 
 export interface MarkLeadWonData {
@@ -17,27 +18,34 @@ export interface MarkLeadWonData {
 export interface MarkLeadLostData {
   leadId: string;
   lostDate?: string;
-  lostReason?: string;
+  lostReason: string; // Required for lost leads
 }
 
 export const useUpdateLead = () => {
   const queryClient = useQueryClient();
 
   const updateStageMutation = useMutation({
-    mutationFn: async ({ leadId, stageId }: UpdateLeadStageData) => {
+    mutationFn: async ({ leadId, stageId, lost_reason }: UpdateLeadStageData) => {
+      const updateData: any = {
+        pipeline_stage_id: stageId,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Agregar lost_reason si se proporciona
+      if (lost_reason) {
+        updateData.lost_reason = lost_reason;
+      }
+
       const { data, error } = await supabase
         .from('leads')
-        .update({
-          pipeline_stage_id: stageId,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', leadId)
         .select()
         .single();
 
       if (error) {
         console.error('Error updating lead stage:', error);
-        throw new Error('Error al cambiar etapa del lead');
+        throw new Error(error.message || 'Error al cambiar etapa del lead');
       }
 
       return data;

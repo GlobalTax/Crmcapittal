@@ -7,41 +7,55 @@ export interface LeadTask {
   lead_id: string;
   title: string;
   description?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   due_date?: string;
-  priority: string;
-  status: string;
+  completed_at?: string;
   assigned_to?: string;
   created_by?: string;
-  completed_at?: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface CreateTaskData {
+export interface CreateLeadTaskData {
   lead_id: string;
   title: string;
   description?: string;
+  priority?: LeadTask['priority'];
   due_date?: string;
-  priority?: string;
   assigned_to?: string;
 }
 
-export interface UpdateTaskData {
-  status?: string;
+export interface UpdateLeadTaskData {
+  status?: LeadTask['status'];
+  title?: string;
+  description?: string;
+  priority?: LeadTask['priority'];
+  due_date?: string;
   completed_at?: string;
 }
 
-export const useLeadTasks = (leadId: string) => {
+export const useLeadTasks = (leadId?: string) => {
   const queryClient = useQueryClient();
 
-  const tasksQuery = useQuery({
+  const {
+    data: tasks = [],
+    isLoading,
+    error,
+    refetch
+  } = useQuery({
     queryKey: ['lead-tasks', leadId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('lead_tasks')
         .select('*')
-        .eq('lead_id', leadId)
-        .order('due_date', { ascending: true });
+        .order('created_at', { ascending: false });
+
+      if (leadId) {
+        query = query.eq('lead_id', leadId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching lead tasks:', error);
@@ -54,29 +68,25 @@ export const useLeadTasks = (leadId: string) => {
   });
 
   const createTaskMutation = useMutation({
-    mutationFn: async (taskData: CreateTaskData) => {
-      const { data: userData } = await supabase.auth.getUser();
-      
+    mutationFn: async (taskData: CreateLeadTaskData) => {
       const { data, error } = await supabase
         .from('lead_tasks')
         .insert({
           ...taskData,
-          created_by: userData.user?.id,
-          priority: taskData.priority || 'medium',
           status: 'pending',
         })
         .select()
         .single();
 
       if (error) {
-        console.error('Error creating task:', error);
+        console.error('Error creating lead task:', error);
         throw new Error('Error al crear tarea');
       }
 
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lead-tasks', leadId] });
+      queryClient.invalidateQueries({ queryKey: ['lead-tasks'] });
       toast.success('Tarea creada exitosamente');
     },
     onError: (error) => {
@@ -85,23 +95,26 @@ export const useLeadTasks = (leadId: string) => {
   });
 
   const updateTaskMutation = useMutation({
-    mutationFn: async ({ taskId, updates }: { taskId: string; updates: UpdateTaskData }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: UpdateLeadTaskData }) => {
       const { data, error } = await supabase
         .from('lead_tasks')
-        .update(updates)
-        .eq('id', taskId)
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
         .select()
         .single();
 
       if (error) {
-        console.error('Error updating task:', error);
+        console.error('Error updating lead task:', error);
         throw new Error('Error al actualizar tarea');
       }
 
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lead-tasks', leadId] });
+      queryClient.invalidateQueries({ queryKey: ['lead-tasks'] });
       toast.success('Tarea actualizada exitosamente');
     },
     onError: (error) => {
@@ -109,13 +122,68 @@ export const useLeadTasks = (leadId: string) => {
     },
   });
 
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('lead_tasks')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting lead task:', error);
+        throw new Error('Error al eliminar tarea');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead-tasks'] });
+      toast.success('Tarea eliminada exitosamente');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const completeTaskMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('lead_tasks')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error completing task:', error);
+        throw new Error('Error al completar tarea');
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead-tasks'] });
+      toast.success('Tarea completada 🎉');
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   return {
-    tasks: tasksQuery.data || [],
-    isLoading: tasksQuery.isLoading,
-    error: tasksQuery.error,
+    tasks,
+    isLoading,
+    error,
+    refetch,
     createTask: createTaskMutation.mutate,
     updateTask: updateTaskMutation.mutate,
+    deleteTask: deleteTaskMutation.mutate,
+    completeTask: completeTaskMutation.mutate,
     isCreating: createTaskMutation.isPending,
     isUpdating: updateTaskMutation.isPending,
+    isDeleting: deleteTaskMutation.isPending,
+    isCompleting: completeTaskMutation.isPending,
   };
 };

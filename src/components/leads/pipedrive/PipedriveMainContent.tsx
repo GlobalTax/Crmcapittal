@@ -88,7 +88,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const handleTaskComplete = async (taskId: string, completed: boolean) => {
     try {
       await updateTask({
-        taskId: taskId,
+        id: taskId,
         updates: { 
           status: completed ? 'completed' : 'pending',
           completed_at: completed ? new Date().toISOString() : null

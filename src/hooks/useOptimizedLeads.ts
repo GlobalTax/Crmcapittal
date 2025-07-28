@@ -118,6 +118,11 @@ export const useOptimizedLeads = (filters?: {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['lead-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['proposals'] });
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
       refetch(); // Refresh our data
       toast.success('Lead actualizado exitosamente');
     },
