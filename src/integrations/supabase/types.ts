@@ -7621,6 +7621,10 @@ export type Database = {
       }
     }
     Functions: {
+      assign_owner_on_create: {
+        Args: { p_lead_id: string }
+        Returns: Json
+      }
       assign_user_role: {
         Args: {
           _user_id: string
@@ -7643,6 +7647,10 @@ export type Database = {
         Args: { p_lead_id: string }
         Returns: number
       }
+      check_auto_assignment_system: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       check_rate_limit: {
         Args: {
           p_identifier: string
@@ -7650,6 +7658,10 @@ export type Database = {
           p_window_minutes?: number
         }
         Returns: boolean
+      }
+      create_qualification_task: {
+        Args: { p_lead_id: string; p_assigned_to: string }
+        Returns: string
       }
       create_reconversion_with_workflow: {
         Args: { reconversion_data: Json; user_id?: string }
