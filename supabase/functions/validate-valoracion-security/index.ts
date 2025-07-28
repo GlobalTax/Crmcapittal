@@ -44,19 +44,55 @@ serve(async (req) => {
       )
     }
 
-    const { action, valoracionId, data } = await req.json()
+    // SECURITY FIX: Enhanced input validation and sanitization
+    const requestBody = await req.json()
+    
+    // Validate required fields
+    if (!requestBody.action || typeof requestBody.action !== 'string') {
+      return new Response(
+        JSON.stringify({ valid: false, errors: ['Acción requerida y debe ser texto'] }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    // Sanitize action field
+    const action = requestBody.action.toLowerCase().replace(/[^a-z_]/g, '')
+    const valoracionId = requestBody.valoracionId
+    let data = requestBody.data || {}
+    
+    // Sanitize data fields if present
+    if (data.company_name) {
+      data.company_name = await supabase.rpc('sanitize_input', { p_input: data.company_name }).then(r => r.data || '')
+    }
+    if (data.client_name) {
+      data.client_name = await supabase.rpc('sanitize_input', { p_input: data.client_name }).then(r => r.data || '')
+    }
+    
     console.log(`Validating ${action} for user ${user.id}`)
 
-    // SECURITY FIX: Implement rate limiting
+    // SECURITY FIX: Implement enhanced rate limiting
+    const rateLimitId = `valoracion_security_${user.id}_${req.headers.get('x-forwarded-for') || 'unknown'}`
     const rateLimitCheck = await supabase.rpc('check_rate_limit', {
-      p_identifier: `valoracion_security_${user.id}`,
-      p_max_requests: 50,
-      p_window_minutes: 15
+      p_identifier: rateLimitId,
+      p_max_requests: 20, // Reduced from 50
+      p_window_minutes: 10 // Reduced from 15
     })
 
     if (!rateLimitCheck.data) {
+      // Log the rate limit violation
+      await supabase.rpc('log_security_event', {
+        p_event_type: 'rate_limit_exceeded',
+        p_severity: 'medium',
+        p_description: 'Rate limit exceeded for valoracion security validation',
+        p_metadata: {
+          user_id: user.id,
+          ip_address: req.headers.get('x-forwarded-for'),
+          user_agent: req.headers.get('user-agent')
+        }
+      })
+      
       return new Response(
-        JSON.stringify({ valid: false, errors: ['Rate limit exceeded. Please wait before trying again.'] }),
+        JSON.stringify({ valid: false, errors: ['Demasiadas solicitudes. Espera antes de intentar de nuevo.'] }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
