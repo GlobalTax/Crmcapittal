@@ -4931,6 +4931,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          created_at: string
+          id: string
+          identifier: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       reconversion_approvals: {
         Row: {
           aprobado: boolean | null
@@ -7604,6 +7628,13 @@ export type Database = {
         }
         Returns: Json
       }
+      assign_user_role_secure: {
+        Args: {
+          _target_user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: Json
+      }
       auto_assign_lead: {
         Args: { p_lead_id: string }
         Returns: string
@@ -7611,6 +7642,14 @@ export type Database = {
       calculate_lead_engagement_score: {
         Args: { p_lead_id: string }
         Returns: number
+      }
+      check_rate_limit: {
+        Args: {
+          p_identifier: string
+          p_max_requests?: number
+          p_window_minutes?: number
+        }
+        Returns: boolean
       }
       create_reconversion_with_workflow: {
         Args: { reconversion_data: Json; user_id?: string }
@@ -7748,6 +7787,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: Json
+      }
+      sanitize_input: {
+        Args: { p_input: string }
+        Returns: string
       }
       sanitize_reconversion_data: {
         Args: { p_data: Json }
