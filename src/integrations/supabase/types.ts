@@ -5734,6 +5734,33 @@ export type Database = {
         }
         Relationships: []
       }
+      security_settings: {
+        Row: {
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       stages: {
         Row: {
           color: string | null
@@ -7659,6 +7686,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_rate_limit_enhanced: {
+        Args: { p_identifier: string; p_action?: string }
+        Returns: boolean
+      }
       create_qualification_task: {
         Args: { p_lead_id: string; p_assigned_to: string }
         Returns: string
@@ -7701,6 +7732,10 @@ export type Database = {
       }
       get_quantum_token: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_security_setting: {
+        Args: { p_key: string }
         Returns: string
       }
       get_user_highest_role: {
@@ -7870,6 +7905,10 @@ export type Database = {
       validate_input_security: {
         Args: { input_text: string }
         Returns: string
+      }
+      validate_password_strength: {
+        Args: { password: string }
+        Returns: Json
       }
       validate_session_security: {
         Args: Record<PropertyKey, never>
