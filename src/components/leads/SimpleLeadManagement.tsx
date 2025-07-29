@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimpleLeadsTable } from "./SimpleLeadsTable";
+import { LeadKanbanBoard } from "./LeadKanbanBoard";
 import { UnifiedCard } from "@/components/ui/unified-card";
 import { PageTitle, Text } from "@/components/ui/typography";
 import { useLeadContacts } from "@/hooks/useLeadContacts";
-import { Users, TrendingUp, UserCheck, AlertCircle } from "lucide-react";
+import { Users, TrendingUp, UserCheck, AlertCircle, Kanban } from "lucide-react";
 
 export const SimpleLeadManagement = () => {
   const [activeTab, setActiveTab] = useState("manage");
@@ -31,12 +32,17 @@ export const SimpleLeadManagement = () => {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="manage">Gestionar</TabsTrigger>
+          <TabsTrigger value="manage">Lista</TabsTrigger>
+          <TabsTrigger value="kanban">Kanban</TabsTrigger>
           <TabsTrigger value="analytics">Análisis</TabsTrigger>
         </TabsList>
 
         <TabsContent value="manage" className="space-y-6">
           <SimpleLeadsTable />
+        </TabsContent>
+
+        <TabsContent value="kanban" className="space-y-6">
+          <LeadKanbanBoard />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
