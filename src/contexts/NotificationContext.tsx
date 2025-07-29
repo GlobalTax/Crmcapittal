@@ -10,6 +10,7 @@ interface NotificationContextType {
   clearNotification: ReturnType<typeof useNotificationSystem>['clearNotification'];
   clearAll: ReturnType<typeof useNotificationSystem>['clearAll'];
   processLeadChanges: ReturnType<typeof useNotificationSystem>['processLeadChanges'];
+  processTaskReminders: ReturnType<typeof useNotificationSystem>['processTaskReminders'];
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);

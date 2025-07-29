@@ -50,7 +50,7 @@ export const useNotificationSystem = () => {
     }
   }, []);
 
-  // Notification rules for different scenarios
+  // Enhanced notification rules for automated notifications
   const notificationRules: NotificationRule[] = [
     // New lead detected
     {
@@ -58,6 +58,31 @@ export const useNotificationSystem = () => {
       type: 'important',
       title: 'Nuevo Lead',
       message: 'Lead recibido',
+      sound: true,
+      persistent: true
+    },
+    // High score lead (≥70)
+    {
+      condition: (data: any) => {
+        const score = data.lead_nurturing?.lead_score || 0;
+        return score >= 70;
+      },
+      type: 'critical',
+      title: 'Lead HOT',
+      message: 'Lead con score alto detectado',
+      sound: true,
+      persistent: true
+    },
+    // High probability negotiation
+    {
+      condition: (data: any) => {
+        const isNegotiation = data.pipeline_stage?.name === 'Negociación';
+        const highProb = (data.prob_conversion || 0) > 0.8;
+        return isNegotiation && highProb;
+      },
+      type: 'important',
+      title: 'Lead en Negociación',
+      message: 'Lead con alta probabilidad de cierre',
       sound: true,
       persistent: true
     },
@@ -210,6 +235,35 @@ export const useNotificationSystem = () => {
     previousLeadsRef.current = [...currentLeads];
   }, [notifications, addNotification]);
 
+  // Process task reminders for automated notifications
+  const processTaskReminders = useCallback((tasks: any[]) => {
+    const today = new Date().toDateString();
+    
+    tasks.forEach(task => {
+      const dueDate = new Date(task.due_date).toDateString();
+      
+      if (dueDate === today && task.status === 'pending') {
+        // Check if we already notified about this task today
+        const alreadyNotified = notifications.some(notif => 
+          notif.leadId === task.lead_id && 
+          notif.title === 'Recordatorio de Tarea' &&
+          notif.timestamp.toDateString() === today
+        );
+
+        if (!alreadyNotified) {
+          addNotification({
+            type: 'important',
+            title: 'Recordatorio de Tarea',
+            message: `Recordatorio: Tarea "${task.title}" vence hoy`,
+            leadId: task.lead_id,
+            sound: true,
+            persistent: true
+          });
+        }
+      }
+    });
+  }, [notifications, addNotification]);
+
   // Mark notification as read
   const markAsRead = useCallback((notificationId: string) => {
     setNotifications(prev => 
@@ -257,6 +311,7 @@ export const useNotificationSystem = () => {
     markAllAsRead,
     clearNotification,
     clearAll,
-    processLeadChanges
+    processLeadChanges,
+    processTaskReminders
   };
 };

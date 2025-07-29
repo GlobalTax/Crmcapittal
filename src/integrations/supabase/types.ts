@@ -3266,6 +3266,7 @@ export type Database = {
           phone: string | null
           pipeline_stage_id: string | null
           priority: string | null
+          prob_conversion: number | null
           probability: number | null
           quality: string | null
           rod_order: number | null
@@ -3308,6 +3309,7 @@ export type Database = {
           phone?: string | null
           pipeline_stage_id?: string | null
           priority?: string | null
+          prob_conversion?: number | null
           probability?: number | null
           quality?: string | null
           rod_order?: number | null
@@ -3350,6 +3352,7 @@ export type Database = {
           phone?: string | null
           pipeline_stage_id?: string | null
           priority?: string | null
+          prob_conversion?: number | null
           probability?: number | null
           quality?: string | null
           rod_order?: number | null
@@ -4166,6 +4169,103 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_logs: {
+        Row: {
+          delivery_status: string | null
+          id: string
+          lead_id: string | null
+          message: string
+          metadata: Json | null
+          notification_type: string
+          recipient_user_id: string | null
+          rule_id: string | null
+          sent_at: string | null
+          task_id: string | null
+        }
+        Insert: {
+          delivery_status?: string | null
+          id?: string
+          lead_id?: string | null
+          message: string
+          metadata?: Json | null
+          notification_type: string
+          recipient_user_id?: string | null
+          rule_id?: string | null
+          sent_at?: string | null
+          task_id?: string | null
+        }
+        Update: {
+          delivery_status?: string | null
+          id?: string
+          lead_id?: string | null
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          recipient_user_id?: string | null
+          rule_id?: string | null
+          sent_at?: string | null
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_logs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "notification_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "lead_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_rules: {
+        Row: {
+          conditions: Json
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          notification_config: Json
+          rule_name: string
+          rule_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          conditions: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          notification_config: Json
+          rule_name: string
+          rule_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          conditions?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          notification_config?: Json
+          rule_name?: string
+          rule_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       nurturing_sequences: {
         Row: {
@@ -7674,6 +7774,10 @@ export type Database = {
         Returns: string
       }
       calculate_lead_engagement_score: {
+        Args: { p_lead_id: string }
+        Returns: number
+      }
+      calculate_prob_conversion_from_nurturing: {
         Args: { p_lead_id: string }
         Returns: number
       }

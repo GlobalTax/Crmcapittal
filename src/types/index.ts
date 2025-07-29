@@ -12,6 +12,7 @@ export * from './Contact';
 export * from './Lead';
 export * from './Company';
 export * from './Operation';
+export * from './AutomatedNotifications';
 
 // Re-export commonly used types with clear aliases
 export type {
@@ -28,8 +29,19 @@ export type {
   LeadOrigin,
   LeadServiceType,
   LeadPriority,
-  LeadQuality
+  LeadQuality,
+  LeadStage as LeadPipelineStage
 } from './Lead';
+
+export type {
+  LeadStage as LeadNurturingStage,
+  NurturingStatus,
+  ActivityType,
+  LeadNurturing,
+  LeadActivity,
+  NurturingSequence,
+  LeadScoringRule
+} from './LeadNurturing';
 
 export type {
   CompanySize,
