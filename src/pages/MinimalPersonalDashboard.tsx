@@ -10,6 +10,7 @@ import { MetricCard } from "@/components/dashboard/MetricCard";
 import { WorkTimer } from "@/components/dashboard/WorkTimer";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { AgendaPanel } from "@/components/dashboard/AgendaPanel";
+import { DashboardLeads } from "@/components/dashboard/DashboardLeads";
 
 export default function MinimalPersonalDashboard() {
   const { user } = useAuth();
@@ -74,6 +75,9 @@ export default function MinimalPersonalDashboard() {
           <AgendaPanel />
         </div>
       </div>
+
+      {/* Leads Dashboard Section */}
+      <DashboardLeads />
 
       {/* Third Row - Activity and Tasks */}
       <div className="grid gap-6 lg:grid-cols-2">

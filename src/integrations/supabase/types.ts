@@ -7715,6 +7715,24 @@ export type Database = {
         }
         Relationships: []
       }
+      vw_dashboard_leads_funnel: {
+        Row: {
+          lead_count: number | null
+          stage_color: string | null
+          stage_name: string | null
+          stage_order: number | null
+        }
+        Relationships: []
+      }
+      vw_dashboard_leads_kpi: {
+        Row: {
+          conversion_rate: number | null
+          hot_leads: number | null
+          pipeline_value: number | null
+          total_leads: number | null
+        }
+        Relationships: []
+      }
       vw_leads_kpi: {
         Row: {
           avg_dias_contacto: number | null
