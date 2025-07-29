@@ -89,14 +89,21 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
       if (!user) throw new Error('No user selected');
 
       try {
-        // Update user role
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .update({ role: userData.role })
-          .eq('user_id', user.user_id);
+        // Update user role using secure function
+        const { data: roleResult, error: roleError } = await supabase.rpc(
+          'update_user_role_secure',
+          {
+            _target_user_id: user.user_id,
+            _new_role: userData.role
+          }
+        );
 
         if (roleError) {
           throw new Error(`Error actualizando rol: ${roleError.message}`);
+        }
+
+        if (roleResult && !roleResult.success) {
+          throw new Error(roleResult.error || 'Error al actualizar rol');
         }
 
         // Handle manager profile based on new role
