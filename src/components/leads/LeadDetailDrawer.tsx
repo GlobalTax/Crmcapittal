@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Lead } from '@/types/Lead';
+import { useLeadActions } from '@/hooks/leads/useLeadActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,14 +15,14 @@ import {
   StickyNote, 
   CheckSquare, 
   Target,
-  Phone
+  Phone,
+  TrendingUp
 } from 'lucide-react';
 import { LeadOverviewTab } from './tabs/LeadOverviewTab';
 import { LeadActivityTab } from './LeadActivityTab';
 import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
 import { LeadProposalTab } from './tabs/LeadProposalTab';
-import { toast } from 'sonner';
 
 interface LeadDetailDrawerProps {
   lead: Lead | null;
@@ -32,27 +33,42 @@ interface LeadDetailDrawerProps {
 
 export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: LeadDetailDrawerProps) => {
   const [activeTab, setActiveTab] = useState('resumen');
+  const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
 
   const handleActionClick = (action: string) => {
+    if (!lead) return;
+
     switch (action) {
-      case 'compose-email':
-        toast.info('Email composer would open here');
+      case 'email':
+        // Open email client with lead email
+        if (lead.email) {
+          window.location.href = `mailto:${lead.email}?subject=Contacto comercial - ${lead.company || lead.name}`;
+        }
         break;
-      case 'copy-link':
-        if (lead) {
-          navigator.clipboard.writeText(`${window.location.origin}/leads/${lead.id}`);
-          toast.success('Link del lead copiado al portapapeles');
+      case 'call':
+        // Open phone dialer
+        if (lead.phone) {
+          window.location.href = `tel:${lead.phone}`;
         }
         break;
       case 'convert':
-        toast.info('Convert to deal functionality would open here');
+        convertToDeal(lead.id);
         break;
-      case 'call':
-        toast.info('Call functionality would open here');
+      case 'copy':
+        // Copy lead link to clipboard
+        navigator.clipboard.writeText(`${window.location.origin}/leads/${lead.id}`);
         break;
       case 'delete':
-        toast.info('Delete confirmation would appear here');
+        if (window.confirm('¿Estás seguro de que quieres eliminar este lead?')) {
+          deleteLead(lead.id);
+          onOpenChange(false);
+        }
         break;
+      case 'close':
+        onOpenChange(false);
+        break;
+      default:
+        console.log('Unknown action:', action);
     }
   };
 
@@ -125,50 +141,55 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleActionClick('compose-email')}
-              aria-label="Enviar email"
+              onClick={() => handleActionClick('email')}
+              className="gap-2"
             >
               <Mail className="h-4 w-4" />
+              Email
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('call')}
-              aria-label="Llamar"
+              className="gap-2"
             >
               <Phone className="h-4 w-4" />
+              Llamar
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('convert')}
-              aria-label="Convertir a oportunidad"
+              disabled={isConverting}
+              className="gap-2"
             >
-              <Target className="h-4 w-4" />
+              <TrendingUp className="h-4 w-4" />
+              {isConverting ? 'Convirtiendo...' : 'Convertir'}
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleActionClick('copy-link')}
-              aria-label="Copiar enlace"
+              onClick={() => handleActionClick('copy')}
+              className="gap-2"
             >
               <Copy className="h-4 w-4" />
+              Copiar
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('delete')}
-              className="text-destructive hover:text-destructive"
-              aria-label="Eliminar lead"
+              disabled={isDeleting}
+              className="gap-2 text-destructive hover:text-destructive"
             >
               <Trash2 className="h-4 w-4" />
+              {isDeleting ? 'Eliminando...' : 'Eliminar'}
             </Button>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onOpenChange(false)}
+              onClick={() => handleActionClick('close')}
               className="ml-2"
-              aria-label="Cerrar"
             >
               <X className="h-4 w-4" />
             </Button>

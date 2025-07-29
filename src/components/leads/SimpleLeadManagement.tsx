@@ -2,14 +2,30 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimpleLeadsTable } from "./SimpleLeadsTable";
 import { LeadKanbanBoard } from "./LeadKanbanBoard";
+import { LeadDetailDrawer } from "./LeadDetailDrawer";
 import { UnifiedCard } from "@/components/ui/unified-card";
 import { PageTitle, Text } from "@/components/ui/typography";
 import { useLeadContacts } from "@/hooks/useLeadContacts";
+import { Lead } from "@/types/Lead";
 import { Users, TrendingUp, UserCheck, AlertCircle, Kanban } from "lucide-react";
 
 export const SimpleLeadManagement = () => {
   const [activeTab, setActiveTab] = useState("manage");
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { leads, isLoading } = useLeadContacts();
+
+  const handleLeadClick = (lead: Lead) => {
+    setSelectedLead(lead);
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = (open: boolean) => {
+    setDrawerOpen(open);
+    if (!open) {
+      setSelectedLead(null);
+    }
+  };
 
   // Calculate stats
   const stats = {
@@ -42,7 +58,7 @@ export const SimpleLeadManagement = () => {
         </TabsContent>
 
         <TabsContent value="kanban" className="space-y-6">
-          <LeadKanbanBoard />
+          <LeadKanbanBoard onLeadClick={handleLeadClick} />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-6">
@@ -88,6 +104,13 @@ export const SimpleLeadManagement = () => {
           </UnifiedCard>
         </TabsContent>
       </Tabs>
+
+      {/* Lead Detail Drawer */}
+      <LeadDetailDrawer
+        lead={selectedLead}
+        open={drawerOpen}
+        onOpenChange={handleDrawerClose}
+      />
     </div>
   );
 };
