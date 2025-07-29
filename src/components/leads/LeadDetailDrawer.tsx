@@ -23,6 +23,7 @@ import { LeadActivityTab } from './LeadActivityTab';
 import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
 import { LeadProposalTab } from './tabs/LeadProposalTab';
+import { LeadSidebarWidgets } from './widgets/LeadSidebarWidgets';
 
 interface LeadDetailDrawerProps {
   lead: Lead | null;
@@ -196,76 +197,84 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
           </div>
         </div>
 
-        {/* Tabs content */}
-        <div className="flex-1 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-            {/* Tabs navigation */}
-            <div className="px-6 border-b border-border">
-              <TabsList className="bg-transparent h-auto p-0 gap-6">
-                <TabsTrigger 
-                  value="resumen"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  Resumen
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="actividades"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  <Activity className="h-4 w-4 mr-2" />
-                  Actividades
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="notas"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  <StickyNote className="h-4 w-4 mr-2" />
-                  Notas
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="tareas"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  <CheckSquare className="h-4 w-4 mr-2" />
-                  Tareas
-                </TabsTrigger>
-                {shouldShowProposalTab(lead) && (
+        {/* Main content with sidebar layout */}
+        <div className="flex-1 overflow-hidden flex">
+          {/* Main content area */}
+          <div className="flex-1 overflow-hidden">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+              {/* Tabs navigation */}
+              <div className="px-6 border-b border-border">
+                <TabsList className="bg-transparent h-auto p-0 gap-6">
                   <TabsTrigger 
-                    value="propuesta"
+                    value="resumen"
                     className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
                   >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Propuesta
+                    Resumen
                   </TabsTrigger>
-                )}
-              </TabsList>
-            </div>
+                  <TabsTrigger 
+                    value="actividades"
+                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
+                  >
+                    <Activity className="h-4 w-4 mr-2" />
+                    Actividades
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="notas"
+                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
+                  >
+                    <StickyNote className="h-4 w-4 mr-2" />
+                    Notas
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="tareas"
+                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
+                  >
+                    <CheckSquare className="h-4 w-4 mr-2" />
+                    Tareas
+                  </TabsTrigger>
+                  {shouldShowProposalTab(lead) && (
+                    <TabsTrigger 
+                      value="propuesta"
+                      className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Propuesta
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+              </div>
 
-            {/* Tab content with scroll */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <TabsContent value="resumen" className="mt-0">
-                <LeadOverviewTab lead={lead} />
-              </TabsContent>
-              
-              <TabsContent value="actividades" className="mt-0">
-                <LeadActivityTab lead={lead} />
-              </TabsContent>
-              
-              <TabsContent value="notas" className="mt-0">
-                <LeadNotesTab lead={lead} />
-              </TabsContent>
-              
-              <TabsContent value="tareas" className="mt-0">
-                <LeadTasksTab lead={lead} />
-              </TabsContent>
-              
-              {shouldShowProposalTab(lead) && (
-                <TabsContent value="propuesta" className="mt-0">
-                  <LeadProposalTab lead={lead} />
+              {/* Tab content with scroll */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <TabsContent value="resumen" className="mt-0">
+                  <LeadOverviewTab lead={lead} />
                 </TabsContent>
-              )}
-            </div>
-          </Tabs>
+                
+                <TabsContent value="actividades" className="mt-0">
+                  <LeadActivityTab lead={lead} />
+                </TabsContent>
+                
+                <TabsContent value="notas" className="mt-0">
+                  <LeadNotesTab lead={lead} />
+                </TabsContent>
+                
+                <TabsContent value="tareas" className="mt-0">
+                  <LeadTasksTab lead={lead} />
+                </TabsContent>
+                
+                {shouldShowProposalTab(lead) && (
+                  <TabsContent value="propuesta" className="mt-0">
+                    <LeadProposalTab lead={lead} />
+                  </TabsContent>
+                )}
+              </div>
+            </Tabs>
+          </div>
+
+          {/* Sidebar */}
+          <div className="w-80 border-l border-border bg-muted/30 p-6 overflow-y-auto">
+            <LeadSidebarWidgets lead={lead} />
+          </div>
         </div>
       </SheetContent>
     </Sheet>
