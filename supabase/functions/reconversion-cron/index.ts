@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface CronRequest {
-  type: 'daily' | 'weekly';
+  type: 'daily' | 'weekly' | 'lead_inactivity';
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -22,12 +22,14 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const { type }: CronRequest = await req.json();
-    console.log(`Running ${type} cron job for reconversiones`);
+    console.log(`Running ${type} cron job`);
 
     if (type === 'daily') {
       await runDailyCron(supabase);
     } else if (type === 'weekly') {
       await runWeeklyCron(supabase);
+    } else if (type === 'lead_inactivity') {
+      await runLeadInactivityCron(supabase);
     }
 
     return new Response(
@@ -180,6 +182,31 @@ async function runWeeklyCron(supabase: any) {
     }
 
     console.log(`Notified stalled reconversion ${reconversion.id} (${daysSinceActivity} days inactive)`);
+  }
+}
+
+async function runLeadInactivityCron(supabase: any) {
+  console.log('Running lead inactivity cron...');
+  
+  try {
+    // Call the database function to process inactive leads
+    const { data, error } = await supabase.rpc('process_inactive_leads');
+    
+    if (error) {
+      console.error('Error processing inactive leads:', error);
+      return;
+    }
+    
+    console.log('Lead inactivity processing completed:', data);
+    
+    if (data) {
+      console.log(`Processed ${data.processed_leads} inactive leads`);
+      console.log(`Created ${data.created_tasks} reactivation tasks`);
+      console.log(`Applied ${data.score_penalties} score penalties`);
+    }
+    
+  } catch (error) {
+    console.error('Unexpected error in lead inactivity cron:', error);
   }
 }
 

@@ -3252,6 +3252,7 @@ export type Database = {
           is_followed: boolean | null
           job_title: string | null
           last_activity_type: string | null
+          last_contacted: string | null
           lead_name: string | null
           lead_origin: string
           lead_score: number | null
@@ -3293,6 +3294,7 @@ export type Database = {
           is_followed?: boolean | null
           job_title?: string | null
           last_activity_type?: string | null
+          last_contacted?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
@@ -3334,6 +3336,7 @@ export type Database = {
           is_followed?: boolean | null
           job_title?: string | null
           last_activity_type?: string | null
+          last_contacted?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
@@ -7860,6 +7863,10 @@ export type Database = {
       obtener_token_integraloop: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      process_inactive_leads: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       process_reconversion_closure: {
         Args: { reconversion_id: string; closure_data: Json; user_id?: string }
