@@ -102,8 +102,11 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
           throw new Error(`Error actualizando rol: ${roleError.message}`);
         }
 
-        if (roleResult && !roleResult.success) {
-          throw new Error(roleResult.error || 'Error al actualizar rol');
+        if (roleResult && typeof roleResult === 'object' && roleResult !== null) {
+          const result = roleResult as { success?: boolean; error?: string };
+          if (!result.success) {
+            throw new Error(result.error || 'Error al actualizar rol');
+          }
         }
 
         // Handle manager profile based on new role
