@@ -31,6 +31,12 @@ interface EditUserData {
   managerPhone?: string;
 }
 
+interface RoleUpdateResult {
+  success: boolean;
+  error?: string;
+  message?: string;
+}
+
 interface EditUserDialogProps {
   user: User | null;
   isOpen: boolean;
