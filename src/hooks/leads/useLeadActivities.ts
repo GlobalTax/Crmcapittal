@@ -9,13 +9,11 @@ type CreateActivityData = Database['public']['Tables']['lead_activities']['Inser
 export function useLeadActivities(leadId: string) {
   const queryClient = useQueryClient();
 
-  // Fetch lead activities with EXTREME cache busting
+  // Fetch lead activities
   const activitiesQuery = useQuery({
-    queryKey: [`lead_activities_extreme_bust_${leadId}_${Date.now()}`],
+    queryKey: ['lead_activities', leadId],
     queryFn: async () => {
       if (!leadId) return [];
-      
-      console.log('🔥 EXTREME CACHE BUST - Fetching lead activities for:', leadId, 'at:', Date.now());
       
       const { data, error } = await supabase
         .from('lead_activities')
@@ -23,19 +21,10 @@ export function useLeadActivities(leadId: string) {
         .eq('lead_id', leadId)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ CACHE BUST - Lead activities error:', error);
-        console.error('❌ CACHE BUST - Lead activities error details:', JSON.stringify(error, null, 2));
-        throw error;
-      }
-      
-      console.log('✅ CACHE BUST - Lead activities fetched:', data?.length || 0);
+      if (error) throw error;
       return data as LeadActivity[];
     },
     enabled: !!leadId,
-    staleTime: 0,
-    gcTime: 0,
-    retry: 1,
   });
 
   // Create lead activity
@@ -58,7 +47,7 @@ export function useLeadActivities(leadId: string) {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lead_activities_v3', leadId] });
+      queryClient.invalidateQueries({ queryKey: ['lead_activities', leadId] });
       toast.success('Actividad añadida exitosamente');
     },
     onError: (error) => {
