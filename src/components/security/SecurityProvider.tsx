@@ -2,13 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSecureInput } from '@/hooks/useSecureInput';
 import { useValoracionSecurity } from '@/hooks/useValoracionSecurity';
 import { rateLimiter } from '@/utils/rateLimit';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SecurityContextType {
   sanitizeInput: (input: string, options?: any) => string;
   validateEmail: (email: string) => boolean;
   validateUrl: (url: string) => boolean;
   logSecurityEvent: (type: string, description: string, metadata?: any) => Promise<void>;
-  checkRateLimit: (operation: string, identifier: string) => boolean;
+  checkRateLimit: (operation: string, identifier: string) => Promise<boolean>;
   isSecureEnvironment: boolean;
 }
 
@@ -53,18 +54,42 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [logSecurityEvent]);
 
-  const checkRateLimit = (operation: string, identifier: string): boolean => {
+  const checkRateLimit = async (operation: string, identifier: string): Promise<boolean> => {
     const config = {
-      login: { windowMs: 15 * 60 * 1000, maxRequests: 5 },
-      signup: { windowMs: 60 * 60 * 1000, maxRequests: 3 },
-      api: { windowMs: 60 * 1000, maxRequests: 100 },
-      upload: { windowMs: 60 * 1000, maxRequests: 10 }
-    }[operation] || { windowMs: 60 * 1000, maxRequests: 50 };
+      login: { maxRequests: 5, windowMinutes: 15 },
+      signup: { maxRequests: 3, windowMinutes: 60 },
+      api: { maxRequests: 100, windowMinutes: 1 },
+      upload: { maxRequests: 10, windowMinutes: 1 }
+    }[operation] || { maxRequests: 50, windowMinutes: 1 };
 
-    return rateLimiter.isAllowed({
-      ...config,
-      identifier: `${operation}:${identifier}`
-    });
+    try {
+      // Use basic database rate limiting for now
+      const { data, error } = await supabase.rpc('check_rate_limit', {
+        p_identifier: identifier,
+        p_max_requests: config.maxRequests,
+        p_window_minutes: config.windowMinutes
+      });
+
+      if (error) {
+        console.error('Rate limit check failed:', error);
+        // Fallback to local rate limiting
+        return rateLimiter.isAllowed({
+          windowMs: config.windowMinutes * 60 * 1000,
+          maxRequests: config.maxRequests,
+          identifier: `${operation}:${identifier}`
+        });
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Enhanced rate limit check failed:', error);
+      // Fallback to local rate limiting
+      return rateLimiter.isAllowed({
+        windowMs: config.windowMinutes * 60 * 1000,
+        maxRequests: config.maxRequests,
+        identifier: `${operation}:${identifier}`
+      });
+    }
   };
 
   const value: SecurityContextType = {

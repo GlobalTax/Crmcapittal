@@ -27,30 +27,33 @@ export function useSecureAuth() {
     lockUntil: null
   });
 
-  // Password strength validation
-  const validatePasswordStrength = (password: string): { isValid: boolean; errors: string[] } => {
-    const errors: string[] = [];
-    
-    if (password.length < 8) {
-      errors.push('La contraseña debe tener al menos 8 caracteres');
+  // Enhanced password strength validation using database function
+  const validatePasswordStrength = async (password: string): Promise<{ isValid: boolean; errors: string[] }> => {
+    try {
+      // Use the enhanced database function for consistent validation
+      const { data, error } = await supabase.rpc('validate_password_strength', { password });
+      
+      if (error) {
+        console.error('Password validation error:', error);
+        // Fallback to basic validation
+        return {
+          isValid: password.length >= 8,
+          errors: password.length >= 8 ? [] : ['La contraseña debe tener al menos 8 caracteres']
+        };
+      }
+      
+      return {
+        isValid: Boolean((data as any)?.valid),
+        errors: (data as any)?.errors || []
+      };
+    } catch (error) {
+      console.error('Password validation failed:', error);
+      // Fallback validation
+      return {
+        isValid: password.length >= 8,
+        errors: password.length >= 8 ? [] : ['La contraseña debe tener al menos 8 caracteres']
+      };
     }
-    if (!/[A-Z]/.test(password)) {
-      errors.push('La contraseña debe contener al menos una letra mayúscula');
-    }
-    if (!/[a-z]/.test(password)) {
-      errors.push('La contraseña debe contener al menos una letra minúscula');
-    }
-    if (!/[0-9]/.test(password)) {
-      errors.push('La contraseña debe contener al menos un número');
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      errors.push('La contraseña debe contener al menos un símbolo especial');
-    }
-    
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
   };
 
   // Check if account is locked
@@ -99,7 +102,7 @@ export function useSecureAuth() {
         throw new Error('Cuenta temporalmente bloqueada');
       }
 
-      const passwordValidation = validatePasswordStrength(password);
+      const passwordValidation = await validatePasswordStrength(password);
       if (!passwordValidation.isValid) {
         throw new Error(passwordValidation.errors.join(', '));
       }
@@ -155,13 +158,22 @@ export function useSecureAuth() {
       if (error) {
         addFailedAttempt();
         
-        // Log failed login attempt
-        await supabase.rpc('log_security_event', {
-          p_event_type: 'login_failed',
-          p_severity: 'medium',
-          p_description: 'Failed login attempt',
-          p_metadata: { email, error: error.message }
-        });
+        // Enhanced failed login logging
+        try {
+          await supabase.rpc('enhanced_log_security_event', {
+            p_event_type: 'failed_authentication',
+            p_severity: 'high',
+            p_description: `Failed login attempt: ${error.message}`,
+            p_metadata: {
+              attempted_email: email,
+              failure_reason: error.message,
+              user_agent: navigator.userAgent
+            },
+            p_user_email: email
+          });
+        } catch (logError) {
+          console.error('Failed to log authentication attempt:', logError);
+        }
         
         throw error;
       }

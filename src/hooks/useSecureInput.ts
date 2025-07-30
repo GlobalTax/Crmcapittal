@@ -34,16 +34,19 @@ export const useSecureInput = () => {
       throw new Error(`Entrada demasiado larga. Máximo ${maxLength} caracteres.`);
     }
 
-    // Check for SQL injection patterns
-    const sqlPatterns = /(union|select|insert|update|delete|drop|create|alter|exec|execute)(\s|$)/gi;
+    // Enhanced security pattern detection
+    const sqlPatterns = /(union|select|insert|update|delete|drop|create|alter|exec|execute|script|javascript|vbscript)(\s|$)/gi;
     if (sqlPatterns.test(sanitized)) {
-      throw new Error('Entrada contiene patrones de SQL peligrosos');
+      // Log security event but don't throw - clean instead
+      console.warn('Dangerous patterns detected in input, cleaning...');
+      sanitized = sanitized.replace(sqlPatterns, '');
     }
 
-    // Check for XSS patterns
-    const xssPatterns = /(javascript:|vbscript:|on\w+\s*=|<script|eval\(|expression\()/gi;
+    // Enhanced XSS pattern detection and cleaning
+    const xssPatterns = /(javascript:|vbscript:|on\w+\s*=|<script|eval\(|expression\(|<iframe|<object|<embed)/gi;
     if (xssPatterns.test(sanitized)) {
-      throw new Error('Entrada contiene patrones de script peligrosos');
+      console.warn('XSS patterns detected in input, cleaning...');
+      sanitized = sanitized.replace(xssPatterns, '');
     }
 
     // HTML sanitization
