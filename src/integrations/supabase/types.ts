@@ -3450,6 +3450,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "leads_pipeline_stage_id_fkey"
+            columns: ["pipeline_stage_id"]
+            isOneToOne: false
+            referencedRelation: "vw_leads_funnel"
+            referencedColumns: ["stage_id"]
+          },
+          {
             foreignKeyName: "leads_stage_id_fkey"
             columns: ["stage_id"]
             isOneToOne: false
@@ -7757,31 +7764,34 @@ export type Database = {
         }
         Relationships: []
       }
-      vw_dashboard_leads_funnel: {
+      vw_leads_funnel: {
         Row: {
+          avg_score: number | null
           lead_count: number | null
+          performance_rating: string | null
+          recent_count: number | null
           stage_color: string | null
+          stage_conversion_rate: number | null
+          stage_id: string | null
           stage_name: string | null
           stage_order: number | null
         }
         Relationships: []
       }
-      vw_dashboard_leads_kpi: {
-        Row: {
-          conversion_rate: number | null
-          hot_leads: number | null
-          pipeline_value: number | null
-          total_leads: number | null
-        }
-        Relationships: []
-      }
       vw_leads_kpi: {
         Row: {
-          avg_dias_contacto: number | null
-          leads_hot: number | null
-          tasa_conversion: number | null
+          avg_score: number | null
+          avg_time_to_qualify_days: number | null
+          conversion_rate: number | null
+          conversion_trend_data: Json | null
+          growth_rate_30d: number | null
+          hot_leads: number | null
+          leads_trend: string | null
+          new_leads_30d: number | null
+          new_leads_7d: number | null
+          pipeline_value: number | null
+          qualified_leads: number | null
           total_leads: number | null
-          valor_pipeline: number | null
         }
         Relationships: []
       }

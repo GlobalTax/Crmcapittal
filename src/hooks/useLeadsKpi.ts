@@ -36,17 +36,17 @@ export const useLeadsKpi = () => {
         setLoading(true);
         setError(null);
         
-        // Fetch KPIs data
+        // Fetch KPIs data from the new view
         const { data: kpiData, error: kpiError } = await supabase
-          .from('vw_dashboard_leads_kpi')
+          .from('vw_leads_kpi')
           .select('*')
           .single();
 
         if (kpiError) throw kpiError;
 
-        // Fetch funnel data
+        // Fetch funnel data from the new view
         const { data: funnel, error: funnelError } = await supabase
-          .from('vw_dashboard_leads_funnel')
+          .from('vw_leads_funnel')
           .select('*')
           .order('stage_order');
 
