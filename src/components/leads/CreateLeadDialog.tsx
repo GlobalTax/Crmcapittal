@@ -14,8 +14,15 @@ import { getLeadValidationRules } from '@/utils/entityValidationRules';
 
 interface User {
   id: string;
-  email: string;
-  full_name?: string;
+  first_name?: string;
+  last_name?: string;
+}
+
+interface CreateLeadDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onCreateLead?: (data: any) => void;
+  isCreating?: boolean;
 }
 
 const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
@@ -38,7 +45,7 @@ const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   // Fetch users on component mount
   useEffect(() => {
     const fetchUsers = async () => {
-      const { data } = await supabase.from('user_profiles').select('id, email, full_name');
+      const { data } = await supabase.from('user_profiles').select('id, first_name, last_name');
       if (data) setUsers(data);
     };
     fetchUsers();
@@ -64,13 +71,11 @@ const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       if (!user) throw new Error('No authenticated user');
 
       const { error } = await supabase.from('leads').insert({
-        name: formData.name,
+        name: formData.name, // Required field
+        source: formData.lead_source || 'other', // Required field
+        company_name: formData.company_name || null,
         email: formData.email || null,
         phone: formData.phone || null,
-        company_name: formData.company_name || null,
-        position: formData.position || null,
-        lead_source: formData.lead_source || null,
-        notes: formData.notes || null,
         priority: formData.priority,
         assigned_to_id: formData.assigned_to_id,
         created_by: user.id
@@ -89,12 +94,12 @@ const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         name: '',
         email: '',
         phone: '',
-        company: '',
+        company_name: '',
         position: '',
         lead_source: '',
         notes: '',
         priority: 'medium',
-        owner_id: ''
+        assigned_to_id: ''
       });
       onSuccess?.();
     } catch (error) {
@@ -150,11 +155,11 @@ const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="company">Empresa</Label>
+              <Label htmlFor="company_name">Empresa</Label>
               <ValidatedInput
-                name="company"
-                value={formData.company}
-                onChange={(value) => setFormData({ ...formData, company: value })}
+                name="company_name"
+                value={formData.company_name}
+                onChange={(value) => setFormData({ ...formData, company_name: value })}
                 placeholder="Nombre de la empresa"
               />
             </div>
@@ -208,15 +213,15 @@ const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="owner_id">Responsable *</Label>
+            <Label htmlFor="assigned_to_id">Responsable *</Label>
             <ValidatedSelect
-              name="owner_id"
-              value={formData.owner_id}
-              onChange={(value) => setFormData({ ...formData, owner_id: value })}
+              name="assigned_to_id"
+              value={formData.assigned_to_id}
+              onChange={(value) => setFormData({ ...formData, assigned_to_id: value })}
               validation={{ required: true }}
               options={users?.map(user => ({
                 value: user.id,
-                label: user.full_name || user.email
+                label: user.first_name || user.last_name || user.id
               })) || []}
               placeholder="Seleccionar responsable"
             />
@@ -247,11 +252,22 @@ const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   );
 };
 
-const CreateLeadDialog = () => {
-  const [open, setOpen] = useState(false);
+export const CreateLeadDialog = ({ open, onOpenChange, onCreateLead, isCreating }: CreateLeadDialogProps = {}) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined && onOpenChange !== undefined;
+  const dialogOpen = isControlled ? open : internalOpen;
+  const setDialogOpen = isControlled ? onOpenChange : setInternalOpen;
+
+  const handleSuccess = () => {
+    setDialogOpen(false);
+    if (onCreateLead) {
+      // If using external create function, call it with form data
+      // For now, just close the dialog
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
@@ -263,7 +279,7 @@ const CreateLeadDialog = () => {
           <DialogTitle>Crear Nuevo Lead</DialogTitle>
         </DialogHeader>
         <FormValidationProvider>
-          <CreateLeadForm onSuccess={() => setOpen(false)} />
+          <CreateLeadForm onSuccess={handleSuccess} />
         </FormValidationProvider>
       </DialogContent>
     </Dialog>
@@ -271,4 +287,3 @@ const CreateLeadDialog = () => {
 };
 
 export default CreateLeadDialog;
-export { CreateLeadDialog };

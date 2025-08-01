@@ -6,7 +6,7 @@ export const leadValidationRules: ValidationRules = {
     minLength: 2,
     maxLength: 100 
   },
-  owner_id: { 
+  assigned_to_id: { 
     required: true 
   },
   email: { 
