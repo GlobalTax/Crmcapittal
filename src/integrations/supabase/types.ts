@@ -6087,6 +6087,54 @@ export type Database = {
           },
         ]
       }
+      task_notifications: {
+        Row: {
+          created_at: string | null
+          days_overdue: number
+          email_sent_at: string | null
+          entity_id: string | null
+          entity_name: string | null
+          id: string
+          message: string
+          notification_type: string
+          read_at: string | null
+          task_id: string
+          task_title: string
+          task_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          days_overdue?: number
+          email_sent_at?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          read_at?: string | null
+          task_id: string
+          task_title: string
+          task_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          days_overdue?: number
+          email_sent_at?: string | null
+          entity_id?: string | null
+          entity_name?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          read_at?: string | null
+          task_id?: string
+          task_title?: string
+          task_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       teasers: {
         Row: {
           anonymous_company_name: string | null
@@ -7931,6 +7979,20 @@ export type Database = {
       fn_recalcular_score_lead: {
         Args: { p_lead_id: string }
         Returns: undefined
+      }
+      get_all_overdue_tasks: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          task_id: string
+          task_title: string
+          task_type: string
+          entity_id: string
+          entity_name: string
+          due_date: string
+          owner_id: string
+          owner_email: string
+          days_overdue: number
+        }[]
       }
       get_current_user_role_safe: {
         Args: Record<PropertyKey, never>

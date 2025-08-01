@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/minimal/Button';
 import { AlertCircle, X, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { OverdueTasksBadge } from '@/components/common/OverdueTasksBadge';
 
 export const FloatingLeadsWidget = () => {
   const { leads = [], isLoading } = useOptimizedLeads({ status: 'NEW' });
@@ -34,6 +35,7 @@ export const FloatingLeadsWidget = () => {
             {unreadCount > 0 && (
               <Badge color="yellow">{unreadCount} notif.</Badge>
             )}
+            <OverdueTasksBadge />
           </div>
           <Button 
             variant="ghost" 
