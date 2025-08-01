@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { LeadOverviewTab } from './tabs/LeadOverviewTab';
 import { LeadActivityTab } from './LeadActivityTab';
+import { LeadUnifiedActivityTab } from './LeadUnifiedActivityTab';
 import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
 import { LeadProposalTab } from './tabs/LeadProposalTab';
@@ -250,9 +251,19 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                   <LeadOverviewTab lead={lead} />
                 </TabsContent>
                 
-                <TabsContent value="actividades" className="mt-0">
-                  <LeadActivityTab lead={lead} />
-                </TabsContent>
+                 <TabsContent value="actividades" className="mt-0">
+                   <div className="space-y-6">
+                     <LeadUnifiedActivityTab lead={lead} />
+                     <details className="group">
+                       <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                         Ver timeline tradicional
+                       </summary>
+                       <div className="mt-4">
+                         <LeadActivityTab lead={lead} />
+                       </div>
+                     </details>
+                   </div>
+                 </TabsContent>
                 
                 <TabsContent value="notas" className="mt-0">
                   <LeadNotesTab lead={lead} />
