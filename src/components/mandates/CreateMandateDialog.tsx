@@ -8,18 +8,21 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, X } from 'lucide-react';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { CreateBuyingMandateData } from '@/types/BuyingMandate';
+import { FormValidationProvider, useFormValidation } from '@/contexts/FormValidationContext';
+import { ValidatedInput } from '@/components/validation/ValidatedInput';
+import { mandateValidationRules } from '@/utils/entityValidationRules';
 
 interface CreateMandateDialogProps {
   trigger?: React.ReactNode;
   onSuccess?: () => void;
 }
 
-export const CreateMandateDialog = ({ trigger, onSuccess }: CreateMandateDialogProps) => {
-  const [open, setOpen] = useState(false);
+const CreateMandateForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sectorInput, setSectorInput] = useState('');
   const [locationInput, setLocationInput] = useState('');
   const { createMandate } = useBuyingMandates();
+  const { validateForm, canSave, resetValidation } = useFormValidation();
 
   const [formData, setFormData] = useState<CreateBuyingMandateData>({
     client_name: '',
@@ -38,14 +41,19 @@ export const CreateMandateDialog = ({ trigger, onSuccess }: CreateMandateDialogP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.client_name || !formData.client_contact || !formData.mandate_name) {
+    
+    // Validate form including target_sectors requirement
+    const validationData = { ...formData, target_sectors: formData.target_sectors.length > 0 ? 'valid' : '' };
+    const validationResult = validateForm(validationData, mandateValidationRules);
+    
+    if (!validationResult.isValid) {
       return;
     }
 
     setIsSubmitting(true);
     try {
       await createMandate(formData);
-      setOpen(false);
+      resetValidation();
       setFormData({
         client_name: '',
         client_contact: '',
@@ -103,6 +111,198 @@ export const CreateMandateDialog = ({ trigger, onSuccess }: CreateMandateDialogP
   };
 
   return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Client Information */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium">Información del Cliente</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="client_name">Nombre del Cliente *</Label>
+            <ValidatedInput
+              name="client_name"
+              value={formData.client_name}
+              onChange={(value) => setFormData(prev => ({...prev, client_name: value}))}
+              validation={{ required: true, minLength: 2, maxLength: 100 }}
+              placeholder="Empresa o persona"
+            />
+          </div>
+          <div>
+            <Label htmlFor="client_contact">Contacto Principal *</Label>
+            <ValidatedInput
+              name="client_contact"
+              value={formData.client_contact}
+              onChange={(value) => setFormData(prev => ({...prev, client_contact: value}))}
+              validation={{ required: true, minLength: 2, maxLength: 100 }}
+              placeholder="Nombre de la persona de contacto"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="client_email">Email</Label>
+            <Input
+              id="client_email"
+              type="email"
+              value={formData.client_email}
+              onChange={(e) => setFormData(prev => ({...prev, client_email: e.target.value}))}
+              placeholder="email@ejemplo.com"
+            />
+          </div>
+          <div>
+            <Label htmlFor="client_phone">Teléfono</Label>
+            <Input
+              id="client_phone"
+              value={formData.client_phone}
+              onChange={(e) => setFormData(prev => ({...prev, client_phone: e.target.value}))}
+              placeholder="+34 600 000 000"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Mandate Information */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium">Información del Mandato</h3>
+        <div>
+          <Label htmlFor="mandate_name">Nombre del Mandato *</Label>
+          <ValidatedInput
+            name="mandate_name"
+            value={formData.mandate_name}
+            onChange={(value) => setFormData(prev => ({...prev, mandate_name: value}))}
+            validation={{ required: true, minLength: 5, maxLength: 200 }}
+            placeholder="Ej: Búsqueda empresas tecnológicas Madrid"
+          />
+        </div>
+
+        {/* Target Sectors */}
+        <div>
+          <Label>Sectores Objetivo</Label>
+          <div className="flex gap-2 mb-2">
+            <Input
+              value={sectorInput}
+              onChange={(e) => setSectorInput(e.target.value)}
+              placeholder="Añadir sector..."
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSector())}
+            />
+            <Button type="button" onClick={addSector} size="sm">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {formData.target_sectors.map((sector) => (
+              <Badge key={sector} variant="secondary" className="flex items-center gap-1">
+                {sector}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => removeSector(sector)}
+                />
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Target Locations */}
+        <div>
+          <Label>Ubicaciones Objetivo</Label>
+          <div className="flex gap-2 mb-2">
+            <Input
+              value={locationInput}
+              onChange={(e) => setLocationInput(e.target.value)}
+              placeholder="Añadir ubicación..."
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addLocation())}
+            />
+            <Button type="button" onClick={addLocation} size="sm">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {formData.target_locations.map((location) => (
+              <Badge key={location} variant="secondary" className="flex items-center gap-1">
+                {location}
+                <X 
+                  className="h-3 w-3 cursor-pointer" 
+                  onClick={() => removeLocation(location)}
+                />
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Financial Criteria */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="min_revenue">Facturación Mínima (€)</Label>
+            <Input
+              id="min_revenue"
+              type="number"
+              value={formData.min_revenue || ''}
+              onChange={(e) => setFormData(prev => ({...prev, min_revenue: e.target.value ? Number(e.target.value) : undefined}))}
+              placeholder="1000000"
+            />
+          </div>
+          <div>
+            <Label htmlFor="max_revenue">Facturación Máxima (€)</Label>
+            <Input
+              id="max_revenue"
+              type="number"
+              value={formData.max_revenue || ''}
+              onChange={(e) => setFormData(prev => ({...prev, max_revenue: e.target.value ? Number(e.target.value) : undefined}))}
+              placeholder="10000000"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="min_ebitda">EBITDA Mínimo (€)</Label>
+            <Input
+              id="min_ebitda"
+              type="number"
+              value={formData.min_ebitda || ''}
+              onChange={(e) => setFormData(prev => ({...prev, min_ebitda: e.target.value ? Number(e.target.value) : undefined}))}
+              placeholder="100000"
+            />
+          </div>
+          <div>
+            <Label htmlFor="max_ebitda">EBITDA Máximo (€)</Label>
+            <Input
+              id="max_ebitda"
+              type="number"
+              value={formData.max_ebitda || ''}
+              onChange={(e) => setFormData(prev => ({...prev, max_ebitda: e.target.value ? Number(e.target.value) : undefined}))}
+              placeholder="1000000"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="other_criteria">Otros Criterios</Label>
+          <Textarea
+            id="other_criteria"
+            value={formData.other_criteria}
+            onChange={(e) => setFormData(prev => ({...prev, other_criteria: e.target.value}))}
+            placeholder="Describe cualquier otro criterio específico para la búsqueda..."
+            rows={3}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-2">
+        <Button type="button" variant="outline" onClick={() => onSuccess?.()}>
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={isSubmitting || !canSave}>
+          {isSubmitting ? 'Creando...' : 'Crear Mandato'}
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+export const CreateMandateDialog = ({ trigger, onSuccess }: CreateMandateDialogProps) => {
+  const [open, setOpen] = useState(false);
+
+  return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
@@ -120,191 +320,9 @@ export const CreateMandateDialog = ({ trigger, onSuccess }: CreateMandateDialogP
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Client Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Información del Cliente</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="client_name">Nombre del Cliente *</Label>
-                <Input
-                  id="client_name"
-                  value={formData.client_name}
-                  onChange={(e) => setFormData(prev => ({...prev, client_name: e.target.value}))}
-                  placeholder="Empresa o persona"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="client_contact">Contacto Principal *</Label>
-                <Input
-                  id="client_contact"
-                  value={formData.client_contact}
-                  onChange={(e) => setFormData(prev => ({...prev, client_contact: e.target.value}))}
-                  placeholder="Nombre de la persona de contacto"
-                  required
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="client_email">Email</Label>
-                <Input
-                  id="client_email"
-                  type="email"
-                  value={formData.client_email}
-                  onChange={(e) => setFormData(prev => ({...prev, client_email: e.target.value}))}
-                  placeholder="email@ejemplo.com"
-                />
-              </div>
-              <div>
-                <Label htmlFor="client_phone">Teléfono</Label>
-                <Input
-                  id="client_phone"
-                  value={formData.client_phone}
-                  onChange={(e) => setFormData(prev => ({...prev, client_phone: e.target.value}))}
-                  placeholder="+34 600 000 000"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Mandate Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Información del Mandato</h3>
-            <div>
-              <Label htmlFor="mandate_name">Nombre del Mandato *</Label>
-              <Input
-                id="mandate_name"
-                value={formData.mandate_name}
-                onChange={(e) => setFormData(prev => ({...prev, mandate_name: e.target.value}))}
-                placeholder="Ej: Búsqueda empresas tecnológicas Madrid"
-                required
-              />
-            </div>
-
-            {/* Target Sectors */}
-            <div>
-              <Label>Sectores Objetivo</Label>
-              <div className="flex gap-2 mb-2">
-                <Input
-                  value={sectorInput}
-                  onChange={(e) => setSectorInput(e.target.value)}
-                  placeholder="Añadir sector..."
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSector())}
-                />
-                <Button type="button" onClick={addSector} size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {formData.target_sectors.map((sector) => (
-                  <Badge key={sector} variant="secondary" className="flex items-center gap-1">
-                    {sector}
-                    <X 
-                      className="h-3 w-3 cursor-pointer" 
-                      onClick={() => removeSector(sector)}
-                    />
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Target Locations */}
-            <div>
-              <Label>Ubicaciones Objetivo</Label>
-              <div className="flex gap-2 mb-2">
-                <Input
-                  value={locationInput}
-                  onChange={(e) => setLocationInput(e.target.value)}
-                  placeholder="Añadir ubicación..."
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addLocation())}
-                />
-                <Button type="button" onClick={addLocation} size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {formData.target_locations.map((location) => (
-                  <Badge key={location} variant="secondary" className="flex items-center gap-1">
-                    {location}
-                    <X 
-                      className="h-3 w-3 cursor-pointer" 
-                      onClick={() => removeLocation(location)}
-                    />
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Financial Criteria */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="min_revenue">Facturación Mínima (€)</Label>
-                <Input
-                  id="min_revenue"
-                  type="number"
-                  value={formData.min_revenue || ''}
-                  onChange={(e) => setFormData(prev => ({...prev, min_revenue: e.target.value ? Number(e.target.value) : undefined}))}
-                  placeholder="1000000"
-                />
-              </div>
-              <div>
-                <Label htmlFor="max_revenue">Facturación Máxima (€)</Label>
-                <Input
-                  id="max_revenue"
-                  type="number"
-                  value={formData.max_revenue || ''}
-                  onChange={(e) => setFormData(prev => ({...prev, max_revenue: e.target.value ? Number(e.target.value) : undefined}))}
-                  placeholder="10000000"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="min_ebitda">EBITDA Mínimo (€)</Label>
-                <Input
-                  id="min_ebitda"
-                  type="number"
-                  value={formData.min_ebitda || ''}
-                  onChange={(e) => setFormData(prev => ({...prev, min_ebitda: e.target.value ? Number(e.target.value) : undefined}))}
-                  placeholder="100000"
-                />
-              </div>
-              <div>
-                <Label htmlFor="max_ebitda">EBITDA Máximo (€)</Label>
-                <Input
-                  id="max_ebitda"
-                  type="number"
-                  value={formData.max_ebitda || ''}
-                  onChange={(e) => setFormData(prev => ({...prev, max_ebitda: e.target.value ? Number(e.target.value) : undefined}))}
-                  placeholder="1000000"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="other_criteria">Otros Criterios</Label>
-              <Textarea
-                id="other_criteria"
-                value={formData.other_criteria}
-                onChange={(e) => setFormData(prev => ({...prev, other_criteria: e.target.value}))}
-                placeholder="Describe cualquier otro criterio específico para la búsqueda..."
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Creando...' : 'Crear Mandato'}
-            </Button>
-          </div>
-        </form>
+        <FormValidationProvider>
+          <CreateMandateForm onSuccess={() => { setOpen(false); onSuccess?.(); }} />
+        </FormValidationProvider>
       </DialogContent>
     </Dialog>
   );

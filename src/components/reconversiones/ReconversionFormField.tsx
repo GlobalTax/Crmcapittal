@@ -1,11 +1,12 @@
-import React from 'react';
-import { useReconversionAlerts } from '@/hooks/useReconversionAlerts';
+import React, { useState, useCallback } from 'react';
+import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFormValidation, ValidationRule } from '@/contexts/FormValidationContext';
+import { ValidationTooltip } from '@/components/validation/ValidationTooltip';
 
 interface ReconversionFormFieldProps {
   fieldName: string;
@@ -16,13 +17,14 @@ interface ReconversionFormFieldProps {
   placeholder?: string;
   required?: boolean;
   className?: string;
+  validation?: ValidationRule;
   alerts?: Array<{ field: string; message: string; severity: 'error' | 'warning' | 'info' }>;
 }
 
 const getSeverityIcon = (severity: string) => {
   switch (severity) {
     case 'error':
-      return <AlertCircle className="h-4 w-4" />;
+      return <AlertTriangle className="h-4 w-4" />;
     case 'warning':
       return <AlertTriangle className="h-4 w-4" />;
     case 'info':
@@ -54,36 +56,66 @@ export const ReconversionFormField: React.FC<ReconversionFormFieldProps> = ({
   placeholder,
   required = false,
   className,
+  validation,
   alerts = []
 }) => {
+  const { validateField, setFieldTouched, setFieldError, validationState } = useFormValidation();
+  const [showTooltip, setShowTooltip] = useState(false);
+  
+  const error = validationState.errors[fieldName];
+  const isTouched = validationState.touched[fieldName];
+  const hasValidationError = error && isTouched;
+
+  const handleBlur = useCallback(() => {
+    if (validation) {
+      const fieldError = validateField(fieldName, value, validation);
+      setFieldError(fieldName, fieldError);
+      setFieldTouched(fieldName);
+    }
+  }, [fieldName, value, validation, validateField, setFieldError, setFieldTouched]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newValue = type === 'number' ? (e.target.value ? e.target.value : '') : e.target.value;
+    onChange(newValue);
+    
+    // Clear validation error when user starts typing if field was touched
+    if (isTouched && error && validation) {
+      const fieldError = validateField(fieldName, newValue, validation);
+      setFieldError(fieldName, fieldError);
+    }
+  }, [onChange, type, isTouched, error, validation, fieldName, validateField, setFieldError]);
+
   const fieldAlert = alerts.find(alert => alert.field === fieldName);
-  const hasError = fieldAlert?.severity === 'error';
+  const hasError = hasValidationError || (fieldAlert?.severity === 'error');
   const hasWarning = fieldAlert?.severity === 'warning';
 
   const inputClassName = cn(
-    hasError && "border-destructive focus:ring-destructive",
+    "transition-colors",
+    hasError && "border-destructive focus:ring-destructive focus:border-destructive",
     hasWarning && "border-orange-400 focus:ring-orange-400",
     className
   );
 
-  const renderInput = () => {
-    const commonProps = {
-      value: value || '',
-      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => 
-        onChange(e.target.value),
-      placeholder,
-      className: inputClassName
-    };
+  const commonProps = {
+    value: value || '',
+    onChange: handleChange,
+    onBlur: handleBlur,
+    onFocus: () => setShowTooltip(true),
+    onMouseEnter: () => setShowTooltip(true),
+    onMouseLeave: () => setShowTooltip(false),
+    placeholder,
+    className: inputClassName
+  };
 
+  const renderInput = () => {
     if (type === 'textarea') {
       return <Textarea {...commonProps} rows={3} />;
     }
-
     return <Input {...commonProps} type={type} />;
   };
 
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 ${className} relative`}>
       <Label htmlFor={fieldName} className="flex items-center gap-1">
         {label}
         {required && <span className="text-destructive">*</span>}
@@ -99,7 +131,16 @@ export const ReconversionFormField: React.FC<ReconversionFormFieldProps> = ({
         )}
       </Label>
       
-      {renderInput()}
+      <div className="relative">
+        {renderInput()}
+        {hasValidationError && (
+          <AlertTriangle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
+        )}
+      </div>
+
+      {hasValidationError && showTooltip && (
+        <ValidationTooltip error={error} />
+      )}
       
       {fieldAlert && (
         <Alert variant={getSeverityColor(fieldAlert.severity) as any} className="py-2">
