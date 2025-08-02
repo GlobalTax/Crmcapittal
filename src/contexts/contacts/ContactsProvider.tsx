@@ -242,7 +242,7 @@ export const ContactsProvider: React.FC<ContactsProviderProps> = ({ children }) 
 
   useEffect(() => {
     if (contacts) {
-      dispatch({ type: 'SET_CONTACTS', payload: contacts });
+      dispatch({ type: 'SET_CONTACTS', payload: contacts as any });
     }
   }, [contacts]);
 
@@ -261,7 +261,7 @@ export const ContactsProvider: React.FC<ContactsProviderProps> = ({ children }) 
       // Other filters
       if (state.filters.companyId && contact.company_id !== state.filters.companyId) return false;
       if (state.filters.role && !contact.contact_roles?.includes(state.filters.role as any)) return false;
-      if (state.filters.location && contact.city !== state.filters.location) return false;
+      if (state.filters.location && contact.address !== state.filters.location) return false;
       if (state.filters.status && contact.contact_status !== state.filters.status) return false;
 
       return true;

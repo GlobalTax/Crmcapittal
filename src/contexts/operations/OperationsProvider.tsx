@@ -67,7 +67,7 @@ export const OperationsProvider: React.FC<OperationsProviderProps> = ({ children
 
   useEffect(() => {
     if (operations) {
-      dispatch({ type: 'SET_OPERATIONS', payload: operations });
+      dispatch({ type: 'SET_OPERATIONS', payload: operations as any });
     }
   }, [operations]);
 

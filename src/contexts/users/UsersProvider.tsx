@@ -243,7 +243,7 @@ export const UsersProvider: React.FC<UsersProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (users) {
-      dispatch({ type: 'SET_USERS', payload: users });
+      dispatch({ type: 'SET_USERS', payload: users as any });
     }
   }, [users]);
 

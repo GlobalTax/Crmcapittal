@@ -123,7 +123,7 @@ export const GlobalSearchProvider: React.FC<GlobalSearchProviderProps> = ({ chil
           subtitle: `${contact.contact_roles?.[0] || 'Sin rol'} • ${contact.email}`,
           type: 'contact',
           url: `/contacts/${contact.id}`,
-          avatar: contact.photo_url,
+          avatar: undefined,
           metadata: {
             company_id: contact.company_id,
             status: contact.contact_status
