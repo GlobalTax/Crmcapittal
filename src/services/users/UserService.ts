@@ -1,12 +1,22 @@
 import { BaseService, ServiceResponse } from '../base/BaseService';
 
 export interface User {
+  id: string;
   user_id: string;
   email: string;
   first_name: string;
   last_name: string;
+  full_name?: string;
   role: string;
+  status: string;
   is_manager: boolean;
+  created_at: string;
+  updated_at: string;
+  phone?: string;
+  avatar_url?: string;
+  department?: string;
+  position?: string;
+  location?: string;
 }
 
 export interface CreateUserData {
