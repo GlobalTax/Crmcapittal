@@ -14,23 +14,36 @@ export const useSecurityMonitor = () => {
 
   const logSecurityEvent = useCallback(async (event: SecurityEvent) => {
     try {
-      // Get user's IP address (simplified - in production use a proper service)
-      const ipResponse = await fetch('https://api.ipify.org?format=json').catch(() => ({ ip: 'unknown' }));
-      const ipData = typeof ipResponse === 'object' && 'ip' in ipResponse ? ipResponse : await ipResponse.json();
-      
-      await supabase.from('security_logs').insert({
-        event_type: event.event_type,
-        severity: event.severity,
-        description: event.description,
-        metadata: {
+      // Use enhanced security logging function
+      const { error } = await supabase.rpc('log_security_event_enhanced', {
+        p_event_type: event.event_type,
+        p_severity: event.severity,
+        p_description: event.description,
+        p_metadata: {
           ...event.metadata,
           user_agent: navigator.userAgent,
           timestamp: new Date().toISOString(),
           url: window.location.href
-        },
-        user_id: user?.id,
-        ip_address: ipData.ip || 'unknown'
+        }
       });
+
+      if (error) {
+        console.error('Enhanced security logging failed:', error);
+        // Fallback to basic logging
+        await supabase.from('security_logs').insert({
+          event_type: event.event_type,
+          severity: event.severity,
+          description: event.description,
+          metadata: {
+            ...event.metadata,
+            user_agent: navigator.userAgent,
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            fallback: true
+          },
+          user_id: user?.id
+        });
+      }
     } catch (error) {
       console.error('Error logging security event:', error);
       // Don't throw - security logging shouldn't break the app
