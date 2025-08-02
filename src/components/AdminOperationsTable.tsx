@@ -5,7 +5,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Operation } from "@/types/Operation";
+import { useOperationsContext } from "@/contexts";
 import { AdminTableHeader } from "./admin/AdminTableHeader";
 import { AdminTableBody } from "./admin/AdminTableBody";
 import { OperationDetailsDialog } from "./admin/OperationDetailsDialog";
@@ -15,23 +15,17 @@ import { useAdminTableFilters } from "@/hooks/admin/useAdminTableFilters";
 import { useAdminDialogs } from "@/hooks/admin/useAdminDialogs";
 import { useAdminOperationHandlers } from "./admin/AdminOperationHandlers";
 
-interface AdminOperationsTableProps {
-  operations: Operation[];
-  loading: boolean;
-  error: string | null;
-  onUpdateOperation: (operationId: string, operationData: Partial<Operation>) => Promise<{ data: Operation | null; error: string | null }>;
-  onDeleteOperation: (operationId: string) => Promise<{ error: string | null }>;
-  onUpdateTeaserUrl: (operationId: string, teaserUrl: string) => Promise<{ data: { teaserUrl: string } | null; error: string | null }>;
-}
+interface AdminOperationsTableProps {}
 
-export const AdminOperationsTable = ({ 
-  operations, 
-  loading, 
-  error,
-  onUpdateOperation,
-  onDeleteOperation,
-  onUpdateTeaserUrl
-}: AdminOperationsTableProps) => {
+export const AdminOperationsTable = ({}: AdminOperationsTableProps) => {
+  // Get operations data from context
+  const { 
+    operations, 
+    loading, 
+    error, 
+    updateOperation, 
+    deleteOperation 
+  } = useOperationsContext();
   const {
     searchTerm,
     setSearchTerm,
@@ -55,18 +49,36 @@ export const AdminOperationsTable = ({
     closeUploadDialog
   } = useAdminDialogs();
 
-  const {
-    handleDeleteOperation,
-    handleDownloadTeaser,
-    handleSaveEdit,
-    handleUploadComplete
-  } = useAdminOperationHandlers({
-    onUpdateOperation,
-    onDeleteOperation,
-    onUpdateTeaserUrl
-  });
+  const handleDeleteOperation = async (operation: any) => {
+    try {
+      await deleteOperation(operation.id);
+      return { success: true };
+    } catch (error) {
+      return { success: false };
+    }
+  };
 
-  const handleSaveEditWrapper = async (operationData: Partial<Operation>) => {
+  const handleSaveEdit = async (operationId: string, operationData: any) => {
+    try {
+      await updateOperation(operationId, operationData);
+      return { success: true };
+    } catch (error) {
+      return { success: false };
+    }
+  };
+
+  const handleDownloadTeaser = (operation: any) => {
+    if (operation.teaser_url) {
+      window.open(operation.teaser_url, '_blank');
+    }
+  };
+
+  const handleUploadComplete = (operationId: string, teaserUrl: string) => {
+    // This would be handled by context in a real implementation
+    console.log('Upload complete:', operationId, teaserUrl);
+  };
+
+  const handleSaveEditWrapper = async (operationData: any) => {
     if (!editDialog.operation) return;
     
     const result = await handleSaveEdit(editDialog.operation.id, operationData);

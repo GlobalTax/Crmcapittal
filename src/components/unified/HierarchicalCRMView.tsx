@@ -20,8 +20,8 @@ import { CollapsibleCompanyPanel } from './CollapsibleCompanyPanel';
 import { CollapsibleMandatePanel } from './CollapsibleMandatePanel';
 import { CollapsibleTargetPanel } from './CollapsibleTargetPanel';
 
-// Import hooks
-import { useCompanies } from '@/hooks/useCompanies';
+// Import contexts
+import { useCompaniesContext } from '@/contexts';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 
 // Import types
@@ -58,14 +58,14 @@ export const HierarchicalCRMView = ({
   const [showTargetDetail, setShowTargetDetail] = useState(false);
   const [showTargetsDialog, setShowTargetsDialog] = useState(false);
 
-  // Hooks
-  const { companies, createCompany, updateCompany, deleteCompany, isLoading: companiesLoading } = useCompanies({
-    page: 1,
-    limit: 50,
-    searchTerm: '',
-    statusFilter: 'all',
-    typeFilter: 'all'
-  });
+  // Context hooks
+  const { 
+    filteredCompanies: companies, 
+    loading: companiesLoading,
+    createCompany,
+    updateCompany,
+    deleteCompany
+  } = useCompaniesContext();
 
   const { 
     mandates, 

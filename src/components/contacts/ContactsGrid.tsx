@@ -1,23 +1,21 @@
 import React from 'react';
 import { ContactCard } from './ContactCard';
-import { Contact } from '@/types/Contact';
+import { useContactsContext } from '@/contexts';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface ContactsGridProps {
-  contacts: Contact[];
-  loading?: boolean;
-  onView?: (contact: Contact) => void;
-  onEdit?: (contact: Contact) => void;
+  onView?: (contact: any) => void;
+  onEdit?: (contact: any) => void;
   onDelete?: (contactId: string) => void;
 }
 
 export const ContactsGrid = React.memo(({ 
-  contacts, 
-  loading = false, 
   onView, 
   onEdit, 
   onDelete 
 }: ContactsGridProps) => {
+  // Get contacts data from context
+  const { filteredContacts: contacts, loading } = useContactsContext();
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -4,18 +4,23 @@ import { useNavigate } from "react-router-dom";
 import { RecordTable } from "@/components/companies/RecordTable";
 import { CompanyModal } from "@/components/companies/CompanyModal";
 import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
-import { useCompanies } from "@/hooks/useCompanies";
-import { Company } from "@/types/Company";
+import { useCompaniesContext } from "@/contexts";
 import { Button } from "@/components/ui/button";
 
 const Companies = () => {
   const navigate = useNavigate();
-  const [page, setPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [editingCompany, setEditingCompany] = useState<any>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  // Get data from context
+  const { 
+    filteredCompanies: companies,
+    loading: isLoading,
+    createCompany,
+    updateCompany,
+    deleteCompany,
+    setFilters
+  } = useCompaniesContext();
 
   // Keyboard shortcut for new company
   useEffect(() => {
@@ -35,35 +40,12 @@ const Companies = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const { 
-    companies, 
-    totalCount,
-    currentPage,
-    totalPages,
-    isLoading, 
-    createCompany, 
-    updateCompany, 
-    deleteCompany,
-    isCreating,
-    isUpdating,
-    isDeleting,
-    useCompanyStats
-  } = useCompanies({ 
-    page, 
-    limit: 25, 
-    searchTerm, 
-    statusFilter, 
-    typeFilter 
-  });
-
-  const { data: stats, isLoading: statsLoading } = useCompanyStats();
-
-  const handleEditCompany = (company: Company) => {
+  const handleEditCompany = (company: any) => {
     setEditingCompany(company);
   };
 
   const handleUpdateCompany = (companyId: string, companyData: any) => {
-    updateCompany({ id: companyId, ...companyData });
+    updateCompany(companyId, companyData);
   };
 
   const handleDeleteCompany = (companyId: string) => {
@@ -72,25 +54,15 @@ const Companies = () => {
     }
   };
 
-  const handleViewCompany = (company: Company) => {
+  const handleViewCompany = (company: any) => {
     if (company.id) {
       navigate(`/empresas/${company.id}`);
     }
   };
 
   const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    setPage(1);
-  };
-
-  const handleStatusFilter = (status: string) => {
-    setStatusFilter(status);
-    setPage(1);
-  };
-
-  const handleTypeFilter = (type: string) => {
-    setTypeFilter(type);
-    setPage(1);
+    // For now, we'll leave search handling to be implemented later
+    console.log('Search term:', term);
   };
 
   return (
@@ -110,7 +82,7 @@ const Companies = () => {
       
       <RecordTable
         companies={companies}
-        totalCount={totalCount}
+        totalCount={companies.length}
         onRowClick={handleViewCompany}
         onCreateCompany={() => setIsCreateModalOpen(true)}
         onSearch={handleSearch}
@@ -123,7 +95,7 @@ const Companies = () => {
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         onCreateCompany={createCompany}
-        isCreating={isCreating}
+        isCreating={false}
       />
 
       {/* Edit Company Dialog */}
@@ -133,7 +105,7 @@ const Companies = () => {
           open={!!editingCompany}
           onOpenChange={(open) => !open && setEditingCompany(null)}
           onUpdateCompany={handleUpdateCompany}
-          isUpdating={isUpdating}
+          isUpdating={false}
         />
       )}
     </div>

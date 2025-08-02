@@ -140,14 +140,7 @@ export const PortfolioView = ({ showHeader = true, showAddCompany = true }: Port
             <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
               <div className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Administración de Operaciones</h3>
-                <AdminOperationsTable 
-                  operations={operations}
-                  loading={loading}
-                  error={error}
-                  onUpdateOperation={updateOperation}
-                  onDeleteOperation={deleteOperation}
-                  onUpdateTeaserUrl={updateTeaserUrl}
-                />
+                <AdminOperationsTable />
               </div>
             </div>
           </TabsContent>
