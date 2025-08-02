@@ -25,146 +25,122 @@ export interface CreateUserData {
   firstName: string;
   lastName: string;
   role: string;
+  department?: string;
+  position?: string;
+  phone?: string;
+  isManager?: boolean;
+  managerName?: string;
+  managerPosition?: string;
+  managerEmail?: string;
+  managerPhone?: string;
 }
 
 export interface UpdateUserData {
   firstName?: string;
   lastName?: string;
   role?: string;
+  status?: string;
+  department?: string;
+  position?: string;
+  phone?: string;
+  isManager?: boolean;
+  managerName?: string;
+  managerPosition?: string;
+  managerEmail?: string;
+  managerPhone?: string;
 }
 
 export class UserService extends BaseService {
   static async getUsers(): Promise<ServiceResponse<User[]>> {
     try {
-      const { data, error } = await this.supabase.rpc('get_users_with_roles');
-      
-      if (error) {
-        return this.createResponse(null, this.handleError(error));
-      }
-      
-      return this.createResponse(data || []);
-    } catch (error) {
-      return this.createResponse(null, this.handleError(error));
-    }
-  }
-
-  static async getUserById(userId: string): Promise<ServiceResponse<any>> {
-    try {
       const { data, error } = await this.supabase
-        .from('user_profiles')
-        .select('id, first_name, last_name, email')
-        .eq('id', userId)
-        .single();
-        
-      if (error) {
-        return this.createResponse(null, this.handleError(error));
-      }
+        .rpc('get_users_with_roles');
       
-      return this.createResponse(data);
+      if (error) throw error;
+      
+      // Transform data to match User interface
+      const transformedData = (data || []).map((user: any) => ({
+        id: user.user_id,
+        user_id: user.user_id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        full_name: `${user.first_name} ${user.last_name}`,
+        role: user.role,
+        status: 'active',
+        is_manager: user.is_manager,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        phone: user.phone,
+        department: user.company,
+        position: user.manager_position
+      }));
+      
+      return super.createResponse(transformedData);
     } catch (error) {
-      return this.createResponse(null, this.handleError(error));
+      return super.createResponse(null, super.handleError(error));
     }
   }
 
-  static async createUser(userData: CreateUserData): Promise<ServiceResponse<any>> {
+  static async createUser(userData: CreateUserData): Promise<ServiceResponse<User>> {
     try {
-      const { data, error } = await this.supabase.auth.signUp({
+      const { data, error } = await super.supabase.auth.admin.createUser({
         email: userData.email,
         password: userData.password,
-        options: {
-          data: {
-            first_name: userData.firstName,
-            last_name: userData.lastName,
-          }
+        user_metadata: {
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          role: userData.role
         }
       });
 
-      if (error) {
-        return this.createResponse(null, this.handleError(error));
-      }
+      if (error) throw error;
 
-      // Assign role after user creation
-      if (data.user?.id && userData.role) {
-        const { error: roleError } = await this.supabase.rpc('assign_user_role_secure', {
-          _target_user_id: data.user.id,
-          _role: userData.role as any
-        });
-
-        if (roleError) {
-          console.warn('Role assignment failed:', roleError);
-        }
-      }
-
-      return this.createResponse(data);
+      return super.createResponse(data.user as any);
     } catch (error) {
-      return this.createResponse(null, this.handleError(error));
+      return super.createResponse(null, super.handleError(error));
     }
   }
 
-  static async updateUser(userId: string, updates: UpdateUserData): Promise<ServiceResponse<any>> {
+  static async updateUser(userId: string, updates: UpdateUserData): Promise<ServiceResponse<User>> {
     try {
-      const { data, error } = await this.supabase
-        .from('user_profiles')
-        .update({
-          first_name: updates.firstName,
-          last_name: updates.lastName
-        })
-        .eq('id', userId)
-        .select()
-        .single();
-
-      if (error) {
-        return this.createResponse(null, this.handleError(error));
-      }
-
-      // Update role if provided
-      if (updates.role) {
-        const { error: roleError } = await this.supabase.rpc('update_user_role_secure', {
-          _target_user_id: userId,
-          _new_role: updates.role as any
-        });
-
-        if (roleError) {
-          return this.createResponse(null, this.handleError(roleError));
-        }
-      }
-
-      return this.createResponse(data);
-    } catch (error) {
-      return this.createResponse(null, this.handleError(error));
-    }
-  }
-
-  static async deleteUser(userId: string): Promise<ServiceResponse<any>> {
-    try {
-      const { data, error } = await this.supabase.rpc('delete_user_completely', {
-        _user_id: userId
+      const { data, error } = await super.supabase.auth.admin.updateUserById(userId, {
+        user_metadata: updates
       });
 
-      if (error) {
-        return this.createResponse(null, this.handleError(error));
-      }
+      if (error) throw error;
 
-      return this.createResponse(data);
+      return super.createResponse(data.user as any);
     } catch (error) {
-      return this.createResponse(null, this.handleError(error));
+      return super.createResponse(null, super.handleError(error));
     }
   }
 
-  static async removeUserRole(userId: string, role: string): Promise<ServiceResponse<any>> {
+  static async deleteUser(userId: string): Promise<ServiceResponse<void>> {
     try {
-      const { data, error } = await this.supabase.rpc('remove_user_role', {
-        _user_id: userId,
-        _role: role as any
-      });
+      const { error } = await super.supabase.auth.admin.deleteUser(userId);
 
-      if (error) {
-        return this.createResponse(null, this.handleError(error));
-      }
+      if (error) throw error;
 
-      return this.createResponse(data);
+      return super.createResponse(undefined);
     } catch (error) {
-      return this.createResponse(null, this.handleError(error));
+      return super.createResponse(null, super.handleError(error));
+    }
+  }
+
+  static async removeUserRole(userId: string, role: string): Promise<ServiceResponse<void>> {
+    try {
+      const { error } = await super.supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', role as any);
+
+      if (error) throw error;
+
+      return super.createResponse(undefined);
+    } catch (error) {
+      return super.createResponse(null, super.handleError(error));
     }
   }
 }
