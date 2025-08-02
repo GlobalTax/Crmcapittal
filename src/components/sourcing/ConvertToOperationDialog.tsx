@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useTargetCompanies } from "@/hooks/useTargetCompanies";
-import { useOperations } from "@/hooks/useOperations";
+import { useOperationsContext } from '@/contexts';
 import { TargetCompany } from "@/types/TargetCompany";
 import {
   Dialog,
@@ -21,7 +21,7 @@ interface ConvertToOperationDialogProps {
 
 export const ConvertToOperationDialog = ({ target, open, onOpenChange }: ConvertToOperationDialogProps) => {
   const { updateStatus } = useTargetCompanies();
-  const { addOperation } = useOperations();
+  const { createOperation } = useOperationsContext();
   const [isConverting, setIsConverting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -45,11 +45,7 @@ export const ConvertToOperationDialog = ({ target, open, onOpenChange }: Convert
         ebitda: target.ebitda || null,
       };
 
-      const operationResult = await addOperation(operationData);
-      
-      if (operationResult.error) {
-        throw new Error(operationResult.error);
-      }
+      await createOperation(operationData);
 
       // Update target status to CONVERTED_TO_DEAL
       const statusResult = await updateStatus(target.id, 'CONVERTED_TO_DEAL');

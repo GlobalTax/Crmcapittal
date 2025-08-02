@@ -1,6 +1,6 @@
 
 import { useParams, useNavigate } from "react-router-dom";
-import { useOperations } from "@/hooks/useOperations";
+import { useOperationsContext } from '@/contexts';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ import { getStatusColor, getStatusLabel, formatFinancialValue } from "@/utils/op
 const OperationDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { operations } = useOperations();
+  const { operations } = useOperationsContext();
   
   const operation = operations.find(op => op.id === id);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOperations } from '@/hooks/useOperations';
+import { useOperationsContext } from '@/contexts';
 import { useLeads } from '@/hooks/useLeads';
 import { useNegocios } from '@/hooks/useNegocios';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -32,7 +32,7 @@ const EnhancedDashboard = React.memo(() => {
   const { addToBatch } = useBatchedQueries();
   
   const { role, loading: roleLoading } = useUserRole();
-  const { operations, loading: operationsLoading } = useOperations();
+  const { operations, loading: operationsLoading } = useOperationsContext();
   const { leads, isLoading: leadsLoading } = useLeads({});
   const { negocios, loading: negociosLoading } = useNegocios();
 

@@ -1,4 +1,5 @@
 
+import React, { useMemo, useCallback } from 'react';
 import { 
   Table, 
   TableHead, 
@@ -13,11 +14,10 @@ import { EditOperationDialog } from "./admin/EditOperationDialog";
 import { TeaserUploadDialog } from "./admin/TeaserUploadDialog";
 import { useAdminTableFilters } from "@/hooks/admin/useAdminTableFilters";
 import { useAdminDialogs } from "@/hooks/admin/useAdminDialogs";
-import { useAdminOperationHandlers } from "./admin/AdminOperationHandlers";
 
 interface AdminOperationsTableProps {}
 
-export const AdminOperationsTable = ({}: AdminOperationsTableProps) => {
+export const AdminOperationsTable = React.memo(({}: AdminOperationsTableProps) => {
   // Get operations data from context
   const { 
     operations, 
@@ -49,43 +49,43 @@ export const AdminOperationsTable = ({}: AdminOperationsTableProps) => {
     closeUploadDialog
   } = useAdminDialogs();
 
-  const handleDeleteOperation = async (operation: any) => {
+  // Memoized handlers for better performance
+  const handleDeleteOperation = useCallback(async (operation: any) => {
     try {
       await deleteOperation(operation.id);
       return { success: true };
     } catch (error) {
       return { success: false };
     }
-  };
+  }, [deleteOperation]);
 
-  const handleSaveEdit = async (operationId: string, operationData: any) => {
+  const handleSaveEdit = useCallback(async (operationId: string, operationData: any) => {
     try {
       await updateOperation(operationId, operationData);
       return { success: true };
     } catch (error) {
       return { success: false };
     }
-  };
+  }, [updateOperation]);
 
-  const handleDownloadTeaser = (operation: any) => {
+  const handleDownloadTeaser = useCallback((operation: any) => {
     if (operation.teaser_url) {
       window.open(operation.teaser_url, '_blank');
     }
-  };
+  }, []);
 
-  const handleUploadComplete = (operationId: string, teaserUrl: string) => {
-    // This would be handled by context in a real implementation
+  const handleUploadComplete = useCallback((operationId: string, teaserUrl: string) => {
     console.log('Upload complete:', operationId, teaserUrl);
-  };
+  }, []);
 
-  const handleSaveEditWrapper = async (operationData: any) => {
+  const handleSaveEditWrapper = useCallback(async (operationData: any) => {
     if (!editDialog.operation) return;
     
     const result = await handleSaveEdit(editDialog.operation.id, operationData);
     if (result.success) {
       closeEditDialog();
     }
-  };
+  }, [editDialog.operation, handleSaveEdit, closeEditDialog]);
 
   if (loading) {
     return (
@@ -182,4 +182,4 @@ export const AdminOperationsTable = ({}: AdminOperationsTableProps) => {
       />
     </>
   );
-};
+});

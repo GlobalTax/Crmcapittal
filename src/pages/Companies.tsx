@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { RecordTable } from "@/components/companies/RecordTable";
 import { CompanyModal } from "@/components/companies/CompanyModal";
@@ -7,7 +7,7 @@ import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
 import { useCompaniesContext } from "@/contexts";
 import { Button } from "@/components/ui/button";
 
-const Companies = () => {
+const Companies = React.memo(() => {
   const navigate = useNavigate();
   const [editingCompany, setEditingCompany] = useState<any>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -40,30 +40,29 @@ const Companies = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleEditCompany = (company: any) => {
+  const handleEditCompany = useCallback((company: any) => {
     setEditingCompany(company);
-  };
+  }, []);
 
-  const handleUpdateCompany = (companyId: string, companyData: any) => {
+  const handleUpdateCompany = useCallback((companyId: string, companyData: any) => {
     updateCompany(companyId, companyData);
-  };
+  }, [updateCompany]);
 
-  const handleDeleteCompany = (companyId: string) => {
+  const handleDeleteCompany = useCallback((companyId: string) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar esta empresa?")) {
       deleteCompany(companyId);
     }
-  };
+  }, [deleteCompany]);
 
-  const handleViewCompany = (company: any) => {
+  const handleViewCompany = useCallback((company: any) => {
     if (company.id) {
       navigate(`/empresas/${company.id}`);
     }
-  };
+  }, [navigate]);
 
-  const handleSearch = (term: string) => {
-    // For now, we'll leave search handling to be implemented later
+  const handleSearch = useCallback((term: string) => {
     console.log('Search term:', term);
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -110,6 +109,6 @@ const Companies = () => {
       )}
     </div>
   );
-};
+});
 
 export default Companies;

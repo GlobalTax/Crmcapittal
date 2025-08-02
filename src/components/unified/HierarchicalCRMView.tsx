@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,7 +46,7 @@ interface HierarchicalCRMViewProps {
   targetId?: string;
 }
 
-export const HierarchicalCRMView = ({ 
+export const HierarchicalCRMView = React.memo(({ 
   initialLevel = 'leads',
   companyId,
   mandateId,
@@ -102,53 +102,53 @@ export const HierarchicalCRMView = ({
     }
   }, [showTargetsDialog, navigation.selectedMandate?.id, fetchTargets]);
 
-  // Navigation handlers
-  const handleNavigateToCompanies = (company?: Company) => {
+  // Memoized navigation handlers
+  const handleNavigateToCompanies = useCallback((company?: any) => {
     setNavigation({
       level: 'companies',
       selectedCompany: company
     });
-  };
+  }, []);
 
-  const handleNavigateToMandates = (mandate?: BuyingMandate) => {
-    setNavigation({
-      ...navigation,
+  const handleNavigateToMandates = useCallback((mandate?: any) => {
+    setNavigation(prev => ({
+      ...prev,
       level: 'mandates',
       selectedMandate: mandate
-    });
-  };
+    }));
+  }, []);
 
-  const handleNavigateToTargets = (mandate: BuyingMandate) => {
-    setNavigation({
-      ...navigation,
+  const handleNavigateToTargets = useCallback((mandate: any) => {
+    setNavigation(prev => ({
+      ...prev,
       level: 'targets',
       selectedMandate: mandate
-    });
-  };
+    }));
+  }, []);
 
-  const handleTargetClick = (target: MandateTarget) => {
-    setNavigation({
-      ...navigation,
+  const handleTargetClick = useCallback((target: any) => {
+    setNavigation(prev => ({
+      ...prev,
       selectedTarget: target
-    });
+    }));
     setShowTargetDetail(true);
-  };
+  }, []);
 
-  const handleBackNavigation = () => {
+  const handleBackNavigation = useCallback(() => {
     switch (navigation.level) {
       case 'targets':
-        setNavigation({
-          ...navigation,
+        setNavigation(prev => ({
+          ...prev,
           level: 'mandates',
           selectedTarget: undefined
-        });
+        }));
         break;
       case 'mandates':
-        setNavigation({
-          ...navigation,
+        setNavigation(prev => ({
+          ...prev,
           level: 'companies',
           selectedMandate: undefined
-        });
+        }));
         break;
       case 'companies':
         setNavigation({
@@ -156,10 +156,10 @@ export const HierarchicalCRMView = ({
         });
         break;
     }
-  };
+  }, [navigation.level]);
 
-  // Breadcrumb items
-  const getBreadcrumbItems = () => {
+  // Memoized computed values
+  const breadcrumbItems = useMemo(() => {
     const items = [
       { level: 'leads', label: 'Leads', icon: Users },
       { level: 'companies', label: 'Empresas', icon: Building2 },
@@ -169,9 +169,9 @@ export const HierarchicalCRMView = ({
 
     const currentIndex = items.findIndex(item => item.level === navigation.level);
     return items.slice(0, currentIndex + 1);
-  };
+  }, [navigation.level]);
 
-  const getContextualInfo = () => {
+  const contextualInfo = useMemo(() => {
     const info = [];
     if (navigation.selectedCompany) {
       info.push(`Empresa: ${navigation.selectedCompany.name}`);
@@ -183,7 +183,7 @@ export const HierarchicalCRMView = ({
       info.push(`Target: ${navigation.selectedTarget.company_name}`);
     }
     return info;
-  };
+  }, [navigation.selectedCompany, navigation.selectedMandate, navigation.selectedTarget]);
 
   return (
     <div className="space-y-6">
@@ -203,9 +203,9 @@ export const HierarchicalCRMView = ({
             )}
             <Breadcrumb>
               <BreadcrumbList>
-                {getBreadcrumbItems().map((item, index) => {
+                {breadcrumbItems.map((item, index) => {
                   const Icon = item.icon;
-                  const isLast = index === getBreadcrumbItems().length - 1;
+                  const isLast = index === breadcrumbItems.length - 1;
                   
                   return (
                     <div key={item.level} className="flex items-center">
@@ -234,9 +234,9 @@ export const HierarchicalCRMView = ({
           </div>
           
           {/* Contextual Information */}
-          {getContextualInfo().length > 0 && (
+          {contextualInfo.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {getContextualInfo().map((info, index) => (
+              {contextualInfo.map((info, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
                   {info}
                 </Badge>
@@ -505,4 +505,4 @@ export const HierarchicalCRMView = ({
       />
     </div>
   );
-};
+});
