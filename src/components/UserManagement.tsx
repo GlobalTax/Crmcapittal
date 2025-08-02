@@ -113,13 +113,12 @@ const UserManagement = () => {
 
         console.log('Auth user created:', authData.user.id);
 
-        // Asignar rol
-        console.log('Step 2: Assigning role...');
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: authData.user.id,
-            role: userData.role
+        // Asignar rol usando función segura
+        console.log('Step 2: Assigning role securely...');
+        const { data: roleResult, error: roleError } = await supabase
+          .rpc('assign_role_after_signup', {
+            p_user_id: authData.user.id,
+            p_role: userData.role
           });
 
         if (roleError) {
@@ -127,7 +126,14 @@ const UserManagement = () => {
           throw new Error(`Error asignando rol: ${roleError.message}`);
         }
 
-        console.log('Role assigned successfully');
+        if (roleResult && typeof roleResult === 'object' && 'success' in roleResult) {
+          const result = roleResult as unknown as DatabaseFunctionResponse;
+          if (!result.success) {
+            throw new Error(result.error || 'Error al asignar rol');
+          }
+        }
+
+        console.log('Role assigned successfully:', roleResult);
 
         // Si es admin, crear también el gestor
         if (userData.role === 'admin' && userData.managerName) {

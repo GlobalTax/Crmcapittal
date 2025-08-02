@@ -7873,6 +7873,13 @@ export type Database = {
         Args: { p_lead_id: string }
         Returns: Json
       }
+      assign_role_after_signup: {
+        Args: {
+          p_user_id: string
+          p_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: Json
+      }
       assign_user_role: {
         Args: {
           _user_id: string
@@ -7949,6 +7956,16 @@ export type Database = {
       create_security_audit_trail: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_user_with_role_secure: {
+        Args: {
+          p_email: string
+          p_password: string
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_first_name?: string
+          p_last_name?: string
+        }
+        Returns: Json
       }
       delete_user_completely: {
         Args: { _user_id: string }
