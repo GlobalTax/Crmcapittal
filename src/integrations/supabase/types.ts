@@ -8224,6 +8224,10 @@ export type Database = {
         Args: { password: string }
         Returns: Json
       }
+      validate_sensitive_data_access: {
+        Args: { table_name: string; record_id: string; access_type?: string }
+        Returns: boolean
+      }
       validate_session_security: {
         Args: Record<PropertyKey, never>
         Returns: boolean
