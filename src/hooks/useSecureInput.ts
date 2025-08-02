@@ -44,8 +44,10 @@ export const useSecureInput = () => {
     try {
       // Use enhanced database validation function for better security
       // Note: This function was created in the security migration
-      const { data, error } = await supabase.rpc('sanitize_input', {
-        p_input: input
+      const { data, error } = await supabase.rpc('validate_and_sanitize_input', {
+        p_input: input,
+        p_max_length: maxLength,
+        p_allow_html: allowHtml
       }) as { data: string | null; error: any };
 
       if (error) {
@@ -120,9 +122,30 @@ export const useSecureInput = () => {
     return sanitized;
   }, []);
 
-  const validateEmail = useCallback((email: string): boolean => {
+  const validateEmail = useCallback(async (email: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.rpc('validate_email_secure', { 
+        p_email: email 
+      });
+      
+      if (error) {
+        // Fallback to client-side validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email) && email.length <= 254;
+      }
+      
+      return data || false;
+    } catch (error) {
+      // Fallback to client-side validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email) && email.length <= 254;
+    }
+  }, []);
+
+  // Synchronous email validation for backward compatibility
+  const validateEmailSync = useCallback((email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return emailRegex.test(email) && email.length <= 254;
   }, []);
 
   const validateUrl = useCallback((url: string): boolean => {
@@ -150,7 +173,8 @@ export const useSecureInput = () => {
   return {
     sanitizeInput,
     sanitizeInputAsync,
-    validateEmail,
+    validateEmail: validateEmailSync, // Keep sync version for compatibility
+    validateEmailAsync: validateEmail, // New async version
     validateUrl,
     validateUUID,
     sanitizeFilename

@@ -58,9 +58,9 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const config = {
       login: { maxRequests: 5, windowMinutes: 15 },
       signup: { maxRequests: 3, windowMinutes: 60 },
-      api: { maxRequests: 100, windowMinutes: 1 },
-      upload: { maxRequests: 10, windowMinutes: 1 }
-    }[operation] || { maxRequests: 50, windowMinutes: 1 };
+      api: { maxRequests: 50, windowMinutes: 15 }, // Reduced from 100/1min to 50/15min
+      upload: { maxRequests: 10, windowMinutes: 15 } // Increased window from 1 to 15 minutes
+    }[operation] || { maxRequests: 30, windowMinutes: 15 }; // Default reduced from 50/1min
 
     try {
       // Use basic database rate limiting for now

@@ -8016,6 +8016,10 @@ export type Database = {
         Args: { p_identifier: string; p_action?: string }
         Returns: boolean
       }
+      check_session_timeout: {
+        Args: { p_user_id: string; p_timeout_minutes?: number }
+        Returns: boolean
+      }
       create_deal_from_won_lead: {
         Args: { p_lead_id: string; p_deal_value?: number }
         Returns: Json
@@ -8201,13 +8205,21 @@ export type Database = {
         Returns: string
       }
       log_security_event_enhanced: {
-        Args: {
-          p_event_type: string
-          p_severity?: string
-          p_description?: string
-          p_metadata?: Json
-          p_table_name?: string
-        }
+        Args:
+          | {
+              p_event_type: string
+              p_severity?: string
+              p_description?: string
+              p_metadata?: Json
+              p_auto_alert?: boolean
+            }
+          | {
+              p_event_type: string
+              p_severity?: string
+              p_description?: string
+              p_metadata?: Json
+              p_table_name?: string
+            }
         Returns: string
       }
       mark_winback_response: {
@@ -8310,9 +8322,17 @@ export type Database = {
         }
         Returns: Json
       }
+      validate_and_sanitize_input: {
+        Args: { p_input: string; p_max_length?: number; p_allow_html?: boolean }
+        Returns: string
+      }
       validate_api_configuration: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      validate_email_secure: {
+        Args: { p_email: string }
+        Returns: boolean
       }
       validate_input_security: {
         Args: { input_text: string }
@@ -8328,6 +8348,10 @@ export type Database = {
       }
       validate_session_security: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      validate_strong_password: {
+        Args: { p_password: string }
         Returns: boolean
       }
       validate_user_input: {
