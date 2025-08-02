@@ -3295,6 +3295,7 @@ export type Database = {
           job_title: string | null
           last_activity_type: string | null
           last_contacted: string | null
+          last_winback_attempt: string | null
           lead_name: string | null
           lead_origin: string
           lead_score: number | null
@@ -3318,6 +3319,7 @@ export type Database = {
           status: Database["public"]["Enums"]["lead_status"]
           tags: string[] | null
           updated_at: string
+          winback_stage: string | null
           won_date: string | null
         }
         Insert: {
@@ -3338,6 +3340,7 @@ export type Database = {
           job_title?: string | null
           last_activity_type?: string | null
           last_contacted?: string | null
+          last_winback_attempt?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
@@ -3361,6 +3364,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           tags?: string[] | null
           updated_at?: string
+          winback_stage?: string | null
           won_date?: string | null
         }
         Update: {
@@ -3381,6 +3385,7 @@ export type Database = {
           job_title?: string | null
           last_activity_type?: string | null
           last_contacted?: string | null
+          last_winback_attempt?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
@@ -3404,6 +3409,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           tags?: string[] | null
           updated_at?: string
+          winback_stage?: string | null
           won_date?: string | null
         }
         Relationships: [
@@ -7472,6 +7478,90 @@ export type Database = {
           },
         ]
       }
+      winback_attempts: {
+        Row: {
+          canal: string
+          created_at: string | null
+          created_by: string | null
+          executed_date: string | null
+          id: string
+          lead_id: string
+          notes: string | null
+          response_data: Json | null
+          scheduled_date: string
+          sequence_id: string
+          status: string | null
+          step_index: number
+          template_id: string | null
+        }
+        Insert: {
+          canal: string
+          created_at?: string | null
+          created_by?: string | null
+          executed_date?: string | null
+          id?: string
+          lead_id: string
+          notes?: string | null
+          response_data?: Json | null
+          scheduled_date: string
+          sequence_id: string
+          status?: string | null
+          step_index: number
+          template_id?: string | null
+        }
+        Update: {
+          canal?: string
+          created_at?: string | null
+          created_by?: string | null
+          executed_date?: string | null
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          response_data?: Json | null
+          scheduled_date?: string
+          sequence_id?: string
+          status?: string | null
+          step_index?: number
+          template_id?: string | null
+        }
+        Relationships: []
+      }
+      winback_sequences: {
+        Row: {
+          activo: boolean | null
+          created_at: string | null
+          created_by: string | null
+          descripcion: string | null
+          id: string
+          lost_reason_trigger: string | null
+          nombre: string
+          pasos: Json
+          updated_at: string | null
+        }
+        Insert: {
+          activo?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          lost_reason_trigger?: string | null
+          nombre: string
+          pasos?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          activo?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          lost_reason_trigger?: string | null
+          nombre?: string
+          pasos?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       hubspot_companies: {
@@ -8064,6 +8154,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      initiate_winback_sequence: {
+        Args: { p_lead_id: string; p_sequence_id?: string }
+        Returns: undefined
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -8115,6 +8209,10 @@ export type Database = {
           p_table_name?: string
         }
         Returns: string
+      }
+      mark_winback_response: {
+        Args: { p_lead_id: string; p_response_type?: string }
+        Returns: undefined
       }
       match_targets_for_reconversion: {
         Args: { reconversion_id: string }
