@@ -10,6 +10,7 @@ import { configManager } from '@/utils/configManager';
 import { OperationsProvider } from '@/contexts/operations/OperationsProvider';
 import { CompaniesProvider } from '@/contexts/companies/CompaniesProvider';
 import { ContactsProvider } from '@/contexts/contacts/ContactsProvider';
+import { UsersProvider } from '@/contexts/users/UsersProvider';
 import { GlobalSearchProvider } from '@/contexts/global/GlobalSearchProvider';
 
 // Optimized QueryClient configuration using centralized config
@@ -64,9 +65,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           <OperationsProvider>
             <CompaniesProvider>
               <ContactsProvider>
-                <GlobalSearchProvider>
-                  {children}
-                </GlobalSearchProvider>
+                <UsersProvider>
+                  <GlobalSearchProvider>
+                    {children}
+                  </GlobalSearchProvider>
+                </UsersProvider>
               </ContactsProvider>
             </CompaniesProvider>
           </OperationsProvider>
