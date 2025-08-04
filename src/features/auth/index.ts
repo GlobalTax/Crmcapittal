@@ -9,9 +9,9 @@
  */
 
 // Re-export all auth types
-export * from './types';
+export * as AuthTypes from './types';
 
-// Re-export all auth hooks
+// Re-export all auth hooks  
 export * from './hooks';
 
 // Re-export all auth services

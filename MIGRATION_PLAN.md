@@ -34,10 +34,11 @@ Migrar de una arquitectura técnica/layered a una arquitectura feature-first que
 - [ ] Migrar componentes de contactos (próximo)
 - [ ] Actualizar imports (próximo)
 
-#### **Fase 5: Auth Feature** ⏳
-- [ ] Migrar autenticación
-- [ ] Migrar contexts de auth
-- [ ] Migrar componentes de auth
+#### **Fase 5: Auth Feature** ✅
+- [x] Migrar types de autenticación
+- [x] Migrar contexts de auth
+- [x] Migrar hooks de auth
+- [x] Migrar servicios de auth
 
 #### **Fase 6: Dashboard Feature** ⏳
 - [ ] Migrar componentes de dashboard
@@ -90,6 +91,6 @@ src/
 
 ## 📝 Progreso
 
-- **Estado Actual**: Fase 4 (Contacts) 85% Completada 🚀
-- **Completado**: 65%
-- **Siguiente**: Fase 5 (Auth Feature) - tipos, hooks, servicios, contextos
+- **Estado Actual**: Fase 5 (Auth) 85% Completada 🚀
+- **Completado**: 80%
+- **Siguiente**: Fase 6 (Dashboard Feature) y Fase 7 (Shared Module)
