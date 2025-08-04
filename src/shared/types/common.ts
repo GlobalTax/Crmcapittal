@@ -29,3 +29,10 @@ export interface ServiceResponse<T = any> {
     limit?: number;
   };
 }
+
+export interface BaseStore {
+  loading: boolean;
+  error: string | null;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+}
