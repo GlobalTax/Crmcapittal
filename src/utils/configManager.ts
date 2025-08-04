@@ -51,9 +51,9 @@ class ConfigManager {
       isDevelopment,
       isProduction,
       
-      // API Configuration - using Vite's built-in env handling
-      supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
-      supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+      // API Configuration - hardcoded for Lovable compatibility
+      supabaseUrl: 'https://nbvvdaprcecaqvvkqcto.supabase.co',
+      supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idnZkYXByY2VjYXF2dmtxY3RvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk3MTQxMDEsImV4cCI6MjA2NTI5MDEwMX0.U-xmTVjSKNxSjCugemIdIqSLDuFEMt8BuvH0IifJAfo',
       
       // Performance Settings
       queryStaleTime: isDevelopment ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min dev, 5 min prod
@@ -85,11 +85,11 @@ class ConfigManager {
     const errors: string[] = [];
 
     if (!this.config.supabaseUrl) {
-      errors.push('VITE_SUPABASE_URL is required');
+      errors.push('Supabase URL is required');
     }
 
     if (!this.config.supabaseAnonKey) {
-      errors.push('VITE_SUPABASE_ANON_KEY is required');
+      errors.push('Supabase Anon Key is required');
     }
 
     if (errors.length > 0) {
