@@ -1,2 +1,10 @@
 // Operations Components - Barrel Export
-// This will be populated as we migrate operation components
+export * from './AddOperationDialog';
+export * from './BulkOperationUpload';
+export * from './OperationCard';
+export * from './OperationCardHeader';
+export * from './OperationCardContent';
+export * from './OperationCardActions';
+export * from './OperationFilters';
+export * from './OperationsGrid';
+export * from './OperationsTable';

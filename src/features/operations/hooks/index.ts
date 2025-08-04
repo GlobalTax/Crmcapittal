@@ -1,2 +1,8 @@
 // Operations Hooks - Barrel Export
-// Will be populated as we migrate hooks
+export * from './useOperationsData';
+export * from './useOperationsQuery';
+export * from './useOperationsMutations';
+export * from './useOperationsPagination';
+export * from './useOperationsEnhanced';
+export * from './useOperationsOptimized';
+export * from './useOperationsFilter';
