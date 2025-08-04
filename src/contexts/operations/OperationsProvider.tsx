@@ -71,11 +71,13 @@ export const OperationsProvider: React.FC<OperationsProviderProps> = ({ children
     }
   }, [operations]);
 
-  // Apply filters using existing hook
-  const filteredOperations = useOperationsFilter(state.operations, {
+  // Apply filters using existing hook with proper memoization
+  const filtersForQuery = useMemo(() => ({
     search: state.searchTerm,
     ...state.filters
-  });
+  }), [state.searchTerm, state.filters]);
+
+  const filteredOperations = useOperationsFilter(state.operations, filtersForQuery);
 
   useEffect(() => {
     dispatch({ type: 'SET_FILTERED_OPERATIONS', payload: filteredOperations });
