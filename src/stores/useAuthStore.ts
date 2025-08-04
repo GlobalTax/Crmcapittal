@@ -3,8 +3,8 @@ import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthStore } from './types';
-import { useSecureInput } from '@/hooks/useSecureInput';
-import { useRateLimit } from '@/utils/rateLimit';
+import { validateEmailSync } from '@/hooks/useSecureInput';
+import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimit';
 
 export const useAuthStore = create<AuthStore>()(
   devtools(
@@ -39,15 +39,15 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         signIn: async (email, password) => {
-          // Input validation and rate limiting
-          const { validateEmail } = useSecureInput();
-          const { checkRateLimit } = useRateLimit();
-          
-          if (!validateEmail(email)) {
+          // Input validation and rate limiting using pure functions
+          if (!validateEmailSync(email)) {
             return { error: { message: 'Email format is invalid' } };
           }
           
-          if (!checkRateLimit('login', email)) {
+          if (!rateLimiter.isAllowed({
+            ...RATE_LIMITS.login,
+            identifier: `login:${email}`
+          })) {
             return { error: { message: 'Too many login attempts. Please try again later.' } };
           }
 
@@ -60,10 +60,8 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         signUp: async (email, password) => {
-          const { validateEmail } = useSecureInput();
-          const { checkRateLimit } = useRateLimit();
-          
-          if (!validateEmail(email)) {
+          // Input validation and rate limiting using pure functions
+          if (!validateEmailSync(email)) {
             return { error: { message: 'Email format is invalid' } };
           }
           
@@ -71,7 +69,10 @@ export const useAuthStore = create<AuthStore>()(
             return { error: { message: 'Password should be at least 8 characters long' } };
           }
           
-          if (!checkRateLimit('signup', email)) {
+          if (!rateLimiter.isAllowed({
+            ...RATE_LIMITS.signup,
+            identifier: `signup:${email}`
+          })) {
             return { error: { message: 'Too many signup attempts. Please try again later.' } };
           }
 

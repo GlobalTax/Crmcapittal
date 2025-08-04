@@ -180,3 +180,9 @@ export const useSecureInput = () => {
     sanitizeFilename
   };
 };
+
+// Export standalone functions for use outside React components
+export const validateEmailSync = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 254;
+};
