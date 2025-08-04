@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores/useAuthStore';
 import { useSecureInput } from '@/hooks/useSecureInput';
 import { useSecurityMonitor } from '@/hooks/useSecurityMonitor';
 

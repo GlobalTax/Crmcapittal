@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Shield, AlertTriangle, Eye, CheckCircle, Activity, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores/useAuthStore';
 import { useToast } from '@/hooks/use-toast';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 

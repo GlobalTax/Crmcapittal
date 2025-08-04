@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { Contact } from "@/types/Contact";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/stores/useAuthStore";
 import { toast } from "sonner";
 
 interface AddActivityDialogProps {

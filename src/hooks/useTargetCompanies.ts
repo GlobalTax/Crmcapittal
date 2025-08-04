@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { TargetCompany, TargetStatus, CreateTargetCompanyData, CreateTargetContactData } from '@/types/TargetCompany';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/stores/useAuthStore';
 
 export const useTargetCompanies = () => {
   const [targetCompanies, setTargetCompanies] = useState<TargetCompany[]>([]);
