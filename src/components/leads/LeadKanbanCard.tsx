@@ -3,7 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Building2, User, Euro, TrendingUp } from 'lucide-react';
+import { Building2, User, Euro, TrendingUp, Mail, RotateCcw, Phone, MessageCircle, Smartphone, Briefcase } from 'lucide-react';
 import { LeadWithStage } from '@/hooks/leads/useLeadKanban';
 
 interface LeadKanbanCardProps {
@@ -44,6 +44,26 @@ export const LeadKanbanCard = ({ lead, onClick }: LeadKanbanCardProps) => {
       currency: 'EUR',
       maximumFractionDigits: 0,
     }).format(value);
+  };
+
+  // Winback stage chip helper
+  const getWinbackChip = (winbackStage: string) => {
+    switch (winbackStage) {
+      case 'campaign_sent':
+        return {
+          icon: Mail,
+          label: 'Campaña enviada',
+          color: 'bg-blue-100 text-blue-800 border-blue-200'
+        };
+      case 'engaging':
+        return {
+          icon: RotateCcw,
+          label: 'En proceso',
+          color: 'bg-orange-100 text-orange-800 border-orange-200'
+        };
+      default:
+        return null;
+    }
   };
 
   const leadScore = lead.lead_score || 0;
@@ -115,6 +135,23 @@ export const LeadKanbanCard = ({ lead, onClick }: LeadKanbanCardProps) => {
               value={probability * 100} 
               className="h-1.5"
             />
+          </div>
+        )}
+
+        {/* Winback Status Chip */}
+        {lead.winback_stage && ['campaign_sent', 'engaging'].includes(lead.winback_stage) && (
+          <div className="flex items-center space-x-1">
+            {(() => {
+              const chipData = getWinbackChip(lead.winback_stage);
+              if (!chipData) return null;
+              const IconComponent = chipData.icon;
+              return (
+                <Badge variant="outline" className={`text-xs ${chipData.color}`}>
+                  <IconComponent className="h-3 w-3 mr-1" />
+                  {chipData.label}
+                </Badge>
+              );
+            })()}
           </div>
         )}
 

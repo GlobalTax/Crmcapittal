@@ -55,7 +55,7 @@ export const useLeadKanban = () => {
     },
   });
 
-  // Group leads by stage
+  // Group leads by stage including Re-engagement virtual stage
   const leadsByStage = useMemo(() => {
     const groups: Record<string, LeadWithStage[]> = {};
     
@@ -64,22 +64,36 @@ export const useLeadKanban = () => {
       groups[stage.id] = [];
     });
 
+    // Add Re-engagement virtual stage
+    groups['re-engagement'] = [];
+
+    // Find the "Perdido" stage
+    const perdidoStage = stages.find(s => s.name.toLowerCase().includes('perdido'));
+
     // Group leads by pipeline_stage_id, including those without stages
     leads.forEach(lead => {
-      const stageId = lead.pipeline_stage_id || 'no-stage';
-      
-      if (!groups[stageId]) {
-        groups[stageId] = [];
-      }
-      
       // Add stage info to lead
       const stageInfo = stages.find(s => s.id === lead.pipeline_stage_id);
       const leadWithStage: LeadWithStage = {
         ...lead,
         stage_info: stageInfo
       };
+
+      // Check if lead belongs to Re-engagement
+      const isPerdido = perdidoStage && lead.pipeline_stage_id === perdidoStage.id;
+      const isWinbackable = lead.winback_stage && lead.winback_stage !== 'irrecuperable';
       
-      groups[stageId].push(leadWithStage);
+      if (isPerdido && isWinbackable) {
+        groups['re-engagement'].push(leadWithStage);
+      } else {
+        const stageId = lead.pipeline_stage_id || 'no-stage';
+        
+        if (!groups[stageId]) {
+          groups[stageId] = [];
+        }
+        
+        groups[stageId].push(leadWithStage);
+      }
     });
 
     return groups;
@@ -126,9 +140,24 @@ export const useLeadKanban = () => {
     },
   });
 
+  // Enhanced stages with Re-engagement virtual stage
+  const enhancedStages = useMemo(() => {
+    const reEngagementStage = {
+      id: 're-engagement',
+      name: 'Re-engagement',
+      stage_order: 999, // Put it at the end
+      color: '#F97316', // Orange color
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    return [...stages, reEngagementStage];
+  }, [stages]);
+
   return {
     leads,
-    stages,
+    stages: enhancedStages,
     leadsByStage,
     isLoading,
     error,
