@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/stores/useAuthStore';
 import { Search, Command } from 'lucide-react';
@@ -38,29 +38,40 @@ export function AttioTopbar() {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   
-  // Safe auth access with inline error handling
-  let user = null;
-  let signOut = async () => {};
+  // Memoized auth access to prevent re-renders
+  const authData = useMemo(() => {
+    try {
+      const auth = useAuth();
+      return {
+        user: auth.user,
+        signOut: auth.signOut
+      };
+    } catch (error) {
+      console.log('AttioTopbar: Auth context not available, using defaults');
+      return {
+        user: null,
+        signOut: async () => {}
+      };
+    }
+  }, []);
+
+  // Memoized computed values
+  const currentTitle = useMemo(() => 
+    routeTitles[location.pathname] || 'Dashboard', 
+    [location.pathname]
+  );
   
-  try {
-    const auth = useAuth();
-    user = auth.user;
-    signOut = auth.signOut;
-  } catch (error) {
-    console.log('AttioTopbar: Auth context not available, using defaults');
-    user = null;
-    signOut = async () => {};
-  }
+  const userInitials = useMemo(() => 
+    authData.user?.email?.substring(0, 2).toUpperCase() || 'U', 
+    [authData.user?.email]
+  );
 
-  const currentTitle = routeTitles[location.pathname] || 'Dashboard';
-  const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
-
-  const handleSignOut = async () => {
-    if (signOut) {
-      await signOut();
+  const handleSignOut = useCallback(async () => {
+    if (authData.signOut) {
+      await authData.signOut();
       navigate('/auth');
     }
-  };
+  }, [authData.signOut, navigate]);
 
   // Global search shortcut
   useEffect(() => {
@@ -140,7 +151,7 @@ export function AttioTopbar() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium text-sm">{user?.email}</p>
+                    <p className="font-medium text-sm">{authData.user?.email}</p>
                     <p className="text-xs text-gray-500">Usuario activo</p>
                   </div>
                 </div>

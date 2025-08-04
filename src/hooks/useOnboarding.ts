@@ -15,17 +15,29 @@ export const useOnboarding = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Check user's onboarding status - simplified version
+  // Check user's onboarding status
   const checkOnboardingStatus = useCallback(async () => {
     try {
-      setLoading(false);
-      // For now, just set default state to avoid Supabase type issues
+      setLoading(true);
+      const user = localStorage.getItem('supabase-user');
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const userData = JSON.parse(user);
+      const userId = userData.id;
+
+      // Simple localStorage-based onboarding status
+      const onboardingComplete = localStorage.getItem(`onboarding-${userId}`) === 'true';
+      
       setState(prev => ({
         ...prev,
         completedSteps: [],
-        isComplete: false,
-        showWelcomeModal: false // Disabled for now
+        isComplete: onboardingComplete,
+        showWelcomeModal: !onboardingComplete
       }));
+      setLoading(false);
     } catch (error) {
       console.error('Error checking onboarding status:', error);
       setLoading(false);
@@ -58,17 +70,27 @@ export const useOnboarding = () => {
 
   // Complete entire onboarding
   const completeOnboarding = useCallback(async () => {
-    setState(prev => ({
-      ...prev,
-      isActive: false,
-      isComplete: true,
-      showWelcomeModal: false
-    }));
+    try {
+      const user = localStorage.getItem('supabase-user');
+      if (user) {
+        const userData = JSON.parse(user);
+        localStorage.setItem(`onboarding-${userData.id}`, 'true');
+      }
 
-    toast({
-      title: "¡Onboarding completado!",
-      description: "Ya conoces las funciones principales del CRM. ¡A vender!",
-    });
+      setState(prev => ({
+        ...prev,
+        isActive: false,
+        isComplete: true,
+        showWelcomeModal: false
+      }));
+
+      toast({
+        title: "¡Onboarding completado!",
+        description: "Ya conoces las funciones principales del CRM. ¡A vender!",
+      });
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+    }
   }, [toast]);
 
   // Reset onboarding (for reactivation)

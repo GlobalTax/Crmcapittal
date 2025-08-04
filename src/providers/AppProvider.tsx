@@ -7,6 +7,10 @@ import { useAppStore } from '@/stores';
 import { initializeAuthListener } from '@/stores/useAuthStore';
 import { secureLogger } from '@/utils/secureLogger';
 import { configManager } from '@/utils/configManager';
+import { OperationsProvider } from '@/contexts/operations/OperationsProvider';
+import { CompaniesProvider } from '@/contexts/companies/CompaniesProvider';
+import { ContactsProvider } from '@/contexts/contacts/ContactsProvider';
+import { GlobalSearchProvider } from '@/contexts/global/GlobalSearchProvider';
 
 // Optimized QueryClient configuration using centralized config
 const queryClient = new QueryClient({
@@ -57,7 +61,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     <AppErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          {children}
+          <OperationsProvider>
+            <CompaniesProvider>
+              <ContactsProvider>
+                <GlobalSearchProvider>
+                  {children}
+                </GlobalSearchProvider>
+              </ContactsProvider>
+            </CompaniesProvider>
+          </OperationsProvider>
           
           {/* Global components */}
           <Toaster 
