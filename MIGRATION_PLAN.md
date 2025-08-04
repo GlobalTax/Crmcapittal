@@ -27,11 +27,12 @@ Migrar de una arquitectura técnica/layered a una arquitectura feature-first que
 - [ ] Migrar componentes de empresas (próximo)
 - [ ] Actualizar imports (próximo)
 
-#### **Fase 4: Contacts Feature** ⏳
-- [ ] Migrar types de contactos
-- [ ] Migrar hooks de contactos
-- [ ] Migrar servicios de contactos
-- [ ] Migrar componentes de contactos
+#### **Fase 4: Contacts Feature** ✅
+- [x] Migrar types de contactos
+- [x] Migrar hooks de contactos
+- [x] Migrar servicios de contactos
+- [ ] Migrar componentes de contactos (próximo)
+- [ ] Actualizar imports (próximo)
 
 #### **Fase 5: Auth Feature** ⏳
 - [ ] Migrar autenticación
@@ -89,6 +90,6 @@ src/
 
 ## 📝 Progreso
 
-- **Estado Actual**: Fase 3 (Companies) 85% Completada 🚀
-- **Completado**: 50%
-- **Siguiente**: Fase 4 (Contacts Feature) - tipos, hooks, servicios
+- **Estado Actual**: Fase 4 (Contacts) 85% Completada 🚀
+- **Completado**: 65%
+- **Siguiente**: Fase 5 (Auth Feature) - tipos, hooks, servicios, contextos

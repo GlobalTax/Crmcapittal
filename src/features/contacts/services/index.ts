@@ -2,5 +2,5 @@
  * Contacts Services
  */
 
-// Placeholder - will be populated during migration
-export {};
+// New service class
+export * from './ContactService';
