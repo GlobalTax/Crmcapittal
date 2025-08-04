@@ -227,7 +227,7 @@ export const transformValoracionLogs = (logs: any[], valoracionId: string): Unif
 };
 
 // Transform winback attempts to unified activities
-export function transformWinbackAttempts(attempts: any[], leadId: string): UnifiedActivity[] {
+export const transformWinbackAttempts = (attempts: any[], leadId: string): UnifiedActivity[] => {
   return attempts.map(attempt => ({
     id: attempt.id,
     type: 'winback_attempt' as const,
@@ -249,7 +249,7 @@ export function transformWinbackAttempts(attempts: any[], leadId: string): Unifi
     source_table: 'winback_attempts',
     activity_subtype: attempt.canal
   }));
-}
+};
 
 // Helper functions for winback
 function getChannelDisplayName(canal: string): string {
