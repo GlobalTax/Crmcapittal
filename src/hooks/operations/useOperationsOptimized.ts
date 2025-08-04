@@ -1,7 +1,7 @@
 
 import { useMemo, useEffect } from 'react';
 import { Operation } from '@/types/Operation';
-import { useOperationsContext } from '@/contexts';
+import { useOperations } from '@/hooks/useOperations';
 import { useOperationsPagination } from './useOperationsPagination';
 import { useOperationsFilter } from '@/hooks/useOperationsFilter';
 
@@ -18,7 +18,7 @@ export interface FilterState {
 }
 
 export const useOperationsOptimized = (filters: FilterState, pageSize: number = 12) => {
-  const { operations, loading, error, ...mutations } = useOperationsContext();
+  const { operations, loading, error, ...mutations } = useOperations();
   
   // Aplicar filtros (memoizado)
   const filteredOperations = useOperationsFilter(operations, filters);

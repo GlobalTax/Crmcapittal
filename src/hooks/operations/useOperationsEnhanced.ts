@@ -1,103 +1,128 @@
-import { useMemo, useCallback } from 'react';
-import { useOperationsContext } from '@/contexts';
+
+import { useOperations } from '@/hooks/useOperations';
+import { useAsync } from '@/hooks/common';
+import { Operation } from '@/types/Operation';
+import { useToast } from '@/hooks/use-toast';
 
 export const useOperationsEnhanced = () => {
-  const originalHook = useOperationsContext();
+  const originalHook = useOperations();
+  const { toast } = useToast();
 
-  // Enhanced operations with additional computed fields
-  const enhancedOperations = useMemo(() => {
-    return originalHook.operations.map(operation => ({
-      ...operation,
-      isHighValue: operation.amount > 5000000,
-      roi: operation.ebitda ? (operation.ebitda / operation.amount) * 100 : 0,
-      growthCategory: operation.annual_growth_rate > 15 ? 'high' : 
-                     operation.annual_growth_rate > 5 ? 'medium' : 'low'
-    }));
-  }, [originalHook.operations]);
-
-  // Memoized filters
-  const filterByValue = useCallback((minValue: number) => {
-    return enhancedOperations.filter(op => op.amount >= minValue);
-  }, [enhancedOperations]);
-
-  const filterByGrowth = useCallback((minGrowth: number) => {
-    return enhancedOperations.filter(op => op.annual_growth_rate >= minGrowth);
-  }, [enhancedOperations]);
-
-  const filterBySector = useCallback((sector: string) => {
-    return enhancedOperations.filter(op => 
-      op.sector?.toLowerCase().includes(sector.toLowerCase())
-    );
-  }, [enhancedOperations]);
-
-  // Enhanced statistics
-  const stats = useMemo(() => {
-    const totalValue = enhancedOperations.reduce((sum, op) => sum + op.amount, 0);
-    const avgValue = enhancedOperations.length > 0 ? totalValue / enhancedOperations.length : 0;
-    const highValueCount = enhancedOperations.filter(op => op.isHighValue).length;
-    const avgGrowthRate = enhancedOperations.length > 0 
-      ? enhancedOperations.reduce((sum, op) => sum + op.annual_growth_rate, 0) / enhancedOperations.length 
-      : 0;
-
-    return {
-      totalValue,
-      avgValue,
-      highValueCount,
-      avgGrowthRate,
-      totalOperations: enhancedOperations.length
-    };
-  }, [enhancedOperations]);
-
-  // Enhanced CRUD operations
-  const enhancedMutations = useMemo(() => ({
-    addOperation: async (operationData: any) => {
-      try {
-        await originalHook.createOperation(operationData);
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: 'Error creating operation' };
-      }
+  // Enhanced operation creation with retry logic
+  const createOperationEnhanced = useAsync<Operation>({
+    onSuccess: (data) => {
+      toast({
+        title: "Operación creada",
+        description: `${data.company_name} ha sido creada correctamente.`,
+      });
     },
-    
-    addBulkOperations: async (operationsData: any[]) => {
-      try {
-        for (const operation of operationsData) {
-          await originalHook.createOperation(operation);
-        }
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: 'Error creating operations' };
-      }
+    onError: (error) => {
+      toast({
+        title: "Error al crear operación",
+        description: error,
+        variant: "destructive",
+      });
     },
-    
-    updateOperation: async (operationId: string, operationData: any) => {
-      try {
-        await originalHook.updateOperation(operationId, operationData);
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: 'Error updating operation' };
-      }
+    retryCount: 2,
+    retryDelay: 1500
+  });
+
+  // Enhanced bulk operations with progress tracking
+  const createBulkOperationsEnhanced = useAsync<Operation[]>({
+    onSuccess: (data) => {
+      toast({
+        title: "Operaciones creadas",
+        description: `${data.length} operaciones han sido creadas correctamente.`,
+      });
     },
-    
-    deleteOperation: async (operationId: string) => {
-      try {
-        await originalHook.deleteOperation(operationId);
-        return { success: true };
-      } catch (error) {
-        return { success: false, error: 'Error deleting operation' };
+    onError: (error) => {
+      toast({
+        title: "Error en creación masiva",
+        description: error,
+        variant: "destructive",
+      });
+    },
+    retryCount: 1,
+    retryDelay: 2000
+  });
+
+  // Enhanced update with optimistic updates
+  const updateOperationEnhanced = useAsync<Operation>({
+    onSuccess: () => {
+      toast({
+        title: "Operación actualizada",
+        description: "Los cambios han sido guardados correctamente.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error al actualizar",
+        description: error,
+        variant: "destructive",
+      });
+    },
+    retryCount: 2,
+    retryDelay: 1000
+  });
+
+  const addOperationWithRetry = async (operationData: any) => {
+    return createOperationEnhanced.execute(async () => {
+      const result = await originalHook.addOperation(operationData);
+      if (result.error) {
+        throw new Error(result.error);
       }
-    }
-  }), [originalHook]);
+      return result.data;
+    });
+  };
+
+  const addBulkOperationsWithRetry = async (operationsData: any[], isPublicSample = false) => {
+    return createBulkOperationsEnhanced.execute(async () => {
+      const result = await originalHook.addBulkOperations(operationsData, isPublicSample);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    });
+  };
+
+  const updateOperationWithRetry = async (operationId: string, operationData: Partial<Operation>) => {
+    return updateOperationEnhanced.execute(async () => {
+      const result = await originalHook.updateOperation(operationId, operationData);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    });
+  };
 
   return {
+    // Original functionality
     ...originalHook,
-    operations: enhancedOperations,
-    stats,
-    filters: {
-      filterByValue,
-      filterByGrowth,
-      filterBySector
-    },
-    ...enhancedMutations
+    
+    // Enhanced functionality with useAsync
+    addOperationWithRetry,
+    addBulkOperationsWithRetry,
+    updateOperationWithRetry,
+    
+    // Enhanced loading states
+    isCreatingOperation: createOperationEnhanced.loading,
+    isBulkCreating: createBulkOperationsEnhanced.loading,
+    isUpdatingOperation: updateOperationEnhanced.loading,
+    
+    // Enhanced error states
+    creationError: createOperationEnhanced.error,
+    bulkCreationError: createBulkOperationsEnhanced.error,
+    updateError: updateOperationEnhanced.error,
+    
+    // Control functions
+    cancelCreation: createOperationEnhanced.cancel,
+    cancelBulkCreation: createBulkOperationsEnhanced.cancel,
+    cancelUpdate: updateOperationEnhanced.cancel,
+    
+    resetErrors: () => {
+      createOperationEnhanced.reset();
+      createBulkOperationsEnhanced.reset();
+      updateOperationEnhanced.reset();
+    }
   };
 };

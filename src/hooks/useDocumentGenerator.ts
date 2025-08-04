@@ -51,7 +51,7 @@ export const useDocumentGenerator = (deal: Deal) => {
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('first_name, last_name')
-      .eq('user_id', user.id)
+      .eq('id', user.id)
       .single();
 
     return {

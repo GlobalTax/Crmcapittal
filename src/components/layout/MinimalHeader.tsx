@@ -1,4 +1,4 @@
-import { useAuth } from '@/stores/useAuthStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { HelpCircle, Bell, Search, ChevronRight } from 'lucide-react';

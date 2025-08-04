@@ -33,7 +33,6 @@ export interface Lead extends BaseEntity, ContactInfo, BusinessInfo, EntityMetad
   last_contacted?: string;
   next_action_date?: string;
   lost_reason?: string;
-  winback_stage?: 'cold' | 'campaign_sent' | 'engaging' | 'reopened' | 'irrecuperable';
   aipersona?: Record<string, any>;
   extra?: Record<string, any>;
   

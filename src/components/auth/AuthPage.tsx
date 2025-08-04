@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { SecureInput } from '@/components/security/SecureInput';
-import { useAuth } from '@/stores/useAuthStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from '@/hooks/useToast';
 import { useSecureInput } from '@/hooks/useSecureInput';

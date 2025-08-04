@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/stores/useAuthStore';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CalendarEvent {
   id: string;

@@ -1,4 +1,4 @@
-export type ActivityType = 'lead_interaction' | 'mandate_activity' | 'reconversion_audit' | 'valoracion_security' | 'winback_attempt';
+export type ActivityType = 'lead_interaction' | 'mandate_activity' | 'reconversion_audit' | 'valoracion_security';
 
 export type ActivityEntityType = 'lead' | 'mandate' | 'reconversion' | 'valoracion';
 

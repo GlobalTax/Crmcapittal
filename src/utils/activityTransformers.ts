@@ -57,18 +57,6 @@ export const getActivityIcon = (activityType: string, subtype?: string): string 
     }
   }
 
-  // Winback attempts
-  if (activityType === 'winback_attempt') {
-    switch (subtype) {
-      case 'email': return '✉️';
-      case 'call': return '📞';
-      case 'linkedin': return '💼';
-      case 'whatsapp': return '💬';
-      case 'sms': return '📱';
-      default: return '📬';
-    }
-  }
-
   return '📋';
 };
 
@@ -116,18 +104,6 @@ export const getActivityColor = (activityType: string, subtype?: string): string
       case 'unauthorized_attempt': return 'hsl(0, 100%, 50%)';
       case 'token_generated': return 'hsl(42, 100%, 50%)';
       default: return 'hsl(280, 100%, 70%)';
-    }
-  }
-
-  // Winback attempts
-  if (activityType === 'winback_attempt') {
-    switch (subtype) {
-      case 'email': return 'hsl(213, 94%, 68%)';
-      case 'call': return 'hsl(30, 100%, 50%)';
-      case 'linkedin': return 'hsl(220, 100%, 50%)';
-      case 'whatsapp': return 'hsl(142, 70%, 49%)';
-      case 'sms': return 'hsl(280, 100%, 70%)';
-      default: return 'hsl(24, 100%, 50%)';
     }
   }
 
@@ -226,43 +202,6 @@ export const transformValoracionLogs = (logs: any[], valoracionId: string): Unif
   }));
 };
 
-// Transform winback attempts to unified activities
-export const transformWinbackAttempts = (attempts: any[], leadId: string): UnifiedActivity[] => {
-  return attempts.map(attempt => ({
-    id: attempt.id,
-    type: 'winback_attempt' as const,
-    title: `Intento de winback - ${getChannelDisplayName(attempt.canal)}`,
-    description: attempt.notes || `Intento de winback vía ${getChannelDisplayName(attempt.canal)}`,
-    icon: getActivityIcon('winback_attempt', attempt.canal),
-    timestamp: attempt.executed_date || attempt.scheduled_date,
-    user_name: attempt.created_by_name || 'Sistema',
-    entity_id: leadId,
-    severity: attempt.status === 'failed' ? 'high' : 'medium' as const,
-    metadata: {
-      status: attempt.status,
-      canal: attempt.canal,
-      sequence_id: attempt.sequence_id,
-      step_index: attempt.step_index,
-      template_id: attempt.template_id,
-      response_data: attempt.response_data
-    },
-    source_table: 'winback_attempts',
-    activity_subtype: attempt.canal
-  }));
-};
-
-// Helper functions for winback
-function getChannelDisplayName(canal: string): string {
-  const nameMap: Record<string, string> = {
-    email: 'Email',
-    call: 'Llamada',
-    linkedin: 'LinkedIn',
-    whatsapp: 'WhatsApp',
-    sms: 'SMS'
-  };
-  return nameMap[canal] || canal;
-}
-
 // Helper function to determine severity from action type
 const getSeverityFromActionType = (actionType: string): 'low' | 'medium' | 'high' | 'critical' => {
   const highSeverityActions = ['deleted', 'closed', 'cancelled'];
@@ -273,18 +212,4 @@ const getSeverityFromActionType = (actionType: string): 'low' | 'medium' | 'high
   if (highSeverityActions.includes(actionType)) return 'high';
   if (lowSeverityActions.includes(actionType)) return 'low';
   return 'medium';
-};
-
-// Helper function for interaction type mapping
-const mapInteractionType = (type: string): 'email' | 'llamada' | 'reunion' | 'nota' | 'task' => {
-  const typeMap: Record<string, 'email' | 'llamada' | 'reunion' | 'nota' | 'task'> = {
-    'email': 'email',
-    'call': 'llamada',
-    'meeting': 'reunion',
-    'note': 'nota',
-    'task': 'task',
-    'phone': 'llamada',
-    'general': 'nota'
-  };
-  return typeMap[type] || 'nota';
 };

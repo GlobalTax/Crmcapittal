@@ -51,13 +51,3 @@ export type {
   TransactionInterest,
   GeographicScope
 } from './Company';
-
-export type {
-  WinbackStage,
-  WinbackAttemptStatus,
-  WinbackChannel,
-  WinbackStep,
-  WinbackSequence,
-  WinbackAttempt,
-  WinbackStats
-} from './Winback';

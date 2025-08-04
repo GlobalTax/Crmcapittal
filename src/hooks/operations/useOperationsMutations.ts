@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Operation } from '@/types/Operation';
-import { useAuth } from '@/stores/useAuthStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { 
   insertOperation, 

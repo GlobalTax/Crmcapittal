@@ -1,26 +1,21 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { RecordTable } from "@/components/companies/RecordTable";
 import { CompanyModal } from "@/components/companies/CompanyModal";
 import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
-import { useCompaniesContext } from "@/contexts";
+import { useCompanies } from "@/hooks/useCompanies";
+import { Company } from "@/types/Company";
 import { Button } from "@/components/ui/button";
 
-const Companies = React.memo(() => {
+const Companies = () => {
   const navigate = useNavigate();
-  const [editingCompany, setEditingCompany] = useState<any>(null);
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  
-  // Get data from context
-  const { 
-    filteredCompanies: companies,
-    loading: isLoading,
-    createCompany,
-    updateCompany,
-    deleteCompany,
-    setFilters
-  } = useCompaniesContext();
 
   // Keyboard shortcut for new company
   useEffect(() => {
@@ -40,29 +35,63 @@ const Companies = React.memo(() => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleEditCompany = useCallback((company: any) => {
+  const { 
+    companies, 
+    totalCount,
+    currentPage,
+    totalPages,
+    isLoading, 
+    createCompany, 
+    updateCompany, 
+    deleteCompany,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    useCompanyStats
+  } = useCompanies({ 
+    page, 
+    limit: 25, 
+    searchTerm, 
+    statusFilter, 
+    typeFilter 
+  });
+
+  const { data: stats, isLoading: statsLoading } = useCompanyStats();
+
+  const handleEditCompany = (company: Company) => {
     setEditingCompany(company);
-  }, []);
+  };
 
-  const handleUpdateCompany = useCallback((companyId: string, companyData: any) => {
-    updateCompany(companyId, companyData);
-  }, [updateCompany]);
+  const handleUpdateCompany = (companyId: string, companyData: any) => {
+    updateCompany({ id: companyId, ...companyData });
+  };
 
-  const handleDeleteCompany = useCallback((companyId: string) => {
+  const handleDeleteCompany = (companyId: string) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar esta empresa?")) {
       deleteCompany(companyId);
     }
-  }, [deleteCompany]);
+  };
 
-  const handleViewCompany = useCallback((company: any) => {
+  const handleViewCompany = (company: Company) => {
     if (company.id) {
       navigate(`/empresas/${company.id}`);
     }
-  }, [navigate]);
+  };
 
-  const handleSearch = useCallback((term: string) => {
-    console.log('Search term:', term);
-  }, []);
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setPage(1);
+  };
+
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(status);
+    setPage(1);
+  };
+
+  const handleTypeFilter = (type: string) => {
+    setTypeFilter(type);
+    setPage(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -81,7 +110,7 @@ const Companies = React.memo(() => {
       
       <RecordTable
         companies={companies}
-        totalCount={companies.length}
+        totalCount={totalCount}
         onRowClick={handleViewCompany}
         onCreateCompany={() => setIsCreateModalOpen(true)}
         onSearch={handleSearch}
@@ -94,7 +123,7 @@ const Companies = React.memo(() => {
         open={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         onCreateCompany={createCompany}
-        isCreating={false}
+        isCreating={isCreating}
       />
 
       {/* Edit Company Dialog */}
@@ -104,11 +133,11 @@ const Companies = React.memo(() => {
           open={!!editingCompany}
           onOpenChange={(open) => !open && setEditingCompany(null)}
           onUpdateCompany={handleUpdateCompany}
-          isUpdating={false}
+          isUpdating={isUpdating}
         />
       )}
     </div>
   );
-});
+};
 
 export default Companies;

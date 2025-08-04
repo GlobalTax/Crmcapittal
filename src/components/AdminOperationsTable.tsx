@@ -1,12 +1,11 @@
 
-import React, { useMemo, useCallback } from 'react';
 import { 
   Table, 
   TableHead, 
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { useOperationsContext } from "@/contexts";
+import { Operation } from "@/types/Operation";
 import { AdminTableHeader } from "./admin/AdminTableHeader";
 import { AdminTableBody } from "./admin/AdminTableBody";
 import { OperationDetailsDialog } from "./admin/OperationDetailsDialog";
@@ -14,18 +13,25 @@ import { EditOperationDialog } from "./admin/EditOperationDialog";
 import { TeaserUploadDialog } from "./admin/TeaserUploadDialog";
 import { useAdminTableFilters } from "@/hooks/admin/useAdminTableFilters";
 import { useAdminDialogs } from "@/hooks/admin/useAdminDialogs";
+import { useAdminOperationHandlers } from "./admin/AdminOperationHandlers";
 
-interface AdminOperationsTableProps {}
+interface AdminOperationsTableProps {
+  operations: Operation[];
+  loading: boolean;
+  error: string | null;
+  onUpdateOperation: (operationId: string, operationData: Partial<Operation>) => Promise<{ data: Operation | null; error: string | null }>;
+  onDeleteOperation: (operationId: string) => Promise<{ error: string | null }>;
+  onUpdateTeaserUrl: (operationId: string, teaserUrl: string) => Promise<{ data: { teaserUrl: string } | null; error: string | null }>;
+}
 
-export const AdminOperationsTable = React.memo(({}: AdminOperationsTableProps) => {
-  // Get operations data from context
-  const { 
-    operations, 
-    loading, 
-    error, 
-    updateOperation, 
-    deleteOperation 
-  } = useOperationsContext();
+export const AdminOperationsTable = ({ 
+  operations, 
+  loading, 
+  error,
+  onUpdateOperation,
+  onDeleteOperation,
+  onUpdateTeaserUrl
+}: AdminOperationsTableProps) => {
   const {
     searchTerm,
     setSearchTerm,
@@ -49,43 +55,25 @@ export const AdminOperationsTable = React.memo(({}: AdminOperationsTableProps) =
     closeUploadDialog
   } = useAdminDialogs();
 
-  // Memoized handlers for better performance
-  const handleDeleteOperation = useCallback(async (operation: any) => {
-    try {
-      await deleteOperation(operation.id);
-      return { success: true };
-    } catch (error) {
-      return { success: false };
-    }
-  }, [deleteOperation]);
+  const {
+    handleDeleteOperation,
+    handleDownloadTeaser,
+    handleSaveEdit,
+    handleUploadComplete
+  } = useAdminOperationHandlers({
+    onUpdateOperation,
+    onDeleteOperation,
+    onUpdateTeaserUrl
+  });
 
-  const handleSaveEdit = useCallback(async (operationId: string, operationData: any) => {
-    try {
-      await updateOperation(operationId, operationData);
-      return { success: true };
-    } catch (error) {
-      return { success: false };
-    }
-  }, [updateOperation]);
-
-  const handleDownloadTeaser = useCallback((operation: any) => {
-    if (operation.teaser_url) {
-      window.open(operation.teaser_url, '_blank');
-    }
-  }, []);
-
-  const handleUploadComplete = useCallback((operationId: string, teaserUrl: string) => {
-    console.log('Upload complete:', operationId, teaserUrl);
-  }, []);
-
-  const handleSaveEditWrapper = useCallback(async (operationData: any) => {
+  const handleSaveEditWrapper = async (operationData: Partial<Operation>) => {
     if (!editDialog.operation) return;
     
     const result = await handleSaveEdit(editDialog.operation.id, operationData);
     if (result.success) {
       closeEditDialog();
     }
-  }, [editDialog.operation, handleSaveEdit, closeEditDialog]);
+  };
 
   if (loading) {
     return (
@@ -182,4 +170,4 @@ export const AdminOperationsTable = React.memo(({}: AdminOperationsTableProps) =
       />
     </>
   );
-});
+};

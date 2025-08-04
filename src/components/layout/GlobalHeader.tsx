@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/stores/useAuthStore";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Search, Settings } from "lucide-react";
 import { ReconversionNotificationPanel } from "@/components/reconversiones/ReconversionNotificationPanel";

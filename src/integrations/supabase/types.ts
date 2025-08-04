@@ -3295,7 +3295,6 @@ export type Database = {
           job_title: string | null
           last_activity_type: string | null
           last_contacted: string | null
-          last_winback_attempt: string | null
           lead_name: string | null
           lead_origin: string
           lead_score: number | null
@@ -3319,7 +3318,6 @@ export type Database = {
           status: Database["public"]["Enums"]["lead_status"]
           tags: string[] | null
           updated_at: string
-          winback_stage: string | null
           won_date: string | null
         }
         Insert: {
@@ -3340,7 +3338,6 @@ export type Database = {
           job_title?: string | null
           last_activity_type?: string | null
           last_contacted?: string | null
-          last_winback_attempt?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
@@ -3364,7 +3361,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           tags?: string[] | null
           updated_at?: string
-          winback_stage?: string | null
           won_date?: string | null
         }
         Update: {
@@ -3385,7 +3381,6 @@ export type Database = {
           job_title?: string | null
           last_activity_type?: string | null
           last_contacted?: string | null
-          last_winback_attempt?: string | null
           lead_name?: string | null
           lead_origin?: string
           lead_score?: number | null
@@ -3409,7 +3404,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["lead_status"]
           tags?: string[] | null
           updated_at?: string
-          winback_stage?: string | null
           won_date?: string | null
         }
         Relationships: [
@@ -6951,7 +6945,6 @@ export type Database = {
           onboarding_complete: boolean | null
           phone: string | null
           updated_at: string
-          user_id: string
         }
         Insert: {
           company?: string | null
@@ -6962,7 +6955,6 @@ export type Database = {
           onboarding_complete?: boolean | null
           phone?: string | null
           updated_at?: string
-          user_id: string
         }
         Update: {
           company?: string | null
@@ -6973,7 +6965,6 @@ export type Database = {
           onboarding_complete?: boolean | null
           phone?: string | null
           updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -7481,90 +7472,6 @@ export type Database = {
           },
         ]
       }
-      winback_attempts: {
-        Row: {
-          canal: string
-          created_at: string | null
-          created_by: string | null
-          executed_date: string | null
-          id: string
-          lead_id: string
-          notes: string | null
-          response_data: Json | null
-          scheduled_date: string
-          sequence_id: string
-          status: string | null
-          step_index: number
-          template_id: string | null
-        }
-        Insert: {
-          canal: string
-          created_at?: string | null
-          created_by?: string | null
-          executed_date?: string | null
-          id?: string
-          lead_id: string
-          notes?: string | null
-          response_data?: Json | null
-          scheduled_date: string
-          sequence_id: string
-          status?: string | null
-          step_index: number
-          template_id?: string | null
-        }
-        Update: {
-          canal?: string
-          created_at?: string | null
-          created_by?: string | null
-          executed_date?: string | null
-          id?: string
-          lead_id?: string
-          notes?: string | null
-          response_data?: Json | null
-          scheduled_date?: string
-          sequence_id?: string
-          status?: string | null
-          step_index?: number
-          template_id?: string | null
-        }
-        Relationships: []
-      }
-      winback_sequences: {
-        Row: {
-          activo: boolean | null
-          created_at: string | null
-          created_by: string | null
-          descripcion: string | null
-          id: string
-          lost_reason_trigger: string | null
-          nombre: string
-          pasos: Json
-          updated_at: string | null
-        }
-        Insert: {
-          activo?: boolean | null
-          created_at?: string | null
-          created_by?: string | null
-          descripcion?: string | null
-          id?: string
-          lost_reason_trigger?: string | null
-          nombre: string
-          pasos?: Json
-          updated_at?: string | null
-        }
-        Update: {
-          activo?: boolean | null
-          created_at?: string | null
-          created_by?: string | null
-          descripcion?: string | null
-          id?: string
-          lost_reason_trigger?: string | null
-          nombre?: string
-          pasos?: Json
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       hubspot_companies: {
@@ -7966,13 +7873,6 @@ export type Database = {
         Args: { p_lead_id: string }
         Returns: Json
       }
-      assign_role_after_signup: {
-        Args: {
-          p_user_id: string
-          p_role: Database["public"]["Enums"]["app_role"]
-        }
-        Returns: Json
-      }
       assign_user_role: {
         Args: {
           _user_id: string
@@ -8019,10 +7919,6 @@ export type Database = {
         Args: { p_identifier: string; p_action?: string }
         Returns: boolean
       }
-      check_session_timeout: {
-        Args: { p_user_id: string; p_timeout_minutes?: number }
-        Returns: boolean
-      }
       create_deal_from_won_lead: {
         Args: { p_lead_id: string; p_deal_value?: number }
         Returns: Json
@@ -8053,16 +7949,6 @@ export type Database = {
       create_security_audit_trail: {
         Args: Record<PropertyKey, never>
         Returns: undefined
-      }
-      create_user_with_role_secure: {
-        Args: {
-          p_email: string
-          p_password: string
-          p_role: Database["public"]["Enums"]["app_role"]
-          p_first_name?: string
-          p_last_name?: string
-        }
-        Returns: Json
       }
       delete_user_completely: {
         Args: { _user_id: string }
@@ -8161,10 +8047,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      initiate_winback_sequence: {
-        Args: { p_lead_id: string; p_sequence_id?: string }
-        Returns: undefined
-      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -8208,26 +8090,14 @@ export type Database = {
         Returns: string
       }
       log_security_event_enhanced: {
-        Args:
-          | {
-              p_event_type: string
-              p_severity?: string
-              p_description?: string
-              p_metadata?: Json
-              p_auto_alert?: boolean
-            }
-          | {
-              p_event_type: string
-              p_severity?: string
-              p_description?: string
-              p_metadata?: Json
-              p_table_name?: string
-            }
+        Args: {
+          p_event_type: string
+          p_severity?: string
+          p_description?: string
+          p_metadata?: Json
+          p_table_name?: string
+        }
         Returns: string
-      }
-      mark_winback_response: {
-        Args: { p_lead_id: string; p_response_type?: string }
-        Returns: undefined
       }
       match_targets_for_reconversion: {
         Args: { reconversion_id: string }
@@ -8247,14 +8117,6 @@ export type Database = {
       process_reconversion_closure: {
         Args: { reconversion_id: string; closure_data: Json; user_id?: string }
         Returns: boolean
-      }
-      recalcular_prob_conversion_lead: {
-        Args: { p_lead_id: string }
-        Returns: undefined
-      }
-      recalcular_todas_prob_conversion_winback: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       recalcular_todos_los_leads: {
         Args: Record<PropertyKey, never>
@@ -8333,17 +8195,9 @@ export type Database = {
         }
         Returns: Json
       }
-      validate_and_sanitize_input: {
-        Args: { p_input: string; p_max_length?: number; p_allow_html?: boolean }
-        Returns: string
-      }
       validate_api_configuration: {
         Args: Record<PropertyKey, never>
         Returns: Json
-      }
-      validate_email_secure: {
-        Args: { p_email: string }
-        Returns: boolean
       }
       validate_input_security: {
         Args: { input_text: string }
@@ -8353,16 +8207,8 @@ export type Database = {
         Args: { password: string }
         Returns: Json
       }
-      validate_sensitive_data_access: {
-        Args: { table_name: string; record_id: string; access_type?: string }
-        Returns: boolean
-      }
       validate_session_security: {
         Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      validate_strong_password: {
-        Args: { p_password: string }
         Returns: boolean
       }
       validate_user_input: {

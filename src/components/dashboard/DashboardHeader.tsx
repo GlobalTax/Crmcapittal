@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useAuth } from "@/stores/useAuthStore";
+import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 
 interface DashboardHeaderProps {

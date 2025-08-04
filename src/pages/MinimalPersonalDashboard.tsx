@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/stores/useAuthStore";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLeads } from "@/hooks/useLeads";
 import { usePersonalTasks } from "@/hooks/usePersonalTasks";
 import { format } from "date-fns";

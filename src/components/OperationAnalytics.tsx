@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, Download, TrendingUp, BarChart3, ChevronDown, ChevronUp } from "lucide-react";
-import { useOperationsContext } from '@/contexts';
+import { useOperations } from "@/hooks/useOperations";
 
 // Función para generar datos consistentes basados en el ID de la operación
 const generateConsistentAnalytics = (operationId: string) => {
@@ -27,7 +27,7 @@ const generateConsistentAnalytics = (operationId: string) => {
 
 export const OperationAnalytics = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { operations } = useOperationsContext();
+  const { operations } = useOperations();
 
   // Generar datos de analytics consistentes para cada operación
   const analyticsData = operations.map(op => ({

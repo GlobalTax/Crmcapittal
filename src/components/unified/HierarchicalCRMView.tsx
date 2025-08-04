@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,8 +20,8 @@ import { CollapsibleCompanyPanel } from './CollapsibleCompanyPanel';
 import { CollapsibleMandatePanel } from './CollapsibleMandatePanel';
 import { CollapsibleTargetPanel } from './CollapsibleTargetPanel';
 
-// Import contexts
-import { useCompaniesContext } from '@/contexts';
+// Import hooks
+import { useCompanies } from '@/hooks/useCompanies';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 
 // Import types
@@ -46,7 +46,7 @@ interface HierarchicalCRMViewProps {
   targetId?: string;
 }
 
-export const HierarchicalCRMView = React.memo(({ 
+export const HierarchicalCRMView = ({ 
   initialLevel = 'leads',
   companyId,
   mandateId,
@@ -58,14 +58,14 @@ export const HierarchicalCRMView = React.memo(({
   const [showTargetDetail, setShowTargetDetail] = useState(false);
   const [showTargetsDialog, setShowTargetsDialog] = useState(false);
 
-  // Context hooks
-  const { 
-    filteredCompanies: companies, 
-    loading: companiesLoading,
-    createCompany,
-    updateCompany,
-    deleteCompany
-  } = useCompaniesContext();
+  // Hooks
+  const { companies, createCompany, updateCompany, deleteCompany, isLoading: companiesLoading } = useCompanies({
+    page: 1,
+    limit: 50,
+    searchTerm: '',
+    statusFilter: 'all',
+    typeFilter: 'all'
+  });
 
   const { 
     mandates, 
@@ -102,53 +102,53 @@ export const HierarchicalCRMView = React.memo(({
     }
   }, [showTargetsDialog, navigation.selectedMandate?.id, fetchTargets]);
 
-  // Memoized navigation handlers
-  const handleNavigateToCompanies = useCallback((company?: any) => {
+  // Navigation handlers
+  const handleNavigateToCompanies = (company?: Company) => {
     setNavigation({
       level: 'companies',
       selectedCompany: company
     });
-  }, []);
+  };
 
-  const handleNavigateToMandates = useCallback((mandate?: any) => {
-    setNavigation(prev => ({
-      ...prev,
+  const handleNavigateToMandates = (mandate?: BuyingMandate) => {
+    setNavigation({
+      ...navigation,
       level: 'mandates',
       selectedMandate: mandate
-    }));
-  }, []);
+    });
+  };
 
-  const handleNavigateToTargets = useCallback((mandate: any) => {
-    setNavigation(prev => ({
-      ...prev,
+  const handleNavigateToTargets = (mandate: BuyingMandate) => {
+    setNavigation({
+      ...navigation,
       level: 'targets',
       selectedMandate: mandate
-    }));
-  }, []);
+    });
+  };
 
-  const handleTargetClick = useCallback((target: any) => {
-    setNavigation(prev => ({
-      ...prev,
+  const handleTargetClick = (target: MandateTarget) => {
+    setNavigation({
+      ...navigation,
       selectedTarget: target
-    }));
+    });
     setShowTargetDetail(true);
-  }, []);
+  };
 
-  const handleBackNavigation = useCallback(() => {
+  const handleBackNavigation = () => {
     switch (navigation.level) {
       case 'targets':
-        setNavigation(prev => ({
-          ...prev,
+        setNavigation({
+          ...navigation,
           level: 'mandates',
           selectedTarget: undefined
-        }));
+        });
         break;
       case 'mandates':
-        setNavigation(prev => ({
-          ...prev,
+        setNavigation({
+          ...navigation,
           level: 'companies',
           selectedMandate: undefined
-        }));
+        });
         break;
       case 'companies':
         setNavigation({
@@ -156,10 +156,10 @@ export const HierarchicalCRMView = React.memo(({
         });
         break;
     }
-  }, [navigation.level]);
+  };
 
-  // Memoized computed values
-  const breadcrumbItems = useMemo(() => {
+  // Breadcrumb items
+  const getBreadcrumbItems = () => {
     const items = [
       { level: 'leads', label: 'Leads', icon: Users },
       { level: 'companies', label: 'Empresas', icon: Building2 },
@@ -169,9 +169,9 @@ export const HierarchicalCRMView = React.memo(({
 
     const currentIndex = items.findIndex(item => item.level === navigation.level);
     return items.slice(0, currentIndex + 1);
-  }, [navigation.level]);
+  };
 
-  const contextualInfo = useMemo(() => {
+  const getContextualInfo = () => {
     const info = [];
     if (navigation.selectedCompany) {
       info.push(`Empresa: ${navigation.selectedCompany.name}`);
@@ -183,7 +183,7 @@ export const HierarchicalCRMView = React.memo(({
       info.push(`Target: ${navigation.selectedTarget.company_name}`);
     }
     return info;
-  }, [navigation.selectedCompany, navigation.selectedMandate, navigation.selectedTarget]);
+  };
 
   return (
     <div className="space-y-6">
@@ -203,9 +203,9 @@ export const HierarchicalCRMView = React.memo(({
             )}
             <Breadcrumb>
               <BreadcrumbList>
-                {breadcrumbItems.map((item, index) => {
+                {getBreadcrumbItems().map((item, index) => {
                   const Icon = item.icon;
-                  const isLast = index === breadcrumbItems.length - 1;
+                  const isLast = index === getBreadcrumbItems().length - 1;
                   
                   return (
                     <div key={item.level} className="flex items-center">
@@ -234,9 +234,9 @@ export const HierarchicalCRMView = React.memo(({
           </div>
           
           {/* Contextual Information */}
-          {contextualInfo.length > 0 && (
+          {getContextualInfo().length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {contextualInfo.map((info, index) => (
+              {getContextualInfo().map((info, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
                   {info}
                 </Badge>
@@ -505,4 +505,4 @@ export const HierarchicalCRMView = React.memo(({
       />
     </div>
   );
-});
+};

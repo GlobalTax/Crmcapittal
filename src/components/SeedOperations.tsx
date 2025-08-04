@@ -1,27 +1,32 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useOperationsContext } from '@/contexts';
+import { useOperations } from "@/hooks/useOperations";
 import { useToast } from "@/hooks/use-toast";
 import { sampleOperationsData } from "@/utils/sampleOperationsData";
 
 export const SeedOperations = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { createOperation } = useOperationsContext();
+  const { addBulkOperations } = useOperations();
   const { toast } = useToast();
 
   const handleSeedOperations = async () => {
     setIsLoading(true);
     try {
-      // Create operations one by one for now
-      for (const operationData of sampleOperationsData) {
-        await createOperation(operationData);
-      }
+      const result = await addBulkOperations(sampleOperationsData);
       
-      toast({
-        title: "Operaciones creadas",
-        description: `Se han creado ${sampleOperationsData.length} operaciones de ejemplo correctamente`,
-      });
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Operaciones creadas",
+          description: `Se han creado ${sampleOperationsData.length} operaciones de ejemplo correctamente`,
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",

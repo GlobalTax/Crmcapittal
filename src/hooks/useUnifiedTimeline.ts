@@ -4,10 +4,8 @@ import {
   transformLeadInteractions, 
   transformMandateActivities, 
   transformReconversionLogs, 
-  transformValoracionLogs,
-  transformWinbackAttempts
+  transformValoracionLogs 
 } from '@/utils/activityTransformers';
-import { supabase } from '@/integrations/supabase/client';
 import { format, parseISO, isSameDay, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -30,63 +28,22 @@ export function useUnifiedTimeline({ entityType, entityId, filters }: UseUnified
       try {
         const activities: UnifiedActivity[] = [];
 
-        // Real data based on entity type
+        // Mock data based on entity type
         if (entityType === 'lead') {
-          // Fetch lead interactions
-          try {
-            const { data: leadInteractions } = await supabase
-              .from('contact_interactions')
-              .select('*')
-              .eq('lead_id', entityId)
-              .order('interaction_date', { ascending: false });
-
-            if (leadInteractions) {
-              // Transform contact_interactions to expected LeadInteraction format
-              const transformedInteractions = leadInteractions.map(interaction => {
-                const mapType = (type: string): 'email' | 'llamada' | 'reunion' | 'nota' | 'task' => {
-                  const typeMap: Record<string, 'email' | 'llamada' | 'reunion' | 'nota' | 'task'> = {
-                    'email': 'email',
-                    'call': 'llamada',
-                    'meeting': 'reunion',
-                    'note': 'nota',
-                    'task': 'task',
-                    'phone': 'llamada',
-                    'general': 'nota'
-                  };
-                  return typeMap[type] || 'nota';
-                };
-                
-                return {
-                  id: interaction.id,
-                  tipo: mapType(interaction.interaction_type || 'general'),
-                  detalle: interaction.description || interaction.subject || '',
-                  fecha: interaction.interaction_date || interaction.created_at,
-                  lead_id: interaction.lead_id || entityId,
-                  created_at: interaction.created_at,
-                  updated_at: interaction.created_at,
-                  user_id: interaction.created_by
-                };
-              });
-              activities.push(...transformLeadInteractions(transformedInteractions, entityId));
+          // Mock lead interactions
+          const mockLeadInteractions = [
+            {
+              id: '1',
+              tipo: 'email' as const,
+              detalle: 'Email de seguimiento enviado',
+              fecha: new Date().toISOString(),
+              lead_id: entityId,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              user_id: 'user1'
             }
-          } catch (err) {
-            console.error('Error fetching lead interactions:', err);
-          }
-
-          // Fetch winback attempts for leads
-          try {
-            const { data: winbackAttempts } = await supabase
-              .from('winback_attempts')
-              .select('*')
-              .eq('lead_id', entityId)
-              .order('scheduled_date', { ascending: false });
-
-            if (winbackAttempts) {
-              activities.push(...transformWinbackAttempts(winbackAttempts, entityId));
-            }
-          } catch (err) {
-            console.error('Error fetching winback attempts:', err);
-          }
+          ];
+          activities.push(...transformLeadInteractions(mockLeadInteractions, entityId));
         }
 
         if (entityType === 'mandate') {

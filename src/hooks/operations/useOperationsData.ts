@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Operation } from '@/types/Operation';
-import { useAuth } from '@/stores/useAuthStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { fetchOperationsFromDB } from './operationsService';
 

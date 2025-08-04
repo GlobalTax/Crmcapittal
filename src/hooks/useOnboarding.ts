@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { ONBOARDING_STEPS, OnboardingState } from '@/types/Onboarding';
+import { ONBOARDING_STEPS, OnboardingState, OnboardingProgress } from '@/types/Onboarding';
 
 export const useOnboarding = () => {
   const [state, setState] = useState<OnboardingState>({
@@ -18,28 +19,45 @@ export const useOnboarding = () => {
   // Check user's onboarding status
   const checkOnboardingStatus = useCallback(async () => {
     try {
-      setLoading(true);
-      const user = localStorage.getItem('supabase-user');
-      if (!user) {
-        setLoading(false);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('onboarding_complete')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
         return;
       }
 
-      const userData = JSON.parse(user);
-      const userId = userData.id;
+      // Get completed steps
+      const { data: progress, error: progressError } = await supabase
+        .from('user_onboarding_progress')
+        .select('step_id')
+        .eq('user_id', user.id);
 
-      // Simple localStorage-based onboarding status
-      const onboardingComplete = localStorage.getItem(`onboarding-${userId}`) === 'true';
-      
+      if (progressError) {
+        console.error('Error fetching progress:', progressError);
+        return;
+      }
+
+      const completedSteps = progress?.map(p => p.step_id) || [];
+      const isComplete = profile?.onboarding_complete || false;
+
       setState(prev => ({
         ...prev,
-        completedSteps: [],
-        isComplete: onboardingComplete,
-        showWelcomeModal: !onboardingComplete
+        completedSteps,
+        isComplete,
+        showWelcomeModal: !isComplete && completedSteps.length === 0
       }));
-      setLoading(false);
+
     } catch (error) {
       console.error('Error checking onboarding status:', error);
+    } finally {
       setLoading(false);
     }
   }, []);
@@ -61,20 +79,54 @@ export const useOnboarding = () => {
   }, [navigate]);
 
   // Complete a step
-  const completeStep = useCallback((stepId: string) => {
-    setState(prev => ({
-      ...prev,
-      completedSteps: [...new Set([...prev.completedSteps, stepId])]
-    }));
+  const completeStep = useCallback(async (stepId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const step = ONBOARDING_STEPS.find(s => s.id === stepId);
+      if (!step) return;
+
+      // Record step completion
+      const { error } = await supabase
+        .from('user_onboarding_progress')
+        .upsert({
+          user_id: user.id,
+          step_id: stepId,
+          step_name: step.name,
+          step_data: { completed_at: new Date().toISOString() }
+        });
+
+      if (error) {
+        console.error('Error recording step completion:', error);
+        return;
+      }
+
+      setState(prev => ({
+        ...prev,
+        completedSteps: [...new Set([...prev.completedSteps, stepId])]
+      }));
+
+    } catch (error) {
+      console.error('Error completing step:', error);
+    }
   }, []);
 
   // Complete entire onboarding
   const completeOnboarding = useCallback(async () => {
     try {
-      const user = localStorage.getItem('supabase-user');
-      if (user) {
-        const userData = JSON.parse(user);
-        localStorage.setItem(`onboarding-${userData.id}`, 'true');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Mark onboarding as complete
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ onboarding_complete: true })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error completing onboarding:', error);
+        return;
       }
 
       setState(prev => ({
@@ -88,18 +140,38 @@ export const useOnboarding = () => {
         title: "¡Onboarding completado!",
         description: "Ya conoces las funciones principales del CRM. ¡A vender!",
       });
+
     } catch (error) {
       console.error('Error completing onboarding:', error);
     }
   }, [toast]);
 
   // Reset onboarding (for reactivation)
-  const resetOnboarding = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      isComplete: false,
-      showWelcomeModal: true
-    }));
+  const resetOnboarding = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Mark as incomplete
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ onboarding_complete: false })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error resetting onboarding:', error);
+        return;
+      }
+
+      setState(prev => ({
+        ...prev,
+        isComplete: false,
+        showWelcomeModal: true
+      }));
+
+    } catch (error) {
+      console.error('Error resetting onboarding:', error);
+    }
   }, []);
 
   // Skip onboarding

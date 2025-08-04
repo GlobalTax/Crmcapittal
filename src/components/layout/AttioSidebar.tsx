@@ -1,5 +1,4 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { useMemo } from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useLeads } from '@/hooks/useLeads';
 import { 
@@ -103,28 +102,20 @@ export function AttioSidebar() {
   const location = useLocation();
   
   const { role } = useUserRole();
+  
   const { leads } = useLeads();
   
-  // Memoize admin check to prevent unnecessary recalculations
-  const isAdmin = useMemo(() => role === 'admin' || role === 'superadmin', [role]);
+  const isAdmin = role === 'admin' || role === 'superadmin';
 
-  // Memoize lead counts to prevent unnecessary recalculations
-  const { newLeadsCount, todayLeadsCount } = useMemo(() => {
-    const newCount = leads.filter(lead => lead.status === 'NEW').length;
+  // Count new leads that need attention
+  const newLeadsCount = leads.filter(lead => lead.status === 'NEW').length;
+  const todayLeadsCount = leads.filter(lead => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayCount = leads.filter(lead => {
-      return new Date(lead.created_at) >= today;
-    }).length;
-    
-    return { newLeadsCount: newCount, todayLeadsCount: todayCount };
-  }, [leads]);
+    return new Date(lead.created_at) >= today;
+  }).length;
 
-  // Memoize navigation sections to prevent unnecessary recalculations
-  const allSections = useMemo(() => 
-    [...navigationSections, ...(isAdmin ? [adminSection] : [])], 
-    [isAdmin]
-  );
+  const allSections = [...navigationSections, ...(isAdmin ? [adminSection] : [])];
 
   return (
     <aside className="w-60 bg-neutral-100 border-r border-neutral-100 flex flex-col">

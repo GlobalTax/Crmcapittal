@@ -1,4 +1,4 @@
-import { useAuth } from '@/stores/useAuthStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/minimal/Badge';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";

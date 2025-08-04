@@ -47,8 +47,6 @@ const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
 const TeaserBuilder = lazy(() => import('@/pages/TeaserBuilder'));
-const WinbackPage = lazy(() => import('@/pages/WinbackPage'));
-const SecurityPage = lazy(() => import('@/pages/SecurityPage'));
 
 const LoadingSkeleton = () => (
   <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -364,22 +362,6 @@ export const AppRoutes = () => {
             element={
               <Suspense fallback={<LoadingSkeleton />}>
                 <TeaserBuilder />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/winback" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <WinbackPage />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="/security" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <SecurityPage />
               </Suspense>
             } 
           />

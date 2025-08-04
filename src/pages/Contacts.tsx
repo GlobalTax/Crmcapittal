@@ -225,6 +225,8 @@ export default function Contacts() {
       {/* Content */}
       {viewMode === 'grid' ? (
         <ContactsGrid
+          contacts={filteredContacts}
+          loading={isFetching}
           onView={handleViewContact}
           onEdit={handleEditContact}
           onDelete={handleDeleteContact}
