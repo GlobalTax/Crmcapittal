@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { useAuth } from '@/stores/useAuthStore';
+import { useUser, useAuthLoading } from '@/stores/useAuthStore';
 
 interface ProtectedRouteProps {
   children?: React.ReactNode;
@@ -13,7 +13,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const { user, loading } = useAuth();
+  const user = useUser();
+  const loading = useAuthLoading();
 
   useEffect(() => {
     if (!loading) {
