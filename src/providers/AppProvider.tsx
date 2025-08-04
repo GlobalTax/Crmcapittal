@@ -5,19 +5,21 @@ import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { AppErrorBoundary } from '@/components/error-boundary/AppErrorBoundary';
 import { useAppStore } from '@/stores';
 import { initializeAuthListener } from '@/stores/useAuthStore';
+import { secureLogger } from '@/utils/secureLogger';
+import { configManager } from '@/utils/configManager';
 
-// Optimized QueryClient configuration
+// Optimized QueryClient configuration using centralized config
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (previously cacheTime)
+      staleTime: configManager.performance.queryStaleTime,
+      gcTime: configManager.performance.queryGcTime,
       retry: (failureCount, error) => {
         // Don't retry for auth errors
         if (error instanceof Error && error.message.includes('auth')) {
           return false;
         }
-        return failureCount < 2;
+        return failureCount < configManager.performance.maxRetryAttempts;
       },
       refetchOnWindowFocus: false,
       refetchOnMount: true,
@@ -47,9 +49,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     return () => {
       const endTime = performance.now();
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`App initialization took ${endTime - startTime} milliseconds`);
-      }
+      secureLogger.debug(`App initialization took ${endTime - startTime} milliseconds`);
     };
   }, [initialize]);
 

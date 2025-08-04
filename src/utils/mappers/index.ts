@@ -11,7 +11,10 @@ export const mapArrayWithFallback = <T, U>(
   try {
     return array?.map(mapper) || fallback;
   } catch (error) {
-    console.error('Error mapping array:', error);
+    // Use secure logger instead of console
+    import('../secureLogger').then(({ secureLogger }) => 
+      secureLogger.error('Error mapping array', { error: error instanceof Error ? error.message : error })
+    );
     return fallback;
   }
 };
@@ -24,7 +27,10 @@ export const mapWithErrorHandling = <T, U>(
   try {
     return mapper(data);
   } catch (error) {
-    console.error('Error mapping data:', error);
+    // Use secure logger instead of console
+    import('../secureLogger').then(({ secureLogger }) => 
+      secureLogger.error('Error mapping data', { error: error instanceof Error ? error.message : error })
+    );
     return fallback;
   }
 };
