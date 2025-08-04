@@ -10,8 +10,22 @@ export interface PaginationConfig {
 export interface PaginationParams {
   page?: number;
   limit?: number;
+  offset?: number;
 }
 
 export interface FilterParams {
   search?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ServiceResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  meta?: {
+    totalCount?: number;
+    page?: number;
+    limit?: number;
+  };
 }

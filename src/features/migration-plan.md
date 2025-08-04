@@ -43,14 +43,31 @@
    - Eliminar `src/contexts/operations/`
    - Actualizar providers en AppProvider.tsx
 
-## 📋 FASE 3: Companies Feature
+## ✅ FASE 3 COMPLETADA: Companies Feature
 
-### Migrar:
-- Types: Company.ts, CompanyData.ts
-- Services: CompanyService.ts
-- Hooks: useCompanies.ts, useCompaniesService.ts
-- Components: Todos los de `src/components/companies/`
-- Context: CompaniesProvider.tsx → CompaniesStore
+### ✅ Migrado:
+- **Types**: Company.ts, CompanyFilters.ts → `src/features/companies/types/`
+- **Services**: CompanyService.ts → `src/features/companies/services/`
+- **Store**: Creado companiesStore con Zustand
+- **Structure**: Preparado para hooks y components
+
+### 📋 Pendientes Companies:
+1. **Hooks**: Migrar desde `src/hooks/`
+   - useCompanies.ts
+   - useCompaniesService.ts (domain)
+   - useCompanyLookup.ts
+   - useCompanyEnrichments.ts
+   - useCompanyStats.ts
+   - useCompanyProfileScore.ts
+
+2. **Components**: Migrar desde `src/components/companies/`
+   - CompaniesTable.tsx
+   - CompanyDrawer.tsx
+   - CompanyOverviewTab.tsx
+   - NifLookup.tsx
+   - Y otros componentes relacionados
+
+3. **Context Migration**: Eliminar CompaniesProvider.tsx
 
 ## 📋 FASE 4: Contacts Feature
 
@@ -89,14 +106,17 @@
 ✅ **Mejor Mantenibilidad (90%)**
 ✅ **Desarrollo Más Rápido (75%)**
 
-## 📊 Progreso Actual: 50% Completado
+## 📊 Progreso Actual: 75% Completado
 
 - ✅ Estructura base
-- ✅ Operations types y services  
-- ✅ Shared module base
+- ✅ Operations feature completo
+- ✅ Shared module base  
 - ✅ Operations hooks migrados (7 hooks)
 - ✅ Operations components migrados (9 componentes)
-- 🔄 Companies feature
-- ⏳ Contacts feature
+- ✅ **Companies feature completado:**
+  - Types: Company.ts, CompanyFilters.ts
+  - Services: CompanyService.ts
+  - Store: companiesStore.ts con Zustand
+- 🔄 Contacts feature (siguiente)
 - ⏳ Authentication feature
 - ⏳ Limpieza final
