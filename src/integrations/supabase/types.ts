@@ -8245,6 +8245,14 @@ export type Database = {
         Args: { reconversion_id: string; closure_data: Json; user_id?: string }
         Returns: boolean
       }
+      recalcular_prob_conversion_lead: {
+        Args: { p_lead_id: string }
+        Returns: undefined
+      }
+      recalcular_todas_prob_conversion_winback: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       recalcular_todos_los_leads: {
         Args: Record<PropertyKey, never>
         Returns: Json
