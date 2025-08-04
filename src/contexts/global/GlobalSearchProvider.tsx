@@ -54,11 +54,20 @@ export const GlobalSearchProvider: React.FC<GlobalSearchProviderProps> = ({ chil
   const [loading, setLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<GlobalSearchState['activeFilter']>('all');
 
-  // Get data from all domain contexts
+  // Get data from domain contexts - with safe fallbacks
   const { operations } = useOperationsContext();
   const { companies } = useCompaniesContext();
   const { contacts } = useContactsContext();
-  const { users } = useUsersContext();
+  
+  // Safely get users - handle case where UsersProvider might not be available
+  let users: any[] = [];
+  try {
+    const usersContext = useUsersContext();
+    users = usersContext.users || [];
+  } catch (error) {
+    console.log('UsersProvider not available, skipping user search');
+    users = [];
+  }
 
   // Transform data to search results
   const searchResults = useMemo((): GlobalSearchResult[] => {
