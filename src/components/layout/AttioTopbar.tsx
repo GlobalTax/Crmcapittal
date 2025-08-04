@@ -38,22 +38,8 @@ export function AttioTopbar() {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   
-  // Memoized auth access to prevent re-renders
-  const authData = useMemo(() => {
-    try {
-      const auth = useAuth();
-      return {
-        user: auth.user,
-        signOut: auth.signOut
-      };
-    } catch (error) {
-      console.log('AttioTopbar: Auth context not available, using defaults');
-      return {
-        user: null,
-        signOut: async () => {}
-      };
-    }
-  }, []);
+  // Move useAuth to top-level - NEVER call hooks inside other hooks
+  const { user, signOut } = useAuth();
 
   // Memoized computed values
   const currentTitle = useMemo(() => 
@@ -62,16 +48,16 @@ export function AttioTopbar() {
   );
   
   const userInitials = useMemo(() => 
-    authData.user?.email?.substring(0, 2).toUpperCase() || 'U', 
-    [authData.user?.email]
+    user?.email?.substring(0, 2).toUpperCase() || 'U', 
+    [user?.email]
   );
 
   const handleSignOut = useCallback(async () => {
-    if (authData.signOut) {
-      await authData.signOut();
+    if (signOut) {
+      await signOut();
       navigate('/auth');
     }
-  }, [authData.signOut, navigate]);
+  }, [signOut, navigate]);
 
   // Global search shortcut
   useEffect(() => {
@@ -151,7 +137,7 @@ export function AttioTopbar() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium text-sm">{authData.user?.email}</p>
+                    <p className="font-medium text-sm">{user?.email}</p>
                     <p className="text-xs text-gray-500">Usuario activo</p>
                   </div>
                 </div>
