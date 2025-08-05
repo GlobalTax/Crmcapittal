@@ -53,7 +53,8 @@ export const fetchLeads = async (filters?: {
     }
 
     if (filters?.owner_id) {
-      query = (query as any).eq('owner_id', filters.owner_id);
+      // Use assigned_to_id instead of owner_id for leads
+      query = (query as any).eq('assigned_to_id', filters.owner_id);
     }
 
     const { data, error } = await query;

@@ -48,14 +48,16 @@ export function useTeasers() {
         throw new Error('Usuario no autenticado');
       }
 
-      // Validate transaction exists
-      const { data: operationData, error: operationError } = await supabase
-        .from('operations')
-        .select('id, company_name')
+      // Validate transaction exists in the transactions table (not operations)
+      const { data: transactionData, error: transactionError } = await supabase
+        .from('transactions')
+        .select('id, transaction_code')
         .eq('id', teaserData.transaction_id)
         .single();
 
-      if (operationError || !operationData) {
+      if (transactionError || !transactionData) {
+        console.error('Transaction validation error:', transactionError);
+        console.log('Checking transaction ID:', teaserData.transaction_id);
         throw new Error('La transacción seleccionada no existe o no es válida');
       }
 
