@@ -34,6 +34,8 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CreateProposalDialog } from '@/components/proposals/CreateProposalDialog';
+import { CreateLeadMandateDialog } from '@/components/leads/dialogs/CreateLeadMandateDialog';
 
 interface PipedriveMainContentProps {
   lead: Lead;
@@ -45,6 +47,8 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const [newTask, setNewTask] = useState('');
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
+  const [isMandateDialogOpen, setIsMandateDialogOpen] = useState(false);
   
   const { activities, createActivity, isCreating: isCreatingActivity } = useLeadActivities(lead.id);
   const { notes, createNote, isCreating: isCreatingNote } = useLeadNotes(lead.id);
@@ -52,11 +56,11 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const { updateLead } = useLeads();
 
   const handleGenerateProposal = () => {
-    toast.info('Generando propuesta para ' + lead.name + ' - Funcionalidad próximamente');
+    setIsProposalDialogOpen(true);
   };
 
   const handleCreateMandate = () => {
-    toast.info('Creando mandato para ' + lead.name + ' - Funcionalidad próximamente');
+    setIsMandateDialogOpen(true);
   };
 
   const handleAddNote = async () => {
@@ -822,6 +826,18 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
           </div>
         </Tabs>
       </div>
+
+      {/* Modales */}
+      <CreateProposalDialog 
+        isOpen={isProposalDialogOpen} 
+        onClose={() => setIsProposalDialogOpen(false)} 
+      />
+      
+      <CreateLeadMandateDialog 
+        isOpen={isMandateDialogOpen} 
+        onClose={() => setIsMandateDialogOpen(false)}
+        lead={lead}
+      />
     </div>
   );
 };

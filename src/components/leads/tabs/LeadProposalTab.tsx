@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,16 +14,17 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { CreateProposalDialog } from '@/components/proposals/CreateProposalDialog';
 
 interface LeadProposalTabProps {
   lead: Lead;
 }
 
 export const LeadProposalTab = ({ lead }: LeadProposalTabProps) => {
+  const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
+
   const handleGenerateProposal = () => {
-    toast.success('Generando propuesta...', {
-      description: 'Se abrirá el generador de propuestas en breve'
-    });
+    setIsProposalDialogOpen(true);
   };
 
   const handleSendProposal = () => {
@@ -256,6 +258,12 @@ export const LeadProposalTab = ({ lead }: LeadProposalTabProps) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Propuesta */}
+      <CreateProposalDialog 
+        isOpen={isProposalDialogOpen} 
+        onClose={() => setIsProposalDialogOpen(false)} 
+      />
     </div>
   );
 };
