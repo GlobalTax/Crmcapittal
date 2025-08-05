@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { useToast } from '@/hooks/use-toast';
 
 type Teaser = Database['public']['Tables']['teasers']['Row'];
 type CreateTeaserData = Database['public']['Tables']['teasers']['Insert'];
@@ -9,6 +10,7 @@ export function useTeasers() {
   const [teasers, setTeasers] = useState<Teaser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { toast } = useToast();
 
   const fetchTeasers = async () => {
     try {
@@ -29,18 +31,60 @@ export function useTeasers() {
 
   const createTeaser = async (teaserData: CreateTeaserData) => {
     try {
+      // Validate required fields
+      if (!teaserData.title) {
+        throw new Error('El título es requerido');
+      }
+      if (!teaserData.transaction_id) {
+        throw new Error('La transacción es requerida');
+      }
+      if (!teaserData.anonymous_company_name) {
+        throw new Error('El nombre anónimo de la empresa es requerido');
+      }
+
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      const insertData = {
+        ...teaserData,
+        teaser_type: teaserData.teaser_type || 'venta',
+        status: teaserData.status || 'borrador',
+        currency: teaserData.currency || 'EUR',
+        created_by: user.id
+      };
+
       const { data, error } = await supabase
         .from('teasers')
-        .insert([teaserData])
+        .insert([insertData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        if (error.code === '23503') {
+          throw new Error('La transacción seleccionada no existe');
+        }
+        throw new Error(`Error en la base de datos: ${error.message}`);
+      }
       
       setTeasers(prev => [data, ...prev]);
+      toast({
+        title: 'Teaser creado',
+        description: 'El teaser se ha creado correctamente'
+      });
       return data;
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      console.error('Error creating teaser:', err);
       setError(err as Error);
+      toast({
+        title: 'Error al crear teaser',
+        description: errorMessage,
+        variant: 'destructive'
+      });
       throw err;
     }
   };

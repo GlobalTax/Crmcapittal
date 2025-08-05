@@ -1,11 +1,59 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FileImage, Plus, Eye, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useTeasers } from '@/hooks/useTeasers';
+import { TransactionSelector } from '@/components/teaser/TransactionSelector';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 export default function TeaserBuilder() {
   const { teasers, loading, error, createTeaser } = useTeasers();
+  const { toast } = useToast();
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newTeaser, setNewTeaser] = useState({
+    title: '',
+    transaction_id: '',
+    anonymous_company_name: ''
+  });
+
+  const handleCreateTeaser = async () => {
+    if (!newTeaser.title || !newTeaser.transaction_id || !newTeaser.anonymous_company_name) {
+      toast({
+        title: 'Campos requeridos',
+        description: 'Por favor, completa todos los campos obligatorios',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      await createTeaser({
+        title: newTeaser.title,
+        transaction_id: newTeaser.transaction_id,
+        anonymous_company_name: newTeaser.anonymous_company_name,
+        teaser_type: 'venta',
+        status: 'borrador',
+        currency: 'EUR'
+      });
+      
+      toast({
+        title: 'Teaser creado',
+        description: 'El teaser se ha creado correctamente'
+      });
+      
+      setShowCreateDialog(false);
+      setNewTeaser({ title: '', transaction_id: '', anonymous_company_name: '' });
+    } catch (error) {
+      toast({
+        title: 'Error al crear teaser',
+        description: 'Ha ocurrido un error inesperado',
+        variant: 'destructive'
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -36,14 +84,54 @@ export default function TeaserBuilder() {
             Crea y gestiona teasers para oportunidades de inversión
           </p>
         </div>
-        <Button onClick={() => createTeaser({
-          title: 'Nuevo Teaser',
-          transaction_id: 'temp-' + Date.now(),
-          anonymous_company_name: 'Nueva Empresa'
-        })}>
-          <Plus className="w-4 h-4 mr-2" />
-          Nuevo Teaser
-        </Button>
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Nuevo Teaser
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Crear Nuevo Teaser</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="teaser-title">Título del Teaser *</Label>
+                <Input
+                  id="teaser-title"
+                  value={newTeaser.title}
+                  onChange={(e) => setNewTeaser(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Ej: Teaser - Empresa Tecnológica"
+                />
+              </div>
+              
+              <TransactionSelector
+                value={newTeaser.transaction_id}
+                onValueChange={(value) => setNewTeaser(prev => ({ ...prev, transaction_id: value }))}
+              />
+              
+              <div className="space-y-2">
+                <Label htmlFor="company-name">Nombre Anónimo de la Empresa *</Label>
+                <Input
+                  id="company-name"
+                  value={newTeaser.anonymous_company_name}
+                  onChange={(e) => setNewTeaser(prev => ({ ...prev, anonymous_company_name: e.target.value }))}
+                  placeholder="Ej: TechCorp Innovación"
+                />
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleCreateTeaser}>
+                  Crear Teaser
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats */}
@@ -91,11 +179,7 @@ export default function TeaserBuilder() {
               <p className="text-muted-foreground text-center mb-4">
                 Comienza creando tu primer teaser de inversión
               </p>
-              <Button onClick={() => createTeaser({
-                title: 'Primer Teaser',
-                transaction_id: 'temp-' + Date.now(),
-                anonymous_company_name: 'Nueva Empresa'
-              })}>
+              <Button onClick={() => setShowCreateDialog(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Crear Primer Teaser
               </Button>
