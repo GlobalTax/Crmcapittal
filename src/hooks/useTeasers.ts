@@ -48,10 +48,21 @@ export function useTeasers() {
         throw new Error('Usuario no autenticado');
       }
 
+      // Validate transaction exists
+      const { data: operationData, error: operationError } = await supabase
+        .from('operations')
+        .select('id, company_name')
+        .eq('id', teaserData.transaction_id)
+        .single();
+
+      if (operationError || !operationData) {
+        throw new Error('La transacción seleccionada no existe o no es válida');
+      }
+
       const insertData = {
         ...teaserData,
-        teaser_type: teaserData.teaser_type || 'venta',
-        status: teaserData.status || 'borrador',
+        teaser_type: teaserData.teaser_type || 'blind',
+        status: teaserData.status || 'draft',
         currency: teaserData.currency || 'EUR',
         created_by: user.id
       };

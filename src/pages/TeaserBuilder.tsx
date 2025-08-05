@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileImage, Plus, Eye, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useTeasers } from '@/hooks/useTeasers';
 import { TransactionSelector } from '@/components/teaser/TransactionSelector';
 import { Input } from '@/components/ui/input';
@@ -34,8 +34,8 @@ export default function TeaserBuilder() {
         title: newTeaser.title,
         transaction_id: newTeaser.transaction_id,
         anonymous_company_name: newTeaser.anonymous_company_name,
-        teaser_type: 'venta',
-        status: 'borrador',
+        teaser_type: 'blind',
+        status: 'draft',
         currency: 'EUR'
       });
       
@@ -94,6 +94,9 @@ export default function TeaserBuilder() {
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Crear Nuevo Teaser</DialogTitle>
+              <DialogDescription>
+                Completa la información básica para crear un nuevo teaser de inversión.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -152,7 +155,7 @@ export default function TeaserBuilder() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teasers.filter(t => t.status === 'activo').length}
+              {teasers.filter(t => t.status === 'active').length}
             </div>
           </CardContent>
         </Card>
@@ -163,7 +166,7 @@ export default function TeaserBuilder() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {teasers.filter(t => t.status === 'completado').length}
+              {teasers.filter(t => t.status === 'completed').length}
             </div>
           </CardContent>
         </Card>
@@ -200,9 +203,9 @@ export default function TeaserBuilder() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      teaser.status === 'completado' 
+                      teaser.status === 'completed' 
                         ? 'bg-green-100 text-green-800' 
-                        : teaser.status === 'activo'
+                        : teaser.status === 'active'
                         ? 'bg-blue-100 text-blue-800'
                         : 'bg-gray-100 text-gray-800'
                     }`}>
