@@ -4,15 +4,32 @@ import UserManagement from '@/components/UserManagement';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield } from 'lucide-react';
+import { useHasPermission, PERMISSIONS } from '@/hooks/usePermissions';
 
 const UserManagementPage = () => {
   const { role, loading } = useUserRole();
+  const { data: canReadUsers, isLoading: loadingPermissions } = useHasPermission(PERMISSIONS.USERS_READ);
 
-  if (loading) {
+  if (loading || loadingPermissions) {
     return <LoadingSkeleton />;
   }
 
-  if (role !== 'admin' && role !== 'superadmin') {
+  // Verificar permisos granulares primero
+  if (!canReadUsers) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert>
+          <Shield className="h-4 w-4" />
+          <AlertDescription>
+            No tienes permisos para ver usuarios. Contacta con un administrador.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // Verificación de respaldo para usuarios sin el nuevo sistema de permisos
+  if (!role || !['admin', 'superadmin', 'manager'].includes(role)) {
     return (
       <div className="container mx-auto p-6">
         <Alert>

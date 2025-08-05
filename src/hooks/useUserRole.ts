@@ -10,7 +10,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type UserRole = 'superadmin' | 'admin' | 'user' | null;
+export type UserRole = 'superadmin' | 'admin' | 'manager' | 'sales_rep' | 'marketing' | 'support' | 'user' | null;
 
 export type RoleState = {
   role: UserRole;
