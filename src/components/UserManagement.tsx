@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SecureInput } from "@/components/security/SecureInput";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSecureInput } from "@/hooks/useSecureInput";
+import { useSecurityMonitor } from "@/hooks/useSecurityMonitor";
 import { Plus, Trash2, UserCheck, Camera, X, Edit, UserMinus, UserX } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -56,9 +58,12 @@ const UserManagement = () => {
   });
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: [] as string[] });
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { sanitizeInput, validateEmail } = useSecureInput();
+  const { logSuspiciousActivity } = useSecurityMonitor();
 
   // Fetch existing users with roles usando la nueva función
   const { data: users, isLoading } = useQuery({
@@ -82,12 +87,113 @@ const UserManagement = () => {
     }
   });
 
-  // Create user mutation actualizada
+  // Enhanced password validation function
+  const validatePasswordStrength = (password: string) => {
+    const score = calculatePasswordScore(password);
+    const feedback = getPasswordFeedback(password);
+    setPasswordStrength({ score, feedback });
+    return score >= 3; // Require strong password
+  };
+
+  const calculatePasswordScore = (password: string): number => {
+    let score = 0;
+    if (password.length >= 8) score += 1;
+    if (password.length >= 12) score += 1;
+    if (/[A-Z]/.test(password)) score += 1;
+    if (/[a-z]/.test(password)) score += 1;
+    if (/[0-9]/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+    return Math.min(score, 5);
+  };
+
+  const getPasswordFeedback = (password: string): string[] => {
+    const feedback: string[] = [];
+    if (password.length < 8) feedback.push('Mínimo 8 caracteres');
+    if (!/[A-Z]/.test(password)) feedback.push('Al menos una mayúscula');
+    if (!/[a-z]/.test(password)) feedback.push('Al menos una minúscula');
+    if (!/[0-9]/.test(password)) feedback.push('Al menos un número');
+    if (!/[^A-Za-z0-9]/.test(password)) feedback.push('Al menos un símbolo');
+    return feedback;
+  };
+
+  // Secure input handlers
+  const handleSecureEmailChange = (value: string) => {
+    try {
+      const sanitizedEmail = sanitizeInput(value, { maxLength: 100, allowHtml: false });
+      setFormData({ ...formData, email: sanitizedEmail });
+    } catch (error) {
+      logSuspiciousActivity('malicious_email_input', { input: value, error: String(error) });
+      toast({
+        title: "Error de Seguridad",
+        description: "El email contiene caracteres no válidos",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSecurePasswordChange = (value: string) => {
+    try {
+      // Don't sanitize password content, but validate length and patterns
+      if (value.length > 128) {
+        logSuspiciousActivity('suspicious_password_length', { length: value.length });
+        toast({
+          title: "Error",
+          description: "Contraseña demasiado larga",
+          variant: "destructive"
+        });
+        return;
+      }
+      setFormData({ ...formData, password: value });
+      validatePasswordStrength(value);
+    } catch (error) {
+      logSuspiciousActivity('password_input_error', { error: String(error) });
+    }
+  };
+
+  const handleSecureTextChange = (field: keyof CreateUserData, value: string, maxLength: number = 100) => {
+    try {
+      const sanitized = sanitizeInput(value, { maxLength, allowHtml: false, trimWhitespace: true });
+      setFormData({ ...formData, [field]: sanitized });
+    } catch (error) {
+      logSuspiciousActivity('malicious_text_input', { field, input: value, error: String(error) });
+      toast({
+        title: "Error de Seguridad",
+        description: `Entrada no válida en ${field}`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Create user mutation with enhanced server-side validation
   const createUserMutation = useMutation({
     mutationFn: async (userData: CreateUserData) => {
       console.log('Creating user with data:', userData);
       
       try {
+        // Enhanced client-side validation
+        if (!validateEmail(userData.email)) {
+          throw new Error('Email inválido');
+        }
+
+        if (!validatePasswordStrength(userData.password)) {
+          throw new Error('La contraseña no cumple con los requisitos de seguridad');
+        }
+
+        // Server-side password validation
+        const { data: passwordValidation, error: validationError } = await supabase
+          .rpc('validate_password_strength', { password: userData.password });
+
+        if (validationError) {
+          logSuspiciousActivity('password_validation_bypass_attempt', { error: validationError.message });
+          throw new Error('Error validando contraseña en el servidor');
+        }
+
+        const validationResult = passwordValidation as { valid?: boolean; errors?: string[] } | null;
+        if (!validationResult?.valid) {
+          const errors = validationResult?.errors || ['Contraseña no válida'];
+          throw new Error(`Contraseña insegura: ${errors.join(', ')}`);
+        }
+
         // Create user via Supabase auth
         console.log('Step 1: Creating auth user...');
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -95,8 +201,8 @@ const UserManagement = () => {
           password: userData.password,
           options: {
             data: {
-              first_name: userData.firstName,
-              last_name: userData.lastName
+              first_name: sanitizeInput(userData.firstName || '', { maxLength: 50 }),
+              last_name: sanitizeInput(userData.lastName || '', { maxLength: 50 })
             },
             emailRedirectTo: `${window.location.origin}/`
           }
@@ -363,10 +469,31 @@ const UserManagement = () => {
     e.preventDefault();
     console.log('Form submitted with data:', formData);
     
+    // Enhanced client-side validation
     if (!formData.email || !formData.password) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos obligatorios",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate email format
+    if (!validateEmail(formData.email)) {
+      toast({
+        title: "Error",
+        description: "El formato del email no es válido",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate password strength
+    if (passwordStrength.score < 3) {
+      toast({
+        title: "Error",
+        description: "La contraseña no es lo suficientemente segura. Debe incluir mayúsculas, minúsculas, números y símbolos.",
         variant: "destructive",
       });
       return;
@@ -380,6 +507,13 @@ const UserManagement = () => {
       });
       return;
     }
+
+    // Log form submission for security monitoring
+    logSuspiciousActivity('user_creation_attempt', {
+      role: formData.role,
+      email: formData.email,
+      hasManagerData: !!formData.managerName
+    }).catch(console.error);
 
     createUserMutation.mutate(formData);
   };
@@ -427,27 +561,61 @@ const UserManagement = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="email">Email *</Label>
-                <Input
+                <SecureInput
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={handleSecureEmailChange}
                   placeholder="usuario@ejemplo.com"
                   required
+                  enableSanitization={true}
+                  maxLength={100}
+                  allowedChars={/^[a-zA-Z0-9@._-]*$/}
+                  errorMessage="Email inválido o contiene caracteres no permitidos"
                 />
               </div>
               
               <div>
                 <Label htmlFor="password">Contraseña *</Label>
-                <Input
+                <SecureInput
                   id="password"
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Mínimo 6 caracteres"
-                  minLength={6}
+                  onChange={handleSecurePasswordChange}
+                  placeholder="Mínimo 8 caracteres, incluye mayúsculas, números y símbolos"
                   required
+                  enableSanitization={false}
+                  maxLength={128}
+                  showPasswordStrength={true}
+                  errorMessage={passwordStrength.feedback.length > 0 ? passwordStrength.feedback.join(', ') : undefined}
                 />
+                {formData.password && (
+                  <div className="mt-2 space-y-1">
+                    <div className="flex space-x-1">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1 flex-1 rounded ${
+                            passwordStrength.score >= level
+                              ? level <= 2 ? 'bg-red-500' : level <= 3 ? 'bg-yellow-500' : 'bg-green-500'
+                              : 'bg-gray-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className={`text-xs ${
+                      passwordStrength.score <= 2 ? 'text-red-600' : 
+                      passwordStrength.score <= 3 ? 'text-yellow-600' : 'text-green-600'
+                    }`}>
+                      Fortaleza: {
+                        passwordStrength.score <= 1 ? 'Muy débil' :
+                        passwordStrength.score <= 2 ? 'Débil' :
+                        passwordStrength.score <= 3 ? 'Media' :
+                        passwordStrength.score <= 4 ? 'Fuerte' : 'Muy fuerte'
+                      }
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -468,32 +636,44 @@ const UserManagement = () => {
                 <>
                   <div>
                     <Label htmlFor="managerName">Nombre del Gestor *</Label>
-                    <Input
+                    <SecureInput
                       id="managerName"
                       value={formData.managerName || ''}
-                      onChange={(e) => setFormData({ ...formData, managerName: e.target.value })}
+                      onChange={(value) => handleSecureTextChange('managerName', value, 100)}
                       placeholder="Nombre completo del gestor"
                       required
+                      enableSanitization={true}
+                      maxLength={100}
+                      allowedChars={/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.-]*$/}
+                      errorMessage="Solo se permiten letras, espacios, puntos y guiones"
                     />
                   </div>
                   
                   <div>
                     <Label htmlFor="managerPosition">Posición</Label>
-                    <Input
+                    <SecureInput
                       id="managerPosition"
                       value={formData.managerPosition || ''}
-                      onChange={(e) => setFormData({ ...formData, managerPosition: e.target.value })}
+                      onChange={(value) => handleSecureTextChange('managerPosition', value, 50)}
                       placeholder="Director, Gerente, etc."
+                      enableSanitization={true}
+                      maxLength={50}
+                      allowedChars={/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.-]*$/}
+                      errorMessage="Solo se permiten letras, espacios, puntos y guiones"
                     />
                   </div>
 
                   <div>
                     <Label htmlFor="managerPhone">Teléfono</Label>
-                    <Input
+                    <SecureInput
                       id="managerPhone"
                       value={formData.managerPhone || ''}
-                      onChange={(e) => setFormData({ ...formData, managerPhone: e.target.value })}
+                      onChange={(value) => handleSecureTextChange('managerPhone', value, 20)}
                       placeholder="+34 600 000 000"
+                      enableSanitization={true}
+                      maxLength={20}
+                      allowedChars={/^[+0-9\s()-]*$/}
+                      errorMessage="Solo se permiten números, espacios, +, - y paréntesis"
                     />
                   </div>
 

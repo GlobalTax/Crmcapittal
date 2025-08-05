@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -27,73 +27,193 @@ interface ValidationRequest {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const supabaseClient = createClient(
+    const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false
+        }
+      }
     )
 
-    const authHeader = req.headers.get('Authorization')!
-    const token = authHeader.replace('Bearer ', '')
-    
-    // Verificar autenticación
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
-    if (authError || !user) {
+    // Enhanced authentication check
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'No autorizado' }), 
+        JSON.stringify({ valid: false, errors: ['No autorizado'] }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const { action, reconversionId, data }: ValidationRequest = await req.json()
-
-    // Rate limiting básico por usuario
-    const rateLimitKey = `reconversion_security_${user.id}`
-    const rateLimitCount = await checkRateLimit(rateLimitKey)
-    if (rateLimitCount > 50) { // 50 requests por minuto
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
       return new Response(
-        JSON.stringify({ error: 'Demasiadas solicitudes. Intente de nuevo más tarde.' }),
+        JSON.stringify({ valid: false, errors: ['Usuario no válido'] }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Enhanced input validation and sanitization
+    const requestBody = await req.json()
+    
+    // Validate required fields
+    if (!requestBody.action || typeof requestBody.action !== 'string') {
+      return new Response(
+        JSON.stringify({ valid: false, errors: ['Acción requerida y debe ser texto'] }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    // Sanitize and validate action field
+    const allowedActions = ['create', 'update', 'delete', 'assignment_change', 'status_change'];
+    const action = requestBody.action.toLowerCase().replace(/[^a-z_]/g, '')
+    
+    if (!allowedActions.includes(action)) {
+      // Log suspicious activity
+      await supabase.rpc('enhanced_log_security_event', {
+        p_event_type: 'invalid_reconversion_action',
+        p_severity: 'medium',
+        p_description: `Invalid reconversion action attempted: ${requestBody.action}`,
+        p_metadata: {
+          user_id: user.id,
+          attempted_action: requestBody.action,
+          ip_address: req.headers.get('x-forwarded-for'),
+          user_agent: req.headers.get('user-agent')
+        }
+      })
+      
+      return new Response(
+        JSON.stringify({ valid: false, errors: ['Acción no válida'] }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    const reconversionId = requestBody.reconversionId
+    let data = requestBody.data || {}
+    
+    // Enhanced input sanitization using database function
+    if (data.company_name) {
+      const { data: sanitized, error: sanitizeError } = await supabase.rpc('sanitize_input', { 
+        p_input: data.company_name,
+        p_max_length: 200
+      });
+      if (sanitizeError) {
+        console.error('Sanitization error:', sanitizeError);
+        data.company_name = '';
+      } else {
+        data.company_name = sanitized || '';
+      }
+    }
+    
+    if (data.contact_name) {
+      const { data: sanitized, error: sanitizeError } = await supabase.rpc('sanitize_input', { 
+        p_input: data.contact_name,
+        p_max_length: 100
+      });
+      if (sanitizeError) {
+        console.error('Sanitization error:', sanitizeError);
+        data.contact_name = '';
+      } else {
+        data.contact_name = sanitized || '';
+      }
+    }
+
+    // Enhanced rate limiting with user context
+    const rateLimitId = `reconversion_security_${user.id}_${req.headers.get('x-forwarded-for') || 'unknown'}`
+    const rateLimitCheck = await supabase.rpc('check_rate_limit', {
+      p_identifier: rateLimitId,
+      p_max_requests: 15, // Reduced for tighter security
+      p_window_minutes: 10
+    })
+
+    if (!rateLimitCheck.data) {
+      // Log the rate limit violation
+      await supabase.rpc('enhanced_log_security_event', {
+        p_event_type: 'rate_limit_exceeded',
+        p_severity: 'high',
+        p_description: 'Rate limit exceeded for reconversion security validation',
+        p_metadata: {
+          user_id: user.id,
+          ip_address: req.headers.get('x-forwarded-for'),
+          user_agent: req.headers.get('user-agent'),
+          action: action,
+          reconversion_id: reconversionId
+        }
+      })
+      
+      return new Response(
+        JSON.stringify({ valid: false, errors: ['Demasiadas solicitudes. Espera antes de intentar de nuevo.'] }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    // Enhanced security logging for all validation attempts
+    await supabase.rpc('enhanced_log_security_event', {
+      p_event_type: 'reconversion_security_validation',
+      p_severity: 'low',
+      p_description: `Validation attempt for ${action}`,
+      p_metadata: {
+        action,
+        reconversion_id: reconversionId,
+        user_id: user.id,
+        request_data: data,
+        ip_address: req.headers.get('x-forwarded-for'),
+        timestamp: new Date().toISOString()
+      }
+    })
+
+    // Get user role for authorization checks
+    const { data: userRole } = await supabase.rpc('get_user_highest_role', { p_user_id: user.id });
 
     let validationResult = { valid: true, errors: [] as string[] }
 
     switch (action) {
       case 'create':
+        validationResult = await validateReconversionData(supabase, user.id, data)
+        break
+      
       case 'update':
-        validationResult = await validateReconversionData(supabaseClient, user.id, data)
+        validationResult = await validateReconversionUpdate(supabase, user.id, reconversionId!, data, userRole)
         break
       
       case 'assignment_change':
-        validationResult = await validateAssignmentChange(supabaseClient, user.id, reconversionId!, data)
+        validationResult = await validateAssignmentChange(supabase, user.id, reconversionId!, data, userRole)
         break
       
       case 'delete':
-        validationResult = await validateDeletion(supabaseClient, user.id, reconversionId!)
+        validationResult = await validateDeletion(supabase, user.id, reconversionId!, userRole)
+        break
+
+      case 'status_change':
+        validationResult = await validateStatusChange(supabase, user.id, reconversionId!, data, userRole)
         break
     }
 
-    // Log de seguridad para intentos sospechosos
+    // Enhanced security logging for validation results
     if (!validationResult.valid) {
-      await supabaseClient
-        .from('reconversion_audit_logs')
-        .insert({
+      await supabase.rpc('enhanced_log_security_event', {
+        p_event_type: 'reconversion_validation_failed',
+        p_severity: 'medium',
+        p_description: `Validation failed for ${action}: ${validationResult.errors.join(', ')}`,
+        p_metadata: {
+          user_id: user.id,
+          action,
           reconversion_id: reconversionId,
-          action_type: `validation_failed_${action}`,
-          action_description: 'Validación de seguridad falló',
-          new_data: {
-            errors: validationResult.errors,
-            attempted_data: data,
-            user_agent: req.headers.get('User-Agent'),
-            ip: req.headers.get('x-forwarded-for') || 'unknown'
-          },
-          severity: 'medium',
-          user_id: user.id
-        })
+          errors: validationResult.errors,
+          attempted_data: data,
+          user_agent: req.headers.get('User-Agent'),
+          ip: req.headers.get('x-forwarded-for') || 'unknown'
+        }
+      })
     }
 
     return new Response(
@@ -102,9 +222,32 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error en validación de seguridad:', error)
+    console.error('Error in validation function:', error)
+    
+    // Log critical errors with enhanced security logging
+    try {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      )
+      
+      await supabase.rpc('enhanced_log_security_event', {
+        p_event_type: 'reconversion_validation_error',
+        p_severity: 'critical',
+        p_description: `Critical error in reconversion validation: ${error.message}`,
+        p_metadata: {
+          error: error.message,
+          stack: error.stack,
+          ip_address: req.headers.get('x-forwarded-for'),
+          user_agent: req.headers.get('user-agent')
+        }
+      })
+    } catch (logError) {
+      console.error('Failed to log critical error:', logError)
+    }
+    
     return new Response(
-      JSON.stringify({ error: 'Error interno del servidor' }),
+      JSON.stringify({ valid: false, errors: ['Error interno del servidor'] }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
@@ -199,29 +342,63 @@ async function validateReconversionData(supabaseClient: any, userId: string, dat
   return { valid: errors.length === 0, errors }
 }
 
-async function validateAssignmentChange(supabaseClient: any, userId: string, reconversionId: string, data: any) {
+async function validateReconversionUpdate(supabase: any, userId: string, reconversionId: string, data: any, userRole: string) {
   const errors: string[] = []
 
-  // Verificar que el usuario tiene permisos para modificar la reconversión
-  const { data: hasPermission } = await supabaseClient
-    .rpc('has_reconversion_permission', {
-      p_reconversion_id: reconversionId,
-      p_action: 'update'
-    })
+  // Check if reconversion exists and user has permission
+  const { data: reconversion } = await supabase
+    .from('reconversiones_new')
+    .select('created_by, assigned_to, pipeline_owner_id')
+    .eq('id', reconversionId)
+    .single()
 
-  if (!hasPermission) {
-    errors.push('No tienes permisos para modificar las asignaciones de esta reconversión')
+  if (!reconversion) {
+    errors.push('Reconversión no encontrada')
+    return { valid: false, errors }
   }
 
-  // Validar que el usuario asignado existe
-  if (data?.assigned_to) {
-    const { data: assignedUser } = await supabaseClient
-      .from('auth.users')
-      .select('id')
-      .eq('id', data.assigned_to)
-      .single()
+  const hasPermission = reconversion.created_by === userId || 
+                       reconversion.assigned_to === userId || 
+                       reconversion.pipeline_owner_id === userId ||
+                       ['admin', 'superadmin'].includes(userRole)
 
-    if (!assignedUser) {
+  if (!hasPermission) {
+    errors.push('No tienes permisos para modificar esta reconversión')
+  }
+
+  // Validate data (reuse validation logic)
+  const dataValidation = await validateReconversionData(supabase, userId, data)
+  if (!dataValidation.valid) {
+    errors.push(...dataValidation.errors)
+  }
+
+  return { valid: errors.length === 0, errors }
+}
+
+async function validateAssignmentChange(supabase: any, userId: string, reconversionId: string, data: any, userRole: string) {
+  const errors: string[] = []
+
+  // Only admins can change assignments
+  if (!['admin', 'superadmin'].includes(userRole)) {
+    errors.push('Solo administradores pueden cambiar asignaciones')
+    return { valid: false, errors }
+  }
+
+  // Verify reconversion exists
+  const { data: reconversion } = await supabase
+    .from('reconversiones_new')
+    .select('id')
+    .eq('id', reconversionId)
+    .single()
+
+  if (!reconversion) {
+    errors.push('Reconversión no encontrada')
+  }
+
+  // Validate that the assigned user exists if provided
+  if (data?.assigned_to) {
+    const { data: user } = await supabase.auth.admin.getUserById(data.assigned_to)
+    if (!user.user) {
       errors.push('El usuario asignado no existe')
     }
   }
@@ -229,38 +406,62 @@ async function validateAssignmentChange(supabaseClient: any, userId: string, rec
   return { valid: errors.length === 0, errors }
 }
 
-async function validateDeletion(supabaseClient: any, userId: string, reconversionId: string) {
+async function validateStatusChange(supabase: any, userId: string, reconversionId: string, data: any, userRole: string) {
   const errors: string[] = []
 
-  // Solo admins pueden eliminar reconversiones
-  const { data: userRole } = await supabaseClient
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .in('role', ['admin', 'superadmin'])
-
-  if (!userRole || userRole.length === 0) {
-    errors.push('Solo los administradores pueden eliminar reconversiones')
-  }
-
-  // Verificar que la reconversión existe
-  const { data: reconversion } = await supabaseClient
-    .from('reconversiones')
-    .select('id, status, company_name')
+  // Check if reconversion exists and user has permission
+  const { data: reconversion } = await supabase
+    .from('reconversiones_new')
+    .select('created_by, assigned_to, pipeline_owner_id, estado')
     .eq('id', reconversionId)
     .single()
 
   if (!reconversion) {
     errors.push('Reconversión no encontrada')
-  } else if (reconversion.status === 'en_progreso') {
-    errors.push('No se puede eliminar una reconversión en progreso. Cámbiela a otro estado primero.')
+    return { valid: false, errors }
+  }
+
+  const hasPermission = reconversion.created_by === userId || 
+                       reconversion.assigned_to === userId || 
+                       reconversion.pipeline_owner_id === userId ||
+                       ['admin', 'superadmin'].includes(userRole)
+
+  if (!hasPermission) {
+    errors.push('No tienes permisos para cambiar el estado de esta reconversión')
+  }
+
+  // Validate status transition (basic validation)
+  const allowedStatuses = ['activa', 'matching', 'negociacion', 'cerrada', 'cancelada']
+  if (data.new_status && !allowedStatuses.includes(data.new_status)) {
+    errors.push('Estado no válido')
   }
 
   return { valid: errors.length === 0, errors }
 }
 
-async function checkRateLimit(key: string): Promise<number> {
-  // Implementación básica de rate limiting
-  // En producción, usarías Redis o similar
-  return 0 // Por ahora, siempre permitir
+async function validateDeletion(supabase: any, userId: string, reconversionId: string, userRole: string) {
+  const errors: string[] = []
+
+  // Only superadmins can delete reconversions
+  if (userRole !== 'superadmin') {
+    errors.push('Solo superadministradores pueden eliminar reconversiones')
+    return { valid: false, errors }
+  }
+
+  // Verify reconversion exists
+  const { data: reconversion } = await supabase
+    .from('reconversiones_new')
+    .select('id, estado, company_name')
+    .eq('id', reconversionId)
+    .single()
+
+  if (!reconversion) {
+    errors.push('Reconversión no encontrada')
+  } else if (reconversion.estado === 'matching' || reconversion.estado === 'negociacion') {
+    errors.push('No se puede eliminar una reconversión en proceso. Cámbiela a otro estado primero.')
+  }
+
+  return { valid: errors.length === 0, errors }
 }
+
+// Rate limiting is now handled by the database function check_rate_limit
