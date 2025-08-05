@@ -58,12 +58,6 @@ const navigationSections: NavSection[] = [
     ]
   },
   {
-    title: "Servicios Complementarios",
-    items: [
-      { to: '/teaser-builder', label: 'Teaser Builder', icon: FileImage },
-    ]
-  },
-  {
     title: "Comunicación",
     items: [
       { to: '/email', label: 'Email', icon: Mail },

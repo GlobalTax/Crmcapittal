@@ -46,7 +46,7 @@ const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
-const TeaserBuilder = lazy(() => import('@/pages/TeaserBuilder'));
+
 
 const LoadingSkeleton = () => (
   <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
@@ -359,11 +359,7 @@ export const AppRoutes = () => {
           />
           <Route 
             path="/teaser-builder" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <TeaserBuilder />
-              </Suspense>
-            } 
+            element={<Navigate to="/transacciones" replace />}
           />
         </Route>
         
