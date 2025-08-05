@@ -2692,15 +2692,7 @@ export type Database = {
           updated_at?: string
           version?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "info_memos_transaction_id_fkey"
-            columns: ["transaction_id"]
-            isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       lead_activities: {
         Row: {
@@ -4020,15 +4012,7 @@ export type Database = {
           transaction_id?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "ndas_transaction_id_fkey"
-            columns: ["transaction_id"]
-            isOneToOne: false
-            referencedRelation: "transactions"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       negocio_activities: {
         Row: {
@@ -6777,110 +6761,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      transactions: {
-        Row: {
-          company_id: string | null
-          contact_id: string | null
-          created_at: string
-          created_by: string | null
-          currency: string | null
-          estimated_value: number | null
-          expected_closing_date: string | null
-          id: string
-          notes: string | null
-          priority: string | null
-          proposal_id: string
-          status: string
-          transaction_code: string | null
-          transaction_type: string
-          updated_at: string
-        }
-        Insert: {
-          company_id?: string | null
-          contact_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          estimated_value?: number | null
-          expected_closing_date?: string | null
-          id?: string
-          notes?: string | null
-          priority?: string | null
-          proposal_id: string
-          status?: string
-          transaction_code?: string | null
-          transaction_type?: string
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string | null
-          contact_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          estimated_value?: number | null
-          expected_closing_date?: string | null
-          id?: string
-          notes?: string | null
-          priority?: string | null
-          proposal_id?: string
-          status?: string
-          transaction_code?: string | null
-          transaction_type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "hubspot_companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "hubspot_companies_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_contact_id_fkey"
-            columns: ["contact_id"]
-            isOneToOne: false
-            referencedRelation: "contacts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_contact_id_fkey"
-            columns: ["contact_id"]
-            isOneToOne: false
-            referencedRelation: "hubspot_contacts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_contact_id_fkey"
-            columns: ["contact_id"]
-            isOneToOne: false
-            referencedRelation: "hubspot_contacts_with_company"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_proposal_id_fkey"
-            columns: ["proposal_id"]
-            isOneToOne: false
-            referencedRelation: "proposals"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_favorite_operations: {
         Row: {
