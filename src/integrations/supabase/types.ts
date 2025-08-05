@@ -8296,6 +8296,7 @@ export type Database = {
         | "FORM_SUBMITTED"
         | "WEBSITE_VISIT"
         | "DOCUMENT_DOWNLOADED"
+        | "STAGE_CHANGED"
       app_role: "superadmin" | "admin" | "user"
       approval_stage: "loi" | "preliminary" | "final" | "closing"
       approval_type: "loi" | "contract" | "final_terms" | "closing"
@@ -8560,6 +8561,7 @@ export const Constants = {
         "FORM_SUBMITTED",
         "WEBSITE_VISIT",
         "DOCUMENT_DOWNLOADED",
+        "STAGE_CHANGED",
       ],
       app_role: ["superadmin", "admin", "user"],
       approval_stage: ["loi", "preliminary", "final", "closing"],
