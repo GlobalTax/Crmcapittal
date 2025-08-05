@@ -63,8 +63,8 @@ export function useTeasers() {
 
       const insertData = {
         ...teaserData,
-        teaser_type: teaserData.teaser_type || 'blind',
-        status: teaserData.status || 'draft',
+        teaser_type: teaserData.teaser_type || 'venta',
+        status: teaserData.status || 'borrador',
         currency: teaserData.currency || 'EUR',
         created_by: user.id
       };
@@ -78,7 +78,7 @@ export function useTeasers() {
       if (error) {
         console.error('Supabase error:', error);
         if (error.code === '23503') {
-          throw new Error('La transacción seleccionada no existe');
+          throw new Error('La operación seleccionada no existe');
         }
         throw new Error(`Error en la base de datos: ${error.message}`);
       }
