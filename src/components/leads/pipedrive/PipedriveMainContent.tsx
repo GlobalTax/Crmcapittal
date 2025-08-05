@@ -51,6 +51,14 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const { tasks, createTask, updateTask, isCreating: isCreatingTask } = useLeadTasks(lead.id);
   const { updateLead } = useLeads();
 
+  const handleGenerateProposal = () => {
+    toast.info('Generando propuesta para ' + lead.name + ' - Funcionalidad próximamente');
+  };
+
+  const handleCreateMandate = () => {
+    toast.info('Creando mandato para ' + lead.name + ' - Funcionalidad próximamente');
+  };
+
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
     
@@ -279,11 +287,11 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleGenerateProposal}>
               <FileText className="h-4 w-4 mr-2" />
               Generar Propuesta
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleCreateMandate}>
               <PaperclipIcon className="h-4 w-4 mr-2" />
               Crear Mandato
             </Button>
