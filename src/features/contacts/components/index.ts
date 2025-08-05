@@ -1,6 +1,8 @@
 /**
  * Contacts Components
+ * 
+ * All UI components for contacts feature
  */
 
-// Placeholder - will be populated during migration
-export {};
+// Core components
+export { ContactCard } from './ContactCard';

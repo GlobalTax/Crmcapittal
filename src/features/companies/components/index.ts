@@ -1,6 +1,8 @@
 /**
  * Companies Components
+ * 
+ * All UI components for companies feature
  */
 
-// Placeholder - will be populated during migration
-export {};
+// Core components
+export { CompanyCard } from './CompanyCard';

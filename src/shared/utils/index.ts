@@ -23,3 +23,4 @@ export { es } from 'date-fns/locale';
 // Legacy exports for backward compatibility
 export * from '@/lib/utils';
 export * from '@/utils/logger';
+export * from '@/utils/operationHelpers';
