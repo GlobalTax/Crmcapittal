@@ -2595,6 +2595,42 @@ export type Database = {
           },
         ]
       }
+      field_visibility_config: {
+        Row: {
+          created_at: string | null
+          field_name: string
+          id: string
+          is_editable: boolean | null
+          is_visible: boolean | null
+          mask_type: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          table_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          field_name: string
+          id?: string
+          is_editable?: boolean | null
+          is_visible?: boolean | null
+          mask_type?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          table_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          field_name?: string
+          id?: string
+          is_editable?: boolean | null
+          is_visible?: boolean | null
+          mask_type?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          table_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       impuestos: {
         Row: {
           company_id_origen: number | null

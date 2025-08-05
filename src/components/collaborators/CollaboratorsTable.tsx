@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { AgreementViewDialog } from './AgreementViewDialog';
+import { SecureField } from '@/components/ui/SecureField';
 
 interface CollaboratorsTableProps {
   collaborators: Collaborator[];
@@ -124,11 +125,20 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                   <TableRow key={collaborator.id} className="hover:bg-gray-50">
                     <TableCell className="font-medium">
                       {collaborator.name}
-                      {collaborator.notes && (
-                        <div className="text-sm text-gray-500 mt-1">
-                          {collaborator.notes.slice(0, 50)}...
-                        </div>
-                      )}
+                      <SecureField
+                        tableName="collaborators"
+                        fieldName="notes"
+                        value={collaborator.notes}
+                        fallback={null}
+                      >
+                        {({ isVisible, maskedValue }) => (
+                          isVisible && collaborator.notes ? (
+                            <div className="text-sm text-muted-foreground mt-1">
+                              {maskedValue.slice(0, 50)}...
+                            </div>
+                          ) : null
+                        )}
+                      </SecureField>
                     </TableCell>
                     
                     <TableCell>
@@ -138,27 +148,53 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                     </TableCell>
                     
                     <TableCell>
-                      {collaborator.email && (
-                        <div className="text-sm">{collaborator.email}</div>
-                      )}
-                      {collaborator.phone && (
-                        <div className="text-sm text-gray-500">{collaborator.phone}</div>
-                      )}
+                      <SecureField
+                        tableName="collaborators"
+                        fieldName="email"
+                        value={collaborator.email}
+                        fallback={<span className="text-muted-foreground">-</span>}
+                      >
+                        {({ isVisible, maskedValue }) => (
+                          isVisible && collaborator.email ? (
+                            <div className="text-sm">{maskedValue}</div>
+                          ) : null
+                        )}
+                      </SecureField>
+                      <SecureField
+                        tableName="collaborators"
+                        fieldName="phone"
+                        value={collaborator.phone}
+                        fallback={null}
+                      >
+                        {({ isVisible, maskedValue }) => (
+                          isVisible && collaborator.phone ? (
+                            <div className="text-sm text-muted-foreground">{maskedValue}</div>
+                          ) : null
+                        )}
+                      </SecureField>
                       {!collaborator.email && !collaborator.phone && (
-                        <span className="text-gray-400">Sin contacto</span>
+                        <span className="text-muted-foreground">Sin contacto</span>
                       )}
                     </TableCell>
                     
                     <TableCell>
-                      <span className="font-medium">
-                        {collaborator.commission_percentage}%
-                      </span>
+                      <SecureField
+                        tableName="collaborators"
+                        fieldName="commission_percentage"
+                        value={collaborator.commission_percentage}
+                        renderAs="percentage"
+                        className="font-medium"
+                      />
                     </TableCell>
                     
                     <TableCell>
-                      <span className="font-medium">
-                        {formatCurrency(collaborator.base_commission)}
-                      </span>
+                      <SecureField
+                        tableName="collaborators"
+                        fieldName="base_commission"
+                        value={collaborator.base_commission}
+                        renderAs="currency"
+                        className="font-medium"
+                      />
                     </TableCell>
                     
                     <TableCell>
@@ -168,9 +204,21 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                     </TableCell>
                     
                     <TableCell>
-                      <Badge className={getAgreementStatusColor(collaborator.agreement_status)}>
-                        {getAgreementStatusLabel(collaborator.agreement_status)}
-                      </Badge>
+                      <SecureField
+                        tableName="collaborators"
+                        fieldName="agreement_status"
+                        value={collaborator.agreement_status}
+                      >
+                        {({ isVisible, originalValue }) => (
+                          isVisible ? (
+                            <Badge className={getAgreementStatusColor(originalValue)}>
+                              {getAgreementStatusLabel(originalValue)}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )
+                        )}
+                      </SecureField>
                     </TableCell>
                     
                     <TableCell>
