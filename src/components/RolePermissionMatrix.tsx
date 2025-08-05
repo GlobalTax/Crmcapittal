@@ -15,10 +15,6 @@ import { Search, Shield, Users, Settings, BarChart3, Building2, Contact, Trendin
 const ROLES = [
   { key: 'superadmin', label: 'Super Administrador', color: 'bg-red-500', icon: Shield },
   { key: 'admin', label: 'Administrador', color: 'bg-orange-500', icon: Settings },
-  { key: 'manager', label: 'Gerente', color: 'bg-blue-500', icon: BarChart3 },
-  { key: 'sales_rep', label: 'Representante de Ventas', color: 'bg-green-500', icon: TrendingUp },
-  { key: 'marketing', label: 'Marketing', color: 'bg-purple-500', icon: Building2 },
-  { key: 'support', label: 'Soporte', color: 'bg-yellow-500', icon: Contact },
   { key: 'user', label: 'Usuario', color: 'bg-gray-500', icon: Users },
 ] as const;
 
@@ -101,6 +97,13 @@ export default function RolePermissionMatrix() {
   };
 
   const modules = [...new Set(permissions.map(p => p.module))];
+
+  // Logging para debugging
+  console.log('RolePermissionMatrix - Datos cargados:', {
+    permissions: permissions.length,
+    filteredCount: filteredPermissions.length,
+    modules
+  });
 
   return (
     <div className="space-y-6">

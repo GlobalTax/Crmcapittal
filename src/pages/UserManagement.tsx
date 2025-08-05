@@ -14,11 +14,24 @@ const UserManagementPage = () => {
   const { data: canReadUsers, isLoading: loadingPermissions } = useHasPermission(PERMISSIONS.USERS_READ);
   const { data: canManagePermissions, isLoading: loadingPermissionsCheck } = useHasPermission(PERMISSIONS.USERS_MANAGE_ROLES);
 
-  if (loading || loadingPermissions || loadingPermissionsCheck) {
+  // Logging para debugging
+  console.log('UserManagementPage - Estado de permisos:', {
+    role,
+    loading,
+    canReadUsers,
+    loadingPermissions,
+    canManagePermissions,
+    loadingPermissionsCheck
+  });
+
+  // Consolidar estados de loading
+  const isLoading = loading || loadingPermissions || loadingPermissionsCheck;
+
+  if (isLoading) {
     return <LoadingSkeleton />;
   }
 
-  // Verificar permisos granulares primero
+  // Solo verificar permisos granulares - sistema principal
   if (!canReadUsers) {
     return (
       <div className="container mx-auto p-6">
@@ -26,20 +39,6 @@ const UserManagementPage = () => {
           <Shield className="h-4 w-4" />
           <AlertDescription>
             No tienes permisos para ver usuarios. Contacta con un administrador.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  // Verificación de respaldo para usuarios sin el nuevo sistema de permisos
-  if (!role || !['admin', 'superadmin', 'manager'].includes(role)) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert>
-          <Shield className="h-4 w-4" />
-          <AlertDescription>
-            No tienes permisos para acceder a esta página. Se requieren permisos de administrador.
           </AlertDescription>
         </Alert>
       </div>
