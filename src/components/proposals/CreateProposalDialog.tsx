@@ -66,6 +66,8 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({
 
     setLoading(true);
     try {
+      console.log('Creating proposal with data:', formData);
+      
       const proposal = await createProposal({
         ...formData,
         contact_id: formData.contact_id || undefined,
@@ -74,21 +76,27 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({
         valid_until: formData.valid_until || undefined,
       });
       
+      console.log('Proposal created successfully:', proposal);
+      
       // Si la propuesta se creó desde un lead, actualizar el estado del lead
-      if (leadId) {
+      if (leadId && proposal) {
         try {
-          updateLead({ 
+          console.log('Updating lead status for leadId:', leadId);
+          await updateLead({ 
             id: leadId, 
             updates: { 
               stage: 'propuesta',
               status: 'QUALIFIED'
             } 
           });
+          console.log('Lead updated successfully');
         } catch (error) {
           console.warn('Error updating lead status:', error);
+          // No bloquear el flujo si falla la actualización del lead
         }
       }
       
+      // Limpiar formulario
       setFormData({
         title: '',
         description: '',
@@ -103,23 +111,24 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({
         notes: ''
       });
       
+      // Cerrar modal primero
+      onClose();
+      
+      // Toast de éxito y redirección inmediata
       toast({
-        title: "¡Propuesta creada!",
+        title: "¡Propuesta creada exitosamente!",
         description: "Redirigiendo a la página de propuestas...",
       });
       
-      onClose();
-      
-      // Redireccionar a la página de propuestas
-      setTimeout(() => {
-        navigate('/proposals');
-      }, 500);
+      console.log('Navigating to /proposals');
+      // Redirección inmediata sin setTimeout
+      navigate('/proposals');
       
     } catch (error) {
       console.error('Error creating proposal:', error);
       toast({
         title: "Error",
-        description: "Error al crear la propuesta",
+        description: error instanceof Error ? error.message : "Error al crear la propuesta",
         variant: "destructive",
       });
     } finally {
