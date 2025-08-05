@@ -8060,14 +8060,10 @@ export type Database = {
         Returns: {
           user_id: string
           email: string
-          role: Database["public"]["Enums"]["app_role"]
           first_name: string
           last_name: string
-          company: string
-          phone: string
+          role: string
           is_manager: boolean
-          manager_name: string
-          manager_position: string
         }[]
       }
       has_reconversion_permission: {

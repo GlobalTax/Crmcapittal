@@ -8,7 +8,7 @@ import { SettingSection } from '@/components/settings/SettingSection';
 import { Upload, Trash2, Info, Shield, User, Crown } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { useUserProfile } from '@/features/auth/hooks/useUserProfile';
-import { useUserRole } from '@/features/auth/hooks/useUserRole';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/features/auth/contexts/AuthContext';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 

@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-interface User {
+export interface User {
   user_id: string;
   email: string;
   first_name: string;
   last_name: string;
-  role: string;
+  role: string; // Viene como string de la función RPC
   is_manager: boolean;
 }
 

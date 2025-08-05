@@ -15,6 +15,19 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import EditUserDialog from "./EditUserDialog";
 import UserProjectsList from "./UserProjectsList";
+import { User } from "@/hooks/useUsers";
+
+// Interfaz para el EditUserDialog (compatible con su definición interna)
+interface EditableUser {
+  user_id: string;
+  email: string;
+  role: UserRole;
+  first_name?: string;
+  last_name?: string;
+  is_manager: boolean;
+  manager_name?: string;
+  manager_position?: string;
+}
 
 type UserRole = 'superadmin' | 'admin' | 'user';
 
@@ -36,16 +49,7 @@ interface CreateUserData {
   managerPhone?: string;
 }
 
-interface User {
-  user_id: string;
-  email: string;
-  role: UserRole;
-  first_name?: string;
-  last_name?: string;
-  is_manager: boolean;
-  manager_name?: string;
-  manager_position?: string;
-}
+// Usar la interfaz User importada desde useUsers
 
 const UserManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -56,7 +60,7 @@ const UserManagement = () => {
     password: '',
     role: 'user'
   });
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<EditableUser | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: [] as string[] });
   
@@ -527,7 +531,18 @@ const UserManagement = () => {
   };
 
   const handleEditUser = (user: User) => {
-    setEditingUser(user);
+    // Convertir User de useUsers a EditableUser para el dialog
+    const editableUser: EditableUser = {
+      user_id: user.user_id,
+      email: user.email,
+      role: user.role as UserRole,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      is_manager: user.is_manager,
+      manager_name: undefined, // No disponible en la nueva interfaz
+      manager_position: undefined // No disponible en la nueva interfaz
+    };
+    setEditingUser(editableUser);
     setIsEditDialogOpen(true);
   };
 
@@ -782,12 +797,10 @@ const UserManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="text-xs">
-                      {user.is_manager && user.manager_name && (
+                     {user.is_manager && (
                         <div>
-                          <div className="font-medium">{user.manager_name}</div>
-                          {user.manager_position && (
-                            <div className="text-gray-500">{user.manager_position}</div>
-                          )}
+                          <div className="font-medium">Gestor</div>
+                          <div className="text-gray-500">Rol administrativo</div>
                         </div>
                       )}
                       {user.first_name && user.last_name && (
@@ -798,7 +811,7 @@ const UserManagement = () => {
                   <TableCell>
                     <UserProjectsList 
                       userId={user.user_id}
-                      userName={user.manager_name || user.email}
+                      userName={`${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email}
                       isManager={user.is_manager}
                     />
                   </TableCell>
@@ -837,11 +850,11 @@ const UserManagement = () => {
                            </AlertDialogHeader>
                            <AlertDialogFooter>
                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                             <AlertDialogAction
-                               onClick={() => handleRemoveUserRole(user.user_id, user.role)}
-                               className="bg-orange-600 hover:bg-orange-700"
-                               disabled={removeUserRoleMutation.isPending}
-                             >
+                              <AlertDialogAction
+                                onClick={() => handleRemoveUserRole(user.user_id, user.role as UserRole)}
+                                className="bg-orange-600 hover:bg-orange-700"
+                                disabled={removeUserRoleMutation.isPending}
+                              >
                                {removeUserRoleMutation.isPending ? "Removiendo..." : "Remover Rol"}
                              </AlertDialogAction>
                            </AlertDialogFooter>
