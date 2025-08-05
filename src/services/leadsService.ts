@@ -77,15 +77,30 @@ export const fetchLeads = async (filters?: {
 
 export const fetchLeadById = async (id: string): Promise<Lead> => {
   try {
+    // First check if user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError) {
+      logger.error('Authentication error:', authError);
+      throw new Error('Error de autenticación: ' + authError.message);
+    }
+    
+    if (!user) {
+      throw new Error('Usuario no autenticado');
+    }
+
     const { data, error } = await supabase
       .from('leads')
       .select('*')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       logger.error('Error fetching lead by id:', error);
-      throw error;
+      throw new Error(`Error al obtener lead: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Lead no encontrado o no tienes permisos para verlo');
     }
 
     return {

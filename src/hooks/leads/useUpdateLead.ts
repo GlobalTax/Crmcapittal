@@ -41,7 +41,7 @@ export const useUpdateLead = () => {
         .update(updateData)
         .eq('id', leadId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error updating lead stage:', error);
@@ -67,7 +67,7 @@ export const useUpdateLead = () => {
         .from('pipeline_stages')
         .select('id')
         .eq('name', 'Ganado')
-        .single();
+        .maybeSingle();
 
       if (!stages) {
         throw new Error('No se encontró la etapa "Ganado"');
@@ -84,7 +84,7 @@ export const useUpdateLead = () => {
         })
         .eq('id', leadId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error marking lead as won:', error);
@@ -110,7 +110,7 @@ export const useUpdateLead = () => {
         .from('pipeline_stages')
         .select('id')
         .eq('name', 'Perdido')
-        .single();
+        .maybeSingle();
 
       if (!stages) {
         throw new Error('No se encontró la etapa "Perdido"');
@@ -127,7 +127,7 @@ export const useUpdateLead = () => {
         })
         .eq('id', leadId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error marking lead as lost:', error);
