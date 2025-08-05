@@ -82,15 +82,15 @@ const navigationSections: NavSection[] = [
   }
 ];
 
-const adminSection: NavSection = {
+const getAdminSection = (isSuperAdmin: boolean): NavSection => ({
   title: "Administración",
   items: [
     { to: '/collaborators', label: 'Colaboradores', icon: UserPlus },
     { to: '/users', label: 'Gestión de Usuarios', icon: Users },
-    { to: '/comisiones', label: 'Comisiones', icon: DollarSign },
+    ...(isSuperAdmin ? [{ to: '/comisiones', label: 'Comisiones', icon: DollarSign }] : []),
     { to: '/integrations', label: 'Integraciones', icon: Zap },
   ]
-};
+});
 
 export function AttioSidebar() {
   const location = useLocation();
@@ -100,6 +100,7 @@ export function AttioSidebar() {
   const { leads } = useLeads();
   
   const isAdmin = role === 'admin' || role === 'superadmin';
+  const isSuperAdmin = role === 'superadmin';
 
   // Count new leads that need attention
   const newLeadsCount = leads.filter(lead => lead.status === 'NEW').length;
@@ -109,7 +110,7 @@ export function AttioSidebar() {
     return new Date(lead.created_at) >= today;
   }).length;
 
-  const allSections = [...navigationSections, ...(isAdmin ? [adminSection] : [])];
+  const allSections = [...navigationSections, ...(isAdmin ? [getAdminSection(isSuperAdmin)] : [])];
 
   return (
     <aside className="w-60 bg-neutral-100 border-r border-neutral-100 flex flex-col">
