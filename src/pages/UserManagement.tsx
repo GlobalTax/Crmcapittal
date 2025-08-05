@@ -12,7 +12,7 @@ import { useHasPermission, PERMISSIONS } from '@/hooks/usePermissions';
 const UserManagementPage = () => {
   const { role, loading } = useUserRole();
   const { data: canReadUsers, isLoading: loadingPermissions } = useHasPermission(PERMISSIONS.USERS_READ);
-  const { data: canManagePermissions, isLoading: loadingPermissionsCheck } = useHasPermission(PERMISSIONS.USERS_DELETE);
+  const { data: canManagePermissions, isLoading: loadingPermissionsCheck } = useHasPermission(PERMISSIONS.USERS_MANAGE_ROLES);
 
   if (loading || loadingPermissions || loadingPermissionsCheck) {
     return <LoadingSkeleton />;
