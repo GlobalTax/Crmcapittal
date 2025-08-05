@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,14 +12,22 @@ import { useProposals } from '@/hooks/useProposals';
 import { useContacts } from '@/hooks/useContacts';
 import { useCompanies } from '@/hooks/useCompanies';
 import { usePracticeAreas } from '@/hooks/usePracticeAreas';
+import { useLeads } from '@/hooks/useLeads';
 import { CreateProposalData } from '@/types/Proposal';
 
 interface CreateProposalDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  leadId?: string;
+  prefilledData?: Partial<CreateProposalData>;
 }
 
-export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({ isOpen, onClose }) => {
+export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({ 
+  isOpen, 
+  onClose, 
+  leadId, 
+  prefilledData 
+}) => {
   const [formData, setFormData] = useState<CreateProposalData>({
     title: '',
     description: '',
@@ -30,15 +39,18 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({ isOp
     proposal_type: 'punctual',
     valid_until: '',
     terms_and_conditions: '',
-    notes: ''
+    notes: '',
+    ...prefilledData
   });
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { createProposal } = useProposals();
   const { contacts } = useContacts();
   const { companies } = useCompanies();
   const { practiceAreas } = usePracticeAreas();
+  const { updateLead } = useLeads();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,13 +66,28 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({ isOp
 
     setLoading(true);
     try {
-      await createProposal({
+      const proposal = await createProposal({
         ...formData,
         contact_id: formData.contact_id || undefined,
         company_id: formData.company_id || undefined,
         practice_area_id: formData.practice_area_id || undefined,
         valid_until: formData.valid_until || undefined,
       });
+      
+      // Si la propuesta se creó desde un lead, actualizar el estado del lead
+      if (leadId) {
+        try {
+          updateLead({ 
+            id: leadId, 
+            updates: { 
+              stage: 'propuesta',
+              status: 'QUALIFIED'
+            } 
+          });
+        } catch (error) {
+          console.warn('Error updating lead status:', error);
+        }
+      }
       
       setFormData({
         title: '',
@@ -75,9 +102,26 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({ isOp
         terms_and_conditions: '',
         notes: ''
       });
+      
+      toast({
+        title: "¡Propuesta creada!",
+        description: "Redirigiendo a la página de propuestas...",
+      });
+      
       onClose();
+      
+      // Redireccionar a la página de propuestas
+      setTimeout(() => {
+        navigate('/proposals');
+      }, 500);
+      
     } catch (error) {
       console.error('Error creating proposal:', error);
+      toast({
+        title: "Error",
+        description: "Error al crear la propuesta",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

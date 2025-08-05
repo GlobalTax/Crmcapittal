@@ -27,6 +27,14 @@ export const LeadProposalTab = ({ lead }: LeadProposalTabProps) => {
     setIsProposalDialogOpen(true);
   };
 
+  // Datos prellenados para la propuesta basados en el lead
+  const prefilledProposalData = {
+    title: `Propuesta de Servicios - ${lead.name}`,
+    description: `Propuesta de servicios para ${lead.name}${lead.company ? ` de ${lead.company}` : ''}`,
+    total_amount: lead.deal_value || 0,
+    notes: `Lead origen: ${lead.name} | Fuente: ${lead.source} | Tipo de servicio: ${lead.service_type}`
+  };
+
   const handleSendProposal = () => {
     toast.info('Enviar propuesta', {
       description: 'Se abrirá el compositor de email con la propuesta adjunta'
@@ -262,7 +270,9 @@ export const LeadProposalTab = ({ lead }: LeadProposalTabProps) => {
       {/* Modal de Propuesta */}
       <CreateProposalDialog 
         isOpen={isProposalDialogOpen} 
-        onClose={() => setIsProposalDialogOpen(false)} 
+        onClose={() => setIsProposalDialogOpen(false)}
+        leadId={lead.id}
+        prefilledData={prefilledProposalData}
       />
     </div>
   );
