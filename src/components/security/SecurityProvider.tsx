@@ -63,24 +63,12 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }[operation] || { maxRequests: 50, windowMinutes: 1 };
 
     try {
-      // Use basic database rate limiting for now
-      const { data, error } = await supabase.rpc('check_rate_limit', {
-        p_identifier: identifier,
-        p_max_requests: config.maxRequests,
-        p_window_minutes: config.windowMinutes
+      // Fallback to local rate limiting for now (database function needs proper parameters)
+      return rateLimiter.isAllowed({
+        windowMs: config.windowMinutes * 60 * 1000,
+        maxRequests: config.maxRequests,
+        identifier: `${operation}:${identifier}`
       });
-
-      if (error) {
-        console.error('Rate limit check failed:', error);
-        // Fallback to local rate limiting
-        return rateLimiter.isAllowed({
-          windowMs: config.windowMinutes * 60 * 1000,
-          maxRequests: config.maxRequests,
-          identifier: `${operation}:${identifier}`
-        });
-      }
-
-      return data;
     } catch (error) {
       console.error('Enhanced rate limit check failed:', error);
       // Fallback to local rate limiting
@@ -97,7 +85,13 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     validateEmail,
     validateUrl,
     logSecurityEvent: async (type: string, description: string, metadata?: any) => {
-      await logSecurityEvent('', type, metadata || {}, 'medium');
+      // Use enhanced security logging
+      await supabase.rpc('enhanced_log_security_event', {
+        p_event_type: type,
+        p_severity: 'medium',
+        p_description: description,
+        p_metadata: metadata || {}
+      });
     },
     checkRateLimit,
     isSecureEnvironment

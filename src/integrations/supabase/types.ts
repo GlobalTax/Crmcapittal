@@ -7812,6 +7812,17 @@ export type Database = {
           },
         ]
       }
+      security_events_summary: {
+        Row: {
+          event_count: number | null
+          event_type: string | null
+          hour: string | null
+          severity: string | null
+          unique_ips: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
       security_status_summary: {
         Row: {
           completed_items: number | null

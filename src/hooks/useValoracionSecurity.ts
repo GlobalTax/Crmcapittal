@@ -19,10 +19,7 @@ export const useValoracionSecurity = () => {
         details,
         severity,
         user_id: user.data.user?.id,
-        ip_address: await fetch('https://api.ipify.org?format=json')
-          .then(res => res.json())
-          .then(data => data.ip)
-          .catch(() => 'unknown'),
+        ip_address: null, // IP will be captured server-side
         user_agent: navigator.userAgent
       });
     } catch (error) {
