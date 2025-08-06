@@ -325,7 +325,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
           onValueChange={setActiveTab}
           className="h-full flex flex-col"
         >
-          <TabsList className="grid w-full grid-cols-6 mx-6 mt-4">
+          <TabsList className="grid w-full grid-cols-5 mx-6 mt-4">
             <TabsTrigger value="overview" className="transition-all duration-200">
               Resumen
             </TabsTrigger>
@@ -340,9 +340,6 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             </TabsTrigger>
             <TabsTrigger value="history" className="transition-all duration-200">
               Historia
-            </TabsTrigger>
-            <TabsTrigger value="proposal" className="transition-all duration-200">
-              Propuesta
             </TabsTrigger>
           </TabsList>
 
@@ -661,190 +658,6 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
               <HistorySection lead={lead} />
             </TabsContent>
 
-            <TabsContent value="proposal" className="h-full overflow-y-auto animate-fade-in">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Propuesta de Honorarios */}
-                <Card className="hover-lift transition-all duration-300">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Euro className="h-5 w-5 text-green-500" />
-                      Propuesta de Honorarios
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm font-medium mb-2">Tipo de Servicio:</div>
-                      <div className="text-lg font-semibold text-primary">
-                        {getServiceTypeLabel(lead.service_type)}
-                      </div>
-                    </div>
-                    
-                    {lead.service_type === 'mandato_venta' && (
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                          <span className="font-medium">Honorarios de éxito:</span>
-                          <span className="text-lg font-bold text-blue-600">5% + IVA</span>
-                        </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium">Honorarios mínimos:</span>
-                          <span className="text-lg font-bold">€15,000</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          * Los honorarios se calculan sobre el precio final de venta
-                        </div>
-                      </div>
-                    )}
-
-                    {lead.service_type === 'mandato_compra' && (
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                          <span className="font-medium">Honorarios de éxito:</span>
-                          <span className="text-lg font-bold text-green-600">3% + IVA</span>
-                        </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium">Honorarios mínimos:</span>
-                          <span className="text-lg font-bold">€12,000</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          * Los honorarios se calculan sobre el precio de adquisición
-                        </div>
-                      </div>
-                    )}
-
-                    {lead.service_type === 'valoracion_empresa' && (
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                          <span className="font-medium">Honorarios fijos:</span>
-                          <span className="text-lg font-bold text-purple-600">€5,000 - €15,000</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          * Precio según complejidad y tamaño de la empresa
-                        </div>
-                      </div>
-                    )}
-
-                    <Separator />
-                    
-                    <div className="space-y-2">
-                      <Button className="w-full" size="sm">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Generar Propuesta Personalizada
-                      </Button>
-                      <Button variant="outline" className="w-full" size="sm">
-                        <Send className="h-4 w-4 mr-2" />
-                        Enviar por Email
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Documentos y Mandatos */}
-                <Card className="hover-lift transition-all duration-300">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <PaperclipIcon className="h-5 w-5 text-blue-500" />
-                      Documentos y Mandatos
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <div className="text-sm font-medium mb-2">Estado del Mandato:</div>
-                      <Badge variant="secondary">Pendiente de Creación</Badge>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <Button variant="outline" className="w-full justify-start" size="sm">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Generar Mandato de {lead.service_type === 'mandato_venta' ? 'Venta' : 
-                          lead.service_type === 'mandato_compra' ? 'Compra' : 'Valoración'}
-                      </Button>
-                      
-                      <Button variant="outline" className="w-full justify-start" size="sm">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Carta de Presentación
-                      </Button>
-                      
-                      <Button variant="outline" className="w-full justify-start" size="sm">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Condiciones Generales
-                      </Button>
-                      
-                      <Button variant="outline" className="w-full justify-start" size="sm">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Teaser / Memorándum
-                      </Button>
-                    </div>
-
-                    <Separator />
-                    
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">Documentos Adjuntos:</div>
-                      <div className="text-sm text-muted-foreground">
-                        No hay documentos adjuntos
-                      </div>
-                      <Button variant="outline" size="sm">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Subir Documento
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Timeline del Proceso */}
-                <Card className="lg:col-span-2 hover-lift transition-all duration-300">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-purple-500" />
-                      Timeline del Proceso
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-4 p-3 rounded-lg bg-blue-50">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <div className="font-medium">Lead Creado</div>
-                          <div className="text-sm text-muted-foreground">
-                            {format(new Date(lead.created_at), 'dd MMM yyyy, HH:mm', { locale: es })}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start gap-4 p-3 rounded-lg bg-yellow-50">
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <div className="font-medium">Propuesta Pendiente</div>
-                          <div className="text-sm text-muted-foreground">
-                            Generar y enviar propuesta de honorarios
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start gap-4 p-3 rounded-lg bg-gray-50">
-                        <div className="w-3 h-3 bg-gray-400 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <div className="font-medium text-muted-foreground">Mandato por Firmar</div>
-                          <div className="text-sm text-muted-foreground">
-                            Pendiente de aceptación de propuesta
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-start gap-4 p-3 rounded-lg bg-gray-50">
-                        <div className="w-3 h-3 bg-gray-400 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <div className="font-medium text-muted-foreground">Proceso Activo</div>
-                          <div className="text-sm text-muted-foreground">
-                            Inicio del proceso de {lead.service_type === 'mandato_venta' ? 'venta' : 
-                              lead.service_type === 'mandato_compra' ? 'búsqueda' : 'valoración'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
           </div>
         </Tabs>
       </div>
