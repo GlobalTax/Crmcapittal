@@ -32,7 +32,7 @@ export function useLeadActions() {
       // TODO: Implement conversion logic to deals table
       const { error } = await supabase
         .from('leads')
-        .update({ status: 'CONVERTED' })
+        .update({ status: 'QUALIFIED' })
         .eq('id', leadId);
 
       if (error) throw error;
