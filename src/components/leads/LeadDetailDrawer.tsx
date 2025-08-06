@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Lead } from '@/types/Lead';
@@ -37,6 +38,9 @@ interface LeadDetailDrawerProps {
 export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: LeadDetailDrawerProps) => {
   const [activeTab, setActiveTab] = useState('resumen');
   const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
+
+  // Log para depuración - verificar que el componente se está re-renderizando
+  console.log('LeadDetailDrawer renderizado - Pestaña Propuesta eliminada:', new Date().toISOString());
 
   const handleActionClick = (action: string) => {
     if (!lead) return;
@@ -88,19 +92,17 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
     };
   }, [open]);
 
-  // Get stage color based on pipeline stage
+  // Get stage color based on pipeline stage - LIMPIADO SIN PROPUESTA
   const getStageColor = (stage: string) => {
     const colors: Record<string, string> = {
       'Pipeline': 'hsl(213, 94%, 68%)',
       'Cualificado': 'hsl(42, 100%, 50%)',
-      'Propuesta': 'hsl(280, 100%, 70%)',
       'Negociación': 'hsl(30, 100%, 50%)',
       'Ganado': 'hsl(158, 100%, 38%)',
       'Perdido': 'hsl(4, 86%, 63%)'
     };
     return colors[stage] || 'hsl(210, 11%, 71%)';
   };
-
 
   if (!lead) return null;
 
@@ -232,25 +234,25 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                 </TabsList>
               </div>
 
-              {/* Tab content with scroll */}
+              {/* Tab content with scroll - SIN PESTAÑA PROPUESTA */}
               <div className="flex-1 overflow-y-auto p-6">
                 <TabsContent value="resumen" className="mt-0">
                   <LeadOverviewTab lead={lead} />
                 </TabsContent>
                 
-                 <TabsContent value="actividades" className="mt-0">
-                   <div className="space-y-6">
-                     <LeadUnifiedActivityTab lead={lead} />
-                     <details className="group">
-                       <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                         Ver timeline tradicional
-                       </summary>
-                       <div className="mt-4">
-                         <LeadActivityTab lead={lead} />
-                       </div>
-                     </details>
-                   </div>
-                 </TabsContent>
+                <TabsContent value="actividades" className="mt-0">
+                  <div className="space-y-6">
+                    <LeadUnifiedActivityTab lead={lead} />
+                    <details className="group">
+                      <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                        Ver timeline tradicional
+                      </summary>
+                      <div className="mt-4">
+                        <LeadActivityTab lead={lead} />
+                      </div>
+                    </details>
+                  </div>
+                </TabsContent>
                 
                 <TabsContent value="notas" className="mt-0">
                   <LeadNotesTab lead={lead} />
