@@ -27,15 +27,15 @@
     --input: 220 9% 91%;
     --ring: 220 13% 42%;
     
-    /* Sidebar specific colors - Professional style */
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 62%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 0 0% 62%;
+    /* Sidebar specific colors - Attio style */
+    --sidebar-background: 220 9% 98%;      /* #FBFBFB - Specific gray */
+    --sidebar-foreground: 220 5% 46%;      /* Neutral gray text */
+    --sidebar-primary: 220 13% 42%;        /* Brand color */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 9% 92%;          /* Subtle accent */
+    --sidebar-accent-foreground: 220 9% 9%;
+    --sidebar-border: 220 9% 91%;          /* Light border */
+    --sidebar-ring: 220 13% 42%;
     
     /* Professional pipeline stage colors */
     --stage-lead: 220 13% 42%;          /* #6b7280 - Professional gray */

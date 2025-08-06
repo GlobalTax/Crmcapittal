@@ -77,7 +77,7 @@ export function AttioTopbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-neutral-0/95 backdrop-blur supports-[backdrop-filter]:bg-neutral-0/60 shadow-sm">
+      <header className="sticky top-0 z-40 w-full border-b border-border bg-white shadow-sm">
         <div className="flex h-16 items-center justify-between px-6 py-3">
           {/* Left: Breadcrumb/Title + Search */}
           <div className="flex items-center gap-4">
