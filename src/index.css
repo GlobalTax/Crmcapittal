@@ -28,15 +28,15 @@
     --input: 214 32% 91%;
     --ring: 214 84% 56%;
     
-    /* Sidebar specific colors */
-    --sidebar-background: 215 28% 17%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 214 84% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 25% 27%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 215 25% 27%;
-    --sidebar-ring: 214 84% 56%;
+    /* Sidebar specific colors - Attio style */
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 62%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 0 0% 62%;
     
     /* Status colors */
     --success: 142 76% 36%;
