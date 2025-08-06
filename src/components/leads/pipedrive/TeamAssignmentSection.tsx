@@ -95,11 +95,11 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
                     Usuarios
                   </div>
-                  {users.map((user) => (
-                    <SelectItem key={user.user_id} value={`user_${user.user_id}`}>
-                      👤 {user.first_name} {user.last_name} ({user.role})
-                    </SelectItem>
-                  ))}
+                   {users.map((user) => (
+                     <SelectItem key={`user_${user.user_id}`} value={`user_${user.user_id}`}>
+                       👤 {user.first_name} {user.last_name} ({user.role})
+                     </SelectItem>
+                   ))}
                 </>
               )}
 
@@ -109,11 +109,11 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
                     Equipos
                   </div>
-                  {teams.map((team) => (
-                    <SelectItem key={team.id} value={`team_${team.id}`}>
-                      👥 {team.name} ({team.member_count} miembros)
-                    </SelectItem>
-                  ))}
+                   {teams.map((team) => (
+                     <SelectItem key={`team_${team.id}`} value={`team_${team.id}`}>
+                       👥 {team.name} ({team.member_count} miembros)
+                     </SelectItem>
+                   ))}
                 </>
               )}
             </SelectContent>
