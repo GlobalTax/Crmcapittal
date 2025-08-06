@@ -40,7 +40,7 @@ const navigationSections: NavSection[] = [
     title: "Principal",
     items: [
       { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
-      { to: '/', label: 'Control Leads', icon: LayoutDashboard },
+      { to: '/leads', label: 'Control Leads', icon: LayoutDashboard },
       
       { to: '/contactos', label: 'Contactos', icon: Users },
       { to: '/empresas', label: 'Empresas', icon: Building2 },

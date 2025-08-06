@@ -44,6 +44,7 @@ const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
 const ActivityPage = lazy(() => import('@/pages/ActivityPage'));
+const LeadsPage = lazy(() => import('@/pages/LeadsPage'));
 
 
 const LoadingSkeleton = () => (
@@ -135,6 +136,16 @@ export const AppRoutes = () => {
           <Route path="/empresas/:id" element={<CompanyDetail />} />
           <Route path="/contactos" element={<ContactList />} />
           <Route path="/contactos/:id" element={<ContactDetail />} />
+
+          {/* Leads */}
+          <Route 
+            path="/leads" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadsPage />
+              </Suspense>
+            } 
+          />
 
           {/* Transacciones (Spanish routes) */}
           <Route path="/transacciones" element={<TransaccionesList />} />

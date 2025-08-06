@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOperations } from '@/hooks/useOperations';
-
+import { useLeadContacts } from '@/hooks/useLeadContacts';
 import { useNegocios } from '@/hooks/useNegocios';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
@@ -33,8 +33,7 @@ const EnhancedDashboard = React.memo(() => {
   
   const { role, loading: roleLoading } = useUserRole();
   const { operations, loading: operationsLoading } = useOperations();
-  const leads: any[] = []; // Leads functionality removed
-  const leadsLoading = false;
+  const { leads, isLoading: leadsLoading } = useLeadContacts();
   const { negocios, loading: negociosLoading } = useNegocios();
 
   const isLoading = roleLoading || operationsLoading || leadsLoading || negociosLoading;
@@ -85,7 +84,7 @@ const EnhancedDashboard = React.memo(() => {
         activities.push({
           id: `lead-${lead.id}`,
           type: 'user' as const,
-          description: `Nuevo lead "${lead.company_name || lead.name || 'Sin nombre'}" registrado`,
+          description: `Nuevo lead "${lead.company || lead.name || 'Sin nombre'}" registrado`,
           timestamp: new Date(lead.created_at || Date.now()),
           user: 'Sistema',
           priority: 'low' as const
@@ -185,7 +184,7 @@ const EnhancedDashboard = React.memo(() => {
                 <ConversionChart 
                   conversionRate={dashboardData.conversionRate}
                   totalLeads={leads.length}
-                  qualifiedLeads={leads.filter(l => l.status === 'QUALIFIED').length}
+                  qualifiedLeads={leads.filter(l => l.lead_status === 'QUALIFIED').length}
                 />
               </div>
             </div>
