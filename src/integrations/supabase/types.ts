@@ -166,7 +166,9 @@ export type Database = {
           end_date: string
           event_type: string
           id: string
+          lead_id: string | null
           location: string | null
+          mandate_id: string | null
           start_date: string
           status: string
           title: string
@@ -180,7 +182,9 @@ export type Database = {
           end_date: string
           event_type?: string
           id?: string
+          lead_id?: string | null
           location?: string | null
+          mandate_id?: string | null
           start_date: string
           status?: string
           title: string
@@ -194,14 +198,31 @@ export type Database = {
           end_date?: string
           event_type?: string
           id?: string
+          lead_id?: string | null
           location?: string | null
+          mandate_id?: string | null
           start_date?: string
           status?: string
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       campaigns: {
         Row: {

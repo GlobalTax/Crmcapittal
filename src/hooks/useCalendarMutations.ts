@@ -13,6 +13,8 @@ export interface CreateEventData {
   attendees?: any[];
   event_type: 'meeting' | 'call' | 'task' | 'appointment';
   status?: 'confirmed' | 'tentative' | 'cancelled';
+  lead_id?: string | null;
+  mandate_id?: string | null;
 }
 
 export const useCalendarMutations = () => {

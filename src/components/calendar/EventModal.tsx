@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, MapPin, Users } from 'lucide-react';
+import { CalendarIcon, Clock, MapPin, Users, Building, Target } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarEvent } from '@/hooks/useCalendarEvents';
 import { CreateEventData, useCalendarMutations } from '@/hooks/useCalendarMutations';
+import { useLeadsForSelection } from '@/hooks/useLeadsForSelection';
+import { useMandatesForSelection } from '@/hooks/useMandatesForSelection';
 import { cn } from '@/lib/utils';
 
 interface EventModalProps {
@@ -24,6 +26,8 @@ interface EventModalProps {
 
 export const EventModal = ({ open, onOpenChange, event, onEventSaved, defaultDate }: EventModalProps) => {
   const { createEvent, updateEvent, loading } = useCalendarMutations();
+  const { leads, loading: leadsLoading } = useLeadsForSelection();
+  const { mandates, loading: mandatesLoading } = useMandatesForSelection();
   const [startDate, setStartDate] = useState<Date | undefined>(defaultDate || new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(defaultDate || new Date());
   
@@ -33,11 +37,15 @@ export const EventModal = ({ open, onOpenChange, event, onEventSaved, defaultDat
       description: '',
       location: '',
       event_type: 'meeting',
-      status: 'confirmed'
+      status: 'confirmed',
+      lead_id: null,
+      mandate_id: null
     }
   });
 
   const eventType = watch('event_type');
+  const leadId = watch('lead_id');
+  const mandateId = watch('mandate_id');
 
   useEffect(() => {
     if (event) {
@@ -47,6 +55,8 @@ export const EventModal = ({ open, onOpenChange, event, onEventSaved, defaultDat
       setValue('location', event.location || '');
       setValue('event_type', event.event_type);
       setValue('status', event.status);
+      setValue('lead_id', event.lead_id || null);
+      setValue('mandate_id', event.mandate_id || null);
       setStartDate(new Date(event.start_date));
       setEndDate(new Date(event.end_date));
     } else {
@@ -127,6 +137,60 @@ export const EventModal = ({ open, onOpenChange, event, onEventSaved, defaultDat
                 <SelectItem value="appointment">📅 Cita</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="lead_selection">
+                <Building className="inline h-4 w-4 mr-1" />
+                Lead relacionado
+              </Label>
+              <Select 
+                value={leadId || ''} 
+                onValueChange={(value) => {
+                  setValue('lead_id', value || null);
+                  if (value) setValue('mandate_id', null); // Clear mandate if lead is selected
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar lead" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Sin lead</SelectItem>
+                  {leads.map((lead) => (
+                    <SelectItem key={lead.id} value={lead.id}>
+                      {lead.name} {lead.company_name && `(${lead.company_name})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="mandate_selection">
+                <Target className="inline h-4 w-4 mr-1" />
+                Mandato relacionado
+              </Label>
+              <Select 
+                value={mandateId || ''} 
+                onValueChange={(value) => {
+                  setValue('mandate_id', value || null);
+                  if (value) setValue('lead_id', null); // Clear lead if mandate is selected
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar mandato" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Sin mandato</SelectItem>
+                  {mandates.map((mandate) => (
+                    <SelectItem key={mandate.id} value={mandate.id}>
+                      {mandate.mandate_name} ({mandate.client_name})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

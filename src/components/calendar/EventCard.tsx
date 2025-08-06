@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Clock, MapPin, Edit, Trash2 } from 'lucide-react';
+import { Clock, MapPin, Edit, Trash2, Building, Target } from 'lucide-react';
 import { CalendarEvent } from '@/hooks/useCalendarEvents';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,6 +59,22 @@ export const EventCard = ({ event, onEdit, onDelete, compact = false }: EventCar
               </>
             )}
           </div>
+          {(event.lead_name || event.mandate_name) && (
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground mt-1">
+              {event.lead_name && (
+                <>
+                  <Building className="h-3 w-3" />
+                  <span className="truncate">{event.lead_name}</span>
+                </>
+              )}
+              {event.mandate_name && (
+                <>
+                  <Target className="h-3 w-3" />
+                  <span className="truncate">{event.mandate_name}</span>
+                </>
+              )}
+            </div>
+          )}
         </div>
         <Badge variant="secondary" className={cn("text-xs", getEventTypeColor(event.event_type))}>
           {event.event_type}
@@ -96,6 +112,20 @@ export const EventCard = ({ event, onEdit, onDelete, compact = false }: EventCar
                 <div className="flex items-center text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4 mr-2" />
                   <span>{event.location}</span>
+                </div>
+              )}
+
+              {event.lead_name && (
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Building className="h-4 w-4 mr-2" />
+                  <span>Lead: {event.lead_name}</span>
+                </div>
+              )}
+
+              {event.mandate_name && (
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Target className="h-4 w-4 mr-2" />
+                  <span>Mandato: {event.mandate_name}</span>
                 </div>
               )}
             </div>

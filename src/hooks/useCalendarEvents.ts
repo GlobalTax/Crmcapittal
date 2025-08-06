@@ -15,6 +15,11 @@ export interface CalendarEvent {
   status: 'confirmed' | 'tentative' | 'cancelled';
   created_at: string;
   updated_at: string;
+  lead_id?: string | null;
+  mandate_id?: string | null;
+  // Joined data
+  lead_name?: string;
+  mandate_name?: string;
 }
 
 export const useCalendarEvents = (month?: Date) => {
@@ -36,7 +41,11 @@ export const useCalendarEvents = (month?: Date) => {
 
         let query = supabase
           .from('calendar_events')
-          .select('*')
+          .select(`
+            *,
+            leads!lead_id(name),
+            buying_mandates!mandate_id(mandate_name)
+          `)
           .eq('user_id', user.id)
           .order('start_date', { ascending: true });
 
@@ -81,7 +90,11 @@ export const useCalendarEvents = (month?: Date) => {
 
       let query = supabase
         .from('calendar_events')
-        .select('*')
+        .select(`
+          *,
+          leads!lead_id(name),
+          buying_mandates!mandate_id(mandate_name)
+        `)
         .eq('user_id', user.id)
         .order('start_date', { ascending: true });
 
@@ -129,7 +142,11 @@ export const useUpcomingEvents = (limit: number = 5) => {
 
         const { data, error } = await supabase
           .from('calendar_events')
-          .select('*')
+          .select(`
+            *,
+            leads!lead_id(name),
+            buying_mandates!mandate_id(mandate_name)
+          `)
           .eq('user_id', user.id)
           .gte('start_date', new Date().toISOString())
           .order('start_date', { ascending: true })
