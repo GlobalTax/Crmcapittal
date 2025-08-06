@@ -3,7 +3,6 @@ import { Lead } from '@/types/Lead';
 import { PipedriveHeader } from './PipedriveHeader';
 import { PipelineStagesBar } from './PipelineStagesBar';
 import { SummarySection } from './SummarySection';
-import { FocusSection } from './FocusSection';
 import { PersonSection } from './PersonSection';
 import { TeamAssignmentSection } from './TeamAssignmentSection';
 import { PipedriveMainContent } from './PipedriveMainContent';
@@ -80,7 +79,6 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
         <div className="w-80 border-r border-border bg-muted/20 overflow-y-auto">
           <div className="p-4 space-y-0">
             <SummarySection lead={lead} />
-            <FocusSection lead={lead} />
             <TeamAssignmentSection lead={lead} />
             <PersonSection lead={lead} />
           </div>
