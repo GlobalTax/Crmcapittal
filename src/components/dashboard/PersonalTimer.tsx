@@ -1,9 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Clock, Play, Pause, Square } from 'lucide-react';
 import { useTimeEntries } from '@/hooks/useTimeEntries';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface PersonalTimerProps {
@@ -14,9 +19,67 @@ export const PersonalTimer = ({ className }: PersonalTimerProps) => {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
+  const [description, setDescription] = useState('');
+  const [entityType, setEntityType] = useState<'general' | 'lead' | 'transaccion' | 'valoracion'>('general');
+  const [entityId, setEntityId] = useState<string>('');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
+  const { user } = useAuth();
   const { createTimeEntry, timeEntries, isCreating } = useTimeEntries();
+
+  // Fetch leads
+  const { data: leads = [] } = useQuery({
+    queryKey: ['leads-for-timer'],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('leads')
+        .select('id, name, company_name')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user
+  });
+
+  // Fetch transacciones
+  const { data: transacciones = [] } = useQuery({
+    queryKey: ['transacciones-for-timer'],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('transacciones')
+        .select('id, nombre_transaccion, company:companies(name)')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user
+  });
+
+  // Fetch valoraciones
+  const { data: valoraciones = [] } = useQuery({
+    queryKey: ['valoraciones-for-timer'],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('valoraciones')
+        .select('id, company_name, client_name')
+        .eq('assigned_to', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user
+  });
 
   // Check if there's an active timer from database
   const activeEntry = timeEntries.find(entry => !entry.end_time);
@@ -69,6 +132,12 @@ export const PersonalTimer = ({ className }: PersonalTimerProps) => {
       return;
     }
 
+    // Validation
+    if (!description.trim()) {
+      toast.error('Agrega una descripción antes de iniciar');
+      return;
+    }
+
     // Start new timer
     const now = new Date();
     setStartTime(now);
@@ -76,12 +145,25 @@ export const PersonalTimer = ({ className }: PersonalTimerProps) => {
     setIsRunning(true);
 
     try {
-      await createTimeEntry({
-        activity_type: 'general',
-        description: 'Trabajo general',
+      const timeEntryData: any = {
+        activity_type: entityType,
+        description: description.trim(),
         start_time: now.toISOString(),
-        is_billable: false
-      });
+        is_billable: entityType !== 'general'
+      };
+
+      // Add entity-specific IDs
+      if (entityType === 'lead' && entityId) {
+        timeEntryData.lead_id = entityId;
+      } else if (entityType === 'transaccion' && entityId) {
+        timeEntryData.operation_id = entityId;
+      } else if (entityType === 'valoracion' && entityId) {
+        // Note: valoraciones don't have a direct field in time_entries
+        // We'll use the description to include valoracion info
+        timeEntryData.description = `${description} (Valoración: ${valoraciones.find(v => v.id === entityId)?.company_name})`;
+      }
+
+      await createTimeEntry(timeEntryData);
     } catch (error) {
       console.error('Error starting timer:', error);
       setIsRunning(false);
@@ -118,7 +200,10 @@ export const PersonalTimer = ({ className }: PersonalTimerProps) => {
 
       setSeconds(0);
       setStartTime(null);
-      toast.success(`Timer parado. Registradas ${duration} minutos`);
+      setDescription('');
+      setEntityType('general');
+      setEntityId('');
+      toast.success(`Timer parado. Registrados ${duration} minutos`);
     } catch (error) {
       console.error('Error stopping timer:', error);
       toast.error('Error al parar el timer');
@@ -159,6 +244,70 @@ export const PersonalTimer = ({ className }: PersonalTimerProps) => {
             {isRunning ? 'En curso' : 'Detenido'}
           </span>
         </div>
+
+        {/* Configuration */}
+        {!isRunning && !activeEntry && (
+          <div className="space-y-3 pt-3 border-t">
+            <div className="space-y-2">
+              <Label htmlFor="entity-type" className="text-xs">Asignar tiempo a:</Label>
+              <Select value={entityType} onValueChange={(value: any) => {
+                setEntityType(value);
+                setEntityId('');
+              }}>
+                <SelectTrigger id="entity-type" className="h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="general">Trabajo general</SelectItem>
+                  <SelectItem value="lead">Lead</SelectItem>
+                  <SelectItem value="transaccion">Transacción</SelectItem>
+                  <SelectItem value="valoracion">Valoración</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {entityType !== 'general' && (
+              <div className="space-y-2">
+                <Label htmlFor="entity-select" className="text-xs">
+                  Seleccionar {entityType}:
+                </Label>
+                <Select value={entityId} onValueChange={setEntityId}>
+                  <SelectTrigger id="entity-select" className="h-8">
+                    <SelectValue placeholder={`Elegir ${entityType}...`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {entityType === 'lead' && leads.map((lead) => (
+                      <SelectItem key={lead.id} value={lead.id}>
+                        {lead.name} {lead.company_name && `(${lead.company_name})`}
+                      </SelectItem>
+                    ))}
+                    {entityType === 'transaccion' && transacciones.map((transaccion) => (
+                      <SelectItem key={transaccion.id} value={transaccion.id}>
+                        {transaccion.nombre_transaccion}
+                      </SelectItem>
+                    ))}
+                    {entityType === 'valoracion' && valoraciones.map((valoracion) => (
+                      <SelectItem key={valoracion.id} value={valoracion.id}>
+                        {valoracion.company_name} - {valoracion.client_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-xs">Descripción:</Label>
+              <Textarea
+                id="description"
+                placeholder="¿En qué vas a trabajar?"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="resize-none h-16 text-sm"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Controls */}
         <div className="flex items-center gap-2">
