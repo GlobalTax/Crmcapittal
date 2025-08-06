@@ -6,19 +6,20 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 relative overflow-hidden",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-transparent",
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-transparent",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5",
-        outline: "border-2 border-border bg-background hover:bg-accent hover:text-accent-foreground shadow-md hover:shadow-lg hover:border-primary/30 transform hover:-translate-y-0.5",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 border border-border/50",
-        ghost: "hover:bg-accent hover:text-accent-foreground transition-colors duration-200",
-        link: "text-primary underline-offset-4 hover:underline transition-colors duration-200",
-        success: "bg-success text-success-foreground hover:bg-success/90 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5",
-        warning: "bg-warning text-warning-foreground hover:bg-warning/90 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+        primary: "bg-blue-600 text-white hover:bg-blue-700",
+        default: "bg-blue-600 text-white hover:bg-blue-700",
+        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+        ghost: "hover:bg-gray-100 text-gray-700",
+        // Legacy variants mapped to new ones for transition
+        outline: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+        destructive: "bg-blue-600 text-white hover:bg-blue-700",
+        link: "hover:bg-gray-100 text-gray-700",
+        success: "bg-blue-600 text-white hover:bg-blue-700",
+        warning: "bg-blue-600 text-white hover:bg-blue-700"
       },
       size: {
         default: "h-10 px-4 py-2",

@@ -330,7 +330,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
           </div>
           
           <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit">

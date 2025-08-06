@@ -8,12 +8,12 @@ const headingVariants = cva(
   {
     variants: {
       variant: {
-        h1: "text-lg font-semibold text-gray-900",
-        h2: "text-base font-medium text-gray-600",
-        h3: "text-sm font-semibold text-gray-900",
-        h4: "text-sm font-medium text-gray-600",
-        h5: "text-sm font-normal text-gray-500",
-        h6: "text-xs font-normal text-gray-500"
+        h1: "text-2xl font-semibold text-gray-900",
+        h2: "text-xl font-medium text-gray-900",
+        h3: "text-lg font-medium text-gray-800",
+        h4: "text-base font-medium text-gray-800",
+        h5: "text-sm font-medium text-gray-700",
+        h6: "text-sm font-normal text-gray-700"
       },
       color: {
         default: "text-foreground",
@@ -35,10 +35,10 @@ const textVariants = cva(
   {
     variants: {
       variant: {
-        body: "text-base text-gray-900",
-        small: "text-sm text-gray-500",
-        xs: "text-xs text-gray-500",
-        large: "text-lg text-gray-900"
+        body: "text-base text-gray-700",
+        small: "text-sm text-gray-600",
+        xs: "text-xs text-gray-600",
+        large: "text-lg text-gray-700"
       },
       color: {
         default: "text-foreground",

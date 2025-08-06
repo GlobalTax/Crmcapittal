@@ -85,7 +85,7 @@ export const ManagerPhotoUpload = ({
         {previewUrl && (
           <Button
             size="sm"
-            variant="destructive"
+            variant="primary"
             className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
             onClick={clearPreview}
           >
@@ -97,7 +97,7 @@ export const ManagerPhotoUpload = ({
       <div className="flex gap-2">
         <Button
           size="sm"
-          variant="outline"
+          variant="secondary"
           disabled={uploading}
           className="relative overflow-hidden"
         >

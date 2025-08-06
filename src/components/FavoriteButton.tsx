@@ -63,7 +63,7 @@ export const FavoriteButton = ({ operationId, size = 'sm' }: FavoriteButtonProps
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="outline"
+              variant="secondary"
               size={size}
               disabled={true}
               className="opacity-60 cursor-not-allowed"
@@ -84,7 +84,7 @@ export const FavoriteButton = ({ operationId, size = 'sm' }: FavoriteButtonProps
 
   return (
     <Button
-      variant={isCurrentlyFavorite ? "default" : "outline"}
+      variant={isCurrentlyFavorite ? "default" : "secondary"}
       size={size}
       onClick={handleToggleFavorite}
       disabled={loading}

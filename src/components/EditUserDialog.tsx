@@ -395,7 +395,7 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
                       <Button
                         type="button"
                         size="sm"
-                        variant="destructive"
+                        variant="primary"
                         className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0"
                         onClick={clearPhoto}
                       >
@@ -407,7 +407,7 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
                   <Button
                     type="button"
                     size="sm"
-                    variant="outline"
+                    variant="secondary"
                     className="relative overflow-hidden"
                   >
                     <input
@@ -425,7 +425,7 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
           )}
 
           <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="secondary" onClick={onClose}>
               Cancelar
             </Button>
             <Button type="submit" disabled={updateUserMutation.isPending}>

@@ -62,7 +62,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Recargar página
             </Button>
             <Button 
-              variant="outline"
+              variant="secondary"
               onClick={() => this.setState({ hasError: false, error: undefined })}
             >
               Intentar de nuevo

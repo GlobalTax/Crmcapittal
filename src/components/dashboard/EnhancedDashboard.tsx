@@ -156,11 +156,11 @@ const EnhancedDashboard = React.memo(() => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <DashboardHeader role={role} />
       
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="container mx-auto px-4 py-8 gap-8 flex flex-col">
         {/* KPI Metrics */}
         <section className="animate-fade-in">
           <KPIMetrics metrics={dashboardData.kpiMetrics} />
@@ -170,7 +170,7 @@ const EnhancedDashboard = React.memo(() => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Left Column - Charts and Analytics */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 gap-6 flex flex-col">
             
             {/* Charts Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -205,7 +205,7 @@ const EnhancedDashboard = React.memo(() => {
           </div>
 
           {/* Right Column - Activity and Actions */}
-          <div className="space-y-6">
+          <div className="gap-6 flex flex-col">
             
             {/* Reminders Dashboard */}
             <div className="animate-fade-in delay-500">
@@ -225,36 +225,36 @@ const EnhancedDashboard = React.memo(() => {
             {/* Portfolio Summary - Admin Only */}
             {(role === 'admin' || role === 'superadmin') && (
               <div className="animate-fade-in delay-700">
-                <DashboardCard title="Resumen Portfolio" icon={BarChart3}>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Valor Total</span>
-                      <span className="font-bold text-success">
-                        €{(dashboardData.totalPortfolioValue / 1000000).toFixed(1)}M
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Operaciones Activas</span>
-                      <span className="font-semibold text-primary">
-                        {dashboardData.availableOperations.length}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">En Proceso</span>
-                      <span className="font-semibold text-warning">
-                        {dashboardData.inProcessOperations.length}
-                      </span>
-                    </div>
-                    
-                    <div className="pt-3 border-t border-border">
-                      <div className="text-xs text-muted-foreground text-center">
-                        Tasa de conversión: {dashboardData.conversionRate.toFixed(1)}%
-                      </div>
-                    </div>
-                  </div>
-                </DashboardCard>
+                 <DashboardCard title="Resumen Portfolio" icon={BarChart3}>
+                   <div className="gap-4 flex flex-col">
+                     <div className="flex justify-between items-center">
+                       <span className="text-base text-gray-700">Valor Total</span>
+                       <span className="font-semibold text-gray-900">
+                         €{(dashboardData.totalPortfolioValue / 1000000).toFixed(1)}M
+                       </span>
+                     </div>
+                     
+                     <div className="flex justify-between items-center">
+                       <span className="text-base text-gray-700">Operaciones Activas</span>
+                       <span className="font-semibold text-gray-900">
+                         {dashboardData.availableOperations.length}
+                       </span>
+                     </div>
+                     
+                     <div className="flex justify-between items-center">
+                       <span className="text-base text-gray-700">En Proceso</span>
+                       <span className="font-semibold text-gray-900">
+                         {dashboardData.inProcessOperations.length}
+                       </span>
+                     </div>
+                     
+                     <div className="pt-4 border-t border-gray-200">
+                       <div className="text-sm text-gray-600 text-center">
+                         Tasa de conversión: {dashboardData.conversionRate.toFixed(1)}%
+                       </div>
+                     </div>
+                   </div>
+                 </DashboardCard>
               </div>
             )}
 

@@ -260,7 +260,7 @@ ${formData.description}
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
