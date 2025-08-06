@@ -22,6 +22,18 @@ export const getProbability = (stage: string): number => {
   return stageProbabilities[stage] || 0;
 };
 
+// Valid stage names from pipeline
+const VALID_STAGES = [
+  'New Lead',
+  'Qualified', 
+  'NDA Sent',
+  'NDA Signed',
+  'Info Shared',
+  'Negotiation',
+  'Mandate Signed',
+  'Closed Lost'
+] as const;
+
 // Deal Schema with custom validations
 export const DealSchema = z.object({
   id: z.string().min(1, 'ID es requerido'),
@@ -32,16 +44,7 @@ export const DealSchema = z.object({
   sector: z.string().min(1, 'Sector es requerido'),
   evMin: z.number().min(0, 'EV mínimo debe ser mayor o igual a 0'),
   evMax: z.number().min(0, 'EV máximo debe ser mayor o igual a 0'),
-  stage: z.enum([
-    'New Lead',
-    'Qualified', 
-    'NDA Sent',
-    'NDA Signed',
-    'Info Shared',
-    'Negotiation',
-    'Mandate Signed',
-    'Closed Lost'
-  ], {
+  stage: z.enum(VALID_STAGES, {
     errorMap: () => ({ message: 'Stage inválido' })
   }),
   probabilityPct: z.number().min(0).max(100, 'Probabilidad debe estar entre 0 y 100'),

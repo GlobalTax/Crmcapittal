@@ -1,0 +1,101 @@
+{
+  "name": "M&A Pipeline",
+  "description": "Pipeline oficial para gestión de mandatos buy-side y sell-side",
+  "stages": [
+    {
+      "id": 1,
+      "name": "New Lead",
+      "description": "Captura inicial (web, referral, evento)",
+      "probabilityPct": 5,
+      "order": 1,
+      "conditionToAdvance": "Lead asignado",
+      "automation": "Slack → BD asignado",
+      "color": "#ef4444",
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "name": "Qualified",
+      "description": "Llamada pre-screen (sector, EV, motivación)",
+      "probabilityPct": 15,
+      "order": 2,
+      "conditionToAdvance": "Campos Mandate Type, EV Range completados",
+      "automation": "Crear tarea 'Enviar NDA'",
+      "color": "#f97316",
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "name": "NDA Sent",
+      "description": "NDA enviado vía DocuSign",
+      "probabilityPct": 25,
+      "order": 3,
+      "conditionToAdvance": "Firma",
+      "automation": "Recordatorio 72 h",
+      "color": "#eab308",
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "name": "NDA Signed",
+      "description": "NDA firmado",
+      "probabilityPct": 30,
+      "order": 4,
+      "conditionToAdvance": "Teaser / Search Brief enviado",
+      "automation": "Stage cambia auto (webhook)",
+      "color": "#84cc16",
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "name": "Info Shared",
+      "description": "Teaser (sell) o Brief (buy) + call management",
+      "probabilityPct": 40,
+      "order": 5,
+      "conditionToAdvance": "Reunión hecha / IOI solicitada",
+      "automation": "Crear Zoom link + tarea",
+      "color": "#06b6d4",
+      "isActive": true
+    },
+    {
+      "id": 6,
+      "name": "Negotiation",
+      "description": "Iterar borrador de Mandato",
+      "probabilityPct": 70,
+      "order": 6,
+      "conditionToAdvance": "Versión final aceptada",
+      "automation": "Reminder cada 5 d sin feedback",
+      "color": "#3b82f6",
+      "isActive": true
+    },
+    {
+      "id": 7,
+      "name": "Mandate Signed",
+      "description": "Mandato firmado",
+      "probabilityPct": 100,
+      "order": 7,
+      "conditionToAdvance": "Firma DocuSign",
+      "automation": "Crear Deal en pipeline 'Execution'",
+      "color": "#22c55e",
+      "isActive": true
+    },
+    {
+      "id": 8,
+      "name": "Closed Lost",
+      "description": "Descualificado o rechazo",
+      "probabilityPct": 0,
+      "order": 8,
+      "conditionToAdvance": "—",
+      "automation": "Motivo de pérdida obligatorio",
+      "color": "#6b7280",
+      "isActive": true
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "createdAt": "2025-01-08T10:00:00Z",
+    "updatedAt": "2025-01-08T10:00:00Z",
+    "defaultStage": "New Lead",
+    "finalStages": ["Mandate Signed", "Closed Lost"]
+  }
+}
