@@ -33,6 +33,7 @@ serve(async (req) => {
 
     const clientId = Deno.env.get('EINFORMA_CLIENT_ID');
     const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
+    const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://developers.einforma.com';
 
     // Check if credentials are configured
     const credentialsConfigured = !!(clientId && clientSecret);
@@ -59,7 +60,8 @@ serve(async (req) => {
 
     // Test actual eInforma API connection
     try {
-      const tokenUrl = 'https://api.einforma.com/oauth/token';
+      const tokenUrl = `${baseUrl}/api/v1/oauth/token`;
+      console.log('Testing connection to:', tokenUrl);
       
       const tokenResponse = await fetch(tokenUrl, {
         method: 'POST',
@@ -70,13 +72,17 @@ serve(async (req) => {
           grant_type: 'client_credentials',
           client_id: clientId,
           client_secret: clientSecret,
+          scope: 'buscar:consultar:empresas'
         }),
       });
+      
+      console.log('Token response status:', tokenResponse.status);
 
       const responseTime = Date.now() - startTime;
 
       if (!tokenResponse.ok) {
-        console.log('eInforma API authentication failed');
+        const errorText = await tokenResponse.text();
+        console.log('eInforma API authentication failed:', tokenResponse.status, errorText);
         return new Response(
           JSON.stringify({
             success: false,

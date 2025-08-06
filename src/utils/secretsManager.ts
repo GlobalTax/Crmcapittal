@@ -27,7 +27,7 @@ const SECRET_CONFIGS: Record<string, SecretConfig> = {
   EINFORMA_CLIENT_SECRET: { required: false },
   EINFORMA_BASE_URL: { 
     required: false, 
-    defaultValue: 'https://api.einforma.com',
+    defaultValue: 'https://developers.einforma.com',
     validator: (url) => url.startsWith('https://')
   },
   
@@ -173,7 +173,7 @@ export const getEInformaConfig = () => {
   return {
     clientId: getSecretOrDefault('EINFORMA_CLIENT_ID', ''),
     clientSecret: getSecretOrDefault('EINFORMA_CLIENT_SECRET', ''),
-    baseUrl: getSecretOrDefault('EINFORMA_BASE_URL', 'https://api.einforma.com')
+    baseUrl: getSecretOrDefault('EINFORMA_BASE_URL', 'https://developers.einforma.com')
   };
 };
 

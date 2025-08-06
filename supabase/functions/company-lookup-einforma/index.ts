@@ -105,9 +105,11 @@ serve(async (req) => {
 
     const clientId = Deno.env.get('EINFORMA_CLIENT_ID');
     const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
+    const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://developers.einforma.com';
 
     console.log('Looking up company with NIF:', nif);
     console.log('Credentials configured:', !!clientId, !!clientSecret);
+    console.log('eInforma Base URL:', baseUrl);
 
     // If credentials are not configured, use mock data
     if (!clientId || !clientSecret) {
@@ -143,7 +145,9 @@ serve(async (req) => {
     // Try to connect to eInforma API
     try {
       // Use eInforma OAuth2 endpoint per documentation
-      const tokenUrl = 'https://developers.einforma.com/api/v1/oauth/token';
+      const tokenUrl = `${baseUrl}/api/v1/oauth/token`;
+      
+      console.log('Requesting OAuth token from:', tokenUrl);
       
       const tokenResponse = await fetch(tokenUrl, {
         method: 'POST',
@@ -154,11 +158,15 @@ serve(async (req) => {
           grant_type: 'client_credentials',
           client_id: clientId,
           client_secret: clientSecret,
+          scope: 'buscar:consultar:empresas'
         }),
       });
+      
+      console.log('Token response status:', tokenResponse.status);
 
       if (!tokenResponse.ok) {
-        console.log('eInforma authentication failed, using mock data');
+        const errorText = await tokenResponse.text();
+        console.log('eInforma authentication failed:', tokenResponse.status, errorText);
         const mockData = getMockData(nif);
         
         if (mockData) {
@@ -189,20 +197,25 @@ serve(async (req) => {
       }
 
       const tokenData = await tokenResponse.json();
+      console.log('OAuth token obtained successfully, scope:', tokenData.scope);
       
       // Get company data from eInforma
-      const companyUrl = `https://developers.einforma.com/api/v1/companies/${nif}/report`;
+      const companyUrl = `${baseUrl}/api/v1/companies/${nif}/report`;
+      console.log('Requesting company data from:', companyUrl);
       
       const companyResponse = await fetch(companyUrl, {
         method: 'GET',
         headers: {
-          'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
+          'Authorization': `Bearer ${tokenData.access_token}`,
           'Content-Type': 'application/json',
         },
       });
+      
+      console.log('Company response status:', companyResponse.status);
 
       if (!companyResponse.ok) {
-        console.log('Company not found in eInforma, using mock data');
+        const errorText = await companyResponse.text();
+        console.log('Company not found in eInforma:', companyResponse.status, errorText);
         const mockData = getMockData(nif);
         
         if (mockData) {
@@ -232,19 +245,22 @@ serve(async (req) => {
       }
 
       const companyData = await companyResponse.json();
+      console.log('eInforma response structure:', JSON.stringify(companyData, null, 2));
       
       // Transform eInforma data to our format
       const transformedData: CompanyData = {
-        name: companyData.razon_social || companyData.name,
+        name: companyData.razon_social || companyData.name || companyData.denominacion,
         nif: nif.toUpperCase(),
-        address_street: companyData.direccion || companyData.address,
-        address_city: companyData.poblacion || companyData.city,
-        address_postal_code: companyData.codigo_postal || companyData.postal_code,
-        business_sector: companyData.actividad_principal || companyData.sector,
-        legal_representative: companyData.representante_legal,
-        status: companyData.estado === 'activa' ? 'activo' : 'inactivo',
+        address_street: companyData.direccion || companyData.address || companyData.domicilio,
+        address_city: companyData.poblacion || companyData.city || companyData.municipio,
+        address_postal_code: companyData.codigo_postal || companyData.postal_code || companyData.cp,
+        business_sector: companyData.actividad_principal || companyData.sector || companyData.cnae_descripcion,
+        legal_representative: companyData.representante_legal || companyData.administrador,
+        status: (companyData.estado === 'activa' || companyData.situacion === 'ACTIVA') ? 'activo' : 'inactivo',
         client_type: 'empresa'
       };
+      
+      console.log('Transformed company data:', JSON.stringify(transformedData, null, 2));
 
       return new Response(
         JSON.stringify({
@@ -258,7 +274,8 @@ serve(async (req) => {
       );
 
     } catch (apiError) {
-      console.log('eInforma API error, using mock data:', apiError);
+      console.error('eInforma API error details:', apiError);
+      console.log('eInforma API error, using mock data');
       const mockData = getMockData(nif);
       
       if (mockData) {

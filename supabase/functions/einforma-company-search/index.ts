@@ -22,7 +22,7 @@ serve(async (req) => {
     
     const clientId = Deno.env.get('EINFORMA_CLIENT_ID');
     const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
-    const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://api.einforma.com';
+    const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://developers.einforma.com';
 
     if (!clientId || !clientSecret || !baseUrl) {
       throw new Error('Missing eInforma credentials');
@@ -31,7 +31,7 @@ serve(async (req) => {
     console.log('Getting eInforma access token...');
     
     // Get OAuth2 token
-    const tokenResponse = await fetch(`${baseUrl}/oauth/token`, {
+    const tokenResponse = await fetch(`${baseUrl}/api/v1/oauth/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -40,6 +40,7 @@ serve(async (req) => {
         grant_type: 'client_credentials',
         client_id: clientId,
         client_secret: clientSecret,
+        scope: 'buscar:consultar:empresas'
       }),
     });
 
@@ -72,7 +73,7 @@ serve(async (req) => {
     const apiResponse = await fetch(fullUrl, {
       method: 'GET',
       headers: {
-        'Authorization': `${tokenData.token_type} ${tokenData.access_token}`,
+        'Authorization': `Bearer ${tokenData.access_token}`,
         'Content-Type': 'application/json',
       },
     });
