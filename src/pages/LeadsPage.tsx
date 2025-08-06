@@ -44,7 +44,7 @@ const LeadsPage = () => {
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
 
   const { leads, isLoading, createLead, updateLead, deleteLead, convertLead } = useLeadContacts({
-    status: statusFilter || undefined,
+    status: statusFilter && statusFilter !== 'all' ? statusFilter : undefined,
   });
 
   const { tasks, createTask, updateTask, deleteTask } = useLeadTasks(selectedLead || '');
@@ -313,7 +313,7 @@ const LeadsPage = () => {
             <SelectValue placeholder="Filtrar por estado" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos los estados</SelectItem>
+            <SelectItem value="all">Todos los estados</SelectItem>
             <SelectItem value="NEW">Nuevo</SelectItem>
             <SelectItem value="CONTACTED">Contactado</SelectItem>
             <SelectItem value="QUALIFIED">Calificado</SelectItem>
