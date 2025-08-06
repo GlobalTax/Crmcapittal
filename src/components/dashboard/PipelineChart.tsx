@@ -18,21 +18,21 @@ export const PipelineChart = ({
     {
       name: 'Disponibles',
       value: availableOperations.length,
-      fill: 'hsl(var(--primary))'
+      fill: '#6b7280'
     },
     {
       name: 'En Proceso',
       value: inProcessOperations.length,
-      fill: 'hsl(var(--primary))'
+      fill: '#9ca3af'
     },
     {
       name: 'Cerradas',
       value: soldOperations.length,
-      fill: 'hsl(var(--primary))'
+      fill: '#3b82f6'
     }
   ];
 
-  const COLORS = ['hsl(var(--primary))', 'hsl(var(--primary))', 'hsl(var(--primary))'];
+  const COLORS = ['#6b7280', '#9ca3af', '#3b82f6'];
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -49,10 +49,10 @@ export const PipelineChart = ({
   };
 
   return (
-    <Card className="bg-neutral-0 shadow-sm border-border">
+    <Card className="bg-white shadow-sm border-gray-200">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-foreground flex items-center">
-          <TrendingUp className="mr-2 h-5 w-5 text-primary" />
+        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+          <TrendingUp className="mr-2 h-5 w-5 text-gray-600" />
           Distribución Pipeline
         </CardTitle>
       </CardHeader>

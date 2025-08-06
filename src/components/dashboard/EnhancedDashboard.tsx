@@ -156,21 +156,21 @@ const EnhancedDashboard = React.memo(() => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <DashboardHeader role={role} />
       
-      <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="container mx-auto px-4 py-8 space-y-6">
         {/* KPI Metrics */}
         <section className="animate-fade-in">
           <KPIMetrics metrics={dashboardData.kpiMetrics} />
         </section>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* Left Column - Charts and Analytics */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6">
             
             {/* Charts Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -205,7 +205,7 @@ const EnhancedDashboard = React.memo(() => {
           </div>
 
           {/* Right Column - Activity and Actions */}
-          <div className="space-y-8">
+          <div className="space-y-6">
             
             {/* Reminders Dashboard */}
             <div className="animate-fade-in delay-500">

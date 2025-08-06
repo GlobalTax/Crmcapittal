@@ -72,30 +72,27 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
   const colors = getColorClasses();
   return (
-    <div className={cn("bg-card border rounded-lg p-6 hover:shadow-sm transition-shadow", className)}>
+    <div className={cn("bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow", className)}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
+        <h3 className="text-sm font-medium text-gray-700">{title}</h3>
         {Icon && (
-          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", colors.iconBg)}>
-            <Icon className={cn("w-4 h-4", colors.iconColor)} />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100">
+            <Icon className="w-4 h-4 text-gray-600" />
           </div>
         )}
       </div>
       
       <div className="space-y-1">
-        <div className="text-3xl font-bold text-card-foreground">
+        <div className="text-3xl font-bold text-gray-900">
           {value}
         </div>
         
         {change && (
           <div className="flex items-center gap-1">
-            <div className={cn(
-              "text-sm font-medium",
-              colorScheme ? colors.changeColor : (change.trend === 'up' ? "text-success" : "text-destructive")
-            )}>
-              {colorScheme ? '' : (change.trend === 'up' ? '↑' : '↓')} {change.value}
+            <div className="text-sm font-medium text-gray-600">
+              {change.trend === 'up' ? '↑' : '↓'} {change.value}
             </div>
-            <span className="text-xs text-muted-foreground">vs mes anterior</span>
+            <span className="text-xs text-gray-600">vs mes anterior</span>
           </div>
         )}
       </div>

@@ -84,28 +84,28 @@ const getActivityIcon = (type: ActivityItem['type']) => {
 const getActivityColor = (type: ActivityItem['type']) => {
   switch (type) {
     case 'lead':
-      return 'text-primary bg-primary/10';
+      return 'text-gray-600 bg-gray-100';
     case 'deal':
-      return 'text-success bg-success/10';
+      return 'text-gray-600 bg-gray-100';
     case 'completed':
-      return 'text-success bg-success/10';
+      return 'text-gray-600 bg-gray-100';
     case 'call':
-      return 'text-warning bg-warning/10';
+      return 'text-gray-600 bg-gray-100';
     case 'email':
-      return 'text-info bg-info/10';
+      return 'text-gray-600 bg-gray-100';
     default:
-      return 'text-muted-foreground bg-muted';
+      return 'text-gray-600 bg-gray-100';
   }
 };
 
 export const ActivityFeed: React.FC<ActivityFeedProps> = ({ className }) => {
   return (
-    <div className={cn("bg-card border rounded-lg p-6", className)}>
+    <div className={cn("bg-white border border-gray-200 rounded-lg p-6", className)}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-card-foreground">Actividad Reciente</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Actividad Reciente</h3>
         <button 
           onClick={() => window.location.href = '/activities'}
-          className="text-sm text-primary hover:underline"
+          className="text-sm text-gray-600 hover:text-gray-900 hover:underline"
         >
           Ver todo
         </button>
@@ -126,17 +126,17 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ className }) => {
               </div>
               
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-card-foreground font-medium">
+                <p className="text-sm text-gray-900 font-medium">
                   {activity.message}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-gray-600">
                     {format(activity.timestamp, 'HH:mm', { locale: es })}
                   </span>
                   {activity.user && (
                     <>
-                      <span className="text-xs text-muted-foreground">•</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-gray-600">•</span>
+                      <span className="text-xs text-gray-600">
                         {activity.user}
                       </span>
                     </>
