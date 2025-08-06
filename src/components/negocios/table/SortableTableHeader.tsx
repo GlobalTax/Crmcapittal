@@ -12,12 +12,12 @@ interface SortableTableHeaderProps {
 
 export const SortableTableHeader = ({ field, children, onSort }: SortableTableHeaderProps) => (
   <TableHead 
-    className="cursor-pointer hover:bg-gray-50 select-none"
+    className="cursor-pointer hover:bg-gray-50 select-none group"
     onClick={() => onSort(field)}
   >
-    <div className="flex items-center space-x-1">
+    <div className="flex items-center space-x-2">
       <span>{children}</span>
-      <ArrowUpDown className="h-4 w-4 text-gray-400" />
+      <ArrowUpDown className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   </TableHead>
 );

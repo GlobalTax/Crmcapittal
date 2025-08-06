@@ -33,34 +33,27 @@ export const NegocioTableRow = ({ negocio, onEdit, onDelete }: NegocioTableRowPr
     return new Date(dateString).toLocaleDateString('es-ES');
   };
 
-  const getPriorityColor = (prioridad: string) => {
+  const getPriorityText = (prioridad: string) => {
     switch (prioridad) {
-      case 'baja': return "bg-gray-100 text-gray-800";
-      case 'media': return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case 'alta': return "bg-orange-100 text-orange-800 border-orange-200";
-      case 'urgente': return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800";
+      case 'baja': return { text: 'Baja', color: 'text-gray-600' };
+      case 'media': return { text: 'Media', color: 'text-yellow-600' };
+      case 'alta': return { text: 'Alta', color: 'text-orange-600' };
+      case 'urgente': return { text: 'Urgente', color: 'text-red-600' };
+      default: return { text: prioridad, color: 'text-gray-600' };
     }
   };
 
   return (
     <TableRow className="hover:bg-gray-50">
       <TableCell className="font-medium">
-        <div className="flex items-center gap-2">
-          <Link 
-            to={`/negocios/${negocio.id}`}
-            className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
-          >
-            {negocio.nombre_negocio}
-          </Link>
-          <Link to={`/negocios/${negocio.id}`}>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-              <ExternalLink className="h-3 w-3" />
-            </Button>
-          </Link>
-        </div>
+        <Link 
+          to={`/negocios/${negocio.id}`}
+          className="text-gray-900 hover:text-gray-600 font-medium"
+        >
+          {negocio.nombre_negocio}
+        </Link>
         {negocio.company && (
-          <div className="text-sm text-gray-500">{negocio.company.name}</div>
+          <div className="text-sm text-gray-500 mt-1">{negocio.company.name}</div>
         )}
       </TableCell>
       
@@ -72,32 +65,30 @@ export const NegocioTableRow = ({ negocio, onEdit, onDelete }: NegocioTableRowPr
       </TableCell>
       
       <TableCell>
-        <Badge variant="outline" className="capitalize">
+        <span className="text-gray-600 capitalize text-sm">
           {negocio.tipo_negocio}
-        </Badge>
+        </span>
       </TableCell>
       
       <TableCell>
         {negocio.stage ? (
-          <Badge 
-            variant="outline" 
-            style={{ 
-              backgroundColor: negocio.stage.color + '20', 
-              borderColor: negocio.stage.color,
-              color: negocio.stage.color 
-            }}
-          >
+          <span className="text-gray-900 font-medium text-sm">
             {negocio.stage.name}
-          </Badge>
+          </span>
         ) : (
-          <span className="text-gray-400">Sin etapa</span>
+          <span className="text-gray-400 text-sm">Sin etapa</span>
         )}
       </TableCell>
       
       <TableCell>
-        <Badge variant="outline" className={getPriorityColor(negocio.prioridad)}>
-          {negocio.prioridad}
-        </Badge>
+        {(() => {
+          const priority = getPriorityText(negocio.prioridad);
+          return (
+            <span className={`text-sm font-medium ${priority.color}`}>
+              {priority.text}
+            </span>
+          );
+        })()}
       </TableCell>
       
       <TableCell>

@@ -33,29 +33,13 @@ export default function AdvancedTable({
 
   return (
     <div className={className}>
-      {/* Configuración de columnas */}
-      <div className="mb-4 flex flex-wrap gap-3">
-        <span className="text-sm font-medium text-gray-700">Mostrar columnas:</span>
-        {columns.map(col => (
-          <label key={col.id} className="text-sm flex items-center gap-1.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={col.visible}
-              onChange={() => toggleColumn(col.id)}
-              className="rounded border-gray-300"
-            />
-            <span className="text-gray-600">{col.label}</span>
-          </label>
-        ))}
-      </div>
 
-      {/* Tabla */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm border-separate border-spacing-y-1">
-          <thead>
-            <tr className="text-left text-gray-500">
+      <div className="overflow-x-auto border border-gray-100 rounded-lg">
+        <table className="w-full text-sm">
+          <thead className="border-b border-gray-100">
+            <tr>
               {visibleColumns.map(col => (
-                <th key={col.id} className="py-2 px-4 font-medium">
+                <th key={col.id} className="py-3 px-4 text-left font-medium text-gray-600">
                   {col.label}
                 </th>
               ))}
@@ -65,13 +49,13 @@ export default function AdvancedTable({
             {data.map((row, index) => (
               <tr 
                 key={row.id || index} 
-                className={`bg-white hover:bg-gray-50 transition-colors ${
+                className={`hover:bg-gray-50 transition-colors border-b border-gray-50 ${
                   onRowClick ? 'cursor-pointer' : ''
                 }`}
                 onClick={() => onRowClick?.(row)}
               >
                 {visibleColumns.map(col => (
-                  <td key={col.id} className="py-3 px-4">
+                  <td key={col.id} className="py-3 px-4 text-gray-900">
                     {row[col.id] ?? '-'}
                   </td>
                 ))}

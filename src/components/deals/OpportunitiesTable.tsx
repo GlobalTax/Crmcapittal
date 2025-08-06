@@ -8,9 +8,7 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { 
   Select,
   SelectContent,
@@ -18,15 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { 
-  ArrowUpDown, 
-  ArrowUp, 
-  ArrowDown,
-  Search,
-  Filter
-} from 'lucide-react';
+import { Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { CollapsibleFilters } from '@/components/ui/CollapsibleFilters';
 
 interface OpportunitiesTableProps {
   deals: Deal[];
@@ -34,21 +27,17 @@ interface OpportunitiesTableProps {
   onDealClick?: (deal: Deal) => void;
 }
 
-type SortField = 'title' | 'amount' | 'stage' | 'createdAt' | 'company';
-type SortDirection = 'asc' | 'desc';
 
 const STAGES = [
-  { name: 'Lead', color: 'bg-blue-100 text-blue-800' },
-  { name: 'In Progress', color: 'bg-yellow-100 text-yellow-800' },
-  { name: 'Won', color: 'bg-green-100 text-green-800' },
-  { name: 'Lost', color: 'bg-red-100 text-red-800' }
+  { name: 'Lead', color: 'text-blue-600' },
+  { name: 'In Progress', color: 'text-yellow-600' },
+  { name: 'Won', color: 'text-green-600' },
+  { name: 'Lost', color: 'text-red-600' }
 ];
 
 export const OpportunitiesTable = ({ deals, loading, onDealClick }: OpportunitiesTableProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState<string>('all');
-  const [sortField, setSortField] = useState<SortField>('createdAt');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const filteredAndSortedDeals = useMemo(() => {
     let filtered = deals;
@@ -67,46 +56,9 @@ export const OpportunitiesTable = ({ deals, loading, onDealClick }: Opportunitie
       filtered = filtered.filter(deal => deal.stage === stageFilter);
     }
 
-    // Aplicar ordenación
-    filtered.sort((a, b) => {
-      let aValue: any = a[sortField];
-      let bValue: any = b[sortField];
-
-      // Manejar campos anidados
-      if (sortField === 'company') {
-        aValue = a.company?.name || '';
-        bValue = b.company?.name || '';
-      }
-
-      // Convertir a string si es necesario para comparación
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-
     return filtered;
-  }, [deals, searchTerm, stageFilter, sortField, sortDirection]);
+  }, [deals, searchTerm, stageFilter]);
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) return <ArrowUpDown className="h-4 w-4" />;
-    return sortDirection === 'asc' ? 
-      <ArrowUp className="h-4 w-4" /> : 
-      <ArrowDown className="h-4 w-4" />;
-  };
 
   const formatCurrency = (amount?: number) => {
     if (!amount) return '-';
@@ -122,7 +74,7 @@ export const OpportunitiesTable = ({ deals, loading, onDealClick }: Opportunitie
 
   const getStageColor = (stage: string) => {
     const stageConfig = STAGES.find(s => s.name === stage);
-    return stageConfig?.color || 'bg-gray-100 text-gray-800';
+    return stageConfig?.color || 'text-gray-600';
   };
 
   if (loading) {
@@ -147,34 +99,36 @@ export const OpportunitiesTable = ({ deals, loading, onDealClick }: Opportunitie
 
   return (
     <div className="space-y-4">
-      {/* Controles de filtrado y búsqueda */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+      {/* Búsqueda y filtros colapsables */}
+      <div className="space-y-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Buscar por empresa o contacto..."
+            placeholder="Buscar oportunidades..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
         </div>
         
-        <div className="flex gap-2">
-          <Select value={stageFilter} onValueChange={setStageFilter}>
-            <SelectTrigger className="w-40">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filtrar etapa" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las etapas</SelectItem>
-              {STAGES.map(stage => (
-                <SelectItem key={stage.name} value={stage.name}>
-                  {stage.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <CollapsibleFilters title="Filtros de búsqueda">
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Etapa</label>
+            <Select value={stageFilter} onValueChange={setStageFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todas las etapas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las etapas</SelectItem>
+                {STAGES.map(stage => (
+                  <SelectItem key={stage.name} value={stage.name}>
+                    {stage.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CollapsibleFilters>
       </div>
 
       {/* Tabla */}
@@ -182,57 +136,12 @@ export const OpportunitiesTable = ({ deals, loading, onDealClick }: Opportunitie
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('title')}
-                  className="h-auto p-0 font-medium hover:bg-transparent"
-                >
-                  Oportunidad
-                  {getSortIcon('title')}
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('company')}
-                  className="h-auto p-0 font-medium hover:bg-transparent"
-                >
-                  Empresa
-                  {getSortIcon('company')}
-                </Button>
-              </TableHead>
+              <TableHead>Oportunidad</TableHead>
+              <TableHead>Empresa</TableHead>
               <TableHead>Contacto</TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('stage')}
-                  className="h-auto p-0 font-medium hover:bg-transparent"
-                >
-                  Etapa
-                  {getSortIcon('stage')}
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('amount')}
-                  className="h-auto p-0 font-medium hover:bg-transparent"
-                >
-                  Importe
-                  {getSortIcon('amount')}
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleSort('createdAt')}
-                  className="h-auto p-0 font-medium hover:bg-transparent"
-                >
-                  Fecha creación
-                  {getSortIcon('createdAt')}
-                </Button>
-              </TableHead>
+              <TableHead>Etapa</TableHead>
+              <TableHead>Importe</TableHead>
+              <TableHead>Fecha creación</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -269,9 +178,9 @@ export const OpportunitiesTable = ({ deals, loading, onDealClick }: Opportunitie
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStageColor(deal.stage)}>
+                    <span className={`text-sm font-medium ${getStageColor(deal.stage)}`}>
                       {deal.stage}
-                    </Badge>
+                    </span>
                   </TableCell>
                   <TableCell>
                     {formatCurrency(deal.amount)}
