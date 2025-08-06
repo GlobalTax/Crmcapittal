@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { User, Briefcase, CheckCircle, TrendingUp, Calendar, Activity } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/MetricCard";
-import { WorkTimer } from "@/components/dashboard/WorkTimer";
+import { PersonalTimer } from "@/components/dashboard/PersonalTimer";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { AgendaPanel } from "@/components/dashboard/AgendaPanel";
 import { DashboardLeads } from "@/components/dashboard/DashboardLeads";
@@ -69,7 +69,7 @@ export default function MinimalPersonalDashboard() {
       {/* Second Row - Timer and Quick Stats */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">
-          <WorkTimer />
+          <PersonalTimer />
         </div>
         <div className="lg:col-span-2">
           <AgendaPanel />

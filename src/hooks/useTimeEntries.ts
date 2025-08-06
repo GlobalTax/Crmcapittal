@@ -1,128 +1,111 @@
-
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-
-interface TimeEntry {
-  id: string;
-  description: string;
-  duration_minutes: number;
-  is_billable: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface CreateTimeEntryData {
-  description: string;
-  duration_minutes: number;
-  is_billable: boolean;
-}
+import { TimeEntry, CreateTimeEntryData } from '@/types/TimeTracking';
 
 export const useTimeEntries = () => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  // Fetch time entries with proper error handling
-  const { data: timeEntries = [], isLoading, error } = useQuery({
-    queryKey: ['timeEntries', selectedDate.toDateString()],
-    queryFn: async (): Promise<TimeEntry[]> => {
-      try {
-        console.log('useTimeEntries: Starting to fetch time entries...');
-        
-        // Check if user is authenticated first
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          console.log('useTimeEntries: No authenticated user found');
-          return [];
+  // Fetch time entries for the selected date
+  const {
+    data: timeEntries,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ['timeEntries', selectedDate.toISOString().split('T')[0]],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const startDate = new Date(selectedDate);
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(selectedDate);
+      endDate.setHours(23, 59, 59, 999);
+      
+      const { data, error } = await supabase
+        .from('time_entries')
+        .select(`
+          *,
+          planned_task:planned_tasks(title),
+          lead:leads(id, name, company_name),
+          mandate:buying_mandates(id, mandate_name, client_name),
+          contact:contacts(id, name)
+        `)
+        .eq('user_id', user.id)
+        .gte('start_time', startDate.toISOString())
+        .lte('start_time', endDate.toISOString())
+        .order('start_time', { ascending: false });
+
+      if (error) throw error;
+      
+      // Calculate duration for entries that don't have end_time set
+      return (data || []).map(entry => {
+        if (!entry.end_time && entry.start_time) {
+          const start = new Date(entry.start_time);
+          const now = new Date();
+          const diffMinutes = Math.floor((now.getTime() - start.getTime()) / (1000 * 60));
+          return {
+            ...entry,
+            duration_minutes: diffMinutes
+          };
         }
-
-        console.log('useTimeEntries: User authenticated:', user.id);
-
-        const startOfDay = new Date(selectedDate);
-        startOfDay.setHours(0, 0, 0, 0);
-        
-        const endOfDay = new Date(selectedDate);
-        endOfDay.setHours(23, 59, 59, 999);
-
-        console.log('useTimeEntries: Querying time entries for date range:', {
-          start: startOfDay.toISOString(),
-          end: endOfDay.toISOString()
-        });
-
-        const { data, error } = await supabase
-          .from('time_entries')
-          .select(`
-            id,
-            description,
-            duration_minutes,
-            is_billable,
-            created_at,
-            updated_at
-          `)
-          .gte('created_at', startOfDay.toISOString())
-          .lte('created_at', endOfDay.toISOString())
-          .order('created_at', { ascending: false });
-
-        console.log('useTimeEntries: Query result:', { data, error });
-
-        if (error) {
-          console.error('useTimeEntries: Database error:', error);
-          throw error;
-        }
-        return data || [];
-      } catch (err) {
-        console.error('useTimeEntries: Failed to fetch time entries:', err);
-        return [];
-      }
+        return entry;
+      });
     },
-    retry: (failureCount, error: any) => {
-      // Don't retry on 406 errors (likely RLS issues)
-      if (error?.status === 406) {
-        console.log('useTimeEntries: 406 error detected, not retrying');
-        return false;
-      }
-      return failureCount < 3;
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    enabled: !!user,
+    retry: 2,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  // Create time entry mutation with proper error handling
-  const createMutation = useMutation({
+  // Create time entry mutation
+  const {
+    mutate: createTimeEntry,
+    isPending: isCreating
+  } = useMutation({
     mutationFn: async (data: CreateTimeEntryData) => {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuario no autenticado');
-
-      const { data: timeEntry, error } = await supabase
+      
+      // Calculate duration if both start and end times are provided
+      let calculatedDuration = undefined;
+      if (data.start_time && data.end_time) {
+        const start = new Date(data.start_time);
+        const end = new Date(data.end_time);
+        calculatedDuration = Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
+      }
+      
+      const { data: newEntry, error } = await supabase
         .from('time_entries')
-        .insert({
+        .insert([{
+          ...data,
           user_id: user.id,
-          description: data.description,
-          duration_minutes: data.duration_minutes,
-          is_billable: data.is_billable,
-          activity_type: 'work',
-          start_time: new Date().toISOString()
-        })
+          duration_minutes: calculatedDuration
+        }])
         .select()
         .single();
 
       if (error) throw error;
-      return timeEntry;
+      return newEntry;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timeEntries'] });
-      queryClient.invalidateQueries({ queryKey: ['dailyTimeData'] });
-      toast.success('Tiempo registrado correctamente');
+      toast.success('Entrada de tiempo creada exitosamente');
     },
     onError: (error) => {
       console.error('Error creating time entry:', error);
-      toast.error('Error al registrar el tiempo');
+      toast.error('Error al crear la entrada de tiempo');
     }
   });
 
-  // Delete time entry mutation with proper error handling
-  const deleteMutation = useMutation({
+  // Delete time entry mutation
+  const {
+    mutate: deleteTimeEntry,
+    isPending: isDeleting
+  } = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('time_entries')
@@ -133,7 +116,6 @@ export const useTimeEntries = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timeEntries'] });
-      queryClient.invalidateQueries({ queryKey: ['dailyTimeData'] });
       toast.success('Entrada de tiempo eliminada');
     },
     onError: (error) => {
@@ -148,15 +130,15 @@ export const useTimeEntries = () => {
   }, []);
 
   return {
-    timeEntries,
-    filteredTimeEntries: timeEntries,
+    timeEntries: timeEntries || [],
+    filteredTimeEntries: timeEntries || [],
     isLoading,
     error,
     selectedDate,
     setSelectedDate: handleDateChange,
-    createTimeEntry: createMutation.mutate,
-    isCreating: createMutation.isPending,
-    deleteTimeEntry: deleteMutation.mutate,
-    isDeleting: deleteMutation.isPending
+    createTimeEntry,
+    isCreating,
+    deleteTimeEntry,
+    isDeleting
   };
 };

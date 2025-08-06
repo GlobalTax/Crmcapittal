@@ -22,6 +22,7 @@ const NewBuyingMandatesView = lazy(() => import('@/pages/NewBuyingMandatesView')
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
 const AuthCallback = lazy(() => import('@/components/auth/AuthCallback'));
+const MinimalTimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
 const Deals = lazy(() => import('@/pages/Deals'));
@@ -173,6 +174,16 @@ export const AppRoutes = () => {
           {/* Transacciones (Spanish routes) */}
           <Route path="/transacciones" element={<TransaccionesList />} />
           <Route path="/transacciones/:id" element={<VentaMandatoView />} />
+
+          {/* Time Tracking */}
+          <Route 
+            path="/tiempo" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <MinimalTimeTracking />
+              </Suspense>
+            } 
+          />
 
           {/* Redirects from old English routes to new Spanish routes */}
           <Route path="/companies" element={<Navigate to="/empresas" replace />} />

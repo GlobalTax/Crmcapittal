@@ -90,8 +90,10 @@ export const Timer = () => {
       const minutes = Math.round(seconds / 60)
       
       await createTimeEntry({
+        activity_type: 'general',
         description: description.trim(),
-        duration_minutes: minutes,
+        start_time: startTimeRef.current!.toISOString(),
+        end_time: new Date().toISOString(),
         is_billable: isBillable
       })
 
