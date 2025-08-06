@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Lead } from '@/types/Lead';
@@ -11,17 +10,15 @@ import {
   FileText, 
   Trash2, 
   X, 
-  Activity, 
-  StickyNote, 
-  CheckSquare,
   ArrowRight
 } from 'lucide-react';
 import { LeadOverviewTab } from './tabs/LeadOverviewTab';
 import { LeadActivityTab } from './tabs/LeadActivityTab';
-import { LeadNotesTab } from './tabs/LeadNotesTab';
+import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
-import { useLeadActions } from '@/hooks/useLeadActions';
+import { useLeadActions } from '@/hooks/leads/useLeadActions';
 import { toast } from 'sonner';
+import { getCacheBusterId, DEFINITIVO_4_TABS } from '@/utils/cacheBuster';
 import './leads-styles.css';
 
 interface LeadDetailDrawerProps {
@@ -30,18 +27,17 @@ interface LeadDetailDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// CACHE BUSTER: Forzar recarga completa del componente
-const CACHE_BUSTER_ID = `lead_drawer_no_proposal_${Date.now()}_${Math.random()}`;
+// CACHE BUSTER DEFINITIVO - Forzar recarga total del componente
+const COMPONENT_ID = getCacheBusterId('lead_drawer');
 
 export const LeadDetailDrawer = ({ lead, open, onOpenChange }: LeadDetailDrawerProps) => {
   const [activeTab, setActiveTab] = useState('resumen');
   const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
 
-  // VERIFICACIÓN DEFINITIVA: Solo 4 pestañas existen
-  const TABS_DEFINITIVOS = ['resumen', 'actividades', 'notas', 'tareas'];
-  console.log('🚫 PROPUESTA ELIMINADA PARA SIEMPRE - Cache Buster ID:', CACHE_BUSTER_ID);
-  console.log('✅ PESTAÑAS FINALES:', TABS_DEFINITIVOS);
-  console.log('🔄 Timestamp de recarga:', new Date().toISOString());
+  // VERIFICACIÓN FINAL: Solo estos 4 tabs existen
+  console.log('🎯 TABS DEFINITIVOS CARGADOS:', DEFINITIVO_4_TABS);
+  console.log('🔄 Component Cache Buster ID:', COMPONENT_ID);
+  console.log('✅ Timestamp de carga:', new Date().toISOString());
 
   const handleActionClick = (action: string) => {
     if (!lead) return;
@@ -111,7 +107,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange }: LeadDetailDrawerP
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         className="drawer-lead p-0 gap-0 bg-background border-l border-border"
-        key={CACHE_BUSTER_ID}
+        key={COMPONENT_ID}
         aria-labelledby="lead-drawer-title"
       >
         {/* Encabezado con título y acciones */}
@@ -200,37 +196,22 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange }: LeadDetailDrawerP
         {/* Área de contenido principal */}
         <div className="flex-1 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-            {/* DEFINITIVO: SOLO 4 PESTAÑAS - PROPUESTA NUNCA EXISTIÓ */}
+            {/* DEFINITIVO: SOLO 4 PESTAÑAS FINALES */}
             <div className="px-6 border-b border-border">
               <TabsList className="bg-transparent h-auto p-0 gap-6">
-                <TabsTrigger 
-                  value="resumen"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  Resumen
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="actividades"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  Actividades
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="notas"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  Notas
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="tareas"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                >
-                  Tareas
-                </TabsTrigger>
+                {DEFINITIVO_4_TABS.map((tab) => (
+                  <TabsTrigger 
+                    key={tab.id}
+                    value={tab.id}
+                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
               </TabsList>
             </div>
 
-            {/* DEFINITIVO: SOLO 4 CONTENIDOS - SIN PROPUESTA JAMÁS */}
+            {/* CONTENIDO DE LAS 4 PESTAÑAS FINALES */}
             <div className="flex-1 overflow-y-auto p-6">
               <TabsContent value="resumen" className="mt-0">
                 <LeadOverviewTab lead={lead} />
