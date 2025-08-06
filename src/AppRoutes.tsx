@@ -17,6 +17,7 @@ import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
 // Import the unified lead page and enhanced mandate detail view
 const LeadPage = lazy(() => import('@/pages/LeadPage'));
 const NewBuyingMandatesView = lazy(() => import('@/pages/NewBuyingMandatesView'));
+const MandatesView = lazy(() => import('@/pages/MandatesView'));
 
 
 // Keep existing lazy-loaded pages for other routes
@@ -110,15 +111,15 @@ export const AppRoutes = () => {
             } 
           />
 
-          {/* Mandatos (Spanish routes) - Simplified */}
+          {/* Mandatos (Spanish routes) - Unified View */}
           <Route path="/mandatos" element={
             <Suspense fallback={<LoadingSkeleton />}>
-              <NewBuyingMandatesView />
+              <MandatesView />
             </Suspense>
           } />
           <Route path="/mandatos/:id" element={
             <Suspense fallback={<LoadingSkeleton />}>
-              <NewBuyingMandatesView />
+              <MandatesView />
             </Suspense>
           } />
           <Route path="/mandatos/nuevo" element={<Navigate to="/mandatos" replace />} />
