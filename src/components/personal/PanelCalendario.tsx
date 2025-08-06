@@ -1,9 +1,12 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNextEvents } from '@/hooks/useNextEvents';
 import { Calendar, Plus, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { EventModal } from '@/components/calendar/EventModal';
 
 interface PanelCalendarioProps {
   className?: string;
@@ -11,10 +14,11 @@ interface PanelCalendarioProps {
 
 export const PanelCalendario = ({ className }: PanelCalendarioProps) => {
   const { events, loading } = useNextEvents();
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleNewMeeting = () => {
-    // TODO: Implement meeting creation
-    console.log('Creating new meeting...');
+    setEventModalOpen(true);
   };
 
   return (
@@ -81,11 +85,23 @@ export const PanelCalendario = ({ className }: PanelCalendarioProps) => {
         </div>
 
         {events.length > 5 && (
-          <Button variant="ghost" className="w-full text-sm">
+          <Button 
+            variant="ghost" 
+            className="w-full text-sm"
+            onClick={() => navigate('/calendar')}
+          >
             Ver todos los eventos ({events.length})
           </Button>
         )}
       </CardContent>
+
+      <EventModal
+        open={eventModalOpen}
+        onOpenChange={setEventModalOpen}
+        onEventSaved={() => {
+          // Refresh events if needed
+        }}
+      />
     </Card>
   );
 };
