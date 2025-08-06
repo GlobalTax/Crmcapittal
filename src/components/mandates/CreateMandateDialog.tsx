@@ -348,7 +348,7 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
 };
 
 export const CreateMandateDialog = ({ trigger, onSuccess, initialData, leadId }: CreateMandateDialogProps) => {
-  const [open, setOpen] = useState(true); // Abierto por defecto cuando se crea desde lead
+  const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
