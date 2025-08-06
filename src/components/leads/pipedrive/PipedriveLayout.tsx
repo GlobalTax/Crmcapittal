@@ -81,7 +81,6 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
           <div className="p-4 space-y-0">
             <SummarySection lead={lead} />
             <FocusSection lead={lead} />
-            <HistorySection lead={lead} />
             <PersonSection lead={lead} />
           </div>
         </div>

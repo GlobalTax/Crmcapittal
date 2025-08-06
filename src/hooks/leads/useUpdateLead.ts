@@ -67,7 +67,7 @@ export const useUpdateLead = () => {
         .from('pipeline_stages')
         .select('id')
         .eq('name', 'Ganado')
-        .maybeSingle();
+        .single();
 
       if (!stages) {
         throw new Error('No se encontró la etapa "Ganado"');
@@ -110,7 +110,7 @@ export const useUpdateLead = () => {
         .from('pipeline_stages')
         .select('id')
         .eq('name', 'Perdido')
-        .maybeSingle();
+        .single();
 
       if (!stages) {
         throw new Error('No se encontró la etapa "Perdido"');

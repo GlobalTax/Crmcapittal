@@ -139,6 +139,7 @@ export interface CreateLeadData {
   
   // New fields
   valor_estimado?: number;
+  deal_value?: number;
   stage?: LeadStage;
   prob_conversion?: number;
   source_detail?: string;

@@ -36,6 +36,8 @@ import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreateProposalDialog } from '@/components/proposals/CreateProposalDialog';
 import { CreateMandateDialog } from '@/components/mandates/CreateMandateDialog';
+import { EditableDealValue } from './EditableDealValue';
+import { HistorySection } from './HistorySection';
 
 interface PipedriveMainContentProps {
   lead: Lead;
@@ -219,12 +221,16 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
           </div>
           
           <div className="text-right">
-            <div className="text-3xl font-bold text-green-600 mb-1">
-              {formatCurrency(lead.deal_value)}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Valor del deal
-            </div>
+            <EditableDealValue 
+              value={lead.deal_value || 0} 
+              leadId={lead.id}
+              onUpdate={(newValue) => {
+                updateLead({
+                  id: lead.id,
+                  updates: { deal_value: newValue }
+                });
+              }}
+            />
           </div>
         </div>
 
@@ -310,7 +316,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
           onValueChange={setActiveTab}
           className="h-full flex flex-col"
         >
-          <TabsList className="grid w-full grid-cols-5 mx-6 mt-4">
+          <TabsList className="grid w-full grid-cols-6 mx-6 mt-4">
             <TabsTrigger value="overview" className="transition-all duration-200">
               Resumen
             </TabsTrigger>
@@ -322,6 +328,9 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             </TabsTrigger>
             <TabsTrigger value="tasks" className="transition-all duration-200">
               Tareas ({tasks.filter(t => t.status !== 'completed').length})
+            </TabsTrigger>
+            <TabsTrigger value="history" className="transition-all duration-200">
+              Historia
             </TabsTrigger>
             <TabsTrigger value="proposal" className="transition-all duration-200">
               Propuesta
@@ -637,6 +646,10 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                   </ScrollArea>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="history" className="h-full overflow-y-auto animate-fade-in">
+              <HistorySection lead={lead} />
             </TabsContent>
 
             <TabsContent value="proposal" className="h-full overflow-y-auto animate-fade-in">
