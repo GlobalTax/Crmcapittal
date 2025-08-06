@@ -30,7 +30,7 @@ const DealPage = lazy(() => import('@/pages/DealPage'));
 const Proposals = lazy(() => import('@/pages/MinimalProposals'));
 // const TimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const EmailSetup = lazy(() => import('@/pages/EmailSetup'));
-const CalendarPage = lazy(() => import('@/pages/MinimalCalendar'));
+const CalendarPage = lazy(() => import('@/pages/Calendar'));
 const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
