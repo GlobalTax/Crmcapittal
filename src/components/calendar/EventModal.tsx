@@ -145,18 +145,18 @@ export const EventModal = ({ open, onOpenChange, event, onEventSaved, defaultDat
                 <Building className="inline h-4 w-4 mr-1" />
                 Lead relacionado
               </Label>
-              <Select 
-                value={leadId || ''} 
+               <Select 
+                value={leadId || 'none'} 
                 onValueChange={(value) => {
-                  setValue('lead_id', value || null);
-                  if (value) setValue('mandate_id', null); // Clear mandate if lead is selected
+                  setValue('lead_id', value === 'none' ? null : value);
+                  if (value && value !== 'none') setValue('mandate_id', null); // Clear mandate if lead is selected
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar lead" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin lead</SelectItem>
+                  <SelectItem value="none">Sin lead</SelectItem>
                   {leads.map((lead) => (
                     <SelectItem key={lead.id} value={lead.id}>
                       {lead.name} {lead.company_name && `(${lead.company_name})`}
@@ -171,18 +171,18 @@ export const EventModal = ({ open, onOpenChange, event, onEventSaved, defaultDat
                 <Target className="inline h-4 w-4 mr-1" />
                 Mandato relacionado
               </Label>
-              <Select 
-                value={mandateId || ''} 
+               <Select 
+                value={mandateId || 'none'} 
                 onValueChange={(value) => {
-                  setValue('mandate_id', value || null);
-                  if (value) setValue('lead_id', null); // Clear lead if mandate is selected
+                  setValue('mandate_id', value === 'none' ? null : value);
+                  if (value && value !== 'none') setValue('lead_id', null); // Clear lead if mandate is selected
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar mandato" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin mandato</SelectItem>
+                  <SelectItem value="none">Sin mandato</SelectItem>
                   {mandates.map((mandate) => (
                     <SelectItem key={mandate.id} value={mandate.id}>
                       {mandate.mandate_name} ({mandate.client_name})
