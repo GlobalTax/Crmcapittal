@@ -57,9 +57,9 @@ export const useTimeEntries = () => {
       });
     },
     enabled: !!user,
-    retry: 2,
+    retry: 1, // Reduced retries from 2 to 1
     refetchOnWindowFocus: true,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 60000, // Refetch every 60 seconds (reduced from 30s)
   });
 
   // Create time entry mutation

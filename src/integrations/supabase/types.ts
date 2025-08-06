@@ -6425,6 +6425,8 @@ export type Database = {
           hourly_rate: number | null
           id: string
           is_billable: boolean
+          lead_id: string | null
+          mandate_id: string | null
           operation_id: string | null
           planned_task_id: string | null
           start_time: string
@@ -6441,6 +6443,8 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           is_billable?: boolean
+          lead_id?: string | null
+          mandate_id?: string | null
           operation_id?: string | null
           planned_task_id?: string | null
           start_time: string
@@ -6457,6 +6461,8 @@ export type Database = {
           hourly_rate?: number | null
           id?: string
           is_billable?: boolean
+          lead_id?: string | null
+          mandate_id?: string | null
           operation_id?: string | null
           planned_task_id?: string | null
           start_time?: string
@@ -6464,6 +6470,20 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_time_entries_lead"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_time_entries_mandate"
+            columns: ["mandate_id"]
+            isOneToOne: false
+            referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "time_entries_contact_id_fkey"
             columns: ["contact_id"]

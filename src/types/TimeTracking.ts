@@ -35,6 +35,11 @@ export interface TimeEntry {
   hourly_rate?: number;
   created_at: string;
   updated_at: string;
+  // Related data from joins
+  planned_task?: { title: string };
+  lead?: { id: string; name: string; company_name: string };
+  mandate?: { id: string; mandate_name: string; client_name: string };
+  contact?: { id: string; name: string };
 }
 
 export interface CreatePlannedTaskData {
