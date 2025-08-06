@@ -315,6 +315,18 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
               Crear Mandato
             </Button>
           </div>
+          
+          {/* Diálogos */}
+          <CreateProposalDialog
+            isOpen={isProposalDialogOpen}
+            onClose={() => setIsProposalDialogOpen(false)}
+            leadId={lead.id}
+          />
+          
+          <CreateMandateDialog
+            onSuccess={() => setIsMandateDialogOpen(false)}
+            leadId={lead.id}
+          />
         </div>
       </div>
 

@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Users, UserCheck } from 'lucide-react';
-import { useUsers } from '@/hooks/useUsers';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useLeads } from '@/hooks/useLeads';
 import { Lead } from '@/types/Lead';
 import { toast } from 'sonner';
@@ -12,7 +13,15 @@ interface TeamAssignmentSectionProps {
 }
 
 export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
-  const { users, isLoading } = useUsers();
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['users-with-roles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_users_with_roles');
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
   const { updateLead } = useLeads();
   
   const assignedUser = users.find(user => user.user_id === lead.assigned_to_id);
