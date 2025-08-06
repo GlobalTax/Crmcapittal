@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Lead } from '@/types/Lead';
@@ -35,8 +34,9 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
   const [activeTab, setActiveTab] = useState('resumen');
   const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
 
-  // Log para verificar que el componente se reconstruyó correctamente
-  console.log('🔄 LeadDetailDrawer RECONSTRUIDO - Sin pestaña Propuesta:', new Date().toISOString());
+  // CONFIRMACIÓN: Solo existen 4 pestañas - Propuesta eliminada definitivamente
+  console.log('🔥 PESTAÑA PROPUESTA ELIMINADA DEFINITIVAMENTE - Solo 4 pestañas:', ['resumen', 'actividades', 'notas', 'tareas']);
+  console.log('🔄 LeadDetailDrawer timestamp:', new Date().toISOString());
 
   const handleActionClick = (action: string) => {
     if (!lead) return;
@@ -194,7 +194,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
           {/* Área de contenido principal */}
           <div className="flex-1 overflow-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-              {/* Navegación de pestañas - SOLO 4 PESTAÑAS */}
+              {/* SOLO 4 PESTAÑAS - PROPUESTA ELIMINADA PARA SIEMPRE */}
               <div className="px-6 border-b border-border">
                 <TabsList className="bg-transparent h-auto p-0 gap-6">
                   <TabsTrigger 
@@ -227,7 +227,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                 </TabsList>
               </div>
 
-              {/* Contenido de pestañas con scroll - SOLO 4 PESTAÑAS */}
+              {/* SOLO 4 CONTENIDOS - SIN PROPUESTA */}
               <div className="flex-1 overflow-y-auto p-6">
                 <TabsContent value="resumen" className="mt-0">
                   <LeadOverviewTab lead={lead} />
