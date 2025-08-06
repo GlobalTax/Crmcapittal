@@ -4,7 +4,7 @@ import { useLeadActivities } from '@/hooks/leads/useLeadActivities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar, User, MessageSquare } from 'lucide-react';
+import { Plus, Calendar, User, MessageSquare, Mail, Phone, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -17,10 +17,16 @@ export const LeadActivityTab = ({ lead }: LeadActivityTabProps) => {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'call':
-        return <User className="h-4 w-4" />;
-      case 'meeting':
+      case 'CALL_MADE':
+        return <Phone className="h-4 w-4" />;
+      case 'MEETING_SCHEDULED':
         return <Calendar className="h-4 w-4" />;
+      case 'EMAIL_SENT':
+      case 'EMAIL_OPENED':
+      case 'EMAIL_CLICKED':
+        return <Mail className="h-4 w-4" />;
+      case 'DOCUMENT_DOWNLOADED':
+        return <FileText className="h-4 w-4" />;
       default:
         return <MessageSquare className="h-4 w-4" />;
     }
@@ -28,14 +34,43 @@ export const LeadActivityTab = ({ lead }: LeadActivityTabProps) => {
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'call':
+      case 'CALL_MADE':
         return 'text-blue-600';
-      case 'meeting':
+      case 'MEETING_SCHEDULED':
         return 'text-green-600';
-      case 'email':
+      case 'EMAIL_SENT':
+      case 'EMAIL_OPENED':
+      case 'EMAIL_CLICKED':
         return 'text-purple-600';
+      case 'DOCUMENT_DOWNLOADED':
+        return 'text-orange-600';
       default:
         return 'text-gray-600';
+    }
+  };
+
+  const getActivityLabel = (type: string) => {
+    switch (type) {
+      case 'EMAIL_SENT':
+        return 'Email enviado';
+      case 'EMAIL_OPENED':
+        return 'Email abierto';
+      case 'EMAIL_CLICKED':
+        return 'Email clickeado';
+      case 'CALL_MADE':
+        return 'Llamada realizada';
+      case 'MEETING_SCHEDULED':
+        return 'Reunión programada';
+      case 'FORM_SUBMITTED':
+        return 'Formulario enviado';
+      case 'WEBSITE_VISIT':
+        return 'Visita al sitio web';
+      case 'DOCUMENT_DOWNLOADED':
+        return 'Documento descargado';
+      case 'STAGE_CHANGED':
+        return 'Estado cambiado';
+      default:
+        return 'Actividad';
     }
   };
 
@@ -89,14 +124,17 @@ export const LeadActivityTab = ({ lead }: LeadActivityTabProps) => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">{activity.subject || 'Sin asunto'}</h4>
+                      <h4 className="font-medium">{getActivityLabel(activity.activity_type)}</h4>
                       <Badge variant="outline" className="text-xs">
                         {activity.activity_type}
                       </Badge>
                     </div>
-                    {activity.description && (
+                    {activity.activity_data && (
                       <p className="text-sm text-muted-foreground mb-2">
-                        {activity.description}
+                        {typeof activity.activity_data === 'object' 
+                          ? JSON.stringify(activity.activity_data) 
+                          : String(activity.activity_data)
+                        }
                       </p>
                     )}
                     <div className="flex items-center text-xs text-muted-foreground">
@@ -104,6 +142,11 @@ export const LeadActivityTab = ({ lead }: LeadActivityTabProps) => {
                       <span>
                         {format(new Date(activity.created_at), 'dd MMM yyyy HH:mm', { locale: es })}
                       </span>
+                      {activity.points_awarded && (
+                        <span className="ml-4">
+                          +{activity.points_awarded} puntos
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
