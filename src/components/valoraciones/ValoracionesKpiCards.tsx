@@ -33,6 +33,7 @@ export const ValoracionesKpiCards = () => {
         title="Total Valoraciones"
         value={kpis.totalValoraciones}
         icon={TrendingUp}
+        colorScheme="info"
         change={{ value: `${kpis.valoracionesCompletadas} completadas`, trend: 'up' }}
       />
       
@@ -40,6 +41,7 @@ export const ValoracionesKpiCards = () => {
         title="Pendientes"
         value={kpis.valoracionesPendientes}
         icon={Clock}
+        colorScheme="warning"
         change={{ value: "Por iniciar", trend: 'down' }}
       />
       
@@ -47,6 +49,7 @@ export const ValoracionesKpiCards = () => {
         title="En Proceso"
         value={kpis.valoracionesEnProceso}
         icon={PlayCircle}
+        colorScheme="primary"
         change={{ value: "Activas", trend: 'up' }}
       />
       
@@ -54,6 +57,7 @@ export const ValoracionesKpiCards = () => {
         title="Completadas"
         value={kpis.valoracionesCompletadas}
         icon={CheckCircle}
+        colorScheme="success"
         change={{ value: "Finalizadas", trend: 'up' }}
       />
       
@@ -61,6 +65,7 @@ export const ValoracionesKpiCards = () => {
         title="Ingresos Totales"
         value={formatCurrency(kpis.ingresosTotales)}
         icon={TrendingUp}
+        colorScheme="success"
         change={{ 
           value: `Promedio: ${formatCurrency(kpis.promedioEvPorValoracion)}`, 
           trend: 'up' 
@@ -71,6 +76,7 @@ export const ValoracionesKpiCards = () => {
         title="Urgentes"
         value={kpis.valoracionesUrgentes}
         icon={AlertTriangle}
+        colorScheme="destructive"
         change={{ value: "Alta prioridad", trend: 'down' }}
       />
     </div>
