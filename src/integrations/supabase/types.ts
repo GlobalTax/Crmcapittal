@@ -7904,16 +7904,12 @@ export type Database = {
       }
       vw_leads_kpi: {
         Row: {
-          avg_score: number | null
-          avg_time_to_qualify_days: number | null
-          conversion_rate: number | null
-          conversion_trend_data: Json | null
-          growth_rate_30d: number | null
-          hot_leads: number | null
-          leads_trend: string | null
+          avg_lead_score: number | null
+          avg_prob_conversion: number | null
+          contacted_leads: number | null
+          disqualified_leads: number | null
           new_leads_30d: number | null
           new_leads_7d: number | null
-          pipeline_value: number | null
           qualified_leads: number | null
           total_leads: number | null
         }
