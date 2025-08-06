@@ -8,15 +8,15 @@ interface OperationsViewToggleProps {
 
 export const OperationsViewToggle = ({ viewMode, onViewModeChange }: OperationsViewToggleProps) => {
   return (
-    <div className="flex items-center space-x-2 bg-white rounded-lg p-1" style={{ border: '0.5px solid black' }}>
+    <div className="flex items-center space-x-1 border border-gray-200 rounded-lg p-1">
       <Button
         variant={viewMode === 'grid' ? 'default' : 'ghost'}
         size="sm"
         onClick={() => onViewModeChange('grid')}
-        className={`${
+        className={`transition-colors duration-200 ${
           viewMode === 'grid' 
-            ? 'bg-black text-white hover:bg-gray-800' 
-            : 'text-black hover:bg-gray-100'
+            ? 'bg-gray-100 text-gray-900' 
+            : 'text-gray-600 hover:bg-gray-50'
         }`}
       >
         Cards
@@ -25,10 +25,10 @@ export const OperationsViewToggle = ({ viewMode, onViewModeChange }: OperationsV
         variant={viewMode === 'table' ? 'default' : 'ghost'}
         size="sm"
         onClick={() => onViewModeChange('table')}
-        className={`${
+        className={`transition-colors duration-200 ${
           viewMode === 'table' 
-            ? 'bg-black text-white hover:bg-gray-800' 
-            : 'text-black hover:bg-gray-100'
+            ? 'bg-gray-100 text-gray-900' 
+            : 'text-gray-600 hover:bg-gray-50'
         }`}
       >
         Tabla

@@ -33,35 +33,35 @@ export const ManagersList = () => {
     <div className="space-y-8">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-4 border border-gray-200 hover:shadow-md transition-shadow">
+        <div className="bg-white p-4 border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">Total Gestores</p>
-              <p className="text-sm font-bold text-black">{totalManagers}</p>
+              <p className="text-sm font-medium text-gray-700">Total Gestores</p>
+              <p className="text-2xl font-bold text-gray-900">{totalManagers}</p>
             </div>
-            <Users className="h-8 w-8 text-muted-foreground" />
+            <Users className="h-8 w-8 text-gray-400" />
           </div>
         </div>
 
-        <div className="bg-white p-4 border border-gray-200 hover:shadow-md transition-shadow">
+        <div className="bg-white p-4 border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">Gestores Activos</p>
-              <p className="text-sm font-bold text-black">{activeManagers}</p>
+              <p className="text-sm font-medium text-gray-700">Gestores Activos</p>
+              <p className="text-2xl font-bold text-gray-900">{activeManagers}</p>
             </div>
-            <Briefcase className="h-8 w-8 text-muted-foreground" />
+            <Briefcase className="h-8 w-8 text-gray-400" />
           </div>
         </div>
 
-        <div className="bg-white p-4 border border-gray-200 hover:shadow-md transition-shadow">
+        <div className="bg-white p-4 border border-gray-200 hover:bg-gray-50 transition-colors duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">Departamentos</p>
-              <p className="text-sm font-bold text-black">
+              <p className="text-sm font-medium text-gray-700">Departamentos</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {Array.from(new Set(managers.map(m => m.position).filter(Boolean))).length}
               </p>
             </div>
-            <Mail className="h-8 w-8 text-muted-foreground" />
+            <Mail className="h-8 w-8 text-gray-400" />
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@ export const ManagersList = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {managers.map((manager) => (
-            <Card key={manager.id} className="hover:shadow-lg transition-all duration-200 border-black bg-white">
+            <Card key={manager.id} className="hover:bg-gray-50 transition-colors duration-200 border-gray-200 bg-white">
               <CardHeader className="text-center pb-4">
                 <ManagerPhotoUpload
                   managerId={manager.id}

@@ -10,12 +10,16 @@ interface PipelineViewToggleProps {
 
 export const PipelineViewToggle = ({ currentView, onViewChange }: PipelineViewToggleProps) => {
   return (
-    <div className="flex items-center space-x-1 border rounded-lg p-1">
+    <div className="flex items-center space-x-1 border border-gray-200 rounded-lg p-1">
       <Button
         variant={currentView === 'table' ? 'default' : 'ghost'}
         size="sm"
         onClick={() => onViewChange('table')}
-        className="flex items-center space-x-2"
+        className={`flex items-center space-x-2 transition-colors duration-200 ${
+          currentView === 'table' 
+            ? 'bg-gray-100 text-gray-900' 
+            : 'text-gray-600 hover:bg-gray-50'
+        }`}
       >
         <Table className="h-4 w-4" />
         <span>Tabla</span>
@@ -24,7 +28,11 @@ export const PipelineViewToggle = ({ currentView, onViewChange }: PipelineViewTo
         variant={currentView === 'pipeline' ? 'default' : 'ghost'}
         size="sm"
         onClick={() => onViewChange('pipeline')}
-        className="flex items-center space-x-2"
+        className={`flex items-center space-x-2 transition-colors duration-200 ${
+          currentView === 'pipeline' 
+            ? 'bg-gray-100 text-gray-900' 
+            : 'text-gray-600 hover:bg-gray-50'
+        }`}
       >
         <Kanban className="h-4 w-4" />
         <span>Pipeline</span>

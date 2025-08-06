@@ -25,16 +25,16 @@ const ProjectsList = () => {
     }
   ];
 
-  const getStatusColor = (status: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return { text: 'Activo', color: 'text-green-700' };
       case 'planning':
-        return 'bg-blue-100 text-blue-800';
+        return { text: 'Planificación', color: 'text-blue-700' };
       case 'completed':
-        return 'bg-gray-100 text-gray-800';
+        return { text: 'Completado', color: 'text-gray-700' };
       default:
-        return 'bg-gray-100 text-gray-800';
+        return { text: 'Desconocido', color: 'text-gray-700' };
     }
   };
 
@@ -84,13 +84,13 @@ const ProjectsList = () => {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((project) => (
-          <Card key={project.id} className="hover:shadow-md transition-shadow cursor-pointer">
+          <Card key={project.id} className="hover:bg-gray-50 transition-colors duration-200 cursor-pointer">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">{project.name}</CardTitle>
-                <Badge className={getStatusColor(project.status)}>
-                  {getStatusLabel(project.status)}
-                </Badge>
+                <span className={`text-sm font-medium ${getStatusText(project.status).color}`}>
+                  {getStatusText(project.status).text}
+                </span>
               </div>
             </CardHeader>
             <CardContent>
