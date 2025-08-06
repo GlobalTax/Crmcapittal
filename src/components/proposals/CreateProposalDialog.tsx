@@ -12,7 +12,7 @@ import { useProposals } from '@/hooks/useProposals';
 import { useContacts } from '@/hooks/useContacts';
 import { useCompanies } from '@/hooks/useCompanies';
 import { usePracticeAreas } from '@/hooks/usePracticeAreas';
-import { useLeads } from '@/hooks/useLeads';
+
 import { CreateProposalData } from '@/types/Proposal';
 
 interface CreateProposalDialogProps {
@@ -50,7 +50,7 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({
   const { contacts } = useContacts();
   const { companies } = useCompanies();
   const { practiceAreas } = usePracticeAreas();
-  const { updateLead } = useLeads();
+  // const { updateLead } = useLeads(); // Leads functionality removed
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,20 +80,8 @@ export const CreateProposalDialog: React.FC<CreateProposalDialogProps> = ({
       
       // Si la propuesta se creó desde un lead, actualizar el estado del lead
       if (leadId && proposal) {
-        try {
-          console.log('Updating lead status for leadId:', leadId);
-          await updateLead({ 
-            id: leadId, 
-            updates: { 
-              stage: 'propuesta',
-              status: 'QUALIFIED'
-            } 
-          });
-          console.log('Lead updated successfully');
-        } catch (error) {
-          console.warn('Error updating lead status:', error);
-          // No bloquear el flujo si falla la actualización del lead
-        }
+        // Lead update functionality removed
+        console.log('Lead update functionality removed');
       }
       
       // Limpiar formulario

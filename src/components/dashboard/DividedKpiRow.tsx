@@ -1,10 +1,11 @@
 import { DashboardCard } from '@/components/dashboard/DashboardCard';
-import { useKpisLeads } from '@/hooks/useKpisLeads';
+
 import { useKpisVenta } from '@/hooks/useKpisVenta';
 import { TrendingUp, DollarSign, Target, CheckCircle, Percent, Calendar } from 'lucide-react';
 
 export const DividedKpiRow = () => {
-  const { kpis: leadsKpis, loading: leadsLoading } = useKpisLeads();
+  const leadsKpis = null; // Leads functionality removed
+  const leadsLoading = false;
   const { kpis: ventaKpis, loading: ventaLoading } = useKpisVenta();
 
   const loading = leadsLoading || ventaLoading;

@@ -11,7 +11,7 @@ import { CreateBuyingMandateData } from '@/types/BuyingMandate';
 import { FormValidationProvider, useFormValidation } from '@/contexts/FormValidationContext';
 import { ValidatedInput } from '@/components/validation/ValidatedInput';
 import { mandateValidationRules } from '@/utils/entityValidationRules';
-import { useLeads } from '@/hooks/useLeads';
+
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -30,7 +30,7 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
   const [locationInput, setLocationInput] = useState('');
   const { createMandate } = useBuyingMandates();
   const { validateForm, canSave, resetValidation } = useFormValidation();
-  const { updateLead } = useLeads();
+  // const { updateLead } = useLeads(); // Leads functionality removed
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<CreateBuyingMandateData>({
@@ -68,20 +68,8 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
       
       // Si el mandato se creó desde un lead, actualizar el estado del lead
       if (leadId && mandate) {
-        try {
-          console.log('Updating lead status for leadId:', leadId);
-          await updateLead({ 
-            id: leadId, 
-            updates: { 
-              stage: 'ganado',
-              status: 'CONVERTED'
-            } 
-          });
-          console.log('Lead updated successfully');
-        } catch (error) {
-          console.warn('Error updating lead status:', error);
-          // No bloquear el flujo si falla la actualización del lead
-        }
+        // Lead update functionality removed
+        console.log('Lead update functionality removed');
       }
       
       resetValidation();

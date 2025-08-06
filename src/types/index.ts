@@ -9,7 +9,6 @@ export * from './Base';
 
 // Entity types
 export * from './Contact';
-export * from './Lead';
 export * from './Company';
 export * from './Operation';
 export * from './AutomatedNotifications';
@@ -23,25 +22,6 @@ export type {
   ContactSource
 } from './Contact';
 
-export type {
-  LeadStatus,
-  LeadSource,
-  LeadOrigin,
-  LeadServiceType,
-  LeadPriority,
-  LeadQuality,
-  LeadStage as LeadPipelineStage
-} from './Lead';
-
-export type {
-  LeadStage as LeadNurturingStage,
-  NurturingStatus,
-  ActivityType,
-  LeadNurturing,
-  LeadActivity,
-  NurturingSequence,
-  LeadScoringRule
-} from './LeadNurturing';
 
 export type {
   CompanySize,

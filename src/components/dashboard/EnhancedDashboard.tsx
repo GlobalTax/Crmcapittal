@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOperations } from '@/hooks/useOperations';
-import { useLeads } from '@/hooks/useLeads';
+
 import { useNegocios } from '@/hooks/useNegocios';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
@@ -33,7 +33,8 @@ const EnhancedDashboard = React.memo(() => {
   
   const { role, loading: roleLoading } = useUserRole();
   const { operations, loading: operationsLoading } = useOperations();
-  const { leads, isLoading: leadsLoading } = useLeads({});
+  const leads: any[] = []; // Leads functionality removed
+  const leadsLoading = false;
   const { negocios, loading: negociosLoading } = useNegocios();
 
   const isLoading = roleLoading || operationsLoading || leadsLoading || negociosLoading;
