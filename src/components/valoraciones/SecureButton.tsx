@@ -28,6 +28,7 @@ export const SecureButton = React.forwardRef<
           <TooltipTrigger asChild>
             <div className="inline-flex">
               <Button
+                ref={ref}
                 {...props}
                 disabled={true}
                 className={`opacity-50 cursor-not-allowed ${className}`}

@@ -104,7 +104,7 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
   }, [filteredData, startExport]);
   
   // Renderizado optimizado del componente de búsqueda
-  const SearchComponent = useMemo(() => (
+  const SearchComponent = React.useMemo(() => (
     <ValoracionesSearchBar
       searchTerm={searchTerm}
       onSearchChange={setSearchTerm}
@@ -113,8 +113,8 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
     />
   ), [searchTerm, setSearchTerm, clearFilters]);
 
-  // Renderizado optimizado de botones de exportación
-  const ExportButtons = useMemo(() => (
+  // Renderizado optimizado de botones de exportación  
+  const ExportButtons = React.useMemo(() => (
     <ValoracionesExportButtons
       onExport={handleExport}
       isExporting={isExporting}
@@ -122,7 +122,7 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
   ), [handleExport, isExporting]);
 
   // Renderizado optimizado de la paginación
-  const PaginationComponent = useMemo(() => (
+  const PaginationComponent = React.useMemo(() => (
     <ValoracionesPagination
       currentPage={currentPage}
       totalPages={totalPages}
