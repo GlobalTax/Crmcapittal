@@ -23,7 +23,7 @@ import { LeadActivityTab } from './LeadActivityTab';
 import { LeadUnifiedActivityTab } from './LeadUnifiedActivityTab';
 import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
-import { LeadProposalTab } from './tabs/LeadProposalTab';
+import { LeadProposalTabEnhanced } from './tabs/LeadProposalTabEnhanced';
 import { LeadSidebarWidgets } from './widgets/LeadSidebarWidgets';
 
 interface LeadDetailDrawerProps {
@@ -275,7 +275,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                 
                 {shouldShowProposalTab(lead) && (
                   <TabsContent value="propuesta" className="mt-0">
-                    <LeadProposalTab lead={lead} />
+                    <LeadProposalTabEnhanced lead={lead} />
                   </TabsContent>
                 )}
               </div>
