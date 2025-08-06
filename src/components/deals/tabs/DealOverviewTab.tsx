@@ -26,12 +26,12 @@ export const DealOverviewTab = ({ deal }: DealOverviewTabProps) => {
 
   const getStageColor = (stage: string) => {
     const colors: Record<string, string> = {
-      'Lead': '#1E88E5',
-      'In Progress': '#FFB300',
-      'Won': '#00C48C',
-      'Lost': '#EF5350'
+      'Lead': '#6b7280',        // Professional gray
+      'In Progress': '#f59e0b', // Soft orange
+      'Won': '#059669',         // Professional green
+      'Lost': '#dc2626'         // Soft red
     };
-    return colors[stage] || '#6B7280';
+    return colors[stage] || '#6b7280';
   };
 
   return (

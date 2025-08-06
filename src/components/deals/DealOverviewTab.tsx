@@ -10,11 +10,11 @@ interface DealOverviewTabProps {
 export const DealOverviewTab = ({ deal }: DealOverviewTabProps) => {
   const getStageColor = (stage: string) => {
     switch (stage) {
-      case 'Lead': return 'hsl(213, 94%, 68%)';
-      case 'In Progress': return 'hsl(45, 93%, 47%)';
-      case 'Won': return 'hsl(158, 100%, 38%)';
-      case 'Lost': return 'hsl(4, 86%, 63%)';
-      default: return 'hsl(210, 11%, 71%)';
+      case 'Lead': return '#6b7280';        // Professional gray
+      case 'In Progress': return '#f59e0b'; // Soft orange
+      case 'Won': return '#059669';         // Professional green
+      case 'Lost': return '#dc2626';        // Soft red
+      default: return '#6b7280';
     }
   };
 

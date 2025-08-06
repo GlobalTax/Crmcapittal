@@ -51,22 +51,28 @@ export default {
 			},
 			colors: {
 				primary: {
-					DEFAULT: 'hsl(220, 91%, 55%)',
-					hover: 'hsl(220, 91%, 45%)',
+					DEFAULT: 'hsl(220, 13%, 42%)',
+					hover: 'hsl(220, 13%, 35%)',
 					foreground: 'hsl(0, 0%, 100%)'
 				},
 				neutral: {
 					0: 'hsl(0, 0%, 100%)',
-					100: 'hsl(240, 9%, 96%)',
-					900: 'hsl(0, 0%, 12%)',
+					100: 'hsl(220, 9%, 96%)',
+					900: 'hsl(220, 9%, 9%)',
 				},
 				success: {
-					DEFAULT: 'hsl(142, 76%, 36%)',
+					DEFAULT: 'hsl(158, 64%, 35%)',
 					foreground: 'hsl(0, 0%, 100%)'
 				},
 				warning: {
-					DEFAULT: 'hsl(38, 92%, 50%)',
+					DEFAULT: 'hsl(38, 92%, 48%)',
 					foreground: 'hsl(0, 0%, 100%)'
+				},
+				stage: {
+					lead: 'hsl(220, 13%, 42%)',
+					'in-progress': 'hsl(38, 92%, 48%)',
+					won: 'hsl(158, 64%, 35%)',
+					lost: 'hsl(0, 73%, 50%)'
 				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

@@ -7,28 +7,28 @@
 
 @layer base {
   :root {
-    /* LegalCRM Color palette */
+    /* Professional Color palette */
     --background: 0 0% 100%;
-    --foreground: 218 11% 15%;
+    --foreground: 220 9% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 218 11% 15%;
+    --card-foreground: 220 9% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 218 11% 15%;
-    --primary: 214 84% 56%;
+    --popover-foreground: 220 9% 9%;
+    --primary: 220 13% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 14% 97%;
-    --secondary-foreground: 218 11% 15%;
-    --muted: 210 17% 98%;
-    --muted-foreground: 218 7% 51%;
-    --accent: 214 84% 56%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --secondary: 220 9% 96%;
+    --secondary-foreground: 220 9% 9%;
+    --muted: 220 9% 98%;
+    --muted-foreground: 220 5% 56%;
+    --accent: 220 9% 96%;
+    --accent-foreground: 220 9% 9%;
+    --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 214 84% 56%;
+    --border: 220 9% 91%;
+    --input: 220 9% 91%;
+    --ring: 220 13% 42%;
     
-    /* Sidebar specific colors - Attio style */
+    /* Sidebar specific colors - Professional style */
     --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 62%;
     --sidebar-primary: 0 0% 100%;
@@ -38,26 +38,31 @@
     --sidebar-border: 0 0% 15%;
     --sidebar-ring: 0 0% 62%;
     
-    /* Status colors */
-    --success: 142 76% 36%;
+    /* Professional pipeline stage colors */
+    --stage-lead: 220 13% 42%;          /* #6b7280 - Professional gray */
+    --stage-in-progress: 38 92% 48%;    /* #f59e0b - Soft orange */
+    --stage-won: 158 64% 35%;           /* #059669 - Professional green */
+    --stage-lost: 0 73% 50%;            /* #dc2626 - Soft red */
+    
+    /* Status colors - more subtle */
+    --success: 158 64% 35%;
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 38 92% 48%;
     --warning-foreground: 0 0% 100%;
-    --info: 214 84% 56%;
+    --info: 220 13% 42%;
     --info-foreground: 0 0% 100%;
 
     --radius: 8px;
 
-    /* Enhanced modern colors */
+    /* Enhanced neutral backgrounds */
     --surface: 0 0% 100%;
-    --surface-variant: 216 2% 97%;
-    --outline: 220 13% 85%;
-    --outline-variant: 220 9% 90%;
+    --surface-variant: 220 9% 98%;
+    --outline: 220 9% 88%;
+    --outline-variant: 220 9% 92%;
 
-    /* New gradient colors */
-    --gradient-1: 270 41% 64%;
-    --gradient-2: 145 47% 73%;
-    --gradient-3: 340 38% 70%;
+    /* Subtle interaction colors */
+    --hover-background: 220 9% 97%;
+    --focus-ring: 220 13% 42%;
   }
 
   .dark {
@@ -118,9 +123,9 @@
     @apply bg-background min-h-screen;
   }
 
-  /* Improved focus styles */
+  /* Improved focus styles - more subtle */
   [data-focus-visible]:focus {
-    @apply outline-none ring-2 ring-ring ring-offset-2;
+    @apply outline-none ring-1 ring-focus-ring ring-offset-1;
   }
 
   /* Smooth scrolling */
@@ -156,8 +161,8 @@
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   .gradient-border {

@@ -33,8 +33,8 @@ export const TransaccionHeader = ({
 
   const getStageColor = (stage?: string) => {
     const colors: Record<string, string> = {
-      'Lead': 'bg-blue-100 text-blue-600',
-      'In Progress': 'bg-yellow-100 text-yellow-600',
+      'Lead': 'bg-gray-100 text-gray-600',
+      'In Progress': 'bg-orange-100 text-orange-600',
       'Won': 'bg-green-100 text-green-600',
       'Lost': 'bg-red-100 text-red-600'
     };

@@ -8,10 +8,10 @@ interface DealProgressBarProps {
 
 const STAGES = ['Lead', 'In Progress', 'Won', 'Lost'];
 const STAGE_COLORS = {
-  'Lead': '#1E88E5',
-  'In Progress': '#FFB300', 
-  'Won': '#00C48C',
-  'Lost': '#EF5350'
+  'Lead': '#6b7280',        // Professional gray
+  'In Progress': '#f59e0b',  // Soft orange
+  'Won': '#059669',         // Professional green  
+  'Lost': '#dc2626'         // Soft red
 } as const;
 
 export const DealProgressBar = ({ stage, className = "" }: DealProgressBarProps) => {
