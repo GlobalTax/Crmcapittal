@@ -37,16 +37,6 @@ interface NavSection {
 
 const navigationSections: NavSection[] = [
   {
-    title: "Principal",
-    items: [
-      { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
-      { to: '/', label: 'Control Leads', icon: LayoutDashboard },
-      { to: '/gestion-leads', label: 'Gestión de Leads', icon: TrendingUp },
-      { to: '/contactos', label: 'Contactos', icon: Users },
-      { to: '/empresas', label: 'Empresas', icon: Building2 },
-    ]
-  },
-  {
     title: "Ventas & Transacciones",
     items: [
       { to: '/transacciones', label: 'Mandatos de Venta', icon: Briefcase },
@@ -87,11 +77,20 @@ const getAdminSection = (isSuperAdmin: boolean): NavSection => ({
   items: [
     { to: '/collaborators', label: 'Colaboradores', icon: UserPlus },
     { to: '/users', label: 'Gestión de Usuarios', icon: Users },
-    ...(isSuperAdmin ? [
-      { to: '/asignaciones', label: 'Control de Asignaciones', icon: Users2 },
-      { to: '/comisiones', label: 'Comisiones', icon: DollarSign }
-    ] : []),
+    ...(isSuperAdmin ? [{ to: '/comisiones', label: 'Comisiones', icon: DollarSign }] : []),
     { to: '/integrations', label: 'Integraciones', icon: Zap },
+  ]
+});
+
+const getPrincipalSection = (isSuperAdmin: boolean): NavSection => ({
+  title: "Principal",
+  items: [
+    { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
+    { to: '/', label: 'Control Leads', icon: LayoutDashboard },
+    ...(isSuperAdmin ? [{ to: '/asignaciones', label: 'Control de Asignaciones', icon: Users2 }] : []),
+    { to: '/gestion-leads', label: 'Gestión de Leads', icon: TrendingUp },
+    { to: '/contactos', label: 'Contactos', icon: Users },
+    { to: '/empresas', label: 'Empresas', icon: Building2 },
   ]
 });
 
@@ -101,10 +100,6 @@ export function AttioSidebar() {
   const { role } = useUserRole();
   
   const { leads } = useLeads();
-  
-  // Debug logs
-  console.log('AttioSidebar - Current role:', role);
-  console.log('AttioSidebar - Is superadmin?', role === 'superadmin');
   
   const isAdmin = role === 'admin' || role === 'superadmin';
   const isSuperAdmin = role === 'superadmin';
@@ -117,7 +112,7 @@ export function AttioSidebar() {
     return new Date(lead.created_at) >= today;
   }).length;
 
-  const allSections = [...navigationSections, ...(isAdmin ? [getAdminSection(isSuperAdmin)] : [])];
+  const allSections = [getPrincipalSection(isSuperAdmin), ...navigationSections, ...(isAdmin ? [getAdminSection(isSuperAdmin)] : [])];
 
   return (
     <aside className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col" style={{ backgroundColor: '#FBFBFB' }}>
@@ -130,8 +125,6 @@ export function AttioSidebar() {
           <div>
             <h1 className="font-medium text-sidebar-accent-foreground text-sm">CRM Pro</h1>
             <p className="text-xs text-sidebar-foreground">M&A Platform</p>
-            {/* Temporal debug info */}
-            <p className="text-xs text-red-500">Debug: {role || 'No role'}</p>
           </div>
         </div>
       </div>
