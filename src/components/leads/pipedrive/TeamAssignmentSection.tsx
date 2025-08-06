@@ -26,7 +26,16 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
         console.error('Error fetching users:', error);
         throw error;
       }
-      return data || [];
+      console.log('Raw users data:', data);
+      // Remove duplicates based on user_id
+      const uniqueUsers = data?.reduce((acc: any[], user: any) => {
+        if (!acc.find(u => u.user_id === user.user_id)) {
+          acc.push(user);
+        }
+        return acc;
+      }, []) || [];
+      console.log('Unique users:', uniqueUsers);
+      return uniqueUsers;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
