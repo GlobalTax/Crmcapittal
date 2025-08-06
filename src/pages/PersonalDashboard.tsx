@@ -1,1 +1,3 @@
-export { default } from './MinimalPersonalDashboard';
+import MinimalPersonalDashboard from './MinimalPersonalDashboard';
+
+export default MinimalPersonalDashboard;
