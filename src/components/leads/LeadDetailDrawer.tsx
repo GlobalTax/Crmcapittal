@@ -3,20 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Lead } from '@/types/Lead';
 import { useLeadActions } from '@/hooks/leads/useLeadActions';
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Mail, 
   Copy, 
-  FileText, 
   Trash2, 
   X, 
   Activity, 
   StickyNote, 
-  CheckSquare, 
-  Target,
+  CheckSquare,
   Phone,
   TrendingUp
 } from 'lucide-react';
@@ -25,7 +22,6 @@ import { LeadActivityTab } from './LeadActivityTab';
 import { LeadUnifiedActivityTab } from './LeadUnifiedActivityTab';
 import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
-
 import { LeadSidebarWidgets } from './widgets/LeadSidebarWidgets';
 
 interface LeadDetailDrawerProps {
@@ -39,21 +35,19 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
   const [activeTab, setActiveTab] = useState('resumen');
   const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
 
-  // Log para depuración - verificar que el componente se está re-renderizando
-  console.log('LeadDetailDrawer renderizado - Pestaña Propuesta eliminada:', new Date().toISOString());
+  // Log para verificar que el componente se reconstruyó correctamente
+  console.log('🔄 LeadDetailDrawer RECONSTRUIDO - Sin pestaña Propuesta:', new Date().toISOString());
 
   const handleActionClick = (action: string) => {
     if (!lead) return;
 
     switch (action) {
       case 'email':
-        // Open email client with lead email
         if (lead.email) {
           window.location.href = `mailto:${lead.email}?subject=Contacto comercial - ${lead.company || lead.name}`;
         }
         break;
       case 'call':
-        // Open phone dialer
         if (lead.phone) {
           window.location.href = `tel:${lead.phone}`;
         }
@@ -62,7 +56,6 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
         convertToDeal(lead.id);
         break;
       case 'copy':
-        // Copy lead link to clipboard
         navigator.clipboard.writeText(`${window.location.origin}/leads/${lead.id}`);
         break;
       case 'delete':
@@ -79,7 +72,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
     }
   };
 
-  // Handle body scroll when drawer is open
+  // Manejar scroll del body cuando el drawer está abierto
   useEffect(() => {
     if (open) {
       document.body.classList.add('drawer-open');
@@ -92,16 +85,16 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
     };
   }, [open]);
 
-  // Get stage color based on pipeline stage - LIMPIADO SIN PROPUESTA
+  // Obtener color de etapa - SOLO ETAPAS VÁLIDAS
   const getStageColor = (stage: string) => {
-    const colors: Record<string, string> = {
+    const stageColors: Record<string, string> = {
       'Pipeline': 'hsl(213, 94%, 68%)',
       'Cualificado': 'hsl(42, 100%, 50%)',
       'Negociación': 'hsl(30, 100%, 50%)',
       'Ganado': 'hsl(158, 100%, 38%)',
       'Perdido': 'hsl(4, 86%, 63%)'
     };
-    return colors[stage] || 'hsl(210, 11%, 71%)';
+    return stageColors[stage] || 'hsl(210, 11%, 71%)';
   };
 
   if (!lead) return null;
@@ -112,7 +105,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
         className="w-full sm:max-w-4xl p-0 gap-0 bg-background border-l border-border"
         aria-labelledby="lead-drawer-title"
       >
-        {/* Header with title and actions */}
+        {/* Header con título y acciones */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex-1 min-w-0">
             <h2 
@@ -136,7 +129,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
             </div>
           </div>
           
-          {/* Action buttons */}
+          {/* Botones de acción */}
           <div className="flex items-center gap-1 ml-4">
             <Button
               variant="ghost"
@@ -196,12 +189,12 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
           </div>
         </div>
 
-        {/* Main content with sidebar layout */}
+        {/* Contenido principal con layout de sidebar */}
         <div className="flex-1 overflow-hidden flex">
-          {/* Main content area */}
+          {/* Área de contenido principal */}
           <div className="flex-1 overflow-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-              {/* Tabs navigation */}
+              {/* Navegación de pestañas - SOLO 4 PESTAÑAS */}
               <div className="px-6 border-b border-border">
                 <TabsList className="bg-transparent h-auto p-0 gap-6">
                   <TabsTrigger 
@@ -234,7 +227,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                 </TabsList>
               </div>
 
-              {/* Tab content with scroll - SIN PESTAÑA PROPUESTA */}
+              {/* Contenido de pestañas con scroll - SOLO 4 PESTAÑAS */}
               <div className="flex-1 overflow-y-auto p-6">
                 <TabsContent value="resumen" className="mt-0">
                   <LeadOverviewTab lead={lead} />
