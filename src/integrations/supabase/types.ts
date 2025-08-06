@@ -8060,13 +8060,20 @@ export type Database = {
         Returns: boolean
       }
       enhanced_log_security_event: {
-        Args: {
-          p_event_type: string
-          p_severity?: string
-          p_description?: string
-          p_metadata?: Json
-          p_user_email?: string
-        }
+        Args:
+          | {
+              p_event_type: string
+              p_severity?: string
+              p_description?: string
+              p_metadata?: Json
+            }
+          | {
+              p_event_type: string
+              p_severity?: string
+              p_description?: string
+              p_metadata?: Json
+              p_user_email?: string
+            }
         Returns: string
       }
       estado_sistema_scoring: {
