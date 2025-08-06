@@ -87,7 +87,10 @@ const getAdminSection = (isSuperAdmin: boolean): NavSection => ({
   items: [
     { to: '/collaborators', label: 'Colaboradores', icon: UserPlus },
     { to: '/users', label: 'Gestión de Usuarios', icon: Users },
-    ...(isSuperAdmin ? [{ to: '/comisiones', label: 'Comisiones', icon: DollarSign }] : []),
+    ...(isSuperAdmin ? [
+      { to: '/asignaciones', label: 'Control de Asignaciones', icon: Users2 },
+      { to: '/comisiones', label: 'Comisiones', icon: DollarSign }
+    ] : []),
     { to: '/integrations', label: 'Integraciones', icon: Zap },
   ]
 });

@@ -3,20 +3,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SimpleLeadsTable } from "./SimpleLeadsTable";
 import { LeadKanbanBoard } from "./LeadKanbanBoard";
 import { LeadDetailDrawer } from "./LeadDetailDrawer";
-import { AssignmentDashboard } from "./assignment/AssignmentDashboard";
 import { UnifiedCard } from "@/components/ui/unified-card";
 import { PageTitle, Text } from "@/components/ui/typography";
 import { useLeadContacts } from "@/hooks/useLeadContacts";
-import { useUserRole } from "@/hooks/useUserRole";
 import { Lead } from "@/types/Lead";
-import { Users, TrendingUp, UserCheck, AlertCircle, Kanban, Settings } from "lucide-react";
+import { Users, TrendingUp, UserCheck, AlertCircle } from "lucide-react";
 
 export const SimpleLeadManagement = () => {
   const [activeTab, setActiveTab] = useState("manage");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { leads, isLoading } = useLeadContacts();
-  const { role } = useUserRole();
 
   const handleLeadClick = (lead: Lead) => {
     setSelectedLead(lead);
@@ -54,9 +51,6 @@ export const SimpleLeadManagement = () => {
           <TabsTrigger value="manage">Lista</TabsTrigger>
           <TabsTrigger value="kanban">Kanban</TabsTrigger>
           <TabsTrigger value="analytics">Análisis</TabsTrigger>
-          {role === 'superadmin' && (
-            <TabsTrigger value="assignments">Asignaciones</TabsTrigger>
-          )}
         </TabsList>
 
         <TabsContent value="manage" className="space-y-6">
@@ -110,11 +104,6 @@ export const SimpleLeadManagement = () => {
           </UnifiedCard>
         </TabsContent>
 
-        {role === 'superadmin' && (
-          <TabsContent value="assignments" className="space-y-6">
-            <AssignmentDashboard />
-          </TabsContent>
-        )}
       </Tabs>
 
       {/* Lead Detail Drawer */}

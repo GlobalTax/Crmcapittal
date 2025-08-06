@@ -48,6 +48,7 @@ const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
 const ActivityPage = lazy(() => import('@/pages/ActivityPage'));
+const AssignmentControl = lazy(() => import('@/pages/AssignmentControl'));
 
 
 const LoadingSkeleton = () => (
@@ -292,14 +293,22 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-          <Route 
-            path="/comisiones" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <CommissionsPage />
-              </Suspense>
-            } 
-          />
+           <Route 
+             path="/comisiones" 
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <CommissionsPage />
+               </Suspense>
+             } 
+           />
+           <Route 
+             path="/asignaciones" 
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <AssignmentControl />
+               </Suspense>
+             } 
+           />
 
           {/* ROD Dashboard and Builder routes */}
           <Route 
