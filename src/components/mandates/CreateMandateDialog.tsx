@@ -20,6 +20,8 @@ interface CreateMandateDialogProps {
   onSuccess?: () => void;
   initialData?: Partial<CreateBuyingMandateData>;
   leadId?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () => void; initialData?: Partial<CreateBuyingMandateData>; leadId?: string }) => {
@@ -347,19 +349,31 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
   );
 };
 
-export const CreateMandateDialog = ({ trigger, onSuccess, initialData, leadId }: CreateMandateDialogProps) => {
-  const [open, setOpen] = useState(false);
+export const CreateMandateDialog = ({ 
+  trigger, 
+  onSuccess, 
+  initialData, 
+  leadId, 
+  open: externalOpen, 
+  onOpenChange: externalOnOpenChange 
+}: CreateMandateDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Mandato
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
+      {trigger && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Mandato
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Crear Mandato de Compra</DialogTitle>

@@ -315,18 +315,6 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
               Crear Mandato
             </Button>
           </div>
-          
-          {/* Diálogos */}
-          <CreateProposalDialog
-            isOpen={isProposalDialogOpen}
-            onClose={() => setIsProposalDialogOpen(false)}
-            leadId={lead.id}
-          />
-          
-          <CreateMandateDialog
-            onSuccess={() => setIsMandateDialogOpen(false)}
-            leadId={lead.id}
-          />
         </div>
       </div>
 
@@ -864,25 +852,25 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
       {/* Modales */}
       <CreateProposalDialog 
         isOpen={isProposalDialogOpen} 
-        onClose={() => setIsProposalDialogOpen(false)} 
+        onClose={() => setIsProposalDialogOpen(false)}
+        leadId={lead.id}
       />
       
-      {isMandateDialogOpen && (
-        <CreateMandateDialog 
-          trigger={null}
-          onSuccess={() => setIsMandateDialogOpen(false)}
-          initialData={{
-            mandate_name: `Mandato para ${lead.name}`,
-            client_name: lead.name || '',
-            client_contact: lead.name || '',
-            client_email: lead.email || '',
-            client_phone: lead.phone || '',
-            target_sectors: lead.sector_id ? [lead.sector_id] : [],
-            target_locations: ['España']
-          }}
-          leadId={lead.id}
-        />
-      )}
+      <CreateMandateDialog 
+        open={isMandateDialogOpen}
+        onOpenChange={setIsMandateDialogOpen}
+        onSuccess={() => setIsMandateDialogOpen(false)}
+        initialData={{
+          mandate_name: `Mandato para ${lead.name}`,
+          client_name: lead.name || '',
+          client_contact: lead.name || '',
+          client_email: lead.email || '',
+          client_phone: lead.phone || '',
+          target_sectors: lead.sector_id ? [lead.sector_id] : [],
+          target_locations: ['España']
+        }}
+        leadId={lead.id}
+      />
       
       <ScheduleMeetingDialog
         open={isMeetingDialogOpen}

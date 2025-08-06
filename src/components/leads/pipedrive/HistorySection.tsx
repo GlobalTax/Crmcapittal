@@ -18,28 +18,7 @@ export const HistorySection = ({ lead }: HistorySectionProps) => {
   const [activeFilter, setActiveFilter] = useState('all');
   const { activities, isLoading } = useLeadActivities(lead.id);
 
-  // Combine activities with system events
-  const historyEntries = [
-    {
-      id: 'created',
-      type: 'created',
-      title: 'Lead creado',
-      description: `Lead "${lead.name}" fue creado`,
-      date: lead.created_at,
-      user: 'Sistema',
-      icon: Tag
-    },
-    ...activities.map(activity => ({
-      id: activity.id,
-      type: activity.activity_type,
-      title: getActivityTitle(activity.activity_type),
-      description: `Actividad de tipo ${activity.activity_type.replace('_', ' ').toLowerCase()}`,
-      date: activity.created_at,
-      user: 'Usuario',
-      icon: getActivityIcon(activity.activity_type)
-    }))
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
+  // Helper functions defined before use
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'CALL_MADE':
@@ -83,6 +62,28 @@ export const HistorySection = ({ lead }: HistorySectionProps) => {
         return 'Actividad registrada';
     }
   };
+
+  // Combine activities with system events
+  const historyEntries = [
+    {
+      id: 'created',
+      type: 'created',
+      title: 'Lead creado',
+      description: `Lead "${lead.name}" fue creado`,
+      date: lead.created_at,
+      user: 'Sistema',
+      icon: Tag
+    },
+    ...activities.map(activity => ({
+      id: activity.id,
+      type: activity.activity_type,
+      title: getActivityTitle(activity.activity_type),
+      description: `Actividad de tipo ${activity.activity_type.replace('_', ' ').toLowerCase()}`,
+      date: activity.created_at,
+      user: 'Usuario',
+      icon: getActivityIcon(activity.activity_type)
+    }))
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const filteredEntries = historyEntries.filter(entry => {
     if (activeFilter === 'all') return true;
