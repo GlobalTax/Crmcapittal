@@ -66,14 +66,14 @@ export const KanbanTask = ({ negocio, index, onEdit, onView }: KanbanTaskProps) 
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-white border border-gray-100 rounded-lg p-4 transition-all hover:shadow-sm cursor-grab active:cursor-grabbing ${
+      className={`bg-white border border-gray-100 rounded-lg p-6 transition-all hover:shadow-sm cursor-grab active:cursor-grabbing ${
         isDragging ? 'shadow-md opacity-60' : ''
       }`}
     >
           {/* Header */}
-          <div className="pb-3">
-            <div className="flex items-start justify-between">
-              <h4 className="text-sm font-medium line-clamp-2 text-gray-900">
+          <div className="pb-4">
+            <div className="flex items-start justify-between gap-2">
+              <h4 className="text-sm font-semibold line-clamp-2 text-gray-900 leading-tight">
                 {negocio.nombre_negocio}
               </h4>
               <div className="flex items-center gap-2">
@@ -110,7 +110,7 @@ export const KanbanTask = ({ negocio, index, onEdit, onView }: KanbanTaskProps) 
               </div>
             </div>
             {negocio.company && (
-              <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
                 <Building2 className="h-3 w-3" />
                 <span className="truncate">{negocio.company.name}</span>
               </div>
@@ -118,11 +118,11 @@ export const KanbanTask = ({ negocio, index, onEdit, onView }: KanbanTaskProps) 
           </div>
 
           {/* Content */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {negocio.valor_negocio && (
-              <div className="flex items-center gap-2 text-xs">
-                <Euro className="h-3 w-3" style={{ color: '#059669' }} />
-                <span className="font-medium" style={{ color: '#059669' }}>
+              <div className="flex items-center gap-2 text-sm">
+                <Euro className="h-4 w-4" style={{ color: '#059669' }} />
+                <span className="font-semibold" style={{ color: '#059669' }}>
                   {new Intl.NumberFormat('es-ES', { 
                     style: 'currency', 
                     currency: 'EUR',
@@ -133,29 +133,29 @@ export const KanbanTask = ({ negocio, index, onEdit, onView }: KanbanTaskProps) 
             )}
             
             {negocio.contact && (
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Users className="h-3 w-3" />
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Users className="h-4 w-4" />
                 <span className="truncate">{negocio.contact.name}</span>
               </div>
             )}
 
             {negocio.ubicacion && (
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <MapPin className="h-3 w-3" />
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <MapPin className="h-4 w-4" />
                 <span className="truncate">{negocio.ubicacion}</span>
               </div>
             )}
 
             {negocio.fecha_cierre && (
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Calendar className="h-3 w-3" />
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Calendar className="h-4 w-4" />
                 <span>
                   {new Date(negocio.fecha_cierre).toLocaleDateString('es-ES')}
                 </span>
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center justify-between pt-3">
               <Badge variant="outline" className="text-xs">
                 {negocio.tipo_negocio}
               </Badge>

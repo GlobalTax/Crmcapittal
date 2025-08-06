@@ -9,7 +9,7 @@ const cardVariants = cva(
     variants: {
       variant: {
         default: "rounded-lg p-6",
-        stats: "rounded-lg p-4",
+        stats: "rounded-lg p-6",
         metric: "rounded-lg p-6 hover:shadow-md",
         compact: "rounded-lg p-4",
         chart: "rounded-lg p-6"
@@ -48,17 +48,17 @@ export const UnifiedCard = React.forwardRef<HTMLDivElement, UnifiedCardProps>(
           <div className="flex items-center justify-between mb-4">
             <div className="flex-1 min-w-0">
               {title && (
-                <h3 className="text-sm font-medium text-muted-foreground truncate">
+                <h3 className="text-sm font-semibold text-gray-900 truncate leading-tight">
                   {title}
                 </h3>
               )}
               {metric && (
-                <div className="text-2xl font-bold text-foreground mt-1">
+                <div className="text-2xl font-bold text-gray-900 mt-1 leading-tight">
                   {metric}
                 </div>
               )}
               {description && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                   {description}
                 </p>
               )}
@@ -75,7 +75,7 @@ export const UnifiedCard = React.forwardRef<HTMLDivElement, UnifiedCardProps>(
                       {diff >= 0 ? "+" : ""}{diff.toFixed(1)}%
                     </span>
                   </span>
-                  <span className="text-sm text-muted-foreground ml-1">vs mes anterior</span>
+                  <span className="text-sm text-gray-500 ml-1">vs mes anterior</span>
                 </div>
               )}
             </div>
@@ -90,7 +90,7 @@ export const UnifiedCard = React.forwardRef<HTMLDivElement, UnifiedCardProps>(
         
         {/* Content */}
         {children && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {children}
           </div>
         )}

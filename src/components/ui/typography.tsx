@@ -4,16 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 // Heading variants with consistent typography hierarchy
 const headingVariants = cva(
-  "font-semibold tracking-tight text-foreground",
+  "font-semibold tracking-tight leading-tight",
   {
     variants: {
       variant: {
-        h1: "text-3xl font-bold",
-        h2: "text-2xl",
-        h3: "text-xl",
-        h4: "text-lg",
-        h5: "text-base",
-        h6: "text-sm"
+        h1: "text-lg font-semibold text-gray-900",
+        h2: "text-base font-medium text-gray-600",
+        h3: "text-sm font-semibold text-gray-900",
+        h4: "text-sm font-medium text-gray-600",
+        h5: "text-sm font-normal text-gray-500",
+        h6: "text-xs font-normal text-gray-500"
       },
       color: {
         default: "text-foreground",
@@ -31,14 +31,14 @@ const headingVariants = cva(
 );
 
 const textVariants = cva(
-  "text-foreground",
+  "leading-relaxed",
   {
     variants: {
       variant: {
-        body: "text-base",
-        small: "text-sm",
-        xs: "text-xs",
-        large: "text-lg"
+        body: "text-base text-gray-900",
+        small: "text-sm text-gray-500",
+        xs: "text-xs text-gray-500",
+        large: "text-lg text-gray-900"
       },
       color: {
         default: "text-foreground",

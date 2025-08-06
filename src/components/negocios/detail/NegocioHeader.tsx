@@ -11,8 +11,8 @@ interface NegocioHeaderProps {
 
 export const NegocioHeader = ({ negocio, onEdit }: NegocioHeaderProps) => {
   return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center space-x-4">
+    <div className="flex items-center justify-between mb-6 gap-6">
+      <div className="flex items-center gap-4">
         <Link to="/negocios">
           <Button variant="outline" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -20,8 +20,8 @@ export const NegocioHeader = ({ negocio, onEdit }: NegocioHeaderProps) => {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{negocio.nombre_negocio}</h1>
-          <p className="text-gray-600 capitalize">{negocio.tipo_negocio}</p>
+          <h1 className="text-lg font-semibold text-gray-900 leading-tight">{negocio.nombre_negocio}</h1>
+          <p className="text-sm text-gray-500 capitalize leading-relaxed">{negocio.tipo_negocio}</p>
         </div>
       </div>
       <Button onClick={onEdit}>

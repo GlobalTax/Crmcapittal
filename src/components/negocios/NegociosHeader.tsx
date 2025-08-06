@@ -16,8 +16,8 @@ export const NegociosHeader = ({
   return (
     <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Negocios</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-lg font-semibold text-gray-900 leading-tight">Negocios</h1>
+        <p className="text-sm text-gray-500 leading-relaxed">
           Gestiona todos tus negocios y oportunidades de M&A
         </p>
       </div>

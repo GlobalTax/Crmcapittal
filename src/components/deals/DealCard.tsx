@@ -53,7 +53,7 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
       {...listeners}
       onClick={handleClick}
       className={`
-        bg-white rounded-lg p-4 flex flex-col gap-3 cursor-grab active:cursor-grabbing
+        bg-white rounded-lg p-6 flex flex-col gap-4 cursor-grab active:cursor-grabbing
         border border-gray-100
         hover:shadow-sm transition-all duration-200
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
@@ -64,7 +64,7 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
       aria-label={`Deal: ${deal.title}`}
     >
           {/* Title */}
-          <h3 className="font-medium text-gray-900 truncate text-sm">
+          <h3 className="font-semibold text-gray-900 truncate text-sm leading-tight">
             {deal.title}
           </h3>
           
@@ -78,7 +78,7 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
           )}
           
           {/* Company and Owner */}
-          <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center justify-between text-sm text-gray-500">
             {deal.company && (
               <div className="flex items-center gap-1 truncate">
                 <Building2 className="h-3 w-3 flex-shrink-0" />
