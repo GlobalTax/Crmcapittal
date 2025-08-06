@@ -27,50 +27,45 @@ export function useVirtualizedPagination<T>(
   // Datos de la página actual con pre-carga
   const currentPageData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = Math.min(startIndex + virtualPageSize, data.length);
+    const endIndex = Math.min(startIndex + pageSize, data.length);
     
     const pageData = data.slice(startIndex, endIndex);
     
     logger.debug(`Page ${currentPage} data loaded`, {
       startIndex,
       endIndex,
-      itemCount: pageData.length,
-      cacheSize: cachedPages.size
+      itemCount: pageData.length
     });
     
-    return pageData.slice(0, pageSize); // Solo mostrar el tamaño real de página
-  }, [data, currentPage, pageSize, virtualPageSize, cachedPages.size]);
+    return pageData;
+  }, [data, currentPage, pageSize]);
   
-  // Efecto para manejar el cache por separado
+  // Efecto para manejar el cache (solo si es necesario para virtualización)
   useEffect(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = Math.min(startIndex + virtualPageSize, data.length);
-    const pageData = data.slice(startIndex, endIndex);
-    
-    setCachedPages(prev => {
-      const newCache = new Map(prev);
-      newCache.set(currentPage, pageData);
+    if (virtualPageSize > pageSize) {
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + virtualPageSize, data.length);
+      const pageData = data.slice(startIndex, endIndex);
       
-      // Limpiar cache si excede el límite
-      if (newCache.size > maxCachedPages) {
-        const oldestPage = Math.min(...Array.from(newCache.keys()));
-        newCache.delete(oldestPage);
-      }
-      
-      return newCache;
-    });
-  }, [currentPage, pageSize, virtualPageSize, maxCachedPages, data]);
+      setCachedPages(prev => {
+        const newCache = new Map(prev);
+        newCache.set(currentPage, pageData);
+        
+        // Limpiar cache si excede el límite
+        if (newCache.size > maxCachedPages) {
+          const oldestPage = Math.min(...Array.from(newCache.keys()));
+          newCache.delete(oldestPage);
+        }
+        
+        return newCache;
+      });
+    }
+  }, [currentPage, pageSize, virtualPageSize, maxCachedPages, data.length]);
   
   const goToPage = useCallback((page: number) => {
     const validPage = Math.max(1, Math.min(page, totalPages));
-    
-    // Verificar si la página está en cache
-    if (cachedPages.has(validPage)) {
-      logger.debug(`Using cached data for page ${validPage}`);
-    }
-    
     setCurrentPage(validPage);
-  }, [totalPages, cachedPages]);
+  }, [totalPages]);
   
   const goToNextPage = useCallback(() => {
     goToPage(currentPage + 1);
@@ -88,7 +83,7 @@ export function useVirtualizedPagination<T>(
   // Pre-cargar páginas adyacentes
   const preloadAdjacentPages = useCallback(() => {
     const pagesToPreload = [currentPage - 1, currentPage + 1].filter(
-      page => page >= 1 && page <= totalPages && !cachedPages.has(page)
+      page => page >= 1 && page <= totalPages
     );
     
     pagesToPreload.forEach(page => {
@@ -96,9 +91,14 @@ export function useVirtualizedPagination<T>(
       const endIndex = Math.min(startIndex + pageSize, data.length);
       const pageData = data.slice(startIndex, endIndex);
       
-      setCachedPages(prev => new Map(prev).set(page, pageData));
+      setCachedPages(prev => {
+        if (!prev.has(page)) {
+          return new Map(prev).set(page, pageData);
+        }
+        return prev;
+      });
     });
-  }, [currentPage, totalPages, pageSize, data, cachedPages]);
+  }, [currentPage, totalPages, pageSize, data.length]);
   
   return {
     currentPage,

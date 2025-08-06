@@ -95,6 +95,9 @@ verify_jwt = true
 [functions.validate-reconversion-security]
 verify_jwt = true
 
+[functions.company-lookup-einforma]
+verify_jwt = true
+
 [edge-runtime]
 enabled = true
 port = 54327
