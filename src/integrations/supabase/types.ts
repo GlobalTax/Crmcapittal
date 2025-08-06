@@ -2697,6 +2697,21 @@ export type Database = {
         }
         Relationships: []
       }
+      hb_contacts: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       hubspot: {
         Row: {
           "Análisis detallado 1 de la fuente de tráfico más reciente":
@@ -3636,6 +3651,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ma_pipeline_stages: {
+        Row: {
+          automation: string | null
+          color: string | null
+          condition_to_advance: string | null
+          created_at: string | null
+          description: string | null
+          id: number
+          is_active: boolean | null
+          name: string
+          probability_pct: number
+          stage_order: number
+          updated_at: string | null
+        }
+        Insert: {
+          automation?: string | null
+          color?: string | null
+          condition_to_advance?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          is_active?: boolean | null
+          name: string
+          probability_pct: number
+          stage_order: number
+          updated_at?: string | null
+        }
+        Update: {
+          automation?: string | null
+          color?: string | null
+          condition_to_advance?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          is_active?: boolean | null
+          name?: string
+          probability_pct?: number
+          stage_order?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       mandate_client_access: {
         Row: {
