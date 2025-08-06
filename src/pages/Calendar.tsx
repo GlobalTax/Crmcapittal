@@ -57,11 +57,11 @@ const Calendar = () => {
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
-      case 'meeting': return 'bg-blue-500';
-      case 'call': return 'bg-green-500';
-      case 'task': return 'bg-orange-500';
-      case 'appointment': return 'bg-purple-500';
-      default: return 'bg-gray-500';
+      case 'meeting': return 'bg-gradient-to-r from-blue-500 to-blue-600';
+      case 'call': return 'bg-gradient-to-r from-green-500 to-green-600';
+      case 'task': return 'bg-gradient-to-r from-orange-500 to-orange-600';
+      case 'appointment': return 'bg-gradient-to-r from-purple-500 to-purple-600';
+      default: return 'bg-gradient-to-r from-gray-500 to-gray-600';
     }
   };
 
@@ -97,53 +97,73 @@ const Calendar = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="calendar" className="space-y-4">
-          <div className="grid lg:grid-cols-3 gap-6">
+        <TabsContent value="calendar" className="space-y-6">
+          <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
+              <Card className="border-0 shadow-2xl bg-gradient-to-br from-card via-card to-surface-variant overflow-hidden">
+                <CardHeader className="bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 border-b border-border/50">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">
+                    <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent capitalize">
                       {format(currentMonth, 'MMMM yyyy', { locale: es })}
                     </CardTitle>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={handlePreviousMonth}>
+                    <div className="flex space-x-3">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handlePreviousMonth}
+                        className="hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
+                      >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={handleNextMonth}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleNextMonth}
+                        className="hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md"
+                      >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
                   <UICalendar
                     mode="single"
                     selected={selectedDate}
                     onSelect={setSelectedDate}
                     month={currentMonth}
                     onMonthChange={setCurrentMonth}
-                    className="w-full pointer-events-auto"
+                    className="w-full pointer-events-auto border-0"
                     components={{
                       DayContent: ({ date }) => {
                         const dayEvents = getEventsForDate(date);
+                        const isToday = date.toDateString() === new Date().toDateString();
+                        const isSelected = selectedDate?.toDateString() === date.toDateString();
+                        
                         return (
-                          <div className="relative w-full h-full p-1">
-                            <div className="text-sm">{date.getDate()}</div>
+                          <div className="relative w-full h-full flex flex-col items-center justify-start p-1">
+                            <div className={cn(
+                              "text-sm font-medium mb-1",
+                              isToday && "font-bold",
+                              isSelected && "text-primary-foreground"
+                            )}>
+                              {date.getDate()}
+                            </div>
                             {dayEvents.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {dayEvents.slice(0, 2).map((event, index) => (
+                              <div className="flex flex-wrap gap-0.5 justify-center">
+                                {dayEvents.slice(0, 3).map((event, index) => (
                                   <div
                                     key={index}
                                     className={cn(
-                                      "w-2 h-2 rounded-full",
+                                      "w-1.5 h-1.5 rounded-full shadow-sm",
                                       getEventTypeColor(event.event_type)
                                     )}
+                                    title={event.title}
                                   />
                                 ))}
-                                {dayEvents.length > 2 && (
-                                  <div className="text-xs text-muted-foreground">
-                                    +{dayEvents.length - 2}
+                                {dayEvents.length > 3 && (
+                                  <div className="text-[10px] text-muted-foreground font-medium bg-muted/50 rounded-full px-1 leading-none">
+                                    +{dayEvents.length - 3}
                                   </div>
                                 )}
                               </div>
@@ -157,35 +177,42 @@ const Calendar = () => {
               </Card>
             </div>
 
-            <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">
+            <div className="space-y-6">
+              <Card className="border-0 shadow-xl bg-gradient-to-br from-card via-surface to-surface-variant">
+                <CardHeader className="bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 border-b border-border/50">
+                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                    <div className="w-2 h-2 bg-gradient-to-r from-primary to-accent rounded-full"></div>
                     {selectedDate ? format(selectedDate, 'dd MMMM yyyy', { locale: es }) : 'Eventos del día'}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   {loading ? (
-                    <div className="space-y-2">
-                      <div className="h-4 bg-muted rounded animate-pulse" />
-                      <div className="h-4 bg-muted rounded animate-pulse" />
+                    <div className="space-y-3">
+                      <div className="h-16 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse" />
+                      <div className="h-16 bg-gradient-to-r from-muted via-muted/50 to-muted rounded-xl animate-pulse" />
                     </div>
                   ) : todayEvents.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {todayEvents.map(event => (
-                        <EventCard
-                          key={event.id}
-                          event={event}
-                          compact
-                          onEdit={() => handleEventEdit(event)}
-                          onDelete={() => handleEventDelete(event.id)}
-                        />
+                        <div key={event.id} className="animate-fade-in">
+                          <EventCard
+                            event={event}
+                            compact
+                            onEdit={() => handleEventEdit(event)}
+                            onDelete={() => handleEventDelete(event.id)}
+                          />
+                        </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground text-sm">
-                      No hay eventos para este día
-                    </p>
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 bg-gradient-to-br from-muted via-muted/50 to-muted/30 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <CalendarIcon className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <p className="text-muted-foreground text-sm">
+                        No hay eventos para este día
+                      </p>
+                    </div>
                   )}
                 </CardContent>
               </Card>
