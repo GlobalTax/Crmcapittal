@@ -19,13 +19,21 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
   
   const handleAssignmentChange = async (userId: string) => {
     try {
+      const updates = userId === 'unassigned' 
+        ? { assigned_to_id: null } 
+        : { assigned_to_id: userId };
+        
       await updateLead({
         id: lead.id,
-        updates: { assigned_to_id: userId }
+        updates
       });
       
-      const user = users.find(u => u.user_id === userId);
-      toast.success(`Lead asignado a ${user?.first_name} ${user?.last_name}`);
+      if (userId === 'unassigned') {
+        toast.success('Lead desasignado');
+      } else {
+        const user = users.find(u => u.user_id === userId);
+        toast.success(`Lead asignado a ${user?.first_name} ${user?.last_name}`);
+      }
     } catch (error) {
       toast.error('Error al asignar el lead');
     }
@@ -49,7 +57,7 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
             Asignado a:
           </label>
           <Select
-            value={lead.assigned_to_id || ''}
+            value={lead.assigned_to_id || 'unassigned'}
             onValueChange={handleAssignmentChange}
             disabled={isLoading}
           >
@@ -70,7 +78,7 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">
+              <SelectItem value="unassigned">
                 <div className="flex items-center gap-2">
                   <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center">
                     <Users className="h-3 w-3" />
