@@ -104,50 +104,10 @@ export const LeadProposalTabEnhanced = ({ lead }: LeadProposalTabEnhancedProps) 
     }
   }, [lead.deal_value]);
 
-  // Calcular honorarios automáticamente cuando cambien los valores
-  useEffect(() => {
-    calculateFees();
-  }, [proposalFees.serviceModel, proposalFees.dealValue, proposalFees.successFeePercentage, 
-      proposalFees.valoracionFee, proposalFees.mandatoFixedFee, proposalFees.cuadernoVentaFee, 
-      proposalFees.mandatoSuccessPercentage, proposalFees.minimumFee]);
-
-  const calculateFees = () => {
-    let calculatedMinimumFee = 0;
-    let calculatedSuccessFee = 0;
-    let totalFees = 0;
-
-    switch (proposalFees.serviceModel) {
-      case 'valoracion':
-        calculatedMinimumFee = proposalFees.valoracionFee;
-        calculatedSuccessFee = 0;
-        totalFees = calculatedMinimumFee;
-        break;
-        
-      case 'mandato_fijo':
-        calculatedMinimumFee = proposalFees.mandatoFixedFee + proposalFees.cuadernoVentaFee;
-        if (proposalFees.dealValue > 0) {
-          calculatedSuccessFee = (proposalFees.dealValue * proposalFees.mandatoSuccessPercentage) / 100;
-        }
-        totalFees = calculatedMinimumFee + calculatedSuccessFee;
-        break;
-        
-      case 'todo_exito':
-        calculatedMinimumFee = proposalFees.minimumFee;
-        if (proposalFees.dealValue > 0) {
-          calculatedSuccessFee = (proposalFees.dealValue * proposalFees.successFeePercentage) / 100;
-          totalFees = Math.max(calculatedMinimumFee, calculatedSuccessFee);
-        } else {
-          totalFees = calculatedMinimumFee;
-        }
-        break;
-    }
-
-    setProposalFees(prev => ({
-      ...prev,
-      calculatedMinimumFee,
-      calculatedSuccessFee,
-      totalFees
-    }));
+  // Solo actualizar totales cuando cambien manualmente, sin cálculos automáticos
+  const updateTotalFees = () => {
+    // Los totales se actualizan solo cuando el usuario los cambia manualmente
+    // No hay cálculos automáticos
   };
 
   // Documentos disponibles para generar
@@ -326,26 +286,21 @@ export const LeadProposalTabEnhanced = ({ lead }: LeadProposalTabEnhancedProps) 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Honorarios por Valoración:</Label>
-                  {isEditingFees ? (
-                    <Input
-                      type="number"
-                      value={proposalFees.valoracionFee}
-                      onChange={(e) => setProposalFees({
-                        ...proposalFees, 
-                        valoracionFee: parseFloat(e.target.value) || 0
-                      })}
-                      placeholder="8000"
-                    />
-                  ) : (
-                    <div className="text-2xl font-bold text-primary">
-                      {formatCurrency(proposalFees.valoracionFee)}
-                    </div>
-                  )}
+                  <Input
+                    type="number"
+                    value={proposalFees.valoracionFee}
+                    onChange={(e) => setProposalFees({
+                      ...proposalFees, 
+                      valoracionFee: parseFloat(e.target.value) || 0,
+                      totalFees: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="8000"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Total a Cobrar:</Label>
                   <div className="text-2xl font-bold text-green-600">
-                    {formatCurrency(proposalFees.totalFees)}
+                    {formatCurrency(proposalFees.valoracionFee)}
                   </div>
                 </div>
               </div>
@@ -361,68 +316,58 @@ export const LeadProposalTabEnhanced = ({ lead }: LeadProposalTabEnhancedProps) 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Fijo Mandato:</Label>
-                  {isEditingFees ? (
-                    <Input
-                      type="number"
-                      value={proposalFees.mandatoFixedFee}
-                      onChange={(e) => setProposalFees({
-                        ...proposalFees, 
-                        mandatoFixedFee: parseFloat(e.target.value) || 0
-                      })}
-                      placeholder="15000"
-                    />
-                  ) : (
-                    <div className="text-lg font-semibold">
-                      {formatCurrency(proposalFees.mandatoFixedFee)}
-                    </div>
-                  )}
+                  <Input
+                    type="number"
+                    value={proposalFees.mandatoFixedFee}
+                    onChange={(e) => setProposalFees({
+                      ...proposalFees, 
+                      mandatoFixedFee: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="15000"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Cuaderno de Venta:</Label>
-                  {isEditingFees ? (
-                    <Input
-                      type="number"
-                      value={proposalFees.cuadernoVentaFee}
-                      onChange={(e) => setProposalFees({
-                        ...proposalFees, 
-                        cuadernoVentaFee: parseFloat(e.target.value) || 0
-                      })}
-                      placeholder="12000"
-                    />
-                  ) : (
-                    <div className="text-lg font-semibold">
-                      {formatCurrency(proposalFees.cuadernoVentaFee)}
-                    </div>
-                  )}
+                  <Input
+                    type="number"
+                    value={proposalFees.cuadernoVentaFee}
+                    onChange={(e) => setProposalFees({
+                      ...proposalFees, 
+                      cuadernoVentaFee: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="12000"
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>% Éxito sobre Deal:</Label>
-                  {isEditingFees ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={proposalFees.mandatoSuccessPercentage}
-                        onChange={(e) => setProposalFees({
-                          ...proposalFees, 
-                          mandatoSuccessPercentage: parseFloat(e.target.value) || 0
-                        })}
-                        className="w-20"
-                      />
-                      <span>%</span>
-                    </div>
-                  ) : (
-                    <div className="text-lg font-semibold text-primary">
-                      {proposalFees.mandatoSuccessPercentage}%
-                    </div>
-                  )}
+                  <Label>Honorarios por Éxito:</Label>
+                  <Input
+                    type="number"
+                    value={proposalFees.calculatedSuccessFee}
+                    onChange={(e) => setProposalFees({
+                      ...proposalFees, 
+                      calculatedSuccessFee: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="0"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Fija manualmente los honorarios de éxito
+                  </p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Total Estimado:</Label>
-                  <div className="text-2xl font-bold text-green-600">
-                    {formatCurrency(proposalFees.totalFees)}
-                  </div>
+                  <Label>Total Final:</Label>
+                  <Input
+                    type="number"
+                    value={proposalFees.totalFees}
+                    onChange={(e) => setProposalFees({
+                      ...proposalFees, 
+                      totalFees: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="0"
+                    className="text-lg font-bold"
+                  />
                   <div className="text-sm text-muted-foreground">
-                    Fijo: {formatCurrency(proposalFees.calculatedMinimumFee)}<br/>
+                    Fijo: {formatCurrency(proposalFees.mandatoFixedFee)}<br/>
+                    Cuaderno: {formatCurrency(proposalFees.cuadernoVentaFee)}<br/>
                     Éxito: {formatCurrency(proposalFees.calculatedSuccessFee)}
                   </div>
                 </div>
@@ -438,119 +383,92 @@ export const LeadProposalTabEnhanced = ({ lead }: LeadProposalTabEnhancedProps) 
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>% Éxito sobre Deal:</Label>
-                  {isEditingFees ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={proposalFees.successFeePercentage}
-                        onChange={(e) => setProposalFees({
+                  <Label>% Éxito Referencia:</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={proposalFees.successFeePercentage}
+                      onChange={(e) => setProposalFees({
+                        ...proposalFees, 
+                        successFeePercentage: parseFloat(e.target.value) || 0
+                      })}
+                      className="w-20"
+                    />
+                    <span>%</span>
+                    <label className="flex items-center gap-2 ml-4">
+                      <Checkbox
+                        checked={proposalFees.successFeeVat}
+                        onCheckedChange={(checked) => setProposalFees({
                           ...proposalFees, 
-                          successFeePercentage: parseFloat(e.target.value) || 0
+                          successFeeVat: checked as boolean
                         })}
-                        className="w-20"
                       />
-                      <span>%</span>
-                      <label className="flex items-center gap-2 ml-4">
-                        <Checkbox
-                          checked={proposalFees.successFeeVat}
-                          onCheckedChange={(checked) => setProposalFees({
-                            ...proposalFees, 
-                            successFeeVat: checked as boolean
-                          })}
-                        />
-                        + IVA
-                      </label>
-                    </div>
-                  ) : (
-                    <div className="text-lg font-semibold text-primary">
-                      {proposalFees.successFeePercentage}%{proposalFees.successFeeVat ? ' + IVA' : ''}
-                    </div>
-                  )}
+                      + IVA
+                    </label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Solo referencia, ajusta el total final manualmente</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Mínimo Garantizado:</Label>
-                  {isEditingFees ? (
-                    <Input
-                      type="number"
-                      value={proposalFees.minimumFee}
-                      onChange={(e) => setProposalFees({
-                        ...proposalFees, 
-                        minimumFee: parseFloat(e.target.value) || 0
-                      })}
-                      placeholder="15000"
-                    />
-                  ) : (
-                    <div className="text-lg font-semibold">
-                      {formatCurrency(proposalFees.minimumFee)}
-                    </div>
-                  )}
+                  <Input
+                    type="number"
+                    value={proposalFees.minimumFee}
+                    onChange={(e) => setProposalFees({
+                      ...proposalFees, 
+                      minimumFee: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="15000"
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Éxito Calculado:</Label>
+                  <Label>Éxito sobre {formatCurrency(proposalFees.dealValue)}:</Label>
                   <div className="text-lg font-semibold text-blue-600">
-                    {formatCurrency(proposalFees.calculatedSuccessFee)}
+                    {formatCurrency((proposalFees.dealValue * proposalFees.successFeePercentage) / 100)}
                   </div>
+                  <p className="text-xs text-muted-foreground">Cálculo automático solo como referencia</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Total a Cobrar:</Label>
-                  <div className="text-2xl font-bold text-green-600">
-                    {formatCurrency(proposalFees.totalFees)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {proposalFees.calculatedSuccessFee > proposalFees.minimumFee 
-                      ? 'Aplicando éxito calculado' 
-                      : 'Aplicando mínimo garantizado'}
-                  </div>
+                  <Label>Total Final a Cobrar:</Label>
+                  <Input
+                    type="number"
+                    value={proposalFees.totalFees}
+                    onChange={(e) => setProposalFees({
+                      ...proposalFees, 
+                      totalFees: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="0"
+                    className="text-lg font-bold text-green-600"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Fija tú el importe final que vas a cobrar
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Notas */}
-          {isEditingFees && (
-            <div className="space-y-2">
-              <Label>Notas:</Label>
-              <Textarea
-                value={proposalFees.notes}
-                onChange={(e) => setProposalFees({...proposalFees, notes: e.target.value})}
-                placeholder="Notas adicionales sobre los honorarios"
-                rows={2}
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label>Notas sobre los Honorarios:</Label>
+            <Textarea
+              value={proposalFees.notes}
+              onChange={(e) => setProposalFees({...proposalFees, notes: e.target.value})}
+              placeholder="Notas adicionales sobre los honorarios"
+              rows={2}
+            />
+          </div>
 
           {/* Botones de acción */}
-          {isEditingFees ? (
-            <div className="flex justify-end gap-2 pt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setIsEditingFees(false)}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Cancelar
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={handleSaveFees}
-              >
-                <Save className="h-4 w-4 mr-1" />
-                Guardar
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-4">
-              <Button onClick={handleGenerateProposal}>
-                <FileText className="h-4 w-4 mr-2" />
-                Generar Propuesta
-              </Button>
-              <Button variant="outline" onClick={handleSendProposal}>
-                <Send className="h-4 w-4 mr-2" />
-                Enviar por Email
-              </Button>
-            </div>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-4">
+            <Button onClick={handleGenerateProposal}>
+              <FileText className="h-4 w-4 mr-2" />
+              Generar Propuesta
+            </Button>
+            <Button variant="outline" onClick={handleSendProposal}>
+              <Send className="h-4 w-4 mr-2" />
+              Enviar por Email
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
