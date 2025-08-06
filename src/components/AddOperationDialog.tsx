@@ -36,7 +36,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
     contact_email: "",
     contact_phone: "",
     annual_growth_rate: "",
-    manager_id: "",
+    manager_id: "unassigned",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -61,7 +61,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       contact_email: formData.contact_email || null,
       contact_phone: formData.contact_phone || null,
       annual_growth_rate: formData.annual_growth_rate ? parseFloat(formData.annual_growth_rate) : null,
-      manager_id: formData.manager_id || null,
+      manager_id: formData.manager_id === "unassigned" ? null : formData.manager_id,
       teaser_url: null,
       created_by: null
     };
@@ -89,7 +89,7 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
       contact_email: "",
       contact_phone: "",
       annual_growth_rate: "",
-      manager_id: "",
+      manager_id: "unassigned",
     });
   };
 
@@ -262,14 +262,14 @@ export const AddOperationDialog = ({ open, onOpenChange, onAddOperation }: AddOp
             <div className="space-y-2">
               <Label htmlFor="manager_id">Gestor Asignado</Label>
               <Select 
-                value={formData.manager_id} 
-                onValueChange={(value) => setFormData({ ...formData, manager_id: value })}
+                value={formData.manager_id || "unassigned"} 
+                onValueChange={(value) => setFormData({ ...formData, manager_id: value === "unassigned" ? null : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar gestor..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin asignar</SelectItem>
+                  <SelectItem value="unassigned">Sin asignar</SelectItem>
                   {managers.map((manager) => (
                     <SelectItem key={manager.id} value={manager.id}>
                       {manager.name} - {manager.position || 'Sin posición'}

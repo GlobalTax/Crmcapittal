@@ -28,13 +28,13 @@ export interface SavedView {
 
 const defaultFilters: FilterState = {
   search: '',
-  owner: '',
-  priority: '',
-  sector: '',
-  location: '',
+  owner: 'all',
+  priority: 'all',
+  sector: 'all',
+  location: 'all',
   valueRange: { min: null, max: null },
   dateRange: { start: '', end: '' },
-  stage: ''
+  stage: 'all'
 };
 
 /**
@@ -166,19 +166,19 @@ export const useAdvancedFilters = (negocios: Negocio[]) => {
       if (!matchesSearch(negocio, filters.search)) return false;
       
       // Owner filter
-      if (filters.owner && negocio.propietario_negocio !== filters.owner) return false;
+      if (filters.owner && filters.owner !== 'all' && negocio.propietario_negocio !== filters.owner) return false;
       
       // Priority filter
-      if (filters.priority && negocio.prioridad !== filters.priority) return false;
+      if (filters.priority && filters.priority !== 'all' && negocio.prioridad !== filters.priority) return false;
       
       // Sector filter
-      if (filters.sector && negocio.sector !== filters.sector) return false;
+      if (filters.sector && filters.sector !== 'all' && negocio.sector !== filters.sector) return false;
       
       // Location filter
-      if (filters.location && negocio.ubicacion !== filters.location) return false;
+      if (filters.location && filters.location !== 'all' && negocio.ubicacion !== filters.location) return false;
       
       // Stage filter
-      if (filters.stage && negocio.stage_id !== filters.stage) return false;
+      if (filters.stage && filters.stage !== 'all' && negocio.stage_id !== filters.stage) return false;
       
       // Value range filter
       if (!matchesValueRange(negocio)) return false;

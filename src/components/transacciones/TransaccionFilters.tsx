@@ -72,15 +72,15 @@ export const TransaccionFiltersComponent = ({
   const clearFilters = () => {
     onFiltersChange({
       search: '',
-      tipo_transaccion: '',
-      prioridad: '',
-      sector: '',
-      propietario: '',
+      tipo_transaccion: 'all',
+      prioridad: 'all',
+      sector: 'all',
+      propietario: 'all',
       valor_min: '',
       valor_max: '',
       fecha_desde: undefined,
       fecha_hasta: undefined,
-      stage_id: ''
+      stage_id: 'all'
     });
   };
 
@@ -152,7 +152,7 @@ export const TransaccionFiltersComponent = ({
                       <SelectValue placeholder="Todos los tipos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos los tipos</SelectItem>
+                      <SelectItem value="all">Todos los tipos</SelectItem>
                       {uniqueValues.tipos.map((tipo) => (
                         <SelectItem key={tipo} value={tipo}>
                           {tipo}
@@ -173,7 +173,7 @@ export const TransaccionFiltersComponent = ({
                       <SelectValue placeholder="Todas las prioridades" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas las prioridades</SelectItem>
+                      <SelectItem value="all">Todas las prioridades</SelectItem>
                       <SelectItem value="urgente">Urgente</SelectItem>
                       <SelectItem value="alta">Alta</SelectItem>
                       <SelectItem value="media">Media</SelectItem>
@@ -194,7 +194,7 @@ export const TransaccionFiltersComponent = ({
                         <SelectValue placeholder="Todas las etapas" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todas las etapas</SelectItem>
+                        <SelectItem value="all">Todas las etapas</SelectItem>
                         {stages.map((stage) => (
                           <SelectItem key={stage.id} value={stage.id}>
                             <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export const TransaccionFiltersComponent = ({
                         <SelectValue placeholder="Todos los sectores" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos los sectores</SelectItem>
+                        <SelectItem value="all">Todos los sectores</SelectItem>
                         {uniqueValues.sectores.map((sector) => (
                           <SelectItem key={sector} value={sector}>
                             {sector}
@@ -246,7 +246,7 @@ export const TransaccionFiltersComponent = ({
                         <SelectValue placeholder="Todos los propietarios" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos los propietarios</SelectItem>
+                        <SelectItem value="all">Todos los propietarios</SelectItem>
                         {uniqueValues.propietarios.map((propietario) => (
                           <SelectItem key={propietario} value={propietario}>
                             {propietario}

@@ -220,7 +220,7 @@ export const FilterBar = ({ negocios, onFilteredChange }: FilterBarProps) => {
                   <SelectValue placeholder="Todos los propietarios" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-50">
-                  <SelectItem value="">Todos los propietarios</SelectItem>
+                  <SelectItem value="all">Todos los propietarios</SelectItem>
                   {filterOptions.owners.map((owner) => (
                     <SelectItem key={owner} value={owner}>{owner}</SelectItem>
                   ))}
@@ -239,7 +239,7 @@ export const FilterBar = ({ negocios, onFilteredChange }: FilterBarProps) => {
                   <SelectValue placeholder="Todas las prioridades" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-50">
-                  <SelectItem value="">Todas las prioridades</SelectItem>
+                  <SelectItem value="all">Todas las prioridades</SelectItem>
                   {filterOptions.priorities.map((priority) => (
                     <SelectItem key={priority} value={priority}>{priority}</SelectItem>
                   ))}
@@ -258,7 +258,7 @@ export const FilterBar = ({ negocios, onFilteredChange }: FilterBarProps) => {
                   <SelectValue placeholder="Todos los sectores" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-50">
-                  <SelectItem value="">Todos los sectores</SelectItem>
+                  <SelectItem value="all">Todos los sectores</SelectItem>
                   {filterOptions.sectors.map((sector) => (
                     <SelectItem key={sector} value={sector}>{sector}</SelectItem>
                   ))}
@@ -277,7 +277,7 @@ export const FilterBar = ({ negocios, onFilteredChange }: FilterBarProps) => {
                   <SelectValue placeholder="Todas las ubicaciones" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-md z-50">
-                  <SelectItem value="">Todas las ubicaciones</SelectItem>
+                  <SelectItem value="all">Todas las ubicaciones</SelectItem>
                   {filterOptions.locations.map((location) => (
                     <SelectItem key={location} value={location}>{location}</SelectItem>
                   ))}

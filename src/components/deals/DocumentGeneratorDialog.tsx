@@ -101,7 +101,7 @@ export const DocumentGeneratorDialog = ({ deal, open, onOpenChange }: DocumentGe
               </SelectTrigger>
               <SelectContent>
                 {loading ? (
-                  <SelectItem value="" disabled>Cargando plantillas...</SelectItem>
+                  <SelectItem value="loading" disabled>Cargando plantillas...</SelectItem>
                 ) : (
                   templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>

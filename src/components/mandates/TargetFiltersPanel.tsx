@@ -28,12 +28,12 @@ export const TargetFiltersPanel = ({ targets, onFilter }: TargetFiltersProps) =>
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
-    status: '',
+    status: 'all',
     sector: '',
     minRevenues: '',
     maxRevenues: '',
-    contacted: '',
-    hasContact: '',
+    contacted: 'all',
+    hasContact: 'all',
   });
 
   const statusOptions = [
@@ -61,7 +61,7 @@ export const TargetFiltersPanel = ({ targets, onFilter }: TargetFiltersProps) =>
     }
 
     // Status filter
-    if (filters.status) {
+    if (filters.status && filters.status !== 'all') {
       filtered = filtered.filter(target => target.status === filters.status);
     }
 
@@ -102,12 +102,12 @@ export const TargetFiltersPanel = ({ targets, onFilter }: TargetFiltersProps) =>
   const clearFilters = () => {
     setFilters({
       search: '',
-      status: '',
+      status: 'all',
       sector: '',
       minRevenues: '',
       maxRevenues: '',
-      contacted: '',
-      hasContact: '',
+      contacted: 'all',
+      hasContact: 'all',
     });
     onFilter(targets);
   };
@@ -132,7 +132,9 @@ export const TargetFiltersPanel = ({ targets, onFilter }: TargetFiltersProps) =>
     }
   };
 
-  const activeFiltersCount = Object.values(filters).filter(v => v !== '').length;
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => 
+    value !== '' && value !== 'all'
+  ).length;
 
   return (
     <Card>
@@ -175,7 +177,7 @@ export const TargetFiltersPanel = ({ targets, onFilter }: TargetFiltersProps) =>
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos los estados</SelectItem>
+                      <SelectItem value="all">Todos los estados</SelectItem>
                       {statusOptions.map(option => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -192,7 +194,7 @@ export const TargetFiltersPanel = ({ targets, onFilter }: TargetFiltersProps) =>
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos</SelectItem>
+                      <SelectItem value="all">Todos</SelectItem>
                       <SelectItem value="true">Contactados</SelectItem>
                       <SelectItem value="false">Sin contactar</SelectItem>
                     </SelectContent>
@@ -206,7 +208,7 @@ export const TargetFiltersPanel = ({ targets, onFilter }: TargetFiltersProps) =>
                       <SelectValue placeholder="Todos" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos</SelectItem>
+                      <SelectItem value="all">Todos</SelectItem>
                       <SelectItem value="true">Con contacto</SelectItem>
                       <SelectItem value="false">Sin contacto</SelectItem>
                     </SelectContent>
