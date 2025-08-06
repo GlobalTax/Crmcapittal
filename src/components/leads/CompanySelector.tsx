@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useCompanies } from "@/hooks/useCompanies";
-import { CreateCompanyDialog } from "@/components/companies/CreateCompanyDialog";
+import { CompanyModal } from "@/components/companies/CompanyModal";
 import { Company } from "@/types/Company";
 
 interface CompanySelectorProps {
@@ -143,12 +143,12 @@ export function CompanySelector({ value, companyName, onSelect }: CompanySelecto
         </PopoverContent>
       </Popover>
 
-      {showCreateDialog && (
-        <CreateCompanyDialog
-          onCreateCompany={handleCreateCompany}
-          isCreating={isCreating}
-        />
-      )}
+      <CompanyModal
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreateCompany={handleCreateCompany}
+        isCreating={isCreating}
+      />
     </>
   );
 }
