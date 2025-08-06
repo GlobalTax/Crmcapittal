@@ -142,8 +142,8 @@ serve(async (req) => {
 
     // Try to connect to eInforma API
     try {
-      // Use hardcoded eInforma API URL (as in the working project)
-      const tokenUrl = 'https://api.einforma.com/oauth/token';
+      // Use eInforma OAuth2 endpoint per documentation
+      const tokenUrl = 'https://developers.einforma.com/api/v1/oauth/token';
       
       const tokenResponse = await fetch(tokenUrl, {
         method: 'POST',
@@ -191,7 +191,7 @@ serve(async (req) => {
       const tokenData = await tokenResponse.json();
       
       // Get company data from eInforma
-      const companyUrl = `https://api.einforma.com/api/v1/companies/${nif}`;
+      const companyUrl = `https://developers.einforma.com/api/v1/companies/${nif}/report`;
       
       const companyResponse = await fetch(companyUrl, {
         method: 'GET',
