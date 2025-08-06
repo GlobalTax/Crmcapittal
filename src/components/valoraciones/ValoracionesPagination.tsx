@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ValoracionesPaginationProps {
@@ -11,7 +10,6 @@ interface ValoracionesPaginationProps {
   onPageChange: (page: number) => void;
   onNextPage: () => void;
   onPreviousPage: () => void;
-  className?: string;
 }
 
 export const ValoracionesPagination = ({
@@ -21,16 +19,47 @@ export const ValoracionesPagination = ({
   pageSize,
   onPageChange,
   onNextPage,
-  onPreviousPage,
-  className = ""
+  onPreviousPage
 }: ValoracionesPaginationProps) => {
+  if (totalPages <= 1) return null;
+
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const start = Math.max(1, currentPage - 2);
+      const end = Math.min(totalPages, start + maxVisiblePages - 1);
+      
+      if (start > 1) {
+        pages.push(1);
+        if (start > 2) pages.push('...');
+      }
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      if (end < totalPages) {
+        if (end < totalPages - 1) pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
+
   return (
-    <div className={`flex items-center justify-between ${className}`}>
+    <div className="flex items-center justify-between mt-8">
       <div className="text-sm text-muted-foreground">
-        Mostrando {startItem} a {endItem} de {totalItems} valoraciones
+        Mostrando {startItem}-{endItem} de {totalItems} resultados
       </div>
       
       <div className="flex items-center gap-2">
@@ -39,26 +68,24 @@ export const ValoracionesPagination = ({
           size="sm"
           onClick={onPreviousPage}
           disabled={currentPage === 1}
-          className="flex items-center gap-1"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="h-4 w-4" />
           Anterior
         </Button>
         
-        <div className="flex items-center gap-2">
-          <span className="text-sm">Página</span>
-          <Input
-            type="number"
-            min={1}
-            max={totalPages}
-            value={currentPage}
-            onChange={(e) => {
-              const page = parseInt(e.target.value) || 1;
-              onPageChange(page);
-            }}
-            className="w-20 text-center"
-          />
-          <span className="text-sm">de {totalPages}</span>
+        <div className="flex items-center gap-1">
+          {getPageNumbers().map((page, index) => (
+            <Button
+              key={index}
+              variant={page === currentPage ? "default" : "outline"}
+              size="sm"
+              onClick={() => typeof page === 'number' && onPageChange(page)}
+              disabled={page === '...'}
+              className="min-w-[40px]"
+            >
+              {page}
+            </Button>
+          ))}
         </div>
         
         <Button
@@ -66,10 +93,9 @@ export const ValoracionesPagination = ({
           size="sm"
           onClick={onNextPage}
           disabled={currentPage === totalPages}
-          className="flex items-center gap-1"
         >
           Siguiente
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
