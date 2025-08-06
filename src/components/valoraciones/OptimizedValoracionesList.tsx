@@ -28,7 +28,14 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
 }) => {
   const { valoraciones, loading, refetch } = useValoraciones();
   
-  // Búsqueda optimizada
+  // Búsqueda optimizada - usando useMemo para evitar recreaciones
+  const searchConfig = useMemo(() => ({
+    data: valoraciones,
+    searchFields: ['company_name', 'client_name', 'company_sector', 'company_description'] as (keyof Valoracion)[],
+    debounceMs: 300,
+    minSearchLength: 2
+  }), [valoraciones]);
+
   const {
     searchTerm,
     setSearchTerm,
@@ -40,14 +47,15 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
     hasActiveFilters,
     resultCount,
     totalCount
-  } = useOptimizedSearch({
-    data: valoraciones,
-    searchFields: ['company_name', 'client_name', 'company_sector', 'company_description'],
-    debounceMs: 300,
-    minSearchLength: 2
-  });
+  } = useOptimizedSearch(searchConfig);
   
-  // Paginación virtualizada
+  // Paginación virtualizada - usando useMemo para la configuración
+  const paginationConfig = useMemo(() => ({
+    pageSize: 12,
+    virtualPageSize: 24,
+    maxCachedPages: 5
+  }), []);
+
   const {
     currentPageData,
     currentPage,
@@ -59,11 +67,7 @@ export const OptimizedValoracionesList: React.FC<OptimizedValoracionesListProps>
     goToPreviousPage,
     hasNextPage,
     hasPreviousPage
-  } = useVirtualizedPagination(filteredData, {
-    pageSize: 12,
-    virtualPageSize: 24,
-    maxCachedPages: 5
-  });
+  } = useVirtualizedPagination(filteredData, paginationConfig);
   
   // Exportación optimizada
   const { isExporting, progress, startExport, cancelExport } = useOptimizedExport();

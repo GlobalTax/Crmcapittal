@@ -10,14 +10,17 @@ interface SecureButtonProps extends React.ComponentProps<typeof Button> {
   showLockIcon?: boolean;
 }
 
-export const SecureButton = ({ 
+export const SecureButton = React.forwardRef<
+  HTMLButtonElement,
+  SecureButtonProps
+>(({ 
   hasPermission, 
   disabledReason, 
   showLockIcon = true,
   children, 
   className = '',
   ...props 
-}: SecureButtonProps) => {
+}, ref) => {
   if (!hasPermission) {
     return (
       <TooltipProvider>
@@ -45,8 +48,10 @@ export const SecureButton = ({
   }
 
   return (
-    <Button {...props} className={className}>
+    <Button ref={ref} {...props} className={className}>
       {children}
     </Button>
   );
-};
+});
+
+SecureButton.displayName = "SecureButton";

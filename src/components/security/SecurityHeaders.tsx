@@ -18,10 +18,11 @@ export const SecurityHeaders = ({ children }: SecurityHeadersProps) => {
       cspMeta.setAttribute('content', [
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-        "style-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' data: https://fonts.gstatic.com",
         "img-src 'self' data: https:",
         "connect-src 'self' https://nbvvdaprcecaqvvkqcto.supabase.co wss://nbvvdaprcecaqvvkqcto.supabase.co",
-        "font-src 'self' data:",
+        
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'"
