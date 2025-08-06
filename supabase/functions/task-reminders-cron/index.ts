@@ -68,10 +68,58 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 async function runHourlyCheck(supabase: any) {
-  console.log('Running hourly check for overdue tasks...');
+  console.log('Running hourly check for scheduled reminders and overdue tasks...');
   
   try {
-    // Get all overdue tasks
+    // 1. Process scheduled reminders first
+    console.log('Processing scheduled reminders...');
+    const { data: scheduledReminders, error: scheduledError } = await supabase.rpc('get_pending_scheduled_reminders');
+    
+    if (scheduledError) {
+      console.error('Error fetching scheduled reminders:', scheduledError);
+    } else {
+      console.log(`Found ${scheduledReminders?.length || 0} scheduled reminders`);
+      
+      for (const reminder of scheduledReminders || []) {
+        try {
+          // Mark reminder as sent
+          const { error: markError } = await supabase.rpc('mark_reminder_processed', { 
+            p_reminder_id: reminder.id,
+            p_status: 'sent'
+          });
+
+          if (!markError) {
+            console.log(`Processed scheduled reminder: ${reminder.id}`);
+            
+            // Log automation event
+            await supabase.rpc('log_automation_event', {
+              p_automation_type: 'scheduled_reminder',
+              p_entity_type: reminder.deal_id ? 'deal' : 'negocio',
+              p_entity_id: reminder.deal_id || reminder.negocio_id,
+              p_trigger_event: 'scheduled_time_reached',
+              p_action_taken: 'reminder_sent',
+              p_action_data: {
+                reminder_type: reminder.reminder_type,
+                notification_type: reminder.notification_type,
+                task_title: reminder.task_title
+              }
+            });
+          }
+        } catch (reminderError) {
+          console.error('Error processing scheduled reminder:', reminder.id, reminderError);
+          
+          // Mark as failed
+          await supabase.rpc('mark_reminder_processed', { 
+            p_reminder_id: reminder.id,
+            p_status: 'failed',
+            p_error_message: reminderError.message
+          });
+        }
+      }
+    }
+
+    // 2. Process overdue tasks
+    console.log('Processing overdue tasks...');
     const { data: overdueTasks, error } = await supabase.rpc('get_all_overdue_tasks');
     
     if (error) {
@@ -107,10 +155,25 @@ async function runHourlyCheck(supabase: any) {
             entity_name: task.entity_name,
             entity_id: task.entity_id,
             message: message,
-            days_overdue: task.days_overdue
+            days_overdue: task.days_overdue,
+            status: 'sent'
           });
 
         console.log(`Created notification for overdue task: ${task.task_title} (${task.days_overdue} days overdue)`);
+        
+        // Log automation event
+        await supabase.rpc('log_automation_event', {
+          p_automation_type: 'overdue_notification',
+          p_entity_type: 'task',
+          p_entity_id: task.task_id,
+          p_trigger_event: 'task_overdue_detected',
+          p_action_taken: 'notification_created',
+          p_action_data: {
+            task_type: task.task_type,
+            days_overdue: task.days_overdue,
+            entity_name: task.entity_name
+          }
+        });
       }
     }
 

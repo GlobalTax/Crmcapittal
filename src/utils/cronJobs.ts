@@ -24,33 +24,27 @@ export class CronJobsService {
     try {
       console.log('Checking for pending reminders...');
       
-      // Get all overdue tasks using the existing RPC function
-      const { data: overdueTasks, error } = await supabase.rpc('get_all_overdue_tasks');
+      // Get scheduled reminders using the new RPC function
+      const { data: scheduledReminders, error } = await supabase.rpc('get_pending_scheduled_reminders');
       
       if (error) {
-        console.error('Error fetching overdue tasks:', error);
+        console.error('Error fetching scheduled reminders:', error);
         throw error;
       }
 
-      // Filter for reminder-type notifications
-      const reminderTasks = (overdueTasks || []).filter((task: any) => {
-        const reminderTypes = ['nda_reminder', 'inactivity_reminder', 'proposal_reminder'];
-        return reminderTypes.some(type => task.task_type?.includes(type) || task.task_title?.toLowerCase().includes('recordatorio'));
-      });
-
-      console.log(`Found ${reminderTasks.length} pending reminder tasks`);
+      console.log(`Found ${scheduledReminders?.length || 0} pending scheduled reminders`);
       
-      return reminderTasks.map((task: any) => ({
-        id: task.task_id,
-        task_id: task.task_id,
-        task_type: task.task_type,
-        notification_type: this.inferNotificationType(task),
-        task_title: task.task_title,
-        entity_name: task.entity_name,
-        entity_id: task.entity_id,
-        message: task.task_title || 'Recordatorio pendiente',
-        days_overdue: task.days_overdue || 0,
-        created_at: new Date().toISOString(),
+      return (scheduledReminders || []).map((reminder: any) => ({
+        id: reminder.id,
+        task_id: reminder.task_id,
+        task_type: reminder.task_type,
+        notification_type: reminder.notification_type,
+        task_title: reminder.task_title,
+        entity_name: reminder.entity_name,
+        entity_id: reminder.entity_id,
+        message: reminder.message || 'Recordatorio programado',
+        days_overdue: 0,
+        created_at: reminder.created_at,
         read_at: undefined
       }));
       

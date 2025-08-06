@@ -86,6 +86,54 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_logs: {
+        Row: {
+          action_data: Json | null
+          action_taken: string
+          automation_type: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          error_message: string | null
+          executed_at: string
+          execution_time_ms: number | null
+          id: string
+          status: string
+          trigger_event: string
+          user_id: string | null
+        }
+        Insert: {
+          action_data?: Json | null
+          action_taken: string
+          automation_type: string
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          error_message?: string | null
+          executed_at?: string
+          execution_time_ms?: number | null
+          id?: string
+          status?: string
+          trigger_event: string
+          user_id?: string | null
+        }
+        Update: {
+          action_data?: Json | null
+          action_taken?: string
+          automation_type?: string
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          error_message?: string | null
+          executed_at?: string
+          execution_time_ms?: number | null
+          id?: string
+          status?: string
+          trigger_event?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       buying_mandates: {
         Row: {
           assigned_user_id: string | null
@@ -2697,6 +2745,21 @@ export type Database = {
         }
         Relationships: []
       }
+      hb_contacts: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       hubspot: {
         Row: {
           "Análisis detallado 1 de la fuente de tráfico más reciente":
@@ -3636,6 +3699,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ma_pipeline_stages: {
+        Row: {
+          automation: string | null
+          color: string | null
+          condition_to_advance: string | null
+          created_at: string | null
+          description: string | null
+          id: number
+          is_active: boolean | null
+          name: string
+          probability_pct: number
+          stage_order: number
+          updated_at: string | null
+        }
+        Insert: {
+          automation?: string | null
+          color?: string | null
+          condition_to_advance?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          is_active?: boolean | null
+          name: string
+          probability_pct: number
+          stage_order: number
+          updated_at?: string | null
+        }
+        Update: {
+          automation?: string | null
+          color?: string | null
+          condition_to_advance?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          is_active?: boolean | null
+          name?: string
+          probability_pct?: number
+          stage_order?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       mandate_client_access: {
         Row: {
@@ -6311,13 +6416,18 @@ export type Database = {
         Row: {
           created_at: string | null
           days_overdue: number
+          deal_id: string | null
           email_sent_at: string | null
           entity_id: string | null
           entity_name: string | null
           id: string
           message: string
+          negocio_id: string | null
           notification_type: string
           read_at: string | null
+          reminder_type: string | null
+          scheduled_for: string | null
+          status: string | null
           task_id: string
           task_title: string
           task_type: string
@@ -6326,13 +6436,18 @@ export type Database = {
         Insert: {
           created_at?: string | null
           days_overdue?: number
+          deal_id?: string | null
           email_sent_at?: string | null
           entity_id?: string | null
           entity_name?: string | null
           id?: string
           message: string
+          negocio_id?: string | null
           notification_type: string
           read_at?: string | null
+          reminder_type?: string | null
+          scheduled_for?: string | null
+          status?: string | null
           task_id: string
           task_title: string
           task_type: string
@@ -6341,13 +6456,18 @@ export type Database = {
         Update: {
           created_at?: string | null
           days_overdue?: number
+          deal_id?: string | null
           email_sent_at?: string | null
           entity_id?: string | null
           entity_name?: string | null
           id?: string
           message?: string
+          negocio_id?: string | null
           notification_type?: string
           read_at?: string | null
+          reminder_type?: string | null
+          scheduled_for?: string | null
+          status?: string | null
           task_id?: string
           task_title?: string
           task_type?: string
@@ -8329,6 +8449,25 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_pending_scheduled_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          task_id: string
+          task_type: string
+          notification_type: string
+          reminder_type: string
+          task_title: string
+          entity_name: string
+          entity_id: string
+          message: string
+          scheduled_for: string
+          deal_id: string
+          negocio_id: string
+          user_id: string
+          created_at: string
+        }[]
+      }
       get_quantum_token: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -8403,6 +8542,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      log_automation_event: {
+        Args: {
+          p_automation_type: string
+          p_entity_type: string
+          p_entity_id: string
+          p_trigger_event: string
+          p_action_taken: string
+          p_action_data?: Json
+          p_status?: string
+          p_error_message?: string
+          p_execution_time_ms?: number
+        }
+        Returns: string
+      }
       log_lead_score_change: {
         Args: {
           p_lead_id: string
@@ -8458,6 +8611,14 @@ export type Database = {
               p_table_name?: string
             }
         Returns: string
+      }
+      mark_reminder_processed: {
+        Args: {
+          p_reminder_id: string
+          p_status?: string
+          p_error_message?: string
+        }
+        Returns: boolean
       }
       mark_winback_response: {
         Args: { p_lead_id: string; p_response_type?: string }

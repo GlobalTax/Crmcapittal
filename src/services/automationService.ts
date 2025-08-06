@@ -74,10 +74,10 @@ export class AutomationService {
    */
   private static async createReminderTask(dealId: string, dealType: string, reminderType: ReminderType, delayHours: number, message: string) {
     try {
-      const dueDate = new Date();
-      dueDate.setHours(dueDate.getHours() + delayHours);
+      const scheduledFor = new Date();
+      scheduledFor.setHours(scheduledFor.getHours() + delayHours);
 
-      // Create notification in task_notifications table
+      // Create notification in task_notifications table with scheduled_for field
       const { error } = await supabase
         .from('task_notifications')
         .insert({
@@ -85,16 +85,35 @@ export class AutomationService {
           task_id: dealId,
           task_type: dealType === 'negocio' ? 'negocio' : 'deal',
           notification_type: this.mapReminderToNotificationType(reminderType),
+          reminder_type: this.mapReminderToNotificationType(reminderType),
           task_title: message,
           entity_name: `${dealType.charAt(0).toUpperCase() + dealType.slice(1)} ${dealId}`,
           entity_id: dealId,
           message,
+          scheduled_for: scheduledFor.toISOString(),
+          status: 'pending',
+          deal_id: dealType === 'deal' ? dealId : null,
+          negocio_id: dealType === 'negocio' ? dealId : null,
           days_overdue: 0
         });
 
       if (error) {
         throw error;
       }
+
+      // Log automation event
+      await supabase.rpc('log_automation_event', {
+        p_automation_type: 'reminder_scheduled',
+        p_entity_type: dealType,
+        p_entity_id: dealId,
+        p_trigger_event: 'stage_change',
+        p_action_taken: 'reminder_created',
+        p_action_data: {
+          reminder_type: reminderType,
+          delay_hours: delayHours,
+          scheduled_for: scheduledFor.toISOString()
+        }
+      });
 
       console.log(`Reminder scheduled: ${reminderType} for ${dealType} ${dealId} in ${delayHours} hours`);
       
