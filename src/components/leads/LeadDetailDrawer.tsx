@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Lead } from '@/types/Lead';
 import { useLeadActions } from '@/hooks/leads/useLeadActions';
-import { usePipelineStages } from '@/hooks/leads/usePipelineStages';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ import { LeadActivityTab } from './LeadActivityTab';
 import { LeadUnifiedActivityTab } from './LeadUnifiedActivityTab';
 import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
-import { LeadProposalTabEnhanced } from './tabs/LeadProposalTabEnhanced';
+
 import { LeadSidebarWidgets } from './widgets/LeadSidebarWidgets';
 
 interface LeadDetailDrawerProps {
@@ -37,7 +37,6 @@ interface LeadDetailDrawerProps {
 export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: LeadDetailDrawerProps) => {
   const [activeTab, setActiveTab] = useState('resumen');
   const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
-  const { data: pipelineStages } = usePipelineStages();
 
   const handleActionClick = (action: string) => {
     if (!lead) return;
@@ -102,18 +101,6 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
     return colors[stage] || 'hsl(210, 11%, 71%)';
   };
 
-  // Check if proposal tab should be visible
-  const shouldShowProposalTab = (lead: Lead) => {
-    if (!lead.pipeline_stage_id || !pipelineStages) return false;
-    
-    const currentStage = pipelineStages.find(stage => stage.id === lead.pipeline_stage_id);
-    if (!currentStage) return false;
-    
-    const proposalStages = ['propuesta', 'negociación', 'ganado'];
-    return proposalStages.some(stageName => 
-      currentStage.name.toLowerCase().includes(stageName.toLowerCase())
-    );
-  };
 
   if (!lead) return null;
 
@@ -242,15 +229,6 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                     <CheckSquare className="h-4 w-4 mr-2" />
                     Tareas
                   </TabsTrigger>
-                  {shouldShowProposalTab(lead) && (
-                    <TabsTrigger 
-                      value="propuesta"
-                      className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Propuesta
-                    </TabsTrigger>
-                  )}
                 </TabsList>
               </div>
 
@@ -281,12 +259,6 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                 <TabsContent value="tareas" className="mt-0">
                   <LeadTasksTab lead={lead} />
                 </TabsContent>
-                
-                {shouldShowProposalTab(lead) && (
-                  <TabsContent value="propuesta" className="mt-0">
-                    <LeadProposalTabEnhanced lead={lead} />
-                  </TabsContent>
-                )}
               </div>
             </Tabs>
           </div>
