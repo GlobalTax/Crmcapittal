@@ -12,7 +12,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarEvent } from '@/hooks/useCalendarEvents';
 import { CreateEventData, useCalendarMutations } from '@/hooks/useCalendarMutations';
-
+import { useLeadsForSelection } from '@/hooks/useLeadsForSelection';
 import { useMandatesForSelection } from '@/hooks/useMandatesForSelection';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +26,7 @@ interface EventModalProps {
 
 export const EventModal = ({ open, onOpenChange, event, onEventSaved, defaultDate }: EventModalProps) => {
   const { createEvent, updateEvent, loading } = useCalendarMutations();
-  const leads: any[] = []; // Leads functionality removed
+  const { leads, loading: leadsLoading } = useLeadsForSelection();
   const { mandates, loading: mandatesLoading } = useMandatesForSelection();
   const [startDate, setStartDate] = useState<Date | undefined>(defaultDate || new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(defaultDate || new Date());

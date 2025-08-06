@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
-
+import { useLeads } from '@/hooks/useLeads';
 import { 
   LayoutDashboard, 
   Users, 
@@ -40,8 +40,8 @@ const navigationSections: NavSection[] = [
     title: "Principal",
     items: [
       { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
-      { to: '/leads', label: 'Control Leads', icon: LayoutDashboard },
-      
+      { to: '/', label: 'Control Leads', icon: LayoutDashboard },
+      { to: '/gestion-leads', label: 'Gestión de Leads', icon: TrendingUp },
       { to: '/contactos', label: 'Contactos', icon: Users },
       { to: '/empresas', label: 'Empresas', icon: Building2 },
     ]
@@ -97,8 +97,18 @@ export function AttioSidebar() {
   
   const { role } = useUserRole();
   
+  const { leads } = useLeads();
+  
   const isAdmin = role === 'admin' || role === 'superadmin';
   const isSuperAdmin = role === 'superadmin';
+
+  // Count new leads that need attention
+  const newLeadsCount = leads.filter(lead => lead.status === 'NEW').length;
+  const todayLeadsCount = leads.filter(lead => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(lead.created_at) >= today;
+  }).length;
 
   const allSections = [...navigationSections, ...(isAdmin ? [getAdminSection(isSuperAdmin)] : [])];
 
@@ -143,6 +153,21 @@ export function AttioSidebar() {
                      >
                        <Icon className="w-4 h-4 flex-shrink-0" />
                        <span className="truncate">{item.label}</span>
+                       {/* Show leads counter for Control Leads */}
+                       {item.to === '/' && (newLeadsCount > 0 || todayLeadsCount > 0) && (
+                         <div className="ml-auto flex gap-1">
+                           {newLeadsCount > 0 && (
+                             <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                               {newLeadsCount}
+                             </span>
+                           )}
+                           {todayLeadsCount > 0 && newLeadsCount !== todayLeadsCount && (
+                             <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                               {todayLeadsCount}
+                             </span>
+                           )}
+                         </div>
+                       )}
                      </NavLink>
                   </li>
                 );

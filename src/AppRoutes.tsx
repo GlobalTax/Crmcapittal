@@ -11,7 +11,11 @@ import CompanyList from '@/components/empresas/CompanyList';
 import CompanyDetail from '@/components/empresas/CompanyDetail';
 import ContactList from '@/components/contactos/ContactList';
 import ContactDetail from '@/components/contactos/ContactDetail';
+import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
+
+// Import the unified lead page and enhanced mandate detail view
+import LeadPage from '@/pages/LeadPage';
 const NewBuyingMandatesView = lazy(() => import('@/pages/NewBuyingMandatesView'));
 
 
@@ -30,7 +34,7 @@ const CalendarPage = lazy(() => import('@/pages/Calendar'));
 const Documents = lazy(() => import('@/pages/MinimalDocuments'));
 const UserManagement = lazy(() => import('@/pages/MinimalUserManagement'));
 const Collaborators = lazy(() => import('@/pages/MinimalCollaborators'));
-// const HierarchicalCRM = lazy(() => import('@/pages/HierarchicalCRM')); // Removed
+const HierarchicalCRM = lazy(() => import('@/pages/HierarchicalCRM'));
 const ClientMandateView = lazy(() => import('@/pages/ClientMandateView'));
 const Integrations = lazy(() => import('@/pages/MinimalIntegrations'));
 const EInformaDashboard = lazy(() => import('@/pages/EInformaDashboard'));
@@ -44,7 +48,6 @@ const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
 const ActivityPage = lazy(() => import('@/pages/ActivityPage'));
-const LeadsPage = lazy(() => import('@/pages/LeadsPage'));
 
 
 const LoadingSkeleton = () => (
@@ -130,22 +133,32 @@ export const AppRoutes = () => {
           <Route path="/mandatos/:id/targets" element={<Navigate to="/mandatos" replace />} />
           <Route path="/mandatos/:id/targets/pipeline" element={<Navigate to="/mandatos" replace />} />
 
+          {/* Captación (Spanish routes) */}
+          <Route path="/captacion" element={<LeadsEntryPanel />} />
+          <Route 
+            path="/captacion/:id" 
+            element={<LeadPage />} 
+          />
+          
+          {/* Gestión de Leads route */}
+          <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
+          <Route 
+            path="/gestion-leads/:id" 
+            element={<LeadPage />} 
+          />
+
+          {/* Unified leads route */}
+          <Route path="/leads" element={<LeadsEntryPanel />} />
+          <Route 
+            path="/leads/:id" 
+            element={<LeadPage />} 
+          />
 
           {/* Empresas y Contactos (Spanish routes) */}
           <Route path="/empresas" element={<CompanyList />} />
           <Route path="/empresas/:id" element={<CompanyDetail />} />
           <Route path="/contactos" element={<ContactList />} />
           <Route path="/contactos/:id" element={<ContactDetail />} />
-
-          {/* Leads */}
-          <Route 
-            path="/leads" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <LeadsPage />
-              </Suspense>
-            } 
-          />
 
           {/* Transacciones (Spanish routes) */}
           <Route path="/transacciones" element={<TransaccionesList />} />
@@ -243,7 +256,14 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
-          {/* CRM route removed - HierarchicalCRM functionality deleted */}
+          <Route 
+            path="/crm" 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <HierarchicalCRM />
+              </Suspense>
+            } 
+          />
           <Route 
             path="/integrations"
             element={

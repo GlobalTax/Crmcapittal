@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-
+import { useLeads } from "@/hooks/useLeads";
 import { usePersonalTasks } from "@/hooks/usePersonalTasks";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -10,12 +10,12 @@ import { MetricCard } from "@/components/dashboard/MetricCard";
 import { PersonalTimer } from "@/components/dashboard/PersonalTimer";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { AgendaPanel } from "@/components/dashboard/AgendaPanel";
-
+import { DashboardLeads } from "@/components/dashboard/DashboardLeads";
 import { TaskModal } from "@/components/personal/TaskModal";
 
 export default function MinimalPersonalDashboard() {
   const { user } = useAuth();
-  const leads: any[] = []; // Leads functionality removed
+  const { leads } = useLeads({ owner_id: user?.id });
   const { tasks, getTodayTasks, getCompletedTasks } = usePersonalTasks();
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
@@ -79,7 +79,7 @@ export default function MinimalPersonalDashboard() {
       </div>
 
       {/* Leads Dashboard Section */}
-      {/* DashboardLeads component removed */}
+      <DashboardLeads />
 
       {/* Third Row - Activity and Tasks */}
       <div className="grid gap-6 lg:grid-cols-2">

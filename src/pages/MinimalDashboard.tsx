@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
-
+import { useLeads } from "@/hooks/useLeads";
 import { User, Mail, Briefcase } from "lucide-react";
 
 export default function MinimalDashboard() {
-  const leads: any[] = []; // Leads functionality removed
-  const isLoading = false;
+  const { leads, isLoading } = useLeads({});
 
   const stats = [
     { label: "Leads nuevos", value: leads.filter(l => l.status === 'NEW').length },
