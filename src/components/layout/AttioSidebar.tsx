@@ -49,8 +49,8 @@ const navigationSections: NavSection[] = [
   {
     title: "Ventas & Transacciones",
     items: [
-      { to: '/mandatos', label: 'Mandatos', icon: Briefcase },
-      { to: '/transacciones', label: 'Transacciones', icon: DollarSign },
+      { to: '/transacciones', label: 'Mandatos de Venta', icon: Briefcase },
+      { to: '/buying-mandates', label: 'Mandatos de Compra', icon: FileText },
       { to: '/valoraciones', label: 'Valoraciones', icon: Calculator },
       { to: '/reconversiones', label: 'Reconversiones', icon: RefreshCw },
       { to: '/proposals', label: 'Propuestas', icon: FileText },
