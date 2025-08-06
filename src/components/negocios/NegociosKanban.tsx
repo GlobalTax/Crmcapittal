@@ -70,6 +70,7 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: Nego
     
     try {
       await onUpdateStage(negocioId, newStageId);
+      // Stage change automation is handled in useNegocios updateNegocio function
     } catch (error) {
       console.error('Error updating stage:', error);
     }

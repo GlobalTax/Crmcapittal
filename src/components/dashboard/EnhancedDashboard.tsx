@@ -16,6 +16,8 @@ import { ConversionChart } from './ConversionChart';
 import { RecentDeals } from './RecentDeals';
 import { LoadingSkeleton, DashboardLoadingSkeleton } from '@/components/LoadingSkeleton';
 import { HealthStatusIndicator } from './HealthStatusIndicator';
+import { RemindersDashboard } from './RemindersDashboard';
+import { useReminderNotifications } from '@/hooks/useReminderNotifications';
 import { 
   Plus, 
   Users, 
@@ -35,6 +37,9 @@ const EnhancedDashboard = React.memo(() => {
   const { operations, loading: operationsLoading } = useOperations();
   const { leads, isLoading: leadsLoading } = useLeads({});
   const { negocios, loading: negociosLoading } = useNegocios();
+  
+  // Initialize reminder notifications
+  useReminderNotifications();
 
   const isLoading = roleLoading || operationsLoading || leadsLoading || negociosLoading;
 
@@ -202,13 +207,18 @@ const EnhancedDashboard = React.memo(() => {
           {/* Right Column - Activity and Actions */}
           <div className="space-y-8">
             
-            {/* Activity Feed */}
+            {/* Reminders Dashboard */}
             <div className="animate-fade-in delay-500">
+              <RemindersDashboard />
+            </div>
+
+            {/* Activity Feed */}
+            <div className="animate-fade-in delay-600">
               <ActivityFeed />
             </div>
 
             {/* Quick Actions */}
-            <div className="animate-fade-in delay-600">
+            <div className="animate-fade-in delay-700">
               <QuickActions actions={quickActions} role={role} />
             </div>
 

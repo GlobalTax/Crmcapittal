@@ -14,8 +14,9 @@ export interface OverdueTaskData {
 export interface TaskNotification {
   id: string;
   task_id: string;
-  task_type: 'planned' | 'lead' | 'valoracion';
-  notification_type: 'overdue_task' | 'task_reminder';
+  task_type: 'planned' | 'lead' | 'valoracion' | 'negocio' | 'deal';
+  notification_type: 'overdue_task' | 'task_reminder' | 'nda_reminder' | 'inactivity_reminder' | 'proposal_reminder';
+  reminder_type?: string;
   task_title: string;
   entity_name?: string;
   entity_id?: string;
@@ -24,6 +25,10 @@ export interface TaskNotification {
   created_at: string;
   read_at?: string;
   email_sent_at?: string;
+  scheduled_for?: string;
+  status?: 'pending' | 'sent' | 'cancelled';
+  deal_id?: string;
+  negocio_id?: string;
 }
 
 export const useOverdueTasks = () => {

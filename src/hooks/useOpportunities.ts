@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Opportunity, CreateOpportunityData, UpdateOpportunityData, OpportunityWithContacts, OpportunityContact } from '@/types/Opportunity';
 import { toast } from 'sonner';
+import { AutomationService } from '@/services/automationService';
 
 export const useOpportunities = () => {
   const queryClient = useQueryClient();
@@ -77,6 +78,14 @@ export const useOpportunities = () => {
   const updateOpportunityMutation = useMutation({
     mutationFn: async (opportunityData: UpdateOpportunityData) => {
       const { id, ...updateData } = opportunityData;
+      
+      // Get current opportunity for stage change detection
+      const { data: currentOpportunity } = await supabase
+        .from('opportunities')
+        .select('stage')
+        .eq('id', id)
+        .single();
+      
       const { data, error } = await supabase
         .from('opportunities')
         .update({
@@ -90,6 +99,21 @@ export const useOpportunities = () => {
       if (error) {
         console.error('Error updating opportunity:', error);
         throw error;
+      }
+
+      // Trigger automation if stage changed
+      if (currentOpportunity && updateData.stage && currentOpportunity.stage !== updateData.stage) {
+        try {
+          await AutomationService.onDealStageUpdate(
+            currentOpportunity.stage,
+            updateData.stage,
+            id,
+            'deal'
+          );
+        } catch (automationError) {
+          console.error('Error triggering automation:', automationError);
+          // Don't fail the update if automation fails
+        }
       }
 
       return data as Opportunity;

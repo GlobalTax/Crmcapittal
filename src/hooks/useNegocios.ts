@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Negocio } from '@/types/Negocio';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { AutomationService } from '@/services/automationService';
 
 export const useNegocios = (pipelineId?: string) => {
   const [negocios, setNegocios] = useState<Negocio[]>([]);
@@ -166,6 +167,9 @@ export const useNegocios = (pipelineId?: string) => {
 
   const updateNegocio = async (id: string, updates: Partial<Negocio>) => {
     try {
+      // Get current negocio for stage change detection
+      const currentNegocio = negocios.find(n => n.id === id);
+      
       const negocioUpdates = {
         nombre_negocio: updates.nombre_negocio,
         valor_negocio: updates.valor_negocio,
@@ -202,6 +206,21 @@ export const useNegocios = (pipelineId?: string) => {
         .single();
 
       if (error) throw error;
+      
+      // Trigger automation if stage changed
+      if (currentNegocio && updates.stage_id && currentNegocio.stage_id !== updates.stage_id) {
+        try {
+          await AutomationService.onDealStageUpdate(
+            currentNegocio.stage?.name || '',
+            updates.stage?.name || '',
+            id,
+            'negocio'
+          );
+        } catch (automationError) {
+          console.error('Error triggering automation:', automationError);
+          // Don't fail the update if automation fails
+        }
+      }
       
       await fetchNegocios();
       toast({
