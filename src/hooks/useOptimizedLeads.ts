@@ -116,17 +116,53 @@ export const useOptimizedLeads = (filters?: {
       logger.info('Updating lead', { id, updates });
       return leadsService.updateLead(id, updates);
     },
+    onMutate: async ({ id, updates }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['leads'] });
+      
+      // Snapshot previous value
+      const previousLeads = queryClient.getQueryData(['leads', filters]);
+      
+      // Optimistically update the lead in cache
+      queryClient.setQueryData(['leads', filters], (old: any) => {
+        if (old?.pages) {
+          // Handle paginated data
+          return {
+            ...old,
+            pages: old.pages.map((page: any) => ({
+              ...page,
+              data: page.data.map((lead: any) => 
+                lead.id === id ? { ...lead, ...updates } : lead
+              )
+            }))
+          };
+        } else if (Array.isArray(old)) {
+          // Handle array data
+          return old.map((lead: any) => 
+            lead.id === id ? { ...lead, ...updates } : lead
+          );
+        }
+        return old;
+      });
+      
+      // Update leads state immediately
+      setLeads(prev => prev.map(lead => 
+        lead.id === id ? { ...lead, ...updates } : lead
+      ));
+      
+      return { previousLeads };
+    },
     onSuccess: () => {
+      // Only invalidate essential queries
       queryClient.invalidateQueries({ queryKey: ['leads'] });
-      queryClient.invalidateQueries({ queryKey: ['lead-tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['proposals'] });
-      queryClient.invalidateQueries({ queryKey: ['deals'] });
-      queryClient.invalidateQueries({ queryKey: ['companies'] });
-      queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      refetch(); // Refresh our data
       toast.success('Lead actualizado exitosamente');
     },
-    onError: (error) => {
+    onError: (error, { id }, context) => {
+      // Rollback on error
+      if (context?.previousLeads) {
+        queryClient.setQueryData(['leads', filters], context.previousLeads);
+        refetch();
+      }
       logger.error('Error updating lead', error);
       toast.error('Error al actualizar el lead');
     },
