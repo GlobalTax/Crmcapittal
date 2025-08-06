@@ -156,7 +156,7 @@ export const LeadKanbanBoard: React.FC<LeadKanbanBoardProps> = ({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex space-x-6 overflow-x-auto pb-4">
+        <div className="flex space-x-4 overflow-x-auto pb-4">{/* Reduced gap from 6 to 4 */}
           {stages.map((stage) => (
             <LeadKanbanColumn
               key={stage.id}

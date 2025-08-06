@@ -27,20 +27,20 @@ export const LeadKanbanColumn = ({
   const leadIds = leads.map(lead => lead.id);
 
   return (
-    <div className="min-w-[280px] flex-shrink-0">
+    <div className="min-w-[260px] flex-shrink-0">{/* Reduced from 280px to 260px */}
       {/* Column Header */}
-      <div className="flex items-center justify-between mb-4 px-1">
+      <div className="flex items-center justify-between mb-3 px-2">
         <div className="flex items-center gap-2">
           <div 
             className="w-2 h-2 rounded-full"
             style={{ backgroundColor: stage.color }}
           />
-          <h3 className="font-semibold text-foreground text-sm">
+          <h3 className="font-medium text-foreground text-sm">
             {stage.name}
           </h3>
-          <Badge variant="secondary" className="text-xs">
+          <span className="text-xs text-muted-foreground ml-1">
             {leads.length}
-          </Badge>
+          </span>
         </div>
         
         {onAddLead && (
@@ -48,10 +48,9 @@ export const LeadKanbanColumn = ({
             variant="ghost"
             size="sm"
             onClick={() => onAddLead(stage.id)}
-            className="text-xs h-7 px-2"
+            className="text-xs h-6 px-2 text-muted-foreground hover:text-foreground"
           >
-            <Plus className="h-3 w-3 mr-1" />
-            Nuevo Lead
+            <Plus className="h-3 w-3" />
           </Button>
         )}
       </div>
@@ -60,10 +59,10 @@ export const LeadKanbanColumn = ({
       <div
         ref={setNodeRef}
         className={`
-          min-h-[600px] space-y-3 p-2 rounded-lg transition-all duration-200
+          min-h-[600px] space-y-2 p-2 rounded-lg transition-all duration-200 bg-gray-50
           ${isOver 
-            ? 'bg-accent/50 border-2 border-dashed border-primary/30' 
-            : 'bg-muted/20'
+            ? 'bg-accent/30 border border-dashed border-primary/50' 
+            : ''
           }
         `}
       >

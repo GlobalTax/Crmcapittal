@@ -109,7 +109,7 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: Nego
         onDragStart={handleDragStart} 
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-6 h-full overflow-x-auto pb-4">
+        <div className="flex gap-4 h-full overflow-x-auto pb-4">{/* Reduced gap from 6 to 4 */}
           {dealStages.map((stage) => {
             const stageNegocios = getNegociosByStage(stage.id);
 

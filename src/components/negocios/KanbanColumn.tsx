@@ -38,24 +38,25 @@ export const KanbanColumn = ({ stage, negocios, onEdit, onView }: KanbanColumnPr
   const totalValue = getTotalValue();
 
   return (
-    <div className="min-w-[350px] flex-shrink-0">
+    <div className="min-w-[260px] flex-shrink-0">{/* Reduced from 350px to 260px */}
       {/* Column Header */}
-      <div className="mb-4">
+      <div className="mb-3 px-2">
         <div className="flex items-center justify-between mb-2">
-          <h3 
-            className="text-sm font-semibold flex items-center gap-2"
-            style={{ color: stage.color }}
-          >
+          <div className="flex items-center gap-2">
             <div 
-              className="w-3 h-3 rounded-full"
+              className="w-2 h-2 rounded-full"
               style={{ backgroundColor: stage.color }}
             />
-            {stage.name}
-          </h3>
-          <Badge variant="secondary">{negocios.length}</Badge>
+            <h3 className="text-sm font-medium text-foreground">
+              {stage.name}
+            </h3>
+            <span className="text-xs text-muted-foreground ml-1">
+              {negocios.length}
+            </span>
+          </div>
         </div>
-        <div className="text-sm text-muted-foreground">
-          Total: {new Intl.NumberFormat('es-ES', { 
+        <div className="text-xs text-muted-foreground">
+          {new Intl.NumberFormat('es-ES', { 
             style: 'currency', 
             currency: 'EUR',
             minimumFractionDigits: 0 
@@ -66,8 +67,8 @@ export const KanbanColumn = ({ stage, negocios, onEdit, onView }: KanbanColumnPr
       {/* Droppable Area */}
       <div
         ref={setNodeRef}
-        className={`min-h-[200px] space-y-3 p-2 rounded-lg transition-colors ${
-          isOver ? 'bg-muted/50' : ''
+        className={`min-h-[200px] space-y-2 p-2 rounded-lg transition-colors bg-gray-50 ${
+          isOver ? 'bg-accent/30 border border-dashed border-primary/50' : ''
         }`}
       >
         {negocios.map((negocio, index) => (
