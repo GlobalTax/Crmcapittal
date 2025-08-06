@@ -35,7 +35,7 @@ import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreateProposalDialog } from '@/components/proposals/CreateProposalDialog';
-import { CreateLeadMandateDialog } from '@/components/leads/dialogs/CreateLeadMandateDialog';
+import { CreateMandateDialog } from '@/components/mandates/CreateMandateDialog';
 
 interface PipedriveMainContentProps {
   lead: Lead;
@@ -833,11 +833,22 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
         onClose={() => setIsProposalDialogOpen(false)} 
       />
       
-      <CreateLeadMandateDialog 
-        isOpen={isMandateDialogOpen} 
-        onClose={() => setIsMandateDialogOpen(false)}
-        lead={lead}
-      />
+      {isMandateDialogOpen && (
+        <CreateMandateDialog 
+          trigger={null}
+          onSuccess={() => setIsMandateDialogOpen(false)}
+          initialData={{
+            mandate_name: `Mandato para ${lead.name}`,
+            client_name: lead.name || '',
+            client_contact: lead.name || '',
+            client_email: lead.email || '',
+            client_phone: lead.phone || '',
+            target_sectors: lead.sector_id ? [lead.sector_id] : [],
+            target_locations: ['España']
+          }}
+          leadId={lead.id}
+        />
+      )}
     </div>
   );
 };

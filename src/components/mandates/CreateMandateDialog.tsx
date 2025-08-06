@@ -11,32 +11,39 @@ import { CreateBuyingMandateData } from '@/types/BuyingMandate';
 import { FormValidationProvider, useFormValidation } from '@/contexts/FormValidationContext';
 import { ValidatedInput } from '@/components/validation/ValidatedInput';
 import { mandateValidationRules } from '@/utils/entityValidationRules';
+import { useLeads } from '@/hooks/useLeads';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface CreateMandateDialogProps {
   trigger?: React.ReactNode;
   onSuccess?: () => void;
+  initialData?: Partial<CreateBuyingMandateData>;
+  leadId?: string;
 }
 
-const CreateMandateForm = ({ onSuccess }: { onSuccess?: () => void }) => {
+const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () => void; initialData?: Partial<CreateBuyingMandateData>; leadId?: string }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sectorInput, setSectorInput] = useState('');
   const [locationInput, setLocationInput] = useState('');
   const { createMandate } = useBuyingMandates();
   const { validateForm, canSave, resetValidation } = useFormValidation();
+  const { updateLead } = useLeads();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState<CreateBuyingMandateData>({
-    client_name: '',
-    client_contact: '',
-    client_email: '',
-    client_phone: '',
-    mandate_name: '',
-    target_sectors: [],
-    target_locations: [],
-    min_revenue: undefined,
-    max_revenue: undefined,
-    min_ebitda: undefined,
-    max_ebitda: undefined,
-    other_criteria: '',
+    client_name: initialData?.client_name || '',
+    client_contact: initialData?.client_contact || '',
+    client_email: initialData?.client_email || '',
+    client_phone: initialData?.client_phone || '',
+    mandate_name: initialData?.mandate_name || '',
+    target_sectors: initialData?.target_sectors || [],
+    target_locations: initialData?.target_locations || [],
+    min_revenue: initialData?.min_revenue || undefined,
+    max_revenue: initialData?.max_revenue || undefined,
+    min_ebitda: initialData?.min_ebitda || undefined,
+    max_ebitda: initialData?.max_ebitda || undefined,
+    other_criteria: initialData?.other_criteria || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +59,29 @@ const CreateMandateForm = ({ onSuccess }: { onSuccess?: () => void }) => {
 
     setIsSubmitting(true);
     try {
-      await createMandate(formData);
+      console.log('Creating mandate with data:', formData);
+      
+      const mandate = await createMandate(formData);
+      console.log('Mandate created successfully:', mandate);
+      
+      // Si el mandato se creó desde un lead, actualizar el estado del lead
+      if (leadId && mandate) {
+        try {
+          console.log('Updating lead status for leadId:', leadId);
+          await updateLead({ 
+            id: leadId, 
+            updates: { 
+              stage: 'ganado',
+              status: 'CONVERTED'
+            } 
+          });
+          console.log('Lead updated successfully');
+        } catch (error) {
+          console.warn('Error updating lead status:', error);
+          // No bloquear el flujo si falla la actualización del lead
+        }
+      }
+      
       resetValidation();
       setFormData({
         client_name: '',
@@ -68,9 +97,28 @@ const CreateMandateForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         max_ebitda: undefined,
         other_criteria: '',
       });
+      
+      // Cerrar modal primero
       onSuccess?.();
+      
+      // Toast de éxito y redirección si viene de lead
+      if (leadId) {
+        toast.success('¡Mandato creado exitosamente!', {
+          description: 'El lead ha sido convertido. Redirigiendo a mandatos...',
+        });
+        
+        console.log('Navigating to /mandatos');
+        // Redirección inmediata a mandatos
+        navigate('/mandatos');
+      } else {
+        toast.success('¡Mandato creado exitosamente!');
+      }
+      
     } catch (error) {
       console.error('Error creating mandate:', error);
+      toast.error('Error al crear el mandato', {
+        description: error instanceof Error ? error.message : 'Error desconocido'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -299,8 +347,8 @@ const CreateMandateForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   );
 };
 
-export const CreateMandateDialog = ({ trigger, onSuccess }: CreateMandateDialogProps) => {
-  const [open, setOpen] = useState(false);
+export const CreateMandateDialog = ({ trigger, onSuccess, initialData, leadId }: CreateMandateDialogProps) => {
+  const [open, setOpen] = useState(true); // Abierto por defecto cuando se crea desde lead
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -321,7 +369,11 @@ export const CreateMandateDialog = ({ trigger, onSuccess }: CreateMandateDialogP
         </DialogHeader>
 
         <FormValidationProvider>
-          <CreateMandateForm onSuccess={() => { setOpen(false); onSuccess?.(); }} />
+          <CreateMandateForm 
+            onSuccess={() => { setOpen(false); onSuccess?.(); }} 
+            initialData={initialData}
+            leadId={leadId}
+          />
         </FormValidationProvider>
       </DialogContent>
     </Dialog>
