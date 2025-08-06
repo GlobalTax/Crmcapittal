@@ -26,28 +26,28 @@ export const GlobalHeader = () => {
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || "U";
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-6">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
       {/* Search */}
       <div className="flex items-center gap-4 flex-1 max-w-md">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
-            placeholder="Buscar contactos, empresas, deals..."
-            className="w-full pl-10 pr-4 py-2 border border-input rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="Buscar..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
           />
         </div>
       </div>
 
       {/* Right Side */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {/* Notificaciones generales */}
         <NotificationCenter />
         
         {/* Notificaciones de reconversiones */}
         <ReconversionNotificationPanel />
         
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
           <Settings className="w-4 h-4" />
         </Button>
 

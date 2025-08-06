@@ -13,7 +13,7 @@ export const PipedriveHeader = ({ currentStage = "Pipeline" }: PipedriveHeaderPr
   const navigate = useNavigate();
 
   return (
-    <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3 sticky top-0 z-50">
+    <header className="border-b border-gray-100 bg-white px-6 py-4 sticky top-0 z-50">
       <div className="flex items-center justify-between">
         {/* Left side - Navigation */}
         <div className="flex items-center gap-4">
@@ -21,7 +21,7 @@ export const PipedriveHeader = ({ currentStage = "Pipeline" }: PipedriveHeaderPr
             variant="ghost"
             size="sm"
             onClick={() => navigate('/leads')}
-            className="h-8 w-8 p-0 hover:bg-muted transition-colors duration-200"
+            className="h-8 w-8 p-0"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -29,12 +29,12 @@ export const PipedriveHeader = ({ currentStage = "Pipeline" }: PipedriveHeaderPr
           <div className="flex items-center gap-2 text-sm">
             <button 
               onClick={() => navigate('/leads')}
-              className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+              className="text-gray-500 hover:text-gray-700 transition-colors"
             >
               Leads
             </button>
-            <span className="text-muted-foreground">{'>'}</span>
-            <Badge variant="secondary" className="font-medium animate-fade-in">
+            <span className="text-gray-400">{'>'}</span>
+            <Badge variant="secondary" className="font-medium text-xs">
               {currentStage}
             </Badge>
           </div>
@@ -43,41 +43,41 @@ export const PipedriveHeader = ({ currentStage = "Pipeline" }: PipedriveHeaderPr
         {/* Center - Search */}
         <div className="flex-1 max-w-md mx-8">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Buscar deals, personas, organizaciones..."
-              className="pl-10 bg-muted/50 border-0 focus:bg-background transition-all duration-200"
+              placeholder="Buscar..."
+              className="pl-10 border-gray-200 focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
             />
           </div>
         </div>
 
         {/* Right side - Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 w-8 p-0 hover:bg-muted transition-colors duration-200"
+            className="h-8 w-8 p-0"
           >
             <Star className="h-4 w-4" />
           </Button>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 w-8 p-0 hover:bg-muted transition-colors duration-200"
+            className="h-8 w-8 p-0"
           >
             <Bell className="h-4 w-4" />
           </Button>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 w-8 p-0 hover:bg-muted transition-colors duration-200"
+            className="h-8 w-8 p-0"
           >
             <Settings className="h-4 w-4" />
           </Button>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 w-8 p-0 hover:bg-muted transition-colors duration-200"
+            className="h-8 w-8 p-0"
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>
