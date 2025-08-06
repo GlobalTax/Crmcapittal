@@ -19,8 +19,8 @@ export const PersonalInfo = ({ contactData, updateField }: PersonalInfoProps) =>
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="first_name">Nombre *</Label>
+        <div className="space-y-2">
+          <Label htmlFor="first_name" className="text-gray-700">Nombre *</Label>
           <Input
             id="first_name"
             placeholder="Nombre"
@@ -30,8 +30,8 @@ export const PersonalInfo = ({ contactData, updateField }: PersonalInfoProps) =>
           />
         </div>
         
-        <div>
-          <Label htmlFor="last_name">Apellidos</Label>
+        <div className="space-y-2">
+          <Label htmlFor="last_name" className="text-gray-700">Apellidos</Label>
           <Input
             id="last_name"
             placeholder="Apellidos"
@@ -40,8 +40,8 @@ export const PersonalInfo = ({ contactData, updateField }: PersonalInfoProps) =>
           />
         </div>
         
-        <div>
-          <Label htmlFor="email">Email</Label>
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-gray-700">Email</Label>
           <Input
             id="email"
             type="email"
@@ -51,8 +51,8 @@ export const PersonalInfo = ({ contactData, updateField }: PersonalInfoProps) =>
           />
         </div>
         
-        <div>
-          <Label htmlFor="phone">Teléfono</Label>
+        <div className="space-y-2">
+          <Label htmlFor="phone" className="text-gray-700">Teléfono</Label>
           <Input
             id="phone"
             placeholder="+34 600 000 000"
@@ -61,8 +61,8 @@ export const PersonalInfo = ({ contactData, updateField }: PersonalInfoProps) =>
           />
         </div>
         
-        <div>
-          <Label htmlFor="mobile">Móvil</Label>
+        <div className="space-y-2">
+          <Label htmlFor="mobile" className="text-gray-700">Móvil</Label>
           <Input
             id="mobile"
             placeholder="+34 600 000 000"
@@ -71,8 +71,8 @@ export const PersonalInfo = ({ contactData, updateField }: PersonalInfoProps) =>
           />
         </div>
         
-        <div>
-          <Label htmlFor="linkedin_url">LinkedIn</Label>
+        <div className="space-y-2">
+          <Label htmlFor="linkedin_url" className="text-gray-700">LinkedIn</Label>
           <Input
             id="linkedin_url"
             placeholder="https://linkedin.com/in/..."

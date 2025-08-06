@@ -90,10 +90,10 @@ export const EditContactDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
-            <User className="h-5 w-5 mr-2 text-orange-600" />
+            <User className="h-5 w-5 mr-2 text-blue-600" />
             Editar Contacto
           </DialogTitle>
           <DialogDescription>
@@ -101,13 +101,13 @@ export const EditContactDialog = ({
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <PersonalInfo contactData={contactData} updateField={updateField} />
           <ProfessionalInfo contactData={contactData} updateField={updateField} />
           <ContactClassification contactData={contactData} updateField={updateField} />
           <AdditionalContactInfo contactData={contactData} updateField={updateField} />
 
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
             <Button 
               type="button" 
               variant="outline" 
@@ -118,7 +118,7 @@ export const EditContactDialog = ({
             </Button>
             <Button 
               type="submit" 
-              className="bg-orange-600 hover:bg-orange-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700"
               disabled={isUpdating}
             >
               {isUpdating ? "Guardando..." : "Guardar Cambios"}

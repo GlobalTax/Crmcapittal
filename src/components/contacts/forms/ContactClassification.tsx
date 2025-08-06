@@ -45,8 +45,8 @@ export const ContactClassification = ({ contactData, updateField }: ContactClass
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="contact_type">Tipo de Contacto</Label>
+        <div className="space-y-2">
+          <Label htmlFor="contact_type" className="text-gray-700">Tipo de Contacto</Label>
           <Select value={contactData.contact_type || 'other'} onValueChange={(value) => updateField("contact_type", value)}>
             <SelectTrigger>
               <SelectValue />
@@ -61,8 +61,8 @@ export const ContactClassification = ({ contactData, updateField }: ContactClass
           </Select>
         </div>
         
-        <div>
-          <Label htmlFor="contact_priority">Prioridad</Label>
+        <div className="space-y-2">
+          <Label htmlFor="contact_priority" className="text-gray-700">Prioridad</Label>
           <Select value={contactData.contact_priority || 'medium'} onValueChange={(value) => updateField("contact_priority", value)}>
             <SelectTrigger>
               <SelectValue />
@@ -70,19 +70,15 @@ export const ContactClassification = ({ contactData, updateField }: ContactClass
             <SelectContent>
               {contactPriorities.map(priority => (
                 <SelectItem key={priority.value} value={priority.value}>
-                  <div className="flex items-center">
-                    <Badge className={`mr-2 ${priority.color}`}>
-                      {priority.label}
-                    </Badge>
-                  </div>
+                  {priority.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         
-        <div>
-          <Label htmlFor="contact_source">Origen del Contacto</Label>
+        <div className="space-y-2">
+          <Label htmlFor="contact_source" className="text-gray-700">Origen del Contacto</Label>
           <Select value={contactData.contact_source || 'web'} onValueChange={(value) => updateField("contact_source", value)}>
             <SelectTrigger>
               <SelectValue />

@@ -108,42 +108,42 @@ export const CreateContactDialog = ({
           )}
         </DialogTrigger>
       )}
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
-            <User className="h-5 w-5 mr-2 text-orange-600" />
-            Crear Nuevo Contacto
-          </DialogTitle>
-          <DialogDescription>
-            Completa la información para agregar un nuevo contacto al sistema.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <PersonalInfo contactData={contactData} updateField={updateField} />
-          <ProfessionalInfo contactData={contactData} updateField={updateField} />
-          <ContactClassification contactData={contactData} updateField={updateField} />
-          <AdditionalContactInfo contactData={contactData} updateField={updateField} />
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
+              <User className="h-5 w-5 mr-2 text-blue-600" />
+              Crear Nuevo Contacto
+            </DialogTitle>
+            <DialogDescription>
+              Completa la información para agregar un nuevo contacto al sistema.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <PersonalInfo contactData={contactData} updateField={updateField} />
+            <ProfessionalInfo contactData={contactData} updateField={updateField} />
+            <ContactClassification contactData={contactData} updateField={updateField} />
+            <AdditionalContactInfo contactData={contactData} updateField={updateField} />
 
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setOpen(false)}
-              disabled={isCreating}
-            >
-              Cancelar
-            </Button>
-            <Button 
-              type="submit" 
-              className="bg-orange-600 hover:bg-orange-700 text-white"
-              disabled={isCreating}
-            >
-              {isCreating ? "Creando..." : "Crear Contacto"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setOpen(false)}
+                disabled={isCreating}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                className="bg-blue-600 hover:bg-blue-700"
+                disabled={isCreating}
+              >
+                {isCreating ? "Creando..." : "Crear Contacto"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
     </Dialog>
   );
 };

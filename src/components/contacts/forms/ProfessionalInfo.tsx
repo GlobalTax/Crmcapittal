@@ -28,8 +28,8 @@ export const ProfessionalInfo = ({ contactData, updateField }: ProfessionalInfoP
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="position">Cargo</Label>
+        <div className="space-y-2">
+          <Label htmlFor="position" className="text-gray-700">Cargo</Label>
           <Input
             id="position"
             placeholder="ej: CEO, CFO, Director"
@@ -38,8 +38,8 @@ export const ProfessionalInfo = ({ contactData, updateField }: ProfessionalInfoP
           />
         </div>
         
-        <div>
-          <Label htmlFor="company">Empresa</Label>
+        <div className="space-y-2">
+          <Label htmlFor="company" className="text-gray-700">Empresa</Label>
           <Input
             id="company"
             placeholder="Nombre de la empresa"
@@ -48,8 +48,8 @@ export const ProfessionalInfo = ({ contactData, updateField }: ProfessionalInfoP
           />
         </div>
         
-        <div>
-          <Label htmlFor="company_size">Tamaño de Empresa</Label>
+        <div className="space-y-2">
+          <Label htmlFor="company_size" className="text-gray-700">Tamaño de Empresa</Label>
           <Select value={contactData.company_size || ''} onValueChange={(value) => updateField("company_size", value)}>
             <SelectTrigger>
               <SelectValue placeholder="Seleccionar tamaño" />

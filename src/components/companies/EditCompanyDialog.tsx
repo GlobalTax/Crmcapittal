@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Company, UpdateCompanyData, CompanySize, CompanyType, CompanyStatus, CompanyLifecycleStage } from "@/types/Company";
+import { Company, UpdateCompanyData } from "@/types/Company";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +26,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CollapsibleFormSection } from "@/components/ui/CollapsibleFormSection";
+import { FormActions } from "@/components/ui/FormActions";
+import { Building2, MapPin, Euro, Tags, Share2, FileText } from "lucide-react";
 
 interface EditCompanyDialogProps {
   company: Company;
@@ -114,16 +116,22 @@ export const EditCompanyDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Empresa</DialogTitle>
+          <DialogTitle className="flex items-center gap-2 text-gray-900">
+            <Building2 className="h-5 w-5 text-blue-600" />
+            Editar Empresa
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Información Básica */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Información Básica</h3>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Información Básica - Default open */}
+            <CollapsibleFormSection 
+              title="Información Básica" 
+              icon={<Building2 className="h-4 w-4" />}
+              defaultOpen={true}
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -195,11 +203,13 @@ export const EditCompanyDialog = ({
                   </FormItem>
                 )}
               />
-            </div>
+            </CollapsibleFormSection>
 
             {/* Clasificación */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Clasificación</h3>
+            <CollapsibleFormSection 
+              title="Clasificación" 
+              icon={<Tags className="h-4 w-4" />}
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <FormField
                   control={form.control}
@@ -302,11 +312,13 @@ export const EditCompanyDialog = ({
                   )}
                 />
               </div>
-            </div>
+            </CollapsibleFormSection>
 
             {/* Ubicación */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Ubicación</h3>
+            <CollapsibleFormSection 
+              title="Ubicación" 
+              icon={<MapPin className="h-4 w-4" />}
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
@@ -392,11 +404,13 @@ export const EditCompanyDialog = ({
                   )}
                 />
               </div>
-            </div>
+            </CollapsibleFormSection>
 
             {/* Información Financiera */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Información Financiera</h3>
+            <CollapsibleFormSection 
+              title="Información Financiera" 
+              icon={<Euro className="h-4 w-4" />}
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
@@ -454,11 +468,13 @@ export const EditCompanyDialog = ({
                   )}
                 />
               </div>
-            </div>
+            </CollapsibleFormSection>
 
             {/* Clasificaciones Especiales */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Clasificaciones Especiales</h3>
+            <CollapsibleFormSection 
+              title="Clasificaciones Especiales"
+              icon={<Tags className="h-4 w-4" />}
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
@@ -514,11 +530,13 @@ export const EditCompanyDialog = ({
                   )}
                 />
               </div>
-            </div>
+            </CollapsibleFormSection>
 
             {/* Redes Sociales */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Redes Sociales</h3>
+            <CollapsibleFormSection 
+              title="Redes Sociales" 
+              icon={<Share2 className="h-4 w-4" />}
+            >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
@@ -562,36 +580,34 @@ export const EditCompanyDialog = ({
                   )}
                 />
               </div>
-            </div>
+            </CollapsibleFormSection>
 
             {/* Notas */}
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notas</FormLabel>
-                  <FormControl>
-                    <Textarea className="min-h-[100px]" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <CollapsibleFormSection 
+              title="Notas" 
+              icon={<FileText className="h-4 w-4" />}
+            >
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notas</FormLabel>
+                    <FormControl>
+                      <Textarea className="min-h-[100px]" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CollapsibleFormSection>
 
-            <div className="flex justify-end space-x-2 pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isUpdating}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isUpdating}>
-                {isUpdating ? "Guardando..." : "Guardar Cambios"}
-              </Button>
-            </div>
+            <FormActions
+              onCancel={() => onOpenChange(false)}
+              submitText={isUpdating ? "Guardando..." : "Guardar Cambios"}
+              isLoading={isUpdating}
+              variant="dialog"
+            />
           </form>
         </Form>
       </DialogContent>

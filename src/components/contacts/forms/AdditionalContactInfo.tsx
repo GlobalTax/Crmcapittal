@@ -28,8 +28,8 @@ export const AdditionalContactInfo = ({ contactData, updateField }: AdditionalCo
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="city">Ciudad</Label>
+          <div className="space-y-2">
+            <Label htmlFor="city" className="text-gray-700">Ciudad</Label>
             <Input
               id="city"
               placeholder="ej: Barcelona, Madrid"
@@ -38,8 +38,8 @@ export const AdditionalContactInfo = ({ contactData, updateField }: AdditionalCo
             />
           </div>
           
-          <div>
-            <Label htmlFor="country">País</Label>
+          <div className="space-y-2">
+            <Label htmlFor="country" className="text-gray-700">País</Label>
             <Input
               id="country"
               placeholder="España"
@@ -49,8 +49,8 @@ export const AdditionalContactInfo = ({ contactData, updateField }: AdditionalCo
           </div>
         </div>
         
-        <div>
-          <Label htmlFor="address">Dirección</Label>
+        <div className="space-y-2">
+          <Label htmlFor="address" className="text-gray-700">Dirección</Label>
           <Input
             id="address"
             placeholder="Dirección completa"
@@ -59,8 +59,8 @@ export const AdditionalContactInfo = ({ contactData, updateField }: AdditionalCo
           />
         </div>
         
-        <div>
-          <Label htmlFor="notes">Notas</Label>
+        <div className="space-y-2">
+          <Label htmlFor="notes" className="text-gray-700">Notas</Label>
           <Textarea
             id="notes"
             placeholder="Notas sobre el contacto, intereses, historial de conversaciones..."
