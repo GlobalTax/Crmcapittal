@@ -7995,7 +7995,14 @@ export type Database = {
         Returns: boolean
       }
       check_rate_limit_enhanced: {
-        Args: { p_identifier: string; p_action?: string }
+        Args:
+          | { p_identifier: string; p_action?: string }
+          | {
+              p_operation: string
+              p_identifier: string
+              p_max_requests?: number
+              p_window_minutes?: number
+            }
         Returns: boolean
       }
       check_session_timeout: {
@@ -8259,6 +8266,10 @@ export type Database = {
           _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
         }
+        Returns: Json
+      }
+      run_security_audit: {
+        Args: Record<PropertyKey, never>
         Returns: Json
       }
       sanitize_input: {

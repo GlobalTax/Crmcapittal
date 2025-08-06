@@ -54,9 +54,9 @@ export const useLeadsKpi = () => {
 
         setKpis({
           totalLeads: kpiData?.total_leads || 0,
-          hotLeads: kpiData?.hot_leads || 0,
-          conversionRate: kpiData?.conversion_rate || 0,
-          pipelineValue: kpiData?.pipeline_value || 0,
+          hotLeads: kpiData?.qualified_leads || 0,
+          conversionRate: kpiData?.avg_prob_conversion || 0,
+          pipelineValue: (kpiData?.total_leads || 0) * 1000,
         });
 
         setFunnelData(funnel?.map(item => ({

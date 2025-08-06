@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSecureInput } from '@/hooks/useSecureInput';
 import { useValoracionSecurity } from '@/hooks/useValoracionSecurity';
+import { useSecurityEnhanced } from '@/hooks/useSecurityEnhanced';
 import { rateLimiter } from '@/utils/rateLimit';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,6 +12,11 @@ interface SecurityContextType {
   logSecurityEvent: (type: string, description: string, metadata?: any) => Promise<void>;
   checkRateLimit: (operation: string, identifier: string) => Promise<boolean>;
   isSecureEnvironment: boolean;
+  // Enhanced security features
+  validateInputEnhanced: (input: string, type?: 'text' | 'email' | 'url') => Promise<string>;
+  validateSession: () => Promise<any>;
+  runSecurityAudit: () => Promise<any>;
+  securityMetrics: any;
 }
 
 const SecurityContext = createContext<SecurityContextType | undefined>(undefined);
@@ -27,6 +33,13 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isSecureEnvironment, setIsSecureEnvironment] = useState(false);
   const { sanitizeInput, validateEmail, validateUrl } = useSecureInput();
   const { logSecurityEvent } = useValoracionSecurity();
+  const { 
+    validateInputEnhanced, 
+    validateSession, 
+    runSecurityAudit, 
+    securityMetrics,
+    logSecurityEvent: logEnhancedSecurityEvent
+  } = useSecurityEnhanced();
 
   useEffect(() => {
     // Check if running in secure environment
@@ -86,15 +99,15 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     validateUrl,
     logSecurityEvent: async (type: string, description: string, metadata?: any) => {
       // Use enhanced security logging
-      await supabase.rpc('enhanced_log_security_event', {
-        p_event_type: type,
-        p_severity: 'medium',
-        p_description: description,
-        p_metadata: metadata || {}
-      });
+      await logEnhancedSecurityEvent(type, 'medium', description, metadata || {});
     },
     checkRateLimit,
-    isSecureEnvironment
+    isSecureEnvironment,
+    // Enhanced security features
+    validateInputEnhanced,
+    validateSession,
+    runSecurityAudit,
+    securityMetrics
   };
 
   return (
