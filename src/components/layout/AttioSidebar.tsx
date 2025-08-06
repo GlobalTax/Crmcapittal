@@ -102,6 +102,10 @@ export function AttioSidebar() {
   
   const { leads } = useLeads();
   
+  // Debug logs
+  console.log('AttioSidebar - Current role:', role);
+  console.log('AttioSidebar - Is superadmin?', role === 'superadmin');
+  
   const isAdmin = role === 'admin' || role === 'superadmin';
   const isSuperAdmin = role === 'superadmin';
 
@@ -126,6 +130,8 @@ export function AttioSidebar() {
           <div>
             <h1 className="font-medium text-sidebar-accent-foreground text-sm">CRM Pro</h1>
             <p className="text-xs text-sidebar-foreground">M&A Platform</p>
+            {/* Temporal debug info */}
+            <p className="text-xs text-red-500">Debug: {role || 'No role'}</p>
           </div>
         </div>
       </div>
