@@ -103,7 +103,10 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ className }) => {
     <div className={cn("bg-card border rounded-lg p-6", className)}>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-card-foreground">Actividad Reciente</h3>
-        <button className="text-sm text-primary hover:underline">
+        <button 
+          onClick={() => window.location.href = '/activities'}
+          className="text-sm text-primary hover:underline"
+        >
           Ver todo
         </button>
       </div>

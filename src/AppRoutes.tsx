@@ -47,6 +47,7 @@ const CampaignBuilder = lazy(() => import('@/pages/CampaignBuilder'));
 const Valoraciones = lazy(() => import('@/pages/Valoraciones'));
 const Reconversiones = lazy(() => import('@/pages/Reconversiones'));
 const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
+const ActivityPage = lazy(() => import('@/pages/ActivityPage'));
 
 
 const LoadingSkeleton = () => (
@@ -370,11 +371,19 @@ export const AppRoutes = () => {
                 <ReconversionesView />
               </Suspense>
             } 
-          />
-          <Route 
-            path="/teaser-builder" 
-            element={<Navigate to="/transacciones" replace />}
-          />
+           />
+           <Route 
+             path="/activities" 
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <ActivityPage />
+               </Suspense>
+             } 
+           />
+           <Route 
+             path="/teaser-builder" 
+             element={<Navigate to="/transacciones" replace />}
+           />
         </Route>
         
 

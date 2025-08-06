@@ -11,11 +11,13 @@ import { PersonalTimer } from "@/components/dashboard/PersonalTimer";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { AgendaPanel } from "@/components/dashboard/AgendaPanel";
 import { DashboardLeads } from "@/components/dashboard/DashboardLeads";
+import { TaskModal } from "@/components/personal/TaskModal";
 
 export default function MinimalPersonalDashboard() {
   const { user } = useAuth();
   const { leads } = useLeads({ owner_id: user?.id });
   const { tasks, getTodayTasks, getCompletedTasks } = usePersonalTasks();
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const todayTasks = getTodayTasks();
   const completedTasks = getCompletedTasks();
@@ -86,7 +88,7 @@ export default function MinimalPersonalDashboard() {
         <div className="bg-card border rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-card-foreground">Tareas del Día</h3>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setIsTaskModalOpen(true)}>
               + Nueva Tarea
             </Button>
           </div>
@@ -123,6 +125,11 @@ export default function MinimalPersonalDashboard() {
           </div>
         </div>
       </div>
+
+      <TaskModal
+        open={isTaskModalOpen}
+        onOpenChange={setIsTaskModalOpen}
+      />
     </div>
   );
 }

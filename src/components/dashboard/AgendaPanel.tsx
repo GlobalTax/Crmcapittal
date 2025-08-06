@@ -91,7 +91,11 @@ export const AgendaPanel: React.FC<AgendaPanelProps> = ({ className }) => {
             {format(today, 'EEEE, d MMMM', { locale: es })}
           </p>
         </div>
-        <Button variant="outline" size="sm">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => window.location.href = '/calendar'}
+        >
           Ver calendario
         </Button>
       </div>
