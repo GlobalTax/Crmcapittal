@@ -2697,6 +2697,78 @@ export type Database = {
         }
         Relationships: []
       }
+      hubspot: {
+        Row: {
+          "Análisis detallado 1 de la fuente de tráfico más reciente":
+            | string
+            | null
+          Apellidos: string | null
+          "Associated Deal": string | null
+          "Associated Deal IDs": string | null
+          "CCAA Spain": string | null
+          Correo: string | null
+          "Estado del contacto de marketing": string | null
+          "Estado del lead": string | null
+          "Fecha de creación": string | null
+          "ID de registro": number | null
+          Marcas: string | null
+          Nombre: string | null
+          "Número de Restaurantes": string | null
+          "Número de teléfono": string | null
+          "Propietario del contacto": string | null
+          "Última actividad": string | null
+          "URL del sitio web": string | null
+          "URL Perfil Linkedin": string | null
+          "Valor del negocio más reciente": string | null
+        }
+        Insert: {
+          "Análisis detallado 1 de la fuente de tráfico más reciente"?:
+            | string
+            | null
+          Apellidos?: string | null
+          "Associated Deal"?: string | null
+          "Associated Deal IDs"?: string | null
+          "CCAA Spain"?: string | null
+          Correo?: string | null
+          "Estado del contacto de marketing"?: string | null
+          "Estado del lead"?: string | null
+          "Fecha de creación"?: string | null
+          "ID de registro"?: number | null
+          Marcas?: string | null
+          Nombre?: string | null
+          "Número de Restaurantes"?: string | null
+          "Número de teléfono"?: string | null
+          "Propietario del contacto"?: string | null
+          "Última actividad"?: string | null
+          "URL del sitio web"?: string | null
+          "URL Perfil Linkedin"?: string | null
+          "Valor del negocio más reciente"?: string | null
+        }
+        Update: {
+          "Análisis detallado 1 de la fuente de tráfico más reciente"?:
+            | string
+            | null
+          Apellidos?: string | null
+          "Associated Deal"?: string | null
+          "Associated Deal IDs"?: string | null
+          "CCAA Spain"?: string | null
+          Correo?: string | null
+          "Estado del contacto de marketing"?: string | null
+          "Estado del lead"?: string | null
+          "Fecha de creación"?: string | null
+          "ID de registro"?: number | null
+          Marcas?: string | null
+          Nombre?: string | null
+          "Número de Restaurantes"?: string | null
+          "Número de teléfono"?: string | null
+          "Propietario del contacto"?: string | null
+          "Última actividad"?: string | null
+          "URL del sitio web"?: string | null
+          "URL Perfil Linkedin"?: string | null
+          "Valor del negocio más reciente"?: string | null
+        }
+        Relationships: []
+      }
       impuestos: {
         Row: {
           company_id_origen: number | null
