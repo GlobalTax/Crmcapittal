@@ -15,7 +15,7 @@ import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
 import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
 
 // Import the unified lead page and enhanced mandate detail view
-const LeadPage = lazy(() => import('@/pages/LeadPage'));
+import LeadPage from '@/pages/LeadPage';
 const NewBuyingMandatesView = lazy(() => import('@/pages/NewBuyingMandatesView'));
 
 
@@ -137,33 +137,21 @@ export const AppRoutes = () => {
           <Route path="/captacion" element={<LeadsEntryPanel />} />
           <Route 
             path="/captacion/:id" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <LeadPage />
-              </Suspense>
-            } 
+            element={<LeadPage />} 
           />
           
           {/* Gestión de Leads route */}
           <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
           <Route 
             path="/gestion-leads/:id" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <LeadPage />
-              </Suspense>
-            } 
+            element={<LeadPage />} 
           />
 
           {/* Unified leads route */}
           <Route path="/leads" element={<LeadsEntryPanel />} />
           <Route 
             path="/leads/:id" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <LeadPage />
-              </Suspense>
-            } 
+            element={<LeadPage />} 
           />
 
           {/* Empresas y Contactos (Spanish routes) */}
