@@ -38,6 +38,8 @@ import { CreateProposalDialog } from '@/components/proposals/CreateProposalDialo
 import { CreateMandateDialog } from '@/components/mandates/CreateMandateDialog';
 import { EditableDealValue } from './EditableDealValue';
 import { HistorySection } from './HistorySection';
+import { ScheduleMeetingDialog } from './ScheduleMeetingDialog';
+import { useFollowLead } from '@/hooks/leads/useFollowLead';
 
 interface PipedriveMainContentProps {
   lead: Lead;
@@ -51,11 +53,13 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
   const [isMandateDialogOpen, setIsMandateDialogOpen] = useState(false);
+  const [isMeetingDialogOpen, setIsMeetingDialogOpen] = useState(false);
   
   const { activities, createActivity, isCreating: isCreatingActivity } = useLeadActivities(lead.id);
   const { notes, createNote, isCreating: isCreatingNote } = useLeadNotes(lead.id);
   const { tasks, createTask, updateTask, isCreating: isCreatingTask } = useLeadTasks(lead.id);
   const { updateLead } = useLeads();
+  const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
 
   const handleGenerateProposal = () => {
     setIsProposalDialogOpen(true);
@@ -123,7 +127,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
         window.open(`tel:${lead.phone}`, '_blank');
         break;
       case 'meeting':
-        toast.info('Funcionalidad de reunión próximamente');
+        setIsMeetingDialogOpen(true);
         break;
       default:
         break;
@@ -264,12 +268,17 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             Reunión
           </Button>
           <Button
-            variant="outline"
+            onClick={() => toggleFollow({ 
+              leadId: lead.id, 
+              isFollowed: !lead.is_followed 
+            })}
+            variant={lead.is_followed ? "default" : "outline"}
             size="sm"
             className="hover-lift transition-all duration-200"
+            disabled={isUpdatingFollow}
           >
-            <Star className="h-4 w-4 mr-2" />
-            Seguir
+            <Star className={`h-4 w-4 mr-2 ${lead.is_followed ? 'fill-current' : ''}`} />
+            {lead.is_followed ? 'Siguiendo' : 'Seguir'}
           </Button>
         </div>
       </div>
@@ -862,6 +871,12 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
           leadId={lead.id}
         />
       )}
+      
+      <ScheduleMeetingDialog
+        open={isMeetingDialogOpen}
+        onOpenChange={setIsMeetingDialogOpen}
+        leadId={lead.id}
+      />
     </div>
   );
 };

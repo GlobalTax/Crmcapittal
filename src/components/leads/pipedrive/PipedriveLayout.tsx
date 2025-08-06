@@ -4,8 +4,8 @@ import { PipedriveHeader } from './PipedriveHeader';
 import { PipelineStagesBar } from './PipelineStagesBar';
 import { SummarySection } from './SummarySection';
 import { FocusSection } from './FocusSection';
-import { HistorySection } from './HistorySection';
 import { PersonSection } from './PersonSection';
+import { TeamAssignmentSection } from './TeamAssignmentSection';
 import { PipedriveMainContent } from './PipedriveMainContent';
 import { usePipelineStages } from '@/hooks/leads/usePipelineStages';
 import { useUpdateLead } from '@/hooks/leads/useUpdateLead';
@@ -81,6 +81,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
           <div className="p-4 space-y-0">
             <SummarySection lead={lead} />
             <FocusSection lead={lead} />
+            <TeamAssignmentSection lead={lead} />
             <PersonSection lead={lead} />
           </div>
         </div>
