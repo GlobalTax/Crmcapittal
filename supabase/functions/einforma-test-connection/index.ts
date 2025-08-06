@@ -3,67 +3,65 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
 };
 
 interface TestConnectionResponse {
   success: boolean;
   message: string;
-  status: 'connected' | 'simulated' | 'error';
-  timestamp: string;
+  connection_status: 'connected' | 'error' | 'simulated';
   details?: {
-    apiAvailable: boolean;
-    credentialsConfigured: boolean;
-    responseTime: number;
+    api_available: boolean;
+    credentials_configured: boolean;
   };
 }
 
+interface EInformaTokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      status: 200,
-      headers: corsHeaders 
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('Testing eInforma connection...');
-    const startTime = Date.now();
-
     const clientId = Deno.env.get('EINFORMA_CLIENT_ID');
     const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
     const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://developers.einforma.com';
 
+    console.log('Testing eInforma connection...');
+    console.log('Base URL:', baseUrl);
+    console.log('Credentials configured:', !!clientId, !!clientSecret);
+
     // Check if credentials are configured
-    const credentialsConfigured = !!(clientId && clientSecret);
-    
-    if (!credentialsConfigured) {
-      console.log('eInforma credentials not configured, connection working in simulation mode');
+    if (!clientId || !clientSecret) {
+      console.log('Credentials not configured, returning simulated response');
+      
+      const response: TestConnectionResponse = {
+        success: false,
+        message: 'Credenciales de eInforma no configuradas. Configure EINFORMA_CLIENT_ID y EINFORMA_CLIENT_SECRET.',
+        connection_status: 'simulated',
+        details: {
+          api_available: false,
+          credentials_configured: false
+        }
+      };
+
       return new Response(
-        JSON.stringify({
-          success: true,
-          message: 'Conexión en modo simulación - credenciales no configuradas',
-          status: 'simulated',
-          timestamp: new Date().toISOString(),
-          details: {
-            apiAvailable: false,
-            credentialsConfigured: false,
-            responseTime: Date.now() - startTime
-          }
-        } as TestConnectionResponse),
+        JSON.stringify(response),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
 
-    // Test actual eInforma API connection
     try {
-      const tokenUrl = `${baseUrl}/api/v1/oauth/token`;
-      console.log('Testing connection to:', tokenUrl);
+      console.log('Attempting to get OAuth token...');
       
-      const tokenResponse = await fetch(tokenUrl, {
+      // Test the connection by getting an OAuth token
+      const tokenResponse = await fetch(`${baseUrl}/api/v1/oauth/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -75,85 +73,68 @@ serve(async (req) => {
           scope: 'buscar:consultar:empresas'
         }),
       });
-      
-      console.log('Token response status:', tokenResponse.status);
 
-      const responseTime = Date.now() - startTime;
+      console.log('Token response status:', tokenResponse.status);
 
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
-        console.log('eInforma API authentication failed:', tokenResponse.status, errorText);
-        return new Response(
-          JSON.stringify({
-            success: false,
-            message: 'Error de autenticación con eInforma API',
-            status: 'error',
-            timestamp: new Date().toISOString(),
-            details: {
-              apiAvailable: false,
-              credentialsConfigured: true,
-              responseTime
-            }
-          } as TestConnectionResponse),
-          {
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
+        console.error('Token request failed:', errorText);
+        throw new Error(`Authentication failed: ${tokenResponse.status}`);
       }
 
-      const tokenData = await tokenResponse.json();
-      console.log('eInforma API authentication successful');
+      const tokenData: EInformaTokenResponse = await tokenResponse.json();
+      console.log('OAuth token obtained successfully');
+
+      const response: TestConnectionResponse = {
+        success: true,
+        message: 'Conexión con eInforma establecida correctamente',
+        connection_status: 'connected',
+        details: {
+          api_available: true,
+          credentials_configured: true
+        }
+      };
 
       return new Response(
-        JSON.stringify({
-          success: true,
-          message: 'Conexión exitosa con eInforma API',
-          status: 'connected',
-          timestamp: new Date().toISOString(),
-          details: {
-            apiAvailable: true,
-            credentialsConfigured: true,
-            responseTime
-          }
-        } as TestConnectionResponse),
+        JSON.stringify(response),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
 
     } catch (apiError) {
-      console.error('eInforma API connection error:', apiError);
+      console.error('API connection error:', apiError);
       
+      const response: TestConnectionResponse = {
+        success: false,
+        message: `Error al conectar con la API de eInforma: ${apiError.message}`,
+        connection_status: 'error',
+        details: {
+          api_available: false,
+          credentials_configured: true
+        }
+      };
+
       return new Response(
-        JSON.stringify({
-          success: false,
-          message: 'Error de conexión con eInforma API',
-          status: 'error',
-          timestamp: new Date().toISOString(),
-          details: {
-            apiAvailable: false,
-            credentialsConfigured: true,
-            responseTime: Date.now() - startTime
-          }
-        } as TestConnectionResponse),
+        JSON.stringify(response),
         {
-          status: 503,
+          status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
 
   } catch (error) {
-    console.error('Error in einforma-test-connection:', error);
+    console.error('Unexpected error in einforma-test-connection:', error);
     
+    const response: TestConnectionResponse = {
+      success: false,
+      message: `Error interno: ${error.message}`,
+      connection_status: 'error'
+    };
+
     return new Response(
-      JSON.stringify({
-        success: false,
-        message: 'Error interno al probar la conexión',
-        status: 'error',
-        timestamp: new Date().toISOString()
-      } as TestConnectionResponse),
+      JSON.stringify(response),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

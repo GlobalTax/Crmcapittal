@@ -3,7 +3,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
 };
 
 interface CompanyData {
@@ -18,29 +17,35 @@ interface CompanyData {
   client_type: 'empresa';
 }
 
-// Mock data for fallback
+interface EInformaTokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+}
+
+// Mock data for fallback when eInforma API is not available
 const mockCompanyData: CompanyData[] = [
   {
-    name: "ESTRAPEY FINANZA SL",
+    name: "Empresa Ejemplo S.L.",
     nif: "B12345678",
-    address_street: "Calle Serrano, 45",
+    address_street: "Calle Ficticia 123",
     address_city: "Madrid",
     address_postal_code: "28001",
-    business_sector: "Servicios financieros",
-    legal_representative: "María García López",
-    status: "activo",
-    client_type: "empresa"
+    business_sector: "Servicios tecnológicos",
+    legal_representative: "Juan Pérez García",
+    status: 'activo',
+    client_type: 'empresa'
   },
   {
-    name: "TECNOLOGÍA AVANZADA SA",
+    name: "Innovación Digital S.A.",
     nif: "A87654321",
-    address_street: "Avenida Diagonal, 123",
+    address_street: "Avenida Principal 456",
     address_city: "Barcelona",
-    address_postal_code: "08028",
-    business_sector: "Tecnología de la información",
-    legal_representative: "Juan Pérez Martín",
-    status: "activo",
-    client_type: "empresa"
+    address_postal_code: "08001",
+    business_sector: "Desarrollo de software",
+    legal_representative: "María López Martín",
+    status: 'activo',
+    client_type: 'empresa'
   }
 ];
 
@@ -60,37 +65,22 @@ function validateNIF(nif: string): boolean {
 }
 
 function getMockData(nif: string): CompanyData | null {
-  const cleanNif = nif.trim().toUpperCase();
-  return mockCompanyData.find(company => company.nif === cleanNif) || null;
+  return mockCompanyData.find(company => company.nif === nif.toUpperCase()) || null;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      status: 200,
-      headers: corsHeaders 
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { nif } = await req.json();
     
-    if (!nif) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'NIF es requerido'
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
+    console.log('Looking up company with NIF:', nif);
+    
     // Validate NIF format
     if (!validateNIF(nif)) {
+      console.log('Invalid NIF format:', nif);
       return new Response(
         JSON.stringify({
           success: false,
@@ -107,13 +97,12 @@ serve(async (req) => {
     const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
     const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://developers.einforma.com';
 
-    console.log('Looking up company with NIF:', nif);
-    console.log('Credentials configured:', !!clientId, !!clientSecret);
     console.log('eInforma Base URL:', baseUrl);
+    console.log('Credentials configured:', !!clientId, !!clientSecret);
 
     // If credentials are not configured, use mock data
     if (!clientId || !clientSecret) {
-      console.log('Using mock data - credentials not configured');
+      console.log('eInforma credentials not configured, using mock data');
       const mockData = getMockData(nif);
       
       if (mockData) {
@@ -121,7 +110,8 @@ serve(async (req) => {
           JSON.stringify({
             success: true,
             data: mockData,
-            source: 'simulated'
+            source: 'simulated',
+            note: 'Datos simulados - Configure las credenciales de eInforma para acceder a datos reales'
           }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -131,8 +121,7 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({
             success: false,
-            error: 'Empresa no encontrada',
-            source: 'simulated'
+            error: 'Empresa no encontrada en datos simulados'
           }),
           {
             status: 404,
@@ -142,14 +131,11 @@ serve(async (req) => {
       }
     }
 
-    // Try to connect to eInforma API
     try {
-      // Use eInforma OAuth2 endpoint per documentation
-      const tokenUrl = `${baseUrl}/api/v1/oauth/token`;
+      console.log('Requesting OAuth token from:', `${baseUrl}/api/v1/oauth/token`);
       
-      console.log('Requesting OAuth token from:', tokenUrl);
-      
-      const tokenResponse = await fetch(tokenUrl, {
+      // Get OAuth2 token with proper scope
+      const tokenResponse = await fetch(`${baseUrl}/api/v1/oauth/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -161,48 +147,22 @@ serve(async (req) => {
           scope: 'buscar:consultar:empresas'
         }),
       });
-      
+
       console.log('Token response status:', tokenResponse.status);
 
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
-        console.log('eInforma authentication failed:', tokenResponse.status, errorText);
-        const mockData = getMockData(nif);
-        
-        if (mockData) {
-          return new Response(
-            JSON.stringify({
-              success: true,
-              data: mockData,
-              source: 'simulated',
-              note: 'Using simulated data - eInforma API unavailable'
-            }),
-            {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          );
-        } else {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: 'Empresa no encontrada',
-              source: 'simulated'
-            }),
-            {
-              status: 404,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          );
-        }
+        console.error('Token request failed:', errorText);
+        throw new Error(`Authentication failed: ${tokenResponse.status}`);
       }
 
-      const tokenData = await tokenResponse.json();
-      console.log('OAuth token obtained successfully, scope:', tokenData.scope);
-      
-      // Get company data from eInforma
-      const companyUrl = `${baseUrl}/api/v1/companies/${nif}/report`;
+      const tokenData: EInformaTokenResponse = await tokenResponse.json();
+      console.log('OAuth token obtained successfully, scope: buscar:consultar:empresas');
+
+      // Request company data
+      const companyUrl = `${baseUrl}/api/v1/companies/${nif.trim().toUpperCase()}/report`;
       console.log('Requesting company data from:', companyUrl);
-      
+
       const companyResponse = await fetch(companyUrl, {
         method: 'GET',
         headers: {
@@ -210,57 +170,32 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       console.log('Company response status:', companyResponse.status);
 
       if (!companyResponse.ok) {
         const errorText = await companyResponse.text();
-        console.log('Company not found in eInforma:', companyResponse.status, errorText);
-        const mockData = getMockData(nif);
-        
-        if (mockData) {
-          return new Response(
-            JSON.stringify({
-              success: true,
-              data: mockData,
-              source: 'simulated',
-              note: 'Using simulated data - Company not found in eInforma'
-            }),
-            {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          );
-        } else {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: 'Empresa no encontrada'
-            }),
-            {
-              status: 404,
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          );
-        }
+        console.error('Company request failed:', errorText);
+        throw new Error(`Company lookup failed: ${companyResponse.status}`);
       }
 
       const companyData = await companyResponse.json();
-      console.log('eInforma response structure:', JSON.stringify(companyData, null, 2));
-      
-      // Transform eInforma data to our format
+      console.log('Company data received, processing...');
+
+      // Transform eInforma response to our format
       const transformedData: CompanyData = {
-        name: companyData.razon_social || companyData.name || companyData.denominacion,
-        nif: nif.toUpperCase(),
-        address_street: companyData.direccion || companyData.address || companyData.domicilio,
-        address_city: companyData.poblacion || companyData.city || companyData.municipio,
-        address_postal_code: companyData.codigo_postal || companyData.postal_code || companyData.cp,
-        business_sector: companyData.actividad_principal || companyData.sector || companyData.cnae_descripcion,
-        legal_representative: companyData.representante_legal || companyData.administrador,
-        status: (companyData.estado === 'activa' || companyData.situacion === 'ACTIVA') ? 'activo' : 'inactivo',
+        name: companyData.nombre || companyData.razonSocial || companyData.denominacion || '',
+        nif: nif.trim().toUpperCase(),
+        address_street: companyData.direccion?.calle || companyData.domicilio?.direccion || '',
+        address_city: companyData.direccion?.municipio || companyData.domicilio?.municipio || '',
+        address_postal_code: companyData.direccion?.codigoPostal || companyData.domicilio?.codigoPostal || '',
+        business_sector: companyData.actividad?.descripcion || companyData.cnae?.descripcion || '',
+        legal_representative: companyData.representanteLegal?.nombre || '',
+        status: companyData.situacion === 'ACTIVA' || companyData.estado === 'ACTIVA' ? 'activo' : 'inactivo',
         client_type: 'empresa'
       };
-      
-      console.log('Transformed company data:', JSON.stringify(transformedData, null, 2));
+
+      console.log('Company data transformed successfully');
 
       return new Response(
         JSON.stringify({
@@ -274,8 +209,10 @@ serve(async (req) => {
       );
 
     } catch (apiError) {
-      console.error('eInforma API error details:', apiError);
       console.log('eInforma API error, using mock data');
+      console.error('eInforma API error details:', apiError);
+      
+      // Fallback to mock data
       const mockData = getMockData(nif);
       
       if (mockData) {
@@ -284,13 +221,14 @@ serve(async (req) => {
             success: true,
             data: mockData,
             source: 'simulated',
-            note: 'Using simulated data - eInforma API error'
+            note: 'API de eInforma no disponible - Usando datos simulados'
           }),
           {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           }
         );
       } else {
+        console.log('Company not found in eInforma, using mock data');
         return new Response(
           JSON.stringify({
             success: false,
@@ -305,8 +243,7 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in company-lookup-einforma:', error);
-    
+    console.error('Unexpected error in company-lookup-einforma:', error);
     return new Response(
       JSON.stringify({
         success: false,

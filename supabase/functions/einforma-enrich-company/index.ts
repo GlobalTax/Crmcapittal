@@ -1,55 +1,31 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
 };
 
-interface EnrichmentRequest {
-  nif: string;
-  companyId?: string;
-}
-
-interface EnrichmentResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    companyId?: string;
-    companyName: string;
-    extractedData: {
-      sector?: string;
-      employees?: number;
-      city?: string;
-      province?: string;
-      revenue?: number;
-      founded_year?: number;
-      nif: string;
-    };
-    confidenceScore: number;
-  };
-  error?: string;
+interface EInformaTokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      status: 200,
-      headers: corsHeaders 
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { nif, companyId }: EnrichmentRequest = await req.json();
+    const { nif, companyId } = await req.json();
     
-    if (!nif) {
+    if (!nif || !companyId) {
       return new Response(
         JSON.stringify({
           success: false,
-          message: 'NIF es requerido',
-          error: 'MISSING_NIF'
-        } as EnrichmentResponse),
+          error: 'NIF y companyId son requeridos'
+        }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -57,87 +33,114 @@ serve(async (req) => {
       );
     }
 
-    console.log('Enriching company with NIF:', nif);
+    const clientId = Deno.env.get('EINFORMA_CLIENT_ID');
+    const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
+    const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://developers.einforma.com';
 
-    // Call the existing company-lookup function to get company data
-    const lookupUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/company-lookup-einforma`;
-    const lookupResponse = await fetch(lookupUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-      },
-      body: JSON.stringify({ nif }),
-    });
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    if (!lookupResponse.ok) {
+    console.log('Enriching company with NIF:', nif, 'Company ID:', companyId);
+
+    if (!clientId || !clientSecret) {
+      console.log('eInforma credentials not configured');
       return new Response(
         JSON.stringify({
           success: false,
-          message: 'Error al consultar información de la empresa',
-          error: 'LOOKUP_FAILED'
-        } as EnrichmentResponse),
+          message: 'Credenciales de eInforma no configuradas'
+        }),
         {
-          status: lookupResponse.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
 
-    const lookupData = await lookupResponse.json();
-    
-    if (!lookupData.success) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          message: lookupData.error || 'Empresa no encontrada',
-          error: 'COMPANY_NOT_FOUND'
-        } as EnrichmentResponse),
-        {
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
+    try {
+      // Get OAuth2 token
+      const tokenResponse = await fetch(`${baseUrl}/api/v1/oauth/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: clientId,
+          client_secret: clientSecret,
+          scope: 'buscar:consultar:empresas'
+        }),
+      });
 
-    const companyData = lookupData.data;
-    
-    // Transform the company data into enrichment format
-    const extractedData = {
-      sector: companyData.business_sector || null,
-      employees: null, // Not available in basic lookup
-      city: companyData.address_city || null,
-      province: companyData.address_city || null, // Using city as province
-      revenue: null, // Not available in basic lookup
-      founded_year: null, // Not available in basic lookup
-      nif: nif.toUpperCase()
-    };
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: `Empresa ${companyData.name} enriquecida exitosamente`,
-        data: {
-          companyId,
-          companyName: companyData.name,
-          extractedData,
-          confidenceScore: lookupData.source === 'einforma' ? 0.9 : 0.7
-        }
-      } as EnrichmentResponse),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      if (!tokenResponse.ok) {
+        throw new Error(`Authentication failed: ${tokenResponse.status}`);
       }
-    );
+
+      const tokenData: EInformaTokenResponse = await tokenResponse.json();
+
+      // Get company data from eInforma
+      const companyResponse = await fetch(`${baseUrl}/api/v1/companies/${nif}/report`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${tokenData.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!companyResponse.ok) {
+        throw new Error(`Company lookup failed: ${companyResponse.status}`);
+      }
+
+      const companyData = await companyResponse.json();
+
+      // Store enrichment data
+      const { error: enrichError } = await supabase
+        .from('company_enrichments')
+        .upsert({
+          company_id: companyId,
+          enrichment_data: companyData,
+          enrichment_source: 'einforma',
+          enriched_at: new Date().toISOString(),
+        });
+
+      if (enrichError) {
+        console.error('Error storing enrichment data:', enrichError);
+        throw new Error('Failed to store enrichment data');
+      }
+
+      console.log('Company enriched successfully');
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Empresa enriquecida exitosamente',
+          data: companyData
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+
+    } catch (apiError) {
+      console.error('eInforma API error:', apiError);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Error al conectar con eInforma: ' + apiError.message
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
   } catch (error) {
     console.error('Error in einforma-enrich-company:', error);
-    
     return new Response(
       JSON.stringify({
         success: false,
-        message: 'Error interno al procesar el enriquecimiento',
-        error: 'INTERNAL_ERROR'
-      } as EnrichmentResponse),
+        error: error.message
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

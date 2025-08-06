@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,13 +23,13 @@ serve(async (req) => {
     const clientSecret = Deno.env.get('EINFORMA_CLIENT_SECRET');
     const baseUrl = Deno.env.get('EINFORMA_BASE_URL') || 'https://developers.einforma.com';
 
-    if (!clientId || !clientSecret || !baseUrl) {
+    if (!clientId || !clientSecret) {
       throw new Error('Missing eInforma credentials');
     }
 
     console.log('Getting eInforma access token...');
     
-    // Get OAuth2 token
+    // Get OAuth2 token with proper scope
     const tokenResponse = await fetch(`${baseUrl}/api/v1/oauth/token`, {
       method: 'POST',
       headers: {
