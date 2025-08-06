@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DashboardCard } from './DashboardCard';
+import { MetricCard } from './MetricCard';
 import { useEnhancedLeadsKpi } from '@/hooks/useEnhancedLeadsKpi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Users, Flame, TrendingUp, Euro, Calendar, Clock, Target, Filter } from 'lucide-react';
@@ -46,13 +46,16 @@ export const EnhancedDashboardLeads = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <DashboardCard key={i} title="Cargando..." />
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="grid gap-6 md:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-card border rounded-lg p-6 animate-pulse">
+              <div className="h-4 bg-muted rounded w-20 mb-4"></div>
+              <div className="h-8 bg-muted rounded w-12"></div>
+            </div>
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid gap-6 lg:grid-cols-2">
           <div className="h-80 bg-muted animate-pulse rounded-lg" />
           <div className="h-80 bg-muted animate-pulse rounded-lg" />
         </div>
@@ -69,109 +72,97 @@ export const EnhancedDashboardLeads = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with filters */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="max-w-7xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Dashboard de Leads</h2>
-          <p className="text-muted-foreground">Análisis completo del pipeline de leads</p>
+          <h1 className="text-3xl font-bold text-foreground">
+            Dashboard de Leads
+          </h1>
+          <p className="text-muted-foreground">
+            Análisis completo del pipeline de leads
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">7 días</SelectItem>
-              <SelectItem value="30d">30 días</SelectItem>
-              <SelectItem value="90d">90 días</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Badge className="bg-primary/10 text-primary">
+          {kpis.totalLeads} leads activos
+        </Badge>
       </div>
 
-      {/* Enhanced KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <DashboardCard
+      {/* Filters */}
+      <div className="flex items-center gap-2">
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+          <SelectTrigger className="w-32">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7d">7 días</SelectItem>
+            <SelectItem value="30d">30 días</SelectItem>
+            <SelectItem value="90d">90 días</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* KPI Grid - Primera fila */}
+      <div className="grid gap-6 md:grid-cols-4">
+        <MetricCard
           title="Total Leads"
-          metric={kpis.totalLeads.toString()}
+          value={kpis.totalLeads.toString()}
+          change={{ value: `${kpis.newLeads7d} nuevos (7d)`, trend: 'up' }}
           icon={Users}
-          className="border-primary/20"
-        >
-          <div className="flex items-center gap-2 mt-2">
-            <span className="text-xs text-muted-foreground">
-              {kpis.newLeads7d} nuevos (7d)
-            </span>
-          </div>
-        </DashboardCard>
+        />
         
-        <DashboardCard
+        <MetricCard
           title="Leads Hot"
-          metric={kpis.hotLeads.toString()}
+          value={kpis.hotLeads.toString()}
+          change={{ value: "Score ≥80", trend: 'up' }}
           icon={Flame}
-          className="border-warning/20"
-        >
-          <div className="flex items-center gap-2 mt-2">
-            <Badge className="text-xs bg-warning/10 text-warning border-warning/20">
-              Score ≥80
-            </Badge>
-          </div>
-        </DashboardCard>
+        />
         
-        <DashboardCard
+        <MetricCard
           title="Conversión"
-          metric={`${kpis.conversionRate}%`}
+          value={`${kpis.conversionRate}%`}
+          change={{ 
+            value: kpis.conversionRate >= 20 ? 'Excelente' : 
+                   kpis.conversionRate >= 10 ? 'Buena' : 'Mejorar', 
+            trend: kpis.conversionRate >= 15 ? 'up' : 'down' 
+          }}
           icon={TrendingUp}
-          className="border-success/20"
-        >
-          <div className={`text-sm font-medium mt-1 ${getConversionColor(kpis.conversionRate)}`}>
-            {kpis.conversionRate >= 20 ? 'Excelente' : 
-             kpis.conversionRate >= 10 ? 'Buena' : 'Mejorar'}
-          </div>
-        </DashboardCard>
+        />
         
-        <DashboardCard
+        <MetricCard
           title="Valor Pipeline"
-          metric={formatCurrency(kpis.pipelineValue)}
+          value={formatCurrency(kpis.pipelineValue)}
+          change={{ value: "Valor cualificado", trend: 'up' }}
           icon={Euro}
-          className="border-accent/20"
-        >
-          <div className="text-sm text-muted-foreground mt-1">
-            Valor cualificado
-          </div>
-        </DashboardCard>
+        />
+      </div>
 
-        <DashboardCard
+      {/* KPI Grid - Segunda fila */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
           title="Crecimiento 30d"
-          metric={`${kpis.growthRate30d > 0 ? '+' : ''}${kpis.growthRate30d}%`}
+          value={`${kpis.growthRate30d > 0 ? '+' : ''}${kpis.growthRate30d}%`}
+          change={{ 
+            value: kpis.leadsTrend === 'up' ? 'Tendencia positiva' : 
+                   kpis.leadsTrend === 'down' ? 'Tendencia negativa' : 'Estable',
+            trend: kpis.leadsTrend === 'up' ? 'up' : 'down'
+          }}
           icon={Calendar}
-          className="border-blue-500/20"
-        >
-          <div className="flex items-center gap-1 mt-2">
-            <span className="text-xs">
-              {getTrendIcon(kpis.leadsTrend)} {kpis.leadsTrend === 'up' ? 'Tendencia positiva' : 
-                                             kpis.leadsTrend === 'down' ? 'Tendencia negativa' : 'Estable'}
-            </span>
-          </div>
-        </DashboardCard>
+        />
 
-        <DashboardCard
+        <MetricCard
           title="Tiempo Promedio"
-          metric={`${kpis.avgTimeToQualifyDays}d`}
+          value={`${kpis.avgTimeToQualifyDays}d`}
+          change={{ value: "Para cualificar", trend: 'up' }}
           icon={Clock}
-          className="border-purple-500/20"
-        >
-          <div className="text-sm text-muted-foreground mt-1">
-            Para cualificar
-          </div>
-        </DashboardCard>
+        />
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Enhanced Funnel Chart */}
-        <div className="bg-card rounded-lg border p-6">
+        <div className="bg-card border rounded-lg p-6">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-foreground">Embudo de Leads Avanzado</h3>
             <p className="text-sm text-muted-foreground">
@@ -255,7 +246,7 @@ export const EnhancedDashboardLeads = () => {
         </div>
 
         {/* Conversion Trends Chart */}
-        <div className="bg-card rounded-lg border p-6">
+        <div className="bg-card border rounded-lg p-6">
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-foreground">Tendencias de Conversión</h3>
             <p className="text-sm text-muted-foreground">
@@ -315,9 +306,9 @@ export const EnhancedDashboardLeads = () => {
       </div>
 
       {/* Quick Insights */}
-      <div className="bg-card rounded-lg border p-6">
+      <div className="bg-card border rounded-lg p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Insights Rápidos</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid gap-6 md:grid-cols-3">
           <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Target className="h-4 w-4 text-primary" />
