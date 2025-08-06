@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLeads } from "@/hooks/useLeads";
 import { usePersonalTasks } from "@/hooks/usePersonalTasks";
-import { User, Briefcase, CheckCircle, TrendingUp, Calendar } from "lucide-react";
-import { StandardDashboardLayout } from "@/components/dashboard/StandardDashboardLayout";
-import { StandardDashboardHeader } from "@/components/dashboard/StandardDashboardHeader";
-import { StandardMetricsGrid } from "@/components/dashboard/StandardMetricsGrid";
-import { StandardMetricCard } from "@/components/dashboard/StandardMetricCard";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { User, Briefcase, CheckCircle, TrendingUp, Calendar, Activity } from "lucide-react";
+import { MetricCard } from "@/components/dashboard/MetricCard";
 import { PersonalTimer } from "@/components/dashboard/PersonalTimer";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { AgendaPanel } from "@/components/dashboard/AgendaPanel";
@@ -24,45 +23,50 @@ export default function MinimalPersonalDashboard() {
   const completedTasks = getCompletedTasks();
 
   return (
-    <StandardDashboardLayout>
-      <StandardDashboardHeader
-        title="Dashboard Personal"
-        userName={user?.user_metadata?.first_name || 'Usuario'}
-        badge={{
-          text: `${completedTasks.length} completadas hoy`,
-          variant: 'secondary'
-        }}
-      />
+    <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            ¡Hola, {user?.user_metadata?.first_name || 'Usuario'}!
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            {format(new Date(), 'EEEE, d MMMM yyyy', { locale: es })}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="px-3 py-1 bg-success/10 text-success rounded-full text-sm font-medium">
+            {completedTasks.length} completadas hoy
+          </div>
+        </div>
+      </div>
 
-      <StandardMetricsGrid columns={4}>
-        <StandardMetricCard
+      {/* Main KPIs */}
+      <div className="grid gap-6 md:grid-cols-4">
+        <MetricCard
           title="Tareas Pendientes"
           value={todayTasks.length}
           change={{ value: "2", trend: "down" }}
           icon={CheckCircle}
-          variant="default"
         />
-        <StandardMetricCard
+        <MetricCard
           title="Leads Asignados"
           value={leads.length}
           change={{ value: "5", trend: "up" }}
           icon={User}
-          variant="info"
         />
-        <StandardMetricCard
+        <MetricCard
           title="Negocios Activos"
           value="12"
           change={{ value: "8%", trend: "up" }}
           icon={TrendingUp}
-          variant="success"
         />
-        <StandardMetricCard
+        <MetricCard
           title="Reuniones Hoy"
           value="4"
           icon={Calendar}
-          variant="warning"
         />
-      </StandardMetricsGrid>
+      </div>
 
       {/* Second Row - Timer and Quick Stats */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -126,6 +130,6 @@ export default function MinimalPersonalDashboard() {
         open={isTaskModalOpen}
         onOpenChange={setIsTaskModalOpen}
       />
-    </StandardDashboardLayout>
+    </div>
   );
 }

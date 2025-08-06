@@ -1,8 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { Badge } from '@/components/ui/minimal/Badge';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { StandardDashboardLayout } from '@/components/dashboard/StandardDashboardLayout';
-import { StandardDashboardHeader } from '@/components/dashboard/StandardDashboardHeader';
 import { DividedKpiRow } from '@/components/dashboard/DividedKpiRow';
 import { AreaChartRevenueLeads } from '@/components/dashboard/charts/AreaChartRevenueLeads';
 import { AreaChartRevenueTx } from '@/components/dashboard/charts/AreaChartRevenueTx';
@@ -17,12 +16,21 @@ export default function DashboardPersonal() {
   const { user } = useAuth();
 
   return (
-    <StandardDashboardLayout spacing="tight">
-      <StandardDashboardHeader
-        title="Dashboard Captación & Venta"
-        userName={user?.user_metadata?.first_name || 'Usuario'}
-        subtitle={format(new Date(), 'EEEE, d MMMM yyyy', { locale: es })}
-      />
+    <div className="max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">
+            Dashboard Captación & Venta
+          </h1>
+          <p className="text-muted-foreground">
+            {format(new Date(), 'EEEE, d MMMM yyyy', { locale: es })}
+          </p>
+        </div>
+        <Badge color="blue">
+          ¡Hola, {user?.user_metadata?.first_name || 'Usuario'}!
+        </Badge>
+      </div>
 
       {/* KPI Row */}
       <DividedKpiRow />
@@ -51,6 +59,6 @@ export default function DashboardPersonal() {
         </div>
         <QuickActionsPanel />
       </div>
-    </StandardDashboardLayout>
+    </div>
   );
 }
