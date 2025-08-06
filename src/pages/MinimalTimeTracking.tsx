@@ -108,18 +108,22 @@ export default function MinimalTimeTracking() {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="timer" className="flex items-center gap-2">
             <TimerIcon className="h-4 w-4" />
             Timer
           </TabsTrigger>
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            Dashboard
+            Panel
           </TabsTrigger>
           <TabsTrigger value="entries" className="flex items-center gap-2">
             <List className="h-4 w-4" />
-            Entradas
+            Historial
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Análisis
           </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
@@ -188,6 +192,41 @@ export default function MinimalTimeTracking() {
             onContinueTask={handleContinueTask}
             onEditEntry={handleEditEntry}
           />
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <div className="grid gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Análisis de Productividad
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <h4 className="font-medium mb-2">Tiempo Total Esta Semana</h4>
+                    <p className="text-2xl font-bold text-primary">
+                      {Math.floor(todayEntries.reduce((acc, entry) => acc + (entry.duration_minutes || 0), 0) / 60)}h {todayEntries.reduce((acc, entry) => acc + (entry.duration_minutes || 0), 0) % 60}m
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <h4 className="font-medium mb-2">Tiempo Facturable</h4>
+                    <p className="text-2xl font-bold text-green-600">
+                      {Math.floor(todayEntries.filter(e => e.is_billable).reduce((acc, entry) => acc + (entry.duration_minutes || 0), 0) / 60)}h {todayEntries.filter(e => e.is_billable).reduce((acc, entry) => acc + (entry.duration_minutes || 0), 0) % 60}m
+                    </p>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <h4 className="font-medium mb-2">Actividades Únicas</h4>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {new Set(todayEntries.map(e => e.activity_type)).size}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="calendar">

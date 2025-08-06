@@ -62,7 +62,7 @@ const navigationSections: NavSection[] = [
     items: [
       { to: '/email', label: 'Email', icon: Mail },
       { to: '/calendar', label: 'Calendario', icon: Calendar },
-      { to: '/time-tracking', label: 'Control de Tiempo', icon: Clock },
+      { to: '/tiempo', label: 'Control de Tiempo', icon: Clock },
     ]
   },
   {

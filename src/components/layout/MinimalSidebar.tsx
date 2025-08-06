@@ -27,7 +27,7 @@ const nav = [
   { to: '/email', label: 'Email', icon: <Mail className="w-5 h-5" /> },
   { to: '/documents', label: 'Documentos', icon: <FileText className="w-5 h-5" /> },
   { to: '/calendar', label: 'Calendario', icon: <Calendar className="w-5 h-5" /> },
-  { to: '/time-tracking', label: 'Time Tracking', icon: <Clock className="w-5 h-5" /> },
+  { to: '/tiempo', label: 'Control de Tiempo', icon: <Clock className="w-5 h-5" /> },
 ];
 
 const adminNav = [

@@ -184,6 +184,9 @@ export const AppRoutes = () => {
               </Suspense>
             } 
           />
+          
+          {/* Redirect old time tracking route */}
+          <Route path="/time-tracking" element={<Navigate to="/tiempo" replace />} />
 
           {/* Redirects from old English routes to new Spanish routes */}
           <Route path="/companies" element={<Navigate to="/empresas" replace />} />

@@ -90,8 +90,8 @@ const sidebarData: SidebarSection[] = [
         icon: Calendar,
       },
       {
-        title: "Time Tracking",
-        href: "/time-tracking",
+        title: "Control de Tiempo",
+        href: "/tiempo",
         icon: Clock,
       },
       {
