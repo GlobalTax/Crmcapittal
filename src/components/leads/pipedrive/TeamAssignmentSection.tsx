@@ -5,6 +5,7 @@ import { Users, UserCheck } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLeads } from '@/hooks/useLeads';
+import { useTeams } from '@/hooks/useTeams';
 import { Lead } from '@/types/Lead';
 import { toast } from 'sonner';
 
@@ -13,37 +14,53 @@ interface TeamAssignmentSectionProps {
 }
 
 export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
+  const { updateLead } = useLeads();
+  const { teams } = useTeams();
+
+  // Fetch users with their roles using the RPC function
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users-with-roles'],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_users_with_roles');
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+      }
       return data || [];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
-  const { updateLead } = useLeads();
   
-  const assignedUser = users.find(user => user.user_id === lead.assigned_to_id);
+  const assignedUser = users.find(user => user.user_id === (lead.assigned_to || lead.assigned_to_id));
   
-  const handleAssignmentChange = async (userId: string) => {
+  const handleAssignmentChange = async (value: string) => {
     try {
-      const updates = userId === 'unassigned' 
-        ? { assigned_to_id: null } 
-        : { assigned_to_id: userId };
-        
-      await updateLead({
-        id: lead.id,
-        updates
-      });
-      
-      if (userId === 'unassigned') {
-        toast.success('Lead desasignado');
-      } else {
-        const user = users.find(u => u.user_id === userId);
-        toast.success(`Lead asignado a ${user?.first_name} ${user?.last_name}`);
+      if (value === 'unassigned') {
+        await updateLead({
+          id: lead.id,
+          updates: { assigned_to_id: null }
+        });
+      } else if (value.startsWith('user_')) {
+        const userId = value.replace('user_', '');
+        await updateLead({
+          id: lead.id,
+          updates: { assigned_to_id: userId }
+        });
+      } else if (value.startsWith('team_')) {
+        // For now, we'll assign to the team creator
+        // In the future, you might want to add a team_id field to leads
+        const teamId = value.replace('team_', '');
+        const team = teams.find(t => t.id === teamId);
+        if (team?.created_by) {
+          await updateLead({
+            id: lead.id,
+            updates: { assigned_to_id: team.created_by }
+          });
+        }
       }
+      toast.success('Lead asignado correctamente');
     } catch (error) {
+      console.error('Error assigning lead:', error);
       toast.error('Error al asignar el lead');
     }
   };
@@ -65,55 +82,40 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
           <label className="text-xs font-medium text-muted-foreground">
             Asignado a:
           </label>
-          <Select
-            value={lead.assigned_to_id || 'unassigned'}
-            onValueChange={handleAssignmentChange}
-            disabled={isLoading}
-          >
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="Seleccionar miembro del equipo">
-                {assignedUser && (
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarFallback className="text-xs">
-                        {getInitials(assignedUser.first_name, assignedUser.last_name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm">
-                      {assignedUser.first_name} {assignedUser.last_name}
-                    </span>
-                  </div>
-                )}
-              </SelectValue>
+          <Select value={(lead.assigned_to || lead.assigned_to_id) ? `user_${lead.assigned_to || lead.assigned_to_id}` : 'unassigned'} onValueChange={handleAssignmentChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccionar usuario o equipo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="unassigned">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center">
-                    <Users className="h-3 w-3" />
+              <SelectItem value="unassigned">Sin asignar</SelectItem>
+              
+              {/* Users section */}
+              {users.length > 0 && (
+                <>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                    Usuarios
                   </div>
-                  <span>Sin asignar</span>
-                </div>
-              </SelectItem>
-              {users.map((user) => (
-                <SelectItem key={user.user_id} value={user.user_id}>
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarFallback className="text-xs">
-                        {getInitials(user.first_name, user.last_name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="text-sm font-medium">
-                        {user.first_name} {user.last_name}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {user.role}
-                      </div>
-                    </div>
+                  {users.map((user) => (
+                    <SelectItem key={user.user_id} value={`user_${user.user_id}`}>
+                      👤 {user.first_name} {user.last_name} ({user.role})
+                    </SelectItem>
+                  ))}
+                </>
+              )}
+
+              {/* Teams section */}
+              {teams.length > 0 && (
+                <>
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                    Equipos
                   </div>
-                </SelectItem>
-              ))}
+                  {teams.map((team) => (
+                    <SelectItem key={team.id} value={`team_${team.id}`}>
+                      👥 {team.name} ({team.member_count} miembros)
+                    </SelectItem>
+                  ))}
+                </>
+              )}
             </SelectContent>
           </Select>
         </div>

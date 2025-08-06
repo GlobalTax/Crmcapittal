@@ -6217,6 +6217,68 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          id: string
+          role: string | null
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          id?: string
+          role?: string | null
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          id?: string
+          role?: string | null
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       teasers: {
         Row: {
           anonymous_company_name: string | null
@@ -8116,6 +8178,19 @@ export type Database = {
       get_security_setting: {
         Args: { p_key: string }
         Returns: string
+      }
+      get_teams_with_member_count: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          description: string
+          created_by: string
+          created_at: string
+          updated_at: string
+          member_count: number
+          creator_name: string
+        }[]
       }
       get_user_highest_role: {
         Args: { _user_id: string }

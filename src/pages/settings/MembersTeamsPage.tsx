@@ -1,22 +1,30 @@
 import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { SettingSection } from '@/components/settings/SettingSection';
-import { MoreHorizontal, Plus, UserPlus } from 'lucide-react';
+import { MoreHorizontal, Plus, Users, UserPlus, Settings, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useTeams } from '@/hooks/useTeams';
+import { CreateTeamDialog } from '@/components/teams/CreateTeamDialog';
+import { TeamMembersDialog } from '@/components/teams/TeamMembersDialog';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 interface TeamMember {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'user' | 'viewer';
-  status: 'active' | 'pending' | 'inactive';
+  role: string;
+  status: string;
   lastActive: string;
 }
 
+// Mock data for user management section
 const mockMembers: TeamMember[] = [
   {
     id: '1',
@@ -44,163 +52,281 @@ const mockMembers: TeamMember[] = [
   },
 ];
 
-export default function MembersTeamsPage() {
-  const [members] = useState<TeamMember[]>(mockMembers);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'admin' | 'user' | 'viewer'>('user');
+const MembersTeamsPage = () => {
+  const [invitedEmail, setInvitedEmail] = useState('');
+  const [invitedRole, setInvitedRole] = useState('user');
   const [isInviting, setIsInviting] = useState(false);
+  const [createTeamOpen, setCreateTeamOpen] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<{ id: string; name: string } | null>(null);
+  
+  const { teams, deleteTeam, isDeleting } = useTeams();
 
   const handleInvite = async () => {
-    if (!inviteEmail) return;
+    if (!invitedEmail) return;
     
     setIsInviting(true);
-    // Simulate invite process
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setInviteEmail('');
-    setIsInviting(false);
+    // Simulate API call
+    setTimeout(() => {
+      toast.success(`Invitación enviada a ${invitedEmail}`);
+      setInvitedEmail('');
+      setIsInviting(false);
+    }, 1000);
   };
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'text-destructive border-destructive';
-      case 'user': return 'text-primary border-primary';
-      case 'viewer': return 'text-muted-foreground border-border';
-      default: return 'text-muted-foreground border-border';
+      case 'admin': return 'bg-red-50 text-red-700 border-red-200';
+      case 'user': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'viewer': return 'bg-gray-50 text-gray-700 border-gray-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'text-success border-success';
-      case 'pending': return 'text-yellow-600 border-yellow-600';
-      case 'inactive': return 'text-muted-foreground border-border';
-      default: return 'text-muted-foreground border-border';
+      case 'active': return 'bg-green-50 text-green-700 border-green-200';
+      case 'pending': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      case 'inactive': return 'bg-gray-50 text-gray-700 border-gray-200';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   return (
-    <div className="max-w-6xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Members & teams</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your team members and their access permissions.
-        </p>
-      </div>
-
-      <SettingSection 
-        title="Invite team members"
-        description="Add new members to your workspace and assign their roles."
-      >
-        <div className="flex gap-3">
-          <Input
-            placeholder="Enter email address"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            className="flex-1 max-w-xs"
-          />
-          <Select value={inviteRole} onValueChange={(value: any) => setInviteRole(value)}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="user">User</SelectItem>
-              <SelectItem value="viewer">Viewer</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button 
-            onClick={handleInvite}
-            disabled={!inviteEmail || isInviting}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {isInviting ? 'Inviting...' : 'Invite'}
-          </Button>
+    <div className="container mx-auto px-6 py-8">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Miembros y Equipos</h1>
+          <p className="text-muted-foreground">
+            Gestiona los miembros de tu equipo y organízalos en grupos de trabajo.
+          </p>
         </div>
-      </SettingSection>
 
-      <SettingSection 
-        title="Team members"
-        description={`${members.length} members in your workspace`}
-      >
-        <div className="space-y-4">
-          {/* Table header */}
-          <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground border-b border-border pb-2">
-            <div className="col-span-4">Name</div>
-            <div className="col-span-2">Role</div>
-            <div className="col-span-3">Last active</div>
-            <div className="col-span-2">Status</div>
-            <div className="col-span-1"></div>
-          </div>
+        <div className="grid gap-6">
+          {/* Invite Members Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserPlus className="h-5 w-5" />
+                Invitar Miembros
+              </CardTitle>
+              <CardDescription>
+                Invita nuevos miembros a tu espacio de trabajo
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3">
+                <Input
+                  placeholder="correo@empresa.com"
+                  value={invitedEmail}
+                  onChange={(e) => setInvitedEmail(e.target.value)}
+                  className="flex-1 max-w-xs"
+                />
+                <Select value={invitedRole} onValueChange={setInvitedRole}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="user">Usuario</SelectItem>
+                    <SelectItem value="viewer">Visor</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleInvite} disabled={!invitedEmail || isInviting}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {isInviting ? 'Enviando...' : 'Invitar'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Table rows */}
-          {members.map((member) => (
-            <div key={member.id} className="grid grid-cols-12 gap-4 items-center py-3 border-b border-border last:border-0">
-              <div className="col-span-4">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">
-                      {getInitials(member.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">{member.name}</div>
-                    <div className="text-sm text-muted-foreground">{member.email}</div>
+          {/* Members Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Miembros del Equipo</CardTitle>
+              <CardDescription>
+                {mockMembers.length} miembros en tu espacio de trabajo
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Miembro</TableHead>
+                    <TableHead>Rol</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead>Última actividad</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockMembers.map((member) => (
+                    <TableRow key={member.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="text-xs">
+                              {getInitials(member.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{member.name}</div>
+                            <div className="text-sm text-muted-foreground">{member.email}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={getRoleColor(member.role)}>
+                          {member.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={getStatusColor(member.status)}>
+                          {member.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {member.lastActive}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>Editar rol</DropdownMenuItem>
+                            <DropdownMenuItem>Ver perfil</DropdownMenuItem>
+                            <DropdownMenuItem>Reenviar invitación</DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive">
+                              Remover miembro
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* Teams Section */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Equipos ({teams.length})
+                  </CardTitle>
+                  <CardDescription>
+                    Gestiona los equipos y organiza a tus miembros
+                  </CardDescription>
+                </div>
+                <Button onClick={() => setCreateTeamOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Crear Equipo
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {teams.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground">
+                  <div className="text-center">
+                    <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No hay equipos creados</p>
+                    <p className="text-sm">Crea tu primer equipo para organizar a los miembros</p>
                   </div>
                 </div>
-              </div>
-              <div className="col-span-2">
-                <Badge variant="outline" className={getRoleColor(member.role)}>
-                  {member.role}
-                </Badge>
-              </div>
-              <div className="col-span-3 text-sm text-muted-foreground">
-                {member.lastActive}
-              </div>
-              <div className="col-span-2">
-                <Badge variant="outline" className={getStatusColor(member.status)}>
-                  {member.status}
-                </Badge>
-              </div>
-              <div className="col-span-1">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Edit role</DropdownMenuItem>
-                    <DropdownMenuItem>View profile</DropdownMenuItem>
-                    <DropdownMenuItem>Resend invite</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">Remove member</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          ))}
+              ) : (
+                <div className="space-y-4">
+                  {teams.map((team) => (
+                    <div
+                      key={team.id}
+                      className="flex items-center justify-between p-4 rounded-lg border"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback>
+                            {getInitials(team.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium">{team.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {team.description || 'Sin descripción'}
+                          </p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                            <span>{team.member_count} miembros</span>
+                            <span>Creado por {team.creator_name}</span>
+                            <span>{format(new Date(team.created_at), 'dd MMM yyyy', { locale: es })}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">
+                          {team.member_count} miembros
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => setSelectedTeam({ id: team.id, name: team.name })}
+                            >
+                              <Settings className="h-4 w-4 mr-2" />
+                              Gestionar Miembros
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => deleteTeam(team.id)}
+                              disabled={isDeleting}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Eliminar Equipo
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-      </SettingSection>
-
-      <SettingSection 
-        title="Teams"
-        description="Organize your members into teams for better collaboration."
-      >
-        <div className="text-center py-8">
-          <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-base font-medium mb-2">No teams yet</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Create teams to organize your members and manage permissions more effectively.
-          </p>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Create team
-          </Button>
-        </div>
-      </SettingSection>
+      </div>
+      
+      {/* Dialogs */}
+      <CreateTeamDialog 
+        open={createTeamOpen} 
+        onOpenChange={setCreateTeamOpen} 
+      />
+      
+      {selectedTeam && (
+        <TeamMembersDialog
+          open={!!selectedTeam}
+          onOpenChange={(open) => !open && setSelectedTeam(null)}
+          teamId={selectedTeam.id}
+          teamName={selectedTeam.name}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default MembersTeamsPage;
