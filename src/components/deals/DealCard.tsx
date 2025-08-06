@@ -53,32 +53,32 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
       {...listeners}
       onClick={handleClick}
       className={`
-        bg-background rounded-lg shadow-sm p-4 flex flex-col gap-3 cursor-grab active:cursor-grabbing
-        border border-border
-        hover:shadow-md hover:-translate-y-0.5 transition-all duration-200
+        bg-white rounded-lg p-4 flex flex-col gap-3 cursor-grab active:cursor-grabbing
+        border border-gray-100
+        hover:shadow-sm transition-all duration-200
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
-        ${isDragging ? 'rotate-2 shadow-lg opacity-50' : ''}
+        ${isDragging ? 'shadow-md opacity-60' : ''}
       `}
       tabIndex={0}
       role="button"
       aria-label={`Deal: ${deal.title}`}
     >
           {/* Title */}
-          <h3 className="font-medium text-foreground truncate text-sm">
+          <h3 className="font-medium text-gray-900 truncate text-sm">
             {deal.title}
           </h3>
           
           {/* Amount */}
           {deal.amount && (
             <div className="text-right">
-              <span className="text-success font-semibold text-sm">
+              <span className="font-semibold text-sm" style={{ color: '#059669' }}>
                 {formatCurrency(deal.amount)}
               </span>
             </div>
           )}
           
           {/* Company and Owner */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center justify-between text-xs text-gray-500">
             {deal.company && (
               <div className="flex items-center gap-1 truncate">
                 <Building2 className="h-3 w-3 flex-shrink-0" />
@@ -87,7 +87,7 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
             )}
             
             <Avatar className="h-5 w-5 flex-shrink-0">
-              <AvatarFallback className="bg-muted text-muted-foreground">
+              <AvatarFallback className="bg-gray-100 text-gray-500">
                 <User className="h-3 w-3" />
               </AvatarFallback>
             </Avatar>
