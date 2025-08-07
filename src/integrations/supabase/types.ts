@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          default_hourly_rate: number | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_billable_by_default: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          default_hourly_rate?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_billable_by_default?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          default_hourly_rate?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_billable_by_default?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      activity_suggestions: {
+        Row: {
+          confidence_score: number | null
+          context_entity_id: string | null
+          context_entity_type: string | null
+          id: string
+          responded_at: string | null
+          status: string | null
+          suggested_activity: string
+          suggested_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          context_entity_id?: string | null
+          context_entity_type?: string | null
+          id?: string
+          responded_at?: string | null
+          status?: string | null
+          suggested_activity: string
+          suggested_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          context_entity_id?: string | null
+          context_entity_type?: string | null
+          id?: string
+          responded_at?: string | null
+          status?: string | null
+          suggested_activity?: string
+          suggested_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       api_configurations: {
         Row: {
           api_name: string
@@ -6953,6 +7025,120 @@ export type Database = {
         }
         Relationships: []
       }
+      productivity_patterns: {
+        Row: {
+          confidence_level: number | null
+          created_at: string
+          data_points_count: number | null
+          id: string
+          last_calculated: string | null
+          pattern_data: Json
+          pattern_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_level?: number | null
+          created_at?: string
+          data_points_count?: number | null
+          id?: string
+          last_calculated?: string | null
+          pattern_data: Json
+          pattern_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_level?: number | null
+          created_at?: string
+          data_points_count?: number | null
+          id?: string
+          last_calculated?: string | null
+          pattern_data?: Json
+          pattern_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      productivity_settings: {
+        Row: {
+          auto_categorization_enabled: boolean | null
+          break_reminder_interval: number | null
+          created_at: string
+          daily_hours_target: number | null
+          id: string
+          productivity_tracking_enabled: boolean | null
+          smart_suggestions_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_categorization_enabled?: boolean | null
+          break_reminder_interval?: number | null
+          created_at?: string
+          daily_hours_target?: number | null
+          id?: string
+          productivity_tracking_enabled?: boolean | null
+          smart_suggestions_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_categorization_enabled?: boolean | null
+          break_reminder_interval?: number | null
+          created_at?: string
+          daily_hours_target?: number | null
+          id?: string
+          productivity_tracking_enabled?: boolean | null
+          smart_suggestions_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      project_rates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          effective_from: string | null
+          effective_to: string | null
+          entity_id: string
+          entity_type: string
+          hourly_rate: number
+          id: string
+          is_active: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          entity_id: string
+          entity_type: string
+          hourly_rate: number
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          entity_id?: string
+          entity_type?: string
+          hourly_rate?: number
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       proposal_analytics: {
         Row: {
           browser: string | null
@@ -8741,55 +8927,82 @@ export type Database = {
       time_entries: {
         Row: {
           activity_type: string
+          auto_categorized: boolean | null
+          billing_status: string | null
+          break_type: string | null
+          category_id: string | null
           contact_id: string | null
           created_at: string
           description: string | null
           duration_minutes: number | null
           end_time: string | null
+          focus_score: number | null
           hourly_rate: number | null
           id: string
+          interruptions_count: number | null
           is_billable: boolean
           lead_id: string | null
           mandate_id: string | null
+          metadata: Json | null
           operation_id: string | null
           planned_task_id: string | null
+          project_rate_id: string | null
           start_time: string
+          tags: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
           activity_type?: string
+          auto_categorized?: boolean | null
+          billing_status?: string | null
+          break_type?: string | null
+          category_id?: string | null
           contact_id?: string | null
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
           end_time?: string | null
+          focus_score?: number | null
           hourly_rate?: number | null
           id?: string
+          interruptions_count?: number | null
           is_billable?: boolean
           lead_id?: string | null
           mandate_id?: string | null
+          metadata?: Json | null
           operation_id?: string | null
           planned_task_id?: string | null
+          project_rate_id?: string | null
           start_time: string
+          tags?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
           activity_type?: string
+          auto_categorized?: boolean | null
+          billing_status?: string | null
+          break_type?: string | null
+          category_id?: string | null
           contact_id?: string | null
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
           end_time?: string | null
+          focus_score?: number | null
           hourly_rate?: number | null
           id?: string
+          interruptions_count?: number | null
           is_billable?: boolean
           lead_id?: string | null
           mandate_id?: string | null
+          metadata?: Json | null
           operation_id?: string | null
           planned_task_id?: string | null
+          project_rate_id?: string | null
           start_time?: string
+          tags?: string[] | null
           updated_at?: string
           user_id?: string
         }
@@ -8806,6 +9019,13 @@ export type Database = {
             columns: ["mandate_id"]
             isOneToOne: false
             referencedRelation: "buying_mandates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "activity_categories"
             referencedColumns: ["id"]
           },
           {
@@ -8843,6 +9063,63 @@ export type Database = {
             referencedRelation: "planned_tasks"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "time_entries_project_rate_id_fkey"
+            columns: ["project_rate_id"]
+            isOneToOne: false
+            referencedRelation: "project_rates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_entry_approvals: {
+        Row: {
+          approved_amount: number | null
+          approver_id: string
+          comments: string | null
+          created_at: string
+          id: string
+          requested_by: string
+          reviewed_at: string | null
+          status: string | null
+          submitted_at: string
+          time_entry_id: string
+          updated_at: string
+        }
+        Insert: {
+          approved_amount?: number | null
+          approver_id: string
+          comments?: string | null
+          created_at?: string
+          id?: string
+          requested_by: string
+          reviewed_at?: string | null
+          status?: string | null
+          submitted_at?: string
+          time_entry_id: string
+          updated_at?: string
+        }
+        Update: {
+          approved_amount?: number | null
+          approver_id?: string
+          comments?: string | null
+          created_at?: string
+          id?: string
+          requested_by?: string
+          reviewed_at?: string | null
+          status?: string | null
+          submitted_at?: string
+          time_entry_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entry_approvals_time_entry_id_fkey"
+            columns: ["time_entry_id"]
+            isOneToOne: false
+            referencedRelation: "time_entries"
+            referencedColumns: ["id"]
+          },
         ]
       }
       time_goals: {
@@ -8873,6 +9150,54 @@ export type Database = {
           id?: string
           is_active?: boolean
           target_hours?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      time_tracking_analytics: {
+        Row: {
+          activities_count: number | null
+          billable_minutes: number | null
+          break_minutes: number | null
+          created_at: string
+          date: string
+          efficiency_score: number | null
+          focus_score: number | null
+          id: string
+          productive_minutes: number | null
+          revenue_generated: number | null
+          total_minutes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activities_count?: number | null
+          billable_minutes?: number | null
+          break_minutes?: number | null
+          created_at?: string
+          date: string
+          efficiency_score?: number | null
+          focus_score?: number | null
+          id?: string
+          productive_minutes?: number | null
+          revenue_generated?: number | null
+          total_minutes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activities_count?: number | null
+          billable_minutes?: number | null
+          break_minutes?: number | null
+          created_at?: string
+          date?: string
+          efficiency_score?: number | null
+          focus_score?: number | null
+          id?: string
+          productive_minutes?: number | null
+          revenue_generated?: number | null
+          total_minutes?: number | null
           updated_at?: string
           user_id?: string
         }
