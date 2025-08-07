@@ -21,7 +21,7 @@ export const TransaccionesProductivityHeader: React.FC = () => {
   const [selectedValueRange, setSelectedValueRange] = useState<string>('all');
   const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
 
-  const { stats, loading } = useTransaccionesOptimized({
+  const { stats, isLoading: loading } = useTransaccionesOptimized({
     search: searchTerm,
     owner: selectedOwner,
     stage: selectedStage,
