@@ -3350,6 +3350,294 @@ export type Database = {
           },
         ]
       }
+      email_accounts: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email_address: string
+          id: string
+          imap_host: string | null
+          imap_port: number | null
+          is_active: boolean | null
+          is_default: boolean | null
+          last_sync_at: string | null
+          provider: string
+          settings: Json | null
+          smtp_host: string | null
+          smtp_password: string | null
+          smtp_port: number | null
+          smtp_username: string | null
+          sync_error: string | null
+          sync_status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email_address: string
+          id?: string
+          imap_host?: string | null
+          imap_port?: number | null
+          is_active?: boolean | null
+          is_default?: boolean | null
+          last_sync_at?: string | null
+          provider?: string
+          settings?: Json | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_username?: string | null
+          sync_error?: string | null
+          sync_status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email_address?: string
+          id?: string
+          imap_host?: string | null
+          imap_port?: number | null
+          is_active?: boolean | null
+          is_default?: boolean | null
+          last_sync_at?: string | null
+          provider?: string
+          settings?: Json | null
+          smtp_host?: string | null
+          smtp_password?: string | null
+          smtp_port?: number | null
+          smtp_username?: string | null
+          sync_error?: string | null
+          sync_status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_analytics: {
+        Row: {
+          created_at: string
+          date_bucket: string
+          email_id: string | null
+          id: string
+          metric_type: string
+          metric_value: number | null
+          sequence_id: string | null
+          template_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_bucket: string
+          email_id?: string | null
+          id?: string
+          metric_type: string
+          metric_value?: number | null
+          sequence_id?: string | null
+          template_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_bucket?: string
+          email_id?: string | null
+          id?: string
+          metric_type?: string
+          metric_value?: number | null
+          sequence_id?: string | null
+          template_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      email_conversations: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          deal_id: string | null
+          id: string
+          is_read: boolean | null
+          last_email_at: string | null
+          lead_id: string | null
+          message_count: number | null
+          participants: string[]
+          subject: string | null
+          thread_id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          last_email_at?: string | null
+          lead_id?: string | null
+          message_count?: number | null
+          participants?: string[]
+          subject?: string | null
+          thread_id: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          last_email_at?: string | null
+          lead_id?: string | null
+          message_count?: number | null
+          participants?: string[]
+          subject?: string | null
+          thread_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_sequence_steps: {
+        Row: {
+          conditions: Json | null
+          created_at: string
+          delay_days: number | null
+          delay_hours: number | null
+          id: string
+          is_active: boolean | null
+          sequence_id: string
+          step_number: number
+          template_id: string
+          updated_at: string
+        }
+        Insert: {
+          conditions?: Json | null
+          created_at?: string
+          delay_days?: number | null
+          delay_hours?: number | null
+          id?: string
+          is_active?: boolean | null
+          sequence_id: string
+          step_number: number
+          template_id: string
+          updated_at?: string
+        }
+        Update: {
+          conditions?: Json | null
+          created_at?: string
+          delay_days?: number | null
+          delay_hours?: number | null
+          id?: string
+          is_active?: boolean | null
+          sequence_id?: string
+          step_number?: number
+          template_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_sequence_steps_sequence_id"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "email_sequences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_sequence_steps_template_id"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_sequences: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          success_rate: number | null
+          total_steps: number | null
+          trigger_config: Json | null
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          success_rate?: number | null
+          total_steps?: number | null
+          trigger_config?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          success_rate?: number | null
+          total_steps?: number | null
+          trigger_config?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_settings: {
+        Row: {
+          auto_reply_enabled: boolean | null
+          auto_reply_message: string | null
+          created_at: string
+          id: string
+          notification_settings: Json | null
+          signature_html: string | null
+          signature_text: string | null
+          sync_frequency: number | null
+          tracking_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_reply_enabled?: boolean | null
+          auto_reply_message?: string | null
+          created_at?: string
+          id?: string
+          notification_settings?: Json | null
+          signature_html?: string | null
+          signature_text?: string | null
+          sync_frequency?: number | null
+          tracking_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_reply_enabled?: boolean | null
+          auto_reply_message?: string | null
+          created_at?: string
+          id?: string
+          notification_settings?: Json | null
+          signature_html?: string | null
+          signature_text?: string | null
+          sync_frequency?: number | null
+          tracking_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_templates: {
         Row: {
           content: string
@@ -3388,6 +3676,171 @@ export type Database = {
           variables?: Json | null
         }
         Relationships: []
+      }
+      email_tracking_events: {
+        Row: {
+          created_at: string
+          email_id: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_id: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_id?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_tracking_events_email_id"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emails: {
+        Row: {
+          account_id: string
+          bcc_emails: string[] | null
+          body_html: string | null
+          body_text: string | null
+          cc_emails: string[] | null
+          clicked_at: string | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          created_by: string | null
+          deal_id: string | null
+          direction: string
+          email_date: string
+          has_attachments: boolean | null
+          id: string
+          is_read: boolean | null
+          is_starred: boolean | null
+          lead_id: string | null
+          message_id: string
+          opened_at: string | null
+          recipient_emails: string[]
+          replied_at: string | null
+          sender_email: string
+          sender_name: string | null
+          sequence_id: string | null
+          sequence_step: number | null
+          status: string | null
+          subject: string | null
+          template_id: string | null
+          thread_id: string | null
+          tracking_pixel_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          bcc_emails?: string[] | null
+          body_html?: string | null
+          body_text?: string | null
+          cc_emails?: string[] | null
+          clicked_at?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          direction: string
+          email_date: string
+          has_attachments?: boolean | null
+          id?: string
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          lead_id?: string | null
+          message_id: string
+          opened_at?: string | null
+          recipient_emails?: string[]
+          replied_at?: string | null
+          sender_email: string
+          sender_name?: string | null
+          sequence_id?: string | null
+          sequence_step?: number | null
+          status?: string | null
+          subject?: string | null
+          template_id?: string | null
+          thread_id?: string | null
+          tracking_pixel_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          bcc_emails?: string[] | null
+          body_html?: string | null
+          body_text?: string | null
+          cc_emails?: string[] | null
+          clicked_at?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          direction?: string
+          email_date?: string
+          has_attachments?: boolean | null
+          id?: string
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          lead_id?: string | null
+          message_id?: string
+          opened_at?: string | null
+          recipient_emails?: string[]
+          replied_at?: string | null
+          sender_email?: string
+          sender_name?: string | null
+          sequence_id?: string | null
+          sequence_step?: number | null
+          status?: string | null
+          subject?: string | null
+          template_id?: string | null
+          thread_id?: string | null
+          tracking_pixel_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_emails_account_id"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "email_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_emails_sequence_id"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "email_sequences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_emails_template_id"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       embeddings: {
         Row: {
@@ -9659,6 +10112,10 @@ export type Database = {
         Args: { p_lead_id: string }
         Returns: undefined
       }
+      generate_tracking_pixel_url: {
+        Args: { p_email_id: string }
+        Returns: string
+      }
       get_all_overdue_tasks: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -9887,6 +10344,16 @@ export type Database = {
       }
       process_automation_triggers: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      process_email_tracking: {
+        Args: {
+          p_email_id: string
+          p_event_type: string
+          p_event_data?: Json
+          p_ip_address?: unknown
+          p_user_agent?: string
+        }
         Returns: undefined
       }
       process_inactive_leads: {
