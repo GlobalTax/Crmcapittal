@@ -179,19 +179,16 @@ export default function MinimalNegocios() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-sm font-bold text-gray-900">Negocios</h1>
-          <p className="text-gray-600 mt-1">Gestiona tus oportunidades de negocio</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button variant="secondary" onClick={() => setShowActionHistory(true)}>
-            Historial
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Negocios</h1>
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="primary" 
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            Nuevo Negocio
           </Button>
-          <Button variant="secondary" onClick={() => setShowAdvancedAnalytics(true)}>
-            Analytics
-          </Button>
-          <Button variant="primary" onClick={() => setIsCreateDialogOpen(true)}>Nuevo Negocio</Button>
         </div>
       </div>
 

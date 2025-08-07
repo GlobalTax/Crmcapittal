@@ -150,56 +150,14 @@ export default function MinimalTransacciones() {
     <div className="min-h-screen bg-background">
       <div className="container max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Transacciones M&A
-            </h1>
-            <p className="text-muted-foreground">
-              Gestiona tus transacciones de fusiones y adquisiciones
-            </p>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-3">
-            <Button 
-              variant="secondary" 
-              size="sm"
-              onClick={refetch}
-              className="gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Actualizar
-            </Button>
-            
-            {viewMode === 'kanban' && (
-              <StageManagement />
-            )}
-            
-            <div className="flex items-center rounded-lg border bg-muted p-1">
-              <Button
-                variant={viewMode === 'table' ? 'primary' : 'ghost'}
-                size="sm" 
-                onClick={() => setViewMode('table')}
-                className="h-8 px-3"
-              >
-                <List className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'kanban' ? 'primary' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('kanban')}
-                className="h-8 px-3"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-            </div>
-            
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-slate-900">Transacciones</h1>
+          <div className="flex items-center gap-3">
             <Button 
               variant="primary"
               onClick={() => handleAddTransaccion()}
-              className="gap-2 font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
             >
-              <Plus className="h-4 w-4" />
               Nueva Transacción
             </Button>
           </div>

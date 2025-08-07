@@ -220,17 +220,10 @@ export default function Integrations() {
   };
   return (
     <div className="space-y-8 p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Integraciones</h1>
-          <p className="text-muted-foreground mt-2">
-            Conecta tu CRM con servicios externos para automatizar procesos y mejorar la productividad
-          </p>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Integraciones</h1>
+        <div className="flex items-center gap-3">
         </div>
-        <Button variant="outline">
-          <Settings className="h-4 w-4 mr-2" />
-          Configuración Global
-        </Button>
       </div>
 
       {categories.map(category => (

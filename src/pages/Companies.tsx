@@ -96,16 +96,16 @@ const Companies = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Empresas</h2>
-          <p className="text-muted-foreground">
-            Gestiona todas las empresas de tu pipeline de ventas.
-          </p>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Empresas</h1>
+        <div className="flex items-center gap-3">
+          <Button 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            Nueva Empresa
+          </Button>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          + New company
-        </Button>
       </div>
       
       <RecordTable

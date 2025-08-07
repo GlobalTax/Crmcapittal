@@ -28,19 +28,9 @@ export default function MinimalPersonalDashboard() {
     <div className="space-y-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              {getGreeting()}, {user?.user_metadata?.first_name || 'Usuario'}
-            </h1>
-            <p className="text-sm text-gray-600">
-              {format(new Date(), 'EEEE, d MMMM yyyy', { locale: es })}
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium">
-              {metrics.tasksToday.completed} tareas completadas
-            </div>
+        <div className="mb-8 flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-slate-900">Dashboard Personal</h1>
+          <div className="flex items-center gap-3">
             <QuickActionsBar 
               onNewTask={() => setIsTaskModalOpen(true)}
               onNewLead={() => window.location.href = '/leads/new'} 

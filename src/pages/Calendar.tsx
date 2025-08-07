@@ -69,20 +69,19 @@ const Calendar = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Calendario</h1>
-          <p className="text-muted-foreground">
-            Gestiona tus citas y eventos
-          </p>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Calendario</h1>
+        <div className="flex items-center gap-3">
+          <Button 
+            onClick={() => {
+              setSelectedEvent(null);
+              setEventModalOpen(true);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+          >
+            Nuevo Evento
+          </Button>
         </div>
-        <Button onClick={() => {
-          setSelectedEvent(null);
-          setEventModalOpen(true);
-        }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nuevo Evento
-        </Button>
       </div>
 
       <Tabs defaultValue="calendar" className="space-y-4">

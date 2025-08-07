@@ -22,11 +22,10 @@ export const SimpleLeadManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Entrada Comercial</h1>
-        <p className="text-muted-foreground">
-          Workflow inteligente para gestión optimizada de leads
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Entrada Comercial</h1>
+        <div className="flex items-center gap-3">
+        </div>
       </div>
 
       {/* Optimized workflow */}
