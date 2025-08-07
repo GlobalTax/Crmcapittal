@@ -2,15 +2,16 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTransacciones } from './useTransacciones';
 import { Transaccion } from '@/types/Transaccion';
 
-interface TransaccionFilters {
+export interface TransaccionFilters {
   search?: string;
   stage?: string;
   owner?: string;
   valueRange?: string;
   quickFilters?: string[];
+  quickFilter?: string;
 }
 
-interface TransaccionStats {
+export interface TransaccionStats {
   totalValue: number;
   activeCount: number;
   closingSoonCount: number;
@@ -143,9 +144,9 @@ export const useTransaccionesOptimized = (filters: TransaccionFilters) => {
   }, [transacciones]);
 
   return {
-    transacciones: filteredTransacciones,
+    filteredTransacciones,
     allTransacciones: transacciones,
-    loading,
+    isLoading: loading,
     error,
     stats,
     hasActiveFilters: Object.values(filters).some(v => 
