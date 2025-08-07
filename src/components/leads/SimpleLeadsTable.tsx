@@ -15,6 +15,8 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { Company } from "@/types/Company";
+import { FixedSizeList as List } from 'react-window';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const SimpleLeadsTable = () => {
   const navigate = useNavigate();
@@ -239,14 +241,135 @@ export const SimpleLeadsTable = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={12} className="text-center py-8">
-                  Cargando leads...
+                <TableCell colSpan={12} className="py-4">
+                  <div className="space-y-2">
+                    {[...Array(8)].map((_, i) => (
+                      <div key={i} className="h-16 w-full bg-muted/50 animate-pulse rounded" />
+                    ))}
+                  </div>
                 </TableCell>
               </TableRow>
             ) : filteredLeads.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={12} className="text-center py-8">
                   No se encontraron leads
+                </TableCell>
+              </TableRow>
+            ) : filteredLeads.length > 100 ? (
+              <TableRow>
+                <TableCell colSpan={12} className="p-0">
+                  <List
+                    height={600}
+                    width={"100%"}
+                    itemCount={filteredLeads.length}
+                    itemSize={80}
+                    overscanCount={6}
+                  >
+                    {({ index, style }) => {
+                      const lead = filteredLeads[index];
+                      return (
+                        <div style={style} className="border-b hover:bg-muted/50">
+                          <div
+                            className="grid items-center gap-4 px-4"
+                            style={{ gridTemplateColumns: '250px 200px 120px 150px 120px 120px 120px 100px 100px 120px 120px 100px' }}
+                          >
+                            <div className="py-3">
+                              <div className="space-y-1">
+                                <button
+                                  onClick={() => handleViewLead(lead.id)}
+                                  className="font-medium text-primary hover:underline cursor-pointer text-left block"
+                                >
+                                  {lead.name}
+                                </button>
+                                <div className="text-xs text-muted-foreground">
+                                  Contacto: {lead.name?.split(' - ')[0] || 'Sin contacto'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="py-3">
+                              <InlineEditCell
+                                value={lead.email}
+                                type="email"
+                                onSave={(value) => handleUpdate(lead.id, 'email', value)}
+                              />
+                            </div>
+                            <div className="py-3">
+                              <InlineEditCell
+                                value={lead.phone || ''}
+                                type="phone"
+                                onSave={(value) => handleUpdate(lead.id, 'phone', value || null)}
+                              />
+                            </div>
+                            <div className="py-3">
+                              <CompanySelector
+                                value={lead.company_id}
+                                companyName={lead.company}
+                                onSelect={(company) => handleCompanySelect(lead.id, company)}
+                              />
+                            </div>
+                            <div className="py-3">
+                              <InlineEditCell
+                                value={(lead as any).estimated_value?.toString() || ''}
+                                type="text"
+                                onSave={(value) => handleUpdate(lead.id, 'estimated_value', value ? parseFloat(value as string) : null)}
+                              />
+                            </div>
+                            <div className="py-3">
+                              <InlineEditCell
+                                value={lead.status || ''}
+                                type="select"
+                                options={statusSelectOptions}
+                                onSave={(value) => handleUpdate(lead.id, 'status', value)}
+                              />
+                            </div>
+                            <div className="py-3">
+                              <InlineEditCell
+                                value={lead.priority || ''}
+                                type="select"
+                                options={prioritySelectOptions}
+                                onSave={(value) => handleUpdate(lead.id, 'priority', value || null)}
+                              />
+                            </div>
+                            <div className="py-3">
+                              <span className="text-sm">{lead.lead_score || 0}</span>
+                            </div>
+                            <div className="py-3">
+                              <span className="text-sm text-muted-foreground capitalize">
+                                {(lead.source || '').replace('_', ' ')}
+                              </span>
+                            </div>
+                            <div className="py-3">
+                              <InlineEditCell
+                                value={lead.next_follow_up_date || ''}
+                                type="date"
+                                onSave={(value) => handleUpdate(lead.id, 'next_follow_up_date', value || null)}
+                              />
+                            </div>
+                            <div className="py-3">
+                              <span className="text-sm text-muted-foreground">
+                                {format(new Date(lead.created_at), "dd MMM yyyy", { locale: es })}
+                              </span>
+                            </div>
+                            <div className="py-3">
+                              <div className="flex items-center space-x-1">
+                                <Button variant="ghost" size="sm" onClick={() => handleViewLead(lead.id)}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                {lead.phone && (
+                                  <Button variant="ghost" size="sm" onClick={() => handleCall(lead.phone!)}>
+                                    <Phone className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                <Button variant="ghost" size="sm" onClick={() => handleEmail(lead.email)}>
+                                  <Mail className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  </List>
                 </TableCell>
               </TableRow>
             ) : (
