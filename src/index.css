@@ -136,8 +136,69 @@
 /* Custom animations and improvements */
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
+    animation: fade-in 0.5s ease-out;
   }
+  
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out;
+  }
+  
+  .animate-checkmark {
+    animation: checkmark 0.5s ease-out;
+  }
+  
+  .animate-bounce-in {
+    animation: bounce-in 0.6s ease-out;
+  }
+  
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+  
+  .animate-pulse-soft {
+    animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Hover utilities */
+  .hover-lift {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  /* Touch optimizations */
+  @media (max-width: 768px) {
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    .mobile-spacing > * + * {
+      margin-top: 12px;
+    }
+    
+    .mobile-form input {
+      height: 48px;
+      font-size: 16px; /* Prevent zoom on iOS */
+    }
+  }
+  
+  /* Gesture support */
+  .swipeable {
+    touch-action: pan-y;
+  }
+  
+  .pull-refresh {
+    overscroll-behavior: contain;
+  }
+}
 
   .animate-scale-in {
     animation: scaleIn 0.3s ease-out;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { AnimatedCard, AnimatedCardContent } from '@/components/ui/animated-card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/ui/loading-button';
 import { 
   Building, 
   User, 
@@ -76,11 +76,13 @@ export function MobileReconversionCard({ reconversion, onSelect }: MobileReconve
   }
 
   return (
-    <Card 
-      className="w-full cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-primary/20 hover:border-l-primary"
+    <AnimatedCard 
+      className="w-full cursor-pointer border-l-4 border-l-primary/20 hover:border-l-primary"
       onClick={onSelect}
+      hover={true}
+      clickable={true}
     >
-      <CardContent className="p-4 space-y-3">
+      <AnimatedCardContent className="p-4 space-y-3">
         {/* Header with company name and status */}
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
@@ -142,7 +144,7 @@ export function MobileReconversionCard({ reconversion, onSelect }: MobileReconve
           </div>
           
           <div className="flex gap-2">
-            <Button
+            <LoadingButton
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0"
@@ -152,10 +154,10 @@ export function MobileReconversionCard({ reconversion, onSelect }: MobileReconve
               }}
             >
               <Eye className="h-4 w-4" />
-            </Button>
+            </LoadingButton>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </AnimatedCardContent>
+    </AnimatedCard>
   );
 }

@@ -6,7 +6,8 @@ import { ReconversionFilters } from './ReconversionFilters';
 import { ReconversionViewToggle } from './ReconversionViewToggle';
 import { ReconversionEmptyState } from './ReconversionEmptyState';
 import { ReconversionKanbanView } from './ReconversionKanbanView';
-import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { SkeletonGrid } from '@/components/ui/skeleton-card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, RefreshCw, Download } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
@@ -29,6 +30,7 @@ interface ReconversionsListProps {
   onCreateNew: () => void;
   onRefresh: () => void;
   onUpdateStatus?: (reconversionId: string, status: string) => Promise<any>;
+  isRefreshing?: boolean;
 }
 
 export function ReconversionsList({
@@ -45,10 +47,52 @@ export function ReconversionsList({
   onView,
   onCreateNew,
   onRefresh,
-  onUpdateStatus
+  onUpdateStatus,
+  isRefreshing = false
 }: ReconversionsListProps) {
-  if (loading || error) {
-    return null; // Parent component handles these states
+  if (loading) {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-8 w-48 bg-muted rounded animate-pulse" />
+            <div className="h-5 w-96 bg-muted rounded animate-pulse" />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-24 bg-muted rounded animate-pulse" />
+            <div className="h-10 w-24 bg-muted rounded animate-pulse" />
+            <div className="h-10 w-32 bg-muted rounded animate-pulse" />
+          </div>
+        </div>
+
+        {/* Stats Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="p-4 border rounded-lg bg-card animate-pulse">
+              <div className="space-y-2">
+                <div className="h-4 w-20 bg-muted rounded" />
+                <div className="h-8 w-12 bg-muted rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters Skeleton */}
+        <div className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-10 w-32 bg-muted rounded animate-pulse" />
+          ))}
+        </div>
+
+        {/* Cards Skeleton */}
+        <SkeletonGrid count={6} className="animate-fade-in" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return null; // Parent component handles error state
   }
 
   return (
@@ -64,28 +108,30 @@ export function ReconversionsList({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
+          <LoadingButton 
             variant="outline" 
             onClick={onRefresh}
+            loading={isRefreshing}
+            loadingText="Actualizando..."
             className="gap-2"
           >
             <RefreshCw className="h-4 w-4" />
             Actualizar
-          </Button>
-          <Button 
+          </LoadingButton>
+          <LoadingButton 
             variant="outline"
             className="gap-2"
           >
             <Download className="h-4 w-4" />
             Exportar
-          </Button>
-          <Button 
+          </LoadingButton>
+          <LoadingButton 
             onClick={onCreateNew} 
-            className="gap-2"
+            className="gap-2 animate-pulse"
           >
             <Plus className="h-4 w-4" />
             Nueva Reconversión
-          </Button>
+          </LoadingButton>
         </div>
       </div>
 
@@ -136,26 +182,36 @@ export function ReconversionsList({
           onCreateNew={onCreateNew}
         />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 animate-fade-in">
           {/* Mobile Cards */}
           <div className="md:hidden space-y-4">
-            {filteredReconversiones.map((reconversion) => (
-              <MobileReconversionCard
+            {filteredReconversiones.map((reconversion, index) => (
+              <div
                 key={reconversion.id}
-                reconversion={reconversion as any}
-                onSelect={() => onView(reconversion)}
-              />
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <MobileReconversionCard
+                  reconversion={reconversion as any}
+                  onSelect={() => onView(reconversion)}
+                />
+              </div>
             ))}
           </div>
           
           {/* Desktop Grid */}
           <div className="hidden md:grid gap-6 grid-cols-2 lg:grid-cols-3">
-            {filteredReconversiones.map((reconversion) => (
-              <ReconversionCard
+            {filteredReconversiones.map((reconversion, index) => (
+              <div
                 key={reconversion.id}
-                reconversion={reconversion as any}
-                onSelect={() => onView(reconversion)}
-              />
+                className="animate-fade-in hover:scale-105 transition-transform duration-200"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <ReconversionCard
+                  reconversion={reconversion as any}
+                  onSelect={() => onView(reconversion)}
+                />
+              </div>
             ))}
           </div>
         </div>
