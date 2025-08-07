@@ -8,13 +8,19 @@ import { UnifiedCard } from "@/components/ui/unified-card";
 import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
 import { useProposals } from '@/hooks/useProposals';
 import { ProposalWizard } from '@/components/proposals/ProposalWizard';
-import { FileText, Users, CheckCircle, Euro, Plus } from "lucide-react";
+import { ProposalKanbanBoard } from '@/components/proposals/kanban/ProposalKanbanBoard';
+import { Proposal } from '@/types/Proposal';
+import { FileText, Users, CheckCircle, Euro, Plus, LayoutGrid, Table } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from '@/hooks/use-toast';
 
 export default function MinimalProposals() {
-  const { proposals, loading, createProposal } = useProposals();
+  const { proposals, loading, createProposal, updateProposal } = useProposals();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
 
   // Definir columnas para la tabla de propuestas
   const proposalColumns = [
@@ -55,6 +61,44 @@ export default function MinimalProposals() {
   const handleCreateProposal = async (data: any) => {
     await createProposal(data);
     setIsWizardOpen(false);
+  };
+
+  const handleUpdateStatus = async (proposalId: string, newStatus: string) => {
+    try {
+      await updateProposal(proposalId, { status: newStatus as any });
+      toast({
+        title: "Estado actualizado",
+        description: `La propuesta ha sido movida a ${getStatusLabel(newStatus)}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el estado de la propuesta",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const handleViewProposal = (proposal: Proposal) => {
+    // TODO: Navegar a vista detallada
+    console.log('Viewing proposal:', proposal.id);
+  };
+
+  const handleEditProposal = (proposal: Proposal) => {
+    // TODO: Abrir editor
+    console.log('Editing proposal:', proposal.id);
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      draft: 'Borrador',
+      sent: 'Enviada',
+      in_review: 'En Revisión',
+      approved: 'Aprobada',
+      rejected: 'Rechazada'
+    };
+    return labels[status] || status;
   };
 
   const getStatusBadge = (status: string) => {
@@ -98,10 +142,32 @@ export default function MinimalProposals() {
         description="Gestiona y crea propuestas de honorarios profesionales"
         badge={{ text: `${proposals.length} propuestas`, variant: 'secondary' }}
         actions={
-          <Button onClick={() => setIsWizardOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nueva Propuesta
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-muted rounded-lg p-1">
+              <Button
+                variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('kanban')}
+                className="h-8"
+              >
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Kanban
+              </Button>
+              <Button
+                variant={viewMode === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('table')}
+                className="h-8"
+              >
+                <Table className="h-4 w-4 mr-2" />
+                Tabla
+              </Button>
+            </div>
+            <Button onClick={() => setIsWizardOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva Propuesta
+            </Button>
+          </div>
         }
       />
 
@@ -133,48 +199,62 @@ export default function MinimalProposals() {
         />
       </div>
 
-      {/* Search and Filters */}
-      <Card className="p-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex-1 max-w-md">
-            <input
-              type="text"
-              placeholder="Buscar propuestas..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="all">Todos los estados</option>
-              <option value="draft">Borrador</option>
-              <option value="sent">Enviada</option>
-              <option value="approved">Aprobada</option>
-              <option value="rejected">Rechazada</option>
-              <option value="expired">Expirada</option>
-            </select>
-          </div>
-        </div>
-      </Card>
+      {/* Main Content - Kanban or Table */}
+      {viewMode === 'kanban' ? (
+        <ProposalKanbanBoard
+          proposals={proposals}
+          onUpdateStatus={handleUpdateStatus}
+          onCreateProposal={() => setIsWizardOpen(true)}
+          onViewProposal={handleViewProposal}
+          onEditProposal={handleEditProposal}
+          isLoading={loading}
+        />
+      ) : (
+        <>
+          {/* Search and Filters */}
+          <Card className="p-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+              <div className="flex-1 max-w-md">
+                <input
+                  type="text"
+                  placeholder="Buscar propuestas..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-2 border border-input rounded-lg bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 border border-input rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  <option value="all">Todos los estados</option>
+                  <option value="draft">Borrador</option>
+                  <option value="sent">Enviada</option>
+                  <option value="approved">Aprobada</option>
+                  <option value="rejected">Rechazada</option>
+                  <option value="expired">Expirada</option>
+                </select>
+              </div>
+            </div>
+          </Card>
 
-      {/* Proposals Table */}
-      <UnifiedCard 
-        title={`${filteredProposals.length} propuestas${searchQuery ? ` (filtradas de ${proposals.length})` : ''}`}
-        className="p-0"
-      >
-        <div className="p-6">
-          <AdvancedTable
-            data={tableData}
-            columns={proposalColumns}
-            className=""
-          />
-        </div>
-      </UnifiedCard>
+          {/* Proposals Table */}
+          <UnifiedCard 
+            title={`${filteredProposals.length} propuestas${searchQuery ? ` (filtradas de ${proposals.length})` : ''}`}
+            className="p-0"
+          >
+            <div className="p-6">
+              <AdvancedTable
+                data={tableData}
+                columns={proposalColumns}
+                className=""
+              />
+            </div>
+          </UnifiedCard>
+        </>
+      )}
 
       {/* Wizard Dialog */}
       <ProposalWizard
