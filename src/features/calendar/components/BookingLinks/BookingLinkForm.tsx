@@ -154,7 +154,7 @@ export function BookingLinkForm({ link, onSuccess, onCancel }: BookingLinkFormPr
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
-        .trim('-');
+        .replace(/^-+|-+$/g, '');
       form.setValue('slug', slug);
     }
   };
