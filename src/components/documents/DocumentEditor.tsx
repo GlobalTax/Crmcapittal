@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { SecureHtmlRenderer, processContentSecurely } from '@/components/security/SecureHtmlRenderer';
+import { DocumentVersionHistory } from './versions/DocumentVersionHistory';
 
 interface DocumentEditorProps {
   document?: Document;
@@ -311,6 +312,14 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
               </div>
             </CardContent>
           </Card>
+
+          {/* Version History */}
+          {document && (
+            <DocumentVersionHistory 
+              documentId={document.id}
+              onRestoreVersion={() => window.location.reload()}
+            />
+          )}
 
           {/* Variables */}
           {selectedTemplate && Object.keys(selectedTemplate.variables).length > 0 && (

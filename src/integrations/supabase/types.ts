@@ -2639,6 +2639,74 @@ export type Database = {
           },
         ]
       }
+      document_folders: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          created_by: string | null
+          folder_type: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          parent_folder_id: string | null
+          project_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          folder_type?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          parent_folder_id?: string | null
+          project_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          folder_type?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          parent_folder_id?: string | null
+          project_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_folders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_folders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_folders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "document_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_templates: {
         Row: {
           content: Json
@@ -2678,50 +2746,120 @@ export type Database = {
         }
         Relationships: []
       }
+      document_versions: {
+        Row: {
+          changes_summary: string | null
+          content: Json
+          created_at: string | null
+          created_by: string | null
+          document_id: string | null
+          id: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          changes_summary?: string | null
+          content: Json
+          created_at?: string | null
+          created_by?: string | null
+          document_id?: string | null
+          id?: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          changes_summary?: string | null
+          content?: Json
+          created_at?: string | null
+          created_by?: string | null
+          document_id?: string | null
+          id?: string
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
+          auto_linked_entity_id: string | null
+          auto_linked_entity_type: string | null
           content: Json
           created_at: string
           created_by: string | null
+          current_version: number | null
           document_type: string
+          expiration_date: string | null
+          folder_id: string | null
           id: string
           metadata: Json | null
           published_at: string | null
           status: string
+          tags: string[] | null
           template_id: string | null
           title: string
           updated_at: string
           variables: Json | null
+          watermark_settings: Json | null
         }
         Insert: {
+          auto_linked_entity_id?: string | null
+          auto_linked_entity_type?: string | null
           content?: Json
           created_at?: string
           created_by?: string | null
+          current_version?: number | null
           document_type?: string
+          expiration_date?: string | null
+          folder_id?: string | null
           id?: string
           metadata?: Json | null
           published_at?: string | null
           status?: string
+          tags?: string[] | null
           template_id?: string | null
           title: string
           updated_at?: string
           variables?: Json | null
+          watermark_settings?: Json | null
         }
         Update: {
+          auto_linked_entity_id?: string | null
+          auto_linked_entity_type?: string | null
           content?: Json
           created_at?: string
           created_by?: string | null
+          current_version?: number | null
           document_type?: string
+          expiration_date?: string | null
+          folder_id?: string | null
           id?: string
           metadata?: Json | null
           published_at?: string | null
           status?: string
+          tags?: string[] | null
           template_id?: string | null
           title?: string
           updated_at?: string
           variables?: Json | null
+          watermark_settings?: Json | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "document_folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_templates: {
         Row: {

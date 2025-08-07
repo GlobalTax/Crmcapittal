@@ -44,6 +44,13 @@ export interface Document {
   published_at?: string | null;
   variables: DocumentVariables;
   metadata: DocumentMetadata;
+  folder_id?: string | null;
+  tags?: string[];
+  auto_linked_entity_type?: string | null;
+  auto_linked_entity_id?: string | null;
+  watermark_settings?: Record<string, any>;
+  expiration_date?: string | null;
+  current_version?: number;
 }
 
 export interface DocumentTemplate {
