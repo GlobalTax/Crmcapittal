@@ -846,36 +846,197 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_ab_tests: {
+        Row: {
+          campaign_id: string | null
+          completed_at: string | null
+          confidence_score: number | null
+          created_at: string | null
+          id: string
+          split_percentage: number | null
+          test_name: string
+          variant_a: Json
+          variant_b: Json
+          winner_variant: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          split_percentage?: number | null
+          test_name: string
+          variant_a: Json
+          variant_b: Json
+          winner_variant?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          split_percentage?: number | null
+          test_name?: string
+          variant_a?: Json
+          variant_b?: Json
+          winner_variant?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_ab_tests_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_analytics: {
+        Row: {
+          campaign_id: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          subscriber_id: string | null
+          timestamp: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          subscriber_id?: string | null
+          timestamp?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          subscriber_id?: string | null
+          timestamp?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_analytics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_analytics_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_workflows: {
+        Row: {
+          campaign_template: Json
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          execution_count: number | null
+          id: string
+          is_active: boolean | null
+          last_executed_at: string | null
+          name: string
+          trigger_config: Json
+          trigger_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_template?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          name: string
+          trigger_config?: Json
+          trigger_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_template?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          name?: string
+          trigger_config?: Json
+          trigger_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
+          ab_test_id: string | null
           audience: string
+          automation_workflow_id: string | null
+          campaign_type: string | null
           created_at: string
           created_by: string | null
           html_body: string
           id: string
           opportunity_ids: string[]
+          performance_metrics: Json | null
+          send_schedule: Json | null
           sent_at: string
           subject: string
+          targeting_config: Json | null
+          template_id: string | null
         }
         Insert: {
+          ab_test_id?: string | null
           audience?: string
+          automation_workflow_id?: string | null
+          campaign_type?: string | null
           created_at?: string
           created_by?: string | null
           html_body: string
           id?: string
           opportunity_ids?: string[]
+          performance_metrics?: Json | null
+          send_schedule?: Json | null
           sent_at?: string
           subject: string
+          targeting_config?: Json | null
+          template_id?: string | null
         }
         Update: {
+          ab_test_id?: string | null
           audience?: string
+          automation_workflow_id?: string | null
+          campaign_type?: string | null
           created_at?: string
           created_by?: string | null
           html_body?: string
           id?: string
           opportunity_ids?: string[]
+          performance_metrics?: Json | null
+          send_schedule?: Json | null
           sent_at?: string
           subject?: string
+          targeting_config?: Json | null
+          template_id?: string | null
         }
         Relationships: []
       }
@@ -8610,6 +8771,101 @@ export type Database = {
           },
         ]
       }
+      rod_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          parent_id: string | null
+          position_data: Json | null
+          rod_id: string
+          rod_version_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          parent_id?: string | null
+          position_data?: Json | null
+          rod_id: string
+          rod_version_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          parent_id?: string | null
+          position_data?: Json | null
+          rod_id?: string
+          rod_version_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rod_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "rod_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rod_comments_rod_version_id_fkey"
+            columns: ["rod_version_id"]
+            isOneToOne: false
+            referencedRelation: "rod_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rod_engagement: {
+        Row: {
+          click_position: Json | null
+          engagement_score: number | null
+          event_type: string
+          id: string
+          rod_log_id: string | null
+          section_id: string | null
+          subscriber_email: string
+          timestamp: string | null
+        }
+        Insert: {
+          click_position?: Json | null
+          engagement_score?: number | null
+          event_type: string
+          id?: string
+          rod_log_id?: string | null
+          section_id?: string | null
+          subscriber_email: string
+          timestamp?: string | null
+        }
+        Update: {
+          click_position?: Json | null
+          engagement_score?: number | null
+          event_type?: string
+          id?: string
+          rod_log_id?: string | null
+          section_id?: string | null
+          subscriber_email?: string
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rod_engagement_rod_log_id_fkey"
+            columns: ["rod_log_id"]
+            isOneToOne: false
+            referencedRelation: "rod_log"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rod_log: {
         Row: {
           created_by: string | null
@@ -8628,6 +8884,78 @@ export type Database = {
           deals?: Json
           id?: string
           sent_at?: string
+        }
+        Relationships: []
+      }
+      rod_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          template_data: Json
+          template_type: string
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          template_data?: Json
+          template_type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          template_data?: Json
+          template_type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
+      rod_versions: {
+        Row: {
+          changes_summary: string | null
+          content: Json
+          created_at: string | null
+          created_by: string | null
+          id: string
+          rod_id: string
+          title: string
+          version_number: number
+        }
+        Insert: {
+          changes_summary?: string | null
+          content?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          rod_id: string
+          title: string
+          version_number: number
+        }
+        Update: {
+          changes_summary?: string | null
+          content?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          rod_id?: string
+          title?: string
+          version_number?: number
         }
         Relationships: []
       }
@@ -8797,28 +9125,171 @@ export type Database = {
           },
         ]
       }
+      subscriber_behavior_scores: {
+        Row: {
+          behavior_data: Json | null
+          engagement_score: number | null
+          frequency_score: number | null
+          id: string
+          last_calculated_at: string | null
+          recency_score: number | null
+          subscriber_id: string | null
+          total_score: number | null
+        }
+        Insert: {
+          behavior_data?: Json | null
+          engagement_score?: number | null
+          frequency_score?: number | null
+          id?: string
+          last_calculated_at?: string | null
+          recency_score?: number | null
+          subscriber_id?: string | null
+          total_score?: number | null
+        }
+        Update: {
+          behavior_data?: Json | null
+          engagement_score?: number | null
+          frequency_score?: number | null
+          id?: string
+          last_calculated_at?: string | null
+          recency_score?: number | null
+          subscriber_id?: string | null
+          total_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_behavior_scores_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: true
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriber_segment_members: {
+        Row: {
+          added_at: string | null
+          added_by: string | null
+          id: string
+          segment_id: string | null
+          subscriber_id: string | null
+        }
+        Insert: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          segment_id?: string | null
+          subscriber_id?: string | null
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string | null
+          id?: string
+          segment_id?: string | null
+          subscriber_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_segment_members_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "subscriber_segments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriber_segment_members_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriber_segments: {
+        Row: {
+          conditions: Json
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_dynamic: boolean | null
+          last_calculated_at: string | null
+          name: string
+          segment_type: string
+          subscriber_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          conditions?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_dynamic?: boolean | null
+          last_calculated_at?: string | null
+          name: string
+          segment_type?: string
+          subscriber_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          conditions?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_dynamic?: boolean | null
+          last_calculated_at?: string | null
+          name?: string
+          segment_type?: string
+          subscriber_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
+          acquisition_source: string | null
+          behavior_score: number | null
           created_at: string
+          custom_fields: Json | null
           email: string
+          engagement_level: string | null
           id: string
+          last_engagement_at: string | null
+          lifecycle_stage: string | null
           segment: string
+          tags: string[] | null
           unsubscribed: boolean
           verified: boolean
         }
         Insert: {
+          acquisition_source?: string | null
+          behavior_score?: number | null
           created_at?: string
+          custom_fields?: Json | null
           email: string
+          engagement_level?: string | null
           id?: string
+          last_engagement_at?: string | null
+          lifecycle_stage?: string | null
           segment?: string
+          tags?: string[] | null
           unsubscribed?: boolean
           verified?: boolean
         }
         Update: {
+          acquisition_source?: string | null
+          behavior_score?: number | null
           created_at?: string
+          custom_fields?: Json | null
           email?: string
+          engagement_level?: string | null
           id?: string
+          last_engagement_at?: string | null
+          lifecycle_stage?: string | null
           segment?: string
+          tags?: string[] | null
           unsubscribed?: boolean
           verified?: boolean
         }
