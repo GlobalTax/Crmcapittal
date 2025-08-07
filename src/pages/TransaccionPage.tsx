@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { TransaccionHeader } from '@/components/transacciones/TransaccionHeader';
 import { TransaccionOverviewTab } from '@/components/transacciones/tabs/TransaccionOverviewTab';
 import { TransaccionActivityTab } from '@/components/transacciones/tabs/TransaccionActivityTab';
@@ -102,6 +103,19 @@ export default function TransaccionPage() {
     <div className="min-h-screen bg-neutral-0 flex">
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Breadcrumb Navigation */}
+        <div className="bg-background border-b border-border px-6 py-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/transacciones')}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Volver a Transacciones
+          </Button>
+        </div>
+
         <TransaccionHeader
           transaccion={transaccion}
           onPrevious={handlePrevious}

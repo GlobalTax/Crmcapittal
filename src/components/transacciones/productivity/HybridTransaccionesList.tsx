@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -14,6 +15,7 @@ import { useTransaccionesOptimized } from '@/hooks/useTransaccionesOptimized';
 import { Transaccion } from '@/types/Transaccion';
 
 export const HybridTransaccionesList: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   
@@ -67,6 +69,11 @@ export const HybridTransaccionesList: React.FC = () => {
 
   const handleRowClick = (transaccion: Transaccion) => {
     setExpandedRowId(expandedRowId === transaccion.id ? null : transaccion.id);
+  };
+
+  const handleNameClick = (transaccionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/transacciones/${transaccionId}`);
   };
 
   const handleStageChange = async (transaccionId: string, newStageId: string) => {
@@ -151,7 +158,11 @@ export const HybridTransaccionesList: React.FC = () => {
                     <TableCell>
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-foreground truncate">
+                          <span 
+                            className="font-medium text-foreground truncate hover:text-primary cursor-pointer transition-colors"
+                            onClick={(e) => handleNameClick(transaccion.id, e)}
+                            title="Ir al análisis completo"
+                          >
                             {transaccion.nombre_transaccion}
                           </span>
                           <TransaccionSmartAlerts transaccion={transaccion} />

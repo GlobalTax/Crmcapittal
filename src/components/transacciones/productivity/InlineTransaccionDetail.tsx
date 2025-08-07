@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +13,7 @@ interface InlineTransaccionDetailProps {
 }
 
 export const InlineTransaccionDetail: React.FC<InlineTransaccionDetailProps> = ({ transaccion }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
   const formatCurrency = (value: number) => {
@@ -62,9 +64,13 @@ export const InlineTransaccionDetail: React.FC<InlineTransaccionDetailProps> = (
                 <Edit className="h-4 w-4 mr-2" />
                 Editar
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/transacciones/${transaccion.id}`)}
+              >
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Ver completo
+                Análisis completo
               </Button>
             </div>
           </div>
