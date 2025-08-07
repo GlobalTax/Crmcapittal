@@ -1,19 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { CompanyHeader } from '@/components/companies/CompanyHeader';
-import { CompanyOverviewTab } from '@/components/companies/CompanyOverviewTab';
-import { CompanyTimeline } from '@/components/companies/CompanyTimeline';
+import { QuickActionsHeader } from '@/components/companies/QuickActionsHeader';
+import { EnrichedOverviewTab } from '@/components/companies/EnrichedOverviewTab';
 import { CompanyContactsTab } from '@/components/companies/CompanyContactsTab';
 import { CompanyDealsTab } from '@/components/companies/CompanyDealsTab';
-import { CompanyNotesSection } from '@/components/companies/CompanyNotesSection';
-import { CompanyFilesTab } from '@/components/companies/CompanyFilesTab';
-import { CompanyEinformaTab } from '@/components/companies/CompanyEinformaTab';
-import { CompanyDocumentsTab } from '@/components/companies/CompanyDocumentsTab';
-import { CompanyRecordSidebar } from '@/components/companies/CompanyRecordSidebar';
+import { IntegratedActivityTab } from '@/components/companies/IntegratedActivityTab';
+import { CompanyAllDocumentsTab } from '@/components/companies/CompanyAllDocumentsTab';
+import { CompanyFloatingActions } from '@/components/companies/CompanyFloatingActions';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
-import { CompanyValoracionesTab } from '@/components/companies/CompanyValoracionesTab';
 import { useCompanies } from '@/hooks/useCompanies';
 import { Company } from '@/types/Company';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
@@ -131,156 +126,106 @@ export default function CompanyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-0 flex">
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <CompanyHeader
-          company={company}
-          onEdit={handleEdit}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          hasPrevious={hasPrevious}
-          hasNext={hasNext}
-        />
+    <div className="min-h-screen bg-background">
+      {/* Quick Actions Header */}
+      <QuickActionsHeader
+        company={company}
+        onEdit={handleEdit}
+        onPrevious={handlePrevious}
+        onNext={handleNext}
+        hasPrevious={hasPrevious}
+        hasNext={hasNext}
+        onCreateDeal={() => console.log('Create deal')}
+        onCreateContact={() => console.log('Create contact')}
+        onCreateNote={() => console.log('Create note')}
+      />
 
-        {/* Tabs Navigation */}
-        <div className="border-b border-border bg-background">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="h-auto p-0 bg-transparent">
-              <div className="flex overflow-x-auto">
-                <TabsTrigger 
-                  value="overview"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Resumen
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="activity"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Actividad
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="contacts"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Contactos
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="deals"
-                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                >
-                  Oportunidades
-                </TabsTrigger>
-                 <TabsTrigger 
-                   value="notes"
-                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                 >
-                   Notas
-                 </TabsTrigger>
-                 <TabsTrigger 
-                   value="files"
-                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                 >
-                   Archivos
-                 </TabsTrigger>
-                 <TabsTrigger 
-                   value="einforma"
-                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                 >
-                   Datos eInforma
-                 </TabsTrigger>
-                 <TabsTrigger 
-                   value="documents"
-                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                 >
-                   Documentos
-                 </TabsTrigger>
-                 <TabsTrigger 
-                   value="valoraciones"
-                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3 text-sm whitespace-nowrap"
-                 >
-                   Valoraciones
-                 </TabsTrigger>
-              </div>
+      {/* Optimized Tabs (5 tabs only) */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="border-b">
+          <div className="max-w-6xl mx-auto">
+            <TabsList className="h-auto p-0 bg-transparent justify-start">
+              <TabsTrigger 
+                value="overview"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="contacts"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
+              >
+                Contactos
+              </TabsTrigger>
+              <TabsTrigger 
+                value="deals"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
+              >
+                Deals
+              </TabsTrigger>
+              <TabsTrigger 
+                value="activity"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
+              >
+                Actividad
+              </TabsTrigger>
+              <TabsTrigger 
+                value="documents"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
+              >
+                Documentos
+              </TabsTrigger>
             </TabsList>
-
-            {/* Tab Content */}
-            <div className="flex">
-              {/* Main Content Area */}
-              <div className="flex-1 overflow-y-auto">
-                <TabsContent value="overview" className="mt-0 p-6">
-                  <CompanyOverviewTab company={company} />
-                </TabsContent>
-                
-                 <TabsContent value="activity" className="mt-0 p-6">
-                   <CompanyTimeline company={company} />
-                 </TabsContent>
-                 
-                 <TabsContent value="contacts" className="mt-0 p-6">
-                   <CompanyContactsTab company={company} />
-                 </TabsContent>
-                 
-                 <TabsContent value="deals" className="mt-0 p-6">
-                   <CompanyDealsTab company={company} />
-                 </TabsContent>
-                 
-                 <TabsContent value="notes" className="mt-0 p-6">
-                   <CompanyNotesSection company={company} />
-                 </TabsContent>
-                 
-                 <TabsContent value="files" className="mt-0 p-6">
-                   <CompanyFilesTab company={company} />
-                 </TabsContent>
-                 
-                 <TabsContent value="einforma" className="mt-0 p-6">
-                   <CompanyEinformaTab company={company} />
-                 </TabsContent>
-                 
-                 <TabsContent value="documents" className="mt-0 p-6">
-                   <CompanyDocumentsTab company={company} />
-                 </TabsContent>
-                 
-                 <TabsContent value="valoraciones" className="mt-0 p-6">
-                   <CompanyValoracionesTab company={company} />
-                 </TabsContent>
-              </div>
-            </div>
-          </Tabs>
-        </div>
-      </div>
-
-      {/* Right Sidebar - Hidden on mobile, collapsible on tablet */}
-      <div className="hidden lg:block w-80 border-l border-border bg-neutral-50 overflow-y-auto">
-        <CompanyRecordSidebar company={company} onEdit={handleEdit} />
-      </div>
-
-      {/* Mobile Details Button */}
-      <div className="fixed bottom-4 right-4 lg:hidden">
-        <Button
-          onClick={() => setActiveTab(activeTab === 'details' ? 'overview' : 'details')}
-          className="rounded-full shadow-lg"
-        >
-          {activeTab === 'details' ? 'Cerrar Detalles' : 'Mostrar Detalles'}
-        </Button>
-      </div>
-
-      {/* Mobile Details Panel */}
-      {activeTab === 'details' && (
-        <div className="fixed inset-0 bg-background z-50 lg:hidden overflow-y-auto">
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <h2 className="text-lg font-semibold">Detalles de la Empresa</h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setActiveTab('overview')}
-            >
-              ×
-            </Button>
           </div>
-          <CompanyRecordSidebar company={company} onEdit={handleEdit} />
         </div>
-      )}
+
+        {/* Tab Content with max-width centering */}
+        <div className="py-6">
+          <TabsContent value="overview" className="mt-0">
+            <Suspense fallback={<LoadingSkeleton />}>
+              <EnrichedOverviewTab company={company} />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="contacts" className="mt-0">
+            <div className="max-w-6xl mx-auto px-6">
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CompanyContactsTab company={company} />
+              </Suspense>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="deals" className="mt-0">
+            <div className="max-w-6xl mx-auto px-6">
+              <Suspense fallback={<LoadingSkeleton />}>
+                <CompanyDealsTab company={company} />
+              </Suspense>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="activity" className="mt-0">
+            <Suspense fallback={<LoadingSkeleton />}>
+              <IntegratedActivityTab company={company} />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="documents" className="mt-0">
+            <Suspense fallback={<LoadingSkeleton />}>
+              <CompanyAllDocumentsTab company={company} />
+            </Suspense>
+          </TabsContent>
+        </div>
+      </Tabs>
+
+      {/* Floating Actions */}
+      <CompanyFloatingActions
+        company={company}
+        hasContacts={true} // Esto debería venir de los stats reales
+        onCall={() => console.log('Call action')}
+        onEmail={() => console.log('Email action')}
+        onQuickNote={() => console.log('Quick note')}
+        onCreateDeal={() => console.log('Create deal')}
+      />
 
       {/* Edit Company Dialog */}
       {editingCompany && (
