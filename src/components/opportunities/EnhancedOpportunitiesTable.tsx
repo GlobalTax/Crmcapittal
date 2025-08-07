@@ -42,8 +42,8 @@ interface EnhancedOpportunitiesTableProps {
 type SortField = 'title' | 'value' | 'stage' | 'created_at' | 'company' | 'probability';
 type SortDirection = 'asc' | 'desc';
 
-// Memoized constants
-const STAGES = useMemo(() => [
+// Constantes
+const STAGES = [
   { value: 'prospecting', label: 'Prospección', color: 'bg-blue-100 text-blue-800' },
   { value: 'qualification', label: 'Cualificación', color: 'bg-purple-100 text-purple-800' },
   { value: 'proposal', label: 'Propuesta', color: 'bg-orange-100 text-orange-800' },
@@ -51,14 +51,14 @@ const STAGES = useMemo(() => [
   { value: 'closed_won', label: 'Ganado', color: 'bg-green-100 text-green-800' },
   { value: 'closed_lost', label: 'Perdido', color: 'bg-red-100 text-red-800' },
   { value: 'in_progress', label: 'En progreso', color: 'bg-cyan-100 text-cyan-800' },
-], []);
+];
 
-const PRIORITIES = useMemo(() => [
+const PRIORITIES = [
   { value: 'low', label: 'Baja', color: 'bg-gray-100 text-gray-800' },
   { value: 'medium', label: 'Media', color: 'bg-blue-100 text-blue-800' },
   { value: 'high', label: 'Alta', color: 'bg-orange-100 text-orange-800' },
   { value: 'urgent', label: 'Urgente', color: 'bg-red-100 text-red-800' },
-], []);
+];
 
 const EnhancedOpportunitiesTableComponent = ({ opportunities, loading }: EnhancedOpportunitiesTableProps) => {
   const navigate = useNavigate();
@@ -280,14 +280,38 @@ const EnhancedOpportunitiesTableComponent = ({ opportunities, loading }: Enhance
       <div className="border rounded-lg">
         <div className="bg-muted/50 border-b">
           <div className="grid grid-cols-12 gap-4 px-4 py-3 font-medium text-sm">
-            <div className="col-span-2">Oportunidad</div>
-            <div className="col-span-2">Empresa</div>
-            <div className="col-span-2">Etapa</div>
+            <div className="col-span-2">
+              <Button variant="ghost" onClick={() => handleSort('title')} className="h-auto p-0 font-medium hover:bg-transparent">
+                Oportunidad {getSortIcon('title')}
+              </Button>
+            </div>
+            <div className="col-span-2">
+              <Button variant="ghost" onClick={() => handleSort('company')} className="h-auto p-0 font-medium hover:bg-transparent">
+                Empresa {getSortIcon('company')}
+              </Button>
+            </div>
+            <div className="col-span-2">
+              <Button variant="ghost" onClick={() => handleSort('stage')} className="h-auto p-0 font-medium hover:bg-transparent">
+                Etapa {getSortIcon('stage')}
+              </Button>
+            </div>
             <div className="col-span-2">Prioridad</div>
-            <div className="col-span-1">Valor</div>
-            <div className="col-span-1">Prob.</div>
+            <div className="col-span-1">
+              <Button variant="ghost" onClick={() => handleSort('value')} className="h-auto p-0 font-medium hover:bg-transparent">
+                Valor {getSortIcon('value')}
+              </Button>
+            </div>
+            <div className="col-span-1">
+              <Button variant="ghost" onClick={() => handleSort('probability')} className="h-auto p-0 font-medium hover:bg-transparent">
+                Prob. {getSortIcon('probability')}
+              </Button>
+            </div>
             <div className="col-span-1">Contactos</div>
-            <div className="col-span-1">Creación</div>
+            <div className="col-span-1">
+              <Button variant="ghost" onClick={() => handleSort('created_at')} className="h-auto p-0 font-medium hover:bg-transparent">
+                Creación {getSortIcon('created_at')}
+              </Button>
+            </div>
           </div>
         </div>
 
