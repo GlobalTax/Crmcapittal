@@ -21,6 +21,8 @@ export const useLeads = (filters?: {
   } = useQuery({
     queryKey: ['leads', filters],
     queryFn: () => leadsService.fetchLeads(filters),
+    staleTime: 60 * 1000, // 1 minuto para Leads (agresivo)
+    refetchOnWindowFocus: true,
   });
 
   const createMutation = useMutation({

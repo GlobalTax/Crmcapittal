@@ -24,10 +24,10 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
     queryFn: async () => {
       console.log("🔍 Fetching companies with filters:", { searchTerm, statusFilter, typeFilter, page, limit });
       
-      // Base query for companies
       let query = supabase
         .from("companies")
         .select("*", { count: "exact" })
+        .order("updated_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
 
       // Apply filters
@@ -141,7 +141,7 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
         totalPages: Math.ceil((count || 0) / limit)
       };
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
@@ -177,7 +177,7 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
           totalDealsValue
         };
       },
-      staleTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 30 * 60 * 1000, // 30 minutes
     });
   };
 

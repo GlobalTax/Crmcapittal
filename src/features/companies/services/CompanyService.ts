@@ -20,6 +20,7 @@ export class CompanyService {
     let query = supabase
       .from("companies")
       .select("*", { count: "exact" })
+      .order("updated_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
 
     // Apply filters

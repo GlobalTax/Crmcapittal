@@ -32,6 +32,7 @@ export const useDeals = () => {
           )
         `)
         .eq('is_active', true)
+        .order('updated_at', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
