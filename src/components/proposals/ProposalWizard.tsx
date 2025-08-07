@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CreateProposalData } from '@/types/Proposal';
+import { BasicStep } from './wizard/BasicStep';
+import { ContentStep } from './wizard/ContentStep';
 import { ClientInfoStep } from './wizard/ClientInfoStep';
 import { ServicesStep } from './wizard/ServicesStep';
 import { FeesStep } from './wizard/FeesStep';
@@ -38,6 +40,8 @@ interface ProposalWizardProps {
 }
 
 const WIZARD_STEPS = [
+  { id: 'basic', title: 'Básico', icon: FileText, description: 'Información básica y contenido' },
+  { id: 'content', title: 'Contenido', icon: FileText, description: 'Editor avanzado WYSIWYG' },
   { id: 'client', title: 'Cliente', icon: User, description: 'Información del cliente y contexto' },
   { id: 'services', title: 'Servicios', icon: FileText, description: 'Catálogo de servicios y productos' },
   { id: 'fees', title: 'Honorarios', icon: DollarSign, description: 'Estructura de precios y pagos' },
@@ -82,8 +86,12 @@ export const ProposalWizard: React.FC<ProposalWizardProps> = ({
     const errors: string[] = [];
     
     switch (stepId) {
-      case 'client':
+      case 'basic':
         if (!formData.title?.trim()) errors.push('El título es obligatorio');
+        if (!formData.proposal_type) errors.push('El tipo de propuesta es obligatorio');
+        break;
+        
+      case 'client':
         if (!formData.contact_id && !formData.company_id) {
           errors.push('Debe seleccionar al menos un contacto o empresa');
         }
@@ -208,6 +216,22 @@ export const ProposalWizard: React.FC<ProposalWizardProps> = ({
     const stepErrors = validationErrors[stepId] || [];
 
     switch (stepId) {
+      case 'basic':
+        return (
+          <BasicStep
+            data={formData}
+            onChange={handleDataChange}
+            errors={stepErrors}
+          />
+        );
+      case 'content':
+        return (
+          <ContentStep
+            data={formData}
+            onChange={handleDataChange}
+            errors={stepErrors}
+          />
+        );
       case 'client':
         return (
           <ClientInfoStep
