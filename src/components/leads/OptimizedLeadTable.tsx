@@ -11,6 +11,7 @@ import { format, isAfter, subDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { Badge as UIBadge } from '@/components/ui/badge';
 
 interface OptimizedLeadTableProps {
   leads: Lead[];
@@ -32,14 +33,29 @@ export const OptimizedLeadTable = ({
   const navigate = useNavigate();
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500';
-    if (score >= 60) return 'bg-yellow-500';
-    if (score >= 40) return 'bg-orange-500';
-    return 'bg-red-500';
+    if (score >= 80) return 'bg-red-500';
+    if (score >= 50) return 'bg-yellow-500';
+    if (score >= 0) return 'bg-gray-500';
+    return 'bg-gray-500';
   };
 
-  const getScoreProgress = (score: number) => {
-    return Math.max(10, Math.min(100, score)); // Ensure visibility with minimum 10%
+  const getTemperature = (lead: any): 'hot' | 'warm' | 'cold' | null => {
+    const s: number | undefined = lead.aiScore ?? lead.lead_score;
+    if (s == null) return null;
+    if (s >= 80) return 'hot';
+    if (s >= 50) return 'warm';
+    return 'cold';
+  };
+
+  const getTempClasses = (temp: 'hot' | 'warm' | 'cold') => {
+    switch (temp) {
+      case 'hot':
+        return 'bg-red-50 border border-red-200 text-red-700';
+      case 'warm':
+        return 'bg-yellow-50 border border-yellow-200 text-yellow-700';
+      default:
+        return 'bg-gray-50 border border-gray-200 text-gray-600';
+    }
   };
 
   const isUrgent = (lead: Lead) => {
@@ -68,6 +84,10 @@ export const OptimizedLeadTable = ({
   const handleEmail = (email: string, e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(`mailto:${email}`, '_self');
+  };
+
+  const getScoreProgress = (score: number) => {
+    return Math.max(10, Math.min(100, score));
   };
 
   const getStatusVariant = (status: LeadStatus) => {
@@ -176,7 +196,7 @@ export const OptimizedLeadTable = ({
             <TableHead className="min-w-[200px]">Nombre</TableHead>
             <TableHead className="min-w-[150px]">Empresa</TableHead>
             <TableHead className="min-w-[120px]">Estado</TableHead>
-            <TableHead className="min-w-[100px]">Score</TableHead>
+            <TableHead className="min-w-[120px]">Score AI</TableHead>
             <TableHead className="min-w-[150px]">Última actividad</TableHead>
             <TableHead className="min-w-[120px]">Acciones</TableHead>
           </TableRow>
@@ -245,12 +265,24 @@ export const OptimizedLeadTable = ({
                 </TableCell>
                 
                 <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <Progress 
-                      value={getScoreProgress(score)} 
-                      className="w-16 h-2"
-                    />
-                    <span className="text-sm font-medium w-8">{score}</span>
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const temp = getTemperature(lead);
+                      if (!temp) return null;
+                      const cls = getTempClasses(temp);
+                      return (
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}>
+                          {temp === 'hot' ? 'Hot' : temp === 'warm' ? 'Warm' : 'Cold'}
+                        </span>
+                      );
+                    })()}
+                    <div className="flex items-center space-x-2">
+                      <Progress 
+                        value={getScoreProgress(lead.aiScore ?? lead.lead_score ?? 0)} 
+                        className="w-16 h-2"
+                      />
+                      <span className="text-sm font-medium w-8">{(lead.aiScore ?? lead.lead_score ?? 0)}</span>
+                    </div>
                   </div>
                 </TableCell>
                 

@@ -48,40 +48,35 @@ export const OptimizedLeadWorkflow = () => {
 
   const { leads, isLoading, createLead, updateLead, isCreating } = useLeads(filters);
 
-  // Apply all filters
   const filteredLeads = useMemo(() => {
-    return leads.filter(lead => {
+    const base = leads || [];
+    return base.filter(lead => {
       // Search filter
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesSearch = 
           lead.name.toLowerCase().includes(query) ||
           (lead.email?.toLowerCase() || '').includes(query) ||
-          (lead.company?.toLowerCase() || '').includes(query);
+          ((lead as any).company?.toLowerCase() || '').includes(query);
         if (!matchesSearch) return false;
       }
-      
       // Source filter
-      if (sourceFilter !== 'all' && lead.source !== sourceFilter) return false;
-      
+      if (sourceFilter !== 'all' && (lead as any).source !== sourceFilter) return false;
       // Priority filter
-      if (priorityFilter !== 'all' && lead.priority !== priorityFilter) return false;
-      
+      if (priorityFilter !== 'all' && (lead as any).priority !== priorityFilter) return false;
       // Quick filters
       if (quickFilter === 'nuevos_hoy') {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const leadDate = new Date(lead.created_at);
+        const leadDate = new Date((lead as any).created_at);
         leadDate.setHours(0, 0, 0, 0);
         return leadDate.getTime() === today.getTime();
       }
-      
       if (quickFilter === 'sin_contactar_3_dias') {
         const threeDaysAgo = subDays(new Date(), 3);
-        return (!lead.last_contacted || new Date(lead.last_contacted) < threeDaysAgo) && 
-               lead.status === 'NEW';
+        return (!(lead as any).last_contacted || new Date((lead as any).last_contacted) < threeDaysAgo) && 
+               (lead as any).status === 'NEW';
       }
-      
       return true;
     });
   }, [leads, searchQuery, sourceFilter, priorityFilter, quickFilter]);
@@ -392,14 +387,13 @@ export const OptimizedLeadWorkflow = () => {
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           {filteredLeads.length} de {leads.length} leads
-          {hasActiveFilters && <span className="text-blue-600 ml-1">(filtrado)</span>}
         </p>
       </div>
 
       {/* Main content - table or kanban */}
       {viewMode === 'table' ? (
         <OptimizedLeadTable
-          leads={filteredLeads}
+          leads={filteredLeads as any}
           isLoading={isLoading}
           selectedLeads={selectedLeads}
           onSelectLead={handleSelectLead}

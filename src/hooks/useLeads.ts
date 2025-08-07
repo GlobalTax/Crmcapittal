@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Lead, CreateLeadData, UpdateLeadData, LeadStatus, LeadStage } from '@/types/Lead';
 import * as leadsService from '@/services/leadsService';
 import { toast } from 'sonner';
+import { scoreLeads, ScoredLead } from '@/services/aiLeadScoring';
 
 export const useLeads = (filters?: {
   status?: LeadStatus;
@@ -12,6 +13,8 @@ export const useLeads = (filters?: {
   owner_id?: string;
 }) => {
   const queryClient = useQueryClient();
+  const [scoredLeads, setScoredLeads] = useState<ScoredLead[] | null>(null);
+  const [isScoring, setIsScoring] = useState(false);
 
   const {
     data: leads = [],
@@ -24,6 +27,23 @@ export const useLeads = (filters?: {
     staleTime: 60 * 1000, // 1 minuto para Leads (agresivo)
     refetchOnWindowFocus: true,
   });
+
+  // AI scoring when leads change
+  useEffect(() => {
+    const run = async () => {
+      try {
+        setIsScoring(true);
+        const scored = await scoreLeads(leads);
+        setScoredLeads(scored);
+      } catch (e) {
+        console.error('Error scoring leads', e);
+      } finally {
+        setIsScoring(false);
+      }
+    };
+    if (leads && leads.length > 0) run();
+    else setScoredLeads(null);
+  }, [leads]);
 
   const createMutation = useMutation({
     mutationFn: async (leadData: CreateLeadData) => {
@@ -118,7 +138,7 @@ export const useLeads = (filters?: {
   });
 
   return {
-    leads,
+    leads: (scoredLeads as any) || leads,
     isLoading,
     error,
     refetch,
@@ -130,6 +150,7 @@ export const useLeads = (filters?: {
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
     isConverting: convertMutation.isPending,
+    isScoring,
   };
 };
 
