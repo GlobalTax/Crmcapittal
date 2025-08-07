@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLeads } from "@/hooks/useLeads";
 import { LeadStatus, LeadSource, LeadPriority, LeadQuality, Lead } from "@/types/Lead";
-import { Search, Plus, Phone, Mail, Eye } from "lucide-react";
+import { Search, Plus, Phone, Mail, Eye, RefreshCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CreateLeadDialog } from "./CreateLeadDialog";
 import { InlineEditCell } from "@/components/contacts/InlineEditCell";
@@ -17,13 +17,17 @@ import { toast } from "sonner";
 import { Company } from "@/types/Company";
 import { FixedSizeList as List } from 'react-window';
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { scoreLeads } from "@/services/aiLeadScoring";
 export const SimpleLeadsTable = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   const [sourceFilter, setSourceFilter] = useState<LeadSource | 'all'>('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [temperatureFilter, setTemperatureFilter] = useState<'all' | 'hot' | 'warm' | 'cold'>('all');
+  const [localScores, setLocalScores] = useState<Record<string, { aiScore: number; temperature: 'hot' | 'warm' | 'cold'; scoreReasons: string[] }>>({});
 
   const filters = {
     ...(statusFilter !== 'all' && { status: statusFilter as LeadStatus })
@@ -31,7 +35,7 @@ export const SimpleLeadsTable = () => {
 
   const { leads, isLoading, createLead, updateLead, isCreating } = useLeads(filters);
 
-  // Apply search filter
+  // Apply search + filters (including temperature)
   const filteredLeads = leads.filter(lead => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -42,9 +46,14 @@ export const SimpleLeadsTable = () => {
         (lead.position?.toLowerCase() || '').includes(query);
       if (!matchesSearch) return false;
     }
-    
     if (sourceFilter !== 'all' && lead.source !== sourceFilter) return false;
-    
+
+    if (temperatureFilter !== 'all') {
+      const override = localScores[lead.id];
+      const score = override?.aiScore ?? (lead as any).aiScore ?? (lead as any).lead_score ?? 0;
+      const temp = override?.temperature ?? (lead as any).temperature ?? temperatureFromScore(score);
+      if (temp !== temperatureFilter) return false;
+    }
     return true;
   });
 
@@ -166,6 +175,41 @@ export const SimpleLeadsTable = () => {
     window.open(`mailto:${email}`, '_self');
   };
 
+  const temperatureFromScore = (score: number): 'hot' | 'warm' | 'cold' => {
+    if (score >= 80) return 'hot';
+    if (score >= 50) return 'warm';
+    return 'cold';
+  };
+
+  const getTempClasses = (temp: 'hot' | 'warm' | 'cold') => {
+    switch (temp) {
+      case 'hot':
+        return 'bg-red-50 border border-red-200 text-red-700';
+      case 'warm':
+        return 'bg-yellow-50 border border-yellow-200 text-yellow-700';
+      default:
+        return 'bg-gray-50 border border-gray-200 text-gray-600';
+    }
+  };
+
+  const getScoreProgress = (score: number) => Math.max(10, Math.min(100, score));
+
+  const handleRecalcScore = async (lead: Lead) => {
+    try {
+      const [res] = await scoreLeads([lead]);
+      if (res) {
+        setLocalScores(prev => ({
+          ...prev,
+          [lead.id]: { aiScore: res.aiScore, temperature: res.temperature, scoreReasons: res.scoreReasons }
+        }));
+        toast.success('Score recalculado');
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al recalcular el score');
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Header with search and filters */}
@@ -211,6 +255,18 @@ export const SimpleLeadsTable = () => {
               <SelectItem value="other">Otro</SelectItem>
             </SelectContent>
           </Select>
+
+          <Select value={temperatureFilter} onValueChange={(value) => setTemperatureFilter(value as 'all'|'hot'|'warm'|'cold')}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Temperatura" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las temperaturas</SelectItem>
+              <SelectItem value="hot">Hot</SelectItem>
+              <SelectItem value="warm">Warm</SelectItem>
+              <SelectItem value="cold">Cold</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <Button onClick={() => setShowCreateDialog(true)} className="ml-4">
@@ -231,7 +287,7 @@ export const SimpleLeadsTable = () => {
               <TableHead className="min-w-[120px]">Valor Estimado</TableHead>
               <TableHead className="min-w-[120px]">Estado</TableHead>
               <TableHead className="min-w-[120px]">Prioridad</TableHead>
-              <TableHead className="min-w-[100px]">Puntuación</TableHead>
+              <TableHead className="min-w-[100px]">Score IA</TableHead>
               <TableHead className="min-w-[100px]">Fuente</TableHead>
               <TableHead className="min-w-[120px]">Próximo contacto</TableHead>
               <TableHead className="min-w-[120px]">Fecha creación</TableHead>
@@ -331,7 +387,39 @@ export const SimpleLeadsTable = () => {
                               />
                             </div>
                             <div className="py-3">
-                              <span className="text-sm">{lead.lead_score || 0}</span>
+                              {(() => {
+                                const override = localScores[lead.id];
+                                const score = override?.aiScore ?? (lead as any).aiScore ?? (lead as any).lead_score ?? 0;
+                                const temp = override?.temperature ?? (lead as any).temperature ?? temperatureFromScore(score);
+                                const reasons: string[] = override?.scoreReasons ?? (lead as any).scoreReasons ?? [];
+                                return (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div className="flex items-center gap-2">
+                                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getTempClasses(temp)}`}>
+                                            {temp === 'hot' ? 'Hot' : temp === 'warm' ? 'Warm' : 'Cold'}
+                                          </span>
+                                          <div className="flex items-center space-x-2">
+                                            <Progress value={getScoreProgress(score)} className="w-16 h-2" />
+                                            <span className="text-sm font-medium w-8">{score}</span>
+                                          </div>
+                                        </div>
+                                      </TooltipTrigger>
+                                      {reasons.length > 0 && (
+                                        <TooltipContent side="top" className="max-w-xs">
+                                          <div className="text-xs font-medium mb-1">Razones del score</div>
+                                          <ul className="list-disc pl-4 space-y-1">
+                                            {reasons.slice(0, 5).map((r, i) => (
+                                              <li key={i} className="text-xs text-muted-foreground">{r}</li>
+                                            ))}
+                                          </ul>
+                                        </TooltipContent>
+                                      )}
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                );
+                              })()}
                             </div>
                             <div className="py-3">
                               <span className="text-sm text-muted-foreground capitalize">
@@ -362,6 +450,9 @@ export const SimpleLeadsTable = () => {
                                 )}
                                 <Button variant="ghost" size="sm" onClick={() => handleEmail(lead.email)}>
                                   <Mail className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleRecalcScore(lead)} title="Re-calcular Score">
+                                  <RefreshCcw className="h-4 w-4" />
                                 </Button>
                               </div>
                             </div>
@@ -433,9 +524,39 @@ export const SimpleLeadsTable = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm">
-                      {lead.lead_score || 0}
-                    </span>
+                    {(() => {
+                      const override = localScores[lead.id];
+                      const score = override?.aiScore ?? (lead as any).aiScore ?? (lead as any).lead_score ?? 0;
+                      const temp = override?.temperature ?? (lead as any).temperature ?? temperatureFromScore(score);
+                      const reasons: string[] = override?.scoreReasons ?? (lead as any).scoreReasons ?? [];
+                      return (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getTempClasses(temp)}`}>
+                                  {temp === 'hot' ? 'Hot' : temp === 'warm' ? 'Warm' : 'Cold'}
+                                </span>
+                                <div className="flex items-center space-x-2">
+                                  <Progress value={getScoreProgress(score)} className="w-16 h-2" />
+                                  <span className="text-sm font-medium w-8">{score}</span>
+                                </div>
+                              </div>
+                            </TooltipTrigger>
+                            {reasons.length > 0 && (
+                              <TooltipContent side="top" className="max-w-xs">
+                                <div className="text-xs font-medium mb-1">Razones del score</div>
+                                <ul className="list-disc pl-4 space-y-1">
+                                  {reasons.slice(0, 5).map((r, i) => (
+                                    <li key={i} className="text-xs text-muted-foreground">{r}</li>
+                                  ))}
+                                </ul>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted-foreground capitalize">
@@ -478,6 +599,14 @@ export const SimpleLeadsTable = () => {
                         onClick={() => handleEmail(lead.email)}
                       >
                         <Mail className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRecalcScore(lead)}
+                        title="Re-calcular Score"
+                      >
+                        <RefreshCcw className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
