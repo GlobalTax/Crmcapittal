@@ -5,7 +5,7 @@ import { AttioLayout } from '@/components/layout/AttioLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Import new organized components
-import TransaccionesList from '@/components/transacciones/TransaccionesList';
+const OptimizedTransaccionesPage = lazy(() => import('@/pages/OptimizedTransaccionesPage'));
 import VentaMandatoView from '@/components/transacciones/VentaMandatoView';
 import CompanyList from '@/components/empresas/CompanyList';
 import CompanyDetail from '@/components/empresas/CompanyDetail';
@@ -156,8 +156,12 @@ export const AppRoutes = () => {
           <Route path="/contactos" element={<ContactList />} />
           <Route path="/contactos/:id" element={<ContactDetail />} />
 
-          {/* Transacciones (Spanish routes) */}
-          <Route path="/transacciones" element={<TransaccionesList />} />
+          {/* Transacciones (Spanish routes) - Optimized Hybrid View */}
+          <Route path="/transacciones" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <OptimizedTransaccionesPage />
+            </Suspense>
+          } />
           <Route path="/transacciones/:id" element={<VentaMandatoView />} />
 
           {/* Time Tracking */}
