@@ -2,15 +2,20 @@ import { Lead } from '@/types/Lead';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLeadInteractions } from '@/hooks/useLeadInteractions';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import DOMPurify from 'dompurify';
+import { emailAssistant, EmailTone } from '@/services/emailAssistant';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useLeadTasks } from '@/hooks/useLeadTasksSimple';
 
 interface EmailAssistantDialogProps {
   lead: Lead;
@@ -18,104 +23,48 @@ interface EmailAssistantDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const PURPOSES = [
-  { value: 'intro', label: 'Email de introducción' },
-  { value: 'nda', label: 'Enviar NDA' },
-  { value: 'teaser', label: 'Enviar Teaser (sell-side)' },
-  { value: 'brief', label: 'Enviar Brief (buy-side)' },
-  { value: 'followup', label: 'Seguimiento' },
-];
-
 export const EmailAssistantDialog = ({ lead, open, onOpenChange }: EmailAssistantDialogProps) => {
   const [purpose, setPurpose] = useState<string>('intro');
   const [subject, setSubject] = useState<string>('');
   const [body, setBody] = useState<string>('');
+  const [tone, setTone] = useState<EmailTone>('profesional');
   const [copied, setCopied] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [scheduleFollowUps, setScheduleFollowUps] = useState(true);
 
   const { createInteraction, isCreating } = useLeadInteractions(lead.id);
+  const { createTask } = useLeadTasks(lead.id);
 
-  const companyName = lead.company || lead.company_name || '';
-  const contactName = lead.name || '';
+  const ctx = useMemo(() => ({
+    name: lead.name,
+    company: lead.company || lead.company_name,
+    service_type: lead.service_type,
+    deal_value: lead.deal_value,
+  }), [lead]);
 
-  const subjectSuggestions = useMemo(() => {
-    const base = companyName ? `${companyName}` : 'tu empresa';
-    switch (purpose) {
-      case 'nda':
-        return [
-          `NDA para explorar oportunidad M&A con ${base}`,
-          `Acuerdo de Confidencialidad – Próximos pasos`,
-          `Confidencialidad para análisis de la operación`,
-        ];
-      case 'teaser':
-        return [
-          `Teaser de oportunidad – ${base}`,
-          `Información inicial de la operación (Teaser)`,
-          `Material preliminar – Proyecto confidencial`,
-        ];
-      case 'brief':
-        return [
-          `Brief de búsqueda – Criterios y alcance`,
-          `Mandato buy-side – Foco y rangos EV`,
-          `Criterios de inversión – Próximos pasos`,
-        ];
-      case 'followup':
-        return [
-          `Seguimiento sobre nuestra conversación`,
-          `¿Seguimos con los siguientes pasos?`,
-          `Recordatorio amable – Propuesta/NDA`,
-        ];
-      default:
-        return [
-          `Explorar potencial colaboración M&A`,
-          `Introducción – ${base} x CRM Pro`,
-          `Oportunidades M&A en ${base}`,
-        ];
-    }
-  }, [purpose, companyName]);
+  const templates = useMemo(() => emailAssistant.getTemplates(ctx), [ctx]);
+  const bestTime = useMemo(() => emailAssistant.predictBestSendTime(ctx), [ctx]);
 
   useEffect(() => {
-    // Autoseleccionar el primer asunto sugerido
-    setSubject(subjectSuggestions[0] || '');
-
-    // Generar cuerpo base
-    const lines: string[] = [];
-    const firstName = contactName?.split(' ')[0] || '';
-
-    lines.push(firstName ? `Hola ${firstName},` : 'Hola,');
-
-    if (purpose === 'intro') {
-      lines.push('Soy parte del equipo de M&A en CRM Pro. Ayudamos a directivos y accionistas a preparar y ejecutar procesos de compraventa de compañías (1M€–100M€ EV).');
-      lines.push('¿Te parece si agendamos 15 minutos para evaluar encaje y próximos pasos?');
+    const t = templates[0];
+    if (t) {
+      setSubject(t.subject);
+      setBody(t.body);
     }
+  }, [templates]);
 
-    if (purpose === 'nda') {
-      lines.push('Adjunto nuestro NDA estándar para poder compartir información confidencial y avanzar en el análisis.');
-      lines.push('En cuanto esté firmado, te enviamos el material inicial.');
-    }
+  const insertToken = (token: string) => {
+    setBody((prev) => (prev || '') + (prev?.endsWith(' ') ? '' : ' ') + token + ' ');
+  };
 
-    if (purpose === 'teaser') {
-      lines.push('Como acordado, compartimos el Teaser con la información clave de la oportunidad.');
-      lines.push('Si ves interés, coordinamos una llamada para resolver dudas y avanzar.');
-    }
-
-    if (purpose === 'brief') {
-      lines.push('Adjunto Brief con criterios de búsqueda (sector/NAICS, geografía, rango EV) para tu validación.');
-      lines.push('Con tu OK, activamos el deal-sourcing y pipeline inicial.');
-    }
-
-    if (purpose === 'followup') {
-      lines.push('Solo un breve recordatorio sobre los próximos pasos que comentamos.');
-      lines.push('¿Podemos cerrar fecha para una llamada esta semana?');
-    }
-
-    lines.push('');
-    lines.push('Quedo atento. Gracias y saludos,');
-    lines.push('');
-    lines.push('— Equipo CRM Pro');
-
-    setBody(lines.join('\n'));
-  }, [purpose, contactName]);
+  const handleImprove = () => {
+    const improved = emailAssistant.improveContent(body, tone);
+    setBody(improved);
+    const { A, B } = emailAssistant.optimizeSubject(subject);
+    // Elegimos A por defecto pero mostramos B como opción rápida
+    setSubject(A);
+    toast.success('Contenido optimizado');
+  };
 
   const handleCopy = async () => {
     try {
@@ -153,6 +102,16 @@ export const EmailAssistantDialog = ({ lead, open, onOpenChange }: EmailAssistan
         },
       });
       if (error) throw error;
+
+      // Programar follow-ups básicos
+      if (scheduleFollowUps) {
+        const now = new Date();
+        const d3 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
+        const d7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        createTask({ lead_id: lead.id, title: 'Follow-up email (3 días)', due_date: d3, priority: 'medium' });
+        createTask({ lead_id: lead.id, title: 'Follow-up email (7 días)', due_date: d7, priority: 'medium' });
+      }
+
       toast.success('Email enviado');
       onOpenChange(false);
     } catch (e) {
@@ -163,53 +122,107 @@ export const EmailAssistantDialog = ({ lead, open, onOpenChange }: EmailAssistan
     }
   };
 
+  const { A, B } = useMemo(() => emailAssistant.optimizeSubject(subject), [subject]);
+  const sanitizedPreview = useMemo(() => DOMPurify.sanitize(body.includes('<') ? body : body.split('\n').map(p => `<p>${p}</p>`).join('')), [body]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Asistente de Email</DialogTitle>
+          <DialogTitle>Redactar Email Inteligente</DialogTitle>
           <DialogDescription>
-            Genera y guarda emails contextuales para este lead.
+            Templates sugeridos por IA, editor enriquecido, preview y envío con tracking.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-            <div className="md:col-span-1 space-y-2">
-              <Label>Propósito</Label>
-              <Select value={purpose} onValueChange={setPurpose}>
+            <div className="space-y-2">
+              <Label>Template</Label>
+              <Select value={purpose} onValueChange={(v) => {
+                setPurpose(v);
+                const t = templates.find(t => t.id === v);
+                if (t) { setSubject(t.subject); setBody(t.body); }
+              }}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecciona propósito" />
+                  <SelectValue placeholder="Selecciona template" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PURPOSES.map(p => (
-                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                  {templates.map(t => (
+                    <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label>Asunto</Label>
-              <Input value={subject} onChange={e => setSubject(e.target.value)} />
-              <div className="flex flex-wrap gap-2 pt-1">
-                {subjectSuggestions.map((s) => (
-                  <Badge key={s} variant="secondary" className="cursor-pointer" onClick={() => setSubject(s)}>
-                    {s}
-                  </Badge>
-                ))}
+            <div className="space-y-2">
+              <Label>Tono</Label>
+              <Select value={tone} onValueChange={(v) => setTone(v as EmailTone)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona tono" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="profesional">Profesional</SelectItem>
+                  <SelectItem value="casual">Casual</SelectItem>
+                  <SelectItem value="urgente">Urgente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Mejor hora de envío</Label>
+              <div className="flex items-center gap-2 text-sm">
+                <Badge variant="secondary">{bestTime.day} {bestTime.time}</Badge>
+                <span className="text-muted-foreground">conf. {(bestTime.confidence * 100).toFixed(0)}%</span>
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Contenido</Label>
-            <Textarea value={body} onChange={e => setBody(e.target.value)} rows={12} />
+            <Label>Asunto</Label>
+            <Input value={subject} onChange={e => setSubject(e.target.value)} />
+            <div className="flex flex-wrap gap-2 pt-1 items-center">
+              <span className="text-xs text-muted-foreground">A/B testing:</span>
+              <Badge variant="secondary" className="cursor-pointer" onClick={() => setSubject(A)}>
+                A: {A}
+              </Badge>
+              <Badge variant="secondary" className="cursor-pointer" onClick={() => setSubject(B)}>
+                B: {B}
+              </Badge>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Contenido</Label>
+              <ReactQuill theme="snow" value={body} onChange={setBody} />
+              <div className="flex flex-wrap gap-2 pt-2">
+                {emailAssistant.tokens.map(t => (
+                  <Badge key={t.key} variant="outline" className="cursor-pointer" onClick={() => insertToken(t.key)}>
+                    {t.key}
+                  </Badge>
+                ))}
+                <Button variant="secondary" size="sm" onClick={handleImprove}>
+                  <Sparkles className="h-4 w-4 mr-2" /> Mejorar con IA
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Preview</Label>
+              <div className="border rounded-md p-3 h-[300px] overflow-auto bg-background">
+                <div dangerouslySetInnerHTML={{ __html: sanitizedPreview }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox id="followups" checked={scheduleFollowUps} onCheckedChange={(v) => setScheduleFollowUps(Boolean(v))} />
+            <Label htmlFor="followups" className="text-sm text-muted-foreground">Programar secuencia de follow-up (3 y 7 días)</Label>
           </div>
         </div>
 
         <div className="flex items-center justify-between pt-2">
           <div className="text-sm text-muted-foreground">
-            Lead: <span className="font-medium">{lead.name || companyName || lead.id}</span>
+            Lead: <span className="font-medium">{lead.name || lead.company || lead.id}</span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleCopy}>
