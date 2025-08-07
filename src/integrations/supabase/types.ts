@@ -2652,6 +2652,63 @@ export type Database = {
           },
         ]
       }
+      document_approvals: {
+        Row: {
+          approved_at: string | null
+          approver_id: string
+          comments: string | null
+          created_at: string
+          document_id: string
+          due_date: string | null
+          id: string
+          status: Database["public"]["Enums"]["approval_status"] | null
+          step_number: number
+          updated_at: string
+          workflow_instance_id: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approver_id: string
+          comments?: string | null
+          created_at?: string
+          document_id: string
+          due_date?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          step_number: number
+          updated_at?: string
+          workflow_instance_id?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approver_id?: string
+          comments?: string | null
+          created_at?: string
+          document_id?: string
+          due_date?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          step_number?: number
+          updated_at?: string
+          workflow_instance_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_approvals_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_approvals_workflow_instance_id_fkey"
+            columns: ["workflow_instance_id"]
+            isOneToOne: false
+            referencedRelation: "document_workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_comments: {
         Row: {
           content: string
@@ -3014,6 +3071,47 @@ export type Database = {
           },
         ]
       }
+      document_status_history: {
+        Row: {
+          changed_by: string
+          created_at: string
+          document_id: string
+          id: string
+          metadata: Json | null
+          new_status: string
+          previous_status: string | null
+          reason: string | null
+        }
+        Insert: {
+          changed_by: string
+          created_at?: string
+          document_id: string
+          id?: string
+          metadata?: Json | null
+          new_status: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Update: {
+          changed_by?: string
+          created_at?: string
+          document_id?: string
+          id?: string
+          metadata?: Json | null
+          new_status?: string
+          previous_status?: string | null
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_status_history_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_templates: {
         Row: {
           content: Json
@@ -3093,6 +3191,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      document_workflow_instances: {
+        Row: {
+          completed_at: string | null
+          current_step: number | null
+          document_id: string
+          id: string
+          metadata: Json | null
+          started_at: string
+          started_by: string
+          status: string | null
+          workflow_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_step?: number | null
+          document_id: string
+          id?: string
+          metadata?: Json | null
+          started_at?: string
+          started_by: string
+          status?: string | null
+          workflow_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_step?: number | null
+          document_id?: string
+          id?: string
+          metadata?: Json | null
+          started_at?: string
+          started_by?: string
+          status?: string | null
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_workflow_instances_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_workflow_instances_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "document_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_workflows: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+          workflow_steps: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+          workflow_steps?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+          workflow_steps?: Json
+        }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -9695,6 +9877,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      process_approval: {
+        Args: {
+          p_approval_id: string
+          p_status: Database["public"]["Enums"]["approval_status"]
+          p_comments?: string
+        }
+        Returns: boolean
+      }
       process_automation_triggers: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -9771,6 +9961,10 @@ export type Database = {
       }
       sincronizar_impuestos_quantum: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      start_document_workflow: {
+        Args: { p_document_id: string; p_workflow_id: string }
         Returns: string
       }
       test_auth_uid: {
@@ -9853,6 +10047,7 @@ export type Database = {
         | "marketing"
         | "support"
       approval_stage: "loi" | "preliminary" | "final" | "closing"
+      approval_status: "pending" | "approved" | "rejected" | "revision_required"
       approval_type: "loi" | "contract" | "final_terms" | "closing"
       business_segment:
         | "pyme"
@@ -10127,6 +10322,7 @@ export const Constants = {
         "support",
       ],
       approval_stage: ["loi", "preliminary", "final", "closing"],
+      approval_status: ["pending", "approved", "rejected", "revision_required"],
       approval_type: ["loi", "contract", "final_terms", "closing"],
       business_segment: [
         "pyme",
