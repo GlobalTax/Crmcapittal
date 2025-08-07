@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCommissions } from '@/hooks/useCommissions';
+import { useCommissions, Commission } from '@/hooks/useCommissions';
 import { CommissionDetails } from './CommissionDetails';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ export const CommissionsTable = () => {
   const [recipientFilter, setRecipientFilter] = useState('all');
   const [calculationFilter, setCalculationFilter] = useState('all');
   const [marginFilter, setMarginFilter] = useState('all');
-  const [selectedCommission, setSelectedCommission] = useState<any>(null);
+  const [selectedCommission, setSelectedCommission] = useState<Commission | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const filteredCommissions = commissions?.filter(commission => {
@@ -54,9 +54,9 @@ export const CommissionsTable = () => {
       (commission.recipient_type === 'collaborator' ? commission.collaborators?.name : 
        (commission.user_profiles ? `${commission.user_profiles.first_name || ''} ${commission.user_profiles.last_name || ''}`.trim() : ''));
     
-    const calcDetails = commission.calculation_details as any;
-    const calculationType = calcDetails?.calculationType || 'gross';
-    const netProfitMargin = calcDetails?.netProfitMargin || 0;
+    const calcDetails = (commission.calculation_details || {}) as Record<string, unknown>;
+    const calculationType = calcDetails?.calculationType as string || 'gross';
+    const netProfitMargin = calcDetails?.netProfitMargin as number || 0;
     
     const matchesSearch = recipientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          commission.source_name?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -117,8 +117,8 @@ export const CommissionsTable = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  const getCalculationBadge = (calculationDetails: any) => {
-    const calculationType = calculationDetails?.calculationType || 'gross';
+  const getCalculationBadge = (calculationDetails: Record<string, unknown>) => {
+    const calculationType = calculationDetails?.calculationType as string || 'gross';
     const variants = {
       gross: { variant: 'secondary' as const, label: 'Bruto', icon: DollarSign },
       net: { variant: 'outline' as const, label: 'Neto', icon: Calculator },
@@ -136,8 +136,8 @@ export const CommissionsTable = () => {
     );
   };
 
-  const getMarginIndicator = (calculationDetails: any) => {
-    const margin = calculationDetails?.netProfitMargin;
+  const getMarginIndicator = (calculationDetails: Record<string, unknown>) => {
+    const margin = calculationDetails?.netProfitMargin as number;
     if (!margin) return null;
     
     const isLowMargin = margin < 20;
@@ -342,8 +342,8 @@ export const CommissionsTable = () => {
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      {getCalculationBadge(commission.calculation_details)}
-                      {getMarginIndicator(commission.calculation_details)}
+                       {getCalculationBadge(commission.calculation_details || {})}
+                       {getMarginIndicator(commission.calculation_details || {})}
                     </div>
                   </TableCell>
                   <TableCell>

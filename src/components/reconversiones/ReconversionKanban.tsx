@@ -14,9 +14,10 @@ import {
   Target
 } from 'lucide-react';
 import { useReconversionWorkflow } from '@/hooks/useReconversionWorkflow';
+import { ReconversionKanbanItem } from '@/shared/types/reconversion';
 
 interface ReconversionKanbanProps {
-  reconversiones: any[];
+  reconversiones: ReconversionKanbanItem[];
   onReconversionUpdate?: () => void;
 }
 
@@ -67,7 +68,7 @@ const SUBFASE_COLUMNS: SubfaseColumn[] = [
 ];
 
 interface ReconversionCardProps {
-  reconversion: any;
+  reconversion: ReconversionKanbanItem;
   onUpdate?: () => void;
 }
 
@@ -169,7 +170,7 @@ function ReconversionCard({ reconversion, onUpdate }: ReconversionCardProps) {
 
 interface KanbanColumnProps {
   column: SubfaseColumn;
-  reconversiones: any[];
+  reconversiones: ReconversionKanbanItem[];
   onUpdate?: () => void;
 }
 
@@ -237,7 +238,7 @@ export function ReconversionKanban({ reconversiones, onReconversionUpdate }: Rec
   const reconversionesBySubfase = SUBFASE_COLUMNS.reduce((acc, column) => {
     acc[column.id] = reconversiones.filter(r => r.subfase === column.id);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {} as Record<string, ReconversionKanbanItem[]>);
 
   return (
     <div className="w-full">

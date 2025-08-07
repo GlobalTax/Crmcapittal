@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { ReconversionKanbanCard } from './ReconversionKanbanCard';
 import { Plus, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ReconversionKanbanItem } from '@/shared/types/reconversion';
 
 interface Stage {
   id: string;
@@ -14,9 +15,9 @@ interface Stage {
 
 interface ReconversionKanbanColumnProps {
   stage: Stage;
-  reconversiones: any[];
-  onEdit: (reconversion: any) => void;
-  onView?: (reconversion: any) => void;
+  reconversiones: ReconversionKanbanItem[];
+  onEdit: (reconversion: ReconversionKanbanItem) => void;
+  onView?: (reconversion: ReconversionKanbanItem) => void;
   onAddReconversion?: (stageId: string) => void;
   isLoading?: boolean;
 }
@@ -31,7 +32,7 @@ const ReconversionKanbanColumn = memo(({
 }: ReconversionKanbanColumnProps) => {
   // Calculate column statistics
   const totalValue = reconversiones.reduce((total, reconversion) => {
-    const investment = reconversion.investment_capacity || 0;
+    const investment = reconversion.investment_capacity_min || 0;
     return total + investment;
   }, 0);
 
