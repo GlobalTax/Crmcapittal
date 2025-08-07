@@ -468,16 +468,24 @@ export class CalendarService {
       eventStart.setHours(10, 0, 0, 0); // 10:00 AM
       const eventEnd = new Date(eventStart.getTime() + eventConfig.duration * 60 * 1000);
 
+      // Handle company and contact data safely
+      const companies = deal.companies as any;
+      const contacts = deal.contacts as any;
+      
+      const companyName = Array.isArray(companies) ? companies[0]?.name : companies?.name || 'Cliente';
+      const companyId = Array.isArray(companies) ? companies[0]?.id : companies?.id;
+      const contactId = Array.isArray(contacts) ? contacts[0]?.id : contacts?.id;
+
       const eventData: CreateEventData = {
-        title: `${eventConfig.title} - ${Array.isArray(deal.companies) ? deal.companies[0]?.name : deal.companies?.name || 'Cliente'}`,
+        title: `${eventConfig.title} - ${companyName}`,
         description: `${eventConfig.title} para la operación: ${(deal as any).operation_name || deal.id}`,
         start_date: eventStart.toISOString(),
         end_date: eventEnd.toISOString(),
         event_type: 'meeting',
         meeting_type: eventConfig.type as any,
         deal_id: dealId,
-        company_id: Array.isArray(deal.companies) ? deal.companies[0]?.id : deal.companies?.id,
-        contact_id: Array.isArray(deal.contacts) ? deal.contacts[0]?.id : deal.contacts?.id,
+        company_id: companyId,
+        contact_id: contactId,
         priority: eventType === 'closing' ? 'high' : 'normal'
       };
 
