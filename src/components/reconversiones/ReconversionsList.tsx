@@ -1,5 +1,6 @@
 import React from 'react';
 import { ReconversionCard } from './ReconversionCard';
+import { MobileReconversionCard } from './MobileReconversionCard';
 import { ReconversionStats } from './ReconversionStats';
 import { ReconversionFilters } from './ReconversionFilters';
 import { ReconversionViewToggle } from './ReconversionViewToggle';
@@ -135,14 +136,28 @@ export function ReconversionsList({
           onCreateNew={onCreateNew}
         />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredReconversiones.map((reconversion) => (
-            <ReconversionCard
-              key={reconversion.id}
-              reconversion={reconversion as any}
-              onSelect={() => onView(reconversion)}
-            />
-          ))}
+        <div className="space-y-4">
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-4">
+            {filteredReconversiones.map((reconversion) => (
+              <MobileReconversionCard
+                key={reconversion.id}
+                reconversion={reconversion as any}
+                onSelect={() => onView(reconversion)}
+              />
+            ))}
+          </div>
+          
+          {/* Desktop Grid */}
+          <div className="hidden md:grid gap-6 grid-cols-2 lg:grid-cols-3">
+            {filteredReconversiones.map((reconversion) => (
+              <ReconversionCard
+                key={reconversion.id}
+                reconversion={reconversion as any}
+                onSelect={() => onView(reconversion)}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>

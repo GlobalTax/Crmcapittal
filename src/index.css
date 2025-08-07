@@ -312,6 +312,38 @@ h2.section-title {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Mobile optimizations */
+@layer utilities {
+  /* Touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile spacing */
+  .mobile-spacing > * + * {
+    margin-top: 12px;
+  }
+
+  /* Mobile form inputs */
+  @media (max-width: 768px) {
+    .mobile-form input,
+    .mobile-form textarea {
+      height: 48px;
+      font-size: 16px; /* Prevent zoom on iOS */
+    }
+  }
+
+  /* Gesture support */
+  .swipeable {
+    touch-action: pan-y;
+  }
+
+  .pull-refresh {
+    overscroll-behavior: contain;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
