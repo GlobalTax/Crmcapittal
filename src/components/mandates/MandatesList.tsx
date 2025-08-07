@@ -64,13 +64,8 @@ const MandatesList = ({ mandates, onMandateSelect, onRefresh, isLoading }: Manda
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Mandatos de Compra</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestiona los mandatos de búsqueda de empresas para adquisición
-          </p>
-        </div>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">Mandatos</h1>
         <div className="flex items-center space-x-3">
           <Button 
             variant="outline" 

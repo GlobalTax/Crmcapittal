@@ -14,13 +14,8 @@ export const NegociosHeader = ({
   setShowCreateDialog 
 }: NegociosHeaderProps) => {
   return (
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-lg font-semibold text-gray-900 leading-tight">Negocios</h1>
-        <p className="text-sm text-gray-500 leading-relaxed">
-          Gestiona todos tus negocios y oportunidades de M&A
-        </p>
-      </div>
+    <div className="mb-6 flex items-center justify-between">
+      <h1 className="text-2xl font-semibold text-gray-900">Negocios</h1>
       <div className="flex items-center space-x-2">
         <Button
           variant="outline"

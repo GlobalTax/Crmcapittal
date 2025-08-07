@@ -5,13 +5,8 @@ export default function MandatosList() {
   return (
     <ErrorBoundary>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Mandatos de Compra</h1>
-            <p className="text-muted-foreground">
-              Gestiona los mandatos de búsqueda de empresas para adquisición
-            </p>
-          </div>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900">Mandatos</h1>
         </div>
 
         <HierarchicalCRMView initialLevel="mandates" />

@@ -63,17 +63,10 @@ export default function MinimalPersonalDashboard() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto bg-slate-50 min-h-screen">
-      {/* Ultra-Minimal Header with Discrete Greeting */}
+      {/* Header */}
       <div className="bg-white border-b border-slate-200 p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl text-slate-600">
-              {getGreeting()}, {user?.user_metadata?.first_name || 'Usuario'}
-            </h2>
-            <span className="text-sm text-slate-500">
-              {format(new Date(), 'EEEE, d MMMM', { locale: es })}
-            </span>
-          </div>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900">Dashboard Personal</h1>
           <div className="flex items-center gap-3">
             <QuickActionsBar 
               onNewTask={() => setIsTaskModalOpen(true)}

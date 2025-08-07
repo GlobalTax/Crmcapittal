@@ -98,15 +98,8 @@ export function ReconversionsList({
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Reconversiones
-          </h1>
-          <p className="text-muted-foreground">
-            Gestiona las oportunidades de reconversión empresarial
-          </p>
-        </div>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">Reconversiones</h1>
         <div className="flex items-center gap-2">
           <LoadingButton 
             variant="outline" 

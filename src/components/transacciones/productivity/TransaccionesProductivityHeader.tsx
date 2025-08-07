@@ -56,13 +56,8 @@ export const TransaccionesProductivityHeader: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Principal */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Pipeline de Transacciones</h1>
-          <p className="text-muted-foreground">
-            Gestiona tu pipeline con vista híbrida optimizada para velocidad
-          </p>
-        </div>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">Transacciones</h1>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
