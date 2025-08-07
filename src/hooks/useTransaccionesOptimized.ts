@@ -49,22 +49,24 @@ export const useTransaccionesOptimized = (filters: TransaccionFilters) => {
     }
 
     // Filtro por etapa
-    if (filters.stage) {
+    if (filters.stage && filters.stage !== 'all') {
       filtered = filtered.filter(t => t.stage?.id === filters.stage);
     }
 
     // Filtro por propietario
-    if (filters.owner === 'me') {
-      // En implementación real, compararíamos con auth.uid()
-      filtered = filtered.filter(t => t.propietario_transaccion === 'current_user');
-    } else if (filters.owner === 'unassigned') {
-      filtered = filtered.filter(t => !t.propietario_transaccion);
-    } else if (filters.owner) {
-      filtered = filtered.filter(t => t.propietario_transaccion === filters.owner);
+    if (filters.owner && filters.owner !== 'all') {
+      if (filters.owner === 'me') {
+        // En implementación real, compararíamos con auth.uid()
+        filtered = filtered.filter(t => t.propietario_transaccion === 'current_user');
+      } else if (filters.owner === 'unassigned') {
+        filtered = filtered.filter(t => !t.propietario_transaccion);
+      } else {
+        filtered = filtered.filter(t => t.propietario_transaccion === filters.owner);
+      }
     }
 
     // Filtro por rango de valor
-    if (filters.valueRange) {
+    if (filters.valueRange && filters.valueRange !== 'all') {
       switch (filters.valueRange) {
         case 'high':
           filtered = filtered.filter(t => (t.valor_transaccion || 0) >= 1000000);
@@ -147,7 +149,7 @@ export const useTransaccionesOptimized = (filters: TransaccionFilters) => {
     error,
     stats,
     hasActiveFilters: Object.values(filters).some(v => 
-      v && (Array.isArray(v) ? v.length > 0 : v !== '')
+      v && (Array.isArray(v) ? v.length > 0 : (v !== '' && v !== 'all'))
     ),
     ...mutations
   };

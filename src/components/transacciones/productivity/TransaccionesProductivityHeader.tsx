@@ -16,9 +16,9 @@ interface QuickFilter {
 
 export const TransaccionesProductivityHeader: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedOwner, setSelectedOwner] = useState<string>('');
-  const [selectedStage, setSelectedStage] = useState<string>('');
-  const [selectedValueRange, setSelectedValueRange] = useState<string>('');
+  const [selectedOwner, setSelectedOwner] = useState<string>('all');
+  const [selectedStage, setSelectedStage] = useState<string>('all');
+  const [selectedValueRange, setSelectedValueRange] = useState<string>('all');
   const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
 
   const { stats, loading } = useTransaccionesOptimized({
@@ -166,7 +166,7 @@ export const TransaccionesProductivityHeader: React.FC = () => {
                   <SelectValue placeholder="Estado" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los estados</SelectItem>
+                  <SelectItem value="all">Todos los estados</SelectItem>
                   <SelectItem value="prospecting">Prospecting</SelectItem>
                   <SelectItem value="qualified">Qualified</SelectItem>
                   <SelectItem value="proposal">Proposal</SelectItem>
@@ -181,7 +181,7 @@ export const TransaccionesProductivityHeader: React.FC = () => {
                   <SelectValue placeholder="Propietario" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="me">Yo</SelectItem>
                   <SelectItem value="unassigned">Sin asignar</SelectItem>
                 </SelectContent>
@@ -192,7 +192,7 @@ export const TransaccionesProductivityHeader: React.FC = () => {
                   <SelectValue placeholder="Valor" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="high">{">"} 1M €</SelectItem>
                   <SelectItem value="medium">500K - 1M €</SelectItem>
                   <SelectItem value="low">{"<"} 500K €</SelectItem>

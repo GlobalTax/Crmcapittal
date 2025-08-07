@@ -44,12 +44,14 @@ export const useOverdueTasks = () => {
       
       if (error) {
         console.error('Error fetching overdue tasks:', error);
-        throw new Error('Error al cargar tareas vencidas');
+        // Return empty array instead of throwing to prevent breaking the app
+        return [];
       }
       
       return data as OverdueTaskData[];
     },
     refetchInterval: 300000, // Refetch every 5 minutes
+    retry: false, // Don't retry failed requests
   });
 
   const {
