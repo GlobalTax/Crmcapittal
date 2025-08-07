@@ -5233,6 +5233,198 @@ export type Database = {
         }
         Relationships: []
       }
+      proposal_analytics: {
+        Row: {
+          browser: string | null
+          created_at: string
+          device_type: string | null
+          duration_seconds: number | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          location: string | null
+          metadata: Json | null
+          os: string | null
+          proposal_id: string
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_seconds?: number | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          location?: string | null
+          metadata?: Json | null
+          os?: string | null
+          proposal_id: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_seconds?: number | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          location?: string | null
+          metadata?: Json | null
+          os?: string | null
+          proposal_id?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_analytics_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_email_tracking: {
+        Row: {
+          bounced_at: string | null
+          click_count: number | null
+          click_tracking_urls: Json | null
+          clicked_at: string | null
+          created_at: string
+          email_subject: string | null
+          id: string
+          metadata: Json | null
+          open_count: number | null
+          opened_at: string | null
+          proposal_id: string
+          recipient_email: string
+          sent_at: string
+          status: string | null
+          tracking_pixel_url: string | null
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          bounced_at?: string | null
+          click_count?: number | null
+          click_tracking_urls?: Json | null
+          clicked_at?: string | null
+          created_at?: string
+          email_subject?: string | null
+          id?: string
+          metadata?: Json | null
+          open_count?: number | null
+          opened_at?: string | null
+          proposal_id: string
+          recipient_email: string
+          sent_at?: string
+          status?: string | null
+          tracking_pixel_url?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bounced_at?: string | null
+          click_count?: number | null
+          click_tracking_urls?: Json | null
+          clicked_at?: string | null
+          created_at?: string
+          email_subject?: string | null
+          id?: string
+          metadata?: Json | null
+          open_count?: number | null
+          opened_at?: string | null
+          proposal_id?: string
+          recipient_email?: string
+          sent_at?: string
+          status?: string | null
+          tracking_pixel_url?: string | null
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_email_tracking_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_stats: {
+        Row: {
+          avg_duration_seconds: number | null
+          bounce_rate: number | null
+          conversion_rate: number | null
+          created_at: string
+          downloads: number | null
+          email_clicks: number | null
+          email_opens: number | null
+          engagement_score: number | null
+          id: string
+          last_viewed_at: string | null
+          proposal_id: string
+          shares: number | null
+          total_duration_seconds: number | null
+          total_views: number | null
+          unique_views: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_duration_seconds?: number | null
+          bounce_rate?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          downloads?: number | null
+          email_clicks?: number | null
+          email_opens?: number | null
+          engagement_score?: number | null
+          id?: string
+          last_viewed_at?: string | null
+          proposal_id: string
+          shares?: number | null
+          total_duration_seconds?: number | null
+          total_views?: number | null
+          unique_views?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_duration_seconds?: number | null
+          bounce_rate?: number | null
+          conversion_rate?: number | null
+          created_at?: string
+          downloads?: number | null
+          email_clicks?: number | null
+          email_opens?: number | null
+          engagement_score?: number | null
+          id?: string
+          last_viewed_at?: string | null
+          proposal_id?: string
+          shares?: number | null
+          total_duration_seconds?: number | null
+          total_views?: number | null
+          unique_views?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_stats_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       proposal_templates: {
         Row: {
           category: string
@@ -5288,6 +5480,74 @@ export type Database = {
             columns: ["practice_area_id"]
             isOneToOne: false
             referencedRelation: "practice_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_view_sessions: {
+        Row: {
+          conversion_action: string | null
+          created_at: string
+          device_info: Json | null
+          email: string | null
+          ended_at: string | null
+          engagement_score: number | null
+          id: string
+          ip_address: unknown | null
+          pages_viewed: number | null
+          proposal_id: string
+          sections_viewed: Json | null
+          session_id: string
+          started_at: string
+          total_duration_seconds: number | null
+          updated_at: string
+          user_agent: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          conversion_action?: string | null
+          created_at?: string
+          device_info?: Json | null
+          email?: string | null
+          ended_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          ip_address?: unknown | null
+          pages_viewed?: number | null
+          proposal_id: string
+          sections_viewed?: Json | null
+          session_id: string
+          started_at?: string
+          total_duration_seconds?: number | null
+          updated_at?: string
+          user_agent?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          conversion_action?: string | null
+          created_at?: string
+          device_info?: Json | null
+          email?: string | null
+          ended_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          ip_address?: unknown | null
+          pages_viewed?: number | null
+          proposal_id?: string
+          sections_viewed?: Json | null
+          session_id?: string
+          started_at?: string
+          total_duration_seconds?: number | null
+          updated_at?: string
+          user_agent?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_view_sessions_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
             referencedColumns: ["id"]
           },
         ]
