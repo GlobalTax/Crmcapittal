@@ -35,7 +35,7 @@ export function BookingLinkManager() {
   const handleDeleteLink = async (linkId: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este enlace de reserva?')) {
       try {
-        await deleteBookingLink.mutateAsync(linkId);
+        await deleteBookingLink(linkId);
         toast.success('Enlace eliminado correctamente');
       } catch (error) {
         toast.error('Error al eliminar el enlace');
@@ -136,7 +136,7 @@ interface BookingLinkCardProps {
 }
 
 function BookingLinkCard({ link, onEdit, onDelete, onCopyLink }: BookingLinkCardProps) {
-  const { data: stats } = useBookingLinkStats(link.id);
+  const stats = useBookingLinkStats(link.id);
 
   return (
     <Card className="group hover:shadow-md transition-shadow">
@@ -187,11 +187,11 @@ function BookingLinkCard({ link, onEdit, onDelete, onCopyLink }: BookingLinkCard
         {stats && (
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-lg font-semibold">{stats.totalBookings}</div>
+              <div className="text-lg font-semibold">{stats.total_bookings}</div>
               <div className="text-xs text-muted-foreground">Total</div>
             </div>
             <div>
-              <div className="text-lg font-semibold text-green-600">{stats.confirmedBookings}</div>
+              <div className="text-lg font-semibold text-green-600">{stats.confirmed_bookings}</div>
               <div className="text-xs text-muted-foreground">Confirmadas</div>
             </div>
           </div>

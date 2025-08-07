@@ -45,6 +45,7 @@ export function PipelineView({
       if (!groups[groupKey]) {
         groups[groupKey] = {
           id: groupKey,
+          name: groupKey,
           title: groupTitle,
           subtitle: groupSubtitle,
           type: groupType,

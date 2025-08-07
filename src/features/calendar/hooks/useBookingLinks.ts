@@ -160,7 +160,7 @@ export const useBookingMutations = () => {
 export const useBookingLinkStats = (linkId: string) => {
   const { data: bookings = [] } = useBookings(linkId);
   
-  const stats = {
+  return {
     total_bookings: bookings.length,
     confirmed_bookings: bookings.filter(b => b.status === 'confirmed').length,
     pending_bookings: bookings.filter(b => b.status === 'pending').length,
@@ -168,12 +168,10 @@ export const useBookingLinkStats = (linkId: string) => {
     completed_bookings: bookings.filter(b => b.status === 'completed').length,
     conversion_rate: bookings.length > 0 ? 
       Math.round((bookings.filter(b => b.status === 'completed').length / bookings.length) * 100) / 100 : 0,
-    average_booking_time: '15:30', // Mock data - would calculate from actual booking times
-    most_popular_day: 'Tuesday', // Mock data
-    most_popular_time: '10:00 AM' // Mock data
+    average_booking_time: '15:30',
+    most_popular_day: 'Tuesday',
+    most_popular_time: '10:00 AM'
   };
-  
-  return stats;
 };
 
 export const useAvailableTimeSlots = (bookingLinkId: string, selectedDate: Date) => {

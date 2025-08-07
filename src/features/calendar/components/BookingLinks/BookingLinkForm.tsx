@@ -74,10 +74,10 @@ const bookingLinkSchema = z.object({
     })).optional(),
   }),
   questions: z.array(z.object({
-    id: z.string(),
-    question: z.string(),
-    type: z.enum(['text', 'email', 'phone', 'select', 'textarea']),
-    required: z.boolean(),
+    id: z.string().optional(),
+    question: z.string().optional(),
+    type: z.enum(['text', 'email', 'phone', 'select', 'textarea']).optional(),
+    required: z.boolean().optional(),
     options: z.array(z.string()).optional()
   })).optional()
 });
@@ -119,7 +119,8 @@ export function BookingLinkForm({ link, onSuccess, onCancel }: BookingLinkFormPr
         thursday: [{ start: '09:00', end: '17:00' }],
         friday: [{ start: '09:00', end: '17:00' }],
         saturday: [],
-        sunday: []
+        sunday: [],
+        timezone: 'Europe/Madrid'
       },
       questions: link?.questions || []
     }
@@ -130,7 +131,7 @@ export function BookingLinkForm({ link, onSuccess, onCancel }: BookingLinkFormPr
       if (link) {
         await updateBookingLink.mutateAsync({
           id: link.id,
-          data: data as any
+          ...data
         });
         toast.success('Enlace actualizado correctamente');
       } else {

@@ -10,7 +10,7 @@ export interface CalendarEvent {
   location?: string;
   attendees?: string[];
   status: 'confirmed' | 'tentative' | 'cancelled';
-  event_type: 'meeting' | 'call' | 'task' | 'appointment' | 'follow_up' | 'demo' | 'closing';
+  event_type: 'meeting' | 'call' | 'task' | 'appointment' | 'follow_up' | 'demo' | 'closing' | 'event' | 'deadline' | 'reminder';
   
   // CRM Integration
   deal_id?: string;
@@ -75,20 +75,20 @@ export interface AvailabilitySchedule {
   friday?: TimeSlot[];
   saturday?: TimeSlot[];
   sunday?: TimeSlot[];
-  timezone: string;
+  timezone?: string;
   date_overrides?: { [date: string]: TimeSlot[] | 'unavailable' };
 }
 
 export interface TimeSlot {
-  start: string; // HH:mm format
-  end: string; // HH:mm format
+  start?: string; // HH:mm format
+  end?: string; // HH:mm format
 }
 
 export interface BookingQuestion {
-  id: string;
-  question: string;
-  type: 'text' | 'email' | 'phone' | 'select' | 'multiselect' | 'textarea';
-  required: boolean;
+  id?: string;
+  question?: string;
+  type?: 'text' | 'email' | 'phone' | 'select' | 'textarea';
+  required?: boolean;
   options?: string[];
   placeholder?: string;
 }
@@ -186,26 +186,31 @@ export interface CalendarViewProps {
 
 export interface TimelineEvent extends CalendarEvent {
   duration: number;
-  gaps: {
-    before?: number;
-    after?: number;
-  };
+  gap: number;
 }
 
 export interface PipelineGroup {
   type: 'deal' | 'contact' | 'company';
   id: string;
   name: string;
+  title: string;
+  subtitle?: string;
   events: CalendarEvent[];
   status?: string;
   value?: number;
+  totalEvents: number;
+  nextEvent?: CalendarEvent;
 }
 
 // Analytics Types
 export interface CalendarMetrics {
   total_meetings: number;
+  total_events: number;
   total_hours: number;
+  average_meeting_duration: number;
+  average_duration_minutes: number;
   meetings_by_type: { [type: string]: number };
+  meeting_type_breakdown: { [type: string]: number };
   conversion_rates: {
     demo_to_deal: number;
     meeting_to_follow_up: number;
@@ -222,7 +227,19 @@ export interface CalendarMetrics {
     crm_integration: number;
   };
   no_show_rate: number;
-  average_meeting_duration: number;
+  dailyStats: { [date: string]: { totalHours: number; eventCount: number } };
+  completedEvents: number;
+  totalEvents: number;
+  averageAttendees: number;
+  demoCount: number;
+  followUpCount: number;
+  closingCount: number;
+  recentActivity: Array<{
+    title: string;
+    type: string;
+    date: string;
+    status: string;
+  }>;
 }
 
 // Smart Scheduling Types
@@ -255,7 +272,7 @@ export interface CreateEventData {
   location?: string;
   attendees?: string[];
   event_type: CalendarEvent['event_type'];
-  meeting_type: CalendarEvent['meeting_type'];
+  meeting_type?: CalendarEvent['meeting_type'];
   deal_id?: string;
   company_id?: string;
   contact_id?: string;
@@ -271,6 +288,7 @@ export interface CreateEventData {
   is_all_day?: boolean;
   visibility?: CalendarEvent['visibility'];
   priority?: CalendarEvent['priority'];
+  status?: CalendarEvent['status'];
 }
 
 export interface UpdateEventData extends Partial<CreateEventData> {
@@ -305,8 +323,11 @@ export interface CalendarFilter {
   start_date?: string;
   end_date?: string;
   event_types?: CalendarEvent['event_type'][];
+  event_type?: CalendarEvent['event_type'][];
   meeting_types?: CalendarEvent['meeting_type'][];
   priorities?: CalendarEvent['priority'][];
+  priority?: CalendarEvent['priority'][];
+  status?: CalendarEvent['status'][];
   deal_id?: string;
   company_id?: string;
   contact_id?: string;

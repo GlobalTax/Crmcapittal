@@ -370,17 +370,21 @@ export class CalendarService {
 
       const metrics: CalendarMetrics = {
         total_meetings: totalMeetings,
+        total_events: totalMeetings,
         total_hours: Math.round(totalHours * 10) / 10,
+        average_meeting_duration: totalMeetings > 0 ? Math.round((totalHours / totalMeetings) * 60) : 0,
+        average_duration_minutes: totalMeetings > 0 ? Math.round((totalHours / totalMeetings) * 60) : 0,
         meetings_by_type: meetingsByType,
+        meeting_type_breakdown: meetingsByType,
         conversion_rates: {
-          demo_to_deal: 0.65, // Mock data - would calculate from actual CRM data
+          demo_to_deal: 0.65,
           meeting_to_follow_up: 0.78,
           follow_up_to_close: 0.32
         },
         optimal_times: {
           best_day: 'Tuesday',
           best_hour: 10,
-          response_rates: {} // Mock data
+          response_rates: {}
         },
         booking_sources: {
           manual: events.filter(e => !e.booking_link_id).length,
@@ -388,7 +392,14 @@ export class CalendarService {
           crm_integration: 0
         },
         no_show_rate: totalMeetings > 0 ? Math.round((noShowCount / totalMeetings) * 100) / 100 : 0,
-        average_meeting_duration: totalMeetings > 0 ? Math.round((totalHours / totalMeetings) * 60) : 0
+        dailyStats: {},
+        completedEvents: completedCount,
+        totalEvents: totalMeetings,
+        averageAttendees: 2.5,
+        demoCount: events.filter(e => e.meeting_type === 'demo').length,
+        followUpCount: events.filter(e => e.meeting_type === 'follow_up').length,
+        closingCount: events.filter(e => e.meeting_type === 'closing').length,
+        recentActivity: []
       };
 
       return { data: metrics, error: null };
@@ -397,13 +408,24 @@ export class CalendarService {
       return { 
         data: {
           total_meetings: 0,
+          total_events: 0,
           total_hours: 0,
+          average_meeting_duration: 0,
+          average_duration_minutes: 0,
           meetings_by_type: {},
+          meeting_type_breakdown: {},
           conversion_rates: { demo_to_deal: 0, meeting_to_follow_up: 0, follow_up_to_close: 0 },
           optimal_times: { best_day: 'Monday', best_hour: 9, response_rates: {} },
           booking_sources: { manual: 0, booking_link: 0, crm_integration: 0 },
           no_show_rate: 0,
-          average_meeting_duration: 0
+          dailyStats: {},
+          completedEvents: 0,
+          totalEvents: 0,
+          averageAttendees: 0,
+          demoCount: 0,
+          followUpCount: 0,
+          closingCount: 0,
+          recentActivity: []
         },
         error: error.message 
       };

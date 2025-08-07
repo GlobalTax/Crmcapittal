@@ -41,7 +41,7 @@ export function TimelineView({
         ...event,
         duration,
         gap
-      };
+      } as TimelineEvent;
     });
   };
 

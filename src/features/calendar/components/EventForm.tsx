@@ -32,10 +32,10 @@ const eventSchema = z.object({
   description: z.string().optional(),
   start_date: z.string().min(1, 'La fecha de inicio es requerida'),
   end_date: z.string().min(1, 'La fecha de fin es requerida'),
-  event_type: z.enum(['meeting', 'call', 'event', 'deadline', 'reminder']),
-  meeting_type: z.enum(['demo', 'follow_up', 'closing', 'negotiation', 'general']).optional(),
-  priority: z.enum(['low', 'normal', 'high']).optional(),
-  status: z.enum(['draft', 'confirmed', 'cancelled', 'completed']),
+  event_type: z.enum(['meeting', 'call', 'event', 'deadline', 'reminder', 'task', 'appointment', 'follow_up', 'demo', 'closing']),
+  meeting_type: z.enum(['demo', 'follow_up', 'closing', 'negotiation', 'general', 'client_meeting', 'internal']).optional(),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).optional(),
+  status: z.enum(['confirmed', 'tentative', 'cancelled']),
   location: z.string().optional(),
   video_meeting_url: z.string().url('Debe ser una URL válida').optional().or(z.literal('')),
   is_all_day: z.boolean().optional(),
@@ -43,11 +43,8 @@ const eventSchema = z.object({
   travel_time_minutes: z.number().min(0).optional(),
   preparation_notes: z.string().optional(),
   follow_up_required: z.boolean().optional(),
-  attendees: z.array(z.object({
-    name: z.string(),
-    email: z.string().email()
-  })).optional(),
-  visibility: z.enum(['private', 'public']).optional()
+  attendees: z.array(z.string()).optional(),
+  visibility: z.enum(['private', 'public', 'confidential']).optional()
 });
 
 type EventFormData = z.infer<typeof eventSchema>;
@@ -115,16 +112,29 @@ export function EventForm({ event, defaultDate, onSuccess, onCancel, onDelete }:
   const onSubmit = async (data: EventFormData) => {
     try {
       const eventData: CreateEventData = {
-        ...data,
+        title: data.title,
+        description: data.description,
         start_date: new Date(data.start_date).toISOString(),
         end_date: new Date(data.end_date).toISOString(),
-        attendees: data.attendees || []
+        event_type: data.event_type,
+        meeting_type: data.meeting_type,
+        priority: data.priority,
+        status: data.status,
+        location: data.location,
+        video_meeting_url: data.video_meeting_url,
+        is_all_day: data.is_all_day,
+        reminder_minutes: data.reminder_minutes,
+        travel_time_minutes: data.travel_time_minutes,
+        preparation_notes: data.preparation_notes,
+        follow_up_required: data.follow_up_required,
+        attendees: data.attendees || [],
+        visibility: data.visibility
       };
 
       if (event) {
         await updateEvent.mutateAsync({
           id: event.id,
-          data: eventData
+          ...eventData
         });
         toast.success('Evento actualizado correctamente');
       } else {
@@ -266,6 +276,11 @@ export function EventForm({ event, defaultDate, onSuccess, onCancel, onDelete }:
                       <SelectItem value="event">Evento</SelectItem>
                       <SelectItem value="deadline">Fecha límite</SelectItem>
                       <SelectItem value="reminder">Recordatorio</SelectItem>
+                      <SelectItem value="task">Tarea</SelectItem>
+                      <SelectItem value="appointment">Cita</SelectItem>
+                      <SelectItem value="follow_up">Seguimiento</SelectItem>
+                      <SelectItem value="demo">Demo</SelectItem>
+                      <SelectItem value="closing">Cierre</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -291,6 +306,8 @@ export function EventForm({ event, defaultDate, onSuccess, onCancel, onDelete }:
                       <SelectItem value="closing">Cierre</SelectItem>
                       <SelectItem value="negotiation">Negociación</SelectItem>
                       <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="client_meeting">Reunión Cliente</SelectItem>
+                      <SelectItem value="internal">Interna</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -316,6 +333,7 @@ export function EventForm({ event, defaultDate, onSuccess, onCancel, onDelete }:
                       <SelectItem value="low">Baja</SelectItem>
                       <SelectItem value="normal">Normal</SelectItem>
                       <SelectItem value="high">Alta</SelectItem>
+                      <SelectItem value="urgent">Urgente</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -336,10 +354,9 @@ export function EventForm({ event, defaultDate, onSuccess, onCancel, onDelete }:
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="draft">Borrador</SelectItem>
                       <SelectItem value="confirmed">Confirmado</SelectItem>
+                      <SelectItem value="tentative">Tentativo</SelectItem>
                       <SelectItem value="cancelled">Cancelado</SelectItem>
-                      <SelectItem value="completed">Completado</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

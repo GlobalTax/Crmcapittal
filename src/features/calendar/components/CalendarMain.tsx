@@ -108,7 +108,7 @@ export function CalendarMain() {
   const handleEventDelete = async (eventId: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este evento?')) {
       try {
-        await deleteEvent.mutateAsync(eventId);
+        await deleteEvent(eventId);
         toast.success('Evento eliminado correctamente');
         setIsEventDialogOpen(false);
         setEditingEvent(null);
@@ -248,13 +248,13 @@ export function CalendarMain() {
                       Todos los eventos
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setFilters({ event_type: 'meeting' })}>
+                    <DropdownMenuItem onClick={() => setFilters({ event_types: ['meeting'] })}>
                       Solo reuniones
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilters({ priority: 'high' })}>
+                    <DropdownMenuItem onClick={() => setFilters({ priorities: ['high'] })}>
                       Alta prioridad
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilters({ status: 'confirmed' })}>
+                    <DropdownMenuItem onClick={() => setFilters({ status: ['confirmed'] })}>
                       Confirmados
                     </DropdownMenuItem>
                   </DropdownMenuContent>
