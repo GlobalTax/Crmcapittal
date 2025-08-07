@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Phone, Mail, Eye, Calendar, AlertCircle } from 'lucide-react';
+import { Phone, Mail, Eye, Calendar, AlertCircle, RefreshCcw } from 'lucide-react';
 import { Lead, LeadStatus } from '@/types/Lead';
 import { format, isAfter, subDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Badge as UIBadge } from '@/components/ui/badge';
-
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { scoreLeads } from '@/services/aiLeadScoring';
 interface OptimizedLeadTableProps {
   leads: Lead[];
   isLoading: boolean;
@@ -32,13 +32,34 @@ export const OptimizedLeadTable = ({
 }: OptimizedLeadTableProps) => {
   const navigate = useNavigate();
 
+  const [localScores, setLocalScores] = useState<Record<string, { aiScore: number; temperature: 'hot' | 'warm' | 'cold'; scoreReasons: string[] }>>({});
+
+  const handleRecalcScore = async (lead: Lead) => {
+    try {
+      const [res] = await scoreLeads([lead]);
+      if (res) {
+        setLocalScores((prev) => ({
+          ...prev,
+          [lead.id]: {
+            aiScore: res.aiScore,
+            temperature: res.temperature,
+            scoreReasons: res.scoreReasons,
+          },
+        }));
+        toast.success('Score recalculado');
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Error al recalcular el score');
+    }
+  };
+
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'bg-red-500';
     if (score >= 50) return 'bg-yellow-500';
     if (score >= 0) return 'bg-gray-500';
     return 'bg-gray-500';
   };
-
   const getTemperature = (lead: any): 'hot' | 'warm' | 'cold' | null => {
     const s: number | undefined = lead.aiScore ?? lead.lead_score;
     if (s == null) return null;
@@ -265,25 +286,39 @@ export const OptimizedLeadTable = ({
                 </TableCell>
                 
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    {(() => {
-                      const temp = getTemperature(lead);
-                      if (!temp) return null;
-                      const cls = getTempClasses(temp);
-                      return (
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}>
-                          {temp === 'hot' ? 'Hot' : temp === 'warm' ? 'Warm' : 'Cold'}
-                        </span>
-                      );
-                    })()}
-                    <div className="flex items-center space-x-2">
-                      <Progress 
-                        value={getScoreProgress(lead.aiScore ?? lead.lead_score ?? 0)} 
-                        className="w-16 h-2"
-                      />
-                      <span className="text-sm font-medium w-8">{(lead.aiScore ?? lead.lead_score ?? 0)}</span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const override = localScores[lead.id];
+                    const score = override?.aiScore ?? (lead as any).aiScore ?? (lead as any).lead_score ?? 0;
+                    const temp = override?.temperature ?? getTemperature(lead) ?? 'cold';
+                    const reasons: string[] = override?.scoreReasons ?? (lead as any).scoreReasons ?? [];
+                    return (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getTempClasses(temp)}`}>
+                                {temp === 'hot' ? 'Hot' : temp === 'warm' ? 'Warm' : 'Cold'}
+                              </span>
+                              <div className="flex items-center space-x-2">
+                                <Progress value={getScoreProgress(score)} className="w-16 h-2" />
+                                <span className="text-sm font-medium w-8">{score}</span>
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          {reasons && reasons.length > 0 && (
+                            <TooltipContent side="top" className="max-w-xs">
+                              <div className="text-xs font-medium mb-1">Razones del score</div>
+                              <ul className="list-disc pl-4 space-y-1">
+                                {reasons.slice(0, 5).map((r, i) => (
+                                  <li key={i} className="text-xs text-muted-foreground">{r}</li>
+                                ))}
+                              </ul>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })()}
                 </TableCell>
                 
                 <TableCell>
@@ -328,10 +363,10 @@ export const OptimizedLeadTable = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={(e) => handleEmail(lead.email, e)}
-                      title="Enviar email"
+                      onClick={() => handleRecalcScore(lead)}
+                      title="Re-calcular Score"
                     >
-                      <Mail className="h-4 w-4" />
+                      <RefreshCcw className="h-4 w-4" />
                     </Button>
                     
                     {lead.next_follow_up_date && (
