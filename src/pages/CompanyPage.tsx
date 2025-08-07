@@ -9,8 +9,11 @@ import { IntegratedActivityTab } from '@/components/companies/IntegratedActivity
 import { CompanyAllDocumentsTab } from '@/components/companies/CompanyAllDocumentsTab';
 import { CompanyFloatingActions } from '@/components/companies/CompanyFloatingActions';
 import { EditCompanyDialog } from '@/components/companies/EditCompanyDialog';
+import { CreateLeadDialog } from '@/components/leads/CreateLeadDialog';
 import { useCompanies } from '@/hooks/useCompanies';
+import { useLeads } from '@/hooks/useLeads';
 import { Company } from '@/types/Company';
+import { CreateLeadData } from '@/types/Lead';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 
 export default function CompanyPage() {
@@ -21,6 +24,7 @@ export default function CompanyPage() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [localLoading, setLocalLoading] = useState(true);
+  const [showCreateLeadDialog, setShowCreateLeadDialog] = useState(false);
   
   const {
     companies,
@@ -34,6 +38,8 @@ export default function CompanyPage() {
     statusFilter: 'all', 
     typeFilter: 'all' 
   });
+
+  const { createLead, isCreating } = useLeads();
 
   // Handle legacy URL redirections (from drawer URLs)
   useEffect(() => {
@@ -83,6 +89,23 @@ export default function CompanyPage() {
 
   const handleEdit = (company: Company) => {
     setEditingCompany(company);
+  };
+
+  const handleCreateLead = (leadData: CreateLeadData) => {
+    // Pre-rellenar con datos de la empresa
+    const leadWithCompany = {
+      ...leadData,
+      company: company?.name,
+      company_id: company?.id,
+    };
+    
+    createLead(leadWithCompany, {
+      onSuccess: (result) => {
+        setShowCreateLeadDialog(false);
+        // Navegar al detalle del lead creado
+        navigate(`/leads/${result.lead.id}`);
+      }
+    });
   };
 
   // Navigation between companies
@@ -135,7 +158,7 @@ export default function CompanyPage() {
         onNext={handleNext}
         hasPrevious={hasPrevious}
         hasNext={hasNext}
-        onCreateDeal={() => console.log('Create deal')}
+        onCreateLead={() => setShowCreateLeadDialog(true)}
         onCreateContact={() => console.log('Create contact')}
         onCreateNote={() => console.log('Create note')}
       />
@@ -224,7 +247,7 @@ export default function CompanyPage() {
         onCall={() => console.log('Call action')}
         onEmail={() => console.log('Email action')}
         onQuickNote={() => console.log('Quick note')}
-        onCreateDeal={() => console.log('Create deal')}
+        onCreateLead={() => setShowCreateLeadDialog(true)}
       />
 
       {/* Edit Company Dialog */}
@@ -237,6 +260,14 @@ export default function CompanyPage() {
           isUpdating={isUpdating}
         />
       )}
+
+      {/* Create Lead Dialog */}
+      <CreateLeadDialog
+        open={showCreateLeadDialog}
+        onOpenChange={setShowCreateLeadDialog}
+        onCreateLead={handleCreateLead}
+        isCreating={isCreating}
+      />
     </div>
   );
 }

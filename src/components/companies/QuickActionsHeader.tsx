@@ -23,7 +23,7 @@ interface QuickActionsHeaderProps {
   onNext: () => void;
   hasPrevious: boolean;
   hasNext: boolean;
-  onCreateDeal?: () => void;
+  onCreateLead?: () => void;
   onCreateContact?: () => void;
   onCreateNote?: () => void;
 }
@@ -35,7 +35,7 @@ export const QuickActionsHeader = ({
   onNext,
   hasPrevious,
   hasNext,
-  onCreateDeal,
+  onCreateLead,
   onCreateContact,
   onCreateNote
 }: QuickActionsHeaderProps) => {
@@ -153,12 +153,12 @@ export const QuickActionsHeader = ({
           {/* Quick Actions */}
           <div className="flex items-center gap-2">
             <Button 
-              onClick={onCreateDeal}
+              onClick={onCreateLead}
               className="gap-2"
               size="sm"
             >
               <Briefcase className="h-4 w-4" />
-              Crear Deal
+              Crear Lead
             </Button>
             
             <Button 

@@ -17,7 +17,7 @@ interface CompanyFloatingActionsProps {
   onCall?: () => void;
   onEmail?: () => void;
   onQuickNote?: () => void;
-  onCreateDeal?: () => void;
+  onCreateLead?: () => void;
 }
 
 export const CompanyFloatingActions = ({
@@ -26,7 +26,7 @@ export const CompanyFloatingActions = ({
   onCall,
   onEmail,
   onQuickNote,
-  onCreateDeal
+  onCreateLead
 }: CompanyFloatingActionsProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -49,16 +49,16 @@ export const CompanyFloatingActions = ({
             exit={{ opacity: 0, y: 20 }}
             className="absolute bottom-16 right-0 space-y-2"
           >
-            {/* Crear Deal */}
+            {/* Crear Lead */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
               <Button
-                onClick={() => onCreateDeal && handleAction(onCreateDeal)}
+                onClick={() => onCreateLead && handleAction(onCreateLead)}
                 className="w-12 h-12 rounded-full shadow-lg gap-2"
-                title="Crear nuevo deal"
+                title="Crear nuevo lead"
               >
                 <Plus className="h-5 w-5" />
               </Button>
