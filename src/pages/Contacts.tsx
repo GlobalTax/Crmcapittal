@@ -2,26 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { PersonModal } from "@/components/contacts/PersonModal";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
-import { ModernContactsHeader } from "@/components/contacts/ModernContactsHeader";
-import { ModernContactsTable } from "@/components/contacts/ModernContactsTable";
+import { UltraDenseContactsHeader } from "@/components/contacts/UltraDenseContactsHeader";
+import { ContactsInlineStats } from "@/components/contacts/ContactsInlineStats";
+import { MinimalFilterTabs } from "@/components/contacts/MinimalFilterTabs";
+import { UltraDenseContactsTable } from "@/components/contacts/UltraDenseContactsTable";
+import { CompactContactModal } from "@/components/contacts/CompactContactModal";
 import { useOptimizedContacts } from '@/hooks/useOptimizedContacts';
 import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
-
-interface FilterChip {
-  id: string;
-  label: string;
-  value: string;
-  type: 'status' | 'company' | 'tags';
-}
 
 export default function Contacts() {
   const navigate = useNavigate();
   const location = useLocation();
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [viewingContact, setViewingContact] = useState<Contact | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilters, setActiveFilters] = useState<FilterChip[]>([]);
-  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   const {
     contacts,
@@ -100,43 +96,19 @@ export default function Contacts() {
   };
 
   const handleViewContact = (contact: Contact) => {
-    navigate(`/contactos/${contact.id}`);
+    setViewingContact(contact);
   };
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
   };
 
-  const handleRemoveFilter = (filterId: string) => {
-    setActiveFilters(prev => prev.filter(f => f.id !== filterId));
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
   };
 
-  const handleAddFilter = (filter: FilterChip) => {
-    setActiveFilters(prev => {
-      const exists = prev.find(f => f.id === filter.id);
-      if (exists) return prev;
-      return [...prev, filter];
-    });
-  };
-
-  const handleClearAllFilters = () => {
-    setActiveFilters([]);
-  };
-
-  const handleContactSelect = (contactId: string, selected: boolean) => {
-    setSelectedContacts(prev => {
-      if (selected) {
-        return [...prev, contactId];
-      } else {
-        return prev.filter(id => id !== contactId);
-      }
-    });
-  };
-
-  const handleBulkAction = (action: string, contactIds: string[]) => {
-    console.log('Bulk action:', action, contactIds);
-    // Implement bulk actions here
-    setSelectedContacts([]);
+  const handleStatClick = (filter: string) => {
+    setActiveFilter(filter);
   };
 
   const filteredContacts = contacts?.filter(contact => {
@@ -147,45 +119,57 @@ export default function Contacts() {
       contact.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.company?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesFilters = activeFilters.every(filter => {
-      switch (filter.type) {
-        case 'status':
-          return contact.contact_status === filter.value;
-        case 'company':
-          return contact.company?.toLowerCase().includes(filter.value.toLowerCase());
-        case 'tags':
-          return contact.tags_array?.includes(filter.value);
-        default:
-          return true;
-      }
-    });
+    let matchesFilter = true;
+    switch (activeFilter) {
+      case 'active':
+        matchesFilter = contact.contact_status === 'active';
+        break;
+      case 'inactive':
+        matchesFilter = !contact.last_contact_date || 
+          (Date.now() - new Date(contact.last_contact_date).getTime()) > (30 * 24 * 60 * 60 * 1000);
+        break;
+      case 'vip':
+        matchesFilter = contact.contact_priority === 'high' || contact.tags_array?.includes('VIP');
+        break;
+      case 'new':
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        matchesFilter = new Date(contact.created_at) >= weekAgo;
+        break;
+      default:
+        matchesFilter = true;
+    }
     
-    return matchesSearch && matchesFilters;
+    return matchesSearch && matchesFilter;
   }) || [];
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Modern Header */}
-      <ModernContactsHeader
+    <div className="p-6">
+      {/* Ultra Dense Header */}
+      <UltraDenseContactsHeader
         searchValue={searchTerm}
         onSearchChange={handleSearch}
         onCreateContact={() => setIsCreateModalOpen(true)}
-        activeFilters={activeFilters}
-        onRemoveFilter={handleRemoveFilter}
-        onAddFilter={handleAddFilter}
-        onClearAllFilters={handleClearAllFilters}
-        totalCount={filteredContacts.length}
       />
 
-      {/* Modern Table */}
-      <ModernContactsTable
+      {/* Inline Stats */}
+      <ContactsInlineStats
+        contacts={contacts || []}
+        onStatClick={handleStatClick}
+      />
+
+      {/* Minimal Filter Tabs */}
+      <MinimalFilterTabs
+        activeFilter={activeFilter}
+        onFilterChange={handleFilterChange}
+      />
+
+      {/* Ultra Dense Table */}
+      <UltraDenseContactsTable
         contacts={filteredContacts}
         onContactClick={handleViewContact}
         onCreateContact={() => setIsCreateModalOpen(true)}
         isLoading={isFetching}
-        selectedContacts={selectedContacts}
-        onContactSelect={handleContactSelect}
-        onBulkAction={handleBulkAction}
       />
 
       {/* Create Person Modal */}
@@ -206,6 +190,13 @@ export default function Contacts() {
           isUpdating={isUpdating}
         />
       )}
+
+      {/* Compact Contact Modal */}
+      <CompactContactModal
+        contact={viewingContact}
+        open={!!viewingContact}
+        onOpenChange={(open) => !open && setViewingContact(null)}
+      />
     </div>
   );
 }
