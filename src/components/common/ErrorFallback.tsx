@@ -2,19 +2,21 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface ErrorFallbackProps {
   error: Error
   resetError: () => void
   context?: string
+  suggestions?: string[]
 }
 
 export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ 
   error, 
   resetError, 
-  context = 'aplicación' 
+  context = 'aplicación',
+  suggestions = []
 }) => {
   const navigate = useNavigate()
 
@@ -43,6 +45,20 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
               {error.message || 'Ha ocurrido un error inesperado'}
             </p>
           </div>
+
+          {suggestions.length > 0 && (
+            <div className="rounded-lg border p-3">
+              <div className="flex items-center gap-2 text-sm font-medium mb-2">
+                <Bug className="h-4 w-4" />
+                Sugerencias de recuperación
+              </div>
+              <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                {suggestions.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           
           <div className="flex flex-col gap-2">
             <Button 
@@ -72,7 +88,7 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             </Button>
           </div>
           
-          {process.env.NODE_ENV === 'development' && (
+          {import.meta.env.DEV && (
             <details className="mt-4">
               <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
                 Detalles técnicos

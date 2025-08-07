@@ -1,9 +1,9 @@
 import { HierarchicalCRMView } from '@/components/unified/HierarchicalCRMView';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { SectionErrorBoundary } from '@/components/errors/SectionErrorBoundary';
 
 export default function MandatosList() {
   return (
-    <ErrorBoundary>
+    <SectionErrorBoundary section="Mandatos">
       <div className="space-y-6">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-gray-900">Mandatos</h1>
@@ -11,6 +11,6 @@ export default function MandatosList() {
 
         <HierarchicalCRMView initialLevel="mandates" />
       </div>
-    </ErrorBoundary>
+    </SectionErrorBoundary>
   );
 }

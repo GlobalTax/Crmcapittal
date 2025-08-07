@@ -1,10 +1,13 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { ErrorFallback } from './ErrorFallback'
+import { toast as notify } from 'sonner'
+import { secureLogger } from '@/utils/secureLogger'
 
 interface Props {
   children: ReactNode
-  fallback?: React.ComponentType<{ error: Error; resetError: () => void }>
+  fallback?: React.ComponentType<{ error: Error; resetError: () => void; context?: string }>
+  context?: string
 }
 
 interface State {
@@ -13,6 +16,8 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
+  private hasNotified = false
+
   constructor(props: Props) {
     super(props)
     this.state = { hasError: false, error: null }
@@ -23,24 +28,40 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
-    
-    // Here you could send error to logging service
-    // logErrorToService(error, errorInfo)
+    // Secure logging (sanitized) + security event
+    secureLogger.error('UI error boundary captured an error', {
+      context: this.props.context || 'general',
+      route: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+      componentStack: errorInfo.componentStack,
+    }, error)
+
+    secureLogger.security('ui_error', 'medium', {
+      context: this.props.context || 'general',
+      route: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
+    })
+
+    // User-friendly toast (only once)
+    if (!this.hasNotified) {
+      this.hasNotified = true
+      notify.error('Ha ocurrido un error inesperado. Hemos registrado el incidente.')
+    }
   }
 
   resetError = () => {
+    this.hasNotified = false
     this.setState({ hasError: false, error: null })
   }
 
   render() {
     if (this.state.hasError && this.state.error) {
       const FallbackComponent = this.props.fallback || ErrorFallback
-      
+
       return (
         <FallbackComponent 
           error={this.state.error} 
           resetError={this.resetError}
+          context={this.props.context}
         />
       )
     }
