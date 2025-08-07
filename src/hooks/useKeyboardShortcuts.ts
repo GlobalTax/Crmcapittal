@@ -5,6 +5,7 @@ export const useKeyboardShortcuts = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let comboTimer: number | null = null;
     const handleKeyDown = (event: KeyboardEvent) => {
       // G + S for Settings
       if (event.key === 's' && event.target === document.body) {
@@ -20,7 +21,10 @@ export const useKeyboardShortcuts = () => {
       // Store last key for combo detection
       if (event.target === document.body) {
         (window as any).lastKeyPressed = event.key.toLowerCase();
-        setTimeout(() => {
+        if (comboTimer) {
+          clearTimeout(comboTimer);
+        }
+        comboTimer = window.setTimeout(() => {
           (window as any).lastKeyPressed = null;
         }, 1000);
       }
@@ -39,6 +43,11 @@ export const useKeyboardShortcuts = () => {
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (comboTimer) {
+        clearTimeout(comboTimer);
+      }
+    };
   }, [navigate]);
 };

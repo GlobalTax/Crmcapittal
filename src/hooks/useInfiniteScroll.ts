@@ -18,15 +18,19 @@ export function useInfiniteScroll({
   const [isFetching, setIsFetching] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const timeoutRef = useRef<number | null>(null);
   
   const loadMore = useCallback(() => {
     if (!hasMore || isLoading || isFetching) return;
     
     logger.debug('Infinite scroll: Loading more items');
     setIsFetching(true);
-    
-    // El componente padre debe manejar la carga real
-    setTimeout(() => setIsFetching(false), 100);
+
+    // Cancelar timeout previo y programar fin de fetching
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = window.setTimeout(() => setIsFetching(false), 100);
   }, [hasMore, isLoading, isFetching]);
   
   useEffect(() => {
@@ -54,6 +58,9 @@ export function useInfiniteScroll({
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
   }, [loadMore, threshold, rootMargin]);
