@@ -2,7 +2,7 @@
  * Contact Card Component
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Contact } from '../types';
 
 interface ContactCardProps {
@@ -12,12 +12,23 @@ interface ContactCardProps {
   onDelete?: (contact: Contact) => void;
 }
 
-export const ContactCard: React.FC<ContactCardProps> = ({ 
+const ContactCardComponent: React.FC<ContactCardProps> = ({ 
   contact, 
   onView, 
   onEdit, 
   onDelete 
 }) => {
+  const handleView = useCallback(() => {
+    onView?.(contact);
+  }, [onView, contact]);
+
+  const handleEdit = useCallback(() => {
+    onEdit?.(contact);
+  }, [onEdit, contact]);
+
+  const handleDelete = useCallback(() => {
+    onDelete?.(contact);
+  }, [onDelete, contact]);
   return (
     <div className="border border-gray-200 bg-white p-4 space-y-4 rounded-lg">
       <div className="flex items-start justify-between">
@@ -51,7 +62,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
         <div className="flex gap-2 pt-2">
           {onView && (
             <button 
-              onClick={() => onView(contact)}
+              onClick={handleView}
               className="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded"
             >
               Ver
@@ -59,7 +70,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
           )}
           {onEdit && (
             <button 
-              onClick={() => onEdit(contact)}
+              onClick={handleEdit}
               className="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded"
             >
               Editar
@@ -67,7 +78,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({
           )}
           {onDelete && (
             <button 
-              onClick={() => onDelete(contact)}
+              onClick={handleDelete}
               className="px-3 py-1 text-xs bg-red-100 text-red-800 rounded"
             >
               Eliminar
@@ -78,3 +89,14 @@ export const ContactCard: React.FC<ContactCardProps> = ({
     </div>
   );
 };
+
+export const ContactCard = React.memo(ContactCardComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.contact.id === nextProps.contact.id &&
+    prevProps.contact.name === nextProps.contact.name &&
+    prevProps.contact.email === nextProps.contact.email &&
+    prevProps.contact.phone === nextProps.contact.phone &&
+    prevProps.contact.position === nextProps.contact.position &&
+    prevProps.contact.updated_at === nextProps.contact.updated_at
+  );
+});

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { OpportunityWithContacts } from '@/types/Opportunity';
 import { 
   Table, 
@@ -41,7 +41,8 @@ interface EnhancedOpportunitiesTableProps {
 type SortField = 'title' | 'value' | 'stage' | 'created_at' | 'company' | 'probability';
 type SortDirection = 'asc' | 'desc';
 
-const STAGES = [
+// Memoized constants
+const STAGES = useMemo(() => [
   { value: 'prospecting', label: 'Prospección', color: 'bg-blue-100 text-blue-800' },
   { value: 'qualification', label: 'Cualificación', color: 'bg-purple-100 text-purple-800' },
   { value: 'proposal', label: 'Propuesta', color: 'bg-orange-100 text-orange-800' },
@@ -49,16 +50,16 @@ const STAGES = [
   { value: 'closed_won', label: 'Ganado', color: 'bg-green-100 text-green-800' },
   { value: 'closed_lost', label: 'Perdido', color: 'bg-red-100 text-red-800' },
   { value: 'in_progress', label: 'En progreso', color: 'bg-cyan-100 text-cyan-800' },
-];
+], []);
 
-const PRIORITIES = [
+const PRIORITIES = useMemo(() => [
   { value: 'low', label: 'Baja', color: 'bg-gray-100 text-gray-800' },
   { value: 'medium', label: 'Media', color: 'bg-blue-100 text-blue-800' },
   { value: 'high', label: 'Alta', color: 'bg-orange-100 text-orange-800' },
   { value: 'urgent', label: 'Urgente', color: 'bg-red-100 text-red-800' },
-];
+], []);
 
-export const EnhancedOpportunitiesTable = ({ opportunities, loading }: EnhancedOpportunitiesTableProps) => {
+const EnhancedOpportunitiesTableComponent = ({ opportunities, loading }: EnhancedOpportunitiesTableProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState<string>('all');
@@ -113,45 +114,45 @@ export const EnhancedOpportunitiesTable = ({ opportunities, loading }: EnhancedO
     return filtered;
   }, [opportunities, searchTerm, stageFilter, priorityFilter, sortField, sortDirection]);
 
-  const handleSort = (field: SortField) => {
+  const handleSort = useCallback((field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
       setSortDirection('asc');
     }
-  };
+  }, [sortField, sortDirection]);
 
-  const getSortIcon = (field: SortField) => {
+  const getSortIcon = useCallback((field: SortField) => {
     if (sortField !== field) return <ArrowUpDown className="h-4 w-4" />;
     return sortDirection === 'asc' ? 
       <ArrowUp className="h-4 w-4" /> : 
       <ArrowDown className="h-4 w-4" />;
-  };
+  }, [sortField, sortDirection]);
 
-  const formatCurrency = (amount?: number) => {
+  const formatCurrency = useCallback((amount?: number) => {
     if (!amount) return '-';
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: 'EUR'
     }).format(amount);
-  };
+  }, []);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     return format(new Date(dateString), 'dd/MM/yyyy', { locale: es });
-  };
+  }, []);
 
-  const getStageInfo = (stage: string) => {
+  const getStageInfo = useCallback((stage: string) => {
     return STAGES.find(s => s.value === stage) || STAGES[0];
-  };
+  }, [STAGES]);
 
-  const getPriorityInfo = (priority: string) => {
+  const getPriorityInfo = useCallback((priority: string) => {
     return PRIORITIES.find(p => p.value === priority) || PRIORITIES[1];
-  };
+  }, [PRIORITIES]);
 
-  const handleOpportunityClick = (opportunity: OpportunityWithContacts) => {
+  const handleOpportunityClick = useCallback((opportunity: OpportunityWithContacts) => {
     navigate(`/opportunities/${opportunity.id}`);
-  };
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -372,3 +373,14 @@ export const EnhancedOpportunitiesTable = ({ opportunities, loading }: EnhancedO
     </div>
   );
 };
+
+export const EnhancedOpportunitiesTable = React.memo(EnhancedOpportunitiesTableComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.loading === nextProps.loading &&
+    prevProps.opportunities.length === nextProps.opportunities.length &&
+    prevProps.opportunities.every((opp, index) => 
+      opp.id === nextProps.opportunities[index]?.id &&
+      opp.updated_at === nextProps.opportunities[index]?.updated_at
+    )
+  );
+});

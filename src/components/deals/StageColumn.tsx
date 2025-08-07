@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Deal } from '@/types/Deal';
 import { DealCard } from './DealCard';
@@ -17,10 +17,16 @@ interface StageColumnProps {
   onDealClick?: (deal: Deal) => void;
 }
 
-export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColumnProps) => {
+const StageColumnComponent = ({ stage, deals, onNewDeal, onDealClick }: StageColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
   });
+
+  const handleNewDeal = useCallback(() => {
+    onNewDeal(stage.name);
+  }, [onNewDeal, stage.name]);
+
+  const isEmpty = useMemo(() => deals.length === 0, [deals.length]);
 
   return (
     <div className="min-w-[280px] flex-shrink-0">
@@ -42,7 +48,7 @@ export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColum
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => onNewDeal(stage.name)}
+          onClick={handleNewDeal}
           className="text-xs h-7 px-2"
         >
           <Plus className="h-3 w-3 mr-1" />
@@ -71,7 +77,7 @@ export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColum
         ))}
         
         {/* Empty State */}
-        {deals.length === 0 && !isOver && (
+        {isEmpty && !isOver && (
           <div className="text-center py-8 text-muted-foreground">
             <p className="text-sm">No deals in this stage</p>
           </div>
@@ -80,3 +86,16 @@ export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColum
     </div>
   );
 };
+
+export const StageColumn = React.memo(StageColumnComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.stage.id === nextProps.stage.id &&
+    prevProps.stage.name === nextProps.stage.name &&
+    prevProps.stage.color === nextProps.stage.color &&
+    prevProps.deals.length === nextProps.deals.length &&
+    prevProps.deals.every((deal, index) => 
+      deal.id === nextProps.deals[index]?.id &&
+      deal.updatedAt === nextProps.deals[index]?.updatedAt
+    )
+  );
+});
