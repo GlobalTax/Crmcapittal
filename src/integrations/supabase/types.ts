@@ -3803,6 +3803,296 @@ export type Database = {
           },
         ]
       }
+      einforma_alerts: {
+        Row: {
+          alert_data: Json | null
+          alert_type: string
+          company_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          is_resolved: boolean
+          message: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          alert_data?: Json | null
+          alert_type: string
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          is_resolved?: boolean
+          message: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          alert_data?: Json | null
+          alert_type?: string
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          is_resolved?: boolean
+          message?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "einforma_alerts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "einforma_alerts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "einforma_alerts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      einforma_analytics: {
+        Row: {
+          additional_data: Json | null
+          company_sector: string | null
+          created_at: string
+          id: string
+          metric_date: string
+          metric_type: string
+          metric_value: number
+          user_id: string | null
+        }
+        Insert: {
+          additional_data?: Json | null
+          company_sector?: string | null
+          created_at?: string
+          id?: string
+          metric_date?: string
+          metric_type: string
+          metric_value: number
+          user_id?: string | null
+        }
+        Update: {
+          additional_data?: Json | null
+          company_sector?: string | null
+          created_at?: string
+          id?: string
+          metric_date?: string
+          metric_type?: string
+          metric_value?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      einforma_automation_rules: {
+        Row: {
+          action_config: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          priority: number
+          rule_name: string
+          rule_type: string
+          trigger_conditions: Json
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          priority?: number
+          rule_name: string
+          rule_type: string
+          trigger_conditions?: Json
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          priority?: number
+          rule_name?: string
+          rule_type?: string
+          trigger_conditions?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      einforma_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          description: string | null
+          id: string
+          is_global: boolean
+          updated_at: string
+          updated_by: string | null
+          user_id: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          description?: string | null
+          id?: string
+          is_global?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          description?: string | null
+          id?: string
+          is_global?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      einforma_cost_tracking: {
+        Row: {
+          billing_month: string
+          bulk_discount_applied: number | null
+          company_id: string | null
+          consultation_date: string
+          consultation_type: string
+          cost_amount: number
+          cost_prediction_accuracy: number | null
+          id: string
+          is_bulk_operation: boolean
+          request_data: Json | null
+          response_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          billing_month?: string
+          bulk_discount_applied?: number | null
+          company_id?: string | null
+          consultation_date?: string
+          consultation_type: string
+          cost_amount: number
+          cost_prediction_accuracy?: number | null
+          id?: string
+          is_bulk_operation?: boolean
+          request_data?: Json | null
+          response_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          billing_month?: string
+          bulk_discount_applied?: number | null
+          company_id?: string | null
+          consultation_date?: string
+          consultation_type?: string
+          cost_amount?: number
+          cost_prediction_accuracy?: number | null
+          id?: string
+          is_bulk_operation?: boolean
+          request_data?: Json | null
+          response_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "einforma_cost_tracking_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "einforma_cost_tracking_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "einforma_cost_tracking_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      einforma_sync_log: {
+        Row: {
+          companies_failed: number
+          companies_processed: number
+          companies_successful: number
+          completed_at: string | null
+          error_details: Json | null
+          id: string
+          next_sync_at: string | null
+          started_at: string
+          started_by: string | null
+          sync_data: Json | null
+          sync_status: string
+          sync_type: string
+          total_cost: number
+        }
+        Insert: {
+          companies_failed?: number
+          companies_processed?: number
+          companies_successful?: number
+          completed_at?: string | null
+          error_details?: Json | null
+          id?: string
+          next_sync_at?: string | null
+          started_at?: string
+          started_by?: string | null
+          sync_data?: Json | null
+          sync_status?: string
+          sync_type: string
+          total_cost?: number
+        }
+        Update: {
+          companies_failed?: number
+          companies_processed?: number
+          companies_successful?: number
+          completed_at?: string | null
+          error_details?: Json | null
+          id?: string
+          next_sync_at?: string | null
+          started_at?: string
+          started_by?: string | null
+          sync_data?: Json | null
+          sync_status?: string
+          sync_type?: string
+          total_cost?: number
+        }
+        Relationships: []
+      }
       email_accounts: {
         Row: {
           created_at: string
