@@ -1193,6 +1193,104 @@ export type Database = {
         }
         Relationships: []
       }
+      collaborator_performance: {
+        Row: {
+          collaborator_id: string | null
+          conversion_rate: number | null
+          created_at: string | null
+          deals_closed: number | null
+          id: string
+          leads_generated: number | null
+          performance_score: number | null
+          period_end: string
+          period_start: string
+          ranking_position: number | null
+          total_revenue: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          collaborator_id?: string | null
+          conversion_rate?: number | null
+          created_at?: string | null
+          deals_closed?: number | null
+          id?: string
+          leads_generated?: number | null
+          performance_score?: number | null
+          period_end: string
+          period_start: string
+          ranking_position?: number | null
+          total_revenue?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          collaborator_id?: string | null
+          conversion_rate?: number | null
+          created_at?: string | null
+          deals_closed?: number | null
+          id?: string
+          leads_generated?: number | null
+          performance_score?: number | null
+          period_end?: string
+          period_start?: string
+          ranking_position?: number | null
+          total_revenue?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborator_performance_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collaborator_territories: {
+        Row: {
+          assignment_type: string | null
+          collaborator_id: string | null
+          created_at: string | null
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          territory_id: string | null
+        }
+        Insert: {
+          assignment_type?: string | null
+          collaborator_id?: string | null
+          created_at?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          territory_id?: string | null
+        }
+        Update: {
+          assignment_type?: string | null
+          collaborator_id?: string | null
+          created_at?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          territory_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaborator_territories_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaborator_territories_territory_id_fkey"
+            columns: ["territory_id"]
+            isOneToOne: false
+            referencedRelation: "territories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaborators: {
         Row: {
           agreement_date: string | null
@@ -1289,6 +1387,106 @@ export type Database = {
             columns: ["commission_id"]
             isOneToOne: false
             referencedRelation: "commissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_calculations: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          base_amount: number
+          calculated_amount: number
+          calculation_details: Json | null
+          calculation_type: string
+          collaborator_id: string | null
+          commission_rate: number
+          created_at: string | null
+          deal_id: string | null
+          id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          base_amount: number
+          calculated_amount: number
+          calculation_details?: Json | null
+          calculation_type?: string
+          collaborator_id?: string | null
+          commission_rate: number
+          created_at?: string | null
+          deal_id?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          base_amount?: number
+          calculated_amount?: number
+          calculation_details?: Json | null
+          calculation_type?: string
+          collaborator_id?: string | null
+          commission_rate?: number
+          created_at?: string | null
+          deal_id?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_calculations_collaborator_id_fkey"
+            columns: ["collaborator_id"]
+            isOneToOne: false
+            referencedRelation: "collaborators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commission_escrow: {
+        Row: {
+          commission_id: string | null
+          created_at: string | null
+          escrow_amount: number
+          expected_release_date: string | null
+          hold_reason: string | null
+          id: string
+          release_conditions: Json | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          commission_id?: string | null
+          created_at?: string | null
+          escrow_amount: number
+          expected_release_date?: string | null
+          hold_reason?: string | null
+          id?: string
+          release_conditions?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          commission_id?: string | null
+          created_at?: string | null
+          escrow_amount?: number
+          expected_release_date?: string | null
+          hold_reason?: string | null
+          id?: string
+          release_conditions?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_escrow_commission_id_fkey"
+            columns: ["commission_id"]
+            isOneToOne: false
+            referencedRelation: "commission_calculations"
             referencedColumns: ["id"]
           },
         ]
@@ -9682,6 +9880,42 @@ export type Database = {
           title?: string
           type?: string
           variables?: Json | null
+        }
+        Relationships: []
+      }
+      territories: {
+        Row: {
+          boundaries: Json | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          exclusivity_level: string | null
+          id: string
+          name: string
+          territory_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          boundaries?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          exclusivity_level?: string | null
+          id?: string
+          name: string
+          territory_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          boundaries?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          exclusivity_level?: string | null
+          id?: string
+          name?: string
+          territory_type?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
