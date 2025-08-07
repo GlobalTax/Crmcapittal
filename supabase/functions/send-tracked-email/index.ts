@@ -12,262 +12,156 @@ interface EmailRequest {
   subject: string;
   content: string;
   lead_id?: string;
-  contact_id?: string;
-  target_company_id?: string;
-  operation_id?: string;
   sender_name?: string;
   sender_email?: string;
   test?: boolean;
 }
 
 serve(async (req: Request) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Validate request data first
     const emailData: EmailRequest = await req.json();
-    console.log('Processing email request:', emailData);
 
-    // Handle test requests from health check
     if (emailData.test === true) {
-      console.log('Test request received from health check');
       return new Response(
-        JSON.stringify({
-          success: true,
-          message: 'Email service is operational',
-          test: true
-        }),
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        }
+        JSON.stringify({ success: true, message: 'Email service is operational', test: true }),
+        { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
 
-    // Validate required fields for actual email sending
-    if (!emailData.recipient_email) {
-      console.error('Missing recipient_email in request');
+    if (!emailData.recipient_email || !emailData.subject || !emailData.content) {
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'recipient_email es requerido'
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        }
+        JSON.stringify({ success: false, error: 'recipient_email, subject y content son requeridos' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
 
-    if (!emailData.subject) {
-      console.error('Missing subject in request');
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'subject es requerido'
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        }
-      );
-    }
-
-    if (!emailData.content) {
-      console.error('Missing content in request');
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'content es requerido'
-        }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        }
-      );
-    }
-
-    // Check if RESEND_API_KEY is configured
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (!resendApiKey) {
-      console.error('RESEND_API_KEY not configured');
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Email service not configured. Please set up RESEND_API_KEY.'
-        }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        }
+        JSON.stringify({ success: false, error: 'RESEND_API_KEY no configurado' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
 
     const resend = new Resend(resendApiKey);
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
 
-    // Create email record in database first (let DB generate tracking_id)
-    const { data: trackedEmail, error: dbError } = await supabase
-      .from('tracked_emails')
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+
+    // Cliente admin (bypassa RLS) para DB writes confiables
+    const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Cliente usuario para obtener auth.uid() desde el JWT del request
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const supabaseUser = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData } = await supabaseUser.auth.getUser();
+    const userId = userData?.user?.id ?? null;
+
+    // 1) Crear registro en lead_emails (DB generará tracking_id)
+    const { data: leadEmail, error: insertError } = await supabaseAdmin
+      .from('lead_emails')
       .insert({
-        recipient_email: emailData.recipient_email,
-        subject: emailData.subject,
-        content: emailData.content,
         lead_id: emailData.lead_id,
-        contact_id: emailData.contact_id,
-        target_company_id: emailData.target_company_id,
-        operation_id: emailData.operation_id,
-        status: 'SENT'
+        to_email: emailData.recipient_email,
+        subject: emailData.subject,
+        body: emailData.content,
+        status: 'draft',
+        created_by: userId,
       })
       .select()
       .single();
 
-    if (dbError) {
-      console.error('Database error:', dbError);
-      throw new Error(`Database error: ${dbError.message}`);
+    if (insertError || !leadEmail) {
+      console.error('DB insert error:', insertError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'No se pudo crear el registro de email' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
     }
 
-    // Build tracking pixel URL using the generated tracking_id from database
-    const trackingPixelUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/track-email-open/${trackedEmail.tracking_id}`;
-    
-    // Create professional HTML email template
+    const trackingId = leadEmail.tracking_id as string;
+    const trackingPixelUrl = `${SUPABASE_URL}/functions/v1/track-email-open/${trackingId}`;
+
+    // HTML final con pixel
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
       <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>${emailData.subject}</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 30px; }
-          .content { margin-bottom: 30px; }
-          .footer { border-top: 1px solid #e0e0e0; padding-top: 20px; font-size: 12px; color: #666; }
-          .signature { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
-          a { color: #2563eb; text-decoration: none; }
-          a:hover { text-decoration: underline; }
+          .container { max-width: 640px; margin: 0 auto; padding: 20px; }
+          .header { border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 24px; }
+          .content { white-space: pre-line; }
+          .footer { border-top: 1px solid #eee; padding-top: 12px; margin-top: 24px; font-size: 12px; color: #666; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <h2 style="margin: 0; color: #1f2937;">${emailData.subject}</h2>
+            <h2 style="margin:0">${emailData.subject}</h2>
           </div>
-          
-          <div class="content">
-            ${emailData.content.replace(/\n/g, '<br>')}
-          </div>
-          
-          <div class="signature">
-            <p>Saludos cordiales,<br>
-            <strong>${emailData.sender_name || 'Equipo CRM'}</strong></p>
-            ${emailData.sender_email ? `<p><a href="mailto:${emailData.sender_email}">${emailData.sender_email}</a></p>` : ''}
-          </div>
-          
-          <div class="footer">
-            <p>Este email fue enviado desde nuestro sistema CRM. Si no deseas recibir más comunicaciones, por favor contacta con nosotros.</p>
-          </div>
+          <div class="content">${emailData.content.replace(/\n/g, '<br/>')}</div>
+          <div class="footer">Enviado desde CRM Pro</div>
         </div>
-        
-        <!-- Tracking pixel -->
-        <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:block;" />
+        <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:block" />
       </body>
       </html>
     `;
 
-    // Send email with Resend with better error handling
+    const fromAddress = emailData.sender_email || 'CRM Pro <onboarding@resend.dev>';
+
     let emailResponse;
     try {
       emailResponse = await resend.emails.send({
-        from: emailData.sender_email || 'CRM System <onboarding@resend.dev>',
+        from: fromAddress,
         to: [emailData.recipient_email],
         subject: emailData.subject,
         html: htmlContent,
-        headers: {
-          'X-Entity-Ref-ID': trackedEmail.tracking_id,
-        }
+        headers: { 'X-Entity-Ref-ID': trackingId },
       });
-
-      console.log('Resend response:', emailResponse);
-    } catch (sendError) {
-      console.error('Resend send error:', sendError);
-      
-      // Update status to failed in database
-      await supabase
-        .from('tracked_emails')
-        .update({ status: 'FAILED' })
-        .eq('id', trackedEmail.id);
-        
-      throw new Error(`Email sending failed: ${sendError.message || 'Unknown Resend error'}`);
+    } catch (sendErr: any) {
+      console.error('Resend send error:', sendErr);
+      await supabaseAdmin.from('lead_emails').update({ status: 'failed' }).eq('id', leadEmail.id);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Fallo enviando email' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
     }
 
-    if (emailResponse.error) {
-      console.error('Resend error:', emailResponse.error);
-      
-      // Update status to failed in database
-      await supabase
-        .from('tracked_emails')
-        .update({ status: 'FAILED' })
-        .eq('id', trackedEmail.id);
-        
-      throw new Error(`Email sending failed: ${emailResponse.error.message}`);
+    if ((emailResponse as any).error) {
+      console.error('Resend error:', (emailResponse as any).error);
+      await supabaseAdmin.from('lead_emails').update({ status: 'failed' }).eq('id', leadEmail.id);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Fallo enviando email' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
     }
 
-    console.log('Email sent successfully:', emailResponse);
+    const providerId = (emailResponse as any).data?.id || null;
+    await supabaseAdmin
+      .from('lead_emails')
+      .update({ status: 'sent', sent_at: new Date().toISOString(), provider_message_id: providerId })
+      .eq('id', leadEmail.id);
 
-    // Return success response
     return new Response(
-      JSON.stringify({
-        success: true,
-        email_id: trackedEmail.id,
-        tracking_id: trackedEmail.tracking_id,
-        resend_id: emailResponse.data?.id
-      }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      }
+      JSON.stringify({ success: true, email_id: leadEmail.id, tracking_id: trackingId, provider_id: providerId }),
+      { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
-
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in send-tracked-email function:', error);
     return new Response(
-      JSON.stringify({
-        success: false,
-        error: error.message
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      }
+      JSON.stringify({ success: false, error: error.message || String(error) }),
+      { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   }
 });

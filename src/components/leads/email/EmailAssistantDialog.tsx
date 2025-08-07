@@ -10,6 +10,7 @@ import { Copy, Check } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useLeadInteractions } from '@/hooks/useLeadInteractions';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EmailAssistantDialogProps {
   lead: Lead;
@@ -30,6 +31,7 @@ export const EmailAssistantDialog = ({ lead, open, onOpenChange }: EmailAssistan
   const [subject, setSubject] = useState<string>('');
   const [body, setBody] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const { createInteraction, isCreating } = useLeadInteractions(lead.id);
 
@@ -135,6 +137,32 @@ export const EmailAssistantDialog = ({ lead, open, onOpenChange }: EmailAssistan
     onOpenChange(false);
   };
 
+  const handleSend = async () => {
+    if (!lead.email) {
+      toast.error('Este lead no tiene email');
+      return;
+    }
+    setIsSending(true);
+    try {
+      const { error } = await supabase.functions.invoke('send-tracked-email', {
+        body: {
+          recipient_email: lead.email,
+          subject,
+          content: body,
+          lead_id: lead.id,
+        },
+      });
+      if (error) throw error;
+      toast.success('Email enviado');
+      onOpenChange(false);
+    } catch (e) {
+      console.error(e);
+      toast.error('No se pudo enviar el email');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
@@ -188,8 +216,11 @@ export const EmailAssistantDialog = ({ lead, open, onOpenChange }: EmailAssistan
               {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
               {copied ? 'Copiado' : 'Copiar'}
             </Button>
-            <Button onClick={handleSaveInteraction} disabled={isCreating}>
+            <Button variant="secondary" onClick={handleSaveInteraction} disabled={isCreating}>
               Guardar como interacción
+            </Button>
+            <Button onClick={handleSend} disabled={isSending}>
+              {isSending ? 'Enviando…' : 'Enviar'}
             </Button>
           </div>
         </div>
