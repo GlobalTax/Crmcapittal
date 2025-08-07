@@ -53,11 +53,30 @@ const getTypeLabel = (type: string) => {
 };
 
 export const MandateCard = ({ mandate, onSelect }: MandateCardProps) => {
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onSelect();
+  };
+
+  const handleNameClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(`/mandatos/${mandate.id}`, '_blank');
+  };
+
+  const handleEyeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(`/mandatos/${mandate.id}`, '_blank');
+  };
+
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={onSelect}>
+    <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleCardClick}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg font-semibold line-clamp-2">
+          <CardTitle 
+            className="text-lg font-semibold line-clamp-2 hover:text-primary cursor-pointer transition-colors"
+            onClick={handleNameClick}
+            title="Ir al análisis completo"
+          >
             {mandate.client_name || 'Sin nombre'}
           </CardTitle>
           <Badge variant={getStatusVariant(mandate.status)}>
@@ -117,7 +136,13 @@ export const MandateCard = ({ mandate, onSelect }: MandateCardProps) => {
               {format(new Date(mandate.created_at), 'dd MMM yyyy', { locale: es })}
             </span>
           </div>
-          <Button variant="ghost" size="sm" className="h-8 px-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 px-2"
+            onClick={handleEyeClick}
+            title="Abrir análisis completo"
+          >
             <Eye className="h-4 w-4" />
           </Button>
         </div>
