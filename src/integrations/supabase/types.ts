@@ -5233,6 +5233,65 @@ export type Database = {
         }
         Relationships: []
       }
+      proposal_templates: {
+        Row: {
+          category: string
+          content_structure: Json
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          practice_area_id: string | null
+          success_rate: number | null
+          updated_at: string | null
+          usage_count: number | null
+          visual_config: Json
+        }
+        Insert: {
+          category: string
+          content_structure?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          practice_area_id?: string | null
+          success_rate?: number | null
+          updated_at?: string | null
+          usage_count?: number | null
+          visual_config?: Json
+        }
+        Update: {
+          category?: string
+          content_structure?: Json
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          practice_area_id?: string | null
+          success_rate?: number | null
+          updated_at?: string | null
+          usage_count?: number | null
+          visual_config?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_templates_practice_area_id_fkey"
+            columns: ["practice_area_id"]
+            isOneToOne: false
+            referencedRelation: "practice_areas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       proposals: {
         Row: {
           approved_at: string | null
@@ -6626,6 +6685,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      template_sections: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          is_system: boolean | null
+          title: string
+          type: string
+          variables: Json | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_system?: boolean | null
+          title: string
+          type: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_system?: boolean | null
+          title?: string
+          type?: string
+          variables?: Json | null
+        }
+        Relationships: []
       }
       time_entries: {
         Row: {

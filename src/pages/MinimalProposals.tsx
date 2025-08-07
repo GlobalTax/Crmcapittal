@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,18 +9,23 @@ import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
 import { useProposals } from '@/hooks/useProposals';
 import { ProposalWizard } from '@/components/proposals/ProposalWizard';
 import { ProposalKanbanBoard } from '@/components/proposals/kanban/ProposalKanbanBoard';
-import { Proposal } from '@/types/Proposal';
+import { Proposal, CreateProposalData } from '@/types/Proposal';
+import { ProposalTemplate } from '@/types/ProposalTemplate';
 import { FileText, Users, CheckCircle, Euro, Plus, LayoutGrid, Table } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function MinimalProposals() {
   const { proposals, loading, createProposal, updateProposal } = useProposals();
-  const { toast } = useToast();
+  const { toast: toastFn } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<any[]>([]);
 
   // Definir columnas para la tabla de propuestas
   const proposalColumns = [
@@ -63,15 +68,69 @@ export default function MinimalProposals() {
     setIsWizardOpen(false);
   };
 
+  const handleCreateFromTemplate = async (template: ProposalTemplate, clientData?: any) => {
+    try {
+      // Build proposal data from template
+      const proposalData: CreateProposalData = {
+        title: `Propuesta basada en ${template.name}`,
+        description: template.description || '',
+        proposal_type: 'punctual',
+        currency: 'EUR',
+        template_id: template.id,
+        visual_config: {
+          ...template.visual_config,
+          template_id: template.id
+        }
+      };
+
+      // If client data is provided, populate relevant fields
+      if (clientData) {
+        if (clientData.cliente?.nombre) {
+          proposalData.title = `Propuesta para ${clientData.cliente.nombre}`;
+        }
+        if (clientData.empresa?.nombre) {
+          proposalData.description = `Propuesta de servicios para ${clientData.empresa.nombre}`;
+        }
+      }
+
+      const newProposal = await createProposal(proposalData);
+      if (newProposal) {
+        toast.success('Propuesta creada desde template exitosamente');
+      }
+    } catch (error) {
+      console.error('Error creating proposal from template:', error);
+      toast.error('Error al crear propuesta desde template');
+    }
+  };
+
+  // Load contacts and companies for template selector
+  const loadCRMData = async () => {
+    try {
+      const [contactsResult, companiesResult] = await Promise.all([
+        supabase.from('contacts').select('id, name, email, position').limit(100),
+        supabase.from('companies').select('id, name, industry, city, country').limit(100)
+      ]);
+
+      if (contactsResult.data) setContacts(contactsResult.data);
+      if (companiesResult.data) setCompanies(companiesResult.data);
+    } catch (error) {
+      console.error('Error loading CRM data:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadCRMData();
+  }, []);
+
   const handleUpdateStatus = async (proposalId: string, newStatus: string) => {
     try {
       await updateProposal(proposalId, { status: newStatus as any });
-      toast({
+      toastFn({
         title: "Estado actualizado",
         description: `La propuesta ha sido movida a ${getStatusLabel(newStatus)}`,
       });
     } catch (error) {
-      toast({
+      toastFn({
         title: "Error",
         description: "No se pudo actualizar el estado de la propuesta",
         variant: "destructive",
@@ -205,9 +264,12 @@ export default function MinimalProposals() {
           proposals={proposals}
           onUpdateStatus={handleUpdateStatus}
           onCreateProposal={() => setIsWizardOpen(true)}
+          onCreateFromTemplate={handleCreateFromTemplate}
           onViewProposal={handleViewProposal}
           onEditProposal={handleEditProposal}
           isLoading={loading}
+          contacts={contacts}
+          companies={companies}
         />
       ) : (
         <>

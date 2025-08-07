@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { Proposal } from '@/types/Proposal';
+import { ProposalTemplate } from '@/types/ProposalTemplate';
 import { ProposalKanbanColumn } from './ProposalKanbanColumn';
 import { ProposalCard } from './ProposalCard';
 import { Badge } from '@/components/ui/badge';
@@ -9,15 +10,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, Plus } from 'lucide-react';
+import { Search, Filter, Plus, Sparkles } from 'lucide-react';
+import { TemplateSelector } from '../templates/TemplateSelector';
 
 interface ProposalKanbanBoardProps {
   proposals: Proposal[];
   onUpdateStatus: (proposalId: string, newStatus: string) => Promise<void>;
   onCreateProposal: () => void;
+  onCreateFromTemplate: (template: ProposalTemplate, clientData?: any) => void;
   onViewProposal: (proposal: Proposal) => void;
   onEditProposal: (proposal: Proposal) => void;
   isLoading?: boolean;
+  contacts?: any[];
+  companies?: any[];
 }
 
 const PROPOSAL_STATUSES = [
@@ -32,14 +37,18 @@ export const ProposalKanbanBoard: React.FC<ProposalKanbanBoardProps> = ({
   proposals,
   onUpdateStatus,
   onCreateProposal,
+  onCreateFromTemplate,
   onViewProposal,
   onEditProposal,
-  isLoading = false
+  isLoading = false,
+  contacts = [],
+  companies = []
 }) => {
   const [activeProposal, setActiveProposal] = useState<Proposal | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [practiceAreaFilter, setPracticeAreaFilter] = useState<string>('all');
   const [valueFilter, setValueFilter] = useState<string>('all');
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
   // Filtrar propuestas
   const filteredProposals = proposals.filter(proposal => {
@@ -138,10 +147,19 @@ export const ProposalKanbanBoard: React.FC<ProposalKanbanBoardProps> = ({
           </div>
         </div>
         
-        <Button onClick={onCreateProposal} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Nueva Propuesta
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setShowTemplateSelector(true)} 
+            className="flex items-center gap-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            Desde Template
+          </Button>
+          <Button onClick={onCreateProposal} variant="outline" className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Desde Cero
+          </Button>
+        </div>
       </div>
 
       {/* Filtros */}
@@ -233,10 +251,16 @@ export const ProposalKanbanBoard: React.FC<ProposalKanbanBoardProps> = ({
             }
           </div>
           {(!searchQuery && practiceAreaFilter === 'all' && valueFilter === 'all') && (
-            <Button onClick={onCreateProposal} className="mt-4">
-              <Plus className="h-4 w-4 mr-2" />
-              Crear primera propuesta
-            </Button>
+            <div className="flex gap-2 justify-center mt-4">
+              <Button onClick={() => setShowTemplateSelector(true)}>
+                <Sparkles className="h-4 w-4 mr-2" />
+                Crear desde Template
+              </Button>
+              <Button onClick={onCreateProposal} variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Crear desde Cero
+              </Button>
+            </div>
           )}
         </div>
       )}
