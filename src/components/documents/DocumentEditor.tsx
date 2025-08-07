@@ -18,6 +18,9 @@ import { SecureHtmlRenderer, processContentSecurely } from '@/components/securit
 import { DocumentVersionHistory } from './versions/DocumentVersionHistory';
 import { PermissionManager } from './permissions/PermissionManager';
 import { ShareManager } from './sharing/ShareManager';
+import { CommentSystem } from './collaboration/CommentSystem';
+import { PresenceIndicator } from './collaboration/PresenceIndicator';
+import { NotificationCenter } from './collaboration/NotificationCenter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DocumentEditorProps {
@@ -195,7 +198,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {document?.id && <PresenceIndicator documentId={document.id} />}
+          <NotificationCenter />
           <Button
             variant="outline"
             onClick={handleExportPDF}
@@ -220,8 +225,9 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
         <div className="lg:col-span-3">
           <Tabs defaultValue="editor" className="h-full">
             <div className="border-b">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="editor">Editor</TabsTrigger>
+                <TabsTrigger value="comments">Comentarios</TabsTrigger>
                 <TabsTrigger value="preview">Vista Previa</TabsTrigger>
                 <TabsTrigger value="versions">Versiones</TabsTrigger>
                 <TabsTrigger value="permissions">Permisos</TabsTrigger>
@@ -286,6 +292,16 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="comments" className="space-y-6">
+              {document?.id ? (
+                <CommentSystem documentId={document.id} />
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">Guarda el documento para poder añadir comentarios</p>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="preview" className="space-y-6">

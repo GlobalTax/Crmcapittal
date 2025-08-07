@@ -2652,6 +2652,63 @@ export type Database = {
           },
         ]
       }
+      document_comments: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          document_id: string
+          id: string
+          position_data: Json | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          thread_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          document_id: string
+          id?: string
+          position_data?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          thread_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          document_id?: string
+          id?: string
+          position_data?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          thread_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_comments_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_comments_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "document_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_folders: {
         Row: {
           client_id: string | null
@@ -2720,6 +2777,86 @@ export type Database = {
           },
         ]
       }
+      document_mentions: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          mentioned_user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          mentioned_user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          mentioned_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_mentions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "document_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_notifications: {
+        Row: {
+          comment_id: string | null
+          created_at: string
+          document_id: string | null
+          id: string
+          message: string
+          notification_type: string
+          read: boolean | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          read?: boolean | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          read?: boolean | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_notifications_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "document_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_notifications_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_permissions: {
         Row: {
           created_at: string | null
@@ -2770,6 +2907,44 @@ export type Database = {
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_presence: {
+        Row: {
+          created_at: string
+          cursor_position: Json | null
+          document_id: string
+          id: string
+          last_seen: string
+          selection_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          cursor_position?: Json | null
+          document_id: string
+          id?: string
+          last_seen?: string
+          selection_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          cursor_position?: Json | null
+          document_id?: string
+          id?: string
+          last_seen?: string
+          selection_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_presence_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]
@@ -9219,6 +9394,10 @@ export type Database = {
       check_session_timeout: {
         Args: { p_user_id: string; p_timeout_minutes?: number }
         Returns: boolean
+      }
+      cleanup_old_presence: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       create_deal_from_won_lead: {
         Args: { p_lead_id: string; p_deal_value?: number }
