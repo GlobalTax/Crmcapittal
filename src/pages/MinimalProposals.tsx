@@ -198,7 +198,6 @@ export default function MinimalProposals() {
       {/* Modern Page Header */}
       <PageHeader
         title="Propuestas"
-        description="Gestiona y crea propuestas de honorarios profesionales"
         badge={{ text: `${proposals.length} propuestas`, variant: 'secondary' }}
         actions={
           <div className="flex items-center gap-2">

@@ -79,11 +79,8 @@ export default function MinimalCollaborators() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Colaboradores</h1>
-          <p className="text-gray-600 mt-1">Gestiona tu red de colaboradores y sus comisiones</p>
-        </div>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">Colaboradores</h1>
         <CreateCollaboratorDialog 
           onCreateCollaborator={createCollaborator}
         />
