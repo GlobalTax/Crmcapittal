@@ -264,6 +264,14 @@ export const ProposalKanbanBoard: React.FC<ProposalKanbanBoardProps> = ({
           )}
         </div>
       )}
+
+      <TemplateSelector
+        open={showTemplateSelector}
+        onOpenChange={setShowTemplateSelector}
+        onSelectTemplate={onCreateFromTemplate}
+        contacts={contacts}
+        companies={companies}
+      />
     </div>
   );
 };

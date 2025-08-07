@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useProposalTemplates } from '@/hooks/useProposalTemplates';
 import { ProposalTemplate } from '@/types/ProposalTemplate';
+import { TemplateBuilder } from './TemplateBuilder';
 import { Search, Copy, Edit, Eye, Trash2, Plus, TrendingUp } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -34,6 +35,8 @@ export const TemplateLibrary = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'usage' | 'recent'>('usage');
+  const [showBuilder, setShowBuilder] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<ProposalTemplate | null>(null);
 
   const filteredAndSortedTemplates = templates
     .filter(template => {
@@ -65,6 +68,22 @@ export const TemplateLibrary = ({
     }
   };
 
+  const handleCreateNew = () => {
+    setEditingTemplate(null);
+    setShowBuilder(true);
+  };
+
+  const handleEdit = (template: ProposalTemplate) => {
+    setEditingTemplate(template);
+    setShowBuilder(true);
+  };
+
+  const handleBuilderSave = (template: ProposalTemplate) => {
+    setShowBuilder(false);
+    setEditingTemplate(null);
+    // The hook will automatically refresh the list
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -93,7 +112,7 @@ export const TemplateLibrary = ({
           </p>
         </div>
         {onCreateNew && (
-          <Button onClick={onCreateNew} className="bg-primary text-primary-foreground">
+          <Button onClick={handleCreateNew} className="bg-primary text-primary-foreground">
             <Plus className="h-4 w-4 mr-2" />
             Crear Template
           </Button>
@@ -148,7 +167,7 @@ export const TemplateLibrary = ({
                 : 'No hay templates disponibles'}
             </div>
             {onCreateNew && (
-              <Button onClick={onCreateNew} variant="outline" className="mt-4">
+              <Button onClick={handleCreateNew} variant="outline" className="mt-4">
                 <Plus className="h-4 w-4 mr-2" />
                 Crear el primer template
               </Button>
@@ -224,7 +243,7 @@ export const TemplateLibrary = ({
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => onEditTemplate(template)}
+                        onClick={() => handleEdit(template)}
                       >
                         <Edit className="h-3 w-3" />
                       </Button>
@@ -245,6 +264,13 @@ export const TemplateLibrary = ({
           ))}
         </div>
       )}
+
+      <TemplateBuilder
+        open={showBuilder}
+        onOpenChange={setShowBuilder}
+        template={editingTemplate}
+        onSave={handleBuilderSave}
+      />
     </div>
   );
 };
