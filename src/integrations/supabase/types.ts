@@ -255,6 +255,177 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_patterns: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          pattern_data: Json
+          pattern_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          pattern_data: Json
+          pattern_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          pattern_data?: Json
+          pattern_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      booking_links: {
+        Row: {
+          advance_notice_hours: number | null
+          availability_schedule: Json
+          booking_limit_per_day: number | null
+          buffer_time_after: number | null
+          buffer_time_before: number | null
+          confirmation_message: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean | null
+          max_advance_days: number | null
+          meeting_location: string | null
+          questions: Json | null
+          redirect_url: string | null
+          requires_approval: boolean | null
+          slug: string
+          title: string
+          updated_at: string | null
+          user_id: string
+          video_meeting_enabled: boolean | null
+        }
+        Insert: {
+          advance_notice_hours?: number | null
+          availability_schedule?: Json
+          booking_limit_per_day?: number | null
+          buffer_time_after?: number | null
+          buffer_time_before?: number | null
+          confirmation_message?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          max_advance_days?: number | null
+          meeting_location?: string | null
+          questions?: Json | null
+          redirect_url?: string | null
+          requires_approval?: boolean | null
+          slug: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+          video_meeting_enabled?: boolean | null
+        }
+        Update: {
+          advance_notice_hours?: number | null
+          availability_schedule?: Json
+          booking_limit_per_day?: number | null
+          buffer_time_after?: number | null
+          buffer_time_before?: number | null
+          confirmation_message?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          max_advance_days?: number | null
+          meeting_location?: string | null
+          questions?: Json | null
+          redirect_url?: string | null
+          requires_approval?: boolean | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          video_meeting_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          answers: Json | null
+          booker_email: string
+          booker_name: string
+          booker_phone: string | null
+          booking_link_id: string
+          booking_notes: string | null
+          cancelled_at: string | null
+          cancelled_reason: string | null
+          company_name: string | null
+          confirmation_token: string | null
+          created_at: string | null
+          event_id: string | null
+          id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          answers?: Json | null
+          booker_email: string
+          booker_name: string
+          booker_phone?: string | null
+          booking_link_id: string
+          booking_notes?: string | null
+          cancelled_at?: string | null
+          cancelled_reason?: string | null
+          company_name?: string | null
+          confirmation_token?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          answers?: Json | null
+          booker_email?: string
+          booker_name?: string
+          booker_phone?: string | null
+          booking_link_id?: string
+          booking_notes?: string | null
+          cancelled_at?: string | null
+          cancelled_reason?: string | null
+          company_name?: string | null
+          confirmation_token?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_booking_link_id_fkey"
+            columns: ["booking_link_id"]
+            isOneToOne: false
+            referencedRelation: "booking_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buying_mandates: {
         Row: {
           assigned_user_id: string | null
@@ -327,56 +498,215 @@ export type Database = {
         }
         Relationships: []
       }
-      calendar_events: {
+      calendar_analytics: {
         Row: {
-          attendees: Json | null
-          created_at: string
-          description: string | null
-          end_date: string
-          event_type: string
+          created_at: string | null
+          deal_progression: boolean | null
+          duration_minutes: number | null
+          event_id: string | null
+          follow_up_created: boolean | null
           id: string
-          lead_id: string | null
-          location: string | null
-          mandate_id: string | null
-          start_date: string
-          status: string
-          title: string
-          updated_at: string
+          meeting_type: string | null
+          metric_date: string
+          metric_type: string
+          outcome: string | null
+          source: string | null
           user_id: string
         }
         Insert: {
-          attendees?: Json | null
-          created_at?: string
-          description?: string | null
-          end_date: string
-          event_type?: string
+          created_at?: string | null
+          deal_progression?: boolean | null
+          duration_minutes?: number | null
+          event_id?: string | null
+          follow_up_created?: boolean | null
           id?: string
-          lead_id?: string | null
-          location?: string | null
-          mandate_id?: string | null
-          start_date: string
-          status?: string
-          title: string
-          updated_at?: string
+          meeting_type?: string | null
+          metric_date?: string
+          metric_type: string
+          outcome?: string | null
+          source?: string | null
           user_id: string
         }
         Update: {
-          attendees?: Json | null
-          created_at?: string
-          description?: string | null
-          end_date?: string
-          event_type?: string
+          created_at?: string | null
+          deal_progression?: boolean | null
+          duration_minutes?: number | null
+          event_id?: string | null
+          follow_up_created?: boolean | null
           id?: string
-          lead_id?: string | null
-          location?: string | null
-          mandate_id?: string | null
-          start_date?: string
-          status?: string
-          title?: string
-          updated_at?: string
+          meeting_type?: string | null
+          metric_date?: string
+          metric_type?: string
+          outcome?: string | null
+          source?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "calendar_analytics_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          attendees: Json | null
+          booking_link_id: string | null
+          calendar_provider: string | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          deal_id: string | null
+          description: string | null
+          end_date: string
+          event_type: string
+          external_event_id: string | null
+          follow_up_required: boolean | null
+          id: string
+          is_all_day: boolean | null
+          is_recurring: boolean | null
+          lead_id: string | null
+          location: string | null
+          mandate_id: string | null
+          meeting_outcome: string | null
+          meeting_type: string | null
+          preparation_notes: string | null
+          priority: string | null
+          recurrence_rule: string | null
+          reminder_minutes: number | null
+          start_date: string
+          status: string
+          time_zone: string | null
+          title: string
+          travel_time_minutes: number | null
+          updated_at: string
+          user_id: string
+          video_meeting_url: string | null
+          visibility: string | null
+        }
+        Insert: {
+          attendees?: Json | null
+          booking_link_id?: string | null
+          calendar_provider?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          description?: string | null
+          end_date: string
+          event_type?: string
+          external_event_id?: string | null
+          follow_up_required?: boolean | null
+          id?: string
+          is_all_day?: boolean | null
+          is_recurring?: boolean | null
+          lead_id?: string | null
+          location?: string | null
+          mandate_id?: string | null
+          meeting_outcome?: string | null
+          meeting_type?: string | null
+          preparation_notes?: string | null
+          priority?: string | null
+          recurrence_rule?: string | null
+          reminder_minutes?: number | null
+          start_date: string
+          status?: string
+          time_zone?: string | null
+          title: string
+          travel_time_minutes?: number | null
+          updated_at?: string
+          user_id: string
+          video_meeting_url?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          attendees?: Json | null
+          booking_link_id?: string | null
+          calendar_provider?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          description?: string | null
+          end_date?: string
+          event_type?: string
+          external_event_id?: string | null
+          follow_up_required?: boolean | null
+          id?: string
+          is_all_day?: boolean | null
+          is_recurring?: boolean | null
+          lead_id?: string | null
+          location?: string | null
+          mandate_id?: string | null
+          meeting_outcome?: string | null
+          meeting_type?: string | null
+          preparation_notes?: string | null
+          priority?: string | null
+          recurrence_rule?: string | null
+          reminder_minutes?: number | null
+          start_date?: string
+          status?: string
+          time_zone?: string | null
+          title?: string
+          travel_time_minutes?: number | null
+          updated_at?: string
+          user_id?: string
+          video_meeting_url?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_companies_with_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "operations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "calendar_events_lead_id_fkey"
             columns: ["lead_id"]
@@ -392,6 +722,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      calendar_integrations: {
+        Row: {
+          access_token: string | null
+          account_email: string
+          calendar_id: string | null
+          created_at: string | null
+          id: string
+          last_sync_at: string | null
+          provider: string
+          refresh_token: string | null
+          sync_enabled: boolean | null
+          sync_error: string | null
+          sync_status: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          account_email: string
+          calendar_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          provider: string
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          sync_error?: string | null
+          sync_status?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          account_email?: string
+          calendar_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          provider?: string
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          sync_error?: string | null
+          sync_status?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       campaigns: {
         Row: {
@@ -5521,6 +5902,63 @@ export type Database = {
           },
         ]
       }
+      meeting_templates: {
+        Row: {
+          agenda_template: string | null
+          created_at: string | null
+          default_attendees: Json | null
+          description: string | null
+          duration_minutes: number
+          follow_up_template: string | null
+          id: string
+          is_shared: boolean | null
+          location_template: string | null
+          meeting_type: string
+          name: string
+          preparation_checklist: Json | null
+          questions: Json | null
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          agenda_template?: string | null
+          created_at?: string | null
+          default_attendees?: Json | null
+          description?: string | null
+          duration_minutes?: number
+          follow_up_template?: string | null
+          id?: string
+          is_shared?: boolean | null
+          location_template?: string | null
+          meeting_type: string
+          name: string
+          preparation_checklist?: Json | null
+          questions?: Json | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          agenda_template?: string | null
+          created_at?: string | null
+          default_attendees?: Json | null
+          description?: string | null
+          duration_minutes?: number
+          follow_up_template?: string | null
+          id?: string
+          is_shared?: boolean | null
+          location_template?: string | null
+          meeting_type?: string
+          name?: string
+          preparation_checklist?: Json | null
+          questions?: Json | null
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ndas: {
         Row: {
           created_at: string
@@ -10111,6 +10549,10 @@ export type Database = {
       fn_recalcular_score_lead: {
         Args: { p_lead_id: string }
         Returns: undefined
+      }
+      generate_booking_slug: {
+        Args: { base_title: string; user_id: string }
+        Returns: string
       }
       generate_tracking_pixel_url: {
         Args: { p_email_id: string }
