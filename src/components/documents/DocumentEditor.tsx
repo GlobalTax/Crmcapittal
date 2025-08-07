@@ -16,6 +16,9 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { SecureHtmlRenderer, processContentSecurely } from '@/components/security/SecureHtmlRenderer';
 import { DocumentVersionHistory } from './versions/DocumentVersionHistory';
+import { PermissionManager } from './permissions/PermissionManager';
+import { ShareManager } from './sharing/ShareManager';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface DocumentEditorProps {
   document?: Document;
@@ -214,78 +217,112 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Editor */}
-        <div className="lg:col-span-3 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contenido del Documento</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="title">Título</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Título del documento"
-                />
-              </div>
+        <div className="lg:col-span-3">
+          <Tabs defaultValue="editor" className="h-full">
+            <div className="border-b">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="editor">Editor</TabsTrigger>
+                <TabsTrigger value="preview">Vista Previa</TabsTrigger>
+                <TabsTrigger value="versions">Versiones</TabsTrigger>
+                <TabsTrigger value="permissions">Permisos</TabsTrigger>
+                <TabsTrigger value="sharing">Compartir</TabsTrigger>
+              </TabsList>
+            </div>
 
-              {!document && (
-                <div>
-                  <Label htmlFor="template">Plantilla</Label>
-                  <Select
-                    value={selectedTemplate?.id || ''}
-                    onValueChange={(value) => {
-                      const template = templates.find(t => t.id === value);
-                      if (template) {
-                        setSelectedTemplate(template);
-                        setContent(template.content?.content || '');
-                        setVariables(template.variables || {});
-                        setDocumentType(template.template_type);
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona una plantilla" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templates.map((template) => (
-                        <SelectItem key={template.id} value={template.id}>
-                          {template.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+            <TabsContent value="editor" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contenido del Documento</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="title">Título</Label>
+                    <Input
+                      id="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Título del documento"
+                    />
+                  </div>
 
-              <div>
-                <Label>Editor</Label>
-                <ReactQuill
-                  value={content}
-                  onChange={setContent}
-                  modules={modules}
-                  theme="snow"
-                  style={{ height: '400px', marginBottom: '50px' }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+                  {!document && (
+                    <div>
+                      <Label htmlFor="template">Plantilla</Label>
+                      <Select
+                        value={selectedTemplate?.id || ''}
+                        onValueChange={(value) => {
+                          const template = templates.find(t => t.id === value);
+                          if (template) {
+                            setSelectedTemplate(template);
+                            setContent(template.content?.content || '');
+                            setVariables(template.variables || {});
+                            setDocumentType(template.template_type);
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona una plantilla" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {templates.map((template) => (
+                            <SelectItem key={template.id} value={template.id}>
+                              {template.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
-          {/* Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Vista Previa</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SecureHtmlRenderer 
-                content={processContent(content)}
-                className="prose max-w-none border rounded-lg p-4 bg-white min-h-[200px]"
-                allowBasicFormatting={true}
-                maxLength={50000}
-              />
-            </CardContent>
-          </Card>
+                  <div>
+                    <Label>Editor</Label>
+                    <ReactQuill
+                      value={content}
+                      onChange={setContent}
+                      modules={modules}
+                      theme="snow"
+                      style={{ height: '400px', marginBottom: '50px' }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="preview" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vista Previa</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SecureHtmlRenderer 
+                    content={processContent(content)}
+                    className="prose max-w-none border rounded-lg p-4 bg-white min-h-[400px]"
+                    allowBasicFormatting={true}
+                    maxLength={50000}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {document && (
+              <>
+                <TabsContent value="versions" className="space-y-6">
+                  <DocumentVersionHistory 
+                    documentId={document.id}
+                    onRestoreVersion={() => window.location.reload()}
+                  />
+                </TabsContent>
+
+                <TabsContent value="permissions" className="space-y-6">
+                  <PermissionManager documentId={document.id} />
+                </TabsContent>
+
+                <TabsContent value="sharing" className="space-y-6">
+                  <ShareManager documentId={document.id} />
+                </TabsContent>
+              </>
+            )}
+          </Tabs>
         </div>
 
         {/* Sidebar */}
@@ -313,13 +350,6 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
             </CardContent>
           </Card>
 
-          {/* Version History */}
-          {document && (
-            <DocumentVersionHistory 
-              documentId={document.id}
-              onRestoreVersion={() => window.location.reload()}
-            />
-          )}
 
           {/* Variables */}
           {selectedTemplate && Object.keys(selectedTemplate.variables).length > 0 && (

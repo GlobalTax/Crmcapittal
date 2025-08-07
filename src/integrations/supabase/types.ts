@@ -2590,7 +2590,9 @@ export type Database = {
           document_type: string
           id: string
           ip_address: unknown | null
+          metadata: Json | null
           session_duration: number | null
+          share_id: string | null
           user_agent: string | null
         }
         Insert: {
@@ -2601,7 +2603,9 @@ export type Database = {
           document_type: string
           id?: string
           ip_address?: unknown | null
+          metadata?: Json | null
           session_duration?: number | null
+          share_id?: string | null
           user_agent?: string | null
         }
         Update: {
@@ -2612,7 +2616,9 @@ export type Database = {
           document_type?: string
           id?: string
           ip_address?: unknown | null
+          metadata?: Json | null
           session_duration?: number | null
+          share_id?: string | null
           user_agent?: string | null
         }
         Relationships: [
@@ -2635,6 +2641,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "hubspot_contacts_with_company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_access_logs_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "document_shares"
             referencedColumns: ["id"]
           },
         ]
@@ -2703,6 +2716,125 @@ export type Database = {
             columns: ["parent_folder_id"]
             isOneToOne: false
             referencedRelation: "document_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_permissions: {
+        Row: {
+          created_at: string | null
+          document_id: string
+          expires_at: string | null
+          granted_at: string | null
+          granted_by: string
+          id: string
+          permission_type: string
+          team_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_id: string
+          expires_at?: string | null
+          granted_at?: string | null
+          granted_by: string
+          id?: string
+          permission_type: string
+          team_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          document_id?: string
+          expires_at?: string | null
+          granted_at?: string | null
+          granted_by?: string
+          id?: string
+          permission_type?: string
+          team_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_permissions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_permissions_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_shares: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          current_views: number | null
+          document_id: string
+          download_allowed: boolean | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_views: number | null
+          metadata: Json | null
+          password_hash: string | null
+          print_allowed: boolean | null
+          share_token: string
+          share_type: string | null
+          updated_at: string | null
+          watermark_enabled: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          current_views?: number | null
+          document_id: string
+          download_allowed?: boolean | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_views?: number | null
+          metadata?: Json | null
+          password_hash?: string | null
+          print_allowed?: boolean | null
+          share_token?: string
+          share_type?: string | null
+          updated_at?: string | null
+          watermark_enabled?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          current_views?: number | null
+          document_id?: string
+          download_allowed?: boolean | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_views?: number | null
+          metadata?: Json | null
+          password_hash?: string | null
+          print_allowed?: boolean | null
+          share_token?: string
+          share_type?: string | null
+          updated_at?: string | null
+          watermark_enabled?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_shares_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]
@@ -9057,6 +9189,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      check_document_permission: {
+        Args: {
+          p_document_id: string
+          p_user_id: string
+          p_required_permission: string
+        }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           p_identifier: string
@@ -9284,6 +9424,16 @@ export type Database = {
           p_status?: string
           p_error_message?: string
           p_execution_time_ms?: number
+        }
+        Returns: string
+      }
+      log_document_access: {
+        Args: {
+          p_document_id: string
+          p_share_id?: string
+          p_access_type?: string
+          p_session_duration?: number
+          p_metadata?: Json
         }
         Returns: string
       }
