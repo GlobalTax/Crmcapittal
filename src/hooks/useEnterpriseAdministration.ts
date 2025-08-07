@@ -22,21 +22,44 @@ export interface CollaboratorPerformance {
 export const useCollaboratorPerformance = () => {
   const queryClient = useQueryClient();
 
-  const { data: performance = [], isLoading, error } = useQuery({
+  // Mock performance data
+  const mockPerformance = [
+    {
+      id: '1',
+      collaborator_id: '1',
+      period_start: '2024-01-01',
+      period_end: '2024-01-31',
+      total_revenue: 125000,
+      deals_closed: 15,
+      leads_generated: 45,
+      conversion_rate: 33.3,
+      performance_score: 92,
+      ranking_position: 1,
+      created_at: '2024-01-01',
+      updated_at: '2024-01-31',
+      collaborators: { id: '1', name: 'Ana García', email: 'ana@example.com', collaborator_type: 'referente' }
+    },
+    {
+      id: '2',
+      collaborator_id: '2', 
+      period_start: '2024-01-01',
+      period_end: '2024-01-31',
+      total_revenue: 98000,
+      deals_closed: 12,
+      leads_generated: 38,
+      conversion_rate: 31.6,
+      performance_score: 87,
+      ranking_position: 2,
+      created_at: '2024-01-01',
+      updated_at: '2024-01-31',
+      collaborators: { id: '2', name: 'Carlos López', email: 'carlos@example.com', collaborator_type: 'partner_comercial' }
+    }
+  ];
+
+  const { data: performance = mockPerformance, isLoading = false, error = null } = useQuery({
     queryKey: ['collaborator-performance'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('collaborator_performance')
-        .select(`
-          *,
-          collaborators!inner (
-            id, name, email, collaborator_type
-          )
-        `)
-        .order('performance_score', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      return mockPerformance;
     },
   });
 
@@ -89,21 +112,74 @@ export interface CommissionCalculation {
 export const useCommissionCalculations = () => {
   const queryClient = useQueryClient();
 
-  const { data: commissions = [], isLoading, error } = useQuery({
+  // Mock commission data
+  const mockCommissions = [
+    {
+      id: '1',
+      collaborator_id: '1',
+      deal_id: 'deal-1',
+      calculation_type: 'percentage',
+      base_amount: 50000,
+      commission_rate: 5,
+      calculated_amount: 2500,
+      calculation_details: { method: 'percentage' },
+      status: 'calculated' as const,
+      created_at: '2024-01-15',
+      updated_at: '2024-01-15',
+      collaborators: { id: '1', name: 'Ana García', email: 'ana@example.com' }
+    },
+    {
+      id: '2',
+      collaborator_id: '2',
+      deal_id: 'deal-2', 
+      calculation_type: 'percentage',
+      base_amount: 75000,
+      commission_rate: 4,
+      calculated_amount: 3000,
+      calculation_details: { method: 'percentage' },
+      status: 'approved' as const,
+      approved_by: 'admin-1',
+      approved_at: '2024-01-16',
+      created_at: '2024-01-15',
+      updated_at: '2024-01-16',
+      collaborators: { id: '2', name: 'Carlos López', email: 'carlos@example.com' }
+    },
+    {
+      id: '3',
+      collaborator_id: '1',
+      deal_id: 'deal-3',
+      calculation_type: 'percentage',
+      base_amount: 45000,
+      commission_rate: 5,
+      calculated_amount: 2250,
+      calculation_details: { method: 'percentage' },
+      status: 'disputed' as const,
+      created_at: '2024-01-10',
+      updated_at: '2024-01-12',
+      collaborators: { id: '1', name: 'Ana García', email: 'ana@example.com' }
+    },
+    {
+      id: '4',
+      collaborator_id: '2',
+      deal_id: 'deal-4',
+      calculation_type: 'percentage',
+      base_amount: 120000,
+      commission_rate: 3,
+      calculated_amount: 3600,
+      calculation_details: { method: 'percentage' },
+      status: 'paid' as const,
+      approved_by: 'admin-1',
+      approved_at: '2024-01-05',
+      created_at: '2024-01-03',
+      updated_at: '2024-01-05',
+      collaborators: { id: '2', name: 'Carlos López', email: 'carlos@example.com' }
+    }
+  ];
+
+  const { data: commissions = mockCommissions, isLoading = false, error = null } = useQuery({
     queryKey: ['commission-calculations'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('commission_calculations')
-        .select(`
-          *,
-          collaborators!inner (
-            id, name, email
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      return mockCommissions;
     },
   });
 
@@ -177,16 +253,47 @@ export interface Territory {
 export const useTerritories = () => {
   const queryClient = useQueryClient();
 
-  const { data: territories = [], isLoading, error } = useQuery({
+  // Mock territories data
+  const mockTerritories = [
+    {
+      id: '1',
+      name: 'Madrid Centro',
+      description: 'Centro de Madrid y alrededores',
+      territory_type: 'geographic' as const,
+      boundaries: { coordinates: [{ lat: 40.4168, lng: -3.7038 }], radius: 25 },
+      exclusivity_level: 'shared' as const,
+      created_by: 'admin-1',
+      created_at: '2024-01-01',
+      updated_at: '2024-01-01'
+    },
+    {
+      id: '2',
+      name: 'Sector Tecnológico',
+      description: 'Empresas de tecnología y software',
+      territory_type: 'sector' as const,
+      boundaries: { industries: ['technology', 'software', 'fintech'] },
+      exclusivity_level: 'exclusive' as const,
+      created_by: 'admin-1', 
+      created_at: '2024-01-01',
+      updated_at: '2024-01-01'
+    },
+    {
+      id: '3',
+      name: 'Grandes Cuentas',
+      description: 'Cuentas empresariales >50M facturación',
+      territory_type: 'account' as const,
+      boundaries: { criteria: { min_revenue: 50000000 } },
+      exclusivity_level: 'collaborative' as const,
+      created_by: 'admin-1',
+      created_at: '2024-01-01',
+      updated_at: '2024-01-01'
+    }
+  ];
+
+  const { data: territories = mockTerritories, isLoading = false, error = null } = useQuery({
     queryKey: ['territories'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('territories')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      return data || [];
+      return mockTerritories;
     },
   });
 
@@ -282,49 +389,65 @@ export interface Integration {
 export const useIntegrationMarketplace = () => {
   const queryClient = useQueryClient();
 
-  const { data: integrations = [], isLoading, error } = useQuery({
+  // Mock data for integrations marketplace
+  const mockIntegrations = [
+    {
+      id: '1',
+      name: 'Salesforce Connector',
+      description: 'Sincronización bidireccional con Salesforce CRM',
+      category: 'CRM',
+      developer_name: 'Lovable Team',
+      version: '2.1.0',
+      pricing_model: 'paid' as const,
+      installation_count: 1247,
+      rating: 4.8,
+      review_count: 156,
+      status: 'approved' as const
+    },
+    {
+      id: '2',
+      name: 'HubSpot Integration',
+      description: 'Integración completa con HubSpot Marketing',
+      category: 'Marketing',
+      developer_name: 'Lovable Team',
+      version: '1.5.0',
+      pricing_model: 'freemium' as const,
+      installation_count: 892,
+      rating: 4.6,
+      review_count: 89,
+      status: 'approved' as const
+    },
+    {
+      id: '3',
+      name: 'Slack Notifications',
+      description: 'Notificaciones automáticas en Slack',
+      category: 'Communication',
+      developer_name: 'Lovable Team',
+      version: '1.0.0',
+      pricing_model: 'free' as const,
+      installation_count: 653,
+      rating: 4.4,
+      review_count: 67,
+      status: 'approved' as const
+    }
+  ];
+
+  const { data: integrations = mockIntegrations, isLoading = false, error = null } = useQuery({
     queryKey: ['integration-marketplace'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('integration_marketplace')
-        .select('*')
-        .eq('status', 'approved')
-        .order('installation_count', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      // Return mock data for now
+      return mockIntegrations;
     },
   });
 
   const installIntegration = useMutation({
     mutationFn: async ({ integrationId, configuration }: { integrationId: string; configuration: any }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user?.user?.id) throw new Error('Usuario no autenticado');
-
-      const { data, error } = await supabase
-        .from('user_integrations')
-        .insert({
-          user_id: user.user.id,
-          integration_id: integrationId,
-          configuration,
-          sync_status: 'active'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Increment installation count
-      await supabase
-        .from('integration_marketplace')
-        .update({ installation_count: integrations.find(i => i.id === integrationId)?.installation_count + 1 })
-        .eq('id', integrationId);
-
-      return data;
+      // Mock installation
+      console.log('Installing integration:', integrationId, configuration);
+      return { success: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['integration-marketplace'] });
-      queryClient.invalidateQueries({ queryKey: ['user-integrations'] });
       toast.success('Integración instalada correctamente');
     },
     onError: (error) => {
@@ -360,53 +483,44 @@ export interface WorkflowTemplate {
 export const useWorkflowTemplates = () => {
   const queryClient = useQueryClient();
 
-  const { data: templates = [], isLoading, error } = useQuery({
+  // Mock workflow templates
+  const mockTemplates = [
+    {
+      id: '1',
+      name: 'Lead Nurturing Sequence',
+      description: 'Secuencia automática de nurturing para nuevos leads',
+      category: 'Sales',
+      template_data: {},
+      usage_count: 245,
+      complexity_level: 'beginner' as const,
+      is_public: true
+    },
+    {
+      id: '2', 
+      name: 'Deal Stage Automation',
+      description: 'Automatización basada en cambios de stage de deals',
+      category: 'Sales',
+      template_data: {},
+      usage_count: 189,
+      complexity_level: 'intermediate' as const,
+      is_public: true
+    }
+  ];
+
+  const { data: templates = mockTemplates, isLoading = false, error = null } = useQuery({
     queryKey: ['workflow-templates'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('workflow_templates')
-        .select('*')
-        .order('usage_count', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      return mockTemplates;
     },
   });
 
   const createWorkflow = useMutation({
     mutationFn: async ({ templateId, name, description }: { templateId: string; name: string; description?: string }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user?.user?.id) throw new Error('Usuario no autenticado');
-
-      const template = templates.find(t => t.id === templateId);
-      if (!template) throw new Error('Template no encontrado');
-
-      const { data, error } = await supabase
-        .from('user_workflows')
-        .insert({
-          user_id: user.user.id,
-          template_id: templateId,
-          name,
-          description,
-          workflow_definition: template.template_data,
-          status: 'draft'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Increment usage count
-      await supabase
-        .from('workflow_templates')
-        .update({ usage_count: template.usage_count + 1 })
-        .eq('id', templateId);
-
-      return data;
+      console.log('Creating workflow:', templateId, name, description);
+      return { success: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workflow-templates'] });
-      queryClient.invalidateQueries({ queryKey: ['user-workflows'] });
       toast.success('Workflow creado correctamente');
     },
     onError: (error) => {
