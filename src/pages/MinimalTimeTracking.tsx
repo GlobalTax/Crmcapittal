@@ -3,12 +3,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Timer } from '@/components/time-tracking/Timer';
+import { SmartTimer } from '@/components/time-tracking/SmartTimer';
 import { EnhancedDashboard } from '@/components/time-tracking/EnhancedDashboard';
+import { ProductivityDashboard } from '@/components/time-tracking/ProductivityDashboard';
+import { TeamTimeTracking } from '@/components/time-tracking/TeamTimeTracking';
 import { EnhancedTimeSheet } from '@/components/time-tracking/EnhancedTimeSheet';
 import { TimeTrackingStats } from '@/components/time-tracking/TimeTrackingStats';
 import { useTimeEntries } from '@/hooks/useTimeEntries';
 import { useAuth } from '@/contexts/AuthContext';
-import { Clock, Calendar, BarChart3, List, Timer as TimerIcon } from 'lucide-react';
+import { Clock, Calendar, BarChart3, List, Timer as TimerIcon, Users, Brain } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -108,14 +111,22 @@ export default function MinimalTimeTracking() {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="timer" className="flex items-center gap-2">
             <TimerIcon className="h-4 w-4" />
             Timer
           </TabsTrigger>
+          <TabsTrigger value="smart" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            Smart
+          </TabsTrigger>
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Panel
+          </TabsTrigger>
+          <TabsTrigger value="team" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Equipo
           </TabsTrigger>
           <TabsTrigger value="entries" className="flex items-center gap-2">
             <List className="h-4 w-4" />
@@ -124,10 +135,6 @@ export default function MinimalTimeTracking() {
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Análisis
-          </TabsTrigger>
-          <TabsTrigger value="calendar" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Calendario
           </TabsTrigger>
         </TabsList>
 
@@ -145,44 +152,25 @@ export default function MinimalTimeTracking() {
           </div>
         </TabsContent>
 
-        <TabsContent value="dashboard">
-          <div className="grid gap-6">
-            <EnhancedDashboard 
-              dailyData={dailyData}
-              isTimerRunning={isTimerRunning}
-            />
-            
-            {/* Additional dashboard content */}
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Resumen Semanal
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Funcionalidad de resumen semanal próximamente disponible
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Productividad
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Métricas de productividad próximamente disponibles
-                  </p>
-                </CardContent>
-              </Card>
+        <TabsContent value="smart">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <SmartTimer />
+            </div>
+            <div className="lg:col-span-1">
+              <ProductivityDashboard />
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="dashboard">
+          <div className="grid gap-6">
+            <ProductivityDashboard />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="team">
+          <TeamTimeTracking />
         </TabsContent>
 
         <TabsContent value="entries">
@@ -229,21 +217,6 @@ export default function MinimalTimeTracking() {
           </div>
         </TabsContent>
 
-        <TabsContent value="calendar">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Vista de Calendario
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Vista de calendario del tiempo registrado próximamente disponible
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
