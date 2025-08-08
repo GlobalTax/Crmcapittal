@@ -12,13 +12,22 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  resolve: { 
+    dedupe: ['react', 'react-dom'],
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      "react": path.resolve("./node_modules/react"),
+      "react-dom": path.resolve("./node_modules/react-dom")
+    },
+  },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-dom/client'],
-    exclude: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
+    include: [
+      'react','react-dom',
+      '@dnd-kit/core','@dnd-kit/sortable','@dnd-kit/utilities','@dnd-kit/modifiers'
+    ],
   },
   ssr: {
-    noExternal: ['react', 'react-dom'],
-    external: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
+    noExternal: ['@dnd-kit/core','@dnd-kit/sortable','@dnd-kit/utilities','@dnd-kit/modifiers'],
   },
   plugins: [
     react(),
@@ -35,14 +44,6 @@ export default defineConfig(({ mode }) => ({
     mode === 'production' && visualizer({ filename: 'dist/stats.html', template: 'treemap', gzipSize: true, brotliSize: true }),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "react": path.resolve("./node_modules/react"),
-      "react-dom": path.resolve("./node_modules/react-dom")
-    },
-    dedupe: ['react', 'react-dom'],
-  },
   define: {
     __DEV__: mode === 'development',
     __PROD__: mode === 'production',
