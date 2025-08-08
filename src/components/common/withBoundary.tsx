@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 // Simple HOC to wrap any component with an ErrorBoundary and context

@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import * as React from 'react';
+const { createContext, useContext, useState, useCallback } = React;
+type ReactNode = React.ReactNode;
 
 export interface ValidationRule {
   required?: boolean;

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
+import * as React from "react";
+const { createContext, useContext, useState, useCallback, useEffect } = React;
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"

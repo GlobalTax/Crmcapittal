@@ -1,5 +1,6 @@
 
-import React, { lazy, Suspense } from 'react';
+import * as React from 'react';
+const { lazy, Suspense } = React;
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AttioLayout } from '@/components/layout/AttioLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';

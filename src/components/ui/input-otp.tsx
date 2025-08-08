@@ -1,4 +1,5 @@
-import React, { useContext } from "react"
+import * as React from "react";
+const { useContext } = React;
 import { OTPInput, OTPInputContext } from "input-otp"
 import { Dot } from "lucide-react"
 

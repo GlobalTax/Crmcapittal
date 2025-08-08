@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import * as React from 'react';
+const { createContext, useContext, useEffect, useState } = React;
 import { useSecureInput } from '@/hooks/useSecureInput';
 import { useValoracionSecurity } from '@/hooks/useValoracionSecurity';
 import { useSecurityEnhanced } from '@/hooks/useSecurityEnhanced';
