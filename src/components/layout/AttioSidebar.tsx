@@ -1,28 +1,8 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import { prefetchRoute, prefetchIdle } from '@/utils/prefetchRoutes';
+import React from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useLeads } from '@/hooks/useLeads';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Building2, 
-  Briefcase, 
-  FileText, 
-  Mail, 
-  Calendar, 
-  Clock, 
-  UserPlus, 
-  Settings, 
-  Zap,
-  TrendingUp,
-  Database,
-  DollarSign,
-  Target,
-  Users2,
-  Send,
-  Calculator,
-  RefreshCw,
-  FileImage
-} from 'lucide-react';
 
 interface NavItem {
   to: string;
@@ -100,6 +80,11 @@ export function AttioSidebar() {
   const { role } = useUserRole();
   
   const { leads } = useLeads();
+
+  // Prefetch some critical routes on idle
+  React.useEffect(() => {
+    prefetchIdle();
+  }, []);
   
   const isAdmin = role === 'admin' || role === 'superadmin';
   const isSuperAdmin = role === 'superadmin';
@@ -145,6 +130,7 @@ export function AttioSidebar() {
                   <li key={item.to}>
                     <NavLink
                       to={item.to}
+                      onMouseEnter={() => prefetchRoute(item.to)}
                       className={({ isActive }) =>
                         `flex items-center gap-2 px-2 py-1.5 rounded text-sm font-normal transition-colors duration-150 ${
                           isActive

@@ -6,16 +6,16 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Import new organized components
 const OptimizedTransaccionesPage = lazy(() => import('@/pages/OptimizedTransaccionesPage'));
-import VentaMandatoView from '@/components/transacciones/VentaMandatoView';
-import CompanyList from '@/components/empresas/CompanyList';
-import CompanyDetail from '@/components/empresas/CompanyDetail';
-import ContactList from '@/components/contactos/ContactList';
-import ContactDetail from '@/components/contactos/ContactDetail';
-import LeadsEntryPanel from '@/components/captacion/LeadsEntryPanel';
-import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
+const VentaMandatoView = lazy(() => import('@/components/transacciones/VentaMandatoView'));
+const CompanyList = lazy(() => import('@/components/empresas/CompanyList'));
+const CompanyDetail = lazy(() => import('@/components/empresas/CompanyDetail'));
+const ContactList = lazy(() => import('@/components/contactos/ContactList'));
+const ContactDetail = lazy(() => import('@/components/contactos/ContactDetail'));
+const LeadsEntryPanel = lazy(() => import('@/components/captacion/LeadsEntryPanel'));
+const HubSpotDatabase = lazy(() => import('@/components/hubspot/HubSpotDatabase').then(m => ({ default: m.HubSpotDatabase })));
 
 // Import the unified lead page and enhanced mandate detail view
-import LeadPage from '@/pages/LeadPage';
+const LeadPage = lazy(() => import('@/pages/LeadPage'));
 const OptimizedMandatesPage = lazy(() => import('@/pages/OptimizedMandatesPage'));
 
 
@@ -130,31 +130,71 @@ export const AppRoutes = () => {
           <Route path="/mandatos/:id/targets/pipeline" element={<Navigate to="/mandatos" replace />} />
 
           {/* Captación (Spanish routes) */}
-          <Route path="/captacion" element={<LeadsEntryPanel />} />
+          <Route path="/captacion" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <LeadsEntryPanel />
+            </Suspense>
+          } />
           <Route 
             path="/captacion/:id" 
-            element={<LeadPage />} 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadPage />
+              </Suspense>
+            } 
           />
           
           {/* Gestión de Leads route */}
-          <Route path="/gestion-leads" element={<LeadsEntryPanel />} />
+          <Route path="/gestion-leads" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <LeadsEntryPanel />
+            </Suspense>
+          } />
           <Route 
             path="/gestion-leads/:id" 
-            element={<LeadPage />} 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadPage />
+              </Suspense>
+            } 
           />
 
           {/* Unified leads route */}
-          <Route path="/leads" element={<LeadsEntryPanel />} />
+          <Route path="/leads" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <LeadsEntryPanel />
+            </Suspense>
+          } />
           <Route 
             path="/leads/:id" 
-            element={<LeadPage />} 
+            element={
+              <Suspense fallback={<LoadingSkeleton />}>
+                <LeadPage />
+              </Suspense>
+            } 
           />
 
           {/* Empresas y Contactos (Spanish routes) */}
-          <Route path="/empresas" element={<CompanyList />} />
-          <Route path="/empresas/:id" element={<CompanyDetail />} />
-          <Route path="/contactos" element={<ContactList />} />
-          <Route path="/contactos/:id" element={<ContactDetail />} />
+          <Route path="/empresas" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <CompanyList />
+            </Suspense>
+          } />
+          <Route path="/empresas/:id" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <CompanyDetail />
+            </Suspense>
+          } />
+          <Route path="/contactos" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <ContactList />
+            </Suspense>
+          } />
+          <Route path="/contactos/:id" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <ContactDetail />
+            </Suspense>
+          } />
 
           {/* Transacciones (Spanish routes) - Optimized Hybrid View */}
           <Route path="/transacciones" element={
@@ -162,7 +202,11 @@ export const AppRoutes = () => {
               <OptimizedTransaccionesPage />
             </Suspense>
           } />
-          <Route path="/transacciones/:id" element={<VentaMandatoView />} />
+          <Route path="/transacciones/:id" element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <VentaMandatoView />
+            </Suspense>
+          } />
 
           {/* Time Tracking */}
           <Route 
@@ -274,7 +318,11 @@ export const AppRoutes = () => {
           />
            <Route 
              path="/hubspot-data" 
-             element={<HubSpotDatabase />}
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <HubSpotDatabase />
+               </Suspense>
+             }
            />
            <Route 
              path="/einforma" 

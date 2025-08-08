@@ -26,10 +26,24 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-select'],
-          dnd: ['@dnd-kit/core', '@dnd-kit/sortable'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor';
+            if (id.includes('@radix-ui')) return 'ui';
+            if (id.includes('@dnd-kit')) return 'dnd';
+            if (id.includes('recharts')) return 'charts';
+            if (id.includes('@xyflow/react')) return 'graphs';
+            if (id.includes('quill') || id.includes('react-quill')) return 'editor';
+            if (id.includes('xlsx') || id.includes('exceljs')) return 'excel';
+            if (id.includes('jspdf')) return 'pdf';
+            if (id.includes('tesseract')) return 'ocr';
+            if (id.includes('embla')) return 'carousel';
+          }
+          if (id.includes('/src/pages/Deals') || id.includes('/src/components/deals/')) return 'deals';
+          if (id.includes('/src/pages/Lead') || id.includes('/src/components/captacion/')) return 'leads';
+          if (id.includes('/src/pages/Company') || id.includes('/src/components/companies/')) return 'companies';
+          if (id.includes('/src/pages/Contact') || id.includes('/src/components/contactos/')) return 'contacts';
+          return undefined;
         },
       },
     },

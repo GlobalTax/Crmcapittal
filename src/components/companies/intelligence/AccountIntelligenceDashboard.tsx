@@ -1,5 +1,5 @@
-import { Suspense } from 'react';
-import { RelationshipMap } from '@/components/relationships/RelationshipMap';
+import { Suspense, lazy } from 'react';
+const RelationshipMap = lazy(() => import('@/components/relationships/RelationshipMap'));
 import { useAccountIntelligence } from '@/hooks/useAccountIntelligence';
 
 interface Props {
