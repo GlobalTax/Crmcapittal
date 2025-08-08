@@ -18,33 +18,72 @@ export const useLeadClosure = () => {
     mutationFn: async ({ leadId, type, payload, linkToLead }: CreateFromLeadParams) => {
       let result;
       
-      // Use generic create_entity_from_lead function
-      const { data, error } = await supabase
-        .rpc('create_entity_from_lead', {
-          p_lead_id: leadId,
-          p_type: type,
-          p_payload: payload,
-          p_link: linkToLead
+      try {
+        // Use generic create_entity_from_lead function
+        const { data, error } = await supabase
+          .rpc('create_entity_from_lead', {
+            p_lead_id: leadId,
+            p_type: type,
+            p_payload: payload,
+            p_link: linkToLead
+          });
+        
+        if (error) throw error;
+        result = { id: data, type: type };
+
+        // Update lead if linking
+        if (linkToLead) {
+          const { error: updateError } = await supabase
+            .from('leads')
+            .update({ 
+              stage: 'ganado',
+              status: 'CONVERTED' as any,
+              conversion_date: new Date().toISOString()
+            })
+            .eq('id', leadId);
+            
+          if (updateError) throw updateError;
+        }
+
+        // Log successful creation
+        await logFeatureUsage('lead_closure_dialog', 'entity_created', {
+          leadId,
+          entityType: type,
+          linkToLead,
+          success: true
         });
-      
-      if (error) throw error;
-      result = { id: data, type: type };
 
-      // Update lead if linking
-      if (linkToLead) {
-        const { error: updateError } = await supabase
-          .from('leads')
-          .update({ 
-            stage: 'ganado',
-            status: 'CONVERTED' as any,
-            conversion_date: new Date().toISOString()
-          })
-          .eq('id', leadId);
-          
-        if (updateError) throw updateError;
+        return result;
+      } catch (error) {
+        console.error('RPC failed, attempting fallback:', error);
+        
+        // Fallback: close lead without creating entity
+        if (linkToLead) {
+          const { error: fallbackError } = await supabase
+            .from('leads')
+            .update({ 
+              stage: 'perdido',
+              status: 'LOST' as any,
+              lost_reason: 'Error en conversión - procesado manualmente'
+            })
+            .eq('id', leadId);
+            
+          if (fallbackError) {
+            console.error('Fallback also failed:', fallbackError);
+          }
+        }
+
+        // Log the failure
+        await logFeatureUsage('lead_closure_dialog', 'entity_creation_failed', {
+          leadId,
+          entityType: type,
+          linkToLead,
+          success: false,
+          error: error.message
+        });
+
+        throw new Error('Error en la conversión. El lead se ha marcado como perdido para revisión manual.');
       }
-
-      return result;
     },
     onSuccess: (data, variables) => {
       const { type, linkToLead } = variables;
@@ -68,8 +107,8 @@ export const useLeadClosure = () => {
     onError: (error) => {
       console.error('Error creating from lead:', error);
       toast({
-        title: "Error",
-        description: "No se pudo crear el elemento desde el lead",
+        title: "Error en conversión",
+        description: error.message || "No se pudo crear el elemento desde el lead",
         variant: "destructive"
       });
     }
@@ -102,4 +141,19 @@ export const useLeadClosure = () => {
     createFromLead,
     isCreating: createFromLeadMutation.isPending
   };
+};
+
+// Analytics helper function
+const logFeatureUsage = async (feature: string, action: string, metadata: any) => {
+  try {
+    await supabase.from('feature_analytics').insert({
+      feature_key: feature,
+      action,
+      metadata,
+      user_id: (await supabase.auth.getUser()).data.user?.id,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Failed to log feature usage:', error);
+  }
 };
