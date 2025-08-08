@@ -3,7 +3,27 @@ import { prefetchRoute, prefetchIdle } from '@/utils/prefetchRoutes';
 import React from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useLeads } from '@/hooks/useLeads';
-
+import { 
+  LayoutDashboard, 
+  Users, 
+  Building2, 
+  Briefcase, 
+  FileText, 
+  Mail, 
+  Calendar, 
+  Clock, 
+  UserPlus, 
+  Settings, 
+  Zap,
+  TrendingUp,
+  Database,
+  DollarSign,
+  Target,
+  Users2,
+  Send,
+  Calculator,
+  RefreshCw
+} from 'lucide-react';
 interface NavItem {
   to: string;
   label: string;
