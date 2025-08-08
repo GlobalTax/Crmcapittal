@@ -316,11 +316,12 @@ describe('LeadClosureActionDialog - Unit Tests', () => {
 
       render(
         <TestWrapper>
-          <LeadClosureActionDialog
-            open={true}
-            onOpenChange={mockOnOpenChange}
-            lead={mockLead}
-          />
+        <LeadClosureActionDialog
+          isOpen={true}
+          onClose={mockOnOpenChange}
+          lead={mockLead}
+          onCreateFromLead={vi.fn()}
+        />
         </TestWrapper>
       );
 
