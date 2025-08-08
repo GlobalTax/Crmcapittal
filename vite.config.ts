@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     exclude: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
   },
   ssr: {
-    noExternal: [],
+    noExternal: ['react', 'react-dom'],
     external: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
   },
   plugins: [
