@@ -12,6 +12,13 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  optimizeDeps: {
+    exclude: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
+  },
+  ssr: {
+    noExternal: [],
+    external: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
+  },
   plugins: [
     react(),
     viteCompression({ algorithm: 'brotliCompress' }),
@@ -52,10 +59,22 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('tesseract')) return 'ocr';
             if (id.includes('embla')) return 'carousel';
           }
+          // Kanban-specific chunks to isolate @dnd-kit usage
+          if (id.includes('/src/components/deals/') && id.includes('Kanban')) return 'deals-kanban';
+          if (id.includes('/src/components/leads/') && id.includes('Kanban')) return 'leads-kanban';
+          if (id.includes('/src/components/mandates/') && id.includes('Kanban')) return 'mandates-kanban';
+          if (id.includes('/src/components/negocios/') && id.includes('Kanban')) return 'negocios-kanban';
+          if (id.includes('/src/components/reconversiones/') && id.includes('Kanban')) return 'reconversiones-kanban';
+          if (id.includes('/src/components/valoraciones/') && id.includes('Kanban')) return 'valoraciones-kanban';
+          if (id.includes('/src/components/proposals/kanban/')) return 'proposals-kanban';
+          if (id.includes('/src/components/operaciones/') && id.includes('Kanban')) return 'operaciones-kanban';
+          
+          // Non-kanban chunks
           if (id.includes('/src/pages/Deals') || id.includes('/src/components/deals/')) return 'deals';
           if (id.includes('/src/pages/Lead') || id.includes('/src/components/captacion/')) return 'leads';
           if (id.includes('/src/pages/Company') || id.includes('/src/components/companies/')) return 'companies';
           if (id.includes('/src/pages/Contact') || id.includes('/src/components/contactos/')) return 'contacts';
+          if (id.includes('/src/pages/PersonalDashboard') || id.includes('/src/components/personal/')) return 'personal';
           return undefined;
         },
       },

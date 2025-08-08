@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { DndGuard } from "@/components/dnd/DndGuard";
 import { UltraCompactMetricCard } from "@/components/personal/UltraCompactMetricCard";
 import { PriorityActionsList } from "@/components/personal/PriorityActionsList";
 import { CompactAgenda } from "@/components/personal/CompactAgenda";
@@ -62,7 +63,8 @@ export default function MinimalPersonalDashboard() {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto bg-slate-50 min-h-screen">
+    <DndGuard>
+      <div className="space-y-6 max-w-7xl mx-auto bg-slate-50 min-h-screen">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 p-6">
         <div className="mb-6 flex items-center justify-between">
@@ -147,6 +149,7 @@ export default function MinimalPersonalDashboard() {
         open={isTaskModalOpen}
         onOpenChange={setIsTaskModalOpen}
       />
-    </div>
+      </div>
+    </DndGuard>
   );
 }
