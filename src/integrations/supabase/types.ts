@@ -7584,6 +7584,54 @@ export type Database = {
         }
         Relationships: []
       }
+      pipeline_stage_automations: {
+        Row: {
+          action_data: Json
+          action_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          stage_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_data?: Json
+          action_type: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          stage_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_data?: Json
+          action_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          stage_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_stage_automations_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pipeline_stage_automations_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "vw_leads_funnel"
+            referencedColumns: ["stage_id"]
+          },
+        ]
+      }
       pipeline_stages: {
         Row: {
           color: string | null
@@ -7591,6 +7639,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          probability: number | null
           stage_order: number
           updated_at: string
         }
@@ -7600,6 +7649,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          probability?: number | null
           stage_order: number
           updated_at?: string
         }
@@ -7609,6 +7659,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          probability?: number | null
           stage_order?: number
           updated_at?: string
         }

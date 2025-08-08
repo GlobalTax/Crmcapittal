@@ -2,6 +2,21 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Helper function to track analytics events
+const trackStageChange = (leadId: string, oldStageId: string | null, newStageId: string, newProbability: number) => {
+  // Track analytics event (can be enhanced with PostHog/analytics provider)
+  console.log('Analytics: stage_changed', {
+    lead_id: leadId,
+    old_stage_id: oldStageId,
+    new_stage_id: newStageId,
+    new_probability: newProbability,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Here you could send to PostHog, Mixpanel, etc.
+  // posthog.capture('stage_changed', { ... });
+};
+
 export interface UpdateLeadStageData {
   leadId: string;
   stageId: string;
@@ -26,6 +41,13 @@ export const useUpdateLead = () => {
 
   const updateStageMutation = useMutation({
     mutationFn: async ({ leadId, stageId, lost_reason }: UpdateLeadStageData) => {
+      // Get current lead to track analytics
+      const { data: currentLead } = await supabase
+        .from('leads')
+        .select('pipeline_stage_id, probability')
+        .eq('id', leadId)
+        .maybeSingle();
+
       const updateData: any = {
         pipeline_stage_id: stageId,
         updated_at: new Date().toISOString(),
@@ -40,12 +62,22 @@ export const useUpdateLead = () => {
         .from('leads')
         .update(updateData)
         .eq('id', leadId)
-        .select()
+        .select('*, probability')
         .maybeSingle();
 
       if (error) {
         console.error('Error updating lead stage:', error);
         throw new Error(error.message || 'Error al cambiar etapa del lead');
+      }
+
+      // Track analytics for stage change
+      if (data && currentLead) {
+        trackStageChange(
+          leadId,
+          currentLead.pipeline_stage_id,
+          stageId,
+          data.probability || 0
+        );
       }
 
       return data;
@@ -55,8 +87,14 @@ export const useUpdateLead = () => {
       queryClient.invalidateQueries({ queryKey: ['lead', variables.leadId] });
       toast.success(`Lead movido a: ${variables.stageName}`);
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: (error, variables) => {
+      const retryAction = () => updateStageMutation.mutate(variables);
+      toast.error(error.message, {
+        action: {
+          label: 'Reintentar',
+          onClick: retryAction,
+        },
+      });
     },
   });
 
@@ -98,8 +136,14 @@ export const useUpdateLead = () => {
       queryClient.invalidateQueries({ queryKey: ['lead', variables.leadId] });
       toast.success('Lead marcado como Ganado 🎉');
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: (error, variables) => {
+      const retryAction = () => markWonMutation.mutate(variables);
+      toast.error(error.message, {
+        action: {
+          label: 'Reintentar',
+          onClick: retryAction,
+        },
+      });
     },
   });
 
@@ -141,8 +185,14 @@ export const useUpdateLead = () => {
       queryClient.invalidateQueries({ queryKey: ['lead', variables.leadId] });
       toast.success('Lead marcado como Perdido');
     },
-    onError: (error) => {
-      toast.error(error.message);
+    onError: (error, variables) => {
+      const retryAction = () => markLostMutation.mutate(variables);
+      toast.error(error.message, {
+        action: {
+          label: 'Reintentar',
+          onClick: retryAction,
+        },
+      });
     },
   });
 
