@@ -146,7 +146,7 @@ export function AttioSidebar() {
                     <NavLink
                       to={item.to}
                       className={({ isActive }) =>
-                        `flex items-center gap-2 px-2 py-1.5 rounded text-sm font-normal transition-colors duration-150 ${
+                        `flex items-center gap-2 px-2 py-1.5 rounded text-sm font-semibold transition-colors duration-150 ${
                           isActive
                             ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                             : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
@@ -184,7 +184,7 @@ export function AttioSidebar() {
         <NavLink 
           to="/settings"
           className={({ isActive }) =>
-            `flex items-center gap-2 px-2 py-1.5 rounded transition-colors text-sm font-normal ${
+            `flex items-center gap-2 px-2 py-1.5 rounded transition-colors text-sm font-semibold ${
               isActive
                 ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                 : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
