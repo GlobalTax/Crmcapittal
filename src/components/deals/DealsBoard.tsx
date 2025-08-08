@@ -12,6 +12,7 @@ import { Deal } from '@/types/Deal';
 import { StageColumn } from './StageColumn';
 import { useDeals } from '@/hooks/useDeals';
 import { useToast } from '@/hooks/use-toast';
+import { useIsClient } from '@/hooks/useIsClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { usePipelineConfiguration } from '@/hooks/usePipelineConfiguration';
@@ -22,6 +23,7 @@ interface DealsBoardProps {
 }
 
 export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
+  const isClient = useIsClient();
   const { deals, loading, updateDealStage } = useDeals();
   const { toast } = useToast();
   const [isDragging, setIsDragging] = useState(false);
@@ -95,6 +97,27 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
       console.error('Error moving deal:', error);
     }
   };
+
+  if (!isClient) {
+    return (
+      <div className="grid auto-cols-[280px] grid-flow-col gap-6 overflow-x-auto px-8 py-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-2 h-2 rounded-full" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-5 w-8" />
+            </div>
+            <div className="space-y-3">
+              {[1, 2, 3].map((j) => (
+                <Skeleton key={j} className="h-24 w-full rounded-lg" />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   if (loading || configLoading) {
     return (

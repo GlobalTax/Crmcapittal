@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/minimal/Button';
 import { Badge } from '@/components/ui/minimal/Badge';
 import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
+import { useIsClient } from '@/hooks/useIsClient';
 
 import { useDocuments } from '@/hooks/useDocuments';
 import { useDocumentFolders } from '@/hooks/useDocumentFolders';
@@ -15,6 +16,7 @@ import { CreateFolderDialog } from './folders/CreateFolderDialog';
 import { DocumentsBreadcrumbs } from './DocumentsBreadcrumbs';
 
 export const DocumentsList: React.FC = () => {
+  const isClient = useIsClient();
   const { documents, templates, loading, deleteDocument } = useDocuments();
   const { moveDocumentToFolder } = useDocumentFolders();
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,8 +99,53 @@ export const DocumentsList: React.FC = () => {
     );
   }
 
+  if (!isClient) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-1">
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg border p-4">
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-3">
+          <div className="space-y-6">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="bg-white rounded-lg border">
+                  <div className="animate-pulse p-4">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // For non-client environments, show static version without DnD
+  const ContentWrapper = isClient ? 
+    ({ children }: { children: React.ReactNode }) => (
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        {children}
+      </DndContext>
+    ) : 
+    ({ children }: { children: React.ReactNode }) => <>{children}</>;
+
   return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <ContentWrapper>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar with folders */}
         <div className="lg:col-span-1">
@@ -285,6 +332,6 @@ export const DocumentsList: React.FC = () => {
         parentFolderId={createFolderParentId}
         editingFolder={editingFolder}
       />
-    </DndContext>
+    </ContentWrapper>
   );
 };

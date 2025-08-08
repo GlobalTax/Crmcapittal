@@ -2,14 +2,17 @@ import { useState } from "react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useLeadAssignments } from "@/hooks/useLeadAssignments";
 import { useWorkloadMetrics } from "@/hooks/useWorkloadMetrics";
+import { useIsClient } from "@/hooks/useIsClient";
 import { WorkerLoadCard } from "./WorkerLoadCard";
 import { UnassignedLeadsPool } from "./UnassignedLeadsPool";
 import { AssignmentTools } from "./AssignmentTools";
 import { PageTitle, Text } from "@/components/ui/typography";
 import { Users, Settings, TrendingUp } from "lucide-react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const AssignmentDashboard = () => {
+  const isClient = useIsClient();
   const { role } = useUserRole();
   const [selectedWorkers, setSelectedWorkers] = useState<string[]>([]);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
@@ -70,6 +73,31 @@ export const AssignmentDashboard = () => {
     
     setSelectedLeads([]);
   };
+
+  if (!isClient) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-5 w-96" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-20 w-full" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-32 w-full" />
+            ))}
+          </div>
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
