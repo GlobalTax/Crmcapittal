@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
