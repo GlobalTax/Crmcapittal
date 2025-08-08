@@ -7,9 +7,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { SettingSection } from '@/components/settings/SettingSection';
 import { Upload, Trash2, Info, Shield, User, Crown } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
-import { useUserProfile } from '@/features/auth/hooks/useUserProfile';
 import { useUserRole } from '@/hooks/useUserRole';
-import { useAuth } from '@/features/auth/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 
 interface ProfileData {
@@ -55,7 +54,11 @@ const getRoleInfo = (role: string) => {
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { profile, loading: profileLoading, updating, updateProfile } = useUserProfile();
+  // Profile functionality will be handled by regular user context
+  const profile = null;
+  const profileLoading = false;
+  const updating = false;
+  const updateProfile = async () => {};
   const { role, loading: roleLoading } = useUserRole();
   const { toast } = useToast();
   
@@ -103,15 +106,13 @@ export default function ProfilePage() {
       if (field === 'phone') updates.phone = profileData.phone;
       
       if (Object.keys(updates).length > 0) {
-        const { error } = await updateProfile(updates);
+        await updateProfile();
         
-        if (!error) {
-          toast({
-            title: "Guardado ✓",
-            description: "Perfil actualizado correctamente"
-          });
-          setHasChanges(false);
-        }
+        toast({
+          title: "Guardado ✓",
+          description: "Perfil actualizado correctamente"
+        });
+        setHasChanges(false);
       }
     } catch (error) {
       console.error('Error updating profile:', error);

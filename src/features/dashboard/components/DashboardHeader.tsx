@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Badge } from '@/shared/components/ui';
-import { useAuth } from '@/features/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { DashboardHeaderProps } from '../types';
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ role }) => {
