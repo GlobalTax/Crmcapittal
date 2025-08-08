@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLeadInteractions } from '@/hooks/useLeadInteractions';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import ReactQuill from 'react-quill';
+import ReactQuill from '@/components/common/LazyQuill';
 import 'react-quill/dist/quill.snow.css';
 import DOMPurify from 'dompurify';
 import { emailAssistant, EmailTone } from '@/services/emailAssistant';
