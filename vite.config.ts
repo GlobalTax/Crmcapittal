@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   optimizeDeps: {
+    include: ['react', 'react-dom', 'react-dom/client'],
     exclude: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
   },
   ssr: {

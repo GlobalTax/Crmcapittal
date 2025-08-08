@@ -16,7 +16,7 @@ export const QuickStatsBar: React.FC<QuickStatsBarProps> = ({ stats }) => {
     <div className="text-sm text-slate-600 border-t border-slate-200 pt-4 mt-4">
       <div className="flex items-center justify-center gap-4">
         {stats.map((stat, index) => (
-          <React.Fragment key={stat.label}>
+          <div key={stat.label} className="flex items-center gap-4">
             <button
               className={cn(
                 "hover:text-blue-600 transition-colors",
@@ -29,7 +29,7 @@ export const QuickStatsBar: React.FC<QuickStatsBarProps> = ({ stats }) => {
             {index < stats.length - 1 && (
               <span className="text-slate-400">|</span>
             )}
-          </React.Fragment>
+          </div>
         ))}
       </div>
     </div>
