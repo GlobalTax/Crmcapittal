@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useOperations } from '@/hooks/useOperations';
 import { useLeads } from '@/hooks/useLeads';
 import { useNegocios } from '@/hooks/useNegocios';

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { useReconversionAlerts } from '@/hooks/useReconversionAlerts';
 import { ReconversionAlertBadge } from './ReconversionAlertBadge';
 import { Card, CardContent } from '@/components/ui/card';

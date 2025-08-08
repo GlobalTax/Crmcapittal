@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { prefetchRoute, prefetchIdle } from '@/utils/prefetchRoutes';
-import React from 'react';
+import * as React from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useLeads } from '@/hooks/useLeads';
 import { 
