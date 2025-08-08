@@ -11,7 +11,7 @@ import { format, isAfter, subDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import LeadClosureActionDialog from './LeadClosureActionDialog';
+import { LeadClosureActionDialog } from './LeadClosureActionDialog';
 
 interface OptimizedLeadTableProps {
   leads: Lead[];
@@ -331,9 +331,10 @@ export const OptimizedLeadTable = ({
       </Table>
       {closureLead && (
         <LeadClosureActionDialog
-          open={closureOpen}
-          onOpenChange={setClosureOpen}
+          isOpen={closureOpen}
+          onClose={() => setClosureOpen(false)}
           lead={closureLead}
+          onCreateFromLead={() => Promise.resolve({ success: true })}
         />
       )}
     </div>

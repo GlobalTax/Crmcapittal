@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { Lead, LeadStatus } from "@/types/Lead";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import LeadClosureActionDialog from './LeadClosureActionDialog';
+import { LeadClosureActionDialog } from './LeadClosureActionDialog';
 
 interface NurturingStage {
   id: LeadStatus;
@@ -605,9 +605,10 @@ export const LeadNurturingPipeline = ({
       {/* Diálogo de creación desde lead */}
       {closureLead && (
         <LeadClosureActionDialog
-          open={closureOpen}
-          onOpenChange={(o) => { setClosureOpen(o); if (!o) setClosureLead(null); }}
+          isOpen={closureOpen}
+          onClose={() => { setClosureOpen(false); setClosureLead(null); }}
           lead={closureLead}
+          onCreateFromLead={() => Promise.resolve({ success: true })}
         />
       )}
     </div>

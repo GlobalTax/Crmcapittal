@@ -11961,6 +11961,10 @@ export type Database = {
         }
         Returns: string
       }
+      create_mandate_from_lead: {
+        Args: { lead_id: string; mandate_data: Json }
+        Returns: Json
+      }
       create_proposal_from_lead: {
         Args: { p_lead_id: string }
         Returns: string
@@ -11985,6 +11989,10 @@ export type Database = {
           p_first_name?: string
           p_last_name?: string
         }
+        Returns: Json
+      }
+      create_valuation_from_lead: {
+        Args: { lead_id: string; valuation_data: Json }
         Returns: Json
       }
       delete_user_completely: {

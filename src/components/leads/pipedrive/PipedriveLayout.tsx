@@ -10,7 +10,7 @@ import { usePipelineStages } from '@/hooks/leads/usePipelineStages';
 import { useUpdateLead } from '@/hooks/leads/useUpdateLead';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import LeadClosureActionDialog from '../LeadClosureActionDialog';
+import { LeadClosureActionDialog } from '../LeadClosureActionDialog';
 interface PipedriveLayoutProps {
   lead: Lead;
 }
@@ -92,9 +92,10 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
 
     {/* Dialogo de cierre/creación desde lead */}
     <LeadClosureActionDialog
-      open={closureOpen}
-      onOpenChange={setClosureOpen}
+      isOpen={closureOpen}
+      onClose={() => setClosureOpen(false)}
       lead={lead}
+      onCreateFromLead={() => Promise.resolve({ success: true })}
     />
   </div>
   );

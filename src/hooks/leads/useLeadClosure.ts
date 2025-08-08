@@ -18,34 +18,17 @@ export const useLeadClosure = () => {
     mutationFn: async ({ leadId, type, payload, linkToLead }: CreateFromLeadParams) => {
       let result;
       
-      // Call appropriate RPC based on type
-      switch (type) {
-        case 'mandato_venta':
-        case 'mandato_compra':
-          const { data: mandateData, error: mandateError } = await supabase
-            .rpc('create_mandate_from_lead', {
-              lead_id: leadId,
-              mandate_data: payload
-            });
-          
-          if (mandateError) throw mandateError;
-          result = { id: mandateData.id, type: 'mandate' };
-          break;
-          
-        case 'valoracion':
-          const { data: valuationData, error: valuationError } = await supabase
-            .rpc('create_valuation_from_lead', {
-              lead_id: leadId,
-              valuation_data: payload
-            });
-          
-          if (valuationError) throw valuationError;
-          result = { id: valuationData.id, type: 'valuation' };
-          break;
-          
-        default:
-          throw new Error(`Tipo no soportado: ${type}`);
-      }
+      // Use generic create_entity_from_lead function
+      const { data, error } = await supabase
+        .rpc('create_entity_from_lead', {
+          p_lead_id: leadId,
+          p_type: type,
+          p_payload: payload,
+          p_link: linkToLead
+        });
+      
+      if (error) throw error;
+      result = { id: data, type: type };
 
       // Update lead if linking
       if (linkToLead) {
@@ -53,7 +36,7 @@ export const useLeadClosure = () => {
           .from('leads')
           .update({ 
             stage: 'ganado',
-            status: 'CONVERTED',
+            status: 'CONVERTED' as any,
             conversion_date: new Date().toISOString()
           })
           .eq('id', leadId);
