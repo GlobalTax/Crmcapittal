@@ -18,6 +18,28 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Dedupe React to prevent multiple instances
+    dedupe: ['react', 'react-dom'],
+  },
+  // Optimize dependencies for better development experience
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable', 
+      '@dnd-kit/utilities',
+      '@dnd-kit/modifiers'
+    ],
+  },
+  // SSR configuration for DnD components
+  ssr: {
+    noExternal: [
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
+      '@dnd-kit/modifiers'
+    ],
   },
   define: {
     __DEV__: mode === 'development',

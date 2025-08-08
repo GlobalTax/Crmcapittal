@@ -10,6 +10,7 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { MandateKanbanColumn } from './MandateKanbanColumn';
 import { BuyingMandate } from '@/types/BuyingMandate';
+import { useIsClient } from '@/hooks/useIsClient';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -65,6 +66,7 @@ export const MandateKanban = React.memo(({
   selectedIds = [],
   onSelectItem
 }: MandateKanbanProps) => {
+  const isClient = useIsClient();
   const [isDragging, setIsDragging] = useState(false);
   const [dragError, setDragError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -142,7 +144,7 @@ export const MandateKanban = React.memo(({
     setDragError(null);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !isClient) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

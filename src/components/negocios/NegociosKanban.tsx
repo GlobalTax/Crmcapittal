@@ -10,6 +10,7 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanColumn } from './KanbanColumn';
 import { Negocio } from '@/types/Negocio';
+import { useIsClient } from '@/hooks/useIsClient';
 import { useStages } from '@/hooks/useStages';
 import { usePipelines } from '@/hooks/usePipelines';
 
@@ -33,6 +34,7 @@ interface NegociosKanbanProps {
  */
 
 export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: NegociosKanbanProps) => {
+  const isClient = useIsClient();
   const { stages } = useStages('DEAL');
   const { pipelines } = usePipelines();
   const [isDragging, setIsDragging] = useState(false);
@@ -93,10 +95,12 @@ export const NegociosKanban = ({ negocios, onUpdateStage, onEdit, onView }: Nego
 
   const dealStages = getDealStages();
 
-  if (dealStages.length === 0) {
+  if (!isClient || dealStages.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-sm text-muted-foreground">No hay etapas configuradas para el pipeline de negocios.</p>
+        <p className="text-sm text-muted-foreground">
+          {!isClient ? 'Cargando kanban...' : 'No hay etapas configuradas para el pipeline de negocios.'}
+        </p>
       </div>
     );
   }

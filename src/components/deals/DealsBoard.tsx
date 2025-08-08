@@ -12,6 +12,7 @@ import { Deal } from '@/types/Deal';
 import { StageColumn } from './StageColumn';
 import { useDeals } from '@/hooks/useDeals';
 import { useToast } from '@/hooks/use-toast';
+import { useIsClient } from '@/hooks/useIsClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { usePipelineConfiguration } from '@/hooks/usePipelineConfiguration';
@@ -24,6 +25,7 @@ interface DealsBoardProps {
 export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
   const { deals, loading, updateDealStage } = useDeals();
   const { toast } = useToast();
+  const isClient = useIsClient();
   const [isDragging, setIsDragging] = useState(false);
   
   // Use pipeline configuration to get dynamic stages
@@ -96,7 +98,7 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
     }
   };
 
-  if (loading || configLoading) {
+  if (loading || configLoading || !isClient) {
     return (
       <div className="grid auto-cols-[280px] grid-flow-col gap-6 overflow-x-auto px-8 py-6">
         {[1, 2, 3, 4].map((i) => (

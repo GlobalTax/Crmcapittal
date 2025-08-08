@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useIsClient } from '@/hooks/useIsClient';
 import { LeadKanbanColumn } from './LeadKanbanColumn';
 import { useLeadKanban, LeadWithStage } from '@/hooks/leads/useLeadKanban';
 
@@ -25,6 +26,7 @@ export const LeadKanbanBoard: React.FC<LeadKanbanBoardProps> = ({
   onAddLead,
   onRefresh,
 }) => {
+  const isClient = useIsClient();
   const {
     stages,
     leadsByStage,
@@ -77,7 +79,7 @@ export const LeadKanbanBoard: React.FC<LeadKanbanBoardProps> = ({
     setDragError(null);
   };
 
-  if (isLoading) {
+  if (isLoading || !isClient) {
     return (
       <div className="space-y-6">
         <div className="flex space-x-6 overflow-x-auto pb-4">
