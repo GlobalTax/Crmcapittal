@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ import type { CreateBuyingMandateData } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useValoraciones } from '@/hooks/useValoraciones';
 import { toast } from 'sonner';
+import { analyticsService } from '@/services/analyticsService';
 
 export type LeadClosureType = 'sell' | 'buy' | 'valuation';
 
@@ -38,6 +39,12 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   const [linkToLead, setLinkToLead] = useState(true);
   const [selectedType, setSelectedType] = useState<LeadClosureType>('valuation');
   const [recommendedType, setRecommendedType] = useState<LeadClosureType>('valuation');
+
+  // Telemetría refs
+  const openAtRef = useRef<number | null>(null);
+  const decisionMadeRef = useRef(false);
+  const selectionTrackedRef = useRef(false);
+  const recommendedTrackedRef = useRef(false);
 
   // Campos inline cuando faltan datos mínimos
   const initialCompany = useMemo(
@@ -91,6 +98,58 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   const phone = (lead as any)?.phone || (lead as any)?.contact_phone || '';
   const assigned_to_id = (lead as any)?.assigned_to_id || (lead as any)?.owner_id || undefined;
 
+  // Track apertura del diálogo
+  useEffect(() => {
+    if (open) {
+      openAtRef.current = Date.now();
+      decisionMadeRef.current = false;
+      selectionTrackedRef.current = false;
+      recommendedTrackedRef.current = false;
+      analyticsService.track('lead_closure_dialog_opened', {
+        lead_id: lead.id,
+        ae_id: assigned_to_id
+      });
+    }
+  }, [open, lead?.id]);
+
+  // Recomendada
+  useEffect(() => {
+    if (open && recommendedType && !recommendedTrackedRef.current) {
+      analyticsService.track('option_recommended', {
+        lead_id: lead.id,
+        type: recommendedType,
+        ae_id: assigned_to_id
+      });
+      recommendedTrackedRef.current = true;
+    }
+  }, [open, recommendedType, lead?.id]);
+
+  const handleOpenChangeInternal = (val: boolean) => {
+    if (!val) {
+      if (!decisionMadeRef.current) {
+        analyticsService.track('dialog_dismissed', {
+          lead_id: lead.id,
+          ae_id: assigned_to_id,
+          time_to_decision_ms: openAtRef.current ? Date.now() - openAtRef.current : undefined
+        });
+      }
+    }
+    onOpenChange(val);
+  };
+
+  const handleSelect = (value: LeadClosureType) => {
+    setSelectedType(value);
+    if (!selectionTrackedRef.current) {
+      analyticsService.track('option_selected', {
+        lead_id: lead.id,
+        type: value,
+        ae_id: assigned_to_id,
+        time_to_decision_ms: openAtRef.current ? Date.now() - openAtRef.current : undefined
+      });
+      selectionTrackedRef.current = true;
+    }
+  };
+
   const validate = () => {
     const next: { company?: string; contact?: string } = {};
     if (selectedType === 'valuation') {
@@ -105,6 +164,16 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   };
 
   const handleCloseOnly = () => {
+    decisionMadeRef.current = true;
+    if (!selectionTrackedRef.current) {
+      analyticsService.track('option_selected', {
+        lead_id: lead.id,
+        type: selectedType,
+        ae_id: assigned_to_id,
+        time_to_decision_ms: openAtRef.current ? Date.now() - openAtRef.current : undefined
+      });
+      selectionTrackedRef.current = true;
+    }
     onOpenChange(false);
   };
 
@@ -127,7 +196,19 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   const handleCreate = async (closeAfter: boolean) => {
     if (!validate()) return;
     try {
+      decisionMadeRef.current = true;
+      if (!selectionTrackedRef.current) {
+        analyticsService.track('option_selected', {
+          lead_id: lead.id,
+          type: selectedType,
+          ae_id: assigned_to_id,
+          time_to_decision_ms: openAtRef.current ? Date.now() - openAtRef.current : undefined
+        });
+        selectionTrackedRef.current = true;
+      }
+
       setLoading(true);
+      let createdId: string | undefined;
 
       if (selectedType === 'valuation') {
         // Crear valoración
@@ -146,6 +227,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
           }
         });
         toast.success('Valoración creada');
+        createdId = undefined;
         onCreated?.({ type: 'valuation', id: 'new', linkToLead });
       } else {
         // Crear mandato (compra/venta)
@@ -153,10 +235,28 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
         const { data, error } = await createMandate(payload);
         if (error || !data) throw error || new Error('No se pudo crear el mandato');
         toast.success('Mandato creado');
+        createdId = data.id;
         onCreated?.({ type: selectedType, id: data.id, linkToLead });
       }
 
-      if (closeAfter) onOpenChange(false);
+      // Track creación de entidad
+      analyticsService.track('entity_created', {
+        lead_id: lead.id,
+        type: selectedType,
+        entity_id: createdId || 'unknown',
+        ae_id: assigned_to_id,
+        link_to_lead: linkToLead
+      });
+
+      if (closeAfter) {
+        analyticsService.track('entity_opened', {
+          entity_id: createdId || 'unknown',
+          type: selectedType,
+          lead_id: lead.id,
+          ae_id: assigned_to_id
+        });
+        onOpenChange(false);
+      }
     } catch (error: any) {
       console.error('Error al crear desde lead:', error);
       toast.error(error?.message || 'Error al crear el elemento');
@@ -183,7 +283,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
             'relative transition-colors border bg-card hover:border-primary/50 ' +
             (isSelected ? 'border-primary ring-1 ring-primary' : 'border-border')
           }
-          onClick={() => setSelectedType(value)}
+          onClick={() => handleSelect(value)}
         >
           <CardContent className="p-4 flex items-start gap-3">
             <RadioGroupItem value={value} id={`opt-${value}`} className="mt-1" />
@@ -207,7 +307,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   const needsContact = !contactName?.trim();
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-xl" role="dialog" aria-modal="true" aria-labelledby="lead-closure-title">
         <DialogHeader>
           <DialogTitle id="lead-closure-title">Crear desde lead</DialogTitle>
@@ -228,7 +328,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
         </div>
 
         {/* Radios como Cards */}
-        <RadioGroup value={selectedType} onValueChange={(v) => setSelectedType(v as LeadClosureType)}>
+        <RadioGroup value={selectedType} onValueChange={(v) => handleSelect(v as LeadClosureType)}>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {optionCard('sell', {
               title: 'Mandato de Venta',
