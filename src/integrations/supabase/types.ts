@@ -5430,6 +5430,65 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_emails: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          last_open_at: string | null
+          lead_id: string
+          open_count: number
+          provider_message_id: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          to_email: string
+          tracking_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_open_at?: string | null
+          lead_id: string
+          open_count?: number
+          provider_message_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          to_email: string
+          tracking_id?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          last_open_at?: string | null
+          lead_id?: string
+          open_count?: number
+          provider_message_id?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          to_email?: string
+          tracking_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_emails_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_files: {
         Row: {
           content_type: string | null
@@ -5508,6 +5567,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "lead_interactions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_links_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
@@ -11795,6 +11889,15 @@ export type Database = {
       create_deal_from_won_lead: {
         Args: { p_lead_id: string; p_deal_value?: number }
         Returns: Json
+      }
+      create_entity_from_lead: {
+        Args: {
+          p_lead_id: string
+          p_type: string
+          p_payload: Json
+          p_link?: boolean
+        }
+        Returns: string
       }
       create_lead_task: {
         Args: {
