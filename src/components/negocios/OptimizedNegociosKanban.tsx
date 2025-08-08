@@ -306,3 +306,5 @@ export const OptimizedNegociosKanban = React.memo(({
 });
 
 OptimizedNegociosKanban.displayName = 'OptimizedNegociosKanban';
+
+export default OptimizedNegociosKanban;

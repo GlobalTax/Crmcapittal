@@ -8,7 +8,7 @@ import { UnifiedCard } from "@/components/ui/unified-card";
 import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
 import { useProposals } from '@/hooks/useProposals';
 import { ProposalWizard } from '@/components/proposals/ProposalWizard';
-const ProposalKanbanBoard = lazy(() => import('@/components/proposals/kanban/ProposalKanbanBoard').then(m => ({ default: m.ProposalKanbanBoard })));
+const ProposalKanbanBoard = lazy(() => import('@/components/proposals/kanban/ProposalKanbanBoard'));
 import { Proposal, CreateProposalData } from '@/types/Proposal';
 import { ProposalTemplate } from '@/types/ProposalTemplate';
 import { FileText, Users, CheckCircle, Euro, Plus, LayoutGrid, Table } from "lucide-react";

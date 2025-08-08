@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { createContext, useContext } from 'react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 
 interface NotificationContextType {
@@ -13,10 +13,10 @@ interface NotificationContextType {
   processTaskReminders: ReturnType<typeof useNotificationSystem>['processTaskReminders'];
 }
 
-const NotificationContext = React.createContext<NotificationContextType | undefined>(undefined);
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const useNotifications = () => {
-  const context = React.useContext(NotificationContext);
+  const context = useContext(NotificationContext);
   if (!context) {
     throw new Error('useNotifications must be used within a NotificationProvider');
   }

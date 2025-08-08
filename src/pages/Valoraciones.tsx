@@ -5,7 +5,7 @@ import { ValoracionesSearchAndFilters } from '@/components/valoraciones/Valoraci
 import { ValoracionesStats } from '@/components/valoraciones/ValoracionesStats';
 import { ValoracionesGrid } from '@/components/valoraciones/ValoracionesGrid';
 import { ValoracionesPagination } from '@/components/valoraciones/ValoracionesPagination';
-const ValoracionesKanban = lazy(() => import('@/components/valoraciones/ValoracionesKanban').then(m => ({ default: m.ValoracionesKanban })));
+const ValoracionesKanban = lazy(() => import('@/components/valoraciones/ValoracionesKanban'));
 import { FloatingActionButton } from '@/components/valoraciones/FloatingActionButton';
 import { useValoracionesData } from '@/hooks/useValoracionesData';
 import { useValoracionesSearch } from '@/hooks/useValoracionesSearch';

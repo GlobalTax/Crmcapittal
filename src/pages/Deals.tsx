@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-const OptimizedDealsBoard = lazy(() => import('@/components/deals/OptimizedDealsBoard').then(m => ({ default: m.OptimizedDealsBoard })));
+const OptimizedDealsBoard = lazy(() => import('@/components/deals/OptimizedDealsBoard'));
 import { NewDealModal } from '@/components/deals/NewDealModal';
 import { DealDrawer } from '@/components/deals/DealDrawer';
 import { Deal, DealStage } from '@/types/Deal';

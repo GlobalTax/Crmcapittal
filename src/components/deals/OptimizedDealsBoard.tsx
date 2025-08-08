@@ -258,3 +258,5 @@ export const OptimizedDealsBoard = ({
     </div>
   );
 };
+
+export default OptimizedDealsBoard;

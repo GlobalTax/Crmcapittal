@@ -13,7 +13,7 @@ const CompanyDetail = lazy(() => import('@/components/empresas/CompanyDetail'));
 const ContactList = lazy(() => import('@/components/contactos/ContactList'));
 const ContactDetail = lazy(() => import('@/components/contactos/ContactDetail'));
 const LeadsEntryPanel = lazy(() => import('@/components/captacion/LeadsEntryPanel'));
-const HubSpotDatabase = lazy(() => import('@/components/hubspot/HubSpotDatabase').then(m => ({ default: m.HubSpotDatabase })));
+const HubSpotDatabase = lazy(() => import('@/components/hubspot/HubSpotDatabase'));
 
 // Import the unified lead page and enhanced mandate detail view
 const LeadPage = lazy(() => import('@/pages/LeadPage'));

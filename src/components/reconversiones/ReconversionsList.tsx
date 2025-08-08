@@ -5,7 +5,7 @@ import { ReconversionStats } from './ReconversionStats';
 import { ReconversionFilters } from './ReconversionFilters';
 import { ReconversionViewToggle } from './ReconversionViewToggle';
 import { ReconversionEmptyState } from './ReconversionEmptyState';
-const ReconversionKanbanView = lazy(() => import('./ReconversionKanbanView').then(m => ({ default: m.ReconversionKanbanView })));
+const ReconversionKanbanView = lazy(() => import('./ReconversionKanbanView'));
 import { LoadingButton } from '@/components/ui/loading-button';
 import { SkeletonGrid } from '@/components/ui/skeleton-card';
 import { Badge } from '@/components/ui/badge';

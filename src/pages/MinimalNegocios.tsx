@@ -9,7 +9,7 @@ import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useNegocioAutomations } from "@/hooks/useNegocioAutomations";
 import { User, Briefcase, Building2, Users, Settings, BarChart3 } from "lucide-react";
 // import { NegociosKanban } from "@/components/negocios/NegociosKanban";
-const OptimizedNegociosKanban = lazy(() => import('@/components/negocios/OptimizedNegociosKanban').then(m => ({ default: m.OptimizedNegociosKanban })));
+const OptimizedNegociosKanban = lazy(() => import('@/components/negocios/OptimizedNegociosKanban'));
 import { MetricCard } from "@/components/negocios/MetricCard";
 import { MetricsBar } from "@/components/negocios/MetricsBar";
 import { FilterBar } from "@/components/negocios/FilterBar";

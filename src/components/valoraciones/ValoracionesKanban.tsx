@@ -203,3 +203,5 @@ export const ValoracionesKanban = React.memo(({
 });
 
 ValoracionesKanban.displayName = 'ValoracionesKanban';
+
+export default ValoracionesKanban;

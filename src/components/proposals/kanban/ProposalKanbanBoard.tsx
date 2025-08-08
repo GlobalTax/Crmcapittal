@@ -276,3 +276,5 @@ export const ProposalKanbanBoard: React.FC<ProposalKanbanBoardProps> = ({
     </div>
   );
 };
+
+export default ProposalKanbanBoard;

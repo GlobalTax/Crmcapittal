@@ -474,3 +474,5 @@ export function HubSpotDatabase() {
     </div>
   );
 }
+
+export default HubSpotDatabase;
