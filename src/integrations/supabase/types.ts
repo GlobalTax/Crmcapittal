@@ -1778,16 +1778,20 @@ export type Database = {
           business_segment:
             | Database["public"]["Enums"]["business_segment"]
             | null
+          buyer_active: boolean
           city: string | null
           company_size: Database["public"]["Enums"]["company_size"]
           company_status: Database["public"]["Enums"]["company_status"]
           company_type: Database["public"]["Enums"]["company_type"]
           country: string | null
+          country_code: string | null
           created_at: string
           created_by: string | null
           deal_readiness_score: number | null
           description: string | null
           domain: string | null
+          ebitda_band: string | null
+          employees_band: string | null
           engagement_level: number | null
           engagement_score: number | null
           external_id: string | null
@@ -1799,14 +1803,18 @@ export type Database = {
             | null
           id: string
           industry: string | null
+          industry_tax: string | null
+          investor_type: string | null
           is_franquicia: boolean
           is_key_account: boolean
           is_target_account: boolean
           last_activity_date: string | null
           last_contact_date: string | null
           lead_score: number | null
+          leverage_band: string | null
           lifecycle_stage: Database["public"]["Enums"]["lifecycle_stage"]
           linkedin_url: string | null
+          margin_band: string | null
           name: string
           network_strength: number | null
           next_follow_up_date: string | null
@@ -1816,8 +1824,16 @@ export type Database = {
           owner_name: string | null
           phone: string | null
           postal_code: string | null
+          prefers_email: boolean
+          prefers_phone: boolean
+          prefers_whatsapp: boolean
+          region: string | null
+          revenue_band: string | null
+          seller_ready: boolean
           source_table: string | null
           state: string | null
+          strategic_fit: string | null
+          subindustry_tax: string | null
           tags: string[] | null
           transaction_interest:
             | Database["public"]["Enums"]["transaction_interest"]
@@ -1832,16 +1848,20 @@ export type Database = {
           business_segment?:
             | Database["public"]["Enums"]["business_segment"]
             | null
+          buyer_active?: boolean
           city?: string | null
           company_size?: Database["public"]["Enums"]["company_size"]
           company_status?: Database["public"]["Enums"]["company_status"]
           company_type?: Database["public"]["Enums"]["company_type"]
           country?: string | null
+          country_code?: string | null
           created_at?: string
           created_by?: string | null
           deal_readiness_score?: number | null
           description?: string | null
           domain?: string | null
+          ebitda_band?: string | null
+          employees_band?: string | null
           engagement_level?: number | null
           engagement_score?: number | null
           external_id?: string | null
@@ -1853,14 +1873,18 @@ export type Database = {
             | null
           id?: string
           industry?: string | null
+          industry_tax?: string | null
+          investor_type?: string | null
           is_franquicia?: boolean
           is_key_account?: boolean
           is_target_account?: boolean
           last_activity_date?: string | null
           last_contact_date?: string | null
           lead_score?: number | null
+          leverage_band?: string | null
           lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
           linkedin_url?: string | null
+          margin_band?: string | null
           name: string
           network_strength?: number | null
           next_follow_up_date?: string | null
@@ -1870,8 +1894,16 @@ export type Database = {
           owner_name?: string | null
           phone?: string | null
           postal_code?: string | null
+          prefers_email?: boolean
+          prefers_phone?: boolean
+          prefers_whatsapp?: boolean
+          region?: string | null
+          revenue_band?: string | null
+          seller_ready?: boolean
           source_table?: string | null
           state?: string | null
+          strategic_fit?: string | null
+          subindustry_tax?: string | null
           tags?: string[] | null
           transaction_interest?:
             | Database["public"]["Enums"]["transaction_interest"]
@@ -1886,16 +1918,20 @@ export type Database = {
           business_segment?:
             | Database["public"]["Enums"]["business_segment"]
             | null
+          buyer_active?: boolean
           city?: string | null
           company_size?: Database["public"]["Enums"]["company_size"]
           company_status?: Database["public"]["Enums"]["company_status"]
           company_type?: Database["public"]["Enums"]["company_type"]
           country?: string | null
+          country_code?: string | null
           created_at?: string
           created_by?: string | null
           deal_readiness_score?: number | null
           description?: string | null
           domain?: string | null
+          ebitda_band?: string | null
+          employees_band?: string | null
           engagement_level?: number | null
           engagement_score?: number | null
           external_id?: string | null
@@ -1907,14 +1943,18 @@ export type Database = {
             | null
           id?: string
           industry?: string | null
+          industry_tax?: string | null
+          investor_type?: string | null
           is_franquicia?: boolean
           is_key_account?: boolean
           is_target_account?: boolean
           last_activity_date?: string | null
           last_contact_date?: string | null
           lead_score?: number | null
+          leverage_band?: string | null
           lifecycle_stage?: Database["public"]["Enums"]["lifecycle_stage"]
           linkedin_url?: string | null
+          margin_band?: string | null
           name?: string
           network_strength?: number | null
           next_follow_up_date?: string | null
@@ -1924,8 +1964,16 @@ export type Database = {
           owner_name?: string | null
           phone?: string | null
           postal_code?: string | null
+          prefers_email?: boolean
+          prefers_phone?: boolean
+          prefers_whatsapp?: boolean
+          region?: string | null
+          revenue_band?: string | null
+          seller_ready?: boolean
           source_table?: string | null
           state?: string | null
+          strategic_fit?: string | null
+          subindustry_tax?: string | null
           tags?: string[] | null
           transaction_interest?:
             | Database["public"]["Enums"]["transaction_interest"]
@@ -2856,9 +2904,13 @@ export type Database = {
       contacts: {
         Row: {
           assigned_to_id: string | null
+          channel_pref: string | null
+          classification: string | null
           collaborator_id: string | null
           company: string | null
           company_id: string | null
+          consent_email: boolean
+          consent_whatsapp: boolean
           contact_priority: string | null
           contact_roles: Database["public"]["Enums"]["contact_role"][] | null
           contact_source: string | null
@@ -2881,7 +2933,9 @@ export type Database = {
           external_source: string | null
           first_contact_date: string | null
           follow_up_count: number | null
+          geography_focus: string[] | null
           id: string
+          interest: string | null
           investment_capacity_max: number | null
           investment_capacity_min: number | null
           is_active: boolean | null
@@ -2905,11 +2959,15 @@ export type Database = {
           phone: string | null
           position: string | null
           preferred_contact_method: string | null
+          role_simple: string | null
           roles: string[] | null
+          sectors_focus: string[] | null
           sectors_of_interest: string[] | null
           source_table: string | null
           stage_id: string | null
           tags_array: string[] | null
+          ticket_max: number | null
+          ticket_min: number | null
           time_zone: string | null
           updated_at: string
           website_url: string | null
@@ -2917,9 +2975,13 @@ export type Database = {
         }
         Insert: {
           assigned_to_id?: string | null
+          channel_pref?: string | null
+          classification?: string | null
           collaborator_id?: string | null
           company?: string | null
           company_id?: string | null
+          consent_email?: boolean
+          consent_whatsapp?: boolean
           contact_priority?: string | null
           contact_roles?: Database["public"]["Enums"]["contact_role"][] | null
           contact_source?: string | null
@@ -2942,7 +3004,9 @@ export type Database = {
           external_source?: string | null
           first_contact_date?: string | null
           follow_up_count?: number | null
+          geography_focus?: string[] | null
           id?: string
+          interest?: string | null
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
           is_active?: boolean | null
@@ -2966,11 +3030,15 @@ export type Database = {
           phone?: string | null
           position?: string | null
           preferred_contact_method?: string | null
+          role_simple?: string | null
           roles?: string[] | null
+          sectors_focus?: string[] | null
           sectors_of_interest?: string[] | null
           source_table?: string | null
           stage_id?: string | null
           tags_array?: string[] | null
+          ticket_max?: number | null
+          ticket_min?: number | null
           time_zone?: string | null
           updated_at?: string
           website_url?: string | null
@@ -2978,9 +3046,13 @@ export type Database = {
         }
         Update: {
           assigned_to_id?: string | null
+          channel_pref?: string | null
+          classification?: string | null
           collaborator_id?: string | null
           company?: string | null
           company_id?: string | null
+          consent_email?: boolean
+          consent_whatsapp?: boolean
           contact_priority?: string | null
           contact_roles?: Database["public"]["Enums"]["contact_role"][] | null
           contact_source?: string | null
@@ -3003,7 +3075,9 @@ export type Database = {
           external_source?: string | null
           first_contact_date?: string | null
           follow_up_count?: number | null
+          geography_focus?: string[] | null
           id?: string
+          interest?: string | null
           investment_capacity_max?: number | null
           investment_capacity_min?: number | null
           is_active?: boolean | null
@@ -3027,11 +3101,15 @@ export type Database = {
           phone?: string | null
           position?: string | null
           preferred_contact_method?: string | null
+          role_simple?: string | null
           roles?: string[] | null
+          sectors_focus?: string[] | null
           sectors_of_interest?: string[] | null
           source_table?: string | null
           stage_id?: string | null
           tags_array?: string[] | null
+          ticket_max?: number | null
+          ticket_min?: number | null
           time_zone?: string | null
           updated_at?: string
           website_url?: string | null
@@ -9924,6 +10002,96 @@ export type Database = {
         }
         Relationships: []
       }
+      taxonomy_dimensions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          entity_scope: string
+          id: string
+          is_active: boolean
+          key: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entity_scope?: string
+          id?: string
+          is_active?: boolean
+          key: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entity_scope?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      taxonomy_values: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dimension_id: string
+          id: string
+          is_active: boolean
+          label: string
+          metadata: Json
+          parent_id: string | null
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dimension_id: string
+          id?: string
+          is_active?: boolean
+          label: string
+          metadata?: Json
+          parent_id?: string | null
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dimension_id?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          metadata?: Json
+          parent_id?: string | null
+          updated_at?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "taxonomy_values_dimension_id_fkey"
+            columns: ["dimension_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_dimensions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "taxonomy_values_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "taxonomy_values"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           added_at: string
@@ -12501,6 +12669,14 @@ export type Database = {
       }
       validate_strong_password: {
         Args: { p_password: string }
+        Returns: boolean
+      }
+      validate_taxonomy_array: {
+        Args: { p_dimension_key: string; p_values: string[] }
+        Returns: boolean
+      }
+      validate_taxonomy_single: {
+        Args: { p_dimension_key: string; p_value: string }
         Returns: boolean
       }
       validate_user_input: {

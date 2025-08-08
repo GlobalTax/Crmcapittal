@@ -49,6 +49,25 @@ export interface Company extends BaseEntity, AddressInfo, SocialLinks, EntityMet
   // Business identification
   nif?: string;
   
+  // Controlled taxonomy (empresa)
+  industry_tax?: string;
+  subindustry_tax?: string;
+  country_code?: string;
+  region?: string;
+  city?: string;
+  revenue_band?: string;
+  employees_band?: string;
+  ebitda_band?: string;
+  margin_band?: string;
+  leverage_band?: string;
+  seller_ready?: boolean;
+  buyer_active?: boolean;
+  investor_type?: string;
+  strategic_fit?: string;
+  prefers_email?: boolean;
+  prefers_phone?: boolean;
+  prefers_whatsapp?: boolean;
+  
   // Relationship metrics
   contacts_count?: number;
   active_contacts?: string[];

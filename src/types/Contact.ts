@@ -71,6 +71,18 @@ export interface Contact extends BaseEntity, ContactInfo, BusinessInfo, SocialLi
   collaborator_id?: string;
   converted_to_mandate_id?: string;
   
+  // Controlled taxonomy (contacto)
+  classification?: 'cliente' | 'target' | 'prospecto' | 'inversor' | string;
+  role_simple?: 'decision' | 'finance' | 'tech' | 'legal' | 'ops' | 'assistant' | string;
+  interest?: 'buy' | 'sell' | 'invest' | 'explore' | string;
+  ticket_min?: number;
+  ticket_max?: number;
+  geography_focus?: string[];
+  sectors_focus?: string[];
+  channel_pref?: 'email' | 'phone' | 'whatsapp' | string;
+  consent_email?: boolean;
+  consent_whatsapp?: boolean;
+  
   // Relations
   assigned_to?: {
     id: string;
@@ -98,6 +110,17 @@ export interface CreateContactData extends Omit<Contact, keyof BaseEntity> {
   ecosystem_role?: EcosystemRole;
   
   // All other fields from Contact interface are optional
+  // Controlled taxonomy fields (opcionales en creación)
+  classification?: 'cliente' | 'target' | 'prospecto' | 'inversor' | string;
+  role_simple?: 'decision' | 'finance' | 'tech' | 'legal' | 'ops' | 'assistant' | string;
+  interest?: 'buy' | 'sell' | 'invest' | 'explore' | string;
+  ticket_min?: number;
+  ticket_max?: number;
+  geography_focus?: string[];
+  sectors_focus?: string[];
+  channel_pref?: 'email' | 'phone' | 'whatsapp' | string;
+  consent_email?: boolean;
+  consent_whatsapp?: boolean;
 }
 
 export interface UpdateContactData extends Partial<CreateContactData> {
