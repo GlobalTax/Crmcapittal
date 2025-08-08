@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,6 +11,7 @@ import { format, isAfter, subDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import LeadClosureActionDialog from './LeadClosureActionDialog';
 
 interface OptimizedLeadTableProps {
   leads: Lead[];
@@ -30,6 +31,9 @@ export const OptimizedLeadTable = ({
   onUpdateLead
 }: OptimizedLeadTableProps) => {
   const navigate = useNavigate();
+
+  const [closureOpen, setClosureOpen] = useState(false);
+  const [closureLead, setClosureLead] = useState<Lead | null>(null);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'bg-green-500';
@@ -51,6 +55,13 @@ export const OptimizedLeadTable = ({
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
       await onUpdateLead({ id: leadId, updates: { status: newStatus } });
+      if (newStatus === 'CONVERTED') {
+        const found = leads.find((l) => l.id === leadId) || null;
+        if (found) {
+          setClosureLead(found);
+          setClosureOpen(true);
+        }
+      }
     } catch (error) {
       toast.error('Error al actualizar el estado');
     }
@@ -318,6 +329,13 @@ export const OptimizedLeadTable = ({
           })}
         </TableBody>
       </Table>
+      {closureLead && (
+        <LeadClosureActionDialog
+          open={closureOpen}
+          onOpenChange={setClosureOpen}
+          lead={closureLead}
+        />
+      )}
     </div>
   );
 };
