@@ -1816,6 +1816,7 @@ export type Database = {
           linkedin_url: string | null
           margin_band: string | null
           name: string
+          name_normalized: string | null
           network_strength: number | null
           next_follow_up_date: string | null
           nif: string | null
@@ -1886,6 +1887,7 @@ export type Database = {
           linkedin_url?: string | null
           margin_band?: string | null
           name: string
+          name_normalized?: string | null
           network_strength?: number | null
           next_follow_up_date?: string | null
           nif?: string | null
@@ -1956,6 +1958,7 @@ export type Database = {
           linkedin_url?: string | null
           margin_band?: string | null
           name?: string
+          name_normalized?: string | null
           network_strength?: number | null
           next_follow_up_date?: string | null
           nif?: string | null
@@ -2926,12 +2929,14 @@ export type Database = {
           ecosystem_role: Database["public"]["Enums"]["ecosystem_role"] | null
           email: string | null
           email_clicks: number | null
+          email_domain: string | null
           email_opens: number | null
           engagement_level: number | null
           external_id: string | null
           external_lead_id: string | null
           external_source: string | null
           first_contact_date: string | null
+          first_name: string | null
           follow_up_count: number | null
           geography_focus: string[] | null
           id: string
@@ -2943,6 +2948,7 @@ export type Database = {
           last_activity_date: string | null
           last_contact_date: string | null
           last_interaction_date: string | null
+          last_name: string | null
           lead_origin: string | null
           lead_priority: string | null
           lead_quality: string | null
@@ -2957,6 +2963,7 @@ export type Database = {
           next_follow_up_date: string | null
           notes: string | null
           phone: string | null
+          phone_normalized: string | null
           position: string | null
           preferred_contact_method: string | null
           role_simple: string | null
@@ -2997,12 +3004,14 @@ export type Database = {
           ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
           email?: string | null
           email_clicks?: number | null
+          email_domain?: string | null
           email_opens?: number | null
           engagement_level?: number | null
           external_id?: string | null
           external_lead_id?: string | null
           external_source?: string | null
           first_contact_date?: string | null
+          first_name?: string | null
           follow_up_count?: number | null
           geography_focus?: string[] | null
           id?: string
@@ -3014,6 +3023,7 @@ export type Database = {
           last_activity_date?: string | null
           last_contact_date?: string | null
           last_interaction_date?: string | null
+          last_name?: string | null
           lead_origin?: string | null
           lead_priority?: string | null
           lead_quality?: string | null
@@ -3028,6 +3038,7 @@ export type Database = {
           next_follow_up_date?: string | null
           notes?: string | null
           phone?: string | null
+          phone_normalized?: string | null
           position?: string | null
           preferred_contact_method?: string | null
           role_simple?: string | null
@@ -3068,12 +3079,14 @@ export type Database = {
           ecosystem_role?: Database["public"]["Enums"]["ecosystem_role"] | null
           email?: string | null
           email_clicks?: number | null
+          email_domain?: string | null
           email_opens?: number | null
           engagement_level?: number | null
           external_id?: string | null
           external_lead_id?: string | null
           external_source?: string | null
           first_contact_date?: string | null
+          first_name?: string | null
           follow_up_count?: number | null
           geography_focus?: string[] | null
           id?: string
@@ -3085,6 +3098,7 @@ export type Database = {
           last_activity_date?: string | null
           last_contact_date?: string | null
           last_interaction_date?: string | null
+          last_name?: string | null
           lead_origin?: string | null
           lead_priority?: string | null
           lead_quality?: string | null
@@ -3099,6 +3113,7 @@ export type Database = {
           next_follow_up_date?: string | null
           notes?: string | null
           phone?: string | null
+          phone_normalized?: string | null
           position?: string | null
           preferred_contact_method?: string | null
           role_simple?: string | null
@@ -12286,6 +12301,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      extract_email_domain: {
+        Args: { email_input: string }
+        Returns: string
+      }
       fn_recalcular_score_lead: {
         Args: { p_lead_id: string }
         Returns: undefined
@@ -12512,6 +12531,14 @@ export type Database = {
           matched_companies: Json
         }[]
       }
+      normalize_company_name: {
+        Args: { name_input: string }
+        Returns: string
+      }
+      normalize_phone: {
+        Args: { phone_input: string }
+        Returns: string
+      }
       obtener_token_integraloop: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -12545,6 +12572,10 @@ export type Database = {
       process_reconversion_closure: {
         Args: { reconversion_id: string; closure_data: Json; user_id?: string }
         Returns: boolean
+      }
+      quick_create_company_from_email: {
+        Args: { email_input: string }
+        Returns: string
       }
       recalcular_prob_conversion_lead: {
         Args: { p_lead_id: string }
@@ -12611,6 +12642,10 @@ export type Database = {
       sincronizar_impuestos_quantum: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      split_full_name: {
+        Args: { full_name: string }
+        Returns: Json
       }
       start_document_workflow: {
         Args: { p_document_id: string; p_workflow_id: string }
