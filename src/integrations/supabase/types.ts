@@ -5037,6 +5037,84 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_analytics: {
+        Row: {
+          action: string
+          feature_key: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          organization_id: string | null
+          session_id: string | null
+          timestamp: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          feature_key: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          organization_id?: string | null
+          session_id?: string | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          feature_key?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          organization_id?: string | null
+          session_id?: string | null
+          timestamp?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      feature_flags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          enabled: boolean
+          environment: string | null
+          id: string
+          key: string
+          organization_id: string | null
+          rollout_percentage: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          enabled?: boolean
+          environment?: string | null
+          id?: string
+          key: string
+          organization_id?: string | null
+          rollout_percentage?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          enabled?: boolean
+          environment?: string | null
+          id?: string
+          key?: string
+          organization_id?: string | null
+          rollout_percentage?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       fee_history: {
         Row: {
           amount: number

@@ -62,7 +62,7 @@ export const FeatureAdoptionDashboard = () => {
         const metricsMap = new Map<string, FeatureMetrics>();
         
         // Process analytics data
-        analytics.forEach(event => {
+        analytics.forEach((event: any) => {
           const feature = event.feature_key;
           if (!metricsMap.has(feature)) {
             metricsMap.set(feature, {
@@ -81,16 +81,16 @@ export const FeatureAdoptionDashboard = () => {
 
         // Calculate detailed metrics for each feature
         for (const [feature, metric] of metricsMap) {
-          const featureEvents = analytics.filter(e => e.feature_key === feature);
+          const featureEvents = analytics.filter((e: any) => e.feature_key === feature);
           
           // Unique users
-          metric.unique_users = new Set(featureEvents.map(e => e.user_id).filter(Boolean)).size;
+          metric.unique_users = new Set(featureEvents.map((e: any) => e.user_id).filter(Boolean)).size;
           
           // Success rate
-          const successEvents = featureEvents.filter(e => 
+          const successEvents = featureEvents.filter((e: any) => 
             e.action.includes('completed') || e.action.includes('success')
           );
-          const attemptEvents = featureEvents.filter(e => 
+          const attemptEvents = featureEvents.filter((e: any) => 
             e.action.includes('attempted') || e.action.includes('started')
           );
           metric.success_rate = attemptEvents.length > 0 
@@ -99,7 +99,7 @@ export const FeatureAdoptionDashboard = () => {
           
           // Daily adoption
           const dailyData = new Map<string, { events: number; users: Set<string> }>();
-          featureEvents.forEach(event => {
+          featureEvents.forEach((event: any) => {
             const date = new Date(event.timestamp).toISOString().split('T')[0];
             if (!dailyData.has(date)) {
               dailyData.set(date, { events: 0, users: new Set() });
@@ -117,7 +117,7 @@ export const FeatureAdoptionDashboard = () => {
           
           // Action breakdown
           const actionCounts = new Map<string, number>();
-          featureEvents.forEach(event => {
+          featureEvents.forEach((event: any) => {
             const action = event.action;
             actionCounts.set(action, (actionCounts.get(action) || 0) + 1);
           });

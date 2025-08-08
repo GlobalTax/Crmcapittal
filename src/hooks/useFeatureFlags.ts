@@ -22,14 +22,8 @@ export const useFeatureFlags = () => {
           return;
         }
 
-        // Get user's organization
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('organization_id')
-          .eq('id', user.id)
-          .single();
-
-        const orgId = profile?.organization_id;
+        // Get user's organization (simplified for now)
+        const orgId = null; // No organization support yet
         const environment = import.meta.env.MODE || 'development';
 
         // Check feature flags

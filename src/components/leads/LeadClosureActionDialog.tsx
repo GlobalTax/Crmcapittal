@@ -10,6 +10,10 @@ import { Building2, User, Calculator, Target, ArrowRight } from 'lucide-react';
 import { Lead } from '@/types/Lead';
 import { analyticsService } from '@/services/analyticsService';
 import { useToast } from '@/hooks/use-toast';
+import { useLeadClosure } from '@/hooks/leads/useLeadClosure';
+import { useLeadClosureWorkflow } from '@/hooks/useLeadClosureWorkflow';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LeadClosureActionDialogProps {
   isOpen: boolean;
@@ -56,87 +60,39 @@ export const LeadClosureActionDialog = ({
   const [linkToLead, setLinkToLead] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
+  const { suggest, buildPayload } = useLeadClosureWorkflow();
+  const { createFromLead } = useLeadClosure();
+  const { isEnabled } = useFeatureFlags();
 
-  // Suggest recommended type based on lead data
-  const suggest = (lead: Lead): ClosureType => {
-    const searchText = `${lead.message || ''} ${lead.service_type || ''} ${lead.extra?.notes || ''}`.toLowerCase();
-    
-    let sellScore = 0;
-    let buyScore = 0;
-    let valuationScore = 0;
-    
-    KEYWORD_RULES.sell_keywords.forEach(keyword => {
-      if (searchText.includes(keyword)) sellScore++;
-    });
-    
-    KEYWORD_RULES.buy_keywords.forEach(keyword => {
-      if (searchText.includes(keyword)) buyScore++;
-    });
-    
-    KEYWORD_RULES.valuation_keywords.forEach(keyword => {
-      if (searchText.includes(keyword)) valuationScore++;
-    });
-    
-    // Use service_type as strong signal
-    if (lead.service_type === 'mandato_venta') sellScore += 3;
-    if (lead.service_type === 'mandato_compra') buyScore += 3;
-    if (lead.service_type === 'valoracion_empresa') valuationScore += 3;
-    
-    if (sellScore >= buyScore && sellScore >= valuationScore) return 'mandato_venta';
-    if (buyScore >= valuationScore) return 'mandato_compra';
-    return 'valoracion';
+  // Check if feature is enabled
+  if (!isEnabled('lead_closure_dialog')) {
+    return null;
+  }
+
+  // Map old dialog types to new workflow types
+  const mapToWorkflowType = (dialogType: ClosureType) => {
+    switch (dialogType) {
+      case 'mandato_venta': return 'sell';
+      case 'mandato_compra': return 'buy';
+      case 'valoracion': return 'valuation';
+      default: return null;
+    }
   };
 
-  // Build payload with pre-filled data
-  const buildPayload = (type: ClosureType, data: PayloadData, lead: Lead) => {
-    const basePayload = {
-      company_name: data.company_name || lead.company || '',
-      contact_name: data.contact_name || lead.name || '',
-      contact_email: data.contact_email || lead.email || '',
-      contact_phone: data.contact_phone || lead.phone || '',
-      source_lead_id: lead.id,
-      created_from_lead: true
-    };
-
-    switch (type) {
-      case 'mandato_venta':
-        return {
-          ...basePayload,
-          mandate_type: 'sell',
-          sector: data.sector || '',
-          ebitda_range: data.ebitda_range || '',
-          location: data.location || '',
-          status: 'draft'
-        };
-        
-      case 'mandato_compra':
-        return {
-          ...basePayload,
-          mandate_type: 'buy',
-          sector: data.sector || '',
-          ebitda_range: data.ebitda_range || '',
-          location: data.location || '',
-          status: 'draft'
-        };
-        
-      case 'valoracion':
-        return {
-          ...basePayload,
-          valuation_purpose: data.valuation_purpose || '',
-          company_stage: data.company_stage || '',
-          revenue_range: data.revenue_range || '',
-          status: 'pending'
-        };
-        
-      default:
-        return basePayload;
+  const mapFromWorkflowType = (workflowType: string): ClosureType => {
+    switch (workflowType) {
+      case 'sell': return 'mandato_venta';
+      case 'buy': return 'mandato_compra';
+      case 'valuation': return 'valoracion';
+      default: return null;
     }
   };
 
   // Initialize recommended type on open
   useEffect(() => {
     if (isOpen && lead) {
-      const recommended = suggest(lead);
+      const workflowRecommended = suggest(lead);
+      const recommended = mapFromWorkflowType(workflowRecommended);
       setSelectedType(recommended);
       
       // Pre-fill common data
@@ -147,8 +103,8 @@ export const LeadClosureActionDialog = ({
         contact_phone: lead.phone || ''
       });
 
-      // Track dialog opened
-      analyticsService.track('lead_closure_dialog_opened', {
+      // Track dialog opened with analytics
+      logAnalytics('lead_closure_dialog', 'dialog_opened', {
         lead_id: lead.id,
         recommended_type: recommended,
         lead_source: lead.source,
@@ -163,21 +119,24 @@ export const LeadClosureActionDialog = ({
     setIsCreating(true);
     
     try {
-      const payload = buildPayload(selectedType, payloadData, lead);
+      const workflowType = mapToWorkflowType(selectedType);
+      if (!workflowType) throw new Error('Tipo no válido');
+      
+      const payload = buildPayload(lead, workflowType);
       
       // Track creation attempt
-      analyticsService.track('lead_closure_creation_started', {
+      logAnalytics('lead_closure_dialog', 'creation_attempted', {
         lead_id: lead.id,
         type: selectedType,
         link_to_lead: linkToLead,
         timestamp: Date.now()
       });
 
-      const result = await onCreateFromLead(lead.id, selectedType, payload, linkToLead);
+      const result = await createFromLead(lead.id, workflowType, payload, linkToLead);
       
       if (result.success) {
         // Track success
-        analyticsService.track('lead_closure_creation_success', {
+        logAnalytics('lead_closure_dialog', 'creation_completed', {
           lead_id: lead.id,
           type: selectedType,
           created_id: result.id,
@@ -196,7 +155,7 @@ export const LeadClosureActionDialog = ({
       }
     } catch (error) {
       // Track error
-      analyticsService.track('lead_closure_creation_error', {
+      logAnalytics('lead_closure_dialog', 'creation_failed', {
         lead_id: lead.id,
         type: selectedType,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -205,7 +164,7 @@ export const LeadClosureActionDialog = ({
 
       toast({
         title: "Error",
-        description: "No se pudo crear el elemento. Inténtalo de nuevo.",
+        description: error instanceof Error ? error.message : "No se pudo crear el elemento",
         variant: "destructive"
       });
     } finally {
@@ -260,7 +219,7 @@ export const LeadClosureActionDialog = ({
                       {getIcon(type)}
                       <Label htmlFor={type} className="flex-1 cursor-pointer">
                         {getTypeLabel(type)}
-                        {suggest(lead) === type && (
+                        {mapFromWorkflowType(suggest(lead)) === type && (
                           <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
                             Recomendado
                           </span>
@@ -402,4 +361,20 @@ export const LeadClosureActionDialog = ({
       </DialogContent>
     </Dialog>
   );
+};
+
+// Analytics helper
+const logAnalytics = async (feature: string, action: string, metadata: any) => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('feature_analytics').insert({
+      feature_key: feature,
+      action,
+      metadata,
+      user_id: user?.id,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Failed to log analytics:', error);
+  }
 };
