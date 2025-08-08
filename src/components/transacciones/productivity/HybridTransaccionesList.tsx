@@ -19,7 +19,7 @@ export const HybridTransaccionesList: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   
-  const { filteredTransacciones: transacciones, isLoading: loading, updateTransaccionStage } = useTransaccionesOptimized({});
+  const { transacciones, loading, updateTransaccionStage } = useTransaccionesOptimized({});
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-ES', { 

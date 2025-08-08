@@ -11,7 +11,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, RefreshCw } from 'lucide-react';
-import { useIsClient } from '@/hooks/useIsClient';
 import { LeadKanbanColumn } from './LeadKanbanColumn';
 import { useLeadKanban, LeadWithStage } from '@/hooks/leads/useLeadKanban';
 
@@ -26,7 +25,6 @@ export const LeadKanbanBoard: React.FC<LeadKanbanBoardProps> = ({
   onAddLead,
   onRefresh,
 }) => {
-  const isClient = useIsClient();
   const {
     stages,
     leadsByStage,
@@ -78,32 +76,6 @@ export const LeadKanbanBoard: React.FC<LeadKanbanBoardProps> = ({
   const clearDragError = () => {
     setDragError(null);
   };
-
-  if (!isClient) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-5 w-64 mt-2" />
-          </div>
-          <Skeleton className="h-10 w-24" />
-        </div>
-        <div className="flex space-x-4 overflow-x-auto pb-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="min-w-[280px] space-y-4">
-              <Skeleton className="h-8 w-full" />
-              <div className="space-y-3">
-                {[1, 2, 3].map((j) => (
-                  <Skeleton key={j} className="h-32 w-full" />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (

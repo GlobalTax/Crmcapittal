@@ -24,25 +24,12 @@ interface SecretStatus {
   service: string;
 }
 
-interface SecretsStats {
-  configured: number;
-  missing: number;
-  errors: number;
-  configurationHealth: number;
-}
-
-interface TestResults {
-  passed: number;
-  failed: number;
-  total: number;
-}
-
 export const SecretsConfiguration: React.FC = () => {
   const [secretsStatus, setSecretsStatus] = useState<SecretStatus[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [stats, setStats] = useState<SecretsStats | null>(null);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [testResults, setTestResults] = useState<TestResults | null>(null);
+  const [testResults, setTestResults] = useState<any>(null);
 
   const refreshConfiguration = async () => {
     setLoading(true);

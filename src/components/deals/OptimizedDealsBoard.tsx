@@ -10,16 +10,13 @@ import {
   DragStartEvent
 } from '@dnd-kit/core';
 import { Deal } from '@/types/Deal';
-import { UltraEfficientStageColumn } from './UltraEfficientStageColumn';
-import { UltraCompactDealCard } from './UltraCompactDealCard';
-import { InlineStatsBar } from './InlineStatsBar';
-import { MinimalFilterTabs } from './MinimalFilterTabs';
+import { OptimizedStageColumn } from './OptimizedStageColumn';
+import { OptimizedDealCard } from './OptimizedDealCard';
+import { OptimizedDealsHeader } from './OptimizedDealsHeader';
 import { useDeals } from '@/hooks/useDeals';
 import { useToast } from '@/hooks/use-toast';
 import { usePipelineConfiguration } from '@/hooks/usePipelineConfiguration';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 
 interface OptimizedDealsBoardProps {
   onNewDeal: () => void;
@@ -36,8 +33,11 @@ export const OptimizedDealsBoard = ({
   const { visibleStages, loading: configLoading } = usePipelineConfiguration();
   const { toast } = useToast();
   
-  // Minimal filter state
-  const [activeTab, setActiveTab] = useState('all');
+  // Filters and search state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOwner, setSelectedOwner] = useState('all');
+  const [quickFilters, setQuickFilters] = useState<string[]>([]);
+  const [timePeriod, setTimePeriod] = useState('this-month');
   
   // Drag and drop state
   const [isDragging, setIsDragging] = useState(false);
@@ -49,34 +49,57 @@ export const OptimizedDealsBoard = ({
     })
   );
 
-  // Filter deals based on active tab
+  // Filter deals based on search and filters
   const filteredDeals = useMemo(() => {
     let filtered = deals;
 
-    switch (activeTab) {
-      case 'mine':
-        // In real implementation, compare with auth.uid()
-        filtered = filtered.filter(deal => deal.ownerId === 'current_user_id');
-        break;
-      case 'no-activity':
-        // Mock logic for deals with no recent activity
-        filtered = filtered.filter(deal => deal.probability < 30);
-        break;
-      case 'closing-soon':
-        // Filter deals with close date within next 30 days
-        filtered = filtered.filter(deal => deal.probability > 50);
-        break;
-      case 'at-risk':
-        // Filter deals that are at risk
-        filtered = filtered.filter(deal => deal.probability < 40 && (deal.amount || 0) > 50000);
-        break;
-      default:
-        // 'all' - no filtering
-        break;
+    // Search filter
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(deal => 
+        deal.title.toLowerCase().includes(search) ||
+        deal.company?.name.toLowerCase().includes(search) ||
+        deal.owner?.name.toLowerCase().includes(search)
+      );
     }
 
+    // Owner filter
+    if (selectedOwner !== 'all') {
+      if (selectedOwner === 'me') {
+        // In real implementation, compare with auth.uid()
+        filtered = filtered.filter(deal => deal.ownerId === 'current_user_id');
+      } else if (selectedOwner === 'unassigned') {
+        filtered = filtered.filter(deal => !deal.ownerId);
+      }
+    }
+
+    // Quick filters
+    quickFilters.forEach(filter => {
+      switch (filter) {
+        case 'mine':
+          filtered = filtered.filter(deal => deal.ownerId === 'current_user_id');
+          break;
+        case 'closing-soon':
+          // Filter deals with close date within next 30 days
+          const thirtyDaysFromNow = new Date();
+          thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+          filtered = filtered.filter(deal => {
+            // Mock close date logic
+            return deal.probability > 50;
+          });
+          break;
+        case 'high-priority':
+          filtered = filtered.filter(deal => deal.probability >= 70);
+          break;
+        case 'no-activity':
+          // Mock logic for deals with no recent activity
+          filtered = filtered.filter(deal => deal.probability < 30);
+          break;
+      }
+    });
+
     return filtered;
-  }, [deals, activeTab]);
+  }, [deals, searchTerm, selectedOwner, quickFilters]);
 
   const getDealsByStage = (stageId: string, stageName: string) => {
     return filteredDeals.filter(deal => 
@@ -84,19 +107,12 @@ export const OptimizedDealsBoard = ({
     );
   };
 
-  const handleStatClick = (statType: string) => {
-    // Set filter based on stat clicked
-    switch (statType) {
-      case 'atRisk':
-        setActiveTab('at-risk');
-        break;
-      case 'thisMonth':
-        // Could filter by deals closing this month
-        setActiveTab('closing-soon');
-        break;
-      default:
-        setActiveTab('all');
-    }
+  const handleQuickFilterToggle = (filter: string) => {
+    setQuickFilters(prev => 
+      prev.includes(filter) 
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+    );
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -194,29 +210,19 @@ export const OptimizedDealsBoard = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-slate-50">
-      {/* Ultra-Efficient Header */}
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold text-slate-900">Deals</h1>
-          <Button 
-            onClick={onNewDeal}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Deal
-          </Button>
-        </div>
-
-        {/* Inline Stats */}
-        <InlineStatsBar onStatClick={handleStatClick} />
-
-        {/* Minimal Filter Tabs */}
-        <MinimalFilterTabs 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab} 
-        />
-      </div>
+    <div className="h-full flex flex-col bg-background">
+      {/* Optimized Header */}
+      <OptimizedDealsHeader
+        onNewDeal={onNewDeal}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedOwner={selectedOwner}
+        onOwnerChange={setSelectedOwner}
+        quickFilters={quickFilters}
+        onQuickFilterToggle={handleQuickFilterToggle}
+        timePeriod={timePeriod}
+        onTimePeriodChange={setTimePeriod}
+      />
 
       {/* Kanban Board */}
       <div className="flex-1 overflow-hidden">
@@ -226,9 +232,9 @@ export const OptimizedDealsBoard = ({
           onDragStart={handleDragStart} 
           onDragEnd={handleDragEnd}
         >
-          <div className="h-full flex gap-6 px-6 pb-6 overflow-x-auto">
+          <div className="h-full flex gap-4 p-6 overflow-x-auto">
             {visibleStages.map((stage) => (
-              <UltraEfficientStageColumn
+              <OptimizedStageColumn
                 key={stage.id}
                 stage={{
                   id: stage.id,
@@ -246,17 +252,23 @@ export const OptimizedDealsBoard = ({
           {/* Drag Overlay */}
           <DragOverlay>
             {activeDeal && (
-              <div className="transform rotate-2 opacity-90">
-                <UltraCompactDealCard
+              <div className="transform rotate-3 opacity-90">
+                <OptimizedDealCard
                   deal={activeDeal}
+                  index={0}
                 />
               </div>
             )}
           </DragOverlay>
         </DndContext>
       </div>
+
+      {/* Auto-refresh indicator */}
+      <div className="px-6 py-2 border-t border-border bg-muted/30">
+        <p className="text-xs text-muted-foreground text-center">
+          Actualización automática cada 60s • {filteredDeals.length} deals mostrados
+        </p>
+      </div>
     </div>
   );
 };
-
-export default OptimizedDealsBoard;

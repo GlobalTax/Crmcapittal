@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, ReactNode } from 'react';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 
 interface NotificationContextType {
@@ -24,7 +24,7 @@ export const useNotifications = () => {
 };
 
 interface NotificationProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {

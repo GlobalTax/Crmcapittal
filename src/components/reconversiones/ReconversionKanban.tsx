@@ -1,7 +1,5 @@
 import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { useDroppable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
+import { useDrag, useDrop } from 'react-dnd';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,10 +14,9 @@ import {
   Target
 } from 'lucide-react';
 import { useReconversionWorkflow } from '@/hooks/useReconversionWorkflow';
-import { ReconversionKanbanItem } from '@/shared/types/reconversion';
 
 interface ReconversionKanbanProps {
-  reconversiones: ReconversionKanbanItem[];
+  reconversiones: any[];
   onReconversionUpdate?: () => void;
 }
 
@@ -70,33 +67,20 @@ const SUBFASE_COLUMNS: SubfaseColumn[] = [
 ];
 
 interface ReconversionCardProps {
-  reconversion: ReconversionKanbanItem;
+  reconversion: any;
   onUpdate?: () => void;
 }
 
 function ReconversionCard({ reconversion, onUpdate }: ReconversionCardProps) {
   const { updateSubfase, loading } = useReconversionWorkflow();
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: reconversion.id,
-    data: {
-      type: 'reconversion',
-      reconversion,
-    },
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'reconversion',
+    item: { id: reconversion.id, currentSubfase: reconversion.subfase },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -120,11 +104,8 @@ function ReconversionCard({ reconversion, onUpdate }: ReconversionCardProps) {
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="cursor-move"
+      ref={drag}
+      className={`cursor-move transition-opacity ${isDragging ? 'opacity-50' : 'opacity-100'}`}
     >
       <Card className="mb-3 hover:shadow-md transition-shadow">
         <CardHeader className="pb-2">
@@ -188,20 +169,27 @@ function ReconversionCard({ reconversion, onUpdate }: ReconversionCardProps) {
 
 interface KanbanColumnProps {
   column: SubfaseColumn;
-  reconversiones: ReconversionKanbanItem[];
+  reconversiones: any[];
   onUpdate?: () => void;
 }
 
 function KanbanColumn({ column, reconversiones, onUpdate }: KanbanColumnProps) {
   const { updateSubfase, loading } = useReconversionWorkflow();
 
-  const { setNodeRef, isOver } = useDroppable({
-    id: column.id,
-    data: {
-      type: 'column',
-      accepts: ['reconversion'],
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: 'reconversion',
+    drop: async (item: { id: string; currentSubfase: string }) => {
+      if (item.currentSubfase !== column.id) {
+        const success = await updateSubfase(item.id, column.id);
+        if (success && onUpdate) {
+          onUpdate();
+        }
+      }
     },
-  });
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }));
 
   return (
     <div className="flex-1 min-w-[280px]">
@@ -219,7 +207,7 @@ function KanbanColumn({ column, reconversiones, onUpdate }: KanbanColumnProps) {
       </div>
       
       <div
-        ref={setNodeRef}
+        ref={drop}
         className={`min-h-[200px] p-3 rounded-lg border-2 border-dashed transition-colors ${
           isOver 
             ? 'border-primary bg-primary/5' 
@@ -249,7 +237,7 @@ export function ReconversionKanban({ reconversiones, onReconversionUpdate }: Rec
   const reconversionesBySubfase = SUBFASE_COLUMNS.reduce((acc, column) => {
     acc[column.id] = reconversiones.filter(r => r.subfase === column.id);
     return acc;
-  }, {} as Record<string, ReconversionKanbanItem[]>);
+  }, {} as Record<string, any[]>);
 
   return (
     <div className="w-full">

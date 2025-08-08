@@ -1,4 +1,4 @@
 
-import { ResponsiveLayout } from "./layout/ResponsiveLayout";
+import { AttioLayout } from "./layout/AttioLayout";
 
-export const Layout = ResponsiveLayout;
+export const Layout = AttioLayout;

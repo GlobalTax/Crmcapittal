@@ -1,16 +1,21 @@
 import { HierarchicalCRMView } from '@/components/unified/HierarchicalCRMView';
-import { SectionErrorBoundary } from '@/components/errors/SectionErrorBoundary';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 export default function MandatosList() {
   return (
-    <SectionErrorBoundary section="Mandatos">
+    <ErrorBoundary>
       <div className="space-y-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Mandatos</h1>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Mandatos de Compra</h1>
+            <p className="text-muted-foreground">
+              Gestiona los mandatos de búsqueda de empresas para adquisición
+            </p>
+          </div>
         </div>
 
         <HierarchicalCRMView initialLevel="mandates" />
       </div>
-    </SectionErrorBoundary>
+    </ErrorBoundary>
   );
 }

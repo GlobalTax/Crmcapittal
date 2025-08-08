@@ -11,11 +11,9 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { MandateKanbanColumn } from './MandateKanbanColumn';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { useToast } from '@/hooks/use-toast';
-import { useIsClient } from '@/hooks/useIsClient';
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface MandateKanbanProps {
   mandates: BuyingMandate[];
@@ -67,7 +65,6 @@ export const MandateKanban = React.memo(({
   selectedIds = [],
   onSelectItem
 }: MandateKanbanProps) => {
-  const isClient = useIsClient();
   const [isDragging, setIsDragging] = useState(false);
   const [dragError, setDragError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -144,29 +141,6 @@ export const MandateKanban = React.memo(({
   const clearDragError = useCallback(() => {
     setDragError(null);
   }, []);
-
-  if (!isClient) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-8 w-24" />
-        </div>
-        <div className="flex gap-6 overflow-x-auto pb-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="min-w-[300px] space-y-4">
-              <Skeleton className="h-8 w-full" />
-              <div className="space-y-3">
-                {[1, 2, 3].map((j) => (
-                  <Skeleton key={j} className="h-24 w-full" />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   if (isLoading) {
     return (

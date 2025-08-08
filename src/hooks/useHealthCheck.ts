@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface HealthStatus {
@@ -16,9 +16,8 @@ export const useHealthCheck = () => {
     email: 'healthy',
     lastChecked: null
   });
-  const isMounted = useRef(true);
 
-  const checkHealthInternal = async (signal?: AbortSignal) => {
+  const checkHealth = async () => {
     const newHealth: HealthStatus = {
       database: 'healthy',
       hubspot: 'healthy',
@@ -28,7 +27,7 @@ export const useHealthCheck = () => {
 
     // Check database connectivity
     try {
-      await supabase.from('companies').select('count').limit(1).abortSignal(signal).single();
+      await supabase.from('companies').select('count').limit(1).single();
     } catch (error) {
       console.error('Database health check failed:', error);
       newHealth.database = 'error';
@@ -66,26 +65,14 @@ export const useHealthCheck = () => {
       newHealth.email = 'error';
     }
 
-    if (isMounted.current) {
-      setHealth(newHealth);
-    }
-  };
-
-  // Public API (no-arg) to keep compatibility with UI handlers
-  const checkHealth = async () => {
-    await checkHealthInternal();
+    setHealth(newHealth);
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    checkHealthInternal(controller.signal);
+    checkHealth();
     // Check health every 5 minutes
-    const interval = setInterval(() => checkHealthInternal(), 5 * 60 * 1000);
-    return () => {
-      controller.abort();
-      clearInterval(interval);
-      isMounted.current = false;
-    };
+    const interval = setInterval(checkHealth, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return { health, checkHealth };

@@ -1,5 +1,5 @@
-import { CrmEmailClient } from '@/features/email/components/CrmEmailClient';
+import { EmailClient } from '@/features/email';
 
 export default function Email() {
-  return <CrmEmailClient />;
+  return <EmailClient />;
 }

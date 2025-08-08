@@ -9,17 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useProposalTemplates } from '@/hooks/useProposalTemplates';
 import { ProposalTemplate, TemplateSection, TEMPLATE_VARIABLES } from '@/types/ProposalTemplate';
-import {
-  DndContext,
-  DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDroppable,
-  closestCenter
-} from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Plus, GripVertical, X, Eye, Save, Palette } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -83,24 +73,12 @@ export const TemplateBuilder = ({ open, onOpenChange, template, onSave }: Templa
     ));
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 4 }
-    })
-  );
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = sections.findIndex((section) => section.id === active.id);
-    const newIndex = sections.findIndex((section) => section.id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const reorderedSections = [...sections];
-    const [removed] = reorderedSections.splice(oldIndex, 1);
-    reorderedSections.splice(newIndex, 0, removed);
+    const reorderedSections = Array.from(sections);
+    const [removed] = reorderedSections.splice(result.source.index, 1);
+    reorderedSections.splice(result.destination.index, 0, removed);
 
     // Update order numbers
     const updatedSections = reorderedSections.map((section, index) => ({
@@ -172,94 +150,6 @@ export const TemplateBuilder = ({ open, onOpenChange, template, onSave }: Templa
       handleSectionChange(sectionId, 'content', newContent);
     }
   };
-
-// Draggable Section Component
-const DraggableSection = ({ 
-  section, 
-  index, 
-  onSectionChange, 
-  onRemoveSection, 
-  onInsertVariable, 
-  getSectionTypeLabel, 
-  getSectionPlaceholder 
-}: {
-  section: TemplateSection;
-  index: number;
-  onSectionChange: (sectionId: string, field: keyof TemplateSection, value: any) => void;
-  onRemoveSection: (sectionId: string) => void;
-  onInsertVariable: (sectionId: string, variable: string) => void;
-  getSectionTypeLabel: (type: TemplateSection['type']) => string;
-  getSectionPlaceholder: (type: TemplateSection['type']) => string;
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`border rounded-lg p-4 bg-card ${
-        isDragging ? 'opacity-50' : ''
-      }`}
-    >
-      <div className="flex items-center gap-2 mb-3">
-        <div {...attributes} {...listeners}>
-          <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-        </div>
-        <Badge variant="secondary">
-          {getSectionTypeLabel(section.type)}
-        </Badge>
-        <Input
-          value={section.title}
-          onChange={(e) => onSectionChange(section.id, 'title', e.target.value)}
-          className="flex-1"
-          placeholder="Título de la sección"
-        />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onRemoveSection(section.id)}
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <Textarea
-        value={section.content || ''}
-        onChange={(e) => onSectionChange(section.id, 'content', e.target.value)}
-        placeholder={getSectionPlaceholder(section.type)}
-        rows={4}
-        className="mb-3"
-      />
-
-      <div className="flex flex-wrap gap-1">
-        <span className="text-xs text-muted-foreground mr-2">Variables:</span>
-        {TEMPLATE_VARIABLES.slice(0, 6).map((variable) => (
-          <Button
-            key={variable.key}
-            variant="ghost"
-            size="sm"
-            className="h-6 px-2 text-xs"
-            onClick={() => onInsertVariable(section.id, variable.key)}
-          >
-            {variable.key}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-};
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -358,28 +248,71 @@ const DraggableSection = ({
               </div>
 
               {/* Sections */}
-              <DndContext 
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                  <div className="space-y-3">
-                    {sections.map((section, index) => (
-                      <DraggableSection
-                        key={section.id}
-                        section={section}
-                        index={index}
-                        onSectionChange={handleSectionChange}
-                        onRemoveSection={handleRemoveSection}
-                        onInsertVariable={insertVariable}
-                        getSectionTypeLabel={getSectionTypeLabel}
-                        getSectionPlaceholder={getSectionPlaceholder}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="sections">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
+                      {sections.map((section, index) => (
+                        <Draggable key={section.id} draggableId={section.id} index={index}>
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className="border rounded-lg p-4 bg-card"
+                            >
+                              <div className="flex items-center gap-2 mb-3">
+                                <div {...provided.dragHandleProps}>
+                                  <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
+                                </div>
+                                <Badge variant="secondary">
+                                  {getSectionTypeLabel(section.type)}
+                                </Badge>
+                                <Input
+                                  value={section.title}
+                                  onChange={(e) => handleSectionChange(section.id, 'title', e.target.value)}
+                                  className="flex-1"
+                                  placeholder="Título de la sección"
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveSection(section.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              <Textarea
+                                value={section.content || ''}
+                                onChange={(e) => handleSectionChange(section.id, 'content', e.target.value)}
+                                placeholder={getSectionPlaceholder(section.type)}
+                                rows={4}
+                                className="mb-3"
+                              />
+
+                              <div className="flex flex-wrap gap-1">
+                                <span className="text-xs text-muted-foreground mr-2">Variables:</span>
+                                {TEMPLATE_VARIABLES.slice(0, 6).map((variable) => (
+                                  <Button
+                                    key={variable.key}
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 px-2 text-xs"
+                                    onClick={() => insertVariable(section.id, variable.key)}
+                                  >
+                                    {variable.key}
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
 
               {sections.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">

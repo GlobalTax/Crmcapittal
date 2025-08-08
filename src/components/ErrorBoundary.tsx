@@ -1,8 +1,5 @@
 
-import * as React from 'react';
-const { Component } = React;
-type ErrorInfo = React.ErrorInfo;
-type ReactNode = React.ReactNode;
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';

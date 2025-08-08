@@ -8,8 +8,9 @@ const NewDocument = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-start">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Documentos</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Nuevo Documento</h1>
+          <p className="text-gray-600 mt-1">Crea un nuevo documento</p>
         </div>
       </div>
       <DocumentEditor />
@@ -22,8 +23,11 @@ const EditDocument = () => {
   
   return (
     <div className="space-y-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Documentos</h1>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Editar Documento</h1>
+          <p className="text-gray-600 mt-1">Modifica el documento seleccionado</p>
+        </div>
       </div>
       <Routes>
         <Route path=":id" element={<DocumentEditor />} />

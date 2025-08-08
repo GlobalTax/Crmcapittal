@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { Proposal } from '@/types/Proposal';
@@ -276,5 +275,3 @@ export const ProposalKanbanBoard: React.FC<ProposalKanbanBoardProps> = ({
     </div>
   );
 };
-
-export default ProposalKanbanBoard;

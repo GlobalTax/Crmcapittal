@@ -205,5 +205,3 @@ export const ReconversionKanbanView = React.memo(({
 });
 
 ReconversionKanbanView.displayName = 'ReconversionKanbanView';
-
-export default ReconversionKanbanView;

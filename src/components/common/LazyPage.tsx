@@ -1,5 +1,5 @@
 
-import * as React from 'react'
+import React, { Suspense } from 'react'
 import { LoadingSkeleton } from '@/components/LoadingSkeleton'
 
 interface LazyPageProps {
@@ -12,9 +12,9 @@ export const LazyPage = ({
   fallback = <LoadingSkeleton type="table-row" count={3} /> 
 }: LazyPageProps) => {
   return (
-    <React.Suspense fallback={fallback}>
+    <Suspense fallback={fallback}>
       {children}
-    </React.Suspense>
+    </Suspense>
   )
 }
 

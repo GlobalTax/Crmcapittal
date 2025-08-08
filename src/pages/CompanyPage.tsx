@@ -15,7 +15,6 @@ import { useLeads } from '@/hooks/useLeads';
 import { Company } from '@/types/Company';
 import { CreateLeadData } from '@/types/Lead';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
-import { AccountIntelligenceDashboard } from '@/components/companies/intelligence/AccountIntelligenceDashboard';
 
 export default function CompanyPage() {
   const { id } = useParams<{ id: string }>();
@@ -194,12 +193,6 @@ export default function CompanyPage() {
                 Actividad
               </TabsTrigger>
               <TabsTrigger 
-                value="intelligence"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
-              >
-                Inteligencia
-              </TabsTrigger>
-              <TabsTrigger 
                 value="documents"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3 text-sm"
               >
@@ -237,14 +230,6 @@ export default function CompanyPage() {
             <Suspense fallback={<LoadingSkeleton />}>
               <IntegratedActivityTab company={company} />
             </Suspense>
-          </TabsContent>
-          
-          <TabsContent value="intelligence" className="mt-0">
-            <div className="max-w-6xl mx-auto px-6">
-              <Suspense fallback={<LoadingSkeleton />}>
-                <AccountIntelligenceDashboard companyId={company.id} companyName={company.name} />
-              </Suspense>
-            </div>
           </TabsContent>
           
           <TabsContent value="documents" className="mt-0">

@@ -107,9 +107,3 @@ inspector_port = 54328
 enabled = false
 port = 54329
 vector_port = 54330
-
-[functions.send-tracked-email]
-verify_jwt = true
-
-[functions.track-email-open]
-verify_jwt = false

@@ -1,25 +1,21 @@
 
 import { useState, useEffect } from "react";
-import { UltraDenseCompaniesTable } from "@/components/companies/UltraDenseCompaniesTable";
-import { CompaniesInlineStats } from "@/components/companies/CompaniesInlineStats";
-import { SmartFilterChips } from "@/components/companies/SmartFilterChips";
-import { CompanyDetailModal } from "@/components/companies/CompanyDetailModal";
+import { useNavigate } from "react-router-dom";
+import { RecordTable } from "@/components/companies/RecordTable";
 import { CompanyModal } from "@/components/companies/CompanyModal";
 import { EditCompanyDialog } from "@/components/companies/EditCompanyDialog";
 import { useCompanies } from "@/hooks/useCompanies";
 import { Company } from "@/types/Company";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
 
 const Companies = () => {
+  const navigate = useNavigate();
+  const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [activeChips, setActiveChips] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // Keyboard shortcut for new company
   useEffect(() => {
@@ -42,6 +38,8 @@ const Companies = () => {
   const { 
     companies, 
     totalCount,
+    currentPage,
+    totalPages,
     isLoading, 
     createCompany, 
     updateCompany, 
@@ -51,11 +49,11 @@ const Companies = () => {
     isDeleting,
     useCompanyStats
   } = useCompanies({ 
-    page: 1, 
-    limit: 100, // Show more companies in dense view
+    page, 
+    limit: 25, 
     searchTerm, 
-    statusFilter: activeFilter === 'all' ? 'all' : activeFilter, 
-    typeFilter: 'all'
+    statusFilter, 
+    typeFilter 
   });
 
   const { data: stats, isLoading: statsLoading } = useCompanyStats();
@@ -74,93 +72,50 @@ const Companies = () => {
     }
   };
 
-  const handleCompanyClick = (company: Company) => {
-    setSelectedCompany(company);
-    setIsDetailModalOpen(true);
+  const handleViewCompany = (company: Company) => {
+    if (company.id) {
+      navigate(`/empresas/${company.id}`);
+    }
   };
 
-  const handleStatClick = (filter: string) => {
-    setActiveFilter(filter);
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setPage(1);
   };
 
-  const handleFilterChange = (filter: string) => {
-    setActiveFilter(filter);
+  const handleStatusFilter = (status: string) => {
+    setStatusFilter(status);
+    setPage(1);
   };
 
-  const handleRemoveChip = (chip: string) => {
-    setActiveChips(activeChips.filter(c => c !== chip));
-  };
-
-  const handleCreateDeal = (company: Company) => {
-    // TODO: Implement create deal for company
-    console.log('Create deal for:', company.name);
-  };
-
-  const handleCreateContact = (company: Company) => {
-    // TODO: Implement create contact for company
-    console.log('Create contact for:', company.name);
-  };
-
-  const handleViewEinforma = (company: Company) => {
-    // TODO: Implement eInforma view
-    console.log('View eInforma for:', company.name);
+  const handleTypeFilter = (type: string) => {
+    setTypeFilter(type);
+    setPage(1);
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Empresas</h1>
-        
-        <div className="flex items-center gap-4">
-          {/* Search Input */}
-          <div className="relative w-96">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Buscar empresas..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* New Company Button */}
-          <Button onClick={() => setIsCreateModalOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Empresas</h1>
+        <div className="flex items-center gap-3">
+          <Button 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+          >
             Nueva Empresa
           </Button>
         </div>
       </div>
-
-      {/* Stats Inline */}
-      <CompaniesInlineStats 
-        companies={companies}
-        onStatClick={handleStatClick}
-      />
-
-      {/* Smart Filter Chips */}
-      <SmartFilterChips
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-        activeChips={activeChips}
-        onRemoveChip={handleRemoveChip}
-      />
       
-      {/* Ultra Dense Table */}
-      <UltraDenseCompaniesTable
+      <RecordTable
         companies={companies}
-        onCompanyClick={handleCompanyClick}
+        totalCount={totalCount}
+        onRowClick={handleViewCompany}
         onCreateCompany={() => setIsCreateModalOpen(true)}
-        onCreateDeal={handleCreateDeal}
-        onCreateContact={handleCreateContact}
-        onViewEinforma={handleViewEinforma}
+        onSearch={handleSearch}
+        onFilter={() => {}}
         isLoading={isLoading}
-      />
-
-      {/* Company Detail Modal */}
-      <CompanyDetailModal
-        company={selectedCompany}
-        open={isDetailModalOpen}
-        onOpenChange={setIsDetailModalOpen}
       />
 
       {/* Create Company Modal */}

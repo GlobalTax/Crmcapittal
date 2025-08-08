@@ -12,16 +12,19 @@ const buttonVariants = cva(
       variant: {
         primary: "bg-blue-600 text-white hover:bg-blue-700",
         default: "bg-blue-600 text-white hover:bg-blue-700",
-        secondary: "border border-slate-300 bg-white hover:bg-slate-50 text-slate-700",
-        outline: "border border-slate-300 bg-white hover:bg-slate-50 text-slate-700",
-        destructive: "bg-red-600 text-white hover:bg-red-700",
-        ghost: "hover:bg-slate-100 text-slate-700",
-        link: "text-blue-600 underline-offset-4 hover:underline",
+        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+        ghost: "hover:bg-gray-100 text-gray-700",
+        // Legacy variants mapped to new ones for transition
+        outline: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+        destructive: "bg-blue-600 text-white hover:bg-blue-700",
+        link: "hover:bg-gray-100 text-gray-700",
+        success: "bg-blue-600 text-white hover:bg-blue-700",
+        warning: "bg-blue-600 text-white hover:bg-blue-700"
       },
       size: {
-        default: "px-6 py-3",
-        sm: "px-4 py-2 text-sm",
-        lg: "px-8 py-4 text-base",
+        default: "h-10 px-4 py-2",
+        sm: "h-9 px-3 text-sm",
+        lg: "h-11 px-8 text-base",
         icon: "h-10 w-10",
       },
     },

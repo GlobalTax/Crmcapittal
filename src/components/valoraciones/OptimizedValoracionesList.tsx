@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { ValoracionesSearchBar } from './ValoracionesSearchBar';
 import { ValoracionFilters } from './ValoracionFilters';
 import { ValoracionesExportButtons } from './ValoracionesExportButtons';

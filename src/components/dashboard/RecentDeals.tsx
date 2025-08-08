@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { DashboardCard } from './DashboardCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/badge';

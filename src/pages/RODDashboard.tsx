@@ -163,8 +163,15 @@ export const RODDashboard: React.FC = () => {
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">ROD Dashboard</h1>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-semibold text-foreground">
+              Reportes de Oportunidades
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Gestiona y crea reportes de dealflow
+            </p>
+          </div>
           <Button onClick={handleCreateNew} size="lg" className="gap-2">
             <Plus className="h-4 w-4" />
             Crear Nueva ROD

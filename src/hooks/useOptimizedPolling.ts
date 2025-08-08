@@ -2,9 +2,19 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { requestManager } from '@/services/requestManager';
 import { logger } from '@/utils/logger';
-import { PollingOptions, PollingResult } from '@/shared/types/polling';
 
-export const useOptimizedPolling = <T = unknown>({
+interface UseOptimizedPollingOptions {
+  queryKey: string;
+  queryFn: () => Promise<any>;
+  interval?: number;
+  priority?: 'high' | 'medium' | 'low';
+  enabled?: boolean;
+  cacheTtl?: number;
+  retryOnError?: boolean;
+  maxRetries?: number;
+}
+
+export const useOptimizedPolling = ({
   queryKey,
   queryFn,
   interval = 300000, // 5 minutes for production
@@ -13,8 +23,8 @@ export const useOptimizedPolling = <T = unknown>({
   cacheTtl = 300000, // 5 minutes cache
   retryOnError = true,
   maxRetries = 3
-}: PollingOptions<T>): PollingResult<T> => {
-  const [data, setData] = useState<T | null>(null);
+}: UseOptimizedPollingOptions) => {
+  const [data, setData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [lastFetch, setLastFetch] = useState<number>(0);
@@ -87,7 +97,7 @@ export const useOptimizedPolling = <T = unknown>({
       });
 
       if (mountedRef.current) {
-        setData(result as T);
+        setData(result);
         setLastFetch(Date.now());
         retryCountRef.current = 0; // Reset retry counter on success
         

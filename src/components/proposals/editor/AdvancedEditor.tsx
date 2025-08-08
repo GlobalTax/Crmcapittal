@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import ReactQuill from '@/components/common/LazyQuill';
+import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

@@ -1,5 +1,5 @@
 
-import { ArrowLeft, Search, Bell, Settings, MoreHorizontal, Star, Mail } from 'lucide-react';
+import { ArrowLeft, Search, Bell, Settings, MoreHorizontal, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -7,10 +7,9 @@ import { useNavigate } from 'react-router-dom';
 
 interface PipedriveHeaderProps {
   currentStage?: string;
-  onOpenEmailAssistant?: () => void;
 }
 
-export const PipedriveHeader = ({ currentStage = "Pipeline", onOpenEmailAssistant }: PipedriveHeaderProps) => {
+export const PipedriveHeader = ({ currentStage = "Pipeline" }: PipedriveHeaderProps) => {
   const navigate = useNavigate();
 
   return (
@@ -53,16 +52,7 @@ export const PipedriveHeader = ({ currentStage = "Pipeline", onOpenEmailAssistan
         </div>
 
         {/* Right side - Actions */}
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            className="h-8"
-            onClick={onOpenEmailAssistant}
-          >
-            <Mail className="h-4 w-4 mr-2" />
-            Email
-          </Button>
+        <div className="flex items-center gap-1">
           <Button 
             variant="ghost" 
             size="sm" 

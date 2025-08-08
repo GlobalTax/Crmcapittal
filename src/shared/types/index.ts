@@ -1,7 +1,7 @@
 /**
- * Centralized shared types export
+ * Shared Types
  * 
- * All common types and interfaces used across multiple features
+ * Common types and interfaces used across multiple features
  */
 
 // Common base types
@@ -37,34 +37,3 @@ export interface SortConfig {
   field: string;
   direction: 'asc' | 'desc';
 }
-
-// Specific feature types
-export * from './reconversion';
-export * from './table';
-export * from './polling';
-
-// Re-export commonly used types with clear aliases
-export type {
-  ReconversionData,
-  ReconversionKanbanItem,
-  ReconversionFilters,
-  ReconversionStats
-} from './reconversion';
-
-export type {
-  TableSortConfig,
-  TableFilterConfig,
-  TableColumnDef,
-  TableProps,
-  TableRowProps,
-  TableHeaderProps,
-  TableActionsProps
-} from './table';
-
-export type {
-  PollingOptions,
-  PollingResult,
-  PollingState,
-  PollingConfig,
-  PollingMetrics
-} from './polling';

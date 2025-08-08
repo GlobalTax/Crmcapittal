@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { OpportunityWithContacts } from '@/types/Opportunity';
 import { 
   Table, 
@@ -32,7 +32,6 @@ import {
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
-import { VariableSizeList as VariableList } from 'react-window';
 
 interface EnhancedOpportunitiesTableProps {
   opportunities: OpportunityWithContacts[];
@@ -42,7 +41,6 @@ interface EnhancedOpportunitiesTableProps {
 type SortField = 'title' | 'value' | 'stage' | 'created_at' | 'company' | 'probability';
 type SortDirection = 'asc' | 'desc';
 
-// Constantes
 const STAGES = [
   { value: 'prospecting', label: 'Prospección', color: 'bg-blue-100 text-blue-800' },
   { value: 'qualification', label: 'Cualificación', color: 'bg-purple-100 text-purple-800' },
@@ -60,7 +58,7 @@ const PRIORITIES = [
   { value: 'urgent', label: 'Urgente', color: 'bg-red-100 text-red-800' },
 ];
 
-const EnhancedOpportunitiesTableComponent = ({ opportunities, loading }: EnhancedOpportunitiesTableProps) => {
+export const EnhancedOpportunitiesTable = ({ opportunities, loading }: EnhancedOpportunitiesTableProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState<string>('all');
@@ -115,99 +113,45 @@ const EnhancedOpportunitiesTableComponent = ({ opportunities, loading }: Enhance
     return filtered;
   }, [opportunities, searchTerm, stageFilter, priorityFilter, sortField, sortDirection]);
 
-  const handleSort = useCallback((field: SortField) => {
+  const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
       setSortDirection('asc');
     }
-  }, [sortField, sortDirection]);
+  };
 
-  const getSortIcon = useCallback((field: SortField) => {
+  const getSortIcon = (field: SortField) => {
     if (sortField !== field) return <ArrowUpDown className="h-4 w-4" />;
     return sortDirection === 'asc' ? 
       <ArrowUp className="h-4 w-4" /> : 
       <ArrowDown className="h-4 w-4" />;
-  }, [sortField, sortDirection]);
+  };
 
-  const formatCurrency = useCallback((amount?: number) => {
+  const formatCurrency = (amount?: number) => {
     if (!amount) return '-';
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: 'EUR'
     }).format(amount);
-  }, []);
+  };
 
-  const formatDate = useCallback((dateString: string) => {
+  const formatDate = (dateString: string) => {
     return format(new Date(dateString), 'dd/MM/yyyy', { locale: es });
-  }, []);
+  };
 
-  const getStageInfo = useCallback((stage: string) => {
+  const getStageInfo = (stage: string) => {
     return STAGES.find(s => s.value === stage) || STAGES[0];
-  }, [STAGES]);
+  };
 
-  const getPriorityInfo = useCallback((priority: string) => {
+  const getPriorityInfo = (priority: string) => {
     return PRIORITIES.find(p => p.value === priority) || PRIORITIES[1];
-  }, [PRIORITIES]);
+  };
 
-  const handleOpportunityClick = useCallback((opportunity: OpportunityWithContacts) => {
+  const handleOpportunityClick = (opportunity: OpportunityWithContacts) => {
     navigate(`/opportunities/${opportunity.id}`);
-}, [navigate]);
-
-  const getItemSize = useCallback((index: number) => {
-    const opp = filteredAndSortedOpportunities[index];
-    return opp.description ? 88 : 64;
-  }, [filteredAndSortedOpportunities]);
-
-  const Row = React.memo(({ index, style }: { index: number; style: React.CSSProperties }) => {
-    const opportunity = filteredAndSortedOpportunities[index];
-    const stageInfo = getStageInfo(opportunity.stage);
-    const priorityInfo = getPriorityInfo(opportunity.priority || 'medium');
-    return (
-      <div style={style} className="flex items-center border-b hover:bg-muted/50 px-4">
-        <div className="grid grid-cols-12 gap-4 w-full items-center cursor-pointer" onClick={() => handleOpportunityClick(opportunity)}>
-          <div className="col-span-2">
-            <div className="font-medium">{opportunity.title}</div>
-            {opportunity.description && (
-              <div className="text-sm text-muted-foreground line-clamp-1">{opportunity.description}</div>
-            )}
-          </div>
-          <div className="col-span-2">{opportunity.company?.name || '-'}</div>
-          <div className="col-span-2">
-            <Badge className={stageInfo.color}>{stageInfo.label}</Badge>
-          </div>
-          <div className="col-span-2">
-            <Badge className={priorityInfo.color}>{priorityInfo.label}</Badge>
-          </div>
-          <div className="col-span-1">
-            <div className="flex items-center gap-1">
-              <Euro className="h-3 w-3 text-muted-foreground" />
-              {formatCurrency(opportunity.value)}
-            </div>
-          </div>
-          <div className="col-span-1">
-            <div className="flex items-center gap-1">
-              <Target className="h-3 w-3 text-muted-foreground" />
-              {opportunity.probability || 50}%
-            </div>
-          </div>
-          <div className="col-span-1">
-            <div className="flex items-center gap-1">
-              <User className="h-3 w-3 text-muted-foreground" />
-              {opportunity.contacts?.length || 0}
-            </div>
-          </div>
-          <div className="col-span-1">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-3 w-3 text-muted-foreground" />
-              {formatDate(opportunity.created_at)}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  });
+  };
 
   if (loading) {
     return (
@@ -276,54 +220,149 @@ const EnhancedOpportunitiesTableComponent = ({ opportunities, loading }: Enhance
         </div>
       </div>
 
-      {/* Tabla virtualizada */}
+      {/* Tabla */}
       <div className="border rounded-lg">
-        <div className="bg-muted/50 border-b">
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 font-medium text-sm">
-            <div className="col-span-2">
-              <Button variant="ghost" onClick={() => handleSort('title')} className="h-auto p-0 font-medium hover:bg-transparent">
-                Oportunidad {getSortIcon('title')}
-              </Button>
-            </div>
-            <div className="col-span-2">
-              <Button variant="ghost" onClick={() => handleSort('company')} className="h-auto p-0 font-medium hover:bg-transparent">
-                Empresa {getSortIcon('company')}
-              </Button>
-            </div>
-            <div className="col-span-2">
-              <Button variant="ghost" onClick={() => handleSort('stage')} className="h-auto p-0 font-medium hover:bg-transparent">
-                Etapa {getSortIcon('stage')}
-              </Button>
-            </div>
-            <div className="col-span-2">Prioridad</div>
-            <div className="col-span-1">
-              <Button variant="ghost" onClick={() => handleSort('value')} className="h-auto p-0 font-medium hover:bg-transparent">
-                Valor {getSortIcon('value')}
-              </Button>
-            </div>
-            <div className="col-span-1">
-              <Button variant="ghost" onClick={() => handleSort('probability')} className="h-auto p-0 font-medium hover:bg-transparent">
-                Prob. {getSortIcon('probability')}
-              </Button>
-            </div>
-            <div className="col-span-1">Contactos</div>
-            <div className="col-span-1">
-              <Button variant="ghost" onClick={() => handleSort('created_at')} className="h-auto p-0 font-medium hover:bg-transparent">
-                Creación {getSortIcon('created_at')}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <VariableList
-          height={600}
-          width="100%"
-          itemCount={filteredAndSortedOpportunities.length}
-          itemSize={getItemSize}
-          overscanCount={5}
-        >
-          {Row}
-        </VariableList>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('title')}
+                  className="h-auto p-0 font-medium hover:bg-transparent"
+                >
+                  Oportunidad
+                  {getSortIcon('title')}
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('company')}
+                  className="h-auto p-0 font-medium hover:bg-transparent"
+                >
+                  Empresa
+                  {getSortIcon('company')}
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('stage')}
+                  className="h-auto p-0 font-medium hover:bg-transparent"
+                >
+                  Etapa
+                  {getSortIcon('stage')}
+                </Button>
+              </TableHead>
+              <TableHead>Prioridad</TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('value')}
+                  className="h-auto p-0 font-medium hover:bg-transparent"
+                >
+                  Valor
+                  {getSortIcon('value')}
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('probability')}
+                  className="h-auto p-0 font-medium hover:bg-transparent"
+                >
+                  Probabilidad
+                  {getSortIcon('probability')}
+                </Button>
+              </TableHead>
+              <TableHead>Contactos</TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('created_at')}
+                  className="h-auto p-0 font-medium hover:bg-transparent"
+                >
+                  Fecha creación
+                  {getSortIcon('created_at')}
+                </Button>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredAndSortedOpportunities.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                  {searchTerm || stageFilter !== 'all' || priorityFilter !== 'all'
+                    ? 'No se encontraron oportunidades con los filtros aplicados.'
+                    : 'No hay oportunidades disponibles.'
+                  }
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredAndSortedOpportunities.map((opportunity) => {
+                const stageInfo = getStageInfo(opportunity.stage);
+                const priorityInfo = getPriorityInfo(opportunity.priority || 'medium');
+                
+                return (
+                  <TableRow 
+                    key={opportunity.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleOpportunityClick(opportunity)}
+                  >
+                    <TableCell className="font-medium">
+                      <div>
+                        <div className="font-medium">{opportunity.title}</div>
+                        {opportunity.description && (
+                          <div className="text-sm text-muted-foreground line-clamp-1">
+                            {opportunity.description}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {opportunity.company?.name || '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={stageInfo.color}>
+                        {stageInfo.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={priorityInfo.color}>
+                        {priorityInfo.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Euro className="h-3 w-3 text-muted-foreground" />
+                        {formatCurrency(opportunity.value)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Target className="h-3 w-3 text-muted-foreground" />
+                        {opportunity.probability || 50}%
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <User className="h-3 w-3 text-muted-foreground" />
+                        {opportunity.contacts?.length || 0}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-muted-foreground" />
+                        {formatDate(opportunity.created_at)}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Información de resultados */}
@@ -333,14 +372,3 @@ const EnhancedOpportunitiesTableComponent = ({ opportunities, loading }: Enhance
     </div>
   );
 };
-
-export const EnhancedOpportunitiesTable = React.memo(EnhancedOpportunitiesTableComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.loading === nextProps.loading &&
-    prevProps.opportunities.length === nextProps.opportunities.length &&
-    prevProps.opportunities.every((opp, index) => 
-      opp.id === nextProps.opportunities[index]?.id &&
-      opp.updated_at === nextProps.opportunities[index]?.updated_at
-    )
-  );
-});

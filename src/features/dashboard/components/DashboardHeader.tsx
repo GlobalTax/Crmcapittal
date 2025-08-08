@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Badge } from '@/shared/components/ui';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/features/auth';
 import { DashboardHeaderProps } from '../types';
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ role }) => {
@@ -14,8 +14,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ role }) => {
 
   return (
     <div className="bg-card border-b border-border px-6 py-4">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard Personal</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-sm font-semibold text-card-foreground">Dashboard M&A</h1>
+          <p className="text-muted-foreground mt-1">
+            Hola {user?.email?.split('@')[0] || 'Usuario'}, aquí tienes tu resumen de actividad
+          </p>
+        </div>
         <div className="flex items-center">
           <Badge variant="secondary">
             {role === 'superadmin' ? 'Super Admin' : role === 'admin' ? 'Admin' : 'Usuario'}

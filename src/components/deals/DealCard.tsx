@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ interface DealCardProps {
   onClick?: (deal: Deal) => void;
 }
 
-const DealCardComponent = ({ deal, index, onClick }: DealCardProps) => {
+export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
   const navigate = useNavigate();
   const {
     attributes,
@@ -23,27 +23,27 @@ const DealCardComponent = ({ deal, index, onClick }: DealCardProps) => {
     isDragging
   } = useSortable({ id: deal.id });
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     navigate(`/deals/${deal.id}`);
-  }, [deal.id, navigate]);
+  };
 
-  const style = useMemo(() => ({
+  const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  }), [transform, transition]);
+  };
 
-  const formattedAmount = useMemo(() => {
-    if (!deal.amount) return '';
+  const formatCurrency = (amount?: number) => {
+    if (!amount) return '';
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-      notation: deal.amount > 999999 ? 'compact' : 'standard'
-    }).format(deal.amount);
-  }, [deal.amount]);
+      notation: amount > 999999 ? 'compact' : 'standard'
+    }).format(amount);
+  };
 
   return (
     <div
@@ -72,7 +72,7 @@ const DealCardComponent = ({ deal, index, onClick }: DealCardProps) => {
           {deal.amount && (
             <div className="text-right">
               <span className="font-semibold text-sm" style={{ color: '#059669' }}>
-                {formattedAmount}
+                {formatCurrency(deal.amount)}
               </span>
             </div>
           )}
@@ -95,13 +95,3 @@ const DealCardComponent = ({ deal, index, onClick }: DealCardProps) => {
     </div>
   );
 };
-
-export const DealCard = React.memo(DealCardComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.deal.id === nextProps.deal.id &&
-    prevProps.deal.title === nextProps.deal.title &&
-    prevProps.deal.amount === nextProps.deal.amount &&
-    prevProps.deal.updatedAt === nextProps.deal.updatedAt &&
-    prevProps.index === nextProps.index
-  );
-});

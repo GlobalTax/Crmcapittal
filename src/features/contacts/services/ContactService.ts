@@ -23,10 +23,10 @@ export class ContactService {
     
     console.log("🔍 Fetching contacts with filters:", { searchTerm, companyId, statusFilter, typeFilter, page, limit });
     
+    // Base query for contacts
     let query = supabase
       .from('contacts')
       .select('*', { count: "exact" })
-      .order('updated_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
     // Apply status filter

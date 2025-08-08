@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,12 +12,26 @@ import { cn } from '@/lib/utils';
 import { CheckCircle, Plus, GripVertical } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-interface TaskItemProps {
+interface SortableTaskItemProps {
   task: any;
   onComplete: (taskId: string) => void;
 }
 
-const TaskItem = ({ task, onComplete }: TaskItemProps) => {
+const SortableTaskItem = ({ task, onComplete }: SortableTaskItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const priorityColors = {
     urgent: 'destructive' as const,
     high: 'default' as const,
@@ -22,9 +40,15 @@ const TaskItem = ({ task, onComplete }: TaskItemProps) => {
   };
 
   return (
-    <div className={cn("flex items-center gap-3 p-3 bg-card border rounded-lg")}
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "flex items-center gap-3 p-3 bg-card border rounded-lg",
+        isDragging && "opacity-50"
+      )}
     >
-      <div className="opacity-40">
+      <div {...attributes} {...listeners} className="cursor-grab">
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
       <button
@@ -72,8 +96,16 @@ export const PanelTareasToday = ({ className }: PanelTareasTodayProps) => {
     }
   };
 
-  // Eliminado DnD por estabilidad en esta vista
-
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+    
+    if (!over) return;
+    
+    // For now, just handle completion when dropped on a completion zone
+    if (over.id === 'completed') {
+      handleComplete(active.id);
+    }
+  };
 
   return (
     <Card className={className}>
@@ -107,13 +139,17 @@ export const PanelTareasToday = ({ className }: PanelTareasTodayProps) => {
               <p className="text-xs">Disfruta de tu día libre</p>
             </div>
           ) : (
-            todayTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onComplete={handleComplete}
-              />
-            ))
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={todayTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                {todayTasks.map((task) => (
+                  <SortableTaskItem
+                    key={task.id}
+                    task={task}
+                    onComplete={handleComplete}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </CardContent>

@@ -36,11 +36,7 @@ export const fetchLeads = async (filters?: {
   owner_id?: string;
 }): Promise<Lead[]> => {
   try {
-    let query = supabase
-      .from('leads')
-      .select('*', { count: 'exact' })
-      .order('updated_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
+    let query = supabase.from('leads').select('*').order('created_at', { ascending: false });
 
     // Apply filters without complex type constraints
     if (filters?.status) {
@@ -75,68 +71,6 @@ export const fetchLeads = async (filters?: {
     })) as Lead[];
   } catch (error) {
     logger.error('Error in fetchLeads:', error);
-    throw error;
-  }
-};
-
-export const fetchLeadsPage = async ({
-  page = 1,
-  limit = 20,
-  filters,
-}: {
-  page?: number;
-  limit?: number;
-  filters?: {
-    status?: LeadStatus;
-    stage?: LeadStage;
-    sector_id?: string;
-    owner_id?: string;
-  };
-}): Promise<{ items: Lead[]; totalCount: number; currentPage: number; totalPages: number }> => {
-  try {
-    let query = supabase
-      .from('leads')
-      .select('*', { count: 'exact' })
-      .order('updated_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false });
-
-    // Apply filters
-    if (filters?.status) {
-      const dbStatus = mapStatusToDb(filters.status);
-      query = (query as any).eq('status', dbStatus);
-    }
-    if (filters?.stage) {
-      query = (query as any).eq('stage', filters.stage);
-    }
-    if (filters?.sector_id) {
-      query = (query as any).eq('sector_id', filters.sector_id);
-    }
-    if (filters?.owner_id) {
-      query = (query as any).eq('assigned_to_id', filters.owner_id);
-    }
-
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    const { data, error, count } = await (query as any).range(from, to);
-
-    if (error) {
-      logger.error('Error fetching leads page:', error);
-      throw error;
-    }
-
-    const items = (data || []).map((lead: any) => ({
-      ...lead,
-      status: mapStatusFromDb(lead.status || 'NEW'),
-      stage: lead.stage || 'pipeline',
-      assigned_to: null,
-    })) as Lead[];
-
-    const totalCount = count || 0;
-    const totalPages = Math.max(1, Math.ceil(totalCount / limit));
-
-    return { items, totalCount, currentPage: page, totalPages };
-  } catch (error) {
-    logger.error('Error in fetchLeadsPage:', error);
     throw error;
   }
 };

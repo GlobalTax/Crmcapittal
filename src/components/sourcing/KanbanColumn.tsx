@@ -1,7 +1,5 @@
 
-import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { Droppable, Draggable } from "@hello-pangea/dnd";
 import { TargetCompany, TargetStatus } from "@/types/TargetCompany";
 import { KanbanCard } from "./KanbanCard";
 import { Badge } from "@/components/ui/badge";
@@ -14,45 +12,8 @@ interface KanbanColumnProps {
   draggedCardId?: string | null;
 }
 
-// Draggable Company Card Component
-const DraggableKanbanCard = ({ company, draggedCardId }: { company: TargetCompany; draggedCardId?: string | null }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: company.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`transition-transform ${
-        isDragging ? 'opacity-50' : ''
-      } ${
-        draggedCardId === company.id ? 'opacity-50' : ''
-      }`}
-    >
-      <KanbanCard company={company} />
-    </div>
-  );
-};
-
 export const KanbanColumn = ({ id, title, color, companies, draggedCardId }: KanbanColumnProps) => {
-  const { setNodeRef, isOver } = useDroppable({
-    id,
-  });
-
-  const companyIds = companies.map(company => company.id);
+  const isDropDisabled = false; // You can add logic here to disable dropping in certain columns
 
   return (
     <div className="flex-shrink-0 w-80">
@@ -66,29 +27,48 @@ export const KanbanColumn = ({ id, title, color, companies, draggedCardId }: Kan
         </div>
 
         {/* Droppable Area */}
-        <div
-          ref={setNodeRef}
-          className={`space-y-3 min-h-[500px] transition-colors ${
-            isOver ? 'bg-blue-50 bg-opacity-50' : ''
-          }`}
-        >
-          <SortableContext items={companyIds} strategy={verticalListSortingStrategy}>
-            {companies.map((company, index) => (
-              <DraggableKanbanCard
-                key={company.id}
-                company={company}
-                draggedCardId={draggedCardId}
-              />
-            ))}
-          </SortableContext>
-          
-          {/* Empty state */}
-          {companies.length === 0 && (
-            <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
-              No hay empresas en esta etapa
+        <Droppable droppableId={id} isDropDisabled={isDropDisabled}>
+          {(provided, snapshot) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className={`space-y-3 min-h-[500px] transition-colors ${
+                snapshot.isDraggingOver ? 'bg-blue-50 bg-opacity-50' : ''
+              }`}
+            >
+              {companies.map((company, index) => (
+                <Draggable
+                  key={company.id}
+                  draggableId={company.id}
+                  index={index}
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className={`transition-transform ${
+                        snapshot.isDragging ? 'rotate-3 scale-105' : ''
+                      } ${
+                        draggedCardId === company.id ? 'opacity-50' : ''
+                      }`}
+                    >
+                      <KanbanCard company={company} />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+              
+              {/* Empty state */}
+              {companies.length === 0 && (
+                <div className="flex items-center justify-center h-32 text-gray-400 text-sm">
+                  No hay empresas en esta etapa
+                </div>
+              )}
             </div>
           )}
-        </div>
+        </Droppable>
       </div>
     </div>
   );

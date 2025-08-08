@@ -69,8 +69,16 @@ export default function EmailSetup() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Email</h1>
+        <div className="text-center mb-8">
+          <div className="mx-auto w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+            <Mail className="h-10 w-10 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Configuración de Email con Nylas
+          </h1>
+          <p className="text-lg text-gray-600">
+            Conecta tus cuentas de DonDominio para gestionar emails de forma profesional
+          </p>
         </div>
 
         {/* Existing Accounts */}

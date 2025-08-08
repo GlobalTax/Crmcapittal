@@ -457,8 +457,11 @@ const EnterpriseAdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Administración</h1>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Administración Empresarial</h1>
+        <p className="text-gray-600 mt-1">
+          Panel de control avanzado para gestión integral del sistema
+        </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

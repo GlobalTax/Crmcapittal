@@ -20,7 +20,6 @@ export const useContacts = () => {
         .from('contacts')
         .select('*')
         .eq('contact_status', 'active')
-        .order('updated_at', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false });
 
       if (error) {

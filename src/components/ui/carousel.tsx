@@ -1,5 +1,4 @@
-import * as React from "react";
-const { createContext, useContext, useState, useCallback, useEffect } = React;
+import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react"
@@ -29,10 +28,10 @@ type CarouselContextProps = {
   canScrollNext: boolean
 } & CarouselProps
 
-const CarouselContext = createContext<CarouselContextProps | null>(null)
+const CarouselContext = React.createContext<CarouselContextProps | null>(null)
 
 function useCarousel() {
-  const context = useContext(CarouselContext)
+  const context = React.useContext(CarouselContext)
 
   if (!context) {
     throw new Error("useCarousel must be used within a <Carousel />")
@@ -64,10 +63,10 @@ const Carousel = React.forwardRef<
       },
       plugins
     )
-    const [canScrollPrev, setCanScrollPrev] = useState(false)
-    const [canScrollNext, setCanScrollNext] = useState(false)
+    const [canScrollPrev, setCanScrollPrev] = React.useState(false)
+    const [canScrollNext, setCanScrollNext] = React.useState(false)
 
-    const onSelect = useCallback((api: CarouselApi) => {
+    const onSelect = React.useCallback((api: CarouselApi) => {
       if (!api) {
         return
       }
@@ -76,15 +75,15 @@ const Carousel = React.forwardRef<
       setCanScrollNext(api.canScrollNext())
     }, [])
 
-    const scrollPrev = useCallback(() => {
+    const scrollPrev = React.useCallback(() => {
       api?.scrollPrev()
     }, [api])
 
-    const scrollNext = useCallback(() => {
+    const scrollNext = React.useCallback(() => {
       api?.scrollNext()
     }, [api])
 
-    const handleKeyDown = useCallback(
+    const handleKeyDown = React.useCallback(
       (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === "ArrowLeft") {
           event.preventDefault()
@@ -97,7 +96,7 @@ const Carousel = React.forwardRef<
       [scrollPrev, scrollNext]
     )
 
-useEffect(() => {
+    React.useEffect(() => {
       if (!api || !setApi) {
         return
       }
@@ -105,7 +104,7 @@ useEffect(() => {
       setApi(api)
     }, [api, setApi])
 
-    useEffect(() => {
+    React.useEffect(() => {
       if (!api) {
         return
       }

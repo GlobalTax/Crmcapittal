@@ -1,20 +1,18 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DocumentPresence, UpdatePresenceData } from '@/types/DocumentCollaboration';
 
 export const useDocumentPresence = (documentId?: string) => {
   const [presence, setPresence] = useState<DocumentPresence[]>([]);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const isMounted = useRef(true);
 
-  const fetchPresence = useCallback(async (signal?: AbortSignal) => {
+  const fetchPresence = useCallback(async () => {
     if (!documentId) return;
 
     try {
       const { data, error } = await supabase
         .from('document_presence')
         .select('*')
-        .abortSignal(signal)
         .eq('document_id', documentId)
         .gte('last_seen', new Date(Date.now() - 5 * 60 * 1000).toISOString()); // Últimos 5 minutos
 
@@ -24,15 +22,13 @@ export const useDocumentPresence = (documentId?: string) => {
         ...p,
         user: { id: p.user_id, email: '', first_name: '', last_name: '' }
       }));
-      if (isMounted.current) {
-        setPresence(presenceWithUsers as DocumentPresence[]);
-      }
+      setPresence(presenceWithUsers as DocumentPresence[]);
     } catch (error) {
       console.error('Error fetching presence:', error);
     }
   }, [documentId]);
 
-  const updatePresence = useCallback(async (presenceData: UpdatePresenceData, signal?: AbortSignal) => {
+  const updatePresence = useCallback(async (presenceData: UpdatePresenceData) => {
     if (!documentId) return;
 
     try {
@@ -49,8 +45,7 @@ export const useDocumentPresence = (documentId?: string) => {
           last_seen: new Date().toISOString()
         }, {
           onConflict: 'document_id,user_id'
-        })
-        .abortSignal(signal);
+        });
 
       if (error) throw error;
     } catch (error) {
@@ -58,7 +53,7 @@ export const useDocumentPresence = (documentId?: string) => {
     }
   }, [documentId]);
 
-  const removePresence = useCallback(async (signal?: AbortSignal) => {
+  const removePresence = useCallback(async () => {
     if (!documentId) return;
 
     try {
@@ -69,31 +64,28 @@ export const useDocumentPresence = (documentId?: string) => {
         .from('document_presence')
         .delete()
         .eq('document_id', documentId)
-        .eq('user_id', user.data.user.id)
-        .abortSignal(signal);
+        .eq('user_id', user.data.user.id);
     } catch (error) {
       console.error('Error removing presence:', error);
     }
   }, [documentId]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
     const initializePresence = async () => {
       const user = await supabase.auth.getUser();
       if (user.data.user) {
         setCurrentUser(user.data.user.id);
-        await updatePresence({ document_id: documentId! }, controller.signal);
+        await updatePresence({ document_id: documentId! });
       }
     };
 
     if (documentId) {
       initializePresence();
-      fetchPresence(controller.signal);
+      fetchPresence();
 
       // Actualizar presencia cada 30 segundos
       const presenceInterval = setInterval(() => {
-        updatePresence({ document_id: documentId }, controller.signal);
+        updatePresence({ document_id: documentId });
       }, 30000);
 
       // Suscribirse a cambios en tiempo real
@@ -116,10 +108,8 @@ export const useDocumentPresence = (documentId?: string) => {
       // Cleanup al desmontar
       return () => {
         clearInterval(presenceInterval);
-        removePresence(controller.signal);
+        removePresence();
         supabase.removeChannel(channel);
-        controller.abort();
-        isMounted.current = false;
       };
     }
   }, [documentId, updatePresence, removePresence, fetchPresence]);

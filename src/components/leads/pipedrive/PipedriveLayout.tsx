@@ -9,8 +9,6 @@ import { PipedriveMainContent } from './PipedriveMainContent';
 import { usePipelineStages } from '@/hooks/leads/usePipelineStages';
 import { useUpdateLead } from '@/hooks/leads/useUpdateLead';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { EmailAssistantDialog } from '../email/EmailAssistantDialog';
 
 interface PipedriveLayoutProps {
   lead: Lead;
@@ -19,7 +17,6 @@ interface PipedriveLayoutProps {
 export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
   const { data: stages = [], isLoading: stagesLoading } = usePipelineStages();
   const { updateStage, markWon, markLost, isUpdating } = useUpdateLead();
-  const [emailOpen, setEmailOpen] = useState(false);
 
   const currentStage = stages.find(s => s.id === lead.pipeline_stage_id) || stages[0];
 
@@ -59,7 +56,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <PipedriveHeader currentStage={currentStage?.name || 'Pipeline'} onOpenEmailAssistant={() => setEmailOpen(true)} />
+      <PipedriveHeader currentStage={currentStage?.name || 'Pipeline'} />
       
       {/* Pipeline Stages Bar */}
       <PipelineStagesBar
@@ -90,8 +87,6 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
         {/* Main Content */}
         <PipedriveMainContent lead={lead} />
       </div>
-
-      <EmailAssistantDialog lead={lead} open={emailOpen} onOpenChange={setEmailOpen} />
     </div>
   );
 };

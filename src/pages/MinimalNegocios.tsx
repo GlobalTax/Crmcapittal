@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/minimal/Button";
 import { Badge } from "@/components/ui/minimal/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/minimal/Table";
@@ -8,8 +8,8 @@ import { useBulkOperations } from "@/hooks/useBulkOperations";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useNegocioAutomations } from "@/hooks/useNegocioAutomations";
 import { User, Briefcase, Building2, Users, Settings, BarChart3 } from "lucide-react";
-// import { NegociosKanban } from "@/components/negocios/NegociosKanban";
-const OptimizedNegociosKanban = lazy(() => import('@/components/negocios/OptimizedNegociosKanban'));
+import { NegociosKanban } from "@/components/negocios/NegociosKanban";
+import { OptimizedNegociosKanban } from "@/components/negocios/OptimizedNegociosKanban";
 import { MetricCard } from "@/components/negocios/MetricCard";
 import { MetricsBar } from "@/components/negocios/MetricsBar";
 import { FilterBar } from "@/components/negocios/FilterBar";
@@ -355,19 +355,17 @@ export default function MinimalNegocios() {
             <h3 className="font-semibold">Vista Kanban</h3>
           </div>
           <div className="p-4">
-            <Suspense fallback={<div className="flex items-center justify-center h-40"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-              <OptimizedNegociosKanban
-                negocios={displayNegocios}
-                onUpdateStage={updateNegocioStage}
-                onEdit={setEditingNegocio}
-                onView={setSelectedNegocio}
-                onAddNegocio={() => setIsCreateDialogOpen(true)}
-                isLoading={loading}
-                onRefresh={() => window.location.reload()}
-                selectedIds={selectedIds}
-                onSelectItem={handleSelectItem}
-              />
-            </Suspense>
+            <OptimizedNegociosKanban
+              negocios={displayNegocios}
+              onUpdateStage={updateNegocioStage}
+              onEdit={setEditingNegocio}
+              onView={setSelectedNegocio}
+              onAddNegocio={() => setIsCreateDialogOpen(true)}
+              isLoading={loading}
+              onRefresh={() => window.location.reload()}
+              selectedIds={selectedIds}
+              onSelectItem={handleSelectItem}
+            />
           </div>
         </div>
       )}

@@ -31,8 +31,17 @@ export const ContactsHeader = React.memo(({
     <div className="bg-white border-b border-gray-100 px-6 py-4">
       <div className="space-y-4">
         {/* Title Section */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Contactos</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900 leading-tight">{title}</h1>
+            <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
+            {totalCount !== undefined && (
+              <p className="text-sm text-gray-500 mt-1">
+                {totalCount} contacto{totalCount !== 1 ? 's' : ''}
+              </p>
+            )}
+          </div>
+        
           <div className="flex items-center gap-3">
             {/* View Mode Toggle */}
             {onViewModeChange && (

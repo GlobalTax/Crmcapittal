@@ -4,5 +4,5 @@
  * Reusable components used across multiple features
  */
 
-// Export standard page header
-export { StandardPageHeader } from '../../../components/common/StandardPageHeader';
+// Placeholder - will be populated during migration
+export {};

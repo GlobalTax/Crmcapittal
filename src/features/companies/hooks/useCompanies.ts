@@ -20,8 +20,8 @@ export const useCompanies = (options: UseCompaniesOptions = {}) => {
   } = useQuery({
     queryKey: ["companies", options.page, options.limit, options.searchTerm, options.statusFilter, options.typeFilter],
     queryFn: () => CompanyService.fetchCompanies(options),
-    staleTime: 30 * 60 * 1000, // 30 minutes
-    gcTime: 60 * 60 * 1000, // 60 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Company stats hook

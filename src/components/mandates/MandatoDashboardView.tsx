@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { HierarchicalCRMView } from '@/components/unified/HierarchicalCRMView';
-import { SectionErrorBoundary } from '@/components/errors/SectionErrorBoundary';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
@@ -9,7 +9,7 @@ export default function MandatoDashboardView() {
   const navigate = useNavigate();
 
   return (
-    <SectionErrorBoundary section="Mandatos">
+    <ErrorBoundary>
       <div className="min-h-screen bg-neutral-0 flex flex-col">
         {/* Breadcrumb Navigation */}
         <div className="bg-background border-b border-border px-6 py-3">
@@ -32,6 +32,6 @@ export default function MandatoDashboardView() {
           />
         </div>
       </div>
-    </SectionErrorBoundary>
+    </ErrorBoundary>
   );
 }
