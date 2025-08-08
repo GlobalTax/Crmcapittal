@@ -19,6 +19,7 @@ import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useValoraciones } from '@/hooks/useValoraciones';
 import { toast } from 'sonner';
 import { analyticsService } from '@/services/analyticsService';
+import { useNavigate } from 'react-router-dom';
 
 export type LeadClosureType = 'sell' | 'buy' | 'valuation';
 
@@ -45,6 +46,11 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   const decisionMadeRef = useRef(false);
   const selectionTrackedRef = useRef(false);
   const recommendedTrackedRef = useRef(false);
+
+  // Navegación y estados auxiliares
+  const navigate = useNavigate();
+  const [existingLinked, setExistingLinked] = useState<{ id: string; type: LeadClosureType } | null>(null);
+  const [ignoreExisting, setIgnoreExisting] = useState(false);
 
   // Campos inline cuando faltan datos mínimos
   const initialCompany = useMemo(
@@ -149,6 +155,50 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
       selectionTrackedRef.current = true;
     }
   };
+
+  // Abrir entidad ya vinculada
+  const handleOpenLinked = () => {
+    if (!existingLinked) return;
+    analyticsService.track('entity_opened', {
+      entity_id: existingLinked.id,
+      type: existingLinked.type,
+      lead_id: lead.id,
+      ae_id: assigned_to_id
+    });
+    const path = existingLinked.type === 'valuation'
+      ? `/valoraciones/${existingLinked.id}`
+      : `/mandates/${existingLinked.id}`;
+    navigate(path);
+    onOpenChange(false);
+  };
+
+  // Cierre directo si motivo es spam/duplicado
+  useEffect(() => {
+    if (!open) return;
+    const reason = (((lead as any)?.lost_reason) || '').toLowerCase();
+    const isSpamDup = reason.includes('spam') || reason.includes('duplic');
+    if (isSpamDup) {
+      onOpenChange(false);
+    }
+  }, [open, lead]);
+
+  // Detectar entidad previamente vinculada
+  useEffect(() => {
+    if (!open) return;
+    const mandateId = (lead as any)?.converted_to_mandate_id;
+    const valuationId = (lead as any)?.converted_to_valoracion_id;
+    if (mandateId) {
+      const st = (lead as any)?.service_type;
+      let t: LeadClosureType = 'buy';
+      if (st === 'mandato_venta') t = 'sell';
+      else if (st === 'mandato_compra') t = 'buy';
+      setExistingLinked({ id: mandateId, type: t });
+    } else if (valuationId) {
+      setExistingLinked({ id: valuationId, type: 'valuation' });
+    } else {
+      setExistingLinked(null);
+    }
+  }, [open, lead]);
 
   const validate = () => {
     const next: { company?: string; contact?: string } = {};
@@ -310,7 +360,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
     <Dialog open={open} onOpenChange={handleOpenChangeInternal}>
       <DialogContent className="sm:max-w-xl" role="dialog" aria-modal="true" aria-labelledby="lead-closure-title">
         <DialogHeader>
-          <DialogTitle id="lead-closure-title">Crear desde lead</DialogTitle>
+          <DialogTitle id="lead-closure-title">¿Qué deseas crear a partir de este lead?</DialogTitle>
         </DialogHeader>
 
         {/* Resumen del lead */}
@@ -326,6 +376,29 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
             {sectorName && <span className="ml-auto text-muted-foreground">{sectorName}</span>}
           </div>
         </div>
+
+        {existingLinked && !ignoreExisting && (
+          <div className="mt-3 rounded-md border border-border bg-muted p-3 text-sm">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <span className="font-medium">Este lead ya tiene una entidad vinculada.</span>{' '}
+                <span className="text-muted-foreground">Puedes abrirla o crear otra adicional.</span>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="secondary" size="sm" onClick={handleOpenLinked}>
+                  Abrir entidad vinculada
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => {
+                  if (confirm('¿Crear otra entidad desde este lead?')) {
+                    setIgnoreExisting(true);
+                  }
+                }}>
+                  Crear otra
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Radios como Cards */}
         <RadioGroup value={selectedType} onValueChange={(v) => handleSelect(v as LeadClosureType)}>
