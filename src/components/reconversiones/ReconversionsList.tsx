@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { ReconversionCard } from './ReconversionCard';
 import { MobileReconversionCard } from './MobileReconversionCard';
 import { ReconversionStats } from './ReconversionStats';
 import { ReconversionFilters } from './ReconversionFilters';
 import { ReconversionViewToggle } from './ReconversionViewToggle';
 import { ReconversionEmptyState } from './ReconversionEmptyState';
-import { ReconversionKanbanView } from './ReconversionKanbanView';
+const ReconversionKanbanView = lazy(() => import('./ReconversionKanbanView').then(m => ({ default: m.ReconversionKanbanView })));
 import { LoadingButton } from '@/components/ui/loading-button';
 import { SkeletonGrid } from '@/components/ui/skeleton-card';
 import { Badge } from '@/components/ui/badge';
@@ -160,14 +160,16 @@ export function ReconversionsList({
 
       {/* Content */}
       {viewMode === 'kanban' ? (
-        <ReconversionKanbanView
-          reconversiones={filteredReconversiones}
-          onView={onView}
-          onEdit={() => {}} // TODO: Implement edit
-          onUpdateStatus={onUpdateStatus || (() => Promise.resolve())}
-          isLoading={false}
-          onRefresh={onRefresh}
-        />
+        <Suspense fallback={<div className="flex items-center justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+          <ReconversionKanbanView
+            reconversiones={filteredReconversiones}
+            onView={onView}
+            onEdit={() => {}} // TODO: Implement edit
+            onUpdateStatus={onUpdateStatus || (() => Promise.resolve())}
+            isLoading={false}
+            onRefresh={onRefresh}
+          />
+        </Suspense>
       ) : filteredReconversiones.length === 0 ? (
         <ReconversionEmptyState 
           hasFilters={hasActiveFilters}

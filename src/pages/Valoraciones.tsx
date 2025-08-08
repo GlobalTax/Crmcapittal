@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { ValoracionesKpiCards } from '@/components/valoraciones/ValoracionesKpiCards';
 import { ValoracionesHeader } from '@/components/valoraciones/ValoracionesHeader';
 import { ValoracionesSearchAndFilters } from '@/components/valoraciones/ValoracionesSearchAndFilters';
 import { ValoracionesStats } from '@/components/valoraciones/ValoracionesStats';
 import { ValoracionesGrid } from '@/components/valoraciones/ValoracionesGrid';
 import { ValoracionesPagination } from '@/components/valoraciones/ValoracionesPagination';
-import { ValoracionesKanban } from '@/components/valoraciones/ValoracionesKanban';
+const ValoracionesKanban = lazy(() => import('@/components/valoraciones/ValoracionesKanban').then(m => ({ default: m.ValoracionesKanban })));
 import { FloatingActionButton } from '@/components/valoraciones/FloatingActionButton';
 import { useValoracionesData } from '@/hooks/useValoracionesData';
 import { useValoracionesSearch } from '@/hooks/useValoracionesSearch';
@@ -174,14 +174,16 @@ export default function Valoraciones() {
           />
         </>
       ) : (
-        <ValoracionesKanban
-          valoraciones={valoraciones}
-          onEdit={handleEditValoracion}
-          onView={handleViewValoracion}
-          onUpdateStatus={handleUpdateStatus}
-          isLoading={isLoading}
-          onRefresh={handleRefresh}
-        />
+        <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+          <ValoracionesKanban
+            valoraciones={valoraciones}
+            onEdit={handleEditValoracion}
+            onView={handleViewValoracion}
+            onUpdateStatus={handleUpdateStatus}
+            isLoading={isLoading}
+            onRefresh={handleRefresh}
+          />
+        </Suspense>
       )}
 
       {/* Floating Action Button */}

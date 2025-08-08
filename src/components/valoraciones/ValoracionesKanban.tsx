@@ -127,9 +127,11 @@ export const ValoracionesKanban = React.memo(({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="region" aria-label="Kanban de valoraciones">
+      {/* Header with refresh button and SEO tags */}
       {/* Header with refresh button */}
       <div className="flex items-center justify-between">
+<h1 className="sr-only">Kanban de valoraciones</h1>
         <h3 className="text-lg font-semibold">Pipeline de Valoraciones</h3>
         {onRefresh && (
           <Button

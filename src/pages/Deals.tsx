@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { OptimizedDealsBoard } from '@/components/deals/OptimizedDealsBoard';
+import React, { useState, lazy, Suspense } from 'react';
+const OptimizedDealsBoard = lazy(() => import('@/components/deals/OptimizedDealsBoard').then(m => ({ default: m.OptimizedDealsBoard })));
 import { NewDealModal } from '@/components/deals/NewDealModal';
 import { DealDrawer } from '@/components/deals/DealDrawer';
 import { Deal, DealStage } from '@/types/Deal';
@@ -23,12 +23,13 @@ const Deals = () => {
 
   return (
     <div className="h-full flex flex-col" data-tour="deals-section">
-      {/* Optimized Single Kanban View */}
-      <OptimizedDealsBoard 
-        onNewDeal={handleNewDeal}
-        onDealClick={handleDealClick}
-        onDealEdit={handleDealEdit}
-      />
+      <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+        <OptimizedDealsBoard 
+          onNewDeal={handleNewDeal}
+          onDealClick={handleDealClick}
+          onDealEdit={handleDealEdit}
+        />
+      </Suspense>
 
       {/* Modals */}
       <NewDealModal

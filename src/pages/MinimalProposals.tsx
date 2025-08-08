@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { UnifiedCard } from "@/components/ui/unified-card";
 import AdvancedTable from "@/components/ui/minimal/AdvancedTable";
 import { useProposals } from '@/hooks/useProposals';
 import { ProposalWizard } from '@/components/proposals/ProposalWizard';
-import { ProposalKanbanBoard } from '@/components/proposals/kanban/ProposalKanbanBoard';
+const ProposalKanbanBoard = lazy(() => import('@/components/proposals/kanban/ProposalKanbanBoard').then(m => ({ default: m.ProposalKanbanBoard })));
 import { Proposal, CreateProposalData } from '@/types/Proposal';
 import { ProposalTemplate } from '@/types/ProposalTemplate';
 import { FileText, Users, CheckCircle, Euro, Plus, LayoutGrid, Table } from "lucide-react";
@@ -259,17 +259,19 @@ export default function MinimalProposals() {
 
       {/* Main Content - Kanban or Table */}
       {viewMode === 'kanban' ? (
-        <ProposalKanbanBoard
-          proposals={proposals}
-          onUpdateStatus={handleUpdateStatus}
-          onCreateProposal={() => setIsWizardOpen(true)}
-          onCreateFromTemplate={handleCreateFromTemplate}
-          onViewProposal={handleViewProposal}
-          onEditProposal={handleEditProposal}
-          isLoading={loading}
-          contacts={contacts}
-          companies={companies}
-        />
+        <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+          <ProposalKanbanBoard
+            proposals={proposals}
+            onUpdateStatus={handleUpdateStatus}
+            onCreateProposal={() => setIsWizardOpen(true)}
+            onCreateFromTemplate={handleCreateFromTemplate}
+            onViewProposal={handleViewProposal}
+            onEditProposal={handleEditProposal}
+            isLoading={loading}
+            contacts={contacts}
+            companies={companies}
+          />
+        </Suspense>
       ) : (
         <>
           {/* Search and Filters */}
