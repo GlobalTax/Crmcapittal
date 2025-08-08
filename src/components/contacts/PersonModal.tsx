@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import * as React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,7 +22,7 @@ export const PersonModal = ({
   onCreateContact,
   isCreating
 }: PersonModalProps) => {
-  const [formData, setFormData] = useState<Partial<CreateContactData>>({
+  const [formData, setFormData] = React.useState<Partial<CreateContactData>>({
     name: '',
     email: '',
     phone: '',
@@ -39,7 +39,7 @@ export const PersonModal = ({
     contact_status: 'active'
   });
 
-  const [newRole, setNewRole] = useState('');
+  const [newRole, setNewRole] = React.useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

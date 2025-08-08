@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import * as React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { PersonModal } from "@/components/contacts/PersonModal";
 import { EditContactDialog } from "@/components/contacts/EditContactDialog";
@@ -13,11 +13,11 @@ import { Contact, CreateContactData, UpdateContactData } from "@/types/Contact";
 export default function Contacts() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [viewingContact, setViewingContact] = useState<Contact | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [editingContact, setEditingContact] = React.useState<Contact | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [viewingContact, setViewingContact] = React.useState<Contact | null>(null);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [activeFilter, setActiveFilter] = React.useState("all");
 
   const {
     contacts,
@@ -35,7 +35,7 @@ export default function Contacts() {
   const isDeleting = false;
 
   // Handle legacy URL redirections
-  useEffect(() => {
+  React.useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const drawerId = searchParams.get('drawer');
     if (drawerId) {
@@ -44,7 +44,7 @@ export default function Contacts() {
   }, [location.search, navigate]);
 
   // Keyboard shortcut for new person
-  useEffect(() => {
+  React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'n' || e.key === 'N') {
         if (!e.ctrlKey && !e.metaKey && !e.altKey) {
