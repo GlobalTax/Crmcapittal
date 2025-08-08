@@ -1,12 +1,13 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 type FeatureFlag = {
   key: string;
   enabled: boolean;
-  organization_id?: string;
-  environment?: string;
-  rollout_percentage?: number;
+  organization_id?: string | null;
+  environment?: string | null;
+  rollout_percentage?: number | null;
 };
 
 export const useFeatureFlags = () => {
@@ -22,27 +23,38 @@ export const useFeatureFlags = () => {
           return;
         }
 
-        // Get user's organization (simplified for now)
-        const orgId = null; // No organization support yet
-        const environment = import.meta.env.MODE || 'development';
+        // Organización no implementada aún: null
+        const orgId: string | null = null;
+        const environment = (import.meta as any).env?.MODE || 'development';
 
-        // Check feature flags
-        const { data: featureFlags } = await supabase
+        // Construimos filtros OR válidos evitando eq.null
+        const orgFilter = orgId
+          ? `organization_id.eq.${orgId},organization_id.is.null`
+          : `organization_id.is.null`;
+        const envFilter = environment
+          ? `environment.eq.${environment},environment.is.null`
+          : `environment.is.null`;
+
+        // Consulta de feature flags por organización/entorno con fallback a null
+        const { data: featureFlags, error } = await supabase
           .from('feature_flags')
           .select('*')
-          .or(`organization_id.is.null,organization_id.eq.${orgId}`)
-          .or(`environment.is.null,environment.eq.${environment}`);
+          .or(orgFilter)
+          .or(envFilter);
+
+        if (error) {
+          console.error('Error loading feature flags (query):', error);
+        }
 
         const flagsMap: Record<string, boolean> = {};
-        
-        featureFlags?.forEach(flag => {
+        featureFlags?.forEach((flag: FeatureFlag) => {
           // Check rollout percentage
-          if (flag.rollout_percentage && flag.rollout_percentage < 100) {
+          if (flag.rollout_percentage != null && flag.rollout_percentage < 100) {
             const userHash = hashString(user.id);
             const userPercentile = userHash % 100;
-            flagsMap[flag.key] = flag.enabled && userPercentile < flag.rollout_percentage;
+            flagsMap[flag.key] = !!flag.enabled && userPercentile < flag.rollout_percentage;
           } else {
-            flagsMap[flag.key] = flag.enabled;
+            flagsMap[flag.key] = !!flag.enabled;
           }
         });
 

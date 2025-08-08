@@ -11533,6 +11533,18 @@ export type Database = {
       }
     }
     Views: {
+      feature_adoption_summary: {
+        Row: {
+          dialog_opened: number | null
+          entity_created: number | null
+          entity_creation_failed: number | null
+          environment: string | null
+          feature_key: string | null
+          metric_date: string | null
+          success_rate: number | null
+        }
+        Relationships: []
+      }
       hubspot_companies: {
         Row: {
           annual_revenue: number | null

@@ -10,6 +10,25 @@ interface CreateFromLeadParams {
   linkToLead: boolean;
 }
 
+// Export util to log when the dialog is opened (for adoption metrics)
+export const logLeadClosureDialogOpened = async (leadId?: string) => {
+  try {
+    const environment = (import.meta as any).env?.MODE || 'development';
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log('[feature_analytics] dialog_opened', { leadId, environment });
+
+    await supabase.from('feature_analytics').insert({
+      feature_key: 'lead_closure_dialog',
+      action: 'dialog_opened',
+      metadata: { environment, leadId },
+      user_id: user?.id,
+      timestamp: new Date().toISOString()
+    });
+  } catch (e) {
+    console.error('Failed to log dialog_opened:', e);
+  }
+};
+
 export const useLeadClosure = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -54,7 +73,7 @@ export const useLeadClosure = () => {
         });
 
         return result;
-      } catch (error) {
+      } catch (error: any) {
         console.error('RPC failed, attempting fallback:', error);
         
         // Fallback: close lead without creating entity
@@ -73,13 +92,13 @@ export const useLeadClosure = () => {
           }
         }
 
-        // Log the failure
+        // Log the failure with environment
         await logFeatureUsage('lead_closure_dialog', 'entity_creation_failed', {
           leadId,
           entityType: type,
           linkToLead,
           success: false,
-          error: error.message
+          error: error?.message
         });
 
         throw new Error('Error en la conversión. El lead se ha marcado como perdido para revisión manual.');
@@ -104,7 +123,7 @@ export const useLeadClosure = () => {
         });
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error creating from lead:', error);
       toast({
         title: "Error en conversión",
@@ -139,18 +158,22 @@ export const useLeadClosure = () => {
 
   return {
     createFromLead,
-    isCreating: createFromLeadMutation.isPending
+    isCreating: (createFromLeadMutation as any).isPending
   };
 };
 
 // Analytics helper function
 const logFeatureUsage = async (feature: string, action: string, metadata: any) => {
   try {
+    const environment = (import.meta as any).env?.MODE || 'development';
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log('[feature_analytics]', feature, action, { ...metadata, environment });
+
     await supabase.from('feature_analytics').insert({
       feature_key: feature,
       action,
-      metadata,
-      user_id: (await supabase.auth.getUser()).data.user?.id,
+      metadata: { ...metadata, environment },
+      user_id: user?.id,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
