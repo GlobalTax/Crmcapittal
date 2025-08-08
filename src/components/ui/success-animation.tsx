@@ -1,4 +1,4 @@
-import React from "react"
+import { useState, useEffect } from "react"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -15,9 +15,9 @@ export function SuccessAnimation({
   className,
   onComplete 
 }: SuccessAnimationProps) {
-  const [isVisible, setIsVisible] = React.useState(show)
+  const [isVisible, setIsVisible] = useState(show)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (show) {
       setIsVisible(true)
       const timer = setTimeout(() => {
@@ -64,7 +64,7 @@ interface SuccessToastProps {
 }
 
 export function SuccessToast({ message, show = false, onClose }: SuccessToastProps) {
-  React.useEffect(() => {
+  useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
         onClose?.()
@@ -97,9 +97,9 @@ export function SuccessButton({
   success?: boolean
   onClick?: () => void
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  const [showSuccess, setShowSuccess] = React.useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (success) {
       setShowSuccess(true)
       const timer = setTimeout(() => setShowSuccess(false), 2000)

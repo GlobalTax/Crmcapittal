@@ -1,5 +1,5 @@
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode, useState, useCallback, useEffect } from 'react'
 import { ErrorFallback } from './ErrorFallback'
 import { toast as notify } from 'sonner'
 import { secureLogger } from '@/utils/secureLogger'
@@ -72,17 +72,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
 // Hook version for functional components
 export function useErrorBoundary() {
-  const [error, setError] = React.useState<Error | null>(null)
+  const [error, setError] = useState<Error | null>(null)
 
-  const resetError = React.useCallback(() => {
+  const resetError = useCallback(() => {
     setError(null)
   }, [])
 
-  const captureError = React.useCallback((error: Error) => {
+  const captureError = useCallback((error: Error) => {
     setError(error)
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       throw error
     }
