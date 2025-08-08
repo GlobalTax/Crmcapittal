@@ -1,6 +1,15 @@
 
 import { useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import {
+  DndContext,
+  DragEndEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useTargetCompanies } from "@/hooks/useTargetCompanies";
 import { TargetCompany, TargetStatus } from "@/types/TargetCompany";
 import { KanbanColumn } from "./KanbanColumn";
@@ -26,30 +35,53 @@ export const KanbanPipeline = ({ onToggleView }: KanbanPipelineProps) => {
   const { targetCompanies, loading, updateStatus } = useTargetCompanies();
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 }
+    })
+  );
+
   // Group companies by status
   const companiesByStatus = statusColumns.reduce((acc, column) => {
     acc[column.id] = targetCompanies.filter(company => company.status === column.id);
     return acc;
   }, {} as Record<TargetStatus, TargetCompany[]>);
 
-  const handleDragEnd = async (result: DropResult) => {
-    setDraggedCard(null);
-    
-    if (!result.destination) return;
-
-    const sourceStatus = result.source.droppableId as TargetStatus;
-    const destinationStatus = result.destination.droppableId as TargetStatus;
-    
-    if (sourceStatus === destinationStatus) return;
-
-    const draggedCompany = companiesByStatus[sourceStatus][result.source.index];
-    
-    // Update status in backend
-    await updateStatus(draggedCompany.id, destinationStatus);
+  const handleDragStart = (event: DragStartEvent) => {
+    setDraggedCard(event.active.id as string);
   };
 
-  const handleDragStart = (start: any) => {
-    setDraggedCard(start.draggableId);
+  const handleDragEnd = async (event: DragEndEvent) => {
+    setDraggedCard(null);
+    
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // Find source and destination status
+    let sourceStatus = '';
+    let destinationStatus = overId as TargetStatus;
+
+    // Find which status contains the dragged company
+    for (const [status, companies] of Object.entries(companiesByStatus)) {
+      if (companies.some((company: TargetCompany) => company.id === activeId)) {
+        sourceStatus = status;
+        break;
+      }
+    }
+
+    if (sourceStatus === destinationStatus) return;
+
+    const draggedCompany = companiesByStatus[sourceStatus as TargetStatus].find(
+      (company: TargetCompany) => company.id === activeId
+    );
+    
+    if (!draggedCompany) return;
+
+    // Update status in backend
+    await updateStatus(draggedCompany.id, destinationStatus);
   };
 
   if (loading) {
@@ -76,7 +108,12 @@ export const KanbanPipeline = ({ onToggleView }: KanbanPipelineProps) => {
       </div>
 
       {/* Kanban Board */}
-      <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+      <DndContext 
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
         <div className="flex gap-4 overflow-x-auto pb-4">
           {statusColumns.map((column) => (
             <KanbanColumn
@@ -89,7 +126,7 @@ export const KanbanPipeline = ({ onToggleView }: KanbanPipelineProps) => {
             />
           ))}
         </div>
-      </DragDropContext>
+      </DndContext>
     </div>
   );
 };

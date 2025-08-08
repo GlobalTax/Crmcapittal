@@ -1,6 +1,17 @@
 
 import { useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import {
+  DndContext,
+  DragEndEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  useDroppable,
+  closestCenter
+} from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { OperacionCard } from "./OperacionCard";
 
 // Mock data siguiendo tu guía
@@ -32,25 +43,132 @@ const mockOperaciones = {
   ]
 };
 
+// Draggable Operation Card Component
+const DraggableOperacionCard = ({ operacion, index }: { operacion: any; index: number }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: operacion.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`transition-transform ${
+        isDragging ? 'opacity-50' : ''
+      }`}
+    >
+      <OperacionCard operacion={operacion} />
+    </div>
+  );
+};
+
+// Droppable Column Component
+const DroppableColumn = ({ stage, operaciones }: { stage: any; operaciones: any[] }) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id: stage.id,
+  });
+
+  const operacionIds = operaciones.map(op => op.id);
+
+  return (
+    <div key={stage.id} className="flex-shrink-0 w-80">
+      {/* Columna con estilo específico */}
+      <div className="bg-slate-100 rounded-lg p-3 min-h-[600px]">
+        {/* Cabecera de la Columna */}
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-medium text-slate-900">{stage.name}</h4>
+          <div className="bg-slate-200 text-slate-700 px-2 py-1 rounded text-sm font-medium">
+            {operaciones?.length || 0}
+          </div>
+        </div>
+
+        {/* Área de Drop */}
+        <div
+          ref={setNodeRef}
+          className={`space-y-3 min-h-[500px] transition-colors ${
+            isOver ? 'bg-blue-50 bg-opacity-50 rounded-lg' : ''
+          }`}
+        >
+          <SortableContext items={operacionIds} strategy={verticalListSortingStrategy}>
+            {(operaciones || []).map((operacion, index) => (
+              <DraggableOperacionCard
+                key={operacion.id}
+                operacion={operacion}
+                index={index}
+              />
+            ))}
+          </SortableContext>
+          
+          {/* Estado vacío */}
+          {(!operaciones || operaciones.length === 0) && (
+            <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
+              No hay operaciones en esta etapa
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const OperacionesKanban = () => {
   const [operaciones, setOperaciones] = useState(mockOperaciones);
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
 
-  const handleDragEnd = (result: DropResult) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 4 }
+    })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setDraggedCard(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
     setDraggedCard(null);
     
-    if (!result.destination) return;
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    const sourceStageId = result.source.droppableId;
-    const destinationStageId = result.destination.droppableId;
-    
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // Find source and destination stages
+    let sourceStageId = '';
+    let destinationStageId = overId;
+
+    // Find which stage contains the dragged item
+    for (const [stageId, items] of Object.entries(operaciones)) {
+      if (items.some((item: any) => item.id === activeId)) {
+        sourceStageId = stageId;
+        break;
+      }
+    }
+
     if (sourceStageId === destinationStageId) return;
 
-    // Simular el movimiento de tarjetas entre columnas
+    // Move item between stages
     const sourceItems = [...operaciones[sourceStageId as keyof typeof operaciones]];
     const destItems = [...operaciones[destinationStageId as keyof typeof operaciones]];
-    const [movedItem] = sourceItems.splice(result.source.index, 1);
-    destItems.splice(result.destination.index, 0, movedItem);
+    
+    const movedItemIndex = sourceItems.findIndex((item: any) => item.id === activeId);
+    if (movedItemIndex === -1) return;
+
+    const [movedItem] = sourceItems.splice(movedItemIndex, 1);
+    destItems.push(movedItem);
 
     setOperaciones({
       ...operaciones,
@@ -59,75 +177,25 @@ export const OperacionesKanban = () => {
     });
   };
 
-  const handleDragStart = (start: any) => {
-    setDraggedCard(start.draggableId);
-  };
-
   return (
     <div className="w-full">
       {/* Contenedor del Kanban con scroll horizontal */}
-      <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+      <DndContext 
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
         <div className="flex gap-4 overflow-x-auto pb-4">
           {mockStages.map((stage) => (
-            <div key={stage.id} className="flex-shrink-0 w-80">
-              {/* Columna con estilo específico */}
-              <div className="bg-slate-100 rounded-lg p-3 min-h-[600px]">
-                {/* Cabecera de la Columna */}
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-medium text-slate-900">{stage.name}</h4>
-                  <div className="bg-slate-200 text-slate-700 px-2 py-1 rounded text-sm font-medium">
-                    {operaciones[stage.id as keyof typeof operaciones]?.length || 0}
-                  </div>
-                </div>
-
-                {/* Área de Drop */}
-                <Droppable droppableId={stage.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`space-y-3 min-h-[500px] transition-colors ${
-                        snapshot.isDraggingOver ? 'bg-blue-50 bg-opacity-50 rounded-lg' : ''
-                      }`}
-                    >
-                      {(operaciones[stage.id as keyof typeof operaciones] || []).map((operacion, index) => (
-                        <Draggable
-                          key={operacion.id}
-                          draggableId={operacion.id}
-                          index={index}
-                        >
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`transition-transform ${
-                                snapshot.isDragging ? 'rotate-3 scale-105' : ''
-                              } ${
-                                draggedCard === operacion.id ? 'opacity-50' : ''
-                              }`}
-                            >
-                              <OperacionCard operacion={operacion} />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                      
-                      {/* Estado vacío */}
-                      {(!operaciones[stage.id as keyof typeof operaciones] || operaciones[stage.id as keyof typeof operaciones].length === 0) && (
-                        <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
-                          No hay operaciones en esta etapa
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            </div>
+            <DroppableColumn 
+              key={stage.id}
+              stage={stage}
+              operaciones={operaciones[stage.id as keyof typeof operaciones] || []}
+            />
           ))}
         </div>
-      </DragDropContext>
+      </DndContext>
     </div>
   );
 };
