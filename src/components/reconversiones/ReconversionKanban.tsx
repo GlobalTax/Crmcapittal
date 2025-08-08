@@ -1,5 +1,7 @@
 import React from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import { useSortable } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -75,13 +77,26 @@ interface ReconversionCardProps {
 function ReconversionCard({ reconversion, onUpdate }: ReconversionCardProps) {
   const { updateSubfase, loading } = useReconversionWorkflow();
 
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'reconversion',
-    item: { id: reconversion.id, currentSubfase: reconversion.subfase },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }));
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: reconversion.id,
+    data: {
+      type: 'reconversion',
+      reconversion,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -105,8 +120,11 @@ function ReconversionCard({ reconversion, onUpdate }: ReconversionCardProps) {
 
   return (
     <div
-      ref={drag}
-      className={`cursor-move transition-opacity ${isDragging ? 'opacity-50' : 'opacity-100'}`}
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="cursor-move"
     >
       <Card className="mb-3 hover:shadow-md transition-shadow">
         <CardHeader className="pb-2">
@@ -177,20 +195,13 @@ interface KanbanColumnProps {
 function KanbanColumn({ column, reconversiones, onUpdate }: KanbanColumnProps) {
   const { updateSubfase, loading } = useReconversionWorkflow();
 
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: 'reconversion',
-    drop: async (item: { id: string; currentSubfase: string }) => {
-      if (item.currentSubfase !== column.id) {
-        const success = await updateSubfase(item.id, column.id);
-        if (success && onUpdate) {
-          onUpdate();
-        }
-      }
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
+    data: {
+      type: 'column',
+      accepts: ['reconversion'],
     },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
-  }));
+  });
 
   return (
     <div className="flex-1 min-w-[280px]">
@@ -208,7 +219,7 @@ function KanbanColumn({ column, reconversiones, onUpdate }: KanbanColumnProps) {
       </div>
       
       <div
-        ref={drop}
+        ref={setNodeRef}
         className={`min-h-[200px] p-3 rounded-lg border-2 border-dashed transition-colors ${
           isOver 
             ? 'border-primary bg-primary/5' 
