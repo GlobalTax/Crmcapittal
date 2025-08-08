@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Contact } from '@/types/Contact';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +20,7 @@ export const UltraDenseContactsTable = ({
   onCreateContact,
   isLoading
 }: UltraDenseContactsTableProps) => {
-  const [hoveredRow, setHoveredRow] = React.useState<string | null>(null);
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
 
   const getInitials = (name: string) => {
     return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);

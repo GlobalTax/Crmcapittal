@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import { Contact, UpdateContactData } from "@/types/Contact";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ export const EditContactDialog = ({
   onUpdateContact, 
   isUpdating = false 
 }: EditContactDialogProps) => {
-  const [contactData, setContactData] = React.useState({
+  const [contactData, setContactData] = useState({
     name: contact.name || "",
     email: contact.email || "",
     phone: contact.phone || "",
@@ -44,7 +44,7 @@ export const EditContactDialog = ({
     language_preference: contact.language_preference || "es",
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (contact) {
       setContactData({
         name: contact.name || "",
