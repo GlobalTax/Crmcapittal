@@ -319,11 +319,11 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
       </div>
 
       {/* Main Content Tabs */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0">
         <Tabs 
           value={activeTab} 
           onValueChange={setActiveTab}
-          className="h-full flex flex-col"
+          className="flex-1 min-h-0 flex flex-col"
         >
           <TabsList className="grid w-full grid-cols-5 mx-6 mt-4">
             <TabsTrigger value="overview" className="transition-all duration-200">
@@ -549,8 +549,8 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="tasks" className="h-full overflow-hidden animate-fade-in">
-              <Card className="h-full flex flex-col">
+            <TabsContent value="tasks" className="min-h-0 animate-fade-in">
+              <Card className="min-h-0 flex flex-col">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Tareas</CardTitle>
@@ -564,7 +564,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-hidden space-y-4">
+                <CardContent className="flex-1 min-h-0 space-y-4">
                   {/* Add Task Form */}
                   {isAddingTask && (
                     <div className="p-4 border rounded-lg bg-muted/50 animate-scale-in">
@@ -599,7 +599,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </div>
                   )}
 
-                  <ScrollArea className="flex-1">
+                  <div className="flex-1 overflow-y-auto min-h-0">
                     {tasks.length > 0 ? (
                       <div className="space-y-3">
                         {tasks.map((task) => (
@@ -649,7 +649,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                         <p className="text-sm">Crea tareas para organizar tu trabajo con este lead</p>
                       </div>
                     )}
-                  </ScrollArea>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
