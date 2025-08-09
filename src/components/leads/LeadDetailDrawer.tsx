@@ -193,7 +193,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
         <div className="flex-1 flex">
           {/* Área de contenido principal */}
           <div className="flex-1">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
               {/* SOLO 4 PESTAÑAS - PROPUESTA ELIMINADA PARA SIEMPRE */}
               <div className="px-6 border-b border-border">
                 <TabsList className="bg-transparent h-auto p-0 gap-6">
@@ -228,7 +228,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
               </div>
 
               {/* SOLO 4 CONTENIDOS - SIN PROPUESTA */}
-              <div className="flex-1 p-6">
+              <div className="p-6">
                 <TabsContent value="resumen" className="mt-0">
                   <LeadOverviewTab lead={lead} />
                 </TabsContent>
