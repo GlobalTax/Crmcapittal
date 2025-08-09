@@ -7784,20 +7784,26 @@ export type Database = {
           employees: number | null
           highlighted: boolean | null
           id: string
+          investment_capacity: number | null
           is_active: boolean
           location: string | null
           multiplier: number | null
           notes: string | null
+          opportunity_score: number
           opportunity_type: string
           priority: string | null
           probability: number | null
           revenue: number | null
           rod_order: number | null
+          score_updated_at: string
           sector: string | null
+          sector_attractiveness: number | null
           stage: string
           status: string
+          strategic_fit: number | null
           title: string
           updated_at: string
+          urgency: number | null
           value: number | null
         }
         Insert: {
@@ -7813,20 +7819,26 @@ export type Database = {
           employees?: number | null
           highlighted?: boolean | null
           id?: string
+          investment_capacity?: number | null
           is_active?: boolean
           location?: string | null
           multiplier?: number | null
           notes?: string | null
+          opportunity_score?: number
           opportunity_type?: string
           priority?: string | null
           probability?: number | null
           revenue?: number | null
           rod_order?: number | null
+          score_updated_at?: string
           sector?: string | null
+          sector_attractiveness?: number | null
           stage?: string
           status?: string
+          strategic_fit?: number | null
           title: string
           updated_at?: string
+          urgency?: number | null
           value?: number | null
         }
         Update: {
@@ -7842,20 +7854,26 @@ export type Database = {
           employees?: number | null
           highlighted?: boolean | null
           id?: string
+          investment_capacity?: number | null
           is_active?: boolean
           location?: string | null
           multiplier?: number | null
           notes?: string | null
+          opportunity_score?: number
           opportunity_type?: string
           priority?: string | null
           probability?: number | null
           revenue?: number | null
           rod_order?: number | null
+          score_updated_at?: string
           sector?: string | null
+          sector_attractiveness?: number | null
           stage?: string
           status?: string
+          strategic_fit?: number | null
           title?: string
           updated_at?: string
+          urgency?: number | null
           value?: number | null
         }
         Relationships: [
@@ -7937,6 +7955,53 @@ export type Database = {
           },
           {
             foreignKeyName: "opportunity_contacts_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunity_score_events: {
+        Row: {
+          created_at: string
+          factor_snapshot: Json
+          id: string
+          metadata: Json
+          new_score: number | null
+          old_score: number | null
+          opportunity_id: string
+          probability: number | null
+          stage: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          factor_snapshot?: Json
+          id?: string
+          metadata?: Json
+          new_score?: number | null
+          old_score?: number | null
+          opportunity_id: string
+          probability?: number | null
+          stage?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          factor_snapshot?: Json
+          id?: string
+          metadata?: Json
+          new_score?: number | null
+          old_score?: number | null
+          opportunity_id?: string
+          probability?: number | null
+          stage?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_score_events_opportunity_id_fkey"
             columns: ["opportunity_id"]
             isOneToOne: false
             referencedRelation: "opportunities"
