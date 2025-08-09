@@ -204,7 +204,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-background">
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-background">
       {/* Deal Header with Key Info */}
       <div className="border-b border-border bg-card p-6">
         <div className="flex items-start justify-between mb-4">
@@ -331,7 +331,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
         <Tabs 
           value={activeTab} 
           onValueChange={setActiveTab}
-          className="h-full flex flex-col"
+          className="flex-1 min-h-0 flex flex-col"
         >
           <TabsList className="grid w-full grid-cols-5 mx-6 mt-4">
             <TabsTrigger value="overview" className="transition-all duration-200">
