@@ -7,6 +7,7 @@ import { TASK_TEMPLATES } from '@/hooks/leads/taskTemplates';
 import { LeadTaskSLA } from './LeadTaskSLA';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { generateValuationLightPDF } from '@/utils/valuation/pdf';
 
 interface Props { leadId: string }
 
@@ -76,6 +77,61 @@ export const LeadTaskEnginePanel: React.FC<Props> = ({ leadId }) => {
     clearSel();
   };
 
+  // Valoración: generar PDF y adjuntar a tarea
+  const handleGenerateValuation = async (task: LeadTaskEngineRecord) => {
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      const uid = userRes.user?.id;
+      if (!uid) return toast.error('No autenticado');
+
+      const { data: leadRes, error: leadErr } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('id', leadId)
+        .maybeSingle();
+      if (leadErr || !leadRes) throw leadErr || new Error('Lead no encontrado');
+
+      const { blob, fileName } = await generateValuationLightPDF(leadRes as any);
+      const path = `${uid}/${leadId}/${Date.now()}_${fileName}`;
+      const { error: upErr } = await supabase.storage.from('valuations').upload(path, blob, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
+      if (upErr) throw upErr;
+
+      const { data: signed } = await supabase.storage.from('valuations').createSignedUrl(path, 60 * 60 * 24 * 7);
+      const meta = { ...(task.metadata || {}), storage_bucket: 'valuations', storage_path: path, signed_url: signed?.signedUrl };
+      await updateTask({ id: task.id, updates: { metadata: meta } as Partial<LeadTaskEngineRecord> });
+      toast.success('PDF generado y adjuntado a la tarea');
+    } catch (e: any) {
+      console.error(e);
+      toast.error('Error al generar la valoración');
+    }
+  };
+
+  const handleSendValuation = async (task: LeadTaskEngineRecord) => {
+    try {
+      const { data: leadRes, error: leadErr } = await supabase
+        .from('leads')
+        .select('email,name')
+        .eq('id', leadId)
+        .maybeSingle();
+      if (leadErr || !leadRes) throw leadErr || new Error('Lead no encontrado');
+
+      const link = (task.metadata as any)?.signed_url as string | undefined;
+      if (!link) return toast.error('Genera primero el PDF');
+
+      const { data, error } = await supabase.functions.invoke('send-valuation-email', {
+        body: { email: leadRes.email, name: leadRes.name, link, leadId, taskId: task.id },
+      });
+      if (error) throw error;
+      toast.success('Email enviado (revisa seguimiento)');
+    } catch (e: any) {
+      console.error(e);
+      toast.error('No se pudo enviar el email (configura Resend si es la primera vez)');
+    }
+  };
+
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Quick actions */}
@@ -135,6 +191,16 @@ export const LeadTaskEnginePanel: React.FC<Props> = ({ leadId }) => {
                 ) : null}
               </div>
               <div className="flex items-center gap-2">
+                {t.type === 'valoracion_inicial' && (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => handleGenerateValuation(t)}>
+                      Generar PDF
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handleSendValuation(t)}>
+                      Enviar
+                    </Button>
+                  </>
+                )}
                 <Button
                   size="sm"
                   variant="secondary"
