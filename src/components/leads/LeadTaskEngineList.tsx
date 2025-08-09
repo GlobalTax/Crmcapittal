@@ -16,13 +16,17 @@ const typeIcon: Record<string, React.ReactNode> = {
   informe_mercado: <FileText className="h-4 w-4" />,
   whatsapp: <MessageSquare className="h-4 w-4" />,
   preguntas_reunion: <ListChecks className="h-4 w-4" />,
+  datos_sabi: <FileText className="h-4 w-4" />,
+  balances_4y: <FileText className="h-4 w-4" />,
+  valoracion_inicial: <FileText className="h-4 w-4" />,
+  perfilar_oportunidad: <ListChecks className="h-4 w-4" />,
 };
 
 export const LeadTaskEngineList: React.FC<LeadTaskEngineListProps> = ({ leadId }) => {
   const { tasks, isLoading, createTask, completeTask, snoozeTask } = useLeadTaskEngine(leadId);
 
-  const createQuick = (type: any, title?: string) =>
-    createTask({ lead_id: leadId, type, title });
+  const createQuick = (type: any) =>
+    createTask({ lead_id: leadId, type });
 
   if (isLoading) {
     return <div className="text-muted-foreground">Cargando tareas...</div>;
@@ -33,7 +37,7 @@ export const LeadTaskEngineList: React.FC<LeadTaskEngineListProps> = ({ leadId }
       <div className="flex items-center justify-between">
         <h4 className="text-base font-semibold">Tareas (Motor IA)</h4>
         <div className="flex gap-2">
-          <Button size="sm" variant="secondary" onClick={() => createQuick('llamada', 'Llamada inicial')}>
+          <Button size="sm" variant="secondary" onClick={() => createQuick('llamada')}>
             <Phone className="mr-2 h-4 w-4" /> Llamada inicial
           </Button>
           <Button size="sm" variant="secondary" onClick={() => createQuick('preguntas_reunion')}>

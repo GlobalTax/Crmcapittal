@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { TASK_TEMPLATES } from './taskTemplates';
 
 export type LeadTaskType =
   | 'valoracion_inicial'
@@ -87,33 +88,47 @@ export const useLeadTaskEngine = (leadId?: string) => {
       const { data: userData } = await supabase.auth.getUser();
       const type = input.type;
 
-      // Obtener SLA por tipo para calcular due_date si no se envía
+      const template = TASK_TEMPLATES[type as keyof typeof TASK_TEMPLATES];
+      const finalPriority = (input.priority || template?.defaultPriority || 'medium') as LeadTaskPriority;
+
+      // Obtener SLA por tipo y prioridad (nuevo esquema)
       const { data: slaRow } = await supabase
         .from('lead_task_sla_policies')
-        .select('default_sla_hours')
+        .select('sla_hours')
         .eq('task_type', type)
+        .eq('priority', finalPriority)
         .maybeSingle();
 
-      const slaHours = slaRow?.default_sla_hours ?? 24;
+      const slaHours = slaRow?.sla_hours ?? null;
+
+      const now = Date.now();
       const dueISO = input.due_date
         ? input.due_date
-        : new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString();
+        : (template?.dueOffsetDays != null
+            ? new Date(now + template.dueOffsetDays * 24 * 60 * 60 * 1000).toISOString()
+            : (slaHours != null
+                ? new Date(now + slaHours * 60 * 60 * 1000).toISOString()
+                : new Date(now + 24 * 60 * 60 * 1000).toISOString()));
+
+      const deps = input.dependencies ?? (template?.deps ?? []);
+      const meta = input.metadata ?? (template?.metadata ?? {});
+      const title = input.title || template?.title || DEFAULT_TITLES[type];
 
       const { data, error } = await supabase
         .from('lead_task_engine')
         .insert({
           lead_id: input.lead_id,
           type,
-          title: input.title || DEFAULT_TITLES[type],
+          title,
           description: input.description,
           due_date: dueISO,
           assigned_to: input.assigned_to,
-          priority: input.priority || 'medium',
+          priority: finalPriority,
           status: 'open',
-          dependencies: input.dependencies || [],
-          metadata: input.metadata || {},
+          dependencies: deps,
+          metadata: meta,
           created_by: userData.user?.id,
-          sla_hours: slaHours,
+          sla_hours: slaHours ?? (template?.dueOffsetDays != null ? template.dueOffsetDays * 24 : 24),
         })
         .select()
         .maybeSingle();
