@@ -190,9 +190,9 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
         </div>
 
         {/* Contenido principal con layout de sidebar */}
-        <div className="flex-1 overflow-hidden flex">
+        <div className="flex-1 flex">
           {/* Área de contenido principal */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
               {/* SOLO 4 PESTAÑAS - PROPUESTA ELIMINADA PARA SIEMPRE */}
               <div className="px-6 border-b border-border">
@@ -228,7 +228,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
               </div>
 
               {/* SOLO 4 CONTENIDOS - SIN PROPUESTA */}
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 p-6">
                 <TabsContent value="resumen" className="mt-0">
                   <LeadOverviewTab lead={lead} />
                 </TabsContent>
@@ -259,7 +259,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
           </div>
 
           {/* Sidebar */}
-          <div className="w-80 border-l border-border bg-muted/30 p-6 overflow-y-auto">
+          <div className="w-80 border-l border-border bg-muted/30 p-6 overflow-visible">
             <LeadSidebarWidgets lead={lead} />
           </div>
         </div>
