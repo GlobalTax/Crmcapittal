@@ -6017,6 +6017,139 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_task_engine: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          dependencies: string[] | null
+          description: string | null
+          due_date: string | null
+          id: string
+          lead_id: string
+          metadata: Json | null
+          priority: Database["public"]["Enums"]["lead_task_priority"]
+          sla_breached: boolean | null
+          sla_hours: number | null
+          status: Database["public"]["Enums"]["lead_task_status"]
+          title: string
+          type: Database["public"]["Enums"]["lead_task_type"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          lead_id: string
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["lead_task_priority"]
+          sla_breached?: boolean | null
+          sla_hours?: number | null
+          status?: Database["public"]["Enums"]["lead_task_status"]
+          title: string
+          type: Database["public"]["Enums"]["lead_task_type"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          lead_id?: string
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["lead_task_priority"]
+          sla_breached?: boolean | null
+          sla_hours?: number | null
+          status?: Database["public"]["Enums"]["lead_task_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["lead_task_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_task_engine_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_task_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: Database["public"]["Enums"]["lead_task_event_type"]
+          id: string
+          task_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: Database["public"]["Enums"]["lead_task_event_type"]
+          id?: string
+          task_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: Database["public"]["Enums"]["lead_task_event_type"]
+          id?: string
+          task_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_task_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "lead_task_engine"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_task_sla_policies: {
+        Row: {
+          created_at: string
+          default_sla_hours: number
+          escalation_rules: Json | null
+          id: string
+          is_active: boolean | null
+          task_type: Database["public"]["Enums"]["lead_task_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_sla_hours?: number
+          escalation_rules?: Json | null
+          id?: string
+          is_active?: boolean | null
+          task_type: Database["public"]["Enums"]["lead_task_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_sla_hours?: number
+          escalation_rules?: Json | null
+          id?: string
+          is_active?: boolean | null
+          task_type?: Database["public"]["Enums"]["lead_task_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_tasks: {
         Row: {
           assigned_to: string | null
@@ -12428,6 +12561,30 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_lead_tasks_with_dependencies: {
+        Args: { p_lead_id: string }
+        Returns: {
+          id: string
+          lead_id: string
+          type: Database["public"]["Enums"]["lead_task_type"]
+          title: string
+          description: string
+          due_date: string
+          assigned_to: string
+          priority: Database["public"]["Enums"]["lead_task_priority"]
+          status: Database["public"]["Enums"]["lead_task_status"]
+          dependencies: string[]
+          metadata: Json
+          sla_hours: number
+          sla_breached: boolean
+          completed_at: string
+          created_by: string
+          created_at: string
+          updated_at: string
+          can_start: boolean
+          dependency_status: Json
+        }[]
+      }
       get_pending_scheduled_reminders: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -12912,6 +13069,26 @@ export type Database = {
         | "CONVERTED"
         | "LOST"
       lead_status: "NEW" | "CONTACTED" | "QUALIFIED" | "DISQUALIFIED"
+      lead_task_event_type:
+        | "task_created"
+        | "task_completed"
+        | "task_snoozed"
+        | "task_reopened"
+        | "sla_breached"
+        | "task_assigned"
+        | "task_dependency_resolved"
+      lead_task_priority: "low" | "medium" | "high" | "urgent"
+      lead_task_status: "open" | "done" | "snoozed"
+      lead_task_type:
+        | "valoracion_inicial"
+        | "llamada"
+        | "whatsapp"
+        | "informe_mercado"
+        | "datos_sabi"
+        | "balances_4y"
+        | "preguntas_reunion"
+        | "videollamada"
+        | "perfilar_oportunidad"
       lead_type: "compra" | "venta" | "general"
       lifecycle_stage:
         | "lead"
@@ -13189,6 +13366,28 @@ export const Constants = {
         "LOST",
       ],
       lead_status: ["NEW", "CONTACTED", "QUALIFIED", "DISQUALIFIED"],
+      lead_task_event_type: [
+        "task_created",
+        "task_completed",
+        "task_snoozed",
+        "task_reopened",
+        "sla_breached",
+        "task_assigned",
+        "task_dependency_resolved",
+      ],
+      lead_task_priority: ["low", "medium", "high", "urgent"],
+      lead_task_status: ["open", "done", "snoozed"],
+      lead_task_type: [
+        "valoracion_inicial",
+        "llamada",
+        "whatsapp",
+        "informe_mercado",
+        "datos_sabi",
+        "balances_4y",
+        "preguntas_reunion",
+        "videollamada",
+        "perfilar_oportunidad",
+      ],
       lead_type: ["compra", "venta", "general"],
       lifecycle_stage: [
         "lead",

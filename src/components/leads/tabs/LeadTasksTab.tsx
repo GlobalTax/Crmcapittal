@@ -1,5 +1,6 @@
 import { Lead } from '@/types/Lead';
 import { LeadTasksList } from '../LeadTasksList';
+import { LeadTaskEngineList } from '../LeadTaskEngineList';
 
 interface LeadTasksTabProps {
   lead: Lead;
@@ -13,6 +14,7 @@ export const LeadTasksTab = ({ lead }: LeadTasksTabProps) => {
       </div>
       
       <LeadTasksList leadId={lead.id} />
+      <LeadTaskEngineList leadId={lead.id} />
     </div>
   );
 };
