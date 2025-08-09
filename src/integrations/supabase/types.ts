@@ -6127,6 +6127,8 @@ export type Database = {
           escalation_rules: Json | null
           id: string
           is_active: boolean | null
+          priority: Database["public"]["Enums"]["lead_task_priority"]
+          sla_hours: number
           task_type: Database["public"]["Enums"]["lead_task_type"]
           updated_at: string
         }
@@ -6136,6 +6138,8 @@ export type Database = {
           escalation_rules?: Json | null
           id?: string
           is_active?: boolean | null
+          priority: Database["public"]["Enums"]["lead_task_priority"]
+          sla_hours: number
           task_type: Database["public"]["Enums"]["lead_task_type"]
           updated_at?: string
         }
@@ -6145,6 +6149,8 @@ export type Database = {
           escalation_rules?: Json | null
           id?: string
           is_active?: boolean | null
+          priority?: Database["public"]["Enums"]["lead_task_priority"]
+          sla_hours?: number
           task_type?: Database["public"]["Enums"]["lead_task_type"]
           updated_at?: string
         }
