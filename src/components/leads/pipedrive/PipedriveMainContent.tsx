@@ -42,6 +42,7 @@ import { ScheduleMeetingDialog } from './ScheduleMeetingDialog';
 import { LeadTaskEngineList } from '@/components/leads/LeadTaskEngineList';
 import { useFollowLead } from '@/hooks/leads/useFollowLead';
 import { useLeadEngineAutomations } from '@/hooks/leads/useLeadEngineAutomations';
+import { LeadTaskEnginePanel } from '@/components/leads/engine/LeadTaskEnginePanel';
 
 interface PipedriveMainContentProps {
   lead: Lead;
@@ -675,8 +676,11 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     {/* Engine suggested tasks */}
                     <div className="mt-6">
                       <Separator className="my-4" />
-                      <h4 className="text-sm font-semibold mb-2">Tareas sugeridas</h4>
-                      <LeadTaskEngineList leadId={lead.id} />
+                      <h4 className="text-sm font-semibold mb-2">Tareas del motor</h4>
+                      {/* UI minimalista del motor: acciones rápidas + checklist + SLA + batch */}
+                      <div className="flex flex-col h-full min-h-0">
+                        <LeadTaskEnginePanel leadId={lead.id} />
+                      </div>
                     </div>
                   </div>
                 </CardContent>

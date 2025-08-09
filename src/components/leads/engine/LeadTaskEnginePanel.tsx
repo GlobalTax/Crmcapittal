@@ -1,0 +1,158 @@
+import React, { useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { LeadTaskEngineRecord, LeadTaskType, useLeadTaskEngine } from '@/hooks/leads/useLeadTaskEngine';
+import { TASK_TEMPLATES } from '@/hooks/leads/taskTemplates';
+import { LeadTaskSLA } from './LeadTaskSLA';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Props { leadId: string }
+
+const QUICK_ACTIONS: { label: string; type: LeadTaskType }[] = [
+  { label: 'Informe Mercado (IA)', type: 'informe_mercado' },
+  { label: 'Preguntas Reunión (IA)', type: 'preguntas_reunion' },
+  { label: 'Agendar Video', type: 'videollamada' },
+  { label: 'WhatsApp', type: 'whatsapp' },
+  { label: 'Llamada', type: 'llamada' },
+  { label: 'SABI', type: 'datos_sabi' },
+  { label: 'Balances', type: 'balances_4y' },
+];
+
+const StatusBadge: React.FC<{ status: LeadTaskEngineRecord['status'] }> = ({ status }) => {
+  const map: Record<string, { text: string; variant: 'secondary' | 'outline' | 'default' }> = {
+    open: { text: 'Abierta', variant: 'secondary' },
+    snoozed: { text: 'Pospuesta', variant: 'outline' },
+    done: { text: 'Hecha', variant: 'default' },
+  };
+  const s = map[status];
+  return <Badge variant={s.variant}>{s.text}</Badge>;
+};
+
+export const LeadTaskEnginePanel: React.FC<Props> = ({ leadId }) => {
+  const { tasks, createTask, completeTask, snoozeTask, updateTask, isLoading } = useLeadTaskEngine(leadId);
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+
+  const sorted = useMemo(() => {
+    const arr = [...(tasks || [])];
+    arr.sort((a, b) => {
+      const order = (s: LeadTaskEngineRecord['status']) => (s === 'open' ? 0 : s === 'snoozed' ? 1 : 2);
+      const byStatus = order(a.status) - order(b.status);
+      if (byStatus !== 0) return byStatus;
+      const aDue = a.due_date ? new Date(a.due_date).getTime() : Infinity;
+      const bDue = b.due_date ? new Date(b.due_date).getTime() : Infinity;
+      return aDue - bDue;
+    });
+    return arr;
+  }, [tasks]);
+
+  const toggle = (id: string) => setSelected((s) => ({ ...s, [id]: !s[id] }));
+  const clearSel = () => setSelected({});
+
+  const doCreate = (type: LeadTaskType) => {
+    const tpl = TASK_TEMPLATES[type];
+    createTask({ lead_id: leadId, type, priority: tpl?.defaultPriority });
+  };
+
+  const completeSelected = async () => {
+    const ids = Object.keys(selected).filter((k) => selected[k]);
+    await Promise.all(ids.map((id) => completeTask(id)));
+    clearSel();
+  };
+
+  const snoozeSelected = async (days: number) => {
+    const ids = Object.keys(selected).filter((k) => selected[k]);
+    await Promise.all(ids.map((id) => snoozeTask({ id, days })));
+    clearSel();
+  };
+
+  const reassignSelectedToMe = async () => {
+    const { data } = await supabase.auth.getUser();
+    const uid = data.user?.id;
+    if (!uid) return toast.error('No autenticado');
+    const ids = Object.keys(selected).filter((k) => selected[k]);
+    await Promise.all(ids.map((id) => updateTask({ id, updates: { assigned_to: uid } as Partial<LeadTaskEngineRecord> })));
+    clearSel();
+  };
+
+  return (
+    <div className="flex flex-col h-full min-h-0">
+      {/* Quick actions */}
+      <div className="flex flex-wrap gap-2">
+        {QUICK_ACTIONS.map((qa) => (
+          <Button key={qa.type} variant="outline" size="sm" onClick={() => doCreate(qa.type)}>
+            {qa.label}
+          </Button>
+        ))}
+      </div>
+
+      <Separator className="my-4" />
+
+      {/* Batch bar */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-sm text-muted-foreground">
+          {Object.values(selected).filter(Boolean).length > 0
+            ? `${Object.values(selected).filter(Boolean).length} seleccionadas`
+            : `${sorted.length} tareas`}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={completeSelected} disabled={Object.values(selected).every((v) => !v)}>
+            Completar
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => snoozeSelected(1)} disabled={Object.values(selected).every((v) => !v)}>
+            Posponer 1d
+          </Button>
+          <Button variant="outline" size="sm" onClick={reassignSelectedToMe} disabled={Object.values(selected).every((v) => !v)}>
+            Reasignar a mí
+          </Button>
+        </div>
+      </div>
+
+      {/* Checklist */}
+      <div className="flex-1 min-h-0 overflow-y-auto mt-3 space-y-2">
+        {isLoading ? (
+          <div className="text-sm text-muted-foreground">Cargando...</div>
+        ) : sorted.length === 0 ? (
+          <div className="text-sm text-muted-foreground">Sin tareas del motor</div>
+        ) : (
+          sorted.map((t) => (
+            <div key={t.id} className="flex items-center gap-3 rounded-lg border bg-card p-3">
+              <input
+                type="checkbox"
+                className="h-4 w-4"
+                checked={!!selected[t.id]}
+                onChange={() => toggle(t.id)}
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium truncate">{t.title || t.type}</span>
+                  <StatusBadge status={t.status} />
+                  <LeadTaskSLA task={t} />
+                </div>
+                {t.dependencies?.length ? (
+                  <div className="mt-1 text-xs text-muted-foreground">Deps: {t.dependencies.join(', ')}</div>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => completeTask(t.id)}
+                  disabled={t.status === 'done' || t.can_start === false}
+                >
+                  Hecho
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => snoozeTask({ id: t.id, days: 1 })} disabled={t.status === 'done'}>
+                  +1d
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LeadTaskEnginePanel;
