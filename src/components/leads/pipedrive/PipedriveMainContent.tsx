@@ -616,7 +616,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </div>
                   )}
 
-                  <ScrollArea className="h-full flex-1 min-h-0">
+                  <div className="h-full flex-1 min-h-0 overflow-y-auto pr-1">
                     {tasks.length > 0 ? (
                       <div className="space-y-3">
                         {tasks.map((task) => (
@@ -673,7 +673,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                       <h4 className="text-sm font-semibold mb-2">Tareas sugeridas</h4>
                       <LeadTaskEngineList leadId={lead.id} />
                     </div>
-                  </ScrollArea>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
