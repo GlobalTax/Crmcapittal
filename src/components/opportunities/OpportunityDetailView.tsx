@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
 import { Calendar, CalendarDays, Euro, Target, TrendingUp, Users, Clock, AlertCircle } from 'lucide-react';
 import { OpportunityWithContacts, OpportunityStage, OpportunityPriority } from '@/types/Opportunity';
 import { OpportunityTimeline } from './OpportunityTimeline';
@@ -13,6 +15,7 @@ import { OpportunityActionsBar } from './OpportunityActionsBar';
 import { OpportunityContactsTab } from './OpportunityContactsTab';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useOpportunityScore } from '@/hooks/useOpportunityScore';
 
 interface OpportunityDetailViewProps {
   opportunity: OpportunityWithContacts;
@@ -51,6 +54,19 @@ export const OpportunityDetailView = ({
     probability: opportunity.probability || 50,
     close_date: opportunity.close_date || '',
   });
+
+  const [factors, setFactors] = useState({
+    sector_attractiveness: opportunity.sector_attractiveness ?? 0,
+    investment_capacity: opportunity.investment_capacity ?? 0,
+    urgency: opportunity.urgency ?? 0,
+    strategic_fit: opportunity.strategic_fit ?? 0,
+  });
+
+  const { score } = useOpportunityScore({ ...opportunity, ...factors } as any);
+
+  const handleSaveFactors = () => {
+    onUpdateOpportunity?.(factors as any);
+  };
 
   const handleStageChange = (value: string) => {
     const stage = value as OpportunityStage;
@@ -250,6 +266,61 @@ export const OpportunityDetailView = ({
           
           <TabsContent value="overview" className="space-y-4">
             <OpportunityActionsBar opportunityId={opportunity.id} />
+            
+            {/* Score de oportunidad */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Score de oportunidad</CardTitle>
+                <CardDescription>Perfilado visible (0–100)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-full">
+                    <Progress value={score} />
+                  </div>
+                  <div className="w-10 text-right text-sm font-medium">{score}%</div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Sector */}
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span> atractivo sector </span>
+                      <span className="text-muted-foreground">{factors.sector_attractiveness}</span>
+                    </div>
+                    <Slider value={[factors.sector_attractiveness]} max={100} step={1} onValueChange={(v) => setFactors({ ...factors, sector_attractiveness: v[0] })} />
+                  </div>
+                  {/* Capacidad inversión */}
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span> capacidad inversión </span>
+                      <span className="text-muted-foreground">{factors.investment_capacity}</span>
+                    </div>
+                    <Slider value={[factors.investment_capacity]} max={100} step={1} onValueChange={(v) => setFactors({ ...factors, investment_capacity: v[0] })} />
+                  </div>
+                  {/* Urgencia */}
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span> urgencia </span>
+                      <span className="text-muted-foreground">{factors.urgency}</span>
+                    </div>
+                    <Slider value={[factors.urgency]} max={100} step={1} onValueChange={(v) => setFactors({ ...factors, urgency: v[0] })} />
+                  </div>
+                  {/* Fit estratégico */}
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span> fit estratégico </span>
+                      <span className="text-muted-foreground">{factors.strategic_fit}</span>
+                    </div>
+                    <Slider value={[factors.strategic_fit]} max={100} step={1} onValueChange={(v) => setFactors({ ...factors, strategic_fit: v[0] })} />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <Button size="sm" onClick={handleSaveFactors}>Guardar perfilado</Button>
+                </div>
+              </CardContent>
+            </Card>
             
             <Card>
               <CardHeader>

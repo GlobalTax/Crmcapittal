@@ -17,6 +17,14 @@ export interface Opportunity {
   close_date?: string;
   probability?: number;
   
+  // Scoring de oportunidad (0-100 cada factor)
+  sector_attractiveness?: number;
+  investment_capacity?: number;
+  urgency?: number;
+  strategic_fit?: number;
+  opportunity_score?: number;
+  score_updated_at?: string;
+  
   // Relaciones
   company_id?: string;
   created_by?: string;
@@ -72,6 +80,14 @@ export interface CreateOpportunityData {
   employees?: number;
   revenue?: number;
   ebitda?: number;
+  
+  // Scoring de oportunidad (0-100 cada factor)
+  sector_attractiveness?: number;
+  investment_capacity?: number;
+  urgency?: number;
+  strategic_fit?: number;
+  opportunity_score?: number;
+  
   multiplier?: number;
   highlighted?: boolean;
   rod_order?: number;
