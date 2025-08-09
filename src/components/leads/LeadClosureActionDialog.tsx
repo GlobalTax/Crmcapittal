@@ -31,7 +31,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   const initialType: LeadClosureType = useMemo(() => {
     // si el lead ya trae un service_type compatible, úsalo como sugerencia
     if (lead?.service_type === 'mandato_venta') return 'mandato_venta';
-    if (lead?.service_type === 'valoracion') return 'valoracion';
+    if (lead?.service_type === 'valoracion_empresa') return 'valoracion';
     return 'mandato_venta';
   }, [lead?.service_type]);
 
@@ -121,7 +121,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
   const submitLabel = isMandate ? 'Crear Mandato de Venta' : 'Crear Valoración';
 
   const recommendedFor = useMemo<LeadClosureType>(() => {
-    if (lead?.service_type === 'valoracion') return 'valoracion';
+    if (lead?.service_type === 'valoracion_empresa') return 'valoracion';
     return 'mandato_venta';
   }, [lead?.service_type]);
 
