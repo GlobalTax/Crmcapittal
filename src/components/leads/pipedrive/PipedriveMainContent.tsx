@@ -478,7 +478,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 min-h-0 overflow-hidden space-y-4">
+                <CardContent className="flex flex-col flex-1 min-h-0 overflow-hidden space-y-4">
                   {/* Add Note Form */}
                   {isAddingNote && (
                     <div className="p-4 border rounded-lg bg-muted/50 animate-scale-in">
