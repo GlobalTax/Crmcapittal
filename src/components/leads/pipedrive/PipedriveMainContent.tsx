@@ -319,7 +319,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
       </div>
 
       {/* Main Content Tabs */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden">
         <Tabs 
           value={activeTab} 
           onValueChange={setActiveTab}
@@ -343,7 +343,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 overflow-hidden p-6">
+          <div className="flex-1 min-h-0 overflow-hidden p-6">
             <TabsContent value="overview" className="h-full overflow-y-auto animate-fade-in">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Lead Score & Status */}
@@ -422,8 +422,8 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-hidden">
-                  <ScrollArea className="h-full">
+                <CardContent className="flex-1 min-h-0 overflow-hidden">
+                  <ScrollArea className="h-full min-h-0">
                     {activities.length > 0 ? (
                       <div className="space-y-4">
                         {activities.map((activity) => (
@@ -478,7 +478,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-hidden space-y-4">
+                <CardContent className="flex-1 min-h-0 overflow-hidden space-y-4">
                   {/* Add Note Form */}
                   {isAddingNote && (
                     <div className="p-4 border rounded-lg bg-muted/50 animate-scale-in">
@@ -513,7 +513,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </div>
                   )}
 
-                  <ScrollArea className="flex-1">
+                  <ScrollArea className="flex-1 min-h-0">
                     {notes.length > 0 ? (
                       <div className="space-y-3">
                         {notes.map((note) => (
@@ -549,8 +549,8 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="tasks" className="h-full overflow-hidden animate-fade-in">
-              <Card className="h-full flex flex-col">
+            <TabsContent value="tasks" className="h-full min-h-0 overflow-hidden animate-fade-in">
+              <Card className="h-full min-h-0 flex flex-col">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Tareas</CardTitle>
@@ -564,7 +564,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-hidden space-y-4">
+                <CardContent className="flex-1 min-h-0 overflow-hidden space-y-4">
                   {/* Add Task Form */}
                   {isAddingTask && (
                     <div className="p-4 border rounded-lg bg-muted/50 animate-scale-in">
@@ -599,7 +599,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </div>
                   )}
 
-                  <ScrollArea className="flex-1">
+                  <ScrollArea className="flex-1 min-h-0">
                     {tasks.length > 0 ? (
                       <div className="space-y-3">
                         {tasks.map((task) => (
