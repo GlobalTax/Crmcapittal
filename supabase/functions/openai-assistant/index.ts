@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data';
   prompt: string;
   context?: any;
   options?: any;
@@ -185,6 +185,49 @@ Reglas:
 - Si falta información, respeta el esquema con null o arrays vacíos. No inventes.`;
         // El prompt del usuario contendrá la transcripción o instrucciones adicionales
         break;
+
+      case 'backfill_data':
+        model = 'gpt-4o';
+        systemPrompt = `Eres un asistente de CRM M&A que sugiere clasificaciones y tags coherentes para contactos y empresas con datos incompletos.
+
+Analiza la información disponible y sugiere actualizaciones coherentes basadas en patrones de la industria M&A.
+
+Responde SOLO con JSON válido en este formato exacto:
+{
+  "contacts_updates": [
+    {
+      "id": "uuid",
+      "suggested_classification": "cliente|target|prospecto|inversor",
+      "suggested_tags": ["tag1", "tag2"],
+      "suggested_interest": ["buy", "sell", "invest", "explore"],
+      "confidence": 0.85,
+      "reasoning": "breve explicación"
+    }
+  ],
+  "companies_updates": [
+    {
+      "id": "uuid", 
+      "suggested_industry": "sector específico",
+      "suggested_status": "activo|inactivo|prospect",
+      "suggested_tags": ["tag1", "tag2"],
+      "suggested_profile": {
+        "seller_ready": boolean,
+        "buyer_active": boolean
+      },
+      "confidence": 0.75,
+      "reasoning": "breve explicación"
+    }
+  ],
+  "warnings": ["mensaje si algo no se puede clasificar"]
+}
+
+Reglas:
+- Usar solo clasificaciones válidas del dominio M&A
+- Tags específicos y relevantes para el sector
+- Confidence entre 0 y 1
+- Reasoning conciso y específico
+- Si no hay suficiente información, incluir en warnings`;
+        break;
     }
 
     // Determinístico: normalización de empresa y detección de duplicados (sin IA)
@@ -343,7 +386,7 @@ Reglas:
     const result = data.choices[0].message.content;
 
     // Para tipos con salida estricta JSON, intentar parsear
-    if (type === 'parse_operations' || type === 'classify_contact_tags' || type === 'generate_company_tags' || type === 'summarize_meeting') {
+    if (type === 'parse_operations' || type === 'classify_contact_tags' || type === 'generate_company_tags' || type === 'summarize_meeting' || type === 'backfill_data') {
       try {
         const parsedResult = JSON.parse(result);
         return new Response(JSON.stringify(parsedResult), {

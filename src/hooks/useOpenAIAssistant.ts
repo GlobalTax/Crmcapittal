@@ -24,10 +24,34 @@ interface MeetingSummaryResult {
 }
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data';
   prompt: string;
   context?: any;
   options?: any;
+}
+
+interface BackfillDataResult {
+  contacts_updates: Array<{
+    id: string;
+    suggested_classification: 'cliente' | 'target' | 'prospecto' | 'inversor';
+    suggested_tags: string[];
+    suggested_interest: Array<'buy' | 'sell' | 'invest' | 'explore'>;
+    confidence: number;
+    reasoning: string;
+  }>;
+  companies_updates: Array<{
+    id: string;
+    suggested_industry: string;
+    suggested_status: string;
+    suggested_tags: string[];
+    suggested_profile: {
+      seller_ready: boolean;
+      buyer_active: boolean;
+    };
+    confidence: number;
+    reasoning: string;
+  }>;
+  warnings: string[];
 }
 
 export const useOpenAIAssistant = () => {
@@ -176,6 +200,29 @@ El email debe ser profesional, personalizado y incluir:
     }
   };
 
+  const backfillDataWithAI = async (data: { contacts: any[], companies: any[] }): Promise<BackfillDataResult> => {
+    try {
+      const prompt = JSON.stringify(data);
+
+      const result = await callOpenAI({
+        type: 'backfill_data',
+        prompt,
+      });
+
+      return {
+        contacts_updates: result.contacts_updates || [],
+        companies_updates: result.companies_updates || [],
+        warnings: result.warnings || [],
+      } as BackfillDataResult;
+    } catch (error) {
+      return {
+        contacts_updates: [],
+        companies_updates: [],
+        warnings: ['Error procesando backfill con IA'],
+      };
+    }
+  };
+
   return {
     isLoading,
     parseOperationsWithAI,
@@ -183,5 +230,6 @@ El email debe ser profesional, personalizado y incluir:
     analyzeDataWithAI,
     generateProposalWithAI,
     summarizeMeetingWithAI,
+    backfillDataWithAI,
   };
 };
