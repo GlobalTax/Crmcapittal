@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { ArrowLeft, RefreshCw, Calendar, User, MapPin, DollarSign, Target, FileText, Building2 } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Calendar, User, MapPin, DollarSign, Target, FileText, Building2, Maximize2, Minimize2 } from 'lucide-react';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { MandateNavigation } from './MandateNavigation';
 import { MandateDetailsSidebar } from './MandateDetailsSidebar';
@@ -70,6 +70,7 @@ const getTypeLabel = (type: string) => {
 
 export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, isLoading }: MandateDetailProps) => {
   const [mandate, setMandate] = useState<BuyingMandate | null>(null);
+  const [focusMode, setFocusMode] = useState(false);
 
   useEffect(() => {
     const foundMandate = mandates.find(m => m.id === mandateId);
@@ -164,6 +165,18 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
                 </Badge>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setFocusMode(v => !v)}
+                aria-label="Pantalla completa"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {focusMode ? <Minimize2 className="h-4 w-4 mr-2" /> : <Maximize2 className="h-4 w-4 mr-2" />}
+                <span className="hidden sm:inline">Pantalla completa</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -187,10 +200,10 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
       </Card>
 
       {/* Main Content with Sidebar Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className={`grid gap-6 ${focusMode ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'} min-h-0`}>
         {/* Main Content */}
-        <div className="lg:col-span-3">
-          <Tabs defaultValue="overview" className="space-y-4">
+        <div className="lg:col-span-3 min-h-0 flex flex-col">
+          <Tabs defaultValue="overview" className="flex-1 min-h-0 flex flex-col">
             <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="overview">Resumen</TabsTrigger>
               <TabsTrigger value="targets">Objetivos</TabsTrigger>
@@ -237,7 +250,7 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
         </div>
 
         {/* Sidebar */}
-        <div className="lg:col-span-1">
+        <div className={`${focusMode ? 'hidden' : 'lg:col-span-1'}`}>
           <MandateDetailsSidebar mandate={mandate} />
         </div>
       </div>

@@ -126,156 +126,161 @@ export const MandateTasksTab = ({ mandate }: MandateTasksTabProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header and Actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">Tareas del Mandato</h2>
-          <p className="text-sm text-muted-foreground">
-            Gestiona las tareas y seguimiento del mandato
-          </p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Tarea
-        </Button>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar tareas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        
-        <div className="flex gap-2">
-          <Button 
-            variant={filter === 'all' ? 'default' : 'outline'} 
-            size="sm"
-            onClick={() => setFilter('all')}
-          >
-            Todas ({taskCounts.all})
-          </Button>
-          <Button 
-            variant={filter === 'pending' ? 'default' : 'outline'} 
-            size="sm"
-            onClick={() => setFilter('pending')}
-          >
-            Pendientes ({taskCounts.pending})
-          </Button>
-          <Button 
-            variant={filter === 'completed' ? 'default' : 'outline'} 
-            size="sm"
-            onClick={() => setFilter('completed')}
-          >
-            Completadas ({taskCounts.completed})
-          </Button>
-          {taskCounts.overdue > 0 && (
-            <Button 
-              variant={filter === 'overdue' ? 'default' : 'outline'} 
-              size="sm"
-              onClick={() => setFilter('overdue')}
-              className="text-red-600 border-red-200"
-            >
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Vencidas ({taskCounts.overdue})
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Tasks List */}
-      <div className="space-y-3">
-        {filteredTasks.map((task) => (
-          <Card key={task.id} className="hover:shadow-sm transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                {/* Checkbox */}
-                <Checkbox 
-                  checked={task.status === 'completed'}
-                  className="mt-1"
-                />
-                
-                {/* Category Icon */}
-                <div className="text-xl mt-0.5">
-                  {getCategoryIcon(task.category)}
-                </div>
-                
-                {/* Task Content */}
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
-                        {task.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {task.description}
-                      </p>
-                    </div>
-                    
-                    {/* Status and Priority Badges */}
-                    <div className="flex gap-2">
-                      <Badge className={`text-xs ${getStatusColor(task.status)}`}>
-                        {getStatusLabel(task.status)}
-                      </Badge>
-                      <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
-                        {task.priority}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  {/* Task Meta */}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      <span>{task.assignee}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>
-                        {isOverdue(task.due_date, task.status) && task.status !== 'completed' && (
-                          <span className="text-red-500 mr-1">⚠️</span>
-                        )}
-                        {format(new Date(task.due_date), 'dd MMM yyyy', { locale: es })}
-                      </span>
-                    </div>
-                    
-                    {task.completed_at && (
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>Completada el {format(new Date(task.completed_at), 'dd MMM', { locale: es })}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredTasks.length === 0 && (
-        <div className="text-center py-12">
-          <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h3 className="text-lg font-medium mb-2">No hay tareas</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {searchTerm 
-              ? "No se encontraron tareas con esos criterios" 
-              : "Crea tareas para organizar el trabajo del mandato"
-            }
-          </p>
+    <div className="flex flex-col h-full min-h-0">
+      {/* Header + Filtros */}
+      <div className="space-y-4">
+        {/* Header and Actions */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Tareas del Mandato</h2>
+            <p className="text-sm text-muted-foreground">
+              Gestiona las tareas y seguimiento del mandato
+            </p>
+          </div>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Crear Primera Tarea
+            Nueva Tarea
           </Button>
         </div>
-      )}
+
+        {/* Search and Filters */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar tareas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              variant={filter === 'all' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setFilter('all')}
+            >
+              Todas ({taskCounts.all})
+            </Button>
+            <Button 
+              variant={filter === 'pending' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setFilter('pending')}
+            >
+              Pendientes ({taskCounts.pending})
+            </Button>
+            <Button 
+              variant={filter === 'completed' ? 'default' : 'outline'} 
+              size="sm"
+              onClick={() => setFilter('completed')}
+            >
+              Completadas ({taskCounts.completed})
+            </Button>
+            {taskCounts.overdue > 0 && (
+              <Button 
+                variant={filter === 'overdue' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setFilter('overdue')}
+                className="text-red-600 border-red-200"
+              >
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Vencidas ({taskCounts.overdue})
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Lista scrollable */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="space-y-3">
+          {filteredTasks.map((task) => (
+            <Card key={task.id} className="hover:shadow-sm transition-shadow">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  {/* Checkbox */}
+                  <Checkbox 
+                    checked={task.status === 'completed'}
+                    className="mt-1"
+                  />
+                  
+                  {/* Category Icon */}
+                  <div className="text-xl mt-0.5">
+                    {getCategoryIcon(task.category)}
+                  </div>
+                  
+                  {/* Task Content */}
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
+                          {task.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {task.description}
+                        </p>
+                      </div>
+                      
+                      {/* Status and Priority Badges */}
+                      <div className="flex gap-2">
+                        <Badge className={`text-xs ${getStatusColor(task.status)}`}>
+                          {getStatusLabel(task.status)}
+                        </Badge>
+                        <Badge className={`text-xs ${getPriorityColor(task.priority)}`}>
+                          {task.priority}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    {/* Task Meta */}
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        <span>{task.assignee}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        <span>
+                          {isOverdue(task.due_date, task.status) && task.status !== 'completed' && (
+                            <span className="text-red-500 mr-1">⚠️</span>
+                          )}
+                          {format(new Date(task.due_date), 'dd MMM yyyy', { locale: es })}
+                        </span>
+                      </div>
+                      
+                      {task.completed_at && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          <span>Completada el {format(new Date(task.completed_at), 'dd MMM', { locale: es })}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredTasks.length === 0 && (
+          <div className="text-center py-12">
+            <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <h3 className="text-lg font-medium mb-2">No hay tareas</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              {searchTerm 
+                ? "No se encontraron tareas con esos criterios" 
+                : "Crea tareas para organizar el trabajo del mandato"
+              }
+            </p>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Primera Tarea
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
