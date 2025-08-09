@@ -24,7 +24,7 @@ interface MeetingSummaryResult {
 }
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping';
   prompt: string;
   context?: any;
   options?: any;
@@ -52,6 +52,22 @@ interface BackfillDataResult {
     reasoning: string;
   }>;
   warnings: string[];
+}
+
+interface AccountMappingResult {
+  missing_roles: string[];
+  suggested_titles: string[];
+  coverage_analysis: {
+    [key: string]: {
+      covered: boolean;
+      contacts: string[];
+    };
+  };
+  priority_contacts: Array<{
+    title: string;
+    reasoning: string;
+  }>;
+  confidence: number;
 }
 
 export const useOpenAIAssistant = () => {
@@ -257,6 +273,78 @@ El email debe ser profesional, personalizado y incluir:
     }
   };
 
+  const generateLinkedInMessageWithAI = async (
+    contactName: string,
+    companyName: string,
+    opportunity: 'buy' | 'sell' | 'invest',
+    sectorOrRegion: string,
+    additionalContext?: any
+  ): Promise<GenerateEmailResult> => {
+    try {
+      const prompt = `Escribe un mensaje breve (≤300 caracteres) para primer contacto con ${contactName} (${companyName}) sobre oportunidades ${opportunity} en ${sectorOrRegion}.`;
+
+      const context = {
+        contact_name: contactName,
+        company_name: companyName,
+        opportunity,
+        sector_region: sectorOrRegion,
+        ...additionalContext
+      };
+
+      const result = await callOpenAI({
+        type: 'linkedin_contact_message',
+        prompt,
+        context
+      });
+
+      return {
+        result: result.result || '',
+        success: result.success || false
+      };
+    } catch (error) {
+      return {
+        result: '',
+        success: false
+      };
+    }
+  };
+
+  const analyzeAccountMappingWithAI = async (
+    companyName: string,
+    contacts: Array<{ title?: string; department?: string; name?: string }>
+  ): Promise<AccountMappingResult> => {
+    try {
+      const prompt = `Con los datos de estos contactos de ${companyName}, identifica roles faltantes para cerrar una operación (decision, finance, legal, tech) y sugiere próximos contactos.`;
+
+      const context = {
+        company_name: companyName,
+        contacts
+      };
+
+      const result = await callOpenAI({
+        type: 'account_mapping',
+        prompt,
+        context
+      });
+
+      return {
+        missing_roles: result.missing_roles || [],
+        suggested_titles: result.suggested_titles || [],
+        coverage_analysis: result.coverage_analysis || {},
+        priority_contacts: result.priority_contacts || [],
+        confidence: typeof result.confidence === 'number' ? result.confidence : 0,
+      } as AccountMappingResult;
+    } catch (error) {
+      return {
+        missing_roles: [],
+        suggested_titles: [],
+        coverage_analysis: {},
+        priority_contacts: [],
+        confidence: 0,
+      };
+    }
+  };
+
   return {
     isLoading,
     parseOperationsWithAI,
@@ -266,5 +354,7 @@ El email debe ser profesional, personalizado y incluir:
     summarizeMeetingWithAI,
     backfillDataWithAI,
     generateConsentEmailWithAI,
+    generateLinkedInMessageWithAI,
+    analyzeAccountMappingWithAI,
   };
 };

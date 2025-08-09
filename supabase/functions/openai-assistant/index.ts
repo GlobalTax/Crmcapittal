@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping';
   prompt: string;
   context?: any;
   options?: any;
@@ -252,6 +252,70 @@ Estructura sugerida:
 7. Despedida profesional
 
 CONTEXTO: ${JSON.stringify(context, null, 2)}`;
+        break;
+
+      case 'linkedin_contact_message':
+        model = 'gpt-4o-mini';
+        systemPrompt = `Eres un experto en outreach de LinkedIn para M&A. Redacta mensajes breves para primer contacto.
+
+Características del mensaje:
+- Máximo 300 caracteres (límite estricto de LinkedIn)
+- Tono profesional pero cercano
+- En español
+- Personalizado con nombre y empresa
+- Menciona la oportunidad específica
+- Call-to-action claro pero sutil
+
+Estructura sugerida:
+1. Saludo personalizado breve
+2. Mención de empresa/sector
+3. Propuesta de valor concisa
+4. CTA suave (conexión/conversación)
+
+Evitar:
+- Lenguaje comercial agresivo
+- Promesas exageradas
+- Texto genérico
+- Exceso de formalidad
+
+CONTEXTO: ${JSON.stringify(context, null, 2)}`;
+        break;
+
+      case 'account_mapping':
+        model = 'gpt-4o';
+        systemPrompt = `Eres un experto en account mapping para operaciones M&A. Analiza los contactos existentes de una empresa e identifica roles faltantes clave para cerrar una transacción.
+
+Roles críticos para M&A:
+- decision: CEO, Founder, Managing Partner, Chairman
+- finance: CFO, Finance Director, Head of Finance
+- legal: Legal Counsel, General Counsel, Head of Legal
+- tech: CTO, IT Director, Head of Technology
+- operations: COO, Operations Director, Head of Operations
+
+Responde SOLO con JSON válido en este formato exacto:
+{
+  "missing_roles": ["decision", "finance", "legal", "tech", "operations"],
+  "suggested_titles": ["CFO", "General Counsel", "CTO"],
+  "coverage_analysis": {
+    "decision": {"covered": false, "contacts": []},
+    "finance": {"covered": true, "contacts": ["CFO"]},
+    "legal": {"covered": false, "contacts": []},
+    "tech": {"covered": false, "contacts": []},
+    "operations": {"covered": true, "contacts": ["COO"]}
+  },
+  "priority_contacts": [
+    {"title": "CFO", "reasoning": "Esencial para due diligence financiero"},
+    {"title": "General Counsel", "reasoning": "Requerido para aspectos legales de la transacción"}
+  ],
+  "confidence": 0.85
+}
+
+Reglas:
+- Analiza títulos y departamentos de contactos existentes
+- Identifica gaps críticos para el proceso M&A
+- Prioriza roles según importancia para el tipo de transacción
+- Sugiere títulos específicos y realistas
+- Incluye reasoning para contactos prioritarios`;
         break;
     }
 
