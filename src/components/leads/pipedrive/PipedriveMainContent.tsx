@@ -41,6 +41,7 @@ import { HistorySection } from './HistorySection';
 import { ScheduleMeetingDialog } from './ScheduleMeetingDialog';
 import { LeadTaskEngineList } from '@/components/leads/LeadTaskEngineList';
 import { useFollowLead } from '@/hooks/leads/useFollowLead';
+import { useLeadEngineAutomations } from '@/hooks/leads/useLeadEngineAutomations';
 
 interface PipedriveMainContentProps {
   lead: Lead;
@@ -61,6 +62,10 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const { tasks, createTask, updateTask, isCreating: isCreatingTask, refetch: refetchTasks } = useLeadTasks(lead.id);
   const { updateLead } = useLeads();
   const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
+  
+  // Engine automations (creación, QUALIFIED, encadenadas, re-enganche)
+  useLeadEngineAutomations(lead);
+
 
   useEffect(() => {
     console.info('[LeadTasks][debug]', { leadId: lead.id, tasksCount: tasks?.length });
