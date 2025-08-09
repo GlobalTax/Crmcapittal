@@ -57,7 +57,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   
   const { activities, createActivity, isCreating: isCreatingActivity } = useLeadActivities(lead.id);
   const { notes, createNote, isCreating: isCreatingNote } = useLeadNotes(lead.id);
-  const { tasks, createTask, updateTask, isCreating: isCreatingTask } = useLeadTasks(lead.id);
+  const { tasks, createTask, updateTask, isCreating: isCreatingTask, refetch: refetchTasks } = useLeadTasks(lead.id);
   const { updateLead } = useLeads();
   const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
 
@@ -67,7 +67,15 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
 
   useEffect(() => {
     console.info('[LeadTabs][debug] activeTab', activeTab);
-  }, [activeTab]);
+    if (activeTab === 'tasks') {
+      refetchTasks();
+    }
+  }, [activeTab, refetchTasks]);
+
+  useEffect(() => {
+    // Forzar refetch al cambiar de lead
+    refetchTasks();
+  }, [lead.id, refetchTasks]);
 
   const handleGenerateProposal = () => {
     setIsProposalDialogOpen(true);
