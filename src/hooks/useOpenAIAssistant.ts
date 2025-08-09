@@ -24,7 +24,7 @@ interface MeetingSummaryResult {
 }
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping' | 'icp_score' | 'buyer_seller_readiness';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping' | 'icp_score' | 'buyer_seller_readiness' | 'segmentation_rules';
   prompt: string;
   context?: any;
   options?: any;
@@ -91,6 +91,27 @@ interface BuyerSellerReadinessResult {
   reasoning: string;
   confidence: number;
   recommended_approach: 'buy_side_services' | 'sell_side_services' | 'both' | 'neither';
+}
+
+interface SegmentationRulesResult {
+  rules: Array<{
+    name: string;
+    description: string;
+    criteria: {
+      industry?: string[];
+      geography?: string[];
+      company_size?: string[];
+      revenue_range?: { min: number; max: number };
+      capacity?: string[];
+      other_filters?: string[];
+    };
+    sql_filter: string;
+    estimated_count: number;
+    target_audience: string;
+  }>;
+  total_segments: number;
+  overlap_warnings: string[];
+  recommendations: string[];
 }
 
 export const useOpenAIAssistant = () => {
@@ -469,6 +490,40 @@ El email debe ser profesional, personalizado y incluir:
     }
   };
 
+  const generateSegmentationRulesWithAI = async (
+    criteria: string,
+    context: {
+      industry?: string;
+      geography?: string;
+      targetAudience?: 'buy_side' | 'sell_side' | 'both';
+      additionalFilters?: string[];
+    } = {}
+  ): Promise<SegmentationRulesResult> => {
+    try {
+      const prompt = `Genera reglas (pseudocódigo) para segmentar empresas/contactos por industry, geography, size y capacidad, listas para usarse como filtros dinámicos. Criterios: ${criteria}`;
+
+      const result = await callOpenAI({
+        type: 'segmentation_rules',
+        prompt,
+        context
+      });
+
+      return {
+        rules: result.rules || [],
+        total_segments: result.total_segments || 0,
+        overlap_warnings: result.overlap_warnings || [],
+        recommendations: result.recommendations || [],
+      } as SegmentationRulesResult;
+    } catch (error) {
+      return {
+        rules: [],
+        total_segments: 0,
+        overlap_warnings: [],
+        recommendations: ['Error generando reglas de segmentación con IA'],
+      };
+    }
+  };
+
   return {
     isLoading,
     parseOperationsWithAI,
@@ -482,5 +537,6 @@ El email debe ser profesional, personalizado y incluir:
     analyzeAccountMappingWithAI,
     calculateICPScoreWithAI,
     analyzeBuyerSellerReadinessWithAI,
+    generateSegmentationRulesWithAI,
   };
 };

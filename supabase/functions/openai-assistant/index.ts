@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping' | 'icp_score' | 'buyer_seller_readiness';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping' | 'icp_score' | 'buyer_seller_readiness' | 'segmentation_rules';
   prompt: string;
   context?: any;
   options?: any;
@@ -397,6 +397,55 @@ Reglas:
 - Cada señal tiene peso específico según relevancia
 - reasoning debe resumir el análisis general
 - recommended_approach basado en scores más altos`;
+        break;
+
+      case 'segmentation_rules':
+        model = 'gpt-4o';
+        systemPrompt = `Eres un experto en segmentación de audiencias para CRM y marketing B2B en M&A.
+
+Genera reglas de segmentación (pseudocódigo) para empresas y contactos basadas en los criterios proporcionados.
+
+Responde SOLO con JSON válido en este formato exacto:
+{
+  "rules": [
+    {
+      "name": "Empresas Tech Mid-Market España",
+      "description": "Empresas tecnológicas medianas en España con potencial M&A",
+      "criteria": {
+        "industry": ["tecnología", "software", "fintech"],
+        "geography": ["España", "Madrid", "Barcelona"],
+        "company_size": ["51-200", "201-500"],
+        "revenue_range": {"min": 5000000, "max": 50000000},
+        "capacity": ["alta", "media"],
+        "other_filters": ["buyer_active = true", "annual_revenue > 0"]
+      },
+      "sql_filter": "industry_tax IN ('tecnología', 'software') AND country = 'España' AND company_size IN ('51-200', '201-500') AND annual_revenue BETWEEN 5000000 AND 50000000",
+      "estimated_count": 0,
+      "target_audience": "buy_side_mandates"
+    }
+  ],
+  "total_segments": 0,
+  "overlap_warnings": [],
+  "recommendations": [
+    "Considera crear segmento adicional para empresas familiares en sucesión",
+    "Evalúa segmentación por EBITDA margin además de revenue"
+  ]
+}
+
+Criterios estándar para M&A:
+- Industry: tecnología, manufacturing, healthcare, retail, servicios, food&beverage
+- Geography: España, Europa, Internacional, por CCAA/regiones
+- Company_size: 1-10, 11-50, 51-200, 201-500, 500+
+- Revenue_range: 0-1M, 1-5M, 5-25M, 25-100M, 100M+
+- Capacity: alta (>10M tickets), media (1-10M), baja (<1M)
+- Profiles: seller_ready, buyer_active, family_business, succession_planning
+
+Reglas:
+- Crear 3-5 segmentos mutuamente excluyentes cuando sea posible
+- SQL filters utilizables con esquema de tabla companies
+- Target_audience específico para cada regla (buy_side, sell_side, both)
+- Estimated_count como placeholder (se calculará en aplicación)
+- Detectar posibles overlaps entre segmentos`;
         break;
     }
 
