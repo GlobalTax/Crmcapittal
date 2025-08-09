@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -60,6 +60,14 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const { tasks, createTask, updateTask, isCreating: isCreatingTask } = useLeadTasks(lead.id);
   const { updateLead } = useLeads();
   const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
+
+  useEffect(() => {
+    console.info('[LeadTasks][debug]', { leadId: lead.id, tasksCount: tasks?.length });
+  }, [lead.id, tasks]);
+
+  useEffect(() => {
+    console.info('[LeadTabs][debug] activeTab', activeTab);
+  }, [activeTab]);
 
   const handleGenerateProposal = () => {
     setIsProposalDialogOpen(true);
@@ -422,8 +430,8 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex-1 min-h-0 overflow-hidden">
-                  <ScrollArea className="h-full min-h-0">
+                <CardContent className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                  <ScrollArea className="h-full flex-1 min-h-0">
                     {activities.length > 0 ? (
                       <div className="space-y-4">
                         {activities.map((activity) => (
@@ -513,7 +521,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </div>
                   )}
 
-                  <ScrollArea className="flex-1 min-h-0">
+                  <ScrollArea className="h-full flex-1 min-h-0">
                     {notes.length > 0 ? (
                       <div className="space-y-3">
                         {notes.map((note) => (
@@ -599,7 +607,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                     </div>
                   )}
 
-                  <ScrollArea className="flex-1 min-h-0">
+                  <ScrollArea className="h-full flex-1 min-h-0">
                     {tasks.length > 0 ? (
                       <div className="space-y-3">
                         {tasks.map((task) => (
