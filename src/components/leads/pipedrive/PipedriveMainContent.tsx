@@ -360,7 +360,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 min-h-0 overflow-hidden p-6">
+          <div className="flex-1 min-h-0 overflow-hidden p-6 flex flex-col">
             <TabsContent value="overview" className="h-full overflow-y-auto animate-fade-in">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Lead Score & Status */}
