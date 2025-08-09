@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping' | 'icp_score' | 'buyer_seller_readiness';
   prompt: string;
   context?: any;
   options?: any;
@@ -316,6 +316,87 @@ Reglas:
 - Prioriza roles según importancia para el tipo de transacción
 - Sugiere títulos específicos y realistas
 - Incluye reasoning para contactos prioritarios`;
+        break;
+
+      case 'icp_score':
+        model = 'gpt-4o';
+        systemPrompt = `Eres un experto en scoring de ICP (Ideal Customer Profile) para servicios M&A. Calcula un score de 0-100 basado en sector, tamaño, geografía y fit estratégico.
+
+Factores de evaluación:
+- Sector (30%): ¿Es el sector objetivo para M&A? (Tech, Healthcare, Manufacturing, etc.)
+- Tamaño (25%): Revenue y empleados en rango ideal (10M-500M EUR, 50-1000 empleados)
+- Geografía (20%): Ubicación estratégica (España, EU, mercados desarrollados)
+- Fit estratégico (25%): Signos de growth, consolidación, succession planning
+
+Responde SOLO con JSON válido en este formato exacto:
+{
+  "icp_score": 85,
+  "reasons": [
+    "Sector tecnológico con alto potencial de M&A (+25 puntos)",
+    "Tamaño ideal para nuestros servicios: 50M EUR revenue (+20 puntos)",
+    "Ubicación en España, mercado conocido (+15 puntos)",
+    "Empresa familiar en proceso de succession planning (+25 puntos)"
+  ],
+  "sector_score": 25,
+  "size_score": 20,
+  "geography_score": 15,
+  "strategic_fit_score": 25,
+  "recommendation": "high_priority|medium_priority|low_priority",
+  "confidence": 0.85
+}
+
+Reglas:
+- Score total = sector + tamaño + geografía + fit estratégico
+- Cada factor puntúa 0-30/25/20/25 según su peso
+- Reasons deben explicar cada factor evaluado
+- Recommendation basada en score: 80+ = high, 50-79 = medium, <50 = low
+- Confidence entre 0.0-1.0 según calidad de datos`;
+        break;
+
+      case 'buyer_seller_readiness':
+        model = 'gpt-4o';
+        systemPrompt = `Eres un experto en detectar señales de buyer_active y seller_ready en empresas para servicios M&A.
+
+Señales de SELLER READY:
+- Edad de fundadores (>55 años, retirement planning)
+- Presión financiera o problemas de liquidez
+- Ofertas recientes recibidas
+- Reorganización societaria o familiar
+- Sucesión generacional
+- Burnout o deseo de cambio
+
+Señales de BUYER ACTIVE:
+- Crecimiento acelerado y necesidad de scale
+- Expansión geográfica o nuevos mercados
+- Consolidación en el sector
+- Fundraising reciente con mandate de M&A
+- Nuevos ejecutivos con background M&A
+- Menciones públicas de estrategia inorgánica
+
+Responde SOLO con JSON válido en este formato exacto:
+{
+  "buyer_active": true,
+  "seller_ready": false,
+  "buyer_signals": [
+    "Expansión internacional mencionada en prensa (+15 score)",
+    "Contratación de VP M&A en LinkedIn (+20 score)"
+  ],
+  "seller_signals": [
+    "Fundador de 62 años sin sucesión clara (+25 score)"
+  ],
+  "buyer_score": 35,
+  "seller_score": 25,
+  "reasoning": "Señales claras de buyer active pero pocas de seller ready",
+  "confidence": 0.7,
+  "recommended_approach": "buy_side_services|sell_side_services|both|neither"
+}
+
+Reglas:
+- buyer_active = true si buyer_score >= 40
+- seller_ready = true si seller_score >= 40
+- Cada señal tiene peso específico según relevancia
+- reasoning debe resumir el análisis general
+- recommended_approach basado en scores más altos`;
         break;
     }
 

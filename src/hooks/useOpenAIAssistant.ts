@@ -24,7 +24,7 @@ interface MeetingSummaryResult {
 }
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email' | 'linkedin_contact_message' | 'account_mapping' | 'icp_score' | 'buyer_seller_readiness';
   prompt: string;
   context?: any;
   options?: any;
@@ -68,6 +68,29 @@ interface AccountMappingResult {
     reasoning: string;
   }>;
   confidence: number;
+}
+
+interface ICPScoreResult {
+  icp_score: number;
+  reasons: string[];
+  sector_score: number;
+  size_score: number;
+  geography_score: number;
+  strategic_fit_score: number;
+  recommendation: 'high_priority' | 'medium_priority' | 'low_priority';
+  confidence: number;
+}
+
+interface BuyerSellerReadinessResult {
+  buyer_active: boolean;
+  seller_ready: boolean;
+  buyer_signals: string[];
+  seller_signals: string[];
+  buyer_score: number;
+  seller_score: number;
+  reasoning: string;
+  confidence: number;
+  recommended_approach: 'buy_side_services' | 'sell_side_services' | 'both' | 'neither';
 }
 
 export const useOpenAIAssistant = () => {
@@ -345,6 +368,107 @@ El email debe ser profesional, personalizado y incluir:
     }
   };
 
+  const calculateICPScoreWithAI = async (
+    companyName: string,
+    companyData: {
+      sector?: string;
+      industry?: string;
+      revenue?: number;
+      employees?: number;
+      location?: string;
+      description?: string;
+      additionalData?: any;
+    }
+  ): Promise<ICPScoreResult> => {
+    try {
+      const prompt = `Calcula un ICP score (0–100) para ${companyName} basado en sector, tamaño, geografía y fit estratégico.`;
+
+      const context = {
+        company_name: companyName,
+        ...companyData
+      };
+
+      const result = await callOpenAI({
+        type: 'icp_score',
+        prompt,
+        context
+      });
+
+      return {
+        icp_score: result.icp_score || 0,
+        reasons: result.reasons || [],
+        sector_score: result.sector_score || 0,
+        size_score: result.size_score || 0,
+        geography_score: result.geography_score || 0,
+        strategic_fit_score: result.strategic_fit_score || 0,
+        recommendation: result.recommendation || 'low_priority',
+        confidence: typeof result.confidence === 'number' ? result.confidence : 0,
+      } as ICPScoreResult;
+    } catch (error) {
+      return {
+        icp_score: 0,
+        reasons: [],
+        sector_score: 0,
+        size_score: 0,
+        geography_score: 0,
+        strategic_fit_score: 0,
+        recommendation: 'low_priority',
+        confidence: 0,
+      };
+    }
+  };
+
+  const analyzeBuyerSellerReadinessWithAI = async (
+    companyName: string,
+    notesAndSignals: {
+      notes?: string;
+      signals?: string[];
+      recentNews?: string[];
+      leadershipChanges?: string[];
+      financialSituation?: string;
+      additionalData?: any;
+    }
+  ): Promise<BuyerSellerReadinessResult> => {
+    try {
+      const prompt = `Con notas y señales, infiere buyer_active y seller_ready (true/false) para ${companyName}.`;
+
+      const context = {
+        company_name: companyName,
+        ...notesAndSignals
+      };
+
+      const result = await callOpenAI({
+        type: 'buyer_seller_readiness',
+        prompt,
+        context
+      });
+
+      return {
+        buyer_active: result.buyer_active || false,
+        seller_ready: result.seller_ready || false,
+        buyer_signals: result.buyer_signals || [],
+        seller_signals: result.seller_signals || [],
+        buyer_score: result.buyer_score || 0,
+        seller_score: result.seller_score || 0,
+        reasoning: result.reasoning || '',
+        confidence: typeof result.confidence === 'number' ? result.confidence : 0,
+        recommended_approach: result.recommended_approach || 'neither',
+      } as BuyerSellerReadinessResult;
+    } catch (error) {
+      return {
+        buyer_active: false,
+        seller_ready: false,
+        buyer_signals: [],
+        seller_signals: [],
+        buyer_score: 0,
+        seller_score: 0,
+        reasoning: '',
+        confidence: 0,
+        recommended_approach: 'neither',
+      };
+    }
+  };
+
   return {
     isLoading,
     parseOperationsWithAI,
@@ -356,5 +480,7 @@ El email debe ser profesional, personalizado y incluir:
     generateConsentEmailWithAI,
     generateLinkedInMessageWithAI,
     analyzeAccountMappingWithAI,
+    calculateICPScoreWithAI,
+    analyzeBuyerSellerReadinessWithAI,
   };
 };
