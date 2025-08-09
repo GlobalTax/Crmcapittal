@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email';
   prompt: string;
   context?: any;
   options?: any;
@@ -227,6 +227,31 @@ Reglas:
 - Confidence entre 0 y 1
 - Reasoning conciso y específico
 - Si no hay suficiente información, incluir en warnings`;
+        break;
+
+      case 'consent_request_email':
+        model = 'gpt-4o-mini';
+        systemPrompt = `Eres un experto en comunicación comercial para M&A. Redacta emails cortos y profesionales para solicitar consentimiento de comunicación.
+
+Características del email:
+- Tono cercano pero profesional
+- Máximo 150 palabras
+- En español
+- Explica claramente el propósito
+- Incluye CTA de confirmación clara
+- Cumple con GDPR
+- Personalizado con nombre del contacto y empresa
+
+Estructura sugerida:
+1. Saludo personalizado
+2. Presentación breve y propósito
+3. Explicación del canal de comunicación
+4. Beneficios para el contacto
+5. Solicitud de consentimiento clara
+6. CTA de confirmación
+7. Despedida profesional
+
+CONTEXTO: ${JSON.stringify(context, null, 2)}`;
         break;
     }
 

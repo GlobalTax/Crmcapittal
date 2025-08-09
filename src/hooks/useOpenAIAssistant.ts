@@ -24,7 +24,7 @@ interface MeetingSummaryResult {
 }
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting' | 'backfill_data' | 'consent_request_email';
   prompt: string;
   context?: any;
   options?: any;
@@ -223,6 +223,40 @@ El email debe ser profesional, personalizado y incluir:
     }
   };
 
+  const generateConsentEmailWithAI = async (
+    canal: string,
+    contactName: string,
+    companyName: string,
+    additionalContext?: any
+  ): Promise<GenerateEmailResult> => {
+    try {
+      const prompt = `Redacta un email corto y profesional para solicitar consentimiento de comunicación por ${canal} a ${contactName} (empresa ${companyName}), en español, tono cercano y claro, con CTA de confirmación.`;
+
+      const context = {
+        canal,
+        contact_name: contactName,
+        company_name: companyName,
+        ...additionalContext
+      };
+
+      const result = await callOpenAI({
+        type: 'consent_request_email',
+        prompt,
+        context
+      });
+
+      return {
+        result: result.result || '',
+        success: result.success || false
+      };
+    } catch (error) {
+      return {
+        result: '',
+        success: false
+      };
+    }
+  };
+
   return {
     isLoading,
     parseOperationsWithAI,
@@ -231,5 +265,6 @@ El email debe ser profesional, personalizado y incluir:
     generateProposalWithAI,
     summarizeMeetingWithAI,
     backfillDataWithAI,
+    generateConsentEmailWithAI,
   };
 };
