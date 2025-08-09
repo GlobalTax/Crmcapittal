@@ -39,6 +39,7 @@ import { CreateMandateDialog } from '@/components/mandates/CreateMandateDialog';
 import { EditableDealValue } from './EditableDealValue';
 import { HistorySection } from './HistorySection';
 import { ScheduleMeetingDialog } from './ScheduleMeetingDialog';
+import { LeadTaskEngineList } from '@/components/leads/LeadTaskEngineList';
 import { useFollowLead } from '@/hooks/leads/useFollowLead';
 
 interface PipedriveMainContentProps {
@@ -665,6 +666,13 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
                         <p className="text-sm">Crea tareas para organizar tu trabajo con este lead</p>
                       </div>
                     )}
+
+                    {/* Engine suggested tasks */}
+                    <div className="mt-6">
+                      <Separator className="my-4" />
+                      <h4 className="text-sm font-semibold mb-2">Tareas sugeridas</h4>
+                      <LeadTaskEngineList leadId={lead.id} />
+                    </div>
                   </ScrollArea>
                 </CardContent>
               </Card>
