@@ -6,6 +6,9 @@ import { ContactOrganizationSection } from './ContactOrganizationSection';
 import { ContactActivitySection } from './ContactActivitySection';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
+import { ContactCompleteness } from '../ContactCompleteness';
+import { ContactTagEditor } from '../ContactTagEditor';
+import { toast } from 'sonner';
 
 interface ContactLeftSidebarProps {
   contact: Contact;
@@ -27,9 +30,29 @@ export const ContactLeftSidebar = ({ contact, onEdit }: ContactLeftSidebarProps)
           )}
         </div>
 
-        {/* Simplified Sections - No collapsibles */}
+        {/* Completeness + Asociar por dominio */}
+        <ContactCompleteness
+          contact={contact}
+          onUpdate={() => {
+            if (onEdit) onEdit(contact); else toast.info('Edición no disponible');
+          }}
+          onAssociateByDomain={() => {
+            toast.success('Asociando por dominio por email/dominio…');
+          }}
+        />
+
+        {/* Secciones simplificadas */}
         <ContactSummarySection contact={contact} />
         <ContactDetailsSection contact={contact} onEdit={undefined} />
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">Tags</h3>
+          <ContactTagEditor
+            tags={contact.tags || []}
+            onTagsChange={() => {
+              if (onEdit) onEdit(contact); else toast.info('Edición no disponible');
+            }}
+          />
+        </div>
         <ContactOrganizationSection contact={contact} />
         <ContactActivitySection contact={contact} />
       </div>
