@@ -16,7 +16,7 @@ interface EnrichedOverviewTabProps {
 export const EnrichedOverviewTab = ({ company }: EnrichedOverviewTabProps) => {
   const companyStats = useCompanyStats(company.id, company.name);
   const { enrichmentData, isLoading: enrichmentLoading } = useCompanyEnrichments(company.id);
-  const { score, level, color, completedFields, missingFields } = useCompanyProfileScore(company, enrichmentData);
+  const profileScore = useCompanyProfileScore(company, enrichmentData);
 
   // Fetch latest valoraciones for company
   // Simplificamos temporalmente hasta que se resuelvan los types
@@ -138,7 +138,7 @@ export const EnrichedOverviewTab = ({ company }: EnrichedOverviewTabProps) => {
 
           {/* Perfil Score */}
           <CompanyProfileScore 
-            profileScore={{ score, level, color, completedFields, missingFields }}
+            profileScore={profileScore}
           />
         </div>
 

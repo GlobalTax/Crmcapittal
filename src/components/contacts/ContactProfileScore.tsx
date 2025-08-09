@@ -4,28 +4,16 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { CheckCircle2, XCircle, ChevronDown, Building2 } from 'lucide-react';
+import { CheckCircle2, XCircle, ChevronDown, Target } from 'lucide-react';
+import { useContactProfileScore } from '@/hooks/useContactProfileScore';
+import { Contact } from '@/types/Contact';
 
-interface ProfileScore {
-  score: number;
-  level: 'low' | 'medium' | 'high' | 'excellent';
-  color: string;
-  categories: Array<{
-    name: string;
-    points: number;
-    maxPoints: number;
-    completedFields: string[];
-    missingFields: string[];
-  }>;
-  totalCompleted: number;
-  totalFields: number;
+interface ContactProfileScoreProps {
+  contact: Contact;
 }
 
-interface CompanyProfileScoreProps {
-  profileScore: ProfileScore;
-}
-
-export const CompanyProfileScore = ({ profileScore }: CompanyProfileScoreProps) => {
+export const ContactProfileScore = ({ contact }: ContactProfileScoreProps) => {
+  const profileScore = useContactProfileScore(contact);
   const { score, level, color, categories, totalCompleted, totalFields } = profileScore;
 
   const getLevelText = (level: string) => {
@@ -53,8 +41,8 @@ export const CompanyProfileScore = ({ profileScore }: CompanyProfileScoreProps) 
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Score de Empresa</span>
+            <Target className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Score de Contacto</span>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -64,11 +52,12 @@ export const CompanyProfileScore = ({ profileScore }: CompanyProfileScoreProps) 
                   <div className="space-y-2">
                     <p className="font-medium">Objetivo: ≥85 puntos</p>
                     <ul className="text-xs space-y-1">
-                      <li>• Industry/Subindustry (20%)</li>
-                      <li>• Size bands (25%)</li>
-                      <li>• Geography (15%)</li>
-                      <li>• Financial bands (25%)</li>
-                      <li>• Profile flags (15%)</li>
+                      <li>• Canales/Consent (20%)</li>
+                      <li>• Classification (15%)</li>
+                      <li>• Interés/Capacidad (25%)</li>
+                      <li>• Geo/Sector (20%)</li>
+                      <li>• Idioma/Timezone (10%)</li>
+                      <li>• Email/Teléfono válido (10%)</li>
                     </ul>
                   </div>
                 </TooltipContent>

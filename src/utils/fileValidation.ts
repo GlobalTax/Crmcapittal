@@ -1,3 +1,5 @@
+import { validateFile } from './validation';
+
 export interface ValidationError {
   file: string;
   error: string;
@@ -37,8 +39,6 @@ export const FILE_VALIDATION_CONFIGS: Record<string, FileValidationConfig> = {
     allowedTypes: ["application/pdf", "image/png", "image/jpeg"]
   }
 };
-
-import { validateFile } from './validation';
 
 export const validateFiles = (files: File[], config: FileValidationConfig): ValidationResult => {
   const errors: ValidationError[] = [];
