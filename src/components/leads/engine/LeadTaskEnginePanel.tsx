@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { LeadTaskEngineRecord, LeadTaskType, useLeadTaskEngine } from '@/hooks/leads/useLeadTaskEngine';
 import { TASK_TEMPLATES } from '@/hooks/leads/taskTemplates';
 import { LeadTaskSLA } from './LeadTaskSLA';
@@ -201,14 +202,50 @@ export const LeadTaskEnginePanel: React.FC<Props> = ({ leadId }) => {
                     </Button>
                   </>
                 )}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => completeTask(t.id)}
-                  disabled={t.status === 'done' || t.can_start === false}
-                >
-                  Hecho
-                </Button>
+                {['informe_mercado','preguntas_reunion'].includes(t.type) && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={async () => {
+                      const { data: leadRes } = await supabase.from('leads').select('name').eq('id', leadId).maybeSingle();
+                      const prompt = t.type === 'informe_mercado'
+                        ? `Quiero un informe ejecutivo y accionable sobre el mercado en el que opera esta empresa.\n\nContexto del lead:\n- Empresa: ${leadRes?.name || ''}\n- Sector/NAICS: \n- País/Región: \n- Tamaño/Facturación estimada: \n- Notas clave del lead: \n\n[Estructura]\n1) Tamaño/dinámica (TAM/SAM/SOM aproximado)\n2) Tendencias (3–5) con impacto directo\n3) Competidores (3–6) y posicionamiento breve\n4) Múltiplos habituales (Revenue, EBITDA) del segmento\n5) SWOT con supuestos razonables\n6) Recomendaciones inmediatas (3–5)\n7) Fuentes (enlaces fiables)\n\nFormato: profesional y conciso.`
+                        : `Necesito un set breve de preguntas para una reunión de 30 minutos con ${leadRes?.name || ''} (sector: ), orientadas a descubrir oportunidad de M&A/valoración.\n\n[8–12 preguntas]\n- Objetivos estratégicos (2–3)\n- Palancas de crecimiento y retos (2–3)\n- Situación financiera operativa (2–3)\n- Proceso/stakeholders de decisión (2)\n- Próximos pasos comprometibles (2)\n- +2 opcionales si hay tiempo\n\nEstilo: claras, abiertas, orden lógico, no invasivas.`;
+                      await navigator.clipboard.writeText(prompt);
+                      toast.success('Prompt copiado');
+                    }}
+                  >
+                    Copiar prompt
+                  </Button>
+                )}
+                {t.can_start === false && t.dependencies?.length ? (
+                  <Button size="sm" variant="outline" onClick={() => completeTask(t.dependencies[0])}>
+                    Marcar predecesora
+                  </Button>
+                ) : null}
+                {t.can_start === false ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Button size="sm" variant="secondary" disabled>
+                          Hecho
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Completa primero la(s) predecesora(s)
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => completeTask(t.id)}
+                    disabled={t.status === 'done'}
+                  >
+                    Hecho
+                  </Button>
+                )}
                 <Button size="sm" variant="outline" onClick={() => snoozeTask({ id: t.id, days: 1 })} disabled={t.status === 'done'}>
                   +1d
                 </Button>

@@ -98,6 +98,12 @@ verify_jwt = true
 [functions.company-lookup-einforma]
 verify_jwt = true
 
+[functions.send-valuation-email]
+verify_jwt = false
+
+[functions.task-reminders]
+verify_jwt = false
+
 [edge-runtime]
 enabled = true
 port = 54327
