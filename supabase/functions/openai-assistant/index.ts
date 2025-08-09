@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags';
   prompt: string;
   context?: any;
   options?: any;
@@ -159,6 +159,137 @@ REGLAS ESTRICTAS:
         break;
     }
 
+    // Determinístico: normalización de empresa y detección de duplicados (sin IA)
+    if (type === 'normalize_company') {
+      let input: any;
+      try {
+        input = typeof userPrompt === 'string' ? JSON.parse(userPrompt) : userPrompt;
+      } catch (_) {
+        return new Response(JSON.stringify({
+          error: 'JSON de entrada inválido. Esperado: {"raw_name":"...","country":"...","candidates":[...]}'
+        }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+
+      const rawName: string = (input?.raw_name ?? '').toString();
+      const country: string | null = input?.country ? String(input.country) : null;
+      const candidates: Array<{ id: string; name: string; country?: string | null }> = Array.isArray(input?.candidates) ? input.candidates : [];
+
+      const removeDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const LEGAL_SUFFIXES = new Set([
+        'sa','s.a','s.a.','sl','s.l','s.l.','slu','s.l.u','s.l.u.','sociedad','limitada','anonima','sociedad limitada','sociedad anonima',
+        'ltd','ltd.','limited','inc','inc.','co','co.','corp','corp.','corporation','company',
+        'gmbh','ag','spa','srl','s.r.l','srl.','bv','oy','ab','as','plc','llc','ltda','sas','pta','pte',
+        'holdings','holding','grupo','group'
+      ]);
+      const STOP = new Set(['the','and','de','del','la','el']);
+
+      const sanitize = (s: string) => {
+        let x = s.toLowerCase();
+        x = removeDiacritics(x);
+        x = x.replace(/&/g, ' and ');
+        x = x.replace(/[^a-z0-9\s]/g, ' ');
+        const words = x.split(/\s+/).filter(Boolean);
+        const filtered = words.filter(w => !LEGAL_SUFFIXES.has(w) && !STOP.has(w));
+        return filtered.join(' ').replace(/\s{2,}/g, ' ').trim();
+      };
+      const toTitle = (s: string) => s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+      const canon = sanitize(rawName);
+      const normalized_name = toTitle(canon);
+
+      const tokens = (s: string) => new Set(s.split(' ').filter(Boolean));
+      const jaccard = (a: string, b: string) => {
+        const A = tokens(a); const B = tokens(b);
+        const inter = new Set([...A].filter(x => B.has(x))).size;
+        const uni = new Set([...A, ...B]).size || 1;
+        return inter / uni;
+      };
+      const levenshtein = (a: string, b: string) => {
+        const m = a.length, n = b.length;
+        if (!m) return n; if (!n) return m;
+        const dp: number[][] = Array.from({ length: m + 1 }, (_, i) => Array(n + 1).fill(0));
+        for (let i = 0; i <= m; i++) dp[i][0] = i;
+        for (let j = 0; j <= n; j++) dp[0][j] = j;
+        for (let i = 1; i <= m; i++) {
+          for (let j = 1; j <= n; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+              dp[i - 1][j] + 1,
+              dp[i][j - 1] + 1,
+              dp[i - 1][j - 1] + cost
+            );
+          }
+        }
+        return dp[m][n];
+      };
+      const sim = (a: string, b: string) => {
+        if (!a || !b) return 0;
+        if (a === b) return 1;
+        const lev = levenshtein(a, b);
+        const levRatio = 1 - (lev / Math.max(a.length, b.length));
+        const jac = jaccard(a, b);
+        return 0.7 * levRatio + 0.3 * jac;
+      };
+
+      let is_duplicate = false;
+      let duplicate_id: string | null = null;
+      let reason = 'Sin candidatos proporcionados';
+
+      if (candidates.length > 0) {
+        const canonCandidates = candidates.map(c => ({ id: c.id, country: c.country ?? null, name: c.name, canon: sanitize(c.name) }));
+        const exact = canonCandidates.find(c => c.canon === canon && (!country || !c.country || String(c.country).toLowerCase() === String(country).toLowerCase()));
+        if (exact) {
+          is_duplicate = true;
+          duplicate_id = exact.id;
+          reason = 'Coincidencia exacta tras normalización' + (country ? ' + país compatible' : '');
+        } else {
+          let best = { id: '', score: 0, canon: '', countryMatch: false, name: '' } as any;
+          for (const c of canonCandidates) {
+            const s = sim(c.canon, canon);
+            const cm = country && c.country ? String(c.country).toLowerCase() === String(country).toLowerCase() : false;
+            if (s > best.score) best = { id: c.id, score: s, canon: c.canon, countryMatch: cm, name: c.name };
+          }
+          if (best.score >= 0.96 || (best.score >= 0.92 && best.countryMatch)) {
+            is_duplicate = true;
+            duplicate_id = best.id;
+            reason = `Alta similitud (${best.score.toFixed(3)})` + (best.countryMatch ? ' + país coincide' : '') + ` vs "${best.name}"`;
+          } else {
+            reason = `Mejor similitud insuficiente (${best.score.toFixed(3)})`;
+          }
+        }
+      }
+
+      return new Response(JSON.stringify({ normalized_name, is_duplicate, duplicate_id, reason }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Preparación para generate_company_tags (si prompt es URL, hacemos fetch y extraemos texto)
+    if (type === 'generate_company_tags') {
+      let publicText = userPrompt;
+      try {
+        const isUrl = /^https?:\/\//i.test(userPrompt.trim());
+        if (isUrl) {
+          console.log('[generate_company_tags] Fetch URL:', userPrompt);
+          const res = await fetch(userPrompt, { method: 'GET' });
+          const html = await res.text();
+          const text = html
+            .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+            .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          publicText = text.slice(0, 20000);
+        }
+      } catch (e) {
+        console.warn('[generate_company_tags] Error al obtener contenido de URL, usando prompt original:', e);
+      }
+
+      model = 'gpt-4o';
+      systemPrompt = `Actúas como analista de CRM para M&A. A partir de CONTENIDO PÚBLICO (texto o extracto de web), genera etiquetas estandarizadas SOLO con el objeto company_tags del esquema de 5.1.\n\nDevuelve EXCLUSIVAMENTE JSON válido con la clave raíz "company_tags" y su estructura interna EXACTA (sin prosa, sin claves adicionales).\nSi la señal es insuficiente, devuelve cadenas vacías, nulls o false según corresponda.`;
+      userPrompt = `CONTENIDO:\n\n${publicText}`;
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -171,7 +302,7 @@ REGLAS ESTRICTAS:
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: (type === 'parse_operations' || type === 'classify_contact_tags') ? 0.1 : 0.7,
+        temperature: (type === 'parse_operations' || type === 'classify_contact_tags' || type === 'generate_company_tags') ? 0.1 : 0.7,
         max_tokens: type === 'generate_proposal' ? 2000 : 1000,
       }),
     });
@@ -184,7 +315,7 @@ REGLAS ESTRICTAS:
     const result = data.choices[0].message.content;
 
     // Para parse_operations, intentar parsear como JSON
-    if (type === 'parse_operations' || type === 'classify_contact_tags') {
+    if (type === 'parse_operations' || type === 'classify_contact_tags' || type === 'generate_company_tags') {
       try {
         const parsedResult = JSON.parse(result);
         return new Response(JSON.stringify(parsedResult), {
