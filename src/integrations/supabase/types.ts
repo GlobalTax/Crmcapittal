@@ -1783,6 +1783,7 @@ export type Database = {
           company_size: Database["public"]["Enums"]["company_size"]
           company_status: Database["public"]["Enums"]["company_status"]
           company_type: Database["public"]["Enums"]["company_type"]
+          completeness_score: number | null
           country: string | null
           country_code: string | null
           created_at: string
@@ -1854,6 +1855,7 @@ export type Database = {
           company_size?: Database["public"]["Enums"]["company_size"]
           company_status?: Database["public"]["Enums"]["company_status"]
           company_type?: Database["public"]["Enums"]["company_type"]
+          completeness_score?: number | null
           country?: string | null
           country_code?: string | null
           created_at?: string
@@ -1925,6 +1927,7 @@ export type Database = {
           company_size?: Database["public"]["Enums"]["company_size"]
           company_status?: Database["public"]["Enums"]["company_status"]
           company_type?: Database["public"]["Enums"]["company_type"]
+          completeness_score?: number | null
           country?: string | null
           country_code?: string | null
           created_at?: string
@@ -2912,6 +2915,7 @@ export type Database = {
           collaborator_id: string | null
           company: string | null
           company_id: string | null
+          completeness_score: number | null
           consent_email: boolean
           consent_whatsapp: boolean
           contact_priority: string | null
@@ -2987,6 +2991,7 @@ export type Database = {
           collaborator_id?: string | null
           company?: string | null
           company_id?: string | null
+          completeness_score?: number | null
           consent_email?: boolean
           consent_whatsapp?: boolean
           contact_priority?: string | null
@@ -3062,6 +3067,7 @@ export type Database = {
           collaborator_id?: string | null
           company?: string | null
           company_id?: string | null
+          completeness_score?: number | null
           consent_email?: boolean
           consent_whatsapp?: boolean
           contact_priority?: string | null
@@ -12305,6 +12311,18 @@ export type Database = {
         Args: { email_input: string }
         Returns: string
       }
+      fn_calculate_company_completeness_score: {
+        Args: { p_company_id: string }
+        Returns: number
+      }
+      fn_calculate_contact_completeness_score: {
+        Args: { p_contact_id: string }
+        Returns: number
+      }
+      fn_check_consent_requirements: {
+        Args: { p_contact_id: string }
+        Returns: Json
+      }
       fn_recalcular_score_lead: {
         Args: { p_lead_id: string }
         Returns: undefined
@@ -12626,6 +12644,14 @@ export type Database = {
       set_environment_variables: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      simple_company_workflow: {
+        Args: { p_company_id: string }
+        Returns: Json
+      }
+      simple_contact_workflow: {
+        Args: { p_contact_id: string }
+        Returns: Json
       }
       sincronizar_clientes_quantum: {
         Args: Record<PropertyKey, never>
