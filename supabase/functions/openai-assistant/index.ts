@@ -12,7 +12,7 @@ const corsHeaders = {
 };
 
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'classify_contact_tags' | 'normalize_company' | 'generate_company_tags' | 'summarize_meeting';
   prompt: string;
   context?: any;
   options?: any;
@@ -156,6 +156,34 @@ REGLAS ESTRICTAS:
 - language/timezone: deduce si el texto lo sugiere, en caso contrario "".
 - confidence: número 0.0–1.0 según certeza.
 - missing_fields: lista de claves que faltan o no están claras (usa rutas como "contact_tags.capacity.ticket_min").`;
+        break;
+
+      case 'summarize_meeting':
+        model = 'gpt-4o-mini';
+        systemPrompt = `Eres asistente de CRM para M&A. A partir de una transcripción de reunión, debes:
+- Resumir en bullets claros (máximo 8).
+- Devolver cambios de clasificación y tags siguiendo EXACTAMENTE este JSON.
+
+Devuelve SOLO JSON válido (sin texto adicional) con este esquema exacto:
+{
+  "summary": ["..."],
+  "classification": "cliente|target|prospecto|inversor",
+  "contact_updates": {"interest": ["buy|sell|invest|explore"], "capacity": {"ticket_min": null, "ticket_max": null}},
+  "company_updates": {"profile": {"seller_ready": false, "buyer_active": false}},
+  "next_actions": ["..."],
+  "confidence": 0.0
+}
+
+Reglas:
+- summary: 3–8 bullets breves, accionables.
+- classification ∈ {cliente, target, prospecto, inversor}.
+- contact_updates.interest: lista con valores de {buy, sell, invest, explore} según intención.
+- capacity: extrae tickets si aparecen ("5-10M" → 5000000 y 10000000), usa null si no hay señal.
+- company_updates.profile: seller_ready/buyer_active true/false según señales claras.
+- next_actions: tareas concretas (p.ej., "Enviar NDA", "Agendar demo").
+- confidence: 0.0–1.0 según certeza.
+- Si falta información, respeta el esquema con null o arrays vacíos. No inventes.`;
+        // El prompt del usuario contendrá la transcripción o instrucciones adicionales
         break;
     }
 
@@ -314,8 +342,8 @@ REGLAS ESTRICTAS:
     const data = await response.json();
     const result = data.choices[0].message.content;
 
-    // Para parse_operations, intentar parsear como JSON
-    if (type === 'parse_operations' || type === 'classify_contact_tags' || type === 'generate_company_tags') {
+    // Para tipos con salida estricta JSON, intentar parsear
+    if (type === 'parse_operations' || type === 'classify_contact_tags' || type === 'generate_company_tags' || type === 'summarize_meeting') {
       try {
         const parsedResult = JSON.parse(result);
         return new Response(JSON.stringify(parsedResult), {
@@ -323,6 +351,19 @@ REGLAS ESTRICTAS:
         });
       } catch (e) {
         console.error('Error parsing JSON from OpenAI:', e);
+        if (type === 'summarize_meeting') {
+          const fallback = {
+            summary: [],
+            classification: 'prospecto',
+            contact_updates: { interest: [], capacity: { ticket_min: null, ticket_max: null } },
+            company_updates: { profile: { seller_ready: false, buyer_active: false } },
+            next_actions: [],
+            confidence: 0
+          };
+          return new Response(JSON.stringify(fallback), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          });
+        }
         return new Response(JSON.stringify({
           operations: [],
           errors: ['Error procesando con IA: Respuesta inválida'],

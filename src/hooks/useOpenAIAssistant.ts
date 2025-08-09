@@ -14,8 +14,17 @@ interface GenerateEmailResult {
   success: boolean;
 }
 
+interface MeetingSummaryResult {
+  summary: string[];
+  classification: 'cliente' | 'target' | 'prospecto' | 'inversor';
+  contact_updates: { interest: Array<'buy' | 'sell' | 'invest' | 'explore'>; capacity: { ticket_min: number | null; ticket_max: number | null } };
+  company_updates: { profile: { seller_ready: boolean; buyer_active: boolean } };
+  next_actions: string[];
+  confidence: number;
+}
+
 interface OpenAIRequest {
-  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal';
+  type: 'parse_operations' | 'generate_email' | 'analyze_data' | 'generate_proposal' | 'summarize_meeting';
   prompt: string;
   context?: any;
   options?: any;
@@ -138,11 +147,41 @@ El email debe ser profesional, personalizado y incluir:
     }
   };
 
+  const summarizeMeetingWithAI = async (transcript: string): Promise<MeetingSummaryResult> => {
+    try {
+      const prompt = `A partir de esta transcripción de reunión, resume en bullets (máx. 8) y devuelve cambios de clasificación y tags.\n\n\nTranscripción:\n${transcript}\n\n\nDevuelve JSON:\n{\n  "summary": ["..."],\n  "classification": "cliente|target|prospecto|inversor",\n  "contact_updates": {"interest": ["buy|sell|invest|explore"], "capacity": {"ticket_min": null, "ticket_max": null}},\n  "company_updates": {"profile": {"seller_ready": false, "buyer_active": false}},\n  "next_actions": ["..."],\n  "confidence": 0.0\n}`;
+
+      const result = await callOpenAI({
+        type: 'summarize_meeting',
+        prompt,
+      });
+
+      return {
+        summary: result.summary || [],
+        classification: result.classification || 'prospecto',
+        contact_updates: result.contact_updates || { interest: [], capacity: { ticket_min: null, ticket_max: null } },
+        company_updates: result.company_updates || { profile: { seller_ready: false, buyer_active: false } },
+        next_actions: result.next_actions || [],
+        confidence: typeof result.confidence === 'number' ? result.confidence : 0,
+      } as MeetingSummaryResult;
+    } catch (error) {
+      return {
+        summary: [],
+        classification: 'prospecto',
+        contact_updates: { interest: [], capacity: { ticket_min: null, ticket_max: null } },
+        company_updates: { profile: { seller_ready: false, buyer_active: false } },
+        next_actions: [],
+        confidence: 0,
+      };
+    }
+  };
+
   return {
     isLoading,
     parseOperationsWithAI,
     generateEmailWithAI,
     analyzeDataWithAI,
-    generateProposalWithAI
+    generateProposalWithAI,
+    summarizeMeetingWithAI,
   };
 };
