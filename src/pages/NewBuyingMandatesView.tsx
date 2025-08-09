@@ -47,7 +47,7 @@ export default function NewBuyingMandatesView() {
 
   return (
     <ErrorBoundary>
-      <div className="h-screen flex flex-col min-h-0 max-w-none w-full space-y-6">
+      <div className="h-screen flex flex-col min-h-0 max-w-none w-full">
         {!id ? (
           <MandatesList 
             mandates={mandates}

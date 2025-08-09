@@ -18,6 +18,7 @@ import { MandateNotesTab } from './tabs/MandateNotesTab';
 import { MandateReportsTab } from './tabs/MandateReportsTab';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useUiLayout } from '@/state/useUiLayout';
 
 interface MandateDetailProps {
   mandateId: string;
@@ -70,12 +71,16 @@ const getTypeLabel = (type: string) => {
 
 export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, isLoading }: MandateDetailProps) => {
   const [mandate, setMandate] = useState<BuyingMandate | null>(null);
-  const [focusMode, setFocusMode] = useState(false);
+  const { focusMode, setFocusMode } = useUiLayout();
 
   useEffect(() => {
     const foundMandate = mandates.find(m => m.id === mandateId);
     setMandate(foundMandate || null);
   }, [mandateId, mandates]);
+
+  useEffect(() => {
+    return () => setFocusMode(false);
+  }, [setFocusMode]);
 
   if (!mandate) {
     return (
@@ -113,7 +118,7 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
   }
 
   return (
-    <div className="space-y-6">
+    <div className="h-full min-h-0 space-y-6">
       {/* Breadcrumb and Navigation */}
       <div className="flex items-center justify-between">
         <Breadcrumb>
@@ -144,115 +149,121 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
         </div>
       </div>
 
-      {/* Mandate Navigation */}
-      <MandateNavigation 
-        currentMandateId={mandateId}
-        mandates={mandates}
-      />
 
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-2xl">{mandate.client_name || 'Sin nombre'}</CardTitle>
-              <div className="flex items-center space-x-2 mt-2">
-                <Badge variant={getStatusVariant(mandate.status)}>
-                  {getStatusLabel(mandate.status)}
-                </Badge>
-                <Badge variant="outline">
-                  {getTypeLabel(mandate.mandate_type)}
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setFocusMode(v => !v)}
-                aria-label="Pantalla completa"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {focusMode ? <Minimize2 className="h-4 w-4 mr-2" /> : <Maximize2 className="h-4 w-4 mr-2" />}
-                <span className="hidden sm:inline">Pantalla completa</span>
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Calendar className="h-4 w-4 mr-2" />
-              <span>
-                Creado el {format(new Date(mandate.created_at), 'dd MMM yyyy', { locale: es })}
-              </span>
-            </div>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <User className="h-4 w-4 mr-2" />
-              <span>Cliente: {mandate.client_name || 'No especificado'}</span>
-            </div>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Building2 className="h-4 w-4 mr-2" />
-              <span>Tipo: {getTypeLabel(mandate.mandate_type)}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Main Content with Sidebar Layout */}
-      <div className={`grid gap-6 ${focusMode ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-4'} min-h-0`}>
-        {/* Main Content */}
-        <div className="lg:col-span-3 min-h-0 flex flex-col">
-          <Tabs defaultValue="overview" className="flex-1 min-h-0 flex flex-col">
-            <TabsList className="grid w-full grid-cols-8">
-              <TabsTrigger value="overview">Resumen</TabsTrigger>
-              <TabsTrigger value="targets">Objetivos</TabsTrigger>
-              <TabsTrigger value="tasks">Tareas</TabsTrigger>
-              <TabsTrigger value="people">Personas</TabsTrigger>
-              <TabsTrigger value="documents">Documentos</TabsTrigger>
-              <TabsTrigger value="notes">Notas</TabsTrigger>
-              <TabsTrigger value="activity">Actividad</TabsTrigger>
-              <TabsTrigger value="reports">Reportes</TabsTrigger>
-            </TabsList>
+      <div className={`grid gap-6 min-h-0 ${focusMode ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-[280px_1fr_320px]'}`}>
+        {/* Left Sidebar */}
+        <aside className={`${focusMode ? 'hidden' : ''} min-h-0`}> 
+          <MandateNavigation 
+            currentMandateId={mandateId}
+            mandates={mandates}
+          />
+        </aside>
 
-            <TabsContent value="overview">
-              <MandateOverviewTab mandate={mandate} />
-            </TabsContent>
+        {/* Main */}
+        <main className="min-h-0 flex flex-col">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-2xl">{mandate.client_name || 'Sin nombre'}</CardTitle>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Badge variant={getStatusVariant(mandate.status)}>
+                      {getStatusLabel(mandate.status)}
+                    </Badge>
+                    <Badge variant="outline">
+                      {getTypeLabel(mandate.mandate_type)}
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFocusMode(!focusMode)}
+                    aria-label="Pantalla completa"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    {focusMode ? <Minimize2 className="h-4 w-4 mr-2" /> : <Maximize2 className="h-4 w-4 mr-2" />}
+                    <span className="hidden sm:inline">Pantalla completa</span>
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span>
+                    Creado el {format(new Date(mandate.created_at), 'dd MMM yyyy', { locale: es })}
+                  </span>
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <User className="h-4 w-4 mr-2" />
+                  <span>Cliente: {mandate.client_name || 'No especificado'}</span>
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  <span>Tipo: {getTypeLabel(mandate.mandate_type)}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <TabsContent value="targets">
-              <MandateTargetsTab mandate={mandate} />
-            </TabsContent>
+          {/* Tabs */}
+          <div className="flex-1 min-h-0 mt-6">
+            <Tabs defaultValue="overview" className="flex-1 min-h-0 flex flex-col">
+              <TabsList className="grid w-full grid-cols-8">
+                <TabsTrigger value="overview">Resumen</TabsTrigger>
+                <TabsTrigger value="targets">Objetivos</TabsTrigger>
+                <TabsTrigger value="tasks">Tareas</TabsTrigger>
+                <TabsTrigger value="people">Personas</TabsTrigger>
+                <TabsTrigger value="documents">Documentos</TabsTrigger>
+                <TabsTrigger value="notes">Notas</TabsTrigger>
+                <TabsTrigger value="activity">Actividad</TabsTrigger>
+                <TabsTrigger value="reports">Reportes</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="tasks">
-              <MandateTasksTab mandate={mandate} />
-            </TabsContent>
+              <TabsContent value="overview">
+                <MandateOverviewTab mandate={mandate} />
+              </TabsContent>
 
-            <TabsContent value="people">
-              <MandatePeopleTab mandate={mandate} />
-            </TabsContent>
+              <TabsContent value="targets">
+                <MandateTargetsTab mandate={mandate} />
+              </TabsContent>
 
-            <TabsContent value="documents">
-              <MandateDocumentsTab mandate={mandate} />
-            </TabsContent>
+              <TabsContent value="tasks">
+                <MandateTasksTab mandate={mandate} />
+              </TabsContent>
 
-            <TabsContent value="notes">
-              <MandateNotesTab mandate={mandate} />
-            </TabsContent>
+              <TabsContent value="people">
+                <MandatePeopleTab mandate={mandate} />
+              </TabsContent>
 
-            <TabsContent value="activity">
-              <MandateActivityTab mandate={mandate} />
-            </TabsContent>
+              <TabsContent value="documents">
+                <MandateDocumentsTab mandate={mandate} />
+              </TabsContent>
 
-            <TabsContent value="reports">
-              <MandateReportsTab mandate={mandate} />
-            </TabsContent>
-          </Tabs>
-        </div>
+              <TabsContent value="notes">
+                <MandateNotesTab mandate={mandate} />
+              </TabsContent>
 
-        {/* Sidebar */}
-        <div className={`${focusMode ? 'hidden' : 'lg:col-span-1'}`}>
+              <TabsContent value="activity">
+                <MandateActivityTab mandate={mandate} />
+              </TabsContent>
+
+              <TabsContent value="reports">
+                <MandateReportsTab mandate={mandate} />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </main>
+
+        {/* Right Sidebar */}
+        <aside className={`${focusMode ? 'hidden' : ''} min-h-0`}>
           <MandateDetailsSidebar mandate={mandate} />
-        </div>
+        </aside>
       </div>
     </div>
   );
