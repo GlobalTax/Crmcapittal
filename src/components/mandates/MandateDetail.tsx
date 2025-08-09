@@ -19,6 +19,7 @@ import { MandateReportsTab } from './tabs/MandateReportsTab';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useUiLayout } from '@/state/useUiLayout';
+import { cn } from '@/lib/utils';
 
 interface MandateDetailProps {
   mandateId: string;
@@ -152,9 +153,9 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
 
 
       {/* Main Content with Sidebar Layout */}
-      <div className={`grid gap-6 min-h-0 ${focusMode ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-[280px_1fr_320px]'}`}>
+      <div className={cn("grid gap-6 min-h-0", focusMode ? "grid-cols-1" : "md:grid-cols-[280px_1fr_320px]")}>
         {/* Left Sidebar */}
-        <aside className={`${focusMode ? 'hidden' : ''} min-h-0`}> 
+        <aside className={cn("min-h-0", focusMode && "hidden md:hidden")}> 
           <MandateNavigation 
             currentMandateId={mandateId}
             mandates={mandates}
@@ -212,7 +213,7 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
           </Card>
 
           {/* Tabs */}
-          <div className="flex-1 min-h-0 mt-6">
+          <div className="flex-1 min-h-0 flex flex-col mt-6">
             <Tabs defaultValue="overview" className="flex-1 min-h-0 flex flex-col">
               <TabsList className="grid w-full grid-cols-8">
                 <TabsTrigger value="overview">Resumen</TabsTrigger>
@@ -261,7 +262,7 @@ export const MandateDetail = ({ mandateId, mandates, onBackToList, onRefresh, is
         </main>
 
         {/* Right Sidebar */}
-        <aside className={`${focusMode ? 'hidden' : ''} min-h-0`}>
+        <aside className={cn("min-h-0", focusMode && "hidden md:hidden")}> 
           <MandateDetailsSidebar mandate={mandate} />
         </aside>
       </div>

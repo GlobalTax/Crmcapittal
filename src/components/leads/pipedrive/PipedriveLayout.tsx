@@ -11,6 +11,8 @@ import { useUpdateLead } from '@/hooks/leads/useUpdateLead';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { LeadClosureActionDialog } from '../LeadClosureActionDialog';
+import { useUiLayout } from '@/state/useUiLayout';
+import { cn } from '@/lib/utils';
 interface PipedriveLayoutProps {
   lead: Lead;
 }
@@ -19,6 +21,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
   const { data: stages = [], isLoading: stagesLoading } = usePipelineStages();
   const { updateStage, markWon, markLost, isUpdating } = useUpdateLead();
   const [closureOpen, setClosureOpen] = useState(false);
+  const { focusMode } = useUiLayout();
 
   const currentStage = stages.find(s => s.id === lead.pipeline_stage_id) || stages[0];
 
@@ -76,15 +79,15 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 min-h-0 flex">
         {/* Left Sidebar */}
-        <div className="w-80 border-r border-border bg-muted/20 overflow-y-auto">
+        <aside className={cn("w-80 border-r border-border bg-muted/20 overflow-y-auto min-h-0", focusMode && "hidden md:hidden")}> 
           <div className="p-4 space-y-0">
             <SummarySection lead={lead} />
             <TeamAssignmentSection lead={lead} />
             <PersonSection lead={lead} />
           </div>
-        </div>
+        </aside>
 
       {/* Main Content */}
       <PipedriveMainContent lead={lead} />
