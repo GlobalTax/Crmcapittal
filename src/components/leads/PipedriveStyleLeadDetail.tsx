@@ -4,6 +4,7 @@ import { useLead } from '@/hooks/useLeads';
 import { PipedriveLayout } from './pipedrive/PipedriveLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { SEO } from '@/components/seo/SEO';
 
 export const PipedriveStyleLeadDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,5 +42,13 @@ export const PipedriveStyleLeadDetail = () => {
     );
   }
 
-  return <PipedriveLayout lead={lead} />;
+  return (
+    <>
+      <SEO 
+        title={`${lead.company_name || lead.name || 'Lead'} — Lead CRM`}
+        description={`Detalle del lead ${lead.company_name || lead.name || ''}. Estado: ${lead.status || 'N/A'}.`}
+      />
+      <PipedriveLayout lead={lead} />
+    </>
+  );
 };
