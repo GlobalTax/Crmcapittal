@@ -12484,6 +12484,10 @@ export type Database = {
       }
     }
     Functions: {
+      assign_lead: {
+        Args: { p_lead_id: string; p_user_id: string }
+        Returns: Json
+      }
       assign_owner_on_create: {
         Args: { p_lead_id: string }
         Returns: Json
