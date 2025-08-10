@@ -98,7 +98,7 @@ export const useLeadContacts = (filters: LeadFilters = {}) => {
 
       const { error: leadError } = await supabase
         .from('leads')
-        .insert(leadRecord);
+        .insert(leadRecord as any);
 
       if (leadError) {
         console.error('Error creating lead record:', leadError);

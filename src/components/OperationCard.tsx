@@ -6,13 +6,19 @@ import { OperationCardActions } from "./OperationCardActions";
 
 interface OperationCardProps {
   operation: Operation;
+  onToggleFavorite?: (operationId: string) => void;
+  isFavorite?: (operationId: string) => boolean;
 }
 
-export const OperationCard = ({ operation }: OperationCardProps) => {
+export const OperationCard = ({ operation, onToggleFavorite, isFavorite }: OperationCardProps) => {
   return (
     <div className="border border-gray-200 bg-white p-4 space-y-4">
       <div className="pb-2">
-        <OperationCardHeader operation={operation} />
+        <OperationCardHeader 
+          operation={operation} 
+          onToggleFavorite={onToggleFavorite}
+          isFavorite={isFavorite}
+        />
       </div>
       
       <div className="space-y-4">

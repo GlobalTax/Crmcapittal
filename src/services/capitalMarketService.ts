@@ -69,7 +69,7 @@ export class CapitalMarketService {
         message: leadData.message,
         source: leadData.source,
         status: 'NEW'
-      }])
+      }] as any)
       .select('*')
       .single();
 

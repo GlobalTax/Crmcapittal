@@ -69,7 +69,7 @@ export const useEnhancedLeadsKpi = () => {
         const { data: funnel, error: funnelError } = await supabase
           .from('vw_leads_funnel')
           .select('*')
-          .order('stage_order');
+          .order('stage_count', { ascending: false });
 
         if (funnelError) throw funnelError;
 
@@ -88,16 +88,16 @@ export const useEnhancedLeadsKpi = () => {
           conversionTrendData: [], // Empty array for now
         });
 
-        setFunnelData(funnel?.map(item => ({
-          stageId: item.stage_id,
-          stageName: item.stage_name,
-          stageOrder: item.stage_order,
-          stageColor: item.stage_color,
-          leadCount: item.lead_count,
-          avgScore: item.avg_score || 0,
-          recentCount: item.recent_count,
-          stageConversionRate: item.stage_conversion_rate || 0,
-          performanceRating: (item.performance_rating as 'excellent' | 'good' | 'average' | 'poor') || 'average',
+        setFunnelData(funnel?.map((item, idx) => ({
+          stageId: item.pipeline_stage_id,
+          stageName: item.stage_label,
+          stageOrder: idx, // derived order
+          stageColor: null,
+          leadCount: item.stage_count,
+          avgScore: 0,
+          recentCount: 0,
+          stageConversionRate: item.stage_percent || 0,
+          performanceRating: 'average',
         })) || []);
 
       } catch (err) {

@@ -48,7 +48,7 @@ export const useLeadsKpi = () => {
         const { data: funnel, error: funnelError } = await supabase
           .from('vw_leads_funnel')
           .select('*')
-          .order('stage_order');
+          .order('stage_count', { ascending: false });
 
         if (funnelError) throw funnelError;
 
@@ -59,11 +59,11 @@ export const useLeadsKpi = () => {
           pipelineValue: (kpiData?.total_leads || 0) * 1000,
         });
 
-        setFunnelData(funnel?.map(item => ({
-          stageName: item.stage_name,
-          stageOrder: item.stage_order,
-          stageColor: item.stage_color,
-          leadCount: item.lead_count,
+        setFunnelData(funnel?.map((item, idx) => ({
+          stageName: item.stage_label,
+          stageOrder: idx,
+          stageColor: null,
+          leadCount: item.stage_count,
         })) || []);
 
       } catch (err) {

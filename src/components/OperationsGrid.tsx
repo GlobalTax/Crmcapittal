@@ -8,11 +8,16 @@ interface OperationsGridProps {
   isFavorite: (operationId: string) => boolean;
 }
 
-export const OperationsGrid = ({ operations }: OperationsGridProps) => {
+export const OperationsGrid = ({ operations, onToggleFavorite, isFavorite }: OperationsGridProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
       {operations.map((operation) => (
-        <OperationCard key={operation.id} operation={operation} />
+        <OperationCard 
+          key={operation.id} 
+          operation={operation} 
+          onToggleFavorite={onToggleFavorite}
+          isFavorite={isFavorite}
+        />
       ))}
     </div>
   );
