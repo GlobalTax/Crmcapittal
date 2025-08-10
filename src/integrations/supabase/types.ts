@@ -12572,6 +12572,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      convert_lead: {
+        Args: {
+          p_lead_id: string
+          p_create_company?: boolean
+          p_create_deal?: boolean
+        }
+        Returns: Json
+      }
       create_deal_from_won_lead: {
         Args: { p_lead_id: string; p_deal_value?: number }
         Returns: Json
