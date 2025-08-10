@@ -54,7 +54,7 @@ export const OperationAnalytics = () => {
         <Button
           onClick={() => setIsExpanded(true)}
           variant="outline"
-          className="w-full border-black text-black hover:bg-gray-100 py-4"
+          className="w-full border-border text-foreground hover:bg-accent py-4"
         >
           <BarChart3 className="h-4 w-4 mr-2" />
           Ver Analytics de Operaciones
@@ -67,12 +67,12 @@ export const OperationAnalytics = () => {
   return (
     <div className="mb-6 sm:mb-8 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-black">Analytics de Operaciones</h2>
+        <h2 className="text-xl font-semibold text-foreground">Analytics de Operaciones</h2>
         <Button
           onClick={() => setIsExpanded(false)}
           variant="outline"
           size="sm"
-          className="border-black text-black hover:bg-gray-100"
+          className="border-border text-foreground hover:bg-accent"
         >
           <ChevronUp className="h-4 w-4" />
         </Button>
@@ -85,8 +85,8 @@ export const OperationAnalytics = () => {
             <div className="flex items-center space-x-2">
               <Eye className="h-5 w-5 text-blue-600" />
               <div>
-                <p className="text-xs font-medium text-gray-600">Total Visualizaciones</p>
-                <p className="text-xl font-bold text-black">{totalViews.toLocaleString()}</p>
+                <p className="text-xs font-medium text-muted-foreground">Total Visualizaciones</p>
+                <p className="text-xl font-bold text-foreground">{totalViews.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>

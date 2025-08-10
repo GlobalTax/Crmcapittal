@@ -94,7 +94,7 @@ export const OCRProcessor = ({ onTextExtracted }: OCRProcessorProps) => {
           <FileImage className="h-4 w-4 sm:h-5 sm:w-5" />
           Procesamiento OCR
         </CardTitle>
-        <p className="text-xs sm:text-sm text-gray-600">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Sube una imagen con texto para extraer los datos automáticamente
         </p>
       </CardHeader>
@@ -104,7 +104,7 @@ export const OCRProcessor = ({ onTextExtracted }: OCRProcessorProps) => {
             type="file"
             accept="image/*"
             onChange={handleImageSelect}
-            className="block w-full text-xs sm:text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+            className="block w-full text-xs sm:text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
           />
 
           {previewUrl && (
@@ -129,7 +129,7 @@ export const OCRProcessor = ({ onTextExtracted }: OCRProcessorProps) => {
               </Button>
 
               {showPreview && (
-                <div className="border rounded-lg p-2 bg-gray-50 overflow-hidden">
+                <div className="border rounded-lg p-2 bg-muted overflow-hidden">
                   <img
                     src={previewUrl}
                     alt="Preview"
@@ -162,9 +162,9 @@ export const OCRProcessor = ({ onTextExtracted }: OCRProcessorProps) => {
           </div>
 
           {isProcessing && (
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-black h-2 rounded-full transition-all duration-300"
+            <div className="w-full bg-muted rounded-full h-2">
+              <div 
+                className="bg-primary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
