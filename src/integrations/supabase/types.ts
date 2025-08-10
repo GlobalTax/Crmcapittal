@@ -6552,13 +6552,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "leads_pipeline_stage_id_fkey"
-            columns: ["pipeline_stage_id"]
-            isOneToOne: false
-            referencedRelation: "vw_leads_funnel"
-            referencedColumns: ["stage_id"]
-          },
-          {
             foreignKeyName: "leads_stage_id_fkey"
             columns: ["stage_id"]
             isOneToOne: false
@@ -8147,13 +8140,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pipeline_stages"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pipeline_stage_automations_stage_id_fkey"
-            columns: ["stage_id"]
-            isOneToOne: false
-            referencedRelation: "vw_leads_funnel"
-            referencedColumns: ["stage_id"]
           },
         ]
       }
@@ -12433,17 +12419,20 @@ export type Database = {
       }
       vw_leads_funnel: {
         Row: {
-          avg_score: number | null
-          lead_count: number | null
-          performance_rating: string | null
-          recent_count: number | null
-          stage_color: string | null
-          stage_conversion_rate: number | null
-          stage_id: string | null
-          stage_name: string | null
-          stage_order: number | null
+          pipeline_stage_id: string | null
+          stage_count: number | null
+          stage_label: string | null
+          stage_percent: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_pipeline_stage_id_fkey"
+            columns: ["pipeline_stage_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vw_leads_kpi: {
         Row: {
