@@ -56,7 +56,7 @@ export const OperationsList = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
@@ -72,7 +72,7 @@ export const OperationsList = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -86,7 +86,7 @@ export const OperationsList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center border-b border-gray-200 pb-6">
@@ -104,7 +104,7 @@ export const OperationsList = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
           <OperationFilters 
             onFiltersChange={handleFiltersChange} 
             operations={allOperations}

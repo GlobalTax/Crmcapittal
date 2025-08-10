@@ -90,7 +90,7 @@ export const OperationFilters = ({ onFiltersChange, operations }: OperationFilte
         {/* Filters Toggle */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="border-black text-black hover:bg-gray-100">
+            <Button variant="outline" className="border-border text-foreground hover:bg-muted/50">
               Filtros Avanzados
             </Button>
           </PopoverTrigger>
@@ -195,7 +195,7 @@ export const OperationFilters = ({ onFiltersChange, operations }: OperationFilte
             <Button 
               variant="outline" 
               onClick={clearFilters}
-              className="w-full border-black text-black hover:bg-gray-100"
+              className="w-full border-border text-foreground hover:bg-muted/50"
             >
               Limpiar Filtros
             </Button>
