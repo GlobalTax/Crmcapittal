@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { add } from 'date-fns';
 import { Lead } from '@/types/Lead';
 import { INTEGRATIONS_CONFIG } from '@/config/integrations';
+import { LeadStage, normalizeStage } from '@/features/pipeline/stages';
+
 
 export const useLeadStageAutomations = () => {
   const createEvent = useCallback(async (
@@ -48,27 +50,27 @@ export const useLeadStageAutomations = () => {
 
   const runForStageChange = useCallback(async (lead: Lead, stageName: string) => {
     if (!INTEGRATIONS_CONFIG.automations.enabled) return;
-    const s = stageName.toLowerCase();
+    const s = normalizeStage(stageName);
 
-    if (s === 'new lead' || s === 'new_lead') {
+    if (s === LeadStage.NewLead) {
       if (lead.assigned_to || lead.assigned_to_id) {
         await notifySlackAssign(lead);
       }
     }
 
-    if (s === 'qualified') {
+    if (s === LeadStage.Qualified) {
       await createEvent(lead.id, 'Enviar NDA', {}, { follow_up_required: true, description: 'Tarea automática: enviar NDA' });
     }
 
-    if (s === 'nda sent' || s === 'nda_sent') {
+    if (s === LeadStage.NdaSent) {
       await createEvent(lead.id, 'Recordatorio firma NDA', { hours: 72 }, { description: 'Recordatorio automático 72h', reminder_minutes: 60 });
     }
 
-    if (s === 'info shared' || s === 'info_shared') {
+    if (s === LeadStage.InfoShared) {
       await createEvent(lead.id, 'Reunión de gestión', { days: 1 }, { meeting_type: 'general', description: 'Crear link de Zoom (pendiente)' });
     }
 
-    if (s === 'negotiation' || s === 'negociación') {
+    if (s === LeadStage.Negotiation) {
       await createEvent(lead.id, 'Seguimiento negociación', { days: 5 }, { description: 'Recordatorio cada 5 días sin feedback', is_recurring: true, recurrence_rule: 'FREQ=DAILY;INTERVAL=5' });
     }
   }, [createEvent, notifySlackAssign]);
