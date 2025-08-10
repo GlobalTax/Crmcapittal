@@ -7,6 +7,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { SecurityHeaders } from '@/components/security/SecurityHeaders';
 import { AppRoutes } from '@/AppRoutes';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { ThemeProvider } from 'next-themes';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -23,10 +24,12 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AuthProvider>
-            <TooltipProvider>
-              <AppRoutes />
-              <Toaster />
-            </TooltipProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <TooltipProvider>
+                <AppRoutes />
+                <Toaster />
+              </TooltipProvider>
+            </ThemeProvider>
           </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
