@@ -3313,6 +3313,21 @@ export type Database = {
         }
         Relationships: []
       }
+      dd: {
+        Row: {
+          created_at: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       deal_documents: {
         Row: {
           content_type: string | null
@@ -7475,6 +7490,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      "negocios hb": {
+        Row: {
+          "Associated Company": string | null
+          "Associated Company IDs": string | null
+          "Associated Contact": string | null
+          "Associated Contact IDs": string | null
+          "Descripción de la oferta": string | null
+          "Etapa del negocio": string | null
+          "Fecha de cierre": string | null
+          "Fecha de creación": string | null
+          "ID de registro": number | null
+          "Ingresos anuales recurrentes": string | null
+          "Ingresos mensuales recurrentes": string | null
+          "Nombre del negocio": string | null
+          "Propietario del negocio": string | null
+          Valor: string | null
+        }
+        Insert: {
+          "Associated Company"?: string | null
+          "Associated Company IDs"?: string | null
+          "Associated Contact"?: string | null
+          "Associated Contact IDs"?: string | null
+          "Descripción de la oferta"?: string | null
+          "Etapa del negocio"?: string | null
+          "Fecha de cierre"?: string | null
+          "Fecha de creación"?: string | null
+          "ID de registro"?: number | null
+          "Ingresos anuales recurrentes"?: string | null
+          "Ingresos mensuales recurrentes"?: string | null
+          "Nombre del negocio"?: string | null
+          "Propietario del negocio"?: string | null
+          Valor?: string | null
+        }
+        Update: {
+          "Associated Company"?: string | null
+          "Associated Company IDs"?: string | null
+          "Associated Contact"?: string | null
+          "Associated Contact IDs"?: string | null
+          "Descripción de la oferta"?: string | null
+          "Etapa del negocio"?: string | null
+          "Fecha de cierre"?: string | null
+          "Fecha de creación"?: string | null
+          "ID de registro"?: number | null
+          "Ingresos anuales recurrentes"?: string | null
+          "Ingresos mensuales recurrentes"?: string | null
+          "Nombre del negocio"?: string | null
+          "Propietario del negocio"?: string | null
+          Valor?: string | null
+        }
+        Relationships: []
       }
       notification_logs: {
         Row: {
