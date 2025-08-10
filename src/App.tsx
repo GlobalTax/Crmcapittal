@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SecurityHeaders } from '@/components/security/SecurityHeaders';
 import { AppRoutes } from '@/AppRoutes';
+import { TooltipProvider } from '@/components/ui/tooltip';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -22,8 +23,10 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AuthProvider>
-            <AppRoutes />
-            <Toaster />
+            <TooltipProvider>
+              <AppRoutes />
+              <Toaster />
+            </TooltipProvider>
           </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
