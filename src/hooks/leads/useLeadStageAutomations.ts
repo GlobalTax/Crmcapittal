@@ -9,7 +9,7 @@ export const useLeadStageAutomations = () => {
     leadId: string,
     title: string,
     startIn: { hours?: number; days?: number } = {},
-    extra?: Partial<{ meeting_type: string; follow_up_required: boolean; description: string }>
+    extra?: Partial<{ meeting_type: string; follow_up_required: boolean; description: string; is_recurring: boolean; recurrence_rule: string; reminder_minutes: number }>
   ) => {
     const { data: userRes } = await supabase.auth.getUser();
     const userId = userRes.user?.id;
@@ -29,6 +29,9 @@ export const useLeadStageAutomations = () => {
       description: extra?.description ?? null,
       status: 'confirmed',
       visibility: 'private',
+      is_recurring: extra?.is_recurring ?? false,
+      recurrence_rule: extra?.recurrence_rule ?? null,
+      reminder_minutes: extra?.reminder_minutes ?? 15,
     });
   }, []);
 
@@ -58,7 +61,7 @@ export const useLeadStageAutomations = () => {
     }
 
     if (s === 'nda sent' || s === 'nda_sent') {
-      await createEvent(lead.id, 'Recordatorio firma NDA', { hours: 72 }, { description: 'Recordatorio automático 72h' });
+      await createEvent(lead.id, 'Recordatorio firma NDA', { hours: 72 }, { description: 'Recordatorio automático 72h', reminder_minutes: 60 });
     }
 
     if (s === 'info shared' || s === 'info_shared') {
@@ -66,7 +69,7 @@ export const useLeadStageAutomations = () => {
     }
 
     if (s === 'negotiation' || s === 'negociación') {
-      await createEvent(lead.id, 'Seguimiento negociación', { days: 5 }, { description: 'Recordatorio cada 5 días sin feedback' });
+      await createEvent(lead.id, 'Seguimiento negociación', { days: 5 }, { description: 'Recordatorio cada 5 días sin feedback', is_recurring: true, recurrence_rule: 'FREQ=DAILY;INTERVAL=5' });
     }
   }, [createEvent, notifySlackAssign]);
 
