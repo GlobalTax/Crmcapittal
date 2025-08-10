@@ -6374,14 +6374,14 @@ export type Database = {
       }
       leads: {
         Row: {
-          assigned_to_id: string | null
+          assigned_to_id: string
           collaborator_id: string | null
           company_id: string | null
           company_name: string | null
           conversion_date: string | null
           converted_to_mandate_id: string | null
           created_at: string
-          created_by: string | null
+          created_by: string
           deal_value: number | null
           email: string
           estimated_close_date: string | null
@@ -6419,14 +6419,14 @@ export type Database = {
           won_date: string | null
         }
         Insert: {
-          assigned_to_id?: string | null
+          assigned_to_id: string
           collaborator_id?: string | null
           company_id?: string | null
           company_name?: string | null
           conversion_date?: string | null
           converted_to_mandate_id?: string | null
           created_at?: string
-          created_by?: string | null
+          created_by: string
           deal_value?: number | null
           email: string
           estimated_close_date?: string | null
@@ -6464,14 +6464,14 @@ export type Database = {
           won_date?: string | null
         }
         Update: {
-          assigned_to_id?: string | null
+          assigned_to_id?: string
           collaborator_id?: string | null
           company_id?: string | null
           company_name?: string | null
           conversion_date?: string | null
           converted_to_mandate_id?: string | null
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           deal_value?: number | null
           email?: string
           estimated_close_date?: string | null
@@ -12520,6 +12520,10 @@ export type Database = {
       calculate_prob_conversion_from_nurturing: {
         Args: { p_lead_id: string }
         Returns: number
+      }
+      can_manage_all_leads: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       check_auth_rate_limit: {
         Args: { p_identifier: string }
