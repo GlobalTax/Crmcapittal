@@ -12,7 +12,7 @@ interface OperationCardProps {
 
 export const OperationCard = ({ operation, onToggleFavorite, isFavorite }: OperationCardProps) => {
   return (
-    <div className="border border-gray-200 bg-white p-4 space-y-4">
+    <div className="border border-border bg-card text-card-foreground p-4 space-y-4">
       <div className="pb-2">
         <OperationCardHeader 
           operation={operation} 

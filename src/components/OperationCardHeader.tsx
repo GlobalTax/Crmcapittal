@@ -16,8 +16,8 @@ export const OperationCardHeader = ({ operation, onToggleFavorite, isFavorite }:
     <div className="flex items-start justify-between">
       <div className="flex items-center space-x-2">
         <div>
-          <h3 className="font-semibold text-black text-base">{operation.company_name}</h3>
-          <p className="text-black text-xs">{operation.sector}</p>
+          <h3 className="font-semibold text-base text-foreground">{operation.company_name}</h3>
+          <p className="text-xs text-muted-foreground">{operation.sector}</p>
         </div>
       </div>
       <div className="flex items-center gap-2">
