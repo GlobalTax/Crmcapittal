@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { add } from 'date-fns';
 import { Lead } from '@/types/Lead';
+import { INTEGRATIONS_CONFIG } from '@/config/integrations';
 
 export const useLeadStageAutomations = () => {
   const createEvent = useCallback(async (
@@ -33,6 +34,7 @@ export const useLeadStageAutomations = () => {
 
   const notifySlackAssign = useCallback(async (lead: Lead) => {
     try {
+      if (!INTEGRATIONS_CONFIG.automations.enabled || !INTEGRATIONS_CONFIG.slack.enabled) return;
       const assignee = lead.assigned_to?.first_name || lead.assigned_to?.id || lead.assigned_to_id || 'usuario';
       const text = `Nuevo lead asignado → ${lead.name || lead.company_name || 'Sin nombre'} (Fuente: ${lead.source || 'N/A'}) asignado a ${assignee}`;
       await supabase.functions.invoke('slack-notify', { body: { text } });
@@ -42,6 +44,7 @@ export const useLeadStageAutomations = () => {
   }, []);
 
   const runForStageChange = useCallback(async (lead: Lead, stageName: string) => {
+    if (!INTEGRATIONS_CONFIG.automations.enabled) return;
     const s = stageName.toLowerCase();
 
     if (s === 'new lead' || s === 'new_lead') {
@@ -68,6 +71,7 @@ export const useLeadStageAutomations = () => {
   }, [createEvent, notifySlackAssign]);
 
   const runForWin = useCallback(async (lead: Lead) => {
+    if (!INTEGRATIONS_CONFIG.automations.enabled) return;
     const type = lead.service_type === 'mandato_venta' ? 'sell' : 'buy';
     try {
       await supabase.rpc('create_entity_from_lead', {
