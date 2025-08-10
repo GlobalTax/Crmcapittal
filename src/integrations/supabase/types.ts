@@ -8217,6 +8217,7 @@ export type Database = {
           is_active: boolean | null
           name: string
           probability: number | null
+          slug: string | null
           stage_order: number
           updated_at: string
         }
@@ -8227,6 +8228,7 @@ export type Database = {
           is_active?: boolean | null
           name: string
           probability?: number | null
+          slug?: string | null
           stage_order: number
           updated_at?: string
         }
@@ -8237,6 +8239,7 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           probability?: number | null
+          slug?: string | null
           stage_order?: number
           updated_at?: string
         }

@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { LeadClosureActionDialog } from '../LeadClosureActionDialog';
 import { useUiLayout } from '@/state/useUiLayout';
 import { cn } from '@/lib/utils';
+import { useLeadStageAutomations } from '@/hooks/leads/useLeadStageAutomations';
 interface PipedriveLayoutProps {
   lead: Lead;
 }
@@ -22,6 +23,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
   const { updateStage, markWon, markLost, isUpdating } = useUpdateLead();
   const [closureOpen, setClosureOpen] = useState(false);
   const { focusMode } = useUiLayout();
+  const { runForStageChange, runForWin, runForLose } = useLeadStageAutomations();
 
   const currentStage = stages.find(s => s.id === lead.pipeline_stage_id) || stages[0];
 
@@ -33,6 +35,8 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
         stageId,
         stageName: stage.name,
       });
+      // Automatizaciones mínimas por etapa
+      runForStageChange(lead, stage.name);
     }
   };
 
@@ -41,6 +45,8 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
       leadId: lead.id,
       dealValue: lead.deal_value,
     });
+    // Crear mandato/entidad de ejecución
+    runForWin(lead);
   };
 
   const handleLose = () => {
@@ -48,6 +54,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
       leadId: lead.id,
       lostReason: 'Marcado manualmente como perdido',
     });
+    runForLose(lead);
   };
 
   if (stagesLoading) {
