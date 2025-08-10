@@ -97,8 +97,8 @@ export const OperationAnalytics = () => {
             <div className="flex items-center space-x-2">
               <Download className="h-5 w-5 text-green-600" />
               <div>
-                <p className="text-xs font-medium text-gray-600">Total Descargas</p>
-                <p className="text-xl font-bold text-black">{totalDownloads.toLocaleString()}</p>
+                <p className="text-xs font-medium text-muted-foreground">Total Descargas</p>
+                <p className="text-xl font-bold text-foreground">{totalDownloads.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -109,8 +109,8 @@ export const OperationAnalytics = () => {
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-5 w-5 text-purple-600" />
               <div>
-                <p className="text-xs font-medium text-gray-600">Promedio Vistas/Op</p>
-                <p className="text-xl font-bold text-black">{avgViewsPerOperation}</p>
+                <p className="text-xs font-medium text-muted-foreground">Promedio Vistas/Op</p>
+                <p className="text-xl font-bold text-foreground">{avgViewsPerOperation}</p>
               </div>
             </div>
           </CardContent>
@@ -121,8 +121,8 @@ export const OperationAnalytics = () => {
             <div className="flex items-center space-x-2">
               <BarChart3 className="h-5 w-5 text-orange-600" />
               <div>
-                <p className="text-xs font-medium text-gray-600">Tasa Conversión</p>
-                <p className="text-xl font-bold text-black">{conversionRate}%</p>
+                <p className="text-xs font-medium text-muted-foreground">Tasa Conversión</p>
+                <p className="text-xl font-bold text-foreground">{conversionRate}%</p>
               </div>
             </div>
           </CardContent>
@@ -139,7 +139,7 @@ export const OperationAnalytics = () => {
         <TabsContent value="views" className="space-y-2">
           <div className="grid gap-2">
             {topOperationsByViews.map((operation, index) => (
-              <div key={operation.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+              <div key={operation.id} className="flex items-center justify-between p-3 bg-card border border-border rounded-lg hover:bg-muted/50">
                 <div className="flex items-center space-x-3">
                   <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-semibold text-blue-600">
                     {index + 1}
