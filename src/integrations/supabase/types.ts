@@ -6085,6 +6085,79 @@ export type Database = {
           },
         ]
       }
+      lead_task_engine_audits: {
+        Row: {
+          change_type: string
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          task_id: string
+        }
+        Insert: {
+          change_type: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          task_id: string
+        }
+        Update: {
+          change_type?: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_task_engine_audits_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "lead_task_engine"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_task_engine_notifications: {
+        Row: {
+          channel: string
+          created_at: string
+          id: string
+          kind: string
+          sent_at: string
+          task_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          id?: string
+          kind: string
+          sent_at?: string
+          task_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          sent_at?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_task_engine_notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "lead_task_engine"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_task_events: {
         Row: {
           created_at: string
@@ -12656,6 +12729,19 @@ export type Database = {
           dependency_status: Json
         }[]
       }
+      get_pending_engine_task_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          task_id: string
+          lead_id: string
+          title: string
+          task_type: string
+          due_date: string
+          assignee: string
+          lead_name: string
+          kind: string
+        }[]
+      }
       get_pending_scheduled_reminders: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -12828,6 +12914,10 @@ export type Database = {
               p_table_name?: string
             }
         Returns: string
+      }
+      mark_engine_task_notified: {
+        Args: { p_task_id: string; p_kind: string }
+        Returns: undefined
       }
       mark_reminder_processed: {
         Args: {
