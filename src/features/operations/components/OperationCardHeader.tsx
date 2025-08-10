@@ -16,8 +16,8 @@ export const OperationCardHeader: React.FC<OperationCardHeaderProps> = ({ operat
     <div className="flex items-start justify-between">
       <div className="flex items-center space-x-2">
         <div>
-          <h3 className="font-semibold text-black text-base">{operation.company_name}</h3>
-          <p className="text-black text-xs">{operation.sector}</p>
+          <h3 className="font-semibold text-foreground text-base">{operation.company_name}</h3>
+          <p className="text-muted-foreground text-xs">{operation.sector}</p>
         </div>
       </div>
       <Badge className={getStatusColor(operation.status)}>
