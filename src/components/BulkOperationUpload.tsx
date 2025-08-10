@@ -104,7 +104,7 @@ export const BulkOperationUpload = ({ onBulkAdd }: BulkOperationUploadProps) => 
       if (!open) resetDialog();
     }}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="border-black text-black hover:bg-gray-100">
+        <Button variant="outline">
           <Upload className="h-4 w-4 mr-2" />
           Subida Masiva
         </Button>
@@ -127,7 +127,7 @@ export const BulkOperationUpload = ({ onBulkAdd }: BulkOperationUploadProps) => 
             <Button
               onClick={handleUpload}
               disabled={!validation?.valid || isProcessing}
-              className="bg-black text-white hover:bg-gray-800"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isProcessing ? 'Procesando...' : 'Importar Operaciones'}
             </Button>

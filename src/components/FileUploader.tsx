@@ -58,10 +58,10 @@ export const FileUploader = ({
         type="file"
         accept={accept}
         onChange={handleFileUpload}
-        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+        className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
       />
       {selectedFile && (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Archivo seleccionado: {selectedFile.name}
         </p>
       )}

@@ -329,7 +329,7 @@ const EditUserDialog = ({ user, isOpen, onClose }: EditUserDialogProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label>Email</Label>
-            <Input value={user.email} disabled className="bg-gray-100" />
+            <Input value={user.email} disabled className="bg-muted" />
           </div>
 
           <div>

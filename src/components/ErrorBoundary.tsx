@@ -42,19 +42,19 @@ export class ErrorBoundary extends Component<Props, State> {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-4">
-              Ha ocurrido un error inesperado. Por favor, intenta recargar la página.
+            <p className="text-muted-foreground mb-4">
+              Ha ocurrido un error inesperado. Por favor, recarga la página o contacta al administrador si el problema persiste.
             </p>
-            {this.state.error && (
-              <details className="mb-4">
-                <summary className="cursor-pointer text-sm text-gray-500 mb-2">
-                  Detalles del error
+            <div className="bg-card border rounded-lg p-4">
+              <details className="text-sm">
+                <summary className="cursor-pointer text-sm text-muted-foreground mb-2">
+                  Ver detalles técnicos
                 </summary>
-                <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto">
-                  {this.state.error.message}
+                <pre className="text-xs bg-muted p-2 rounded overflow-auto">
+                  {this.state.error?.message}
                 </pre>
               </details>
-            )}
+            </div>
             <Button 
               onClick={() => window.location.reload()}
               className="mr-2"

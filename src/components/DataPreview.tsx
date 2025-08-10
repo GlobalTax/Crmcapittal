@@ -11,7 +11,7 @@ export const DataPreview = ({ data }: DataPreviewProps) => {
       <h3 className="font-medium">Vista Previa (primeras 5 filas)</h3>
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-200 rounded-lg">
-          <thead className="bg-gray-50">
+          <thead className="bg-muted">
             <tr>
               {Object.keys(data[0]).slice(0, 6).map((key) => (
                 <th key={key} className="px-4 py-2 text-left text-sm font-medium border-b">

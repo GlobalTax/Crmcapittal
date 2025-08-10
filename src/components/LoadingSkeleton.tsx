@@ -11,7 +11,7 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
     switch (type) {
       case 'operation-card':
         return (
-          <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+          <div className="bg-card rounded-lg p-4 border border-border shadow-sm">
             <div className="flex items-start justify-between mb-3">
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-4 w-16" />
@@ -29,7 +29,7 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
 
       case 'table-row':
         return (
-          <div className="flex items-center space-x-4 p-4 border-b border-gray-100">
+          <div className="flex items-center space-x-4 p-4 border-b border-border">
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-20" />
@@ -40,7 +40,7 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
 
       case 'lead-table-row':
         return (
-          <tr className="border-b border-gray-100">
+          <tr className="border-b border-border">
             <td className="p-4"><Skeleton className="h-4 w-32" /></td>
             <td className="p-4"><Skeleton className="h-4 w-40" /></td>
             <td className="p-4"><Skeleton className="h-4 w-24" /></td>
@@ -61,7 +61,7 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
 
       case 'contact-card':
         return (
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
+          <div className="bg-card rounded-lg p-4 border border-border">
             <div className="flex items-center space-x-3 mb-3">
               <Skeleton className="h-10 w-10 rounded-full" />
               <div className="flex-1">
@@ -78,7 +78,7 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
 
       case 'dashboard-card':
         return (
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <div className="bg-card rounded-lg p-6 border border-border">
             <div className="flex items-center justify-between mb-4">
               <Skeleton className="h-5 w-24" />
               <Skeleton className="h-8 w-8 rounded-full" />
@@ -98,7 +98,7 @@ export const LoadingSkeleton = ({ type = 'operation-card', count = 1 }: LoadingS
               </div>
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-lg p-3 border border-gray-200">
+                  <div key={i} className="bg-card rounded-lg p-3 border border-border">
                     <Skeleton className="h-4 w-3/4 mb-2" />
                     <Skeleton className="h-3 w-1/2 mb-2" />
                     <div className="flex justify-between">
@@ -136,15 +136,15 @@ export const OperationsLoadingSkeleton = ({ count = 6 }: { count?: number }) => 
 );
 
 export const TableLoadingSkeleton = ({ count = 5 }: { count?: number }) => (
-  <div className="bg-white rounded-lg border border-gray-200">
+  <div className="bg-card rounded-lg border border-border">
     <LoadingSkeleton type="table-row" count={count} />
   </div>
 );
 
 export const LeadsTableSkeleton = ({ count = 5 }: { count?: number }) => (
   <tbody>
-    {Array.from({ length: count }).map((_, index) => (
-      <tr key={index} className="border-b border-gray-100">
+      {Array.from({ length: count }).map((_, index) => (
+        <tr key={index} className="border-b border-border">
         <td className="p-4"><Skeleton className="h-4 w-32" /></td>
         <td className="p-4"><Skeleton className="h-4 w-40" /></td>
         <td className="p-4"><Skeleton className="h-4 w-24" /></td>
@@ -178,22 +178,22 @@ export const DashboardLoadingSkeleton = () => (
         {/* Left Column - Charts */}
         <div className="lg:col-span-2 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
+            <div className="bg-card rounded-lg p-6 border border-border">
               <Skeleton className="h-6 w-32 mb-4" />
               <Skeleton className="h-48 w-full" />
             </div>
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
+            <div className="bg-card rounded-lg p-6 border border-border">
               <Skeleton className="h-6 w-32 mb-4" />
               <Skeleton className="h-48 w-full" />
             </div>
           </div>
           
           {/* Recent Deals Skeleton */}
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <div className="bg-card rounded-lg p-6 border border-border">
             <Skeleton className="h-6 w-32 mb-4" />
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between p-4 border border-gray-100 rounded">
+                <div key={i} className="flex items-center justify-between p-4 border border-border rounded">
                   <div className="flex items-center space-x-3">
                     <Skeleton className="h-10 w-10 rounded-full" />
                     <div>
@@ -211,7 +211,7 @@ export const DashboardLoadingSkeleton = () => (
         {/* Right Column - Activity & Actions */}
         <div className="space-y-6">
           {/* Activity Feed Skeleton */}
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <div className="bg-card rounded-lg p-6 border border-border">
             <Skeleton className="h-6 w-32 mb-4" />
             <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -227,7 +227,7 @@ export const DashboardLoadingSkeleton = () => (
           </div>
           
           {/* Quick Actions Skeleton */}
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <div className="bg-card rounded-lg p-6 border border-border">
             <Skeleton className="h-6 w-32 mb-4" />
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (
