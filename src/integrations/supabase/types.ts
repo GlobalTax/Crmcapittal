@@ -3301,6 +3301,45 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_leads: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          lead_type: string
+          payload: Json | null
+          phone: string | null
+          source: string | null
+          status: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          lead_type: string
+          payload?: Json | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          lead_type?: string
+          payload?: Json | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       cuentas: {
         Row: {
           balance_actual: number | null
@@ -6395,6 +6434,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_valuations: {
+        Row: {
+          company: Json | null
+          created_at: string
+          id: string
+          pdf_url: string | null
+          result: Json | null
+          source: string | null
+          tags: Json | null
+        }
+        Insert: {
+          company?: Json | null
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          result?: Json | null
+          source?: string | null
+          tags?: Json | null
+        }
+        Update: {
+          company?: Json | null
+          created_at?: string
+          id?: string
+          pdf_url?: string | null
+          result?: Json | null
+          source?: string | null
+          tags?: Json | null
+        }
+        Relationships: []
       }
       lead_workflow_executions: {
         Row: {
