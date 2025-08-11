@@ -69,18 +69,18 @@ export const OptimizedDealCard = ({ deal, index, onClick, onEdit }: OptimizedDea
   const getScoringIcon = (scoring: 'hot' | 'warm' | 'cold') => {
     switch (scoring) {
       case 'hot':
-        return <Flame className="h-3 w-3 text-red-500" />;
+        return <Flame className="h-3 w-3 text-muted-foreground" aria-hidden />;
       case 'warm':
-        return <Sun className="h-3 w-3 text-orange-500" />;
+        return <Sun className="h-3 w-3 text-muted-foreground" aria-hidden />;
       case 'cold':
-        return <Snowflake className="h-3 w-3 text-blue-500" />;
+        return <Snowflake className="h-3 w-3 text-muted-foreground" aria-hidden />;
     }
   };
 
-  const getPriorityBorderColor = (probability: number) => {
-    if (probability >= 70) return 'border-l-red-500';
-    if (probability >= 40) return 'border-l-orange-500';
-    return 'border-l-blue-500';
+  const getPriorityColorVar = (probability: number) => {
+    if (probability >= 70) return 'hsl(var(--destructive))';
+    if (probability >= 40) return 'hsl(var(--primary))';
+    return 'hsl(var(--border))';
   };
 
   const getNextAction = (deal: Deal) => {
@@ -110,7 +110,7 @@ export const OptimizedDealCard = ({ deal, index, onClick, onEdit }: OptimizedDea
   return (
     <div
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, borderLeftColor: getPriorityColorVar(deal.probability) }}
       {...attributes}
       {...listeners}
       onMouseEnter={() => setIsHovered(true)}
@@ -118,11 +118,11 @@ export const OptimizedDealCard = ({ deal, index, onClick, onEdit }: OptimizedDea
       className={`
         group relative bg-card rounded-lg border border-border cursor-grab active:cursor-grabbing
         transition-all duration-200 hover:shadow-md hover:border-primary/30
-        ${getPriorityBorderColor(deal.probability)} border-l-4
+        border-l-4
         ${isDragging ? 'shadow-lg opacity-50 rotate-2' : ''}
       `}
       tabIndex={0}
-      role="button"
+      role="listitem"
       aria-label={`Deal: ${deal.title}`}
     >
       <div className="p-4 space-y-3">
@@ -179,25 +179,27 @@ export const OptimizedDealCard = ({ deal, index, onClick, onEdit }: OptimizedDea
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 hover:bg-green-50 hover:text-green-600"
+            className="h-6 w-6 p-0 hover:bg-accent hover:text-accent-foreground"
             onClick={(e) => {
               e.stopPropagation();
               // Handle call action
             }}
+            aria-label="Llamar"
           >
-            <Phone className="h-3 w-3" />
+            <Phone className="h-3 w-3" aria-hidden />
           </Button>
           
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 hover:bg-blue-50 hover:text-blue-600"
+            className="h-6 w-6 p-0 hover:bg-accent hover:text-accent-foreground"
             onClick={(e) => {
               e.stopPropagation();
               // Handle email action
             }}
+            aria-label="Enviar correo"
           >
-            <Mail className="h-3 w-3" />
+            <Mail className="h-3 w-3" aria-hidden />
           </Button>
           
           <DropdownMenu>

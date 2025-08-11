@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { OptimizedDealsBoard } from '@/components/deals/OptimizedDealsBoard';
 import { NewDealModal } from '@/components/deals/NewDealModal';
 import { DealDrawer } from '@/components/deals/DealDrawer';
@@ -20,7 +20,29 @@ const Deals = () => {
   const handleDealEdit = (deal: Deal) => {
     setSelectedDeal(deal);
   };
+  useEffect(() => {
+    document.title = 'Pipeline de Deals | CRM M&A';
 
+    const setMeta = (name: string, content: string) => {
+      let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('name', name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+
+    setMeta('description', 'Pipeline de deals para mandatos M&A buy-side y sell-side. Gestiona etapas, probabilidades y valores.');
+
+    let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!link) {
+      link = document.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      document.head.appendChild(link);
+    }
+    link.setAttribute('href', window.location.href);
+  }, []);
   return (
     <div className="h-full flex flex-col" data-tour="deals-section">
       {/* Optimized Single Kanban View */}

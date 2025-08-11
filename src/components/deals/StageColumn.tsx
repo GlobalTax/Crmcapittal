@@ -60,6 +60,8 @@ export const StageColumn = ({ stage, deals, onNewDeal, onDealClick }: StageColum
             : 'bg-muted/20'
           }
         `}
+        role="list"
+        aria-label={`${stage.name} - deals`}
       >
         {deals.map((deal, index) => (
           <DealCard

@@ -100,6 +100,8 @@ export const OptimizedStageColumn = ({
         style={{
           maxHeight: 'calc(100vh - 280px)', // Account for header heights
         }}
+        role="list"
+        aria-label={`${stage.name} - deals`}
       >
         <SortableContext
           items={deals.map(d => d.id)}
