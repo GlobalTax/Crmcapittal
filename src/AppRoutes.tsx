@@ -19,9 +19,15 @@ import LeadPage from '@/pages/LeadPage';
 const OptimizedMandatesPage = lazy(() => import('@/pages/OptimizedMandatesPage'));
 
 
+
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
 const AuthCallback = lazy(() => import('@/components/auth/AuthCallback'));
+
+// Public landings
+const ValoracionEmpresaLanding = lazy(() => import('@/pages/ValoracionEmpresaLanding'));
+const ValoracionGracias = lazy(() => import('@/pages/ValoracionGracias'));
+
 const MinimalTimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const PersonalDashboard = lazy(() => import('@/pages/PersonalDashboard'));
@@ -49,6 +55,7 @@ const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
 const ActivityPage = lazy(() => import('@/pages/ActivityPage'));
 const AssignmentControl = lazy(() => import('@/pages/AssignmentControl'));
 const AdministracionEmpresarial = lazy(() => import('@/pages/AdministracionEmpresarial'));
+
 
 
 const LoadingSkeleton = () => (
@@ -88,6 +95,24 @@ export const AppRoutes = () => {
           element={
             <Suspense fallback={<LoadingSkeleton />}>
               <ClientMandateView />
+            </Suspense>
+          } 
+        />
+        
+        {/* Public valuation landing */}
+        <Route 
+          path="/valoracion-empresa" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <ValoracionEmpresaLanding />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/valoracion-gracias" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <ValoracionGracias />
             </Suspense>
           } 
         />
@@ -391,8 +416,8 @@ export const AppRoutes = () => {
         </Route>
         
 
-        {/* Catch all - redirect to mandatos */}
-        <Route path="*" element={<Navigate to="/mandatos" replace />} />
+        {/* Catch all - redirect to dashboard for app, but keep landing accessible */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
