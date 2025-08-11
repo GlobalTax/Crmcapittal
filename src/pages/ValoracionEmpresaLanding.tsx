@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -78,6 +78,7 @@ export async function onCalculationComplete(companyData: CompanyData, result: Va
 export default function ValoracionEmpresaLanding() {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => { setSeo(); }, []);
 
@@ -109,6 +110,7 @@ export default function ValoracionEmpresaLanding() {
   };
 
   const handleSendReport = async () => {
+    if (isSending) return; // evitar duplicados
     const full_name = watch('full_name');
     const company = watch('company');
     const email = watch('email');
@@ -131,7 +133,14 @@ export default function ValoracionEmpresaLanding() {
     // Resultado mínimo; sustituir por el cálculo real si está disponible
     const result: ValuationResult = { finalValuation: 0 };
 
-    await onCalculationComplete(companyData, result);
+    try {
+      setIsSending(true);
+      await onCalculationComplete(companyData, result);
+    } catch (e) {
+      // el propio handler ya hace toast de error
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -200,8 +209,8 @@ export default function ValoracionEmpresaLanding() {
           <div className="flex items-center justify-between pt-2">
             <p className="text-xs opacity-70">Transmisión segura • Cumplimiento RGPD • Acceso restringido</p>
             <div className="flex items-center gap-2">
-              <button type="button" onClick={handleSendReport} disabled={isSubmitting} className="rounded-md px-4 py-2 border hover:bg-accent disabled:opacity-60">
-                Enviar informe
+              <button type="button" onClick={handleSendReport} disabled={isSubmitting || isSending} className="rounded-md px-4 py-2 border hover:bg-accent disabled:opacity-60" aria-busy={isSending}>
+                {isSending ? 'Enviando…' : 'Enviar informe'}
               </button>
               <button type="submit" disabled={isSubmitting} className="rounded-md px-4 py-2 border bg-primary text-primary-foreground disabled:opacity-60">
                 {isSubmitting ? 'Enviando…' : 'Siguiente'}
