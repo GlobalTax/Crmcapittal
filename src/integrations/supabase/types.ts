@@ -3160,6 +3160,84 @@ export type Database = {
           },
         ]
       }
+      crm_inbound_leads: {
+        Row: {
+          cif: string | null
+          company_name: string | null
+          contact_name: string | null
+          created_at: string
+          ebitda: number | null
+          ebitda_multiple_used: number | null
+          email: string | null
+          employee_range: string | null
+          final_valuation: number | null
+          id: string
+          industry: string | null
+          intent: string
+          location: string | null
+          payload: Json | null
+          phone: string | null
+          revenue: number | null
+          source: string | null
+          status: string | null
+          utm: Json | null
+          valuation_range_max: number | null
+          valuation_range_min: number | null
+          visitor_id: string | null
+          years_of_operation: number | null
+        }
+        Insert: {
+          cif?: string | null
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string
+          ebitda?: number | null
+          ebitda_multiple_used?: number | null
+          email?: string | null
+          employee_range?: string | null
+          final_valuation?: number | null
+          id?: string
+          industry?: string | null
+          intent: string
+          location?: string | null
+          payload?: Json | null
+          phone?: string | null
+          revenue?: number | null
+          source?: string | null
+          status?: string | null
+          utm?: Json | null
+          valuation_range_max?: number | null
+          valuation_range_min?: number | null
+          visitor_id?: string | null
+          years_of_operation?: number | null
+        }
+        Update: {
+          cif?: string | null
+          company_name?: string | null
+          contact_name?: string | null
+          created_at?: string
+          ebitda?: number | null
+          ebitda_multiple_used?: number | null
+          email?: string | null
+          employee_range?: string | null
+          final_valuation?: number | null
+          id?: string
+          industry?: string | null
+          intent?: string
+          location?: string | null
+          payload?: Json | null
+          phone?: string | null
+          revenue?: number | null
+          source?: string | null
+          status?: string | null
+          utm?: Json | null
+          valuation_range_max?: number | null
+          valuation_range_min?: number | null
+          visitor_id?: string | null
+          years_of_operation?: number | null
+        }
+        Relationships: []
+      }
       crm_integrations: {
         Row: {
           configuration: Json
