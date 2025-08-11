@@ -93,7 +93,110 @@ serve(async (req: Request) => {
     });
   }
 
-  // Basic validation
+  // Inicializar Supabase
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+  // Soporte para payloads con { type, data }
+  const incomingType: string | undefined = body?.type;
+  if (incomingType) {
+    const data = body?.data ?? {};
+
+    if (incomingType === "valuation_pdf") {
+      const pdfUrl: string | undefined = data?.pdf_url;
+      if (!pdfUrl) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Falta pdf_url" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      // Descargar PDF
+      const resp = await fetch(pdfUrl);
+      if (!resp.ok) {
+        const bodyTxt = await resp.text();
+        return new Response(
+          JSON.stringify({ success: false, error: `No se pudo descargar el PDF: ${resp.status}` , details: bodyTxt }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      const arrayBuf = await resp.arrayBuffer();
+
+      // Nombre destino
+      const url = new URL(pdfUrl);
+      const originalName = url.pathname.split("/").pop() || `valuation-${Date.now()}.pdf`;
+      const targetPath = `ingested/${new Date().getFullYear()}/${originalName}`;
+
+      // Subir a Storage (bucket público 'valuations')
+      const upload = await supabase.storage
+        .from("valuations")
+        .upload(targetPath, new Uint8Array(arrayBuf), {
+          contentType: "application/pdf",
+          upsert: true,
+        });
+      if (upload.error) {
+        return new Response(
+          JSON.stringify({ success: false, error: upload.error.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      const { data: pub } = supabase.storage.from("valuations").getPublicUrl(targetPath);
+      const destPdfUrl = pub.publicUrl;
+
+      const inserted = await supabase
+        .from("lead_valuations")
+        .insert({
+          source: data?.source || "sync-leads",
+          pdf_url: destPdfUrl,
+          company: data?.company ?? null,
+          result: data?.result ?? null,
+          tags: data?.tags ?? null,
+        })
+        .select("id")
+        .maybeSingle();
+
+      if (inserted.error) {
+        return new Response(
+          JSON.stringify({ success: false, error: inserted.error.message }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, id: inserted.data?.id, pdfUrl: destPdfUrl }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    // Cualquier otro tipo -> tabla genérica crm_leads
+    const common = {
+      lead_type: incomingType,
+      full_name: data?.full_name || data?.contact_name || data?.user_name || null,
+      email: data?.email || data?.user_email || null,
+      phone: data?.phone || data?.user_phone || null,
+      company: data?.company || data?.company_name || data?.user_company || null,
+      status: data?.status || (incomingType === "collaborator" ? "pending" : "new"),
+      source: data?.source || "capittal_website",
+      payload: data || {},
+    } as const;
+
+    const ins = await supabase.from("crm_leads").insert(common).select("id").maybeSingle();
+    if (ins.error) {
+      return new Response(
+        JSON.stringify({ success: false, error: ins.error.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, id: ins.data?.id }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
+  // Flujo anterior: requiere intent = sell|buy
   const intent = body?.intent;
   if (intent !== "sell" && intent !== "buy") {
     return new Response(JSON.stringify({ error: "invalid_intent" }), {
@@ -101,10 +204,6 @@ serve(async (req: Request) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   const email = (body?.contact?.email || "").toLowerCase();
   const companyNameRaw = body?.contact?.company || body?.company?.name || null;
