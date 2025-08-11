@@ -5,6 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { uploadPdfGetUrl, sendValuationEmail, type CompanyData, type ValuationResult } from '@/utils/valuationEmail';
+// import { pdf } from '@react-pdf/renderer'; // solo si generas PDF en front
+// import ValuationPDFDocument from '@/components/pdf/ValuationPDFDocument'; // si lo tienes
 
 const schema = z.object({
   full_name: z.string().min(2, 'Nombre requerido'),
@@ -52,6 +55,25 @@ const setSeo = () => {
   });
   document.head.appendChild(ld);
 };
+
+// Handler final tras el cálculo de valoración (PDF opcional)
+export async function onCalculationComplete(companyData: CompanyData, result: ValuationResult) {
+  try {
+    let pdfUrl: string | undefined;
+    // 1) (Opcional) Generar Blob del PDF con React-PDF
+    // const pdfBlob = await pdf(<ValuationPDFDocument companyData={companyData} result={result} />).toBlob();
+    // pdfUrl = await uploadPdfGetUrl(pdfBlob, companyData.companyName);
+
+    // 2) Enviar email (la función reenvía la ingesta firmada al proyecto destino)
+    await sendValuationEmail({ companyData, result, pdfUrl });
+
+    // 3) Feedback de UI
+    toast?.success?.('Hemos enviado tu informe por email');
+  } catch (e: any) {
+    console.error(e);
+    toast?.error?.('No se pudo enviar el email');
+  }
+}
 
 export default function ValoracionEmpresaLanding() {
   const navigate = useNavigate();
