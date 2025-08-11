@@ -199,7 +199,7 @@ export const DealHeader = ({
 
       {/* Compose Email Modal */}
       {showComposeEmail && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-background/80 z-50 flex items-center justify-center">
           <div className="bg-background rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Escribir Email</h3>

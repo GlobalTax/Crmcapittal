@@ -85,7 +85,7 @@ export const OptimizedDealsHeader = ({
             <Card className="px-4 py-3">
               <div className="text-center">
                 <div className="text-lg font-semibold text-foreground flex items-center gap-1">
-                  <TrendingUp className="h-4 w-4 text-green-600" />
+                  <TrendingUp className="h-4 w-4 text-primary" />
                   {stats.dealsClosedThisMonth}
                 </div>
                 <div className="text-xs text-muted-foreground">Cerrados/mes</div>
@@ -173,7 +173,8 @@ export const OptimizedDealsHeader = ({
           {/* Right: New Deal Button */}
           <Button 
             onClick={onNewDeal}
-            className="bg-[#ff7a59] hover:bg-[#ff6b47] text-white font-medium px-6"
+            variant="default"
+            className="font-medium px-6"
           >
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Deal
