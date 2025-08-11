@@ -9,8 +9,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface Payload { email: string; name?: string; link: string; leadId?: string; taskId?: string }
-
+// Acepta payload legado { email, name?, link } y nuevo { companyData, result, pdf_url }
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
@@ -18,16 +17,45 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Missing RESEND_API_KEY' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const { email, name, link }: Payload = await req.json();
+    const body: any = await req.json();
     const resend = new Resend(resendKey);
 
-    const subject = `Valoración inicial (Light)`;
+    const email: string | undefined = body?.email || body?.companyData?.email;
+    const name: string = body?.name || body?.companyData?.contactName || '';
+    const companyName: string | undefined = body?.companyData?.companyName;
+    const link: string | undefined = body?.link || body?.pdf_url;
+    const result = body?.result as { finalValuation?: number; valuationRange?: { min: number; max: number }; multiples?: { ebitdaMultipleUsed?: number } } | undefined;
+
+    if (!email) {
+      return new Response(JSON.stringify({ error: 'Missing recipient email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const subject = companyName ? `Valoración inicial — ${companyName}` : `Valoración inicial (Light)`;
+
+    const formatCurrency = (n?: number) => {
+      try { return typeof n === 'number' ? new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n) : undefined; } catch { return n?.toString(); }
+    };
+
+    const rangeStr = result?.valuationRange ? `Rango: ${formatCurrency(result.valuationRange.min)} – ${formatCurrency(result.valuationRange.max)}` : '';
+    const multipleStr = result?.multiples?.ebitdaMultipleUsed ? `Múltiplo EBITDA usado: ${result.multiples.ebitdaMultipleUsed}x` : '';
+
+    const valuationBlock = result ? `
+      <div style="margin-top:12px;padding:12px;border:1px solid #eee;border-radius:8px">
+        <p style="margin:0 0 6px 0"><strong>Resultado:</strong> ${formatCurrency(result.finalValuation) || '—'}</p>
+        ${rangeStr ? `<p style="margin:0">${rangeStr}</p>` : ''}
+        ${multipleStr ? `<p style="margin:6px 0 0 0">${multipleStr}</p>` : ''}
+      </div>
+    ` : '';
+
+    const linkBlock = link ? `<p><a href="${link}" target="_blank">Descargar valoración (PDF)</a></p>` : '';
+
     const html = `
       <div style="font-family:Inter,system-ui,sans-serif;padding:12px">
         <h2>Valoración inicial</h2>
-        <p>Hola ${name || ''},</p>
-        <p>Adjuntamos el enlace a tu valoración inicial (Light):</p>
-        <p><a href="${link}" target="_blank">Descargar valoración (PDF)</a></p>
+        <p>Hola ${name},</p>
+        ${companyName ? `<p>Empresa: <strong>${companyName}</strong></p>` : ''}
+        ${valuationBlock}
+        ${linkBlock}
         <p style="color:#666;font-size:12px;margin-top:16px">Documento orientativo y no vinculante.</p>
       </div>
     `;
