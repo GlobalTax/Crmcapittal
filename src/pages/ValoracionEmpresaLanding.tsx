@@ -77,7 +77,7 @@ export async function onCalculationComplete(companyData: CompanyData, result: Va
 
 export default function ValoracionEmpresaLanding() {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   useEffect(() => { setSeo(); }, []);
 
@@ -106,6 +106,32 @@ export default function ValoracionEmpresaLanding() {
       console.error('Error enviando valoración', e);
       toast.error('No se pudo enviar. Intenta más tarde.');
     }
+  };
+
+  const handleSendReport = async () => {
+    const full_name = watch('full_name');
+    const company = watch('company');
+    const email = watch('email');
+    const phone = watch('phone');
+    const sector = watch('sector');
+
+    if (!full_name || !company || !email) {
+      toast.error('Completa nombre, empresa y email para enviar el informe');
+      return;
+    }
+
+    const companyData: CompanyData = {
+      contactName: full_name,
+      companyName: company,
+      email,
+      phone,
+      industry: sector,
+    };
+
+    // Resultado mínimo; sustituir por el cálculo real si está disponible
+    const result: ValuationResult = { finalValuation: 0 };
+
+    await onCalculationComplete(companyData, result);
   };
 
   return (
@@ -173,9 +199,14 @@ export default function ValoracionEmpresaLanding() {
 
           <div className="flex items-center justify-between pt-2">
             <p className="text-xs opacity-70">Transmisión segura • Cumplimiento RGPD • Acceso restringido</p>
-            <button type="submit" disabled={isSubmitting} className="rounded-md px-4 py-2 border bg-primary text-primary-foreground disabled:opacity-60">
-              {isSubmitting ? 'Enviando…' : 'Siguiente'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={handleSendReport} disabled={isSubmitting} className="rounded-md px-4 py-2 border hover:bg-accent disabled:opacity-60">
+                Enviar informe
+              </button>
+              <button type="submit" disabled={isSubmitting} className="rounded-md px-4 py-2 border bg-primary text-primary-foreground disabled:opacity-60">
+                {isSubmitting ? 'Enviando…' : 'Siguiente'}
+              </button>
+            </div>
           </div>
         </form>
 
