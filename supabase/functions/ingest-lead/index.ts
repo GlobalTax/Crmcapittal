@@ -103,8 +103,14 @@ serve(async (req: Request) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+  const email = (body?.contact?.email || "").toLowerCase();
+  const companyNameRaw = body?.contact?.company || body?.company?.name || null;
+  const visitorId = body?.visitor_id || "";
+  const dedupeKey = [email, (companyNameRaw || "").toLowerCase(), visitorId].filter(Boolean).join("|") || crypto.randomUUID();
+  const defaultOwnerId = Deno.env.get("DEFAULT_LEAD_OWNER_ID") || null;
 
   // Map fields
   const insertObj = {
@@ -126,32 +132,161 @@ serve(async (req: Request) => {
     ebitda_multiple_used: body?.calc_summary?.ebitda_multiple_used ?? null,
     utm: body?.utm ?? null,
     visitor_id: body?.visitor_id ?? null,
-    source: body?.source ?? null,
+    source: body?.source ?? "capittal",
     payload: body,
-    // submitted_at is not stored as a column in the spec; we keep it in payload
+    dedupe_key: dedupeKey,
+    processing_status: defaultOwnerId ? "processing" : "queued_missing_owner",
   } as Record<string, unknown>;
 
   try {
-    const { data, error } = await supabase
+    const { data: inbound, error: insertError } = await supabase
       .from("crm_inbound_leads")
       .insert(insertObj)
       .select("id")
       .single();
 
-    if (error) {
-      console.error("Insert error", error);
+    if (insertError) {
+      console.error("Insert error", insertError);
       return new Response(JSON.stringify({ error: "insert_failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ ok: true, id: data?.id }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    let companyId: string | null = null;
+    let contactId: string | null = null;
+    let leadId: string | null = null;
+
+    if (defaultOwnerId) {
+      // Upsert company
+      if (companyNameRaw) {
+        // by NIF first if provided
+        if (body?.contact?.cif) {
+          const { data: byNif } = await supabase
+            .from("companies")
+            .select("id")
+            .eq("nif", body.contact.cif)
+            .maybeSingle();
+          if (byNif?.id) companyId = byNif.id;
+        }
+        if (!companyId) {
+          const { data: byName } = await supabase
+            .from("companies")
+            .select("id")
+            .ilike("name", companyNameRaw)
+            .maybeSingle();
+          if (byName?.id) companyId = byName.id;
+        }
+        if (!companyId) {
+          const { data: newCo, error: coErr } = await supabase
+            .from("companies")
+            .insert({
+              name: companyNameRaw,
+              website: body?.company?.website ?? null,
+              industry: body?.company?.industry ?? null,
+              address: body?.company?.location ?? null,
+              created_by: defaultOwnerId,
+              source_table: "crm_inbound_leads",
+              external_id: inbound.id,
+            })
+            .select("id")
+            .single();
+          if (coErr) throw coErr;
+          companyId = newCo.id;
+        }
+      }
+
+      // Upsert contact
+      if (email) {
+        const { data: existingContact } = await supabase
+          .from("contacts")
+          .select("id")
+          .eq("email", email)
+          .maybeSingle();
+        if (existingContact?.id) {
+          contactId = existingContact.id;
+        } else {
+          const { data: newCt, error: ctErr } = await supabase
+            .from("contacts")
+            .insert({
+              name: body?.contact?.name || companyNameRaw || email,
+              email,
+              phone: body?.contact?.phone ?? null,
+              company_id: companyId,
+              contact_type: "other",
+              contact_status: "active",
+              created_by: defaultOwnerId,
+              source_table: "crm_inbound_leads",
+              external_id: inbound.id,
+            })
+            .select("id")
+            .single();
+          if (ctErr) throw ctErr;
+          contactId = newCt.id;
+        }
+      }
+
+      // Create lead (requires assigned_to_id and created_by)
+      if (email && defaultOwnerId) {
+        const { data: newLead, error: leadErr } = await supabase
+          .from("leads")
+          .insert({
+            name: body?.contact?.name || companyNameRaw || email,
+            email,
+            source: body?.source || "capittal",
+            lead_origin: "webform",
+            assigned_to_id: defaultOwnerId,
+            created_by: defaultOwnerId,
+            company_id: companyId,
+            contact_id: contactId,
+          })
+          .select("id")
+          .single();
+        if (leadErr) throw leadErr;
+        leadId = newLead.id;
+      }
+
+      // Update inbound with results
+      await supabase
+        .from("crm_inbound_leads")
+        .update({
+          processing_status: "processed",
+          processed_at: new Date().toISOString(),
+          company_id: companyId,
+          contact_id: contactId,
+          lead_id: leadId,
+        })
+        .eq("id", inbound.id);
+    }
+
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        id: inbound.id,
+        created: Boolean(leadId),
+        message: defaultOwnerId
+          ? "Lead procesado"
+          : "Registrado, pendiente de DEFAULT_LEAD_OWNER_ID",
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   } catch (e) {
     console.error("Unexpected error", e);
+    // best-effort log to inbound row if we had one
+    try {
+      // dedupe_key exists; update last inserted by dedupe_key
+      await supabase
+        .from("crm_inbound_leads")
+        .update({
+          processing_status: "error",
+          processing_error: (e as any)?.message || String(e),
+          processed_at: new Date().toISOString(),
+        })
+        .eq("dedupe_key", dedupeKey);
+    } catch (_e) {}
     return new Response(JSON.stringify({ error: "internal_error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

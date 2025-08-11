@@ -3163,9 +3163,12 @@ export type Database = {
       crm_inbound_leads: {
         Row: {
           cif: string | null
+          company_id: string | null
           company_name: string | null
+          contact_id: string | null
           contact_name: string | null
           created_at: string
+          dedupe_key: string | null
           ebitda: number | null
           ebitda_multiple_used: number | null
           email: string | null
@@ -3174,9 +3177,13 @@ export type Database = {
           id: string
           industry: string | null
           intent: string
+          lead_id: string | null
           location: string | null
           payload: Json | null
           phone: string | null
+          processed_at: string | null
+          processing_error: string | null
+          processing_status: string
           revenue: number | null
           source: string | null
           status: string | null
@@ -3188,9 +3195,12 @@ export type Database = {
         }
         Insert: {
           cif?: string | null
+          company_id?: string | null
           company_name?: string | null
+          contact_id?: string | null
           contact_name?: string | null
           created_at?: string
+          dedupe_key?: string | null
           ebitda?: number | null
           ebitda_multiple_used?: number | null
           email?: string | null
@@ -3199,9 +3209,13 @@ export type Database = {
           id?: string
           industry?: string | null
           intent: string
+          lead_id?: string | null
           location?: string | null
           payload?: Json | null
           phone?: string | null
+          processed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
           revenue?: number | null
           source?: string | null
           status?: string | null
@@ -3213,9 +3227,12 @@ export type Database = {
         }
         Update: {
           cif?: string | null
+          company_id?: string | null
           company_name?: string | null
+          contact_id?: string | null
           contact_name?: string | null
           created_at?: string
+          dedupe_key?: string | null
           ebitda?: number | null
           ebitda_multiple_used?: number | null
           email?: string | null
@@ -3224,9 +3241,13 @@ export type Database = {
           id?: string
           industry?: string | null
           intent?: string
+          lead_id?: string | null
           location?: string | null
           payload?: Json | null
           phone?: string | null
+          processed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
           revenue?: number | null
           source?: string | null
           status?: string | null
