@@ -4,9 +4,10 @@ import { add } from 'date-fns';
 import { Lead } from '@/types/Lead';
 import { INTEGRATIONS_CONFIG } from '@/config/integrations';
 import { LeadStage, normalizeStage } from '@/features/pipeline/stages';
-
+import { useToast } from '@/hooks/use-toast';
 
 export const useLeadStageAutomations = () => {
+  const { toast } = useToast();
   const createEvent = useCallback(async (
     leadId: string,
     title: string,
@@ -73,7 +74,14 @@ export const useLeadStageAutomations = () => {
     if (s === LeadStage.Negotiation) {
       await createEvent(lead.id, 'Seguimiento negociación', { days: 5 }, { description: 'Recordatorio cada 5 días sin feedback', is_recurring: true, recurrence_rule: 'FREQ=DAILY;INTERVAL=5' });
     }
-  }, [createEvent, notifySlackAssign]);
+
+    if (s === LeadStage.Qualified || s === LeadStage.NdaSent || s === LeadStage.InfoShared || s === LeadStage.Negotiation) {
+      toast({
+        title: 'Automatización de tareas',
+        description: 'Se han programado tareas automáticamente para esta etapa.',
+      });
+    }
+  }, [createEvent, notifySlackAssign, toast]);
 
   const runForWin = useCallback(async (lead: Lead) => {
     if (!INTEGRATIONS_CONFIG.automations.enabled) return;
