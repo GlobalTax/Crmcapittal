@@ -40,12 +40,11 @@ import { CreateMandateDialog } from '@/components/mandates/CreateMandateDialog';
 import { EditableDealValue } from './EditableDealValue';
 import { HistorySection } from './HistorySection';
 import { ScheduleMeetingDialog } from './ScheduleMeetingDialog';
-import { LeadTaskEngineList } from '@/components/leads/LeadTaskEngineList';
 import { useFollowLead } from '@/hooks/leads/useFollowLead';
 import { useLeadEngineAutomations } from '@/hooks/leads/useLeadEngineAutomations';
-import { LeadTaskEnginePanel } from '@/components/leads/engine/LeadTaskEnginePanel';
-import { LeadTasksTab as LeadTasksTabPanel } from '@/components/leads/tabs/LeadTasksTab';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { useLeadUnifiedTasks } from '@/hooks/leads/useLeadUnifiedTasks';
+import { LeadUnifiedTasksTab } from '@/components/leads/tabs/LeadUnifiedTasksTab';
+import { LeadActionCenter } from '@/components/leads/LeadActionCenter';
 interface PipedriveMainContentProps {
   lead: Lead;
 }
@@ -59,7 +58,7 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
 const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
 const [isMandateDialogOpen, setIsMandateDialogOpen] = useState(false);
 const [isMeetingDialogOpen, setIsMeetingDialogOpen] = useState(false);
-const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
+
   
 const { activities, createActivity, isCreating: isCreatingActivity } = useLeadActivities(lead.id);
 const { notes, createNote, isCreating: isCreatingNote } = useLeadNotes(lead.id);
@@ -70,22 +69,7 @@ const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
   // Engine automations (creación, QUALIFIED, encadenadas, re-enganche)
   useLeadEngineAutomations(lead);
 
-
-  useEffect(() => {
-    console.info('[LeadTasks][debug]', { leadId: lead.id, tasksCount: tasks?.length });
-  }, [lead.id, tasks]);
-
-  useEffect(() => {
-    console.info('[LeadTabs][debug] activeTab', activeTab);
-    if (activeTab === 'tasks') {
-      refetchTasks();
-    }
-  }, [activeTab, refetchTasks]);
-
-  useEffect(() => {
-    // Forzar refetch al cambiar de lead
-    refetchTasks();
-  }, [lead.id, refetchTasks]);
+  const { counts: unifiedCounts, actions: unifiedActions } = useLeadUnifiedTasks(lead.id);
 
   const handleGenerateProposal = () => {
     setIsProposalDialogOpen(true);
@@ -295,9 +279,9 @@ const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
           </Button>
           <Button
             onClick={() => {
-              setIsTasksDrawerOpen(true);
+              setActiveTab('tasks');
               window.dispatchEvent(new CustomEvent('lead_tasks_opened', { detail: { leadId: lead.id } }));
-              refetchTasks();
+              unifiedActions.refetch();
             }}
             variant="outline"
             size="sm"
@@ -377,6 +361,9 @@ const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
             <TabsTrigger value="history" className="transition-all duration-200">
               Historia
             </TabsTrigger>
+            <TabsTrigger value="tasks" className="transition-all duration-200">
+              Tareas ({unifiedCounts.pending})
+            </TabsTrigger>
           </TabsList>
 
           <div className="flex-1 min-h-0 p-6 flex flex-col">
@@ -415,6 +402,9 @@ const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Action Center */}
+                <LeadActionCenter leadId={lead.id} onOpenAll={() => setActiveTab('tasks')} />
 
                 {/* Recent Activity Summary */}
                 <Card className="lg:col-span-2 hover-lift transition-all duration-300">
@@ -590,26 +580,13 @@ const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
               <HistorySection lead={lead} />
             </TabsContent>
 
+            <TabsContent value="tasks" className="h-full overflow-y-auto animate-fade-in">
+              <LeadUnifiedTasksTab leadId={lead.id} />
+            </TabsContent>
           </div>
         </Tabs>
       </div>
 
-      <Sheet open={isTasksDrawerOpen} onOpenChange={(o) => {
-        setIsTasksDrawerOpen(o);
-        if (o) {
-          window.dispatchEvent(new CustomEvent('lead_tasks_opened', { detail: { leadId: lead.id } }));
-          refetchTasks();
-        }
-      }}>
-        <SheetContent side="right" className="sm:max-w-[420px] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Tareas del Lead</SheetTitle>
-          </SheetHeader>
-          <div className="p-2">
-            <LeadTasksTabPanel lead={lead} />
-          </div>
-        </SheetContent>
-      </Sheet>
 
       {/* Modales */}
       <CreateProposalDialog 
