@@ -101,7 +101,7 @@ export const AppRoutes = () => {
         
         {/* Public valuation landing */}
         <Route 
-          path="/valoracion-empresa" 
+          path="/lp/valoraciones" 
           element={
             <Suspense fallback={<LoadingSkeleton />}>
               <ValoracionEmpresaLanding />
@@ -109,13 +109,17 @@ export const AppRoutes = () => {
           } 
         />
         <Route 
-          path="/valoracion-gracias" 
+          path="/lp/valoraciones/gracias" 
           element={
             <Suspense fallback={<LoadingSkeleton />}>
               <ValoracionGracias />
             </Suspense>
           } 
         />
+        {/* Legacy redirects */}
+        <Route path="/valoracion-empresa" element={<Navigate to="/lp/valoraciones" replace />} />
+        <Route path="/valoracion-gracias" element={<Navigate to="/lp/valoraciones/gracias" replace />} />
+        
         
         {/* Protected routes */}
         <Route element={<ProtectedRoute><AttioLayout /></ProtectedRoute>}>

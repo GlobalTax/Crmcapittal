@@ -6,7 +6,7 @@ const setSeo = () => {
   const md = document.querySelector('meta[name="description"]');
   if (md) md.setAttribute('content', desc); else { const m = document.createElement('meta'); m.name = 'description'; m.content = desc; document.head.appendChild(m); }
   const canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  const href = window.location.origin + '/valoracion-gracias';
+  const href = window.location.origin + '/lp/valoraciones/gracias';
   if (canonical) canonical.href = href; else { const l = document.createElement('link'); l.rel = 'canonical'; l.href = href; document.head.appendChild(l); }
 };
 
