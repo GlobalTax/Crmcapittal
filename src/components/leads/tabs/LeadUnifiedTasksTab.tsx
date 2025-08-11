@@ -54,7 +54,7 @@ export const LeadUnifiedTasksTab: React.FC<Props> = ({ leadId }) => {
         </div>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full flex-1 min-h-0 max-h-[65vh]">
+        <ScrollArea className="h-[60vh] pr-2">
           {isLoading ? (
             <div className="text-muted-foreground">Cargando…</div>
           ) : list.length === 0 ? (
