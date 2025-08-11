@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { CheckCircle2, AlarmClock, ListTodo } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -52,38 +53,40 @@ export const LeadUnifiedTasksTab: React.FC<Props> = ({ leadId }) => {
           <Input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar…" className="max-w-[240px]" />
         </div>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="text-muted-foreground">Cargando…</div>
-        ) : list.length === 0 ? (
-          <div className="text-muted-foreground">No hay tareas</div>
-        ) : (
-          <ul className="space-y-3">
-            {list.map(t => (
-              <li key={`${t.source}-${t.id}`} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
-                <div className="flex-1 min-w-0">
+      <CardContent className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full flex-1 min-h-0">
+          {isLoading ? (
+            <div className="text-muted-foreground">Cargando…</div>
+          ) : list.length === 0 ? (
+            <div className="text-muted-foreground">No hay tareas</div>
+          ) : (
+            <ul className="space-y-3">
+              {list.map(t => (
+                <li key={`${t.source}-${t.id}`} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium truncate">{t.title}</span>
+                      <Badge variant={t.source==='engine'?'secondary':'outline'}>
+                        {t.source==='engine'?'Automática':'Manual'}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {t.due_date ? `Vence: ${format(new Date(t.due_date), 'dd MMM yy, HH:mm', { locale: es })}` : 'Sin fecha'}
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium truncate">{t.title}</span>
-                    <Badge variant={t.source==='engine'?'secondary':'outline'}>
-                      {t.source==='engine'?'Automática':'Manual'}
-                    </Badge>
+                    <Button size="sm" variant="ghost" onClick={() => actions.snoozeUnifiedTask(t, 1)} title="Posponer 1 día">
+                      <AlarmClock className="h-4 w-4 mr-2" /> Posponer
+                    </Button>
+                    <Button size="sm" variant="default" onClick={() => actions.completeUnifiedTask(t)} title="Completar">
+                      <CheckCircle2 className="h-4 w-4 mr-2" /> Completar
+                    </Button>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {t.due_date ? `Vence: ${format(new Date(t.due_date), 'dd MMM yy, HH:mm', { locale: es })}` : 'Sin fecha'}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => actions.snoozeUnifiedTask(t, 1)} title="Posponer 1 día">
-                    <AlarmClock className="h-4 w-4 mr-2" /> Posponer
-                  </Button>
-                  <Button size="sm" variant="default" onClick={() => actions.completeUnifiedTask(t)} title="Completar">
-                    <CheckCircle2 className="h-4 w-4 mr-2" /> Completar
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );
