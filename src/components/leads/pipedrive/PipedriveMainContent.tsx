@@ -601,7 +601,7 @@ const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
           refetchTasks();
         }
       }}>
-        <SheetContent side="right" className="sm:max-w-[420px]">
+        <SheetContent side="right" className="sm:max-w-[420px] overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Tareas del Lead</SheetTitle>
           </SheetHeader>
