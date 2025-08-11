@@ -19,6 +19,7 @@ import {
   Building2,
   Euro,
   CheckCircle2,
+  CheckSquare,
   Circle,
   AlertCircle,
   Star,
@@ -43,7 +44,8 @@ import { LeadTaskEngineList } from '@/components/leads/LeadTaskEngineList';
 import { useFollowLead } from '@/hooks/leads/useFollowLead';
 import { useLeadEngineAutomations } from '@/hooks/leads/useLeadEngineAutomations';
 import { LeadTaskEnginePanel } from '@/components/leads/engine/LeadTaskEnginePanel';
-
+import { LeadTasksTab as LeadTasksTabPanel } from '@/components/leads/tabs/LeadTasksTab';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 interface PipedriveMainContentProps {
   lead: Lead;
 }
@@ -54,15 +56,16 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
   const [newTask, setNewTask] = useState('');
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [isAddingTask, setIsAddingTask] = useState(false);
-  const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
-  const [isMandateDialogOpen, setIsMandateDialogOpen] = useState(false);
-  const [isMeetingDialogOpen, setIsMeetingDialogOpen] = useState(false);
+const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
+const [isMandateDialogOpen, setIsMandateDialogOpen] = useState(false);
+const [isMeetingDialogOpen, setIsMeetingDialogOpen] = useState(false);
+const [isTasksDrawerOpen, setIsTasksDrawerOpen] = useState(false);
   
-  const { activities, createActivity, isCreating: isCreatingActivity } = useLeadActivities(lead.id);
-  const { notes, createNote, isCreating: isCreatingNote } = useLeadNotes(lead.id);
-  const { tasks, createTask, updateTask, isCreating: isCreatingTask, refetch: refetchTasks } = useLeadTasks(lead.id);
-  const { updateLead } = useLeads();
-  const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
+const { activities, createActivity, isCreating: isCreatingActivity } = useLeadActivities(lead.id);
+const { notes, createNote, isCreating: isCreatingNote } = useLeadNotes(lead.id);
+const { tasks, createTask, updateTask, isCreating: isCreatingTask, refetch: refetchTasks } = useLeadTasks(lead.id);
+const { updateLead } = useLeads();
+const { toggleFollow, isUpdating: isUpdatingFollow } = useFollowLead();
   
   // Engine automations (creación, QUALIFIED, encadenadas, re-enganche)
   useLeadEngineAutomations(lead);
@@ -291,6 +294,19 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             Reunión
           </Button>
           <Button
+            onClick={() => {
+              setIsTasksDrawerOpen(true);
+              window.dispatchEvent(new CustomEvent('lead_tasks_opened', { detail: { leadId: lead.id } }));
+              refetchTasks();
+            }}
+            variant="outline"
+            size="sm"
+            className="hover-lift transition-all duration-200"
+          >
+            <CheckSquare className="h-4 w-4 mr-2" />
+            Tareas
+          </Button>
+          <Button
             onClick={() => toggleFollow({ 
               leadId: lead.id, 
               isFollowed: !lead.is_followed 
@@ -357,9 +373,6 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
             </TabsTrigger>
             <TabsTrigger value="notes" className="transition-all duration-200">
               Notas ({notes.length})
-            </TabsTrigger>
-            <TabsTrigger value="tasks" className="transition-all duration-200">
-              Tareas ({tasks.filter(t => t.status !== 'completed').length})
             </TabsTrigger>
             <TabsTrigger value="history" className="transition-all duration-200">
               Historia
@@ -572,120 +585,6 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="tasks" className="h-full min-h-0 animate-fade-in">
-              <Card className="h-full min-h-0 flex flex-col">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Tareas</CardTitle>
-                    <Button 
-                      size="sm" 
-                      onClick={() => setIsAddingTask(true)}
-                      className="hover-lift transition-all duration-200"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Nueva Tarea
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 min-h-0 space-y-4">
-                  {/* Add Task Form */}
-                  {isAddingTask && (
-                    <div className="p-4 border rounded-lg bg-muted/50 animate-scale-in">
-                      <Input
-                        placeholder="Título de la tarea..."
-                        value={newTask}
-                        onChange={(e) => setNewTask(e.target.value)}
-                        className="mb-3"
-                        autoFocus
-                      />
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          size="sm" 
-                          onClick={handleAddTask}
-                          disabled={isCreatingTask || !newTask.trim()}
-                          className="hover-lift transition-all duration-200"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          {isCreatingTask ? 'Creando...' : 'Crear'}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => {
-                            setIsAddingTask(false);
-                            setNewTask('');
-                          }}
-                        >
-                          Cancelar
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="h-full flex-1 min-h-0 overflow-y-auto pr-1">
-                    {tasks.length > 0 ? (
-                      <div className="space-y-3">
-                        {tasks.map((task) => (
-                          <div 
-                            key={task.id} 
-                            className="flex items-start gap-3 p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors duration-200"
-                          >
-                            <button
-                              onClick={() => handleTaskComplete(task.id, task.status !== 'completed')}
-                              className="mt-1 hover:scale-110 transition-transform duration-200"
-                            >
-                              {task.status === 'completed' ? (
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                              ) : (
-                                <Circle className="h-5 w-5 text-gray-400 hover:text-primary" />
-                              )}
-                            </button>
-                            <div className="flex-1">
-                              <div className={`font-medium ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
-                                {task.title}
-                              </div>
-                              {task.description && (
-                                <div className="text-sm text-muted-foreground mt-1">
-                                  {task.description}
-                                </div>
-                              )}
-                              <div className="flex items-center gap-3 mt-2">
-                                {getPriorityIcon(task.priority)}
-                                {task.due_date && (
-                                  <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <Calendar className="h-3 w-3" />
-                                    {format(new Date(task.due_date), 'dd MMM', { locale: es })}
-                                  </div>
-                                )}
-                                <div className="text-xs text-muted-foreground">
-                                  {format(new Date(task.created_at), 'dd MMM yyyy', { locale: es })}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-12 text-muted-foreground">
-                        <CheckCircle2 className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg mb-2">No hay tareas</p>
-                        <p className="text-sm">Crea tareas para organizar tu trabajo con este lead</p>
-                      </div>
-                    )}
-
-                    {/* Engine suggested tasks */}
-                    <div className="mt-6">
-                      <Separator className="my-4" />
-                      <h4 className="text-sm font-semibold mb-2">Tareas del motor</h4>
-                      {/* UI minimalista del motor: acciones rápidas + checklist + SLA + batch */}
-                      <div className="flex flex-col h-full min-h-0">
-                        <LeadTaskEnginePanel leadId={lead.id} />
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             <TabsContent value="history" className="h-full overflow-y-auto animate-fade-in">
               <HistorySection lead={lead} />
@@ -694,6 +593,23 @@ export const PipedriveMainContent = ({ lead }: PipedriveMainContentProps) => {
           </div>
         </Tabs>
       </div>
+
+      <Sheet open={isTasksDrawerOpen} onOpenChange={(o) => {
+        setIsTasksDrawerOpen(o);
+        if (o) {
+          window.dispatchEvent(new CustomEvent('lead_tasks_opened', { detail: { leadId: lead.id } }));
+          refetchTasks();
+        }
+      }}>
+        <SheetContent side="right" className="sm:max-w-[420px]">
+          <SheetHeader>
+            <SheetTitle>Tareas del Lead</SheetTitle>
+          </SheetHeader>
+          <div className="p-2">
+            <LeadTasksTabPanel lead={lead} />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Modales */}
       <CreateProposalDialog 
