@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CheckCircle2, Snooze, ListTodo } from 'lucide-react';
+import { CheckCircle2, AlarmClock, ListTodo } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -74,7 +74,7 @@ export const LeadUnifiedTasksTab: React.FC<Props> = ({ leadId }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="ghost" onClick={() => actions.snoozeUnifiedTask(t, 1)} title="Posponer 1 día">
-                    <Snooze className="h-4 w-4 mr-2" /> Posponer
+                    <AlarmClock className="h-4 w-4 mr-2" /> Posponer
                   </Button>
                   <Button size="sm" variant="default" onClick={() => actions.completeUnifiedTask(t)} title="Completar">
                     <CheckCircle2 className="h-4 w-4 mr-2" /> Completar

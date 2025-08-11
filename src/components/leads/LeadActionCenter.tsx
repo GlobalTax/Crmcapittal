@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, CheckCircle2, Snooze } from 'lucide-react';
+import { Clock, CheckCircle2, AlarmClock } from 'lucide-react';
 import { useLeadUnifiedTasks } from '@/hooks/leads/useLeadUnifiedTasks';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -45,7 +45,7 @@ export const LeadActionCenter: React.FC<Props> = ({ leadId, onOpenAll }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button size="icon" variant="ghost" onClick={() => actions.snoozeUnifiedTask(t, 1)} title="Posponer 1 día">
-                    <Snooze className="h-4 w-4" />
+                    <AlarmClock className="h-4 w-4" />
                   </Button>
                   <Button size="icon" variant="default" onClick={() => actions.completeUnifiedTask(t)} title="Completar">
                     <CheckCircle2 className="h-4 w-4" />
