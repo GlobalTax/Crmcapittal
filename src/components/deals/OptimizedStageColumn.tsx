@@ -72,7 +72,7 @@ export const OptimizedStageColumn = ({
             variant="ghost"
             size="sm"
             onClick={() => onNewDeal(stage.name)}
-            className="h-7 px-2 text-xs hover:bg-[#ff7a59] hover:text-white transition-colors"
+            className="h-7 px-2 text-xs hover:bg-primary hover:text-primary-foreground transition-colors"
           >
             <Plus className="h-3 w-3 mr-1" />
             Nuevo
