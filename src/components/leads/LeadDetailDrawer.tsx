@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Lead } from '@/types/Lead';
 import { useLeadActions } from '@/hooks/leads/useLeadActions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,6 +33,7 @@ interface LeadDetailDrawerProps {
 
 export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: LeadDetailDrawerProps) => {
   const [activeTab, setActiveTab] = useState('resumen');
+  const [tasksOpen, setTasksOpen] = useState(false);
   const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
 
   // CONFIRMACIÓN: Solo existen 4 pestañas - Propuesta eliminada definitivamente
@@ -150,6 +152,15 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
               Llamar
             </Button>
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTasksOpen(true)}
+              className="gap-2"
+            >
+              <CheckSquare className="h-4 w-4" />
+              Tareas
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               onClick={() => handleActionClick('convert')}
@@ -217,13 +228,6 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                     <StickyNote className="h-4 w-4 mr-2" />
                     Notas
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="tareas"
-                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-0 pb-3 font-semibold text-sm"
-                  >
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    Tareas
-                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -251,9 +255,6 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
                   <LeadNotesTab lead={lead} />
                 </TabsContent>
                 
-                <TabsContent value="tareas" className="mt-0">
-                  <LeadTasksTab lead={lead} />
-                </TabsContent>
               </div>
             </Tabs>
           </div>
@@ -263,6 +264,21 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
             <LeadSidebarWidgets lead={lead} />
           </div>
         </div>
+        <Drawer open={tasksOpen} onOpenChange={(o) => {
+          setTasksOpen(o);
+          if (o) {
+            window.dispatchEvent(new CustomEvent('lead_tasks_opened', { detail: { leadId: lead.id } }));
+          }
+        }}>
+          <DrawerContent className="right-0 left-auto top-0 bottom-0 mt-0 h-full w-full sm:max-w-[420px] rounded-l-[10px] rounded-t-none">
+            <DrawerHeader className="px-4 py-3 border-b border-border">
+              <DrawerTitle>Tareas del Lead</DrawerTitle>
+            </DrawerHeader>
+            <div className="p-4">
+              <LeadTasksTab lead={lead} />
+            </div>
+          </DrawerContent>
+        </Drawer>
       </SheetContent>
     </Sheet>
   );
