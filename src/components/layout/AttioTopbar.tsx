@@ -30,7 +30,7 @@ const routeTitles: Record<string, string> = {
   
   // Ventas & Transacciones
   '/transacciones': 'Mandatos de Venta',
-  '/mandatos': 'Mandatos de Venta',
+  '/mandatos': 'Mandatos de Compra',
   '/buying-mandates': 'Mandatos de Compra',
   '/valoraciones': 'Valoraciones',
   '/reconversiones': 'Reconversiones',
