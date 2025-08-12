@@ -6,6 +6,7 @@ import { ReconversionDetail } from '@/components/reconversiones/ReconversionDeta
 import { useReconversiones } from '@/hooks/useReconversiones';
 import type { ReconversionFilters, Reconversion } from '@/types/Reconversion';
 import type { Database } from '@/integrations/supabase/types';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 type DatabaseReconversion = Database['public']['Tables']['reconversiones']['Row'];
 
@@ -92,22 +93,24 @@ export default function ReconversionesView() {
     <ErrorBoundary>
       <div className="space-y-6">
         {!id ? (
-          <ReconversionsList
-            reconversiones={filteredReconversiones as any}
-            loading={loading}
-            error={null}
-            viewMode={viewMode}
-            filters={filters}
-            filteredReconversiones={filteredReconversiones as any}
-            hasActiveFilters={filters.search !== '' || filters.status !== 'all' || filters.assignedTo !== 'all'}
-            onViewModeChange={setViewMode}
-            onFiltersChange={handleFiltersChange}
-            onClearFilters={handleClearFilters}
-            onView={handleReconversionSelect}
-            onCreateNew={() => {}}
-            onRefresh={refetch}
-            onUpdateStatus={(id, status) => updateReconversion(id, { status })}
-          />
+          <RevealSection storageKey="reconversiones/view-list" defaultCollapsed={true} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={filteredReconversiones.length}>
+            <ReconversionsList
+              reconversiones={filteredReconversiones as any}
+              loading={loading}
+              error={null}
+              viewMode={viewMode}
+              filters={filters}
+              filteredReconversiones={filteredReconversiones as any}
+              hasActiveFilters={filters.search !== '' || filters.status !== 'all' || filters.assignedTo !== 'all'}
+              onViewModeChange={setViewMode}
+              onFiltersChange={handleFiltersChange}
+              onClearFilters={handleClearFilters}
+              onView={handleReconversionSelect}
+              onCreateNew={() => {}}
+              onRefresh={refetch}
+              onUpdateStatus={(id, status) => updateReconversion(id, { status })}
+            />
+          </RevealSection>
         ) : (
           <ReconversionDetail 
             reconversionId={id}

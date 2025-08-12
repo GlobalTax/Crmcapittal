@@ -5,6 +5,7 @@ import { useReconversiones } from '@/hooks/useReconversiones';
 import { useQueryClient } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import type { Database } from '@/integrations/supabase/types';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 type Reconversion = Database['public']['Tables']['reconversiones_new']['Row'];
 
@@ -97,22 +98,24 @@ export default function Reconversiones() {
   return (
     <ErrorBoundary>
       <div className="space-y-6">
-        <ReconversionsList
-          reconversiones={reconversiones as any}
-          loading={loading}
-          error={error}
-          viewMode={viewMode}
-          filters={filters as any}
-          filteredReconversiones={filteredReconversiones as any}
-          hasActiveFilters={hasActiveFilters}
-          onViewModeChange={setViewMode}
-          onFiltersChange={handleFiltersChange}
-          onClearFilters={handleClearFilters}
-          onView={(reconversion) => handleReconversionSelect(reconversion.id)}
-          onCreateNew={handleCreateNew}
-          onRefresh={handleRefresh}
-          onUpdateStatus={handleUpdateStatus}
-        />
+        <RevealSection storageKey="reconversiones/list" defaultCollapsed={true} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={filteredReconversiones.length}>
+          <ReconversionsList
+            reconversiones={reconversiones as any}
+            loading={loading}
+            error={error}
+            viewMode={viewMode}
+            filters={filters as any}
+            filteredReconversiones={filteredReconversiones as any}
+            hasActiveFilters={hasActiveFilters}
+            onViewModeChange={setViewMode}
+            onFiltersChange={handleFiltersChange}
+            onClearFilters={handleClearFilters}
+            onView={(reconversion) => handleReconversionSelect(reconversion.id)}
+            onCreateNew={handleCreateNew}
+            onRefresh={handleRefresh}
+            onUpdateStatus={handleUpdateStatus}
+          />
+        </RevealSection>
       </div>
     </ErrorBoundary>
   );

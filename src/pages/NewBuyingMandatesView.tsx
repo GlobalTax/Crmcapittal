@@ -4,6 +4,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import MandatesList from '@/components/mandates/MandatesList';
 import { MandateDetail } from '@/components/mandates/MandateDetail';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 export default function NewBuyingMandatesView() {
   const { id } = useParams<{ id: string }>();
@@ -49,12 +50,14 @@ export default function NewBuyingMandatesView() {
     <ErrorBoundary>
       <div className="h-screen flex flex-col min-h-0 max-w-none w-full">
         {!id ? (
-          <MandatesList 
-            mandates={mandates}
-            onMandateSelect={handleMandateSelect}
-            onRefresh={() => fetchMandates()}
-            isLoading={isLoading}
-          />
+          <RevealSection storageKey="mandatos/list" defaultCollapsed={true} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={mandates.length}>
+            <MandatesList 
+              mandates={mandates}
+              onMandateSelect={handleMandateSelect}
+              onRefresh={() => fetchMandates()}
+              isLoading={isLoading}
+            />
+          </RevealSection>
         ) : (
           <MandateDetail 
             mandateId={id}
