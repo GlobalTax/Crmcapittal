@@ -1,6 +1,7 @@
 import { User, Users, TrendingUp, Calendar, Mail, Phone } from 'lucide-react';
 import { DealHighlightCard } from '@/components/deals/DealHighlightCard';
 import { Contact } from '@/types/Contact';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 interface PersonOverviewTabProps {
   contact: Contact;
@@ -42,54 +43,56 @@ export const PersonOverviewTab = ({ contact }: PersonOverviewTabProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Highlight Cards Grid 3x2 */}
-      <div className="grid grid-cols-3 gap-4">
-        <DealHighlightCard
-          title="Fuerza de conexión"
-          icon={User}
-          value={
-            <span className={connectionStrength.color}>
-              {connectionStrength.label}
-            </span>
-          }
-          subtitle="Basado en interacciones"
-        />
+      {/* Highlight Cards Grid 3x2 (toggle) */}
+      <RevealSection storageKey="contact/overview-cards" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={6}>
+        <div className="grid grid-cols-3 gap-4">
+          <DealHighlightCard
+            title="Fuerza de conexión"
+            icon={User}
+            value={
+              <span className={connectionStrength.color}>
+                {connectionStrength.label}
+              </span>
+            }
+            subtitle="Basado en interacciones"
+          />
 
-        <DealHighlightCard
-          title="Próxima interacción"
-          icon={Calendar}
-          value="No hay reuniones programadas"
-          subtitle="Programar reunión"
-        />
+          <DealHighlightCard
+            title="Próxima interacción"
+            icon={Calendar}
+            value="No hay reuniones programadas"
+            subtitle="Programar reunión"
+          />
 
-        <DealHighlightCard
-          title="Empresa"
-          icon={Users}
-          value={contact.company || 'Sin empresa'}
-          subtitle={contact.position || 'Sin cargo'}
-        />
+          <DealHighlightCard
+            title="Empresa"
+            icon={Users}
+            value={contact.company || 'Sin empresa'}
+            subtitle={contact.position || 'Sin cargo'}
+          />
 
-        <DealHighlightCard
-          title="Direcciones de email"
-          icon={Mail}
-          value={getEmailAddresses()}
-          subtitle={`${contact.email ? '1' : '0'} dirección de email`}
-        />
+          <DealHighlightCard
+            title="Direcciones de email"
+            icon={Mail}
+            value={getEmailAddresses()}
+            subtitle={`${contact.email ? '1' : '0'} dirección de email`}
+          />
 
-        <DealHighlightCard
-          title="Números de teléfono"
-          icon={Phone}
-          value={getPhoneNumbers()}
-          subtitle={`${contact.phone ? '1' : '0'} número de teléfono`}
-        />
+          <DealHighlightCard
+            title="Números de teléfono"
+            icon={Phone}
+            value={getPhoneNumbers()}
+            subtitle={`${contact.phone ? '1' : '0'} número de teléfono`}
+          />
 
-        <DealHighlightCard
-          title="Ubicación principal"
-          icon={TrendingUp}
-          value={getPrimaryLocation()}
-          subtitle="Ubicación no especificada"
-        />
-      </div>
+          <DealHighlightCard
+            title="Ubicación principal"
+            icon={TrendingUp}
+            value={getPrimaryLocation()}
+            subtitle="Ubicación no especificada"
+          />
+        </div>
+      </RevealSection>
 
       {/* Recent Activity Summary */}
       <div className="space-y-3">

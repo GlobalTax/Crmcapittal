@@ -6,6 +6,7 @@ import { useCompanyStats } from '@/hooks/useCompanyStats';
 import { useCompanyProfileScore } from '@/hooks/useCompanyProfileScore';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 interface CompanyOverviewTabProps {
   company: Company;
@@ -63,64 +64,66 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Highlight Cards Grid 3x2 */}
-      <div className="grid grid-cols-3 gap-4">
-        <DealHighlightCard
-          title="Fuerza de Conexión"
-          icon={Building2}
-          value={
-            <span className={connectionStrength.color}>
-              {connectionStrength.label}
-            </span>
-          }
-          subtitle={`${company.contacts_count || 0} contactos`}
-        />
+      {/* Highlight Cards Grid 3x2 (toggle) */}
+      <RevealSection storageKey="company/overview-cards" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={6}>
+        <div className="grid grid-cols-3 gap-4">
+          <DealHighlightCard
+            title="Fuerza de Conexión"
+            icon={Building2}
+            value={
+              <span className={connectionStrength.color}>
+                {connectionStrength.label}
+              </span>
+            }
+            subtitle={`${company.contacts_count || 0} contactos`}
+          />
 
-        <DealHighlightCard
-          title="Próxima Interacción"
-          icon={Calendar}
-          value={company.next_follow_up_date ? 
-            new Date(company.next_follow_up_date).toLocaleDateString('es-ES') : 
-            "No programada"
-          }
-          subtitle={company.next_follow_up_date ? "Próximo seguimiento" : "Programar una reunión"}
-        />
+          <DealHighlightCard
+            title="Próxima Interacción"
+            icon={Calendar}
+            value={company.next_follow_up_date ? 
+              new Date(company.next_follow_up_date).toLocaleDateString('es-ES') : 
+              "No programada"
+            }
+            subtitle={company.next_follow_up_date ? "Próximo seguimiento" : "Programar una reunión"}
+          />
 
-        <DealHighlightCard
-          title="Equipo"
-          icon={Users}
-          value={`${stats.contactsCount} personas`}
-          subtitle={stats.contactsCount > 0 ? "Ver todos los contactos" : "Añadir contactos"}
-        />
+          <DealHighlightCard
+            title="Equipo"
+            icon={Users}
+            value={`${stats.contactsCount} personas`}
+            subtitle={stats.contactsCount > 0 ? "Ver todos los contactos" : "Añadir contactos"}
+          />
 
-        <DealHighlightCard
-          title="ARR Estimado"
-          icon={TrendingUp}
-          value={
-            <span className="text-success">
-              {company.annual_revenue ? formatCurrency(company.annual_revenue) : 'No establecido'}
-            </span>
-          }
-          subtitle={company.annual_revenue ? 'Ingresos anuales recurrentes' : 'Establecer estimación ARR'}
-        />
+          <DealHighlightCard
+            title="ARR Estimado"
+            icon={TrendingUp}
+            value={
+              <span className="text-success">
+                {company.annual_revenue ? formatCurrency(company.annual_revenue) : 'No establecido'}
+              </span>
+            }
+            subtitle={company.annual_revenue ? 'Ingresos anuales recurrentes' : 'Establecer estimación ARR'}
+          />
 
-        <DealHighlightCard
-          title="Oportunidades Activas"
-          icon={Building2}
-          value={`${stats.activeDealsCount}`}
-          subtitle={`${formatCurrency(stats.totalPipelineValue)} pipeline`}
-        />
+          <DealHighlightCard
+            title="Oportunidades Activas"
+            icon={Building2}
+            value={`${stats.activeDealsCount}`}
+            subtitle={`${formatCurrency(stats.totalPipelineValue)} pipeline`}
+          />
 
-        <DealHighlightCard
-          title="Datos eInforma"
-          icon={Database}
-          value={enrichmentData ? 'Disponible' : 'No disponible'}
-          subtitle={enrichmentData ? 
-            `Enriquecido ${new Date(enrichmentData.created_at).toLocaleDateString('es-ES')}` : 
-            'Datos no enriquecidos'
-          }
-        />
-      </div>
+          <DealHighlightCard
+            title="Datos eInforma"
+            icon={Database}
+            value={enrichmentData ? 'Disponible' : 'No disponible'}
+            subtitle={enrichmentData ? 
+              `Enriquecido ${new Date(enrichmentData.created_at).toLocaleDateString('es-ES')}` : 
+              'Datos no enriquecidos'
+            }
+          />
+        </div>
+      </RevealSection>
 
       {/* Profile Score */}
       <CompanyProfileScore profileScore={profileScore} />

@@ -13,6 +13,7 @@ import { CreateContactDialog } from "./CreateContactDialog";
 import { OptimizedContactsTable } from "./OptimizedContactsTable";
 import { usePerformanceMonitor } from "@/hooks/performance/usePerformanceMonitor";
 import { toast } from "sonner";
+import { RevealSection } from '@/components/ui/RevealSection';
 
 interface ContactsTableProps {
   contacts: Contact[];
@@ -144,31 +145,33 @@ const ContactsTable = React.memo(function ContactsTable({
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Total Contactos</span>
-          <span className="text-sm font-bold mt-2">{contacts.length}</span>
+      {/* Stats (toggle) */}
+      <RevealSection storageKey="contacts/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white border border-gray-200 p-4 flex flex-col">
+            <span className="text-gray-500 text-sm">Total Contactos</span>
+            <span className="text-sm font-bold mt-2">{contacts.length}</span>
+          </div>
+          <div className="bg-white border border-gray-200 p-4 flex flex-col">
+            <span className="text-gray-500 text-sm">Clientes</span>
+            <span className="text-sm font-bold mt-2 text-red-600">
+              {contacts.filter(c => c.contact_type === 'cliente').length}
+            </span>
+          </div>
+          <div className="bg-white border border-gray-200 p-4 flex flex-col">
+            <span className="text-gray-500 text-sm">Franquicias</span>
+            <span className="text-sm font-bold mt-2 text-green-600">
+              {contacts.filter(c => c.contact_type === 'franquicia').length}
+            </span>
+          </div>
+          <div className="bg-white border border-gray-200 p-4 flex flex-col">
+            <span className="text-gray-500 text-sm">Prospects</span>
+            <span className="text-sm font-bold mt-2 text-blue-600">
+              {contacts.filter(c => c.contact_type === 'prospect').length}
+            </span>
+          </div>
         </div>
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Clientes</span>
-          <span className="text-sm font-bold mt-2 text-red-600">
-            {contacts.filter(c => c.contact_type === 'cliente').length}
-          </span>
-        </div>
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Franquicias</span>
-          <span className="text-sm font-bold mt-2 text-green-600">
-            {contacts.filter(c => c.contact_type === 'franquicia').length}
-          </span>
-        </div>
-        <div className="bg-white border border-gray-200 p-4 flex flex-col">
-          <span className="text-gray-500 text-sm">Prospects</span>
-          <span className="text-sm font-bold mt-2 text-blue-600">
-            {contacts.filter(c => c.contact_type === 'prospect').length}
-          </span>
-        </div>
-      </div>
+      </RevealSection>
 
       {/* Contacts Table - Use virtualized table for large datasets */}
       <div className="bg-white border border-gray-200">

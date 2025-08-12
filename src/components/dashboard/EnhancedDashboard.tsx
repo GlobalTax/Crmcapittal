@@ -28,6 +28,7 @@ import {
   Settings,
   BarChart3
 } from 'lucide-react';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 const EnhancedDashboard = React.memo(() => {
   const { renderCount } = usePerformanceMonitor('EnhancedDashboard');
@@ -163,7 +164,9 @@ const EnhancedDashboard = React.memo(() => {
       <div className="container mx-auto px-4 py-8 gap-8 flex flex-col">
         {/* KPI Metrics */}
         <section className="animate-fade-in">
-          <KPIMetrics metrics={dashboardData.kpiMetrics} />
+          <RevealSection storageKey="dashboard/kpis" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas">
+            <KPIMetrics metrics={dashboardData.kpiMetrics} />
+          </RevealSection>
         </section>
 
         {/* Main Content Grid */}

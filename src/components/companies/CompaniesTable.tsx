@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Company, CompanyStatus, CompanyType } from "@/types/Company";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { RevealSection } from '@/components/ui/RevealSection';
 
 interface CompaniesTableProps {
   companies: Company[];
@@ -202,29 +203,31 @@ export const CompaniesTable = ({
         </CardContent>
       </Card>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatsCard
-          title="Total Empresas"
-          value={stats?.totalCompanies || 0}
-          color="text-orange-600"
-        />
-        <StatsCard
-          title="Clientes"
-          value={stats?.clientCompanies || 0}
-          color="text-green-600"
-        />
-        <StatsCard
-          title="Target Accounts"
-          value={stats?.targetAccounts || 0}
-          color="text-purple-600"
-        />
-        <StatsCard
-          title="Valor Total Deals"
-          value={stats ? formatCurrency(stats.totalDealsValue) : "€0"}
-          color="text-orange-600"
-        />
-      </div>
+      {/* Stats Cards (toggle) */}
+      <RevealSection storageKey="companies/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StatsCard
+            title="Total Empresas"
+            value={stats?.totalCompanies || 0}
+            color="text-orange-600"
+          />
+          <StatsCard
+            title="Clientes"
+            value={stats?.clientCompanies || 0}
+            color="text-green-600"
+          />
+          <StatsCard
+            title="Target Accounts"
+            value={stats?.targetAccounts || 0}
+            color="text-purple-600"
+          />
+          <StatsCard
+            title="Valor Total Deals"
+            value={stats ? formatCurrency(stats.totalDealsValue) : "€0"}
+            color="text-orange-600"
+          />
+        </div>
+      </RevealSection>
 
       {/* Companies Table */}
       <Card>
