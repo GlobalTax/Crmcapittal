@@ -164,15 +164,7 @@ export const RODBuilder: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Generador de ROD
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Crea tu Reporte de Oportunidades de Dealflow paso a paso
-            </p>
-          </div>
+        <div className="flex justify-end items-center mb-8">
           <Button 
             variant="outline" 
             onClick={handleBackToDashboard}

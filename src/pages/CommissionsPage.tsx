@@ -41,20 +41,6 @@ export default function CommissionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Sistema de Comisiones</h1>
-            <p className="text-muted-foreground">
-              Gestión avanzada con reglas personalizadas y análisis ejecutivo
-            </p>
-          </div>
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Zap className="h-3 w-3" />
-            Sistema Avanzado
-          </Badge>
-        </div>
-      </div>
 
       <Tabs defaultValue="dashboard" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6">

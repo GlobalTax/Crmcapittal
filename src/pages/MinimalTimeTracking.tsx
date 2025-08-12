@@ -85,14 +85,7 @@ export default function MinimalTimeTracking() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Control de Tiempo</h1>
-          <p className="text-muted-foreground">
-            Gestiona y registra tu tiempo de trabajo - {format(new Date(), 'EEEE, d MMMM yyyy', { locale: es })}
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <div className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
             {todayEntries.length} entradas hoy

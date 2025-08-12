@@ -99,16 +99,7 @@ export default function RemindersConfigPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Settings className="h-6 w-6" />
-            Configuración de Recordatorios
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Gestiona los recordatorios automáticos del sistema
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <Button 
           onClick={handleSaveSettings} 
           disabled={isLoading}

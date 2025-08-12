@@ -95,9 +95,7 @@ const Companies = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-900">Empresas</h1>
+      <div className="mb-6 flex items-center justify-end">
         <div className="flex items-center gap-3">
           <Button 
             onClick={() => setIsCreateModalOpen(true)}

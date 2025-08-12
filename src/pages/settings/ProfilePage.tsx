@@ -129,12 +129,6 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Perfil</h1>
-        <p className="text-muted-foreground mt-1">
-          Gestiona tu información personal y preferencias.
-        </p>
-      </div>
 
       {/* Info Banner */}
       <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">

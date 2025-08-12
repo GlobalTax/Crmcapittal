@@ -109,19 +109,11 @@ export default function Subscribers() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Suscriptores</h1>
-            <p className="text-muted-foreground">
-              Gestiona los suscriptores de tus campañas de email
-            </p>
-          </div>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nuevo Suscriptor
-          </Button>
-        </div>
+      <div className="mb-6 flex items-center justify-end">
+        <Button onClick={() => setShowCreateDialog(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nuevo Suscriptor
+        </Button>
       </div>
 
       <Card>

@@ -103,12 +103,6 @@ const MembersTeamsPage = () => {
   return (
     <div className="container mx-auto px-6 py-8">
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Miembros y Equipos</h1>
-          <p className="text-muted-foreground">
-            Gestiona los miembros de tu equipo y organízalos en grupos de trabajo.
-          </p>
-        </div>
 
         <div className="grid gap-6">
           {/* Invite Members Section */}
@@ -223,21 +217,10 @@ const MembersTeamsPage = () => {
           {/* Teams Section */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Equipos ({teams.length})
-                  </CardTitle>
-                  <CardDescription>
-                    Gestiona los equipos y organiza a tus miembros
-                  </CardDescription>
-                </div>
                 <Button onClick={() => setCreateTeamOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Crear Equipo
                 </Button>
-              </div>
             </CardHeader>
             <CardContent>
               {teams.length === 0 ? (

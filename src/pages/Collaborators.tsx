@@ -72,13 +72,10 @@ const Collaborators = () => {
 
   return (
     <div className="space-y-6">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-900">Colaboradores</h1>
-        <div className="flex items-center gap-3">
-          <CreateCollaboratorDialog 
-            onCreateCollaborator={createCollaborator}
-          />
-        </div>
+      <div className="mb-6 flex items-center justify-end">
+        <CreateCollaboratorDialog 
+          onCreateCollaborator={createCollaborator}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

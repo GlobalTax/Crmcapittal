@@ -85,24 +85,16 @@ export default function Proposals() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-6">
-      {/* Modern Header */}
-      <div className="space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">Propuestas</h1>
-            <p className="text-muted-foreground text-lg">
-              Gestiona y crea propuestas profesionales para tus clientes
-            </p>
-          </div>
-          <Button 
-            onClick={() => setIsWizardOpen(true)}
-            size="lg"
-            className="bg-primary hover:bg-primary/90 shrink-0"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Nueva Propuesta
-          </Button>
-        </div>
+      <div className="flex justify-end items-center gap-4">
+        <Button 
+          onClick={() => setIsWizardOpen(true)}
+          size="lg"
+          className="bg-primary hover:bg-primary/90 shrink-0"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Nueva Propuesta
+        </Button>
+      </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -161,7 +153,6 @@ export default function Proposals() {
             </CardContent>
           </Card>
         </div>
-      </div>
 
       {/* Navigation Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

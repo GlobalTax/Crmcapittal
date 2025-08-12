@@ -220,11 +220,6 @@ export default function Integrations() {
   };
   return (
     <div className="space-y-8 p-8">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-900">Integraciones</h1>
-        <div className="flex items-center gap-3">
-        </div>
-      </div>
 
       {categories.map(category => (
         <div key={category} className="space-y-4">
