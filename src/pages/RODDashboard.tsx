@@ -93,26 +93,16 @@ export const RODDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">
-                Seleccionar Suscriptores
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                ROD: {getPeriodFromDeals(selectedROD.deals)} • {selectedROD.deals?.length || 0} oportunidades
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowSubscribers(false)}
-              >
-                Cancelar
-              </Button>
-              <Button onClick={handleConfirmDownload}>
-                Enviar a {selectedSubscribers.length} suscriptor(es)
-              </Button>
-            </div>
+          <div className="flex items-center justify-end mb-6 gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowSubscribers(false)}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmDownload}>
+              Enviar a {selectedSubscribers.length} suscriptor(es)
+            </Button>
           </div>
 
           <div className="grid gap-4">
@@ -162,16 +152,7 @@ export const RODDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-semibold text-foreground">
-              Reportes de Oportunidades
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Gestiona y crea reportes de dealflow
-            </p>
-          </div>
+        <div className="flex items-center justify-end mb-8">
           <Button onClick={handleCreateNew} size="lg" className="gap-2">
             <Plus className="h-4 w-4" />
             Crear Nueva ROD

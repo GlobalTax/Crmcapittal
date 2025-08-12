@@ -66,14 +66,8 @@ export default function EInformaDashboard() {
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
           <div className="p-6 space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Dashboard eInforma</h1>
-                <p className="text-muted-foreground">
-                  Búsqueda inteligente y gestión de datos empresariales
-                </p>
-              </div>
+            {/* Header eliminado: dejamos solo las acciones */}
+            <div className="flex items-center justify-end">
               <div className="flex items-center gap-3">
                 <Button onClick={refreshData} variant="outline" size="sm" disabled={isDashboardLoading}>
                   <RefreshCwIcon className={`h-4 w-4 mr-2 ${isDashboardLoading ? 'animate-spin' : ''}`} />

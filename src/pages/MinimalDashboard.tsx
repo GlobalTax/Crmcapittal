@@ -32,9 +32,6 @@ export default function MinimalDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold mb-6">Resumen</h1>
-      </div>
       
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

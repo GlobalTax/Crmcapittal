@@ -26,22 +26,19 @@ export default function MinimalPersonalDashboard() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-6">
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-slate-900">Dashboard Personal</h1>
+
+      {/* Main Content */}
+      <div className="p-6 space-y-4">
+        {/* Acciones rápidas y temporizador (sin encabezado) */}
+        <div className="flex items-center justify-end mb-4">
           <div className="flex items-center gap-3">
             <QuickActionsBar 
               onNewTask={() => setIsTaskModalOpen(true)}
-              onNewLead={() => window.location.href = '/leads/new'} 
+              onNewLead={() => (window.location.href = '/leads/new')}
             />
             <MiniTimer />
           </div>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="p-6 space-y-4">
         {/* Main KPIs */}
         <div className="grid gap-4 md:grid-cols-4">
           <CompactMetricCard
