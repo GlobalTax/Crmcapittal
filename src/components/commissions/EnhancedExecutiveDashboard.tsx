@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import { useCommissionStats } from '@/hooks/useCommissionStats';
 import { useCommissions } from '@/hooks/useCommissions';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
@@ -248,37 +249,39 @@ export const EnhancedExecutiveDashboard = () => {
         </div>
       </div>
 
-      {/* Main KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {mainKPIs.map((kpi, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold">{kpi.value}</span>
-                    {kpi.trend !== 'stable' && (
-                      <Badge variant={kpi.trend === 'up' ? 'default' : 'destructive'} className="flex items-center gap-1">
-                        {kpi.trend === 'up' ? (
-                          <TrendingUp className="h-3 w-3" />
-                        ) : (
-                          <TrendingDown className="h-3 w-3" />
-                        )}
-                        {Math.abs(kpi.change).toFixed(1)}%
-                      </Badge>
-                    )}
+      {/* Main KPIs (toggle) */}
+      <RevealSection storageKey="commissions/main-kpis" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {mainKPIs.map((kpi, index) => (
+            <Card key={index}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold">{kpi.value}</span>
+                      {kpi.trend !== 'stable' && (
+                        <Badge variant={kpi.trend === 'up' ? 'default' : 'destructive'} className="flex items-center gap-1">
+                          {kpi.trend === 'up' ? (
+                            <TrendingUp className="h-3 w-3" />
+                          ) : (
+                            <TrendingDown className="h-3 w-3" />
+                          )}
+                          {Math.abs(kpi.change).toFixed(1)}%
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{kpi.description}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{kpi.description}</p>
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <kpi.icon className="h-6 w-6 text-primary" />
+                  </div>
                 </div>
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <kpi.icon className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </RevealSection>
 
       {/* Detailed Analytics */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

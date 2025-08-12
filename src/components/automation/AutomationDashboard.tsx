@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Settings, Zap, Mail, Target, Plus } from "lucide-react";
 import { useAutomation } from "@/hooks/useAutomation";
+import { RevealSection } from '@/components/ui/RevealSection';
 
 const AutomationDashboard = () => {
   const { rules, isLoading } = useAutomation();
@@ -31,58 +32,60 @@ const AutomationDashboard = () => {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Reglas Activas</p>
-                <p className="text-2xl font-semibold text-blue-600">
-                  {rules.filter(rule => rule.enabled).length}
-                </p>
+      {/* Stats Cards (toggle) */}
+      <RevealSection storageKey="automation/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Reglas Activas</p>
+                  <p className="text-2xl font-semibold text-blue-600">
+                    {rules.filter(rule => rule.enabled).length}
+                  </p>
+                </div>
+                <Zap className="h-8 w-8 text-blue-600" />
               </div>
-              <Zap className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Emails Enviados</p>
-                <p className="text-2xl font-semibold text-green-600">24</p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Emails Enviados</p>
+                  <p className="text-2xl font-semibold text-green-600">24</p>
+                </div>
+                <Mail className="h-8 w-8 text-green-600" />
               </div>
-              <Mail className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Tareas Creadas</p>
-                <p className="text-2xl font-semibold text-purple-600">12</p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Tareas Creadas</p>
+                  <p className="text-2xl font-semibold text-purple-600">12</p>
+                </div>
+                <Target className="h-8 w-8 text-purple-600" />
               </div>
-              <Target className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Leads Cualificados</p>
-                <p className="text-2xl font-semibold text-orange-600">8</p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Leads Cualificados</p>
+                  <p className="text-2xl font-semibold text-orange-600">8</p>
+                </div>
+                <Settings className="h-8 w-8 text-orange-600" />
               </div>
-              <Settings className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </RevealSection>
 
       {/* Automation Rules */}
       <Card>

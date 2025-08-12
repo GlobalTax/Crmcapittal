@@ -5,6 +5,7 @@ import { ManagerPhotoUpload } from './ManagerPhotoUpload';
 import { Button } from '@/components/ui/button';
 import { Mail, Phone, Briefcase, Plus, Users } from 'lucide-react';
 import { useState } from 'react';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 export const ManagersList = () => {
   const { managers, loading, error } = useManagers();
@@ -31,40 +32,42 @@ export const ManagersList = () => {
 
   return (
     <div className="space-y-8">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-card p-4 border border-border hover:bg-accent transition-colors duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Gestores</p>
-              <p className="text-2xl font-bold text-foreground">{totalManagers}</p>
+      {/* Stats Cards (toggle) */}
+      <RevealSection storageKey="managers/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={3}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-card p-4 border border-border hover:bg-accent transition-colors duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Gestores</p>
+                <p className="text-2xl font-bold text-foreground">{totalManagers}</p>
+              </div>
+              <Users className="h-8 w-8 text-muted-foreground" />
             </div>
-            <Users className="h-8 w-8 text-muted-foreground" />
           </div>
-        </div>
 
-        <div className="bg-card p-4 border border-border hover:bg-accent transition-colors duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Gestores Activos</p>
-              <p className="text-2xl font-bold text-foreground">{activeManagers}</p>
+          <div className="bg-card p-4 border border-border hover:bg-accent transition-colors duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Gestores Activos</p>
+                <p className="text-2xl font-bold text-foreground">{activeManagers}</p>
+              </div>
+              <Briefcase className="h-8 w-8 text-muted-foreground" />
             </div>
-            <Briefcase className="h-8 w-8 text-muted-foreground" />
           </div>
-        </div>
 
-        <div className="bg-card p-4 border border-border hover:bg-accent transition-colors duration-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Departamentos</p>
-              <p className="text-2xl font-bold text-foreground">
-                {Array.from(new Set(managers.map(m => m.position).filter(Boolean))).length}
-              </p>
+          <div className="bg-card p-4 border border-border hover:bg-accent transition-colors duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Departamentos</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {Array.from(new Set(managers.map(m => m.position).filter(Boolean))).length}
+                </p>
+              </div>
+              <Mail className="h-8 w-8 text-muted-foreground" />
             </div>
-            <Mail className="h-8 w-8 text-muted-foreground" />
           </div>
         </div>
-      </div>
+      </RevealSection>
 
       {/* Action Button */}
       <div className="flex items-center justify-between">
