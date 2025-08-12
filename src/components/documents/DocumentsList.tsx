@@ -112,24 +112,17 @@ export const DocumentsList: React.FC = () => {
 
         {/* Main content */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Gestión de Documentos</h1>
-              <p className="text-gray-600">Crea y gestiona documentos usando plantillas personalizables</p>
-            </div>
-            <div className="flex gap-2">
-              <Link to="/documents/templates">
-                <Button variant="secondary">
-                  Plantillas
-                </Button>
-              </Link>
-              <Link to="/documents/new">
-                <Button variant="primary">
-                  Nuevo Documento
-                </Button>
-              </Link>
-            </div>
+          <div className="flex items-center justify-end gap-2">
+            <Link to="/documents/templates">
+              <Button variant="secondary">
+                Plantillas
+              </Button>
+            </Link>
+            <Link to="/documents/new">
+              <Button variant="primary">
+                Nuevo Documento
+              </Button>
+            </Link>
           </div>
 
           {/* Breadcrumbs */}

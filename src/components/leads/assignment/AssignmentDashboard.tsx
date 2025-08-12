@@ -5,7 +5,7 @@ import { useWorkloadMetrics } from "@/hooks/useWorkloadMetrics";
 import { WorkerLoadCard } from "./WorkerLoadCard";
 import { UnassignedLeadsPool } from "./UnassignedLeadsPool";
 import { AssignmentTools } from "./AssignmentTools";
-import { PageTitle, Text } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { Users, Settings, TrendingUp } from "lucide-react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
@@ -74,13 +74,6 @@ export const AssignmentDashboard = () => {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="space-y-2">
-          <PageTitle>Panel de Asignaciones</PageTitle>
-          <Text variant="large" color="muted">
-            Gestiona la distribución de leads entre tu equipo
-          </Text>
-        </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

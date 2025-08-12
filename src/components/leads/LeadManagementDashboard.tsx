@@ -256,12 +256,7 @@ export const LeadManagementDashboard = ({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Lead Management</h1>
-          <p className="text-gray-600 mt-1">Gestión completa del pipeline de leads con nurturing automatizado</p>
-        </div>
+      <div className="flex justify-end items-start">
         <div className="flex space-x-3">
           <Button variant="outline" className="border-gray-300">
             <Settings className="h-4 w-4 mr-2" />

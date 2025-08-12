@@ -138,13 +138,7 @@ export function HubSpotDatabase() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Base de Datos HubSpot</h1>
-          <p className="text-muted-foreground">
-            Visualiza todos los datos importados desde HubSpot
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <Button onClick={fetchHubSpotData} variant="outline">
           Actualizar
         </Button>

@@ -64,14 +64,7 @@ export const ModernContactsHeader = ({
 
   return (
     <div className="space-y-6">
-      {/* Title and Action */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Contactos</h1>
-          <p className="text-muted-foreground mt-1">
-            Gestiona tu red de contactos profesionales
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <Button onClick={onCreateContact} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
           Nuevo contacto

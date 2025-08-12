@@ -52,40 +52,29 @@ export function ReconversionsList({
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Reconversiones
-          </h1>
-          <p className="text-muted-foreground">
-            Gestiona las oportunidades de reconversión empresarial
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            onClick={onRefresh}
-            className="gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Actualizar
-          </Button>
-          <Button 
-            variant="outline"
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Exportar
-          </Button>
-          <Button 
-            onClick={onCreateNew} 
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Nueva Reconversión
-          </Button>
-        </div>
+      <div className="flex items-center justify-end gap-2">
+        <Button 
+          variant="outline" 
+          onClick={onRefresh}
+          className="gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Actualizar
+        </Button>
+        <Button 
+          variant="outline"
+          className="gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Exportar
+        </Button>
+        <Button 
+          onClick={onCreateNew} 
+          className="gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Nueva Reconversión
+        </Button>
       </div>
 
       {/* Stats */}

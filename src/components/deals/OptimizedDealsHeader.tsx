@@ -62,14 +62,7 @@ export const OptimizedDealsHeader = ({
   return (
     <div className="border-b border-border bg-background">
       <div className="p-6">
-        {/* Top Section: Title & Stats */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">Pipeline de Deals</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Gestiona tus oportunidades de venta con estilo HubSpot
-            </p>
-          </div>
+        <div className="flex items-center justify-start mb-6">
 
           {/* Stats Cards */}
           <div className="flex items-center gap-4">
