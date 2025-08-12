@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { StatsCard } from '@/components/ui/stats-card';
+import { RevealSection } from '@/components/ui/RevealSection';
 import { CreateMandateDialog } from '../CreateMandateDialog';
 import { 
   RefreshCw, 
@@ -128,47 +129,49 @@ export function ProductivityHeader({
         </div>
       </div>
 
-      {/* Smart Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatsCard
-          title="Activos"
-          value={activeMandates.length}
-          description="Mandatos en progreso"
-          icon={<Target className="h-5 w-5" />}
-          trend={{
-            value: 12,
-            label: "vs mes anterior",
-            direction: "up"
-          }}
-        />
-        
-        <StatsCard
-          title="Próximos a vencer"
-          value={expiringMandates.length}
-          description="< 7 días"
-          icon={<AlertTriangle className="h-5 w-5" />}
-          className={expiringMandates.length > 0 ? "border-warning/20 bg-warning/5" : ""}
-        />
-        
-        <StatsCard
-          title="Completados este mes"
-          value={completedThisMonth.length}
-          description="Mandatos finalizados"
-          icon={<Calendar className="h-5 w-5" />}
-          trend={{
-            value: 8,
-            label: "vs mes anterior",
-            direction: "up"
-          }}
-        />
-        
-        <StatsCard
-          title="Targets pendientes"
-          value={targetsPending}
-          description="Por contactar"
-          icon={<TrendingUp className="h-5 w-5" />}
-        />
-      </div>
+      {/* Smart Stats Row (toggle) */}
+      <RevealSection storageKey="mandatos/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StatsCard
+            title="Activos"
+            value={activeMandates.length}
+            description="Mandatos en progreso"
+            icon={<Target className="h-5 w-5" />}
+            trend={{
+              value: 12,
+              label: "vs mes anterior",
+              direction: "up"
+            }}
+          />
+          
+          <StatsCard
+            title="Próximos a vencer"
+            value={expiringMandates.length}
+            description="< 7 días"
+            icon={<AlertTriangle className="h-5 w-5" />}
+            className={expiringMandates.length > 0 ? "border-warning/20 bg-warning/5" : ""}
+          />
+          
+          <StatsCard
+            title="Completados este mes"
+            value={completedThisMonth.length}
+            description="Mandatos finalizados"
+            icon={<Calendar className="h-5 w-5" />}
+            trend={{
+              value: 8,
+              label: "vs mes anterior",
+              direction: "up"
+            }}
+          />
+          
+          <StatsCard
+            title="Targets pendientes"
+            value={targetsPending}
+            description="Por contactar"
+            icon={<TrendingUp className="h-5 w-5" />}
+          />
+        </div>
+      </RevealSection>
 
       {/* Search and Quick Filters */}
       <div className="flex flex-col lg:flex-row gap-4">

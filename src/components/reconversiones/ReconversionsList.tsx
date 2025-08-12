@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, RefreshCw, Download } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 import type { ReconversionFilters as FilterType } from '@/types/Reconversion';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 type Reconversion = Database['public']['Tables']['reconversiones_new']['Row'];
 
@@ -77,8 +78,10 @@ export function ReconversionsList({
         </Button>
       </div>
 
-      {/* Stats */}
-      <ReconversionStats reconversiones={reconversiones as any} />
+      {/* Stats (toggle) */}
+      <RevealSection storageKey="reconversiones/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <ReconversionStats reconversiones={reconversiones as any} />
+      </RevealSection>
 
       {/* Filters */}
       <ReconversionFilters 

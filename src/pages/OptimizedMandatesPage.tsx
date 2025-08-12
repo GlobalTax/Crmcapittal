@@ -5,7 +5,7 @@ import { HybridMandatesList } from '@/components/mandates/productivity/HybridMan
 import { MandatePipelineSidebar } from '@/components/mandates/productivity/MandatePipelineSidebar';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { BuyingMandate } from '@/types/BuyingMandate';
-import { RevealSection } from '@/components/ui/RevealSection';
+
 
 export default function OptimizedMandatesPage() {
   const { mandates, isLoading, fetchMandates } = useBuyingMandates();
@@ -58,17 +58,15 @@ export default function OptimizedMandatesPage() {
             isLoading={isLoading}
           />
           
-          <RevealSection storageKey="mandatos/hybrid-list" defaultCollapsed={true} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={mandates?.length}>
-            <HybridMandatesList 
-              mandates={mandates}
-              filters={filters}
-              searchTerm={searchTerm}
-              selectedMandate={selectedMandate}
-              onMandateSelect={handleMandateSelect}
-              onRefresh={handleRefresh}
-              isLoading={isLoading}
-            />
-          </RevealSection>
+          <HybridMandatesList 
+            mandates={mandates}
+            filters={filters}
+            searchTerm={searchTerm}
+            selectedMandate={selectedMandate}
+            onMandateSelect={handleMandateSelect}
+            onRefresh={handleRefresh}
+            isLoading={isLoading}
+          />
         </div>
 
         {/* Pipeline Sidebar */}

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
+import { RevealSection } from '@/components/ui/RevealSection';
 import { 
   Search, 
   Plus, 
@@ -167,70 +168,72 @@ export const OptimizedLeadWorkflow = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Nuevos hoy</p>
-                <p className="text-2xl font-bold">{stats.nuevosHoy}</p>
+      {/* Stats Cards (toggle) */}
+      <RevealSection storageKey="leads/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Nuevos hoy</p>
+                  <p className="text-2xl font-bold">{stats.nuevosHoy}</p>
+                </div>
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Plus className="h-5 w-5 text-blue-600" />
+                </div>
               </div>
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Plus className="h-5 w-5 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Listos para contactar</p>
-                <p className="text-2xl font-bold">{stats.listosContactar}</p>
-                {stats.sinContactar3Dias > 0 && (
-                  <div className="flex items-center text-red-600 text-xs mt-1">
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    {stats.sinContactar3Dias} urgentes
-                  </div>
-                )}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Listos para contactar</p>
+                  <p className="text-2xl font-bold">{stats.listosContactar}</p>
+                  {stats.sinContactar3Dias > 0 && (
+                    <div className="flex items-center text-red-600 text-xs mt-1">
+                      <AlertCircle className="h-3 w-3 mr-1" />
+                      {stats.sinContactar3Dias} urgentes
+                    </div>
+                  )}
+                </div>
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Target className="h-5 w-5 text-green-600" />
+                </div>
               </div>
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Target className="h-5 w-5 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Conversion rate 7d</p>
-                <p className="text-2xl font-bold">{stats.conversionRate.toFixed(1)}%</p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Conversion rate 7d</p>
+                  <p className="text-2xl font-bold">{stats.conversionRate.toFixed(1)}%</p>
+                </div>
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                </div>
               </div>
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Response rate</p>
-                <p className="text-2xl font-bold">{stats.responseRate.toFixed(1)}%</p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Response rate</p>
+                  <p className="text-2xl font-bold">{stats.responseRate.toFixed(1)}%</p>
+                </div>
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Users className="h-5 w-5 text-orange-600" />
+                </div>
               </div>
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Users className="h-5 w-5 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </RevealSection>
 
       {/* Header with search and toggle */}
       <div className="flex items-center justify-between">
