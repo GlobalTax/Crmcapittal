@@ -18,19 +18,47 @@ import { GlobalSearchDialog } from './GlobalSearchDialog';
 
 // Breadcrumb mapping for routes
 const routeTitles: Record<string, string> = {
-  '/': 'Dashboard',
+  // Principal
+  '/': 'Control Leads',
   '/personal': 'Dashboard Personal',
+  '/asignaciones': 'Control de Asignaciones',
+  '/gestion-leads': 'Gestión de Leads',
+  '/contactos': 'Contactos',
   '/contacts': 'Contactos',
+  '/empresas': 'Empresas',
   '/companies': 'Empresas',
-  '/negocios': 'Negocios',
+  
+  // Ventas & Transacciones
+  '/transacciones': 'Mandatos de Venta',
+  '/buying-mandates': 'Mandatos de Compra',
+  '/valoraciones': 'Valoraciones',
+  '/reconversiones': 'Reconversiones',
   '/proposals': 'Propuestas',
   '/documents': 'Documentos',
+  
+  // Comunicación
   '/email': 'Email',
   '/calendar': 'Calendario',
-  '/time-tracking': 'Time Tracking',
+  '/tiempo': 'Control de Tiempo',
+  '/time-tracking': 'Control de Tiempo',
+  
+  // Análisis & Data
+  '/hubspot-data': 'Base de Datos HubSpot',
+  '/einforma': 'eInforma Dashboard',
+  
+  // ROD Builder
+  '/rod': 'Crear ROD',
+  '/subscribers': 'Gestionar Suscriptores',
+  '/campaigns': 'Campañas de Email',
+  
+  // Administración
   '/collaborators': 'Colaboradores',
   '/users': 'Gestión de Usuarios',
+  '/comisiones': 'Comisiones',
   '/integrations': 'Integraciones',
+  
+  // Otros
+  '/negocios': 'Negocios',
 };
 
 export function AttioTopbar() {
@@ -52,7 +80,9 @@ export function AttioTopbar() {
     signOut = async () => {};
   }
 
-  const currentTitle = routeTitles[location.pathname] || 'Dashboard';
+  const pathname = location.pathname;
+  const basePath = '/' + (pathname.split('/').filter(Boolean)[0] || '');
+  const currentTitle = routeTitles[basePath] || routeTitles[pathname] || 'Dashboard';
   const userInitials = user?.email?.substring(0, 2).toUpperCase() || 'U';
 
   const handleSignOut = async () => {
