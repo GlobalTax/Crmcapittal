@@ -228,13 +228,7 @@ export const EnhancedExecutiveDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header Controls */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-bold">Dashboard Ejecutivo</h2>
-          <p className="text-muted-foreground">
-            Análisis avanzado del rendimiento de comisiones
-          </p>
-        </div>
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-3">
           <Select value={timeRange} onValueChange={(value: '7d' | '30d' | '90d' | '1y') => setTimeRange(value)}>
             <SelectTrigger className="w-32">

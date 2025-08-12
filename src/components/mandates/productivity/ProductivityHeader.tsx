@@ -95,16 +95,7 @@ export function ProductivityHeader({
   return (
     <div className="border-b border-border bg-background p-6 space-y-6">
       {/* Title and Actions */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Gestión de Mandatos
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Vista híbrida optimizada para productividad
-          </p>
-        </div>
-        
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-3">
           <Button 
             variant="outline" 

@@ -120,13 +120,7 @@ export const ProductivityDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header con controles */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Dashboard de Productividad</h2>
-          <p className="text-muted-foreground">
-            Análisis detallado de tu rendimiento y tiempo
-          </p>
-        </div>
+      <div className="flex justify-end items-center">
         <div className="flex gap-2">
           {(['today', 'week', 'month'] as const).map((period) => (
             <Button

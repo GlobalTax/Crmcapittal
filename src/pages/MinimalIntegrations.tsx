@@ -109,11 +109,7 @@ export default function MinimalIntegrations() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Integraciones</h1>
-          <p className="text-gray-600 mt-1">Conecta tu CRM con servicios externos para automatizar procesos</p>
-        </div>
+      <div className="flex items-center justify-end">
         <Button variant="secondary">
           Configuración Global
         </Button>

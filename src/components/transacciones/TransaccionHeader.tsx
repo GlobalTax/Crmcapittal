@@ -82,9 +82,9 @@ export const TransaccionHeader = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-lg font-semibold text-gray-900 leading-tight">
+              <div className="sr-only">
                 {transaccion.nombre_transaccion}
-              </h1>
+              </div>
               <Badge className={`text-xs ${getStageColor(transaccion.stage?.name)}`}>
                 {transaccion.stage?.name || 'Sin etapa'}
               </Badge>
