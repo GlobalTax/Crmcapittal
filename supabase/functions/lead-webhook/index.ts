@@ -23,6 +23,16 @@ serve(async (req) => {
   }
 
   try {
+    // Verify shared secret (required)
+    const ingestSecret = Deno.env.get('CRM_INGEST_SECRET');
+    const providedSecret = req.headers.get('x-crm-ingest-secret');
+    if (ingestSecret && providedSecret !== ingestSecret) {
+      return new Response(JSON.stringify({ success: false, error: 'unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -156,51 +166,52 @@ serve(async (req) => {
       submissionId = subInsert?.id;
     }
 
-    // 2) Dedup find an existing open lead
+    // 2) Dedup find an existing open lead (priority: email+company > CIF > phone > email)
     let existingLeadId: string | undefined;
     let existingLeadStatus: string | undefined;
 
-    if (unique_token) {
-      const { data: leadByToken } = await supabase
-        .from('leads')
-        .select('id,status')
-        .eq('form_data->>unique_token', unique_token)
-        .maybeSingle();
-      existingLeadId = leadByToken?.id;
-      existingLeadStatus = leadByToken?.status as string | undefined;
-    }
-
-    if (!existingLeadId && cif) {
-      const { data: leadByCif } = await supabase
-        .from('leads')
-        .select('id,status')
-        .eq('extra->>cif', cif)
-        .maybeSingle();
-      existingLeadId = leadByCif?.id;
-      existingLeadStatus = leadByCif?.status as string | undefined;
-    }
-
-    if (!existingLeadId && email && company_name) {
-      const { data: leadByEmailCompany } = await supabase
+    if (email && company_name) {
+      const { data } = await supabase
         .from('leads')
         .select('id,status')
         .eq('email', email)
         .eq('company_name', company_name)
         .limit(1)
         .maybeSingle();
-      existingLeadId = leadByEmailCompany?.id;
-      existingLeadStatus = leadByEmailCompany?.status as string | undefined;
+      existingLeadId = data?.id;
+      existingLeadStatus = data?.status as string | undefined;
+    }
+
+    if (!existingLeadId && cif) {
+      const { data } = await supabase
+        .from('leads')
+        .select('id,status')
+        .eq('extra->>cif', cif)
+        .maybeSingle();
+      existingLeadId = data?.id;
+      existingLeadStatus = data?.status as string | undefined;
+    }
+
+    if (!existingLeadId && phone) {
+      const { data } = await supabase
+        .from('leads')
+        .select('id,status')
+        .eq('phone', phone)
+        .limit(1)
+        .maybeSingle();
+      existingLeadId = data?.id;
+      existingLeadStatus = data?.status as string | undefined;
     }
 
     if (!existingLeadId && email) {
-      const { data: leadByEmail } = await supabase
+      const { data } = await supabase
         .from('leads')
         .select('id,status')
         .eq('email', email)
         .limit(1)
         .maybeSingle();
-      existingLeadId = leadByEmail?.id;
-      existingLeadStatus = leadByEmail?.status as string | undefined;
+      existingLeadId = data?.id;
+      existingLeadStatus = data?.status as string | undefined;
     }
 
     const nowIso = new Date().toISOString();
@@ -278,6 +289,103 @@ serve(async (req) => {
       }
       leadId = inserted?.id;
       operation = 'created';
+    }
+    // 3.5) Company and Contact upsert (Contacto inmediato, sin asignación)
+    let companyId: string | undefined;
+    try {
+      if (company_name) {
+        const website = normalizeText((body.website || body.company_website)) as string | undefined;
+        let domain: string | undefined = normalizeText(body.domain) as string | undefined;
+        if (!domain && website) {
+          try { domain = new URL(website).hostname.replace(/^www\./, ''); } catch (_) {}
+        }
+
+        // Find existing company by domain or name
+        let existingCompany: { id: string } | null = null;
+        if (domain) {
+          const { data } = await supabase
+            .from('companies')
+            .select('id')
+            .eq('domain', domain)
+            .maybeSingle();
+          existingCompany = data as any;
+        }
+        if (!existingCompany) {
+          const { data } = await supabase
+            .from('companies')
+            .select('id')
+            .eq('name', company_name)
+            .maybeSingle();
+          existingCompany = data as any;
+        }
+
+        if (existingCompany?.id) {
+          companyId = existingCompany.id;
+          // light update
+          await supabase.from('companies').update({ website, domain, industry }).eq('id', companyId);
+        } else {
+          const { data: newCompany } = await supabase
+            .from('companies')
+            .insert({ name: company_name, website, domain, industry })
+            .select('id')
+            .single();
+          companyId = newCompany?.id;
+        }
+      }
+    } catch (e) {
+      console.error('lead-webhook: company upsert error (non-fatal)', e);
+    }
+
+    let contactId: string | undefined;
+    try {
+      if (email || phone) {
+        let existingContact: { id: string } | null = null;
+        if (email) {
+          const { data } = await supabase
+            .from('contacts')
+            .select('id')
+            .eq('email', email)
+            .maybeSingle();
+          existingContact = data as any;
+        }
+        if (!existingContact && phone) {
+          const { data } = await supabase
+            .from('contacts')
+            .select('id')
+            .eq('phone', phone)
+            .maybeSingle();
+          existingContact = data as any;
+        }
+
+        if (existingContact?.id) {
+          contactId = existingContact.id;
+          await supabase
+            .from('contacts')
+            .update({ name: contact_name, phone, company_id: companyId ?? null, company: company_name ?? null })
+            .eq('id', contactId);
+        } else {
+          const { data: newContact } = await supabase
+            .from('contacts')
+            .insert({ name: contact_name || email || 'Lead', email, phone, company_id: companyId ?? null, company: company_name ?? null, status: 'active' })
+            .select('id')
+            .single();
+          contactId = newContact?.id;
+        }
+      }
+    } catch (e) {
+      console.error('lead-webhook: contact upsert error (non-fatal)', e);
+    }
+
+    // Link lead with company/contact if available
+    try {
+      const linkUpdates: Record<string, unknown> = {};
+      if (companyId) linkUpdates['company_id'] = companyId;
+      if (contactId) linkUpdates['converted_to_contact_id'] = contactId;
+      if (leadId && Object.keys(linkUpdates).length) {
+        await supabase.from('leads').update(linkUpdates).eq('id', leadId);
+      }
+    } catch (e) {
+      console.error('lead-webhook: lead link update error (non-fatal)', e);
     }
 
     // 4) Tagging
