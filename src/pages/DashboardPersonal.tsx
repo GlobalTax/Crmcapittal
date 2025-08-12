@@ -18,19 +18,6 @@ export default function DashboardPersonal() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Dashboard Captación & Venta
-          </h1>
-          <p className="text-muted-foreground">
-            {format(new Date(), 'EEEE, d MMMM yyyy', { locale: es })}
-          </p>
-        </div>
-        <Badge color="blue">
-          ¡Hola, {user?.user_metadata?.first_name || 'Usuario'}!
-        </Badge>
-      </div>
 
       {/* KPI Row */}
       <DividedKpiRow />
