@@ -24,9 +24,6 @@ const OptimizedMandatesPage = lazy(() => import('@/pages/OptimizedMandatesPage')
 const Auth = lazy(() => import('@/pages/Auth'));
 const AuthCallback = lazy(() => import('@/components/auth/AuthCallback'));
 
-// Public landings
-const ValoracionEmpresaLanding = lazy(() => import('@/pages/ValoracionEmpresaLanding'));
-const ValoracionGracias = lazy(() => import('@/pages/ValoracionGracias'));
 
 const MinimalTimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
@@ -99,26 +96,6 @@ export const AppRoutes = () => {
           } 
         />
         
-        {/* Public valuation landing */}
-        <Route 
-          path="/lp/valoraciones" 
-          element={
-            <Suspense fallback={<LoadingSkeleton />}>
-              <ValoracionEmpresaLanding />
-            </Suspense>
-          } 
-        />
-        <Route 
-          path="/lp/valoraciones/gracias" 
-          element={
-            <Suspense fallback={<LoadingSkeleton />}>
-              <ValoracionGracias />
-            </Suspense>
-          } 
-        />
-        {/* Legacy redirects */}
-        <Route path="/valoracion-empresa" element={<Navigate to="/lp/valoraciones" replace />} />
-        <Route path="/valoracion-gracias" element={<Navigate to="/lp/valoraciones/gracias" replace />} />
         
         
         {/* Protected routes */}
