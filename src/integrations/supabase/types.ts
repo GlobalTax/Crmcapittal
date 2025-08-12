@@ -5863,6 +5863,134 @@ export type Database = {
           },
         ]
       }
+      lead_form_submissions: {
+        Row: {
+          cif: string | null
+          company_name: string | null
+          competitive_advantage: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          ebitda: number | null
+          ebitda_multiple_used: number | null
+          email: string | null
+          employee_range: string | null
+          final_valuation: number | null
+          id: string
+          industry: string | null
+          ip_address: unknown | null
+          lead_id: string | null
+          location: string | null
+          ownership_participation: string | null
+          phone: string | null
+          processed_at: string | null
+          raw_payload: Json
+          received_at: string
+          referrer: string | null
+          revenue: number | null
+          source: string
+          sync_error: string | null
+          sync_status: string
+          unique_token: string | null
+          updated_at: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          valuation_range_max: number | null
+          valuation_range_min: number | null
+          years_of_operation: number | null
+        }
+        Insert: {
+          cif?: string | null
+          company_name?: string | null
+          competitive_advantage?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          ebitda?: number | null
+          ebitda_multiple_used?: number | null
+          email?: string | null
+          employee_range?: string | null
+          final_valuation?: number | null
+          id?: string
+          industry?: string | null
+          ip_address?: unknown | null
+          lead_id?: string | null
+          location?: string | null
+          ownership_participation?: string | null
+          phone?: string | null
+          processed_at?: string | null
+          raw_payload?: Json
+          received_at?: string
+          referrer?: string | null
+          revenue?: number | null
+          source?: string
+          sync_error?: string | null
+          sync_status?: string
+          unique_token?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          valuation_range_max?: number | null
+          valuation_range_min?: number | null
+          years_of_operation?: number | null
+        }
+        Update: {
+          cif?: string | null
+          company_name?: string | null
+          competitive_advantage?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          ebitda?: number | null
+          ebitda_multiple_used?: number | null
+          email?: string | null
+          employee_range?: string | null
+          final_valuation?: number | null
+          id?: string
+          industry?: string | null
+          ip_address?: unknown | null
+          lead_id?: string | null
+          location?: string | null
+          ownership_participation?: string | null
+          phone?: string | null
+          processed_at?: string | null
+          raw_payload?: Json
+          received_at?: string
+          referrer?: string | null
+          revenue?: number | null
+          source?: string
+          sync_error?: string | null
+          sync_status?: string
+          unique_token?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          valuation_range_max?: number | null
+          valuation_range_min?: number | null
+          years_of_operation?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_form_submissions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_interactions: {
         Row: {
           created_at: string
@@ -6169,6 +6297,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      lead_tags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          lead_id: string
+          source: string
+          tag: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lead_id: string
+          source?: string
+          tag: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lead_id?: string
+          source?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_tags_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_task_engine: {
         Row: {
