@@ -157,7 +157,7 @@ const EnhancedDashboard = React.memo(() => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <DashboardHeader role={role} />
       

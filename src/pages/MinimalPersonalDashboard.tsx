@@ -25,7 +25,7 @@ export default function MinimalPersonalDashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
+    <div className="space-y-6 max-w-7xl mx-auto bg-background min-h-screen">
 
       {/* Main Content */}
       <div className="p-6 space-y-4">
