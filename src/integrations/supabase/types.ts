@@ -12207,6 +12207,39 @@ export type Database = {
           },
         ]
       }
+      valuation_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          ip_address: unknown | null
+          payload: Json | null
+          session_id: string | null
+          step: number | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          ip_address?: unknown | null
+          payload?: Json | null
+          session_id?: string | null
+          step?: number | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          ip_address?: unknown | null
+          payload?: Json | null
+          session_id?: string | null
+          step?: number | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       winback_attempts: {
         Row: {
           canal: string
