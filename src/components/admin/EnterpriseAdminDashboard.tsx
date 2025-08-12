@@ -9,6 +9,7 @@ import {
   Zap, Brain, BarChart3, Globe, Key, 
   AlertTriangle, CheckCircle, Clock, Euro
 } from 'lucide-react';
+import { RevealSection } from '@/components/ui/RevealSection';
 import { useCollaboratorPerformance, useCommissionCalculations, useTerritories, useIntegrationMarketplace } from '@/hooks/useEnterpriseAdministration';
 
 interface MetricCardProps {
@@ -47,29 +48,31 @@ const CollaboratorPerformancePanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MetricCard
-          title="Revenue Total"
-          value={`€${performance.reduce((sum, p) => sum + p.total_revenue, 0).toLocaleString()}`}
-          change="+12.5%"
-          trend="up"
-          icon={<Euro className="h-4 w-4 text-green-600" />}
-        />
-        <MetricCard
-          title="Deals Cerrados"
-          value={performance.reduce((sum, p) => sum + p.deals_closed, 0).toString()}
-          change="+8.2%"
-          trend="up"
-          icon={<Target className="h-4 w-4 text-blue-600" />}
-        />
-        <MetricCard
-          title="Conversion Rate Avg"
-          value={`${(performance.reduce((sum, p) => sum + p.conversion_rate, 0) / Math.max(performance.length, 1)).toFixed(1)}%`}
-          change="+3.1%"
-          trend="up"
-          icon={<TrendingUp className="h-4 w-4 text-purple-600" />}
-        />
-      </div>
+      <RevealSection storageKey="admin/performance-kpis" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={3}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <MetricCard
+            title="Revenue Total"
+            value={`€${performance.reduce((sum, p) => sum + p.total_revenue, 0).toLocaleString()}`}
+            change="+12.5%"
+            trend="up"
+            icon={<Euro className="h-4 w-4 text-green-600" />}
+          />
+          <MetricCard
+            title="Deals Cerrados"
+            value={performance.reduce((sum, p) => sum + p.deals_closed, 0).toString()}
+            change="+8.2%"
+            trend="up"
+            icon={<Target className="h-4 w-4 text-blue-600" />}
+          />
+          <MetricCard
+            title="Conversion Rate Avg"
+            value={`${(performance.reduce((sum, p) => sum + p.conversion_rate, 0) / Math.max(performance.length, 1)).toFixed(1)}%`}
+            change="+3.1%"
+            trend="up"
+            icon={<TrendingUp className="h-4 w-4 text-purple-600" />}
+          />
+        </div>
+      </RevealSection>
 
       <Card>
         <CardHeader>
@@ -116,36 +119,38 @@ const CommissionManagementPanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard
-          title="Comisiones Pendientes"
-          value={`€${totalPending.toLocaleString()}`}
-          change="+5.2%"
-          trend="up"
-          icon={<Clock className="h-4 w-4 text-orange-600" />}
-        />
-        <MetricCard
-          title="Aprobadas Este Mes"
-          value={commissions.filter(c => c.status === 'approved').length.toString()}
-          change="+15.3%"
-          trend="up"
-          icon={<CheckCircle className="h-4 w-4 text-green-600" />}
-        />
-        <MetricCard
-          title="En Disputa"
-          value={commissions.filter(c => c.status === 'disputed').length.toString()}
-          change="-2.1%"
-          trend="down"
-          icon={<AlertTriangle className="h-4 w-4 text-red-600" />}
-        />
-        <MetricCard
-          title="Pagadas"
-          value={commissions.filter(c => c.status === 'paid').length.toString()}
-          change="+22.8%"
-          trend="up"
-          icon={<Euro className="h-4 w-4 text-blue-600" />}
-        />
-      </div>
+      <RevealSection storageKey="admin/commissions-kpis" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <MetricCard
+            title="Comisiones Pendientes"
+            value={`€${totalPending.toLocaleString()}`}
+            change="+5.2%"
+            trend="up"
+            icon={<Clock className="h-4 w-4 text-orange-600" />}
+          />
+          <MetricCard
+            title="Aprobadas Este Mes"
+            value={commissions.filter(c => c.status === 'approved').length.toString()}
+            change="+15.3%"
+            trend="up"
+            icon={<CheckCircle className="h-4 w-4 text-green-600" />}
+          />
+          <MetricCard
+            title="En Disputa"
+            value={commissions.filter(c => c.status === 'disputed').length.toString()}
+            change="-2.1%"
+            trend="down"
+            icon={<AlertTriangle className="h-4 w-4 text-red-600" />}
+          />
+          <MetricCard
+            title="Pagadas"
+            value={commissions.filter(c => c.status === 'paid').length.toString()}
+            change="+22.8%"
+            trend="up"
+            icon={<Euro className="h-4 w-4 text-blue-600" />}
+          />
+        </div>
+      </RevealSection>
 
       <Card>
         <CardHeader>
@@ -202,29 +207,31 @@ const TerritoryManagementPanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MetricCard
-          title="Territorios Totales"
-          value={territories.length.toString()}
-          change="+2"
-          trend="up"
-          icon={<Globe className="h-4 w-4 text-blue-600" />}
-        />
-        <MetricCard
-          title="Geográficos"
-          value={(territoryTypes.geographic || 0).toString()}
-          change="0"
-          trend="neutral"
-          icon={<Target className="h-4 w-4 text-green-600" />}
-        />
-        <MetricCard
-          title="Por Sector"
-          value={(territoryTypes.sector || 0).toString()}
-          change="+1"
-          trend="up"
-          icon={<BarChart3 className="h-4 w-4 text-purple-600" />}
-        />
-      </div>
+      <RevealSection storageKey="admin/territories-kpis" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={3}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <MetricCard
+            title="Territorios Totales"
+            value={territories.length.toString()}
+            change="+2"
+            trend="up"
+            icon={<Globe className="h-4 w-4 text-blue-600" />}
+          />
+          <MetricCard
+            title="Geográficos"
+            value={(territoryTypes.geographic || 0).toString()}
+            change="0"
+            trend="neutral"
+            icon={<Target className="h-4 w-4 text-green-600" />}
+          />
+          <MetricCard
+            title="Por Sector"
+            value={(territoryTypes.sector || 0).toString()}
+            change="+1"
+            trend="up"
+            icon={<BarChart3 className="h-4 w-4 text-purple-600" />}
+          />
+        </div>
+      </RevealSection>
 
       <Card>
         <CardHeader>
@@ -272,36 +279,38 @@ const IntegrationMarketplacePanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard
-          title="Integraciones Disponibles"
-          value={integrations.length.toString()}
-          change="+3"
-          trend="up"
-          icon={<Zap className="h-4 w-4 text-blue-600" />}
-        />
-        <MetricCard
-          title="Categorías"
-          value={categories.length.toString()}
-          change="0"
-          trend="neutral"
-          icon={<Settings className="h-4 w-4 text-gray-600" />}
-        />
-        <MetricCard
-          title="Instalaciones Totales"
-          value={integrations.reduce((sum, i) => sum + i.installation_count, 0).toString()}
-          change="+28"
-          trend="up"
-          icon={<TrendingUp className="h-4 w-4 text-green-600" />}
-        />
-        <MetricCard
-          title="Rating Promedio"
-          value={`${(integrations.reduce((sum, i) => sum + i.rating, 0) / Math.max(integrations.length, 1)).toFixed(1)}`}
-          change="+0.2"
-          trend="up"
-          icon={<CheckCircle className="h-4 w-4 text-yellow-600" />}
-        />
-      </div>
+      <RevealSection storageKey="admin/integrations-kpis" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <MetricCard
+            title="Integraciones Disponibles"
+            value={integrations.length.toString()}
+            change="+3"
+            trend="up"
+            icon={<Zap className="h-4 w-4 text-blue-600" />}
+          />
+          <MetricCard
+            title="Categorías"
+            value={categories.length.toString()}
+            change="0"
+            trend="neutral"
+            icon={<Settings className="h-4 w-4 text-gray-600" />}
+          />
+          <MetricCard
+            title="Instalaciones Totales"
+            value={integrations.reduce((sum, i) => sum + i.installation_count, 0).toString()}
+            change="+28"
+            trend="up"
+            icon={<TrendingUp className="h-4 w-4 text-green-600" />}
+          />
+          <MetricCard
+            title="Rating Promedio"
+            value={`${(integrations.reduce((sum, i) => sum + i.rating, 0) / Math.max(integrations.length, 1)).toFixed(1)}`}
+            change="+0.2"
+            trend="up"
+            icon={<CheckCircle className="h-4 w-4 text-yellow-600" />}
+          />
+        </div>
+      </RevealSection>
 
       <Card>
         <CardHeader>
@@ -351,36 +360,38 @@ const IntegrationMarketplacePanel: React.FC = () => {
 const SystemIntelligencePanel: React.FC = () => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard
-          title="Uptime del Sistema"
-          value="99.8%"
-          change="+0.1%"
-          trend="up"
-          icon={<Shield className="h-4 w-4 text-green-600" />}
-        />
-        <MetricCard
-          title="Usuarios Activos"
-          value="142"
-          change="+8"
-          trend="up"
-          icon={<Users className="h-4 w-4 text-blue-600" />}
-        />
-        <MetricCard
-          title="API Calls/min"
-          value="1,247"
-          change="+15%"
-          trend="up"
-          icon={<Key className="h-4 w-4 text-purple-600" />}
-        />
-        <MetricCard
-          title="Health Score"
-          value="94/100"
-          change="+2"
-          trend="up"
-          icon={<Brain className="h-4 w-4 text-yellow-600" />}
-        />
-      </div>
+      <RevealSection storageKey="admin/system-kpis" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <MetricCard
+            title="Uptime del Sistema"
+            value="99.8%"
+            change="+0.1%"
+            trend="up"
+            icon={<Shield className="h-4 w-4 text-green-600" />}
+          />
+          <MetricCard
+            title="Usuarios Activos"
+            value="142"
+            change="+8"
+            trend="up"
+            icon={<Users className="h-4 w-4 text-blue-600" />}
+          />
+          <MetricCard
+            title="API Calls/min"
+            value="1,247"
+            change="+15%"
+            trend="up"
+            icon={<Key className="h-4 w-4 text-purple-600" />}
+          />
+          <MetricCard
+            title="Health Score"
+            value="94/100"
+            change="+2"
+            trend="up"
+            icon={<Brain className="h-4 w-4 text-yellow-600" />}
+          />
+        </div>
+      </RevealSection>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>

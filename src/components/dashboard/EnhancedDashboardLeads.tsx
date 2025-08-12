@@ -6,6 +6,7 @@ import { Users, Flame, TrendingUp, Euro, Calendar, Clock, Target, Filter } from 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 export const EnhancedDashboardLeads = () => {
   const { kpis, funnelData, loading, error } = useEnhancedLeadsKpi();
