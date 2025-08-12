@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Filter, Download, Users, TrendingUp, Clock, AlertTriangle } from 'lucide-react';
 import { useTransaccionesOptimized } from '@/hooks/useTransaccionesOptimized';
+import { RevealSection } from '@/components/ui/RevealSection';
 
 interface QuickFilter {
   key: string;
@@ -69,72 +70,74 @@ export const TransaccionesProductivityHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Valor Total Pipeline</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {loading ? '...' : formatCurrency(stats?.totalValue || 0)}
-                </p>
+      {/* Stats Cards (toggle) */}
+      <RevealSection storageKey="transacciones/stats" defaultCollapsed={false} collapsedLabel="Mostrar tarjetas" expandedLabel="Ocultar tarjetas" count={4}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Valor Total Pipeline</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {loading ? '...' : formatCurrency(stats?.totalValue || 0)}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
               </div>
-              <div className="h-10 w-10 rounded-lg bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Transacciones Activas</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {loading ? '...' : stats?.activeCount || 0}
-                </p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Transacciones Activas</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {loading ? '...' : stats?.activeCount || 0}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
               </div>
-              <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Cierre Próximo (30d)</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {loading ? '...' : stats?.closingSoonCount || 0}
-                </p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Cierre Próximo (30d)</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {loading ? '...' : stats?.closingSoonCount || 0}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-lg bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
               </div>
-              <div className="h-10 w-10 rounded-lg bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Sin Actividad 7d+</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {loading ? '...' : stats?.inactiveCount || 0}
-                </p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Sin Actividad 7d+</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {loading ? '...' : stats?.inactiveCount || 0}
+                  </p>
+                </div>
+                <div className="h-10 w-10 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                </div>
               </div>
-              <div className="h-10 w-10 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </RevealSection>
 
       {/* Filtros y Búsqueda */}
       <Card>
