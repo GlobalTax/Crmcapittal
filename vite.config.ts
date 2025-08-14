@@ -16,13 +16,15 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
     },
     // Dedupe React to prevent multiple instances
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
   },
   // Optimize dependencies for better development experience
   optimizeDeps: {
     include: [
+      'react/jsx-runtime',
       '@dnd-kit/core',
       '@dnd-kit/sortable', 
       '@dnd-kit/utilities',
