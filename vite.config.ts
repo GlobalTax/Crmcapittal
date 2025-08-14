@@ -16,10 +16,6 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Force single React instance across the app and deps
-      react: path.resolve(__dirname, 'node_modules/react'),
-      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
-      'react-dom/client': path.resolve(__dirname, 'node_modules/react-dom/client'),
     },
     // Dedupe React to prevent multiple instances
     dedupe: ['react', 'react-dom'],
