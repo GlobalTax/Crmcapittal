@@ -236,7 +236,7 @@ export async function seedLeadsPipeline(): Promise<{ success: boolean; message: 
           is_active: true
         }));
 
-        const { error: checklistError } = await supabase
+        const { error: checklistError } = await (supabase as any)
           .from('stage_checklists')
           .insert(checklistItems);
 
@@ -259,7 +259,7 @@ export async function seedLeadsPipeline(): Promise<{ success: boolean; message: 
           is_active: true
         }));
 
-        const { error: actionError } = await supabase
+        const { error: actionError } = await (supabase as any)
           .from('stage_actions')
           .insert(stageActions);
 
