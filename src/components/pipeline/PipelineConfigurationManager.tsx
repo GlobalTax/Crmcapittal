@@ -8,11 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, GripVertical, Edit, Trash2, Settings, Save, X } from 'lucide-react';
+import { Plus, GripVertical, Edit, Trash2, Settings, Save, X, Download, Loader2 } from 'lucide-react';
 import { Stage } from '@/types/Pipeline';
 import { StageAction } from '@/types/StageAction';
 import { useStages } from '@/hooks/useStages';
 import { useStageActions } from '@/hooks/useStageActions';
+import { createSampleLeadsPipeline, checkIfLeadsPipelineExists } from '@/utils/seedLeadsPipeline';
 import { toast } from 'sonner';
 
 interface PipelineConfigurationManagerProps {
@@ -31,10 +32,11 @@ interface StageFormData {
 }
 
 export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineConfigurationManagerProps) => {
-  const { stages, loading, createStage, updateStage, deleteStage, reorderStages } = useStages(pipelineId);
+  const { stages, loading, createStage, updateStage, deleteStage, reorderStages, refetch } = useStages(pipelineId);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [isStageDialogOpen, setIsStageDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
   const [stageForm, setStageForm] = useState<StageFormData>({
     name: '',
     description: '',
@@ -130,6 +132,35 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
     }
   };
 
+  const handleCreateLeadsTemplate = async () => {
+    setIsCreatingTemplate(true);
+    try {
+      // Verificar si existe pipeline LEAD
+      const exists = await checkIfLeadsPipelineExists();
+      
+      if (exists) {
+        toast.info('Ya existe un pipeline de leads activo');
+        return;
+      }
+      
+      // Crear pipeline con plantilla
+      const result = await createSampleLeadsPipeline();
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Refetch stages para mostrar los nuevos datos
+        refetch();
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error('Error creating leads template:', error);
+      toast.error('Error al crear la plantilla de leads');
+    } finally {
+      setIsCreatingTemplate(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -148,6 +179,18 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
           </p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="secondary" 
+            onClick={handleCreateLeadsTemplate}
+            disabled={isCreatingTemplate}
+          >
+            {isCreatingTemplate ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {isCreatingTemplate ? 'Creando...' : 'Usar plantilla mínima (LEAD)'}
+          </Button>
           <Button onClick={handleCreateStage}>
             <Plus className="h-4 w-4 mr-2" />
             Nueva Etapa
