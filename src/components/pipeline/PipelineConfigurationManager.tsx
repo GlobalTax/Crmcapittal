@@ -85,17 +85,20 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
     try {
       if (isEditing && selectedStage) {
         await updateStage(selectedStage.id, stageForm);
+        toast.success('Etapa actualizada exitosamente');
       } else {
         await createStage({
           ...stageForm,
           pipeline_id: pipelineId,
           is_active: true
         });
+        toast.success('Etapa creada exitosamente');
       }
       setIsStageDialogOpen(false);
       resetForm();
     } catch (error) {
       console.error('Error saving stage:', error);
+      toast.error(`Error al guardar etapa: ${error.message || 'Error desconocido'}`);
     }
   };
 

@@ -130,12 +130,12 @@ export const DynamicPipelineStages = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Pipeline Progress Bar */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Progreso del Pipeline</h3>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base font-semibold">Progreso del Pipeline</h3>
             {showConfiguration && (
               <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
                 <DialogTrigger asChild>
@@ -144,7 +144,7 @@ export const DynamicPipelineStages = ({
                     Configurar
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
                   <DialogHeader>
                     <DialogTitle>Configuración del Pipeline</DialogTitle>
                     <DialogDescription>
@@ -175,37 +175,37 @@ export const DynamicPipelineStages = ({
           </div>
 
           {/* Stage Timeline */}
-          <div className="flex items-center gap-2 mt-6 overflow-x-auto pb-2">
+          <div className="flex items-center gap-1 mt-4 overflow-x-auto pb-2">
             {pipelineStages.map((stage, index) => {
               const status = getStageStatus(stage, index);
               const isClickable = !isUpdating && 
                 (Math.abs(index - currentStageIndex) <= 1 || currentStageIndex === -1);
 
               return (
-                <div key={stage.id} className="flex items-center gap-2 flex-shrink-0">
+                <div key={stage.id} className="flex items-center gap-1 flex-shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
                     className={`${getStageStyles(status)} ${
                       isClickable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
-                    }`}
+                    } px-2 py-1 text-xs`}
                     onClick={() => isClickable && handleStageClick(stage)}
                     disabled={isUpdating || !isClickable}
                   >
                     <div 
-                      className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                      className="w-2 h-2 rounded-full mr-1 flex-shrink-0"
                       style={{ backgroundColor: stage.color }}
                     />
-                    <span className="truncate max-w-32">{stage.name}</span>
+                    <span className="truncate max-w-24">{stage.name}</span>
                     {stage.probability && (
-                      <Badge variant="secondary" className="ml-2 text-xs">
+                      <Badge variant="secondary" className="ml-1 text-xs px-1">
                         {stage.probability}%
                       </Badge>
                     )}
                   </Button>
                   
                   {index < pipelineStages.length - 1 && (
-                    <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                   )}
                 </div>
               );
@@ -213,48 +213,52 @@ export const DynamicPipelineStages = ({
           </div>
 
           {/* Navigation Controls */}
-          <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center justify-between mt-4 gap-2">
             <Button
               variant="outline"
+              size="sm"
               onClick={handlePreviousStage}
               disabled={isUpdating || currentStageIndex <= 0}
             >
-              Etapa Anterior
+              Anterior
             </Button>
 
             <div className="flex gap-2">
               {onLose && (
                 <Button
                   variant="destructive"
+                  size="sm"
                   onClick={onLose}
                   disabled={isUpdating}
                 >
-                  Marcar como Perdido
+                  Perdido
                 </Button>
               )}
               {onWin && (
                 <Button
                   variant="default"
+                  size="sm"
                   onClick={onWin}
                   disabled={isUpdating}
                 >
-                  Marcar como Ganado
+                  Ganado
                 </Button>
               )}
             </div>
 
             <Button
               variant="outline"
+              size="sm"
               onClick={handleNextStage}
               disabled={isUpdating || currentStageIndex >= pipelineStages.length - 1}
             >
-              Siguiente Etapa
+              Siguiente
             </Button>
           </div>
 
           {/* Current Stage Info */}
           {currentStage && (
-            <div className="mt-6 p-4 bg-muted rounded-lg">
+            <div className="mt-4 p-3 bg-muted rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <div 
                   className="w-4 h-4 rounded-full"
