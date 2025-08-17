@@ -78,14 +78,14 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
 
   if (stagesLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-full min-h-0 flex flex-col bg-background">
       {/* Header */}
       <PipedriveHeader 
         currentStage={currentStage?.name || 'Pipeline'} 
