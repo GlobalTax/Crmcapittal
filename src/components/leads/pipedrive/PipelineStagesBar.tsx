@@ -3,14 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { Lead } from '@/types/Lead';
+import { PipelineStage } from '@/hooks/leads/usePipelineStages';
 import { cn } from '@/lib/utils';
-
-interface PipelineStage {
-  id: string;
-  name: string;
-  color: string;
-  isActive: boolean;
-}
 
 interface PipelineStagesBarProps {
   lead: Lead;
