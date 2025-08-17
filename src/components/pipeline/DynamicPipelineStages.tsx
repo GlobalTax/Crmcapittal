@@ -19,7 +19,6 @@ import { useStages } from '@/hooks/useStages';
 import { PipelineStageActions } from './PipelineStageActions';
 import { PipelineConfigurationManager } from './PipelineConfigurationManager';
 import { StageChecklist } from './StageChecklist';
-import { useLeadChecklistProgress } from '@/hooks/leads/useLeadChecklistProgress';
 import { usePersistentState } from '@/hooks/usePersistentState';
 import { toast } from 'sonner';
 
@@ -55,11 +54,35 @@ export const DynamicPipelineStages = ({
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   const [compactMode, setCompactMode] = usePersistentState('pipeline-compact-mode', propCompactMode);
   
-  // Hook para validar checklist de la etapa actual
-  const { isRequiredComplete } = useLeadChecklistProgress(
-    leadId || '', 
-    currentStageId || ''
-  );
+  // Función para validar completitud de etapa
+  const validateStageCompletion = (currentStage: Stage, leadData?: any): { ok: boolean; reason?: string } => {
+    if (!leadData) return { ok: true };
+
+    // Validar required_fields
+    if (currentStage.required_fields?.length > 0) {
+      for (const field of currentStage.required_fields) {
+        if (!leadData[field]) {
+          return { ok: false, reason: `Campo requerido '${field}' está vacío` };
+        }
+      }
+    }
+
+    // Validar checklist requerido
+    const checklist = currentStage.stage_config?.checklist ?? [];
+    const requiredItems = checklist.filter((item: any) => item.required === true);
+    
+    if (requiredItems.length > 0) {
+      const progress = leadData.extra?.stage_checklist?.[currentStage.id] ?? {};
+      
+      for (const item of requiredItems) {
+        if (!progress[item.key]) {
+          return { ok: false, reason: `Paso requerido '${item.label}' no completado` };
+        }
+      }
+    }
+
+    return { ok: true };
+  };
   
   // Filtrar y ordenar etapas del pipeline actual
   const pipelineStages = stages
@@ -123,9 +146,12 @@ export const DynamicPipelineStages = ({
     }
 
     // Validar checklist requerido antes de avanzar
-    if (enableChecklistGate && leadId && targetIndex > currentStageIndex && !isRequiredComplete) {
-      toast.error('Completa los pasos requeridos');
-      return;
+    if (enableChecklistGate && leadData && currentStage && targetIndex > currentStageIndex) {
+      const validation = validateStageCompletion(currentStage, leadData);
+      if (!validation.ok) {
+        toast.error('Completa los pasos requeridos de esta etapa');
+        return;
+      }
     }
 
     if (onStageChange) {
@@ -143,9 +169,12 @@ export const DynamicPipelineStages = ({
   const handleNextStage = () => {
     if (currentStageIndex < pipelineStages.length - 1) {
       // Validar checklist requerido antes de avanzar
-      if (enableChecklistGate && leadId && !isRequiredComplete) {
-        toast.error('Completa los pasos requeridos');
-        return;
+      if (enableChecklistGate && leadData && currentStage) {
+        const validation = validateStageCompletion(currentStage, leadData);
+        if (!validation.ok) {
+          toast.error('Completa los pasos requeridos de esta etapa');
+          return;
+        }
       }
       
       const nextStage = pipelineStages[currentStageIndex + 1];
