@@ -104,7 +104,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
           onLose={handleLose}
           leadData={lead}
           isUpdating={isUpdating}
-          showConfiguration={false}
+          showConfiguration={true}
         />
       )}
 
