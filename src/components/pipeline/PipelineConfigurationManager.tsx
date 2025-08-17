@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, GripVertical, Edit, Trash2, Settings, Save, X, Download, Loader2 } from 'lucide-react';
+import { Plus, GripVertical, Edit, Trash2, Settings, Save, X, Download, Loader2, Filter } from 'lucide-react';
 import { Stage } from '@/types/Pipeline';
 import { StageAction } from '@/types/StageAction';
 import { useStages } from '@/hooks/useStages';
@@ -37,6 +37,7 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
   const [isStageDialogOpen, setIsStageDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
+  const [isApplyingPreset, setIsApplyingPreset] = useState(false);
   const [stageForm, setStageForm] = useState<StageFormData>({
     name: '',
     description: '',
@@ -172,6 +173,26 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
     }
   };
 
+  const handleApplySimplePreset = async () => {
+    setIsApplyingPreset(true);
+    try {
+      const simpleStageNames = ['nuevo', 'contactado', 'cualificado', 'propuesta', 'negociación', 'ganado', 'perdido'];
+      
+      for (const stage of pipelineStages) {
+        const isVisible = simpleStageNames.includes(stage.name.toLowerCase());
+        await updateStage(stage.id, { is_active: isVisible });
+      }
+      
+      toast.success('Preset simple aplicado');
+      await refetch();
+    } catch (error) {
+      console.error('Error applying preset:', error);
+      toast.error('Error al aplicar preset simple');
+    } finally {
+      setIsApplyingPreset(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -201,6 +222,18 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
               <Download className="h-4 w-4 mr-2" />
             )}
             {isCreatingTemplate ? 'Creando...' : 'Usar plantilla mínima (LEAD)'}
+          </Button>
+          <Button 
+            variant="secondary" 
+            onClick={handleApplySimplePreset}
+            disabled={isApplyingPreset}
+          >
+            {isApplyingPreset ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Filter className="h-4 w-4 mr-2" />
+            )}
+            {isApplyingPreset ? 'Aplicando...' : 'Aplicar preset simple (LEADS)'}
           </Button>
           <Button onClick={handleCreateStage}>
             <Plus className="h-4 w-4 mr-2" />
