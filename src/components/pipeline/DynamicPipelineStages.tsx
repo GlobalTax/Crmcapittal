@@ -14,8 +14,9 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { ArrowRight, Settings, Calendar, Percent, MoreHorizontal } from 'lucide-react';
+import { PipelineStage } from '@/hooks/leads/usePipelineStages';
+import { usePipelineStages } from '@/hooks/leads/usePipelineStages';
 import { Stage } from '@/types/Pipeline';
-import { useStages } from '@/hooks/useStages';
 import { PipelineStageActions } from './PipelineStageActions';
 import { PipelineConfigurationManager } from './PipelineConfigurationManager';
 import { StageChecklist } from './StageChecklist';
@@ -49,23 +50,31 @@ export const DynamicPipelineStages = ({
   compactMode: propCompactMode = false,
   enableChecklistGate = true
 }: DynamicPipelineStagesProps) => {
-  const { stages, loading, error } = useStages(pipelineId);
+  const { data: stages = [], isLoading: loading, error } = usePipelineStages();
   const [isConfigOpen, setIsConfigOpen] = useState(false);
-  const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
+  const [selectedStage, setSelectedStage] = useState<PipelineStage | null>(null);
   const [compactMode, setCompactMode] = usePersistentState('pipeline-compact-mode', propCompactMode);
   
+  // Convertir PipelineStage a Stage para compatibilidad con componentes existentes
+  const convertToStage = (pipelineStage: PipelineStage): Stage => ({
+    id: pipelineStage.id,
+    name: pipelineStage.name,
+    description: undefined,
+    order_index: pipelineStage.stage_order,
+    color: pipelineStage.color,
+    pipeline_id: pipelineId, // Usar el pipelineId del prop
+    is_active: pipelineStage.is_active,
+    created_at: pipelineStage.created_at,
+    updated_at: pipelineStage.updated_at,
+    stage_config: pipelineStage.stage_config,
+    required_fields: undefined,
+    validation_rules: undefined,
+    probability: pipelineStage.probability
+  });
+  
   // Función para validar completitud de etapa
-  const validateStageCompletion = (currentStage: Stage, leadData?: any): { ok: boolean; reason?: string } => {
+  const validateStageCompletion = (currentStage: PipelineStage, leadData?: any): { ok: boolean; reason?: string } => {
     if (!leadData) return { ok: true };
-
-    // Validar required_fields
-    if (currentStage.required_fields?.length > 0) {
-      for (const field of currentStage.required_fields) {
-        if (!leadData[field]) {
-          return { ok: false, reason: `Campo requerido '${field}' está vacío` };
-        }
-      }
-    }
 
     // Validar checklist requerido
     const checklist = currentStage.stage_config?.checklist ?? [];
@@ -84,10 +93,8 @@ export const DynamicPipelineStages = ({
     return { ok: true };
   };
   
-  // Filtrar y ordenar etapas del pipeline actual
-  const pipelineStages = stages
-    .filter(stage => stage.pipeline_id === pipelineId && stage.is_active)
-    .sort((a, b) => a.order_index - b.order_index);
+  // Las etapas ya vienen filtradas y ordenadas de usePipelineStages
+  const pipelineStages = stages;
 
   const currentStageIndex = pipelineStages.findIndex(stage => stage.id === currentStageId);
   const currentStage = pipelineStages[currentStageIndex];
@@ -100,8 +107,8 @@ export const DynamicPipelineStages = ({
       return { visibleStages: pipelineStages, hiddenStages: [] };
     }
 
-    let visibleStages: Stage[] = [];
-    const hiddenStages: Stage[] = [];
+    let visibleStages: PipelineStage[] = [];
+    const hiddenStages: PipelineStage[] = [];
     
     if (currentStageIndex === -1) {
       // Si no hay etapa actual, mostrar las primeras 3
@@ -127,13 +134,13 @@ export const DynamicPipelineStages = ({
 
   const { visibleStages, hiddenStages } = getVisibleStages();
 
-  const isStageClickable = (stage: Stage) => {
+  const isStageClickable = (stage: PipelineStage) => {
     const stageIndex = pipelineStages.findIndex(s => s.id === stage.id);
     return !isUpdating && 
       (Math.abs(stageIndex - currentStageIndex) <= 1 || currentStageIndex === -1);
   };
 
-  const handleStageClick = (stage: Stage) => {
+  const handleStageClick = (stage: PipelineStage) => {
     if (isUpdating) return;
     
     // Solo permitir avanzar a la siguiente etapa o retroceder una
@@ -182,7 +189,7 @@ export const DynamicPipelineStages = ({
     }
   };
 
-  const getStageStatus = (stage: Stage, index: number) => {
+  const getStageStatus = (stage: PipelineStage, index: number) => {
     if (currentStageIndex === -1) return 'inactive';
     if (index < currentStageIndex) return 'completed';
     if (index === currentStageIndex) return 'current';
@@ -435,26 +442,7 @@ export const DynamicPipelineStages = ({
                   </Badge>
                 )}
               </div>
-              {currentStage.description && (
-                <p className="text-sm text-muted-foreground mb-3">
-                  {currentStage.description}
-                </p>
-              )}
               
-              {/* Required Fields */}
-              {currentStage.required_fields && currentStage.required_fields.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-sm font-medium mb-1">Campos requeridos:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {currentStage.required_fields.map((field) => (
-                      <Badge key={field} variant="outline">
-                        {field}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Stage Checklist */}
               {leadId && leadData && (
                 <div className="mb-3">
@@ -493,7 +481,7 @@ export const DynamicPipelineStages = ({
               </DialogDescription>
             </DialogHeader>
             <PipelineStageActions
-              stage={selectedStage}
+              stage={selectedStage ? convertToStage(selectedStage) : undefined!}
               leadId={leadId}
               context={leadData}
             />

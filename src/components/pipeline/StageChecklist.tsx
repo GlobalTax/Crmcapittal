@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Stage } from '@/types/Pipeline';
+import { PipelineStage } from '@/hooks/leads/usePipelineStages';
 import { Lead } from '@/types/Lead';
 import { updateLead } from '@/services/leadsService';
 import { toast } from 'sonner';
@@ -14,7 +15,7 @@ interface ChecklistItem {
 }
 
 interface StageChecklistProps {
-  stage: Stage;
+  stage: Stage | PipelineStage;
   leadId: string;
   leadData: Lead;
   className?: string;

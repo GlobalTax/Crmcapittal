@@ -21,6 +21,7 @@ export interface PipelineStage {
   created_at: string;
   updated_at: string;
   stage_config?: StageConfig;
+  probability?: number;
 }
 
 export const usePipelineStages = () => {
