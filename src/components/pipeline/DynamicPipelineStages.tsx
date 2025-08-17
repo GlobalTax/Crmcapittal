@@ -4,13 +4,23 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, Settings, Calendar, Percent } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { ArrowRight, Settings, Calendar, Percent, MoreHorizontal } from 'lucide-react';
 import { Stage } from '@/types/Pipeline';
 import { useStages } from '@/hooks/useStages';
 import { PipelineStageActions } from './PipelineStageActions';
 import { PipelineConfigurationManager } from './PipelineConfigurationManager';
 import { StageChecklist } from './StageChecklist';
 import { useLeadChecklistProgress } from '@/hooks/leads/useLeadChecklistProgress';
+import { usePersistentState } from '@/hooks/usePersistentState';
 import { toast } from 'sonner';
 
 interface DynamicPipelineStagesProps {
@@ -23,6 +33,7 @@ interface DynamicPipelineStagesProps {
   leadData?: any;
   isUpdating?: boolean;
   showConfiguration?: boolean;
+  compactMode?: boolean;
 }
 
 export const DynamicPipelineStages = ({
@@ -34,11 +45,13 @@ export const DynamicPipelineStages = ({
   onLose,
   leadData,
   isUpdating = false,
-  showConfiguration = false
+  showConfiguration = false,
+  compactMode: propCompactMode = false
 }: DynamicPipelineStagesProps) => {
   const { stages, loading, error } = useStages(pipelineId);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
+  const [compactMode, setCompactMode] = usePersistentState('pipeline-compact-mode', propCompactMode);
   
   // Hook para validar checklist de la etapa actual
   const { isRequiredComplete } = useLeadChecklistProgress(
@@ -53,6 +66,47 @@ export const DynamicPipelineStages = ({
 
   const currentStageIndex = pipelineStages.findIndex(stage => stage.id === currentStageId);
   const currentStage = pipelineStages[currentStageIndex];
+
+  // Lógica del modo compacto
+  const getVisibleStages = () => {
+    if (!compactMode) return { visibleStages: pipelineStages, hiddenStages: [] };
+    
+    if (pipelineStages.length <= 3) {
+      return { visibleStages: pipelineStages, hiddenStages: [] };
+    }
+
+    let visibleStages: Stage[] = [];
+    const hiddenStages: Stage[] = [];
+    
+    if (currentStageIndex === -1) {
+      // Si no hay etapa actual, mostrar las primeras 3
+      visibleStages = pipelineStages.slice(0, 3);
+      hiddenStages.push(...pipelineStages.slice(3));
+    } else if (currentStageIndex === 0) {
+      // Primera etapa: mostrar etapas 0, 1, 2
+      visibleStages = pipelineStages.slice(0, 3);
+      hiddenStages.push(...pipelineStages.slice(3));
+    } else if (currentStageIndex === pipelineStages.length - 1) {
+      // Última etapa: mostrar las últimas 3
+      visibleStages = pipelineStages.slice(-3);
+      hiddenStages.push(...pipelineStages.slice(0, -3));
+    } else {
+      // Etapa intermedia: anterior, actual, siguiente
+      visibleStages = pipelineStages.slice(currentStageIndex - 1, currentStageIndex + 2);
+      hiddenStages.push(...pipelineStages.slice(0, currentStageIndex - 1));
+      hiddenStages.push(...pipelineStages.slice(currentStageIndex + 2));
+    }
+    
+    return { visibleStages, hiddenStages };
+  };
+
+  const { visibleStages, hiddenStages } = getVisibleStages();
+
+  const isStageClickable = (stage: Stage) => {
+    const stageIndex = pipelineStages.findIndex(s => s.id === stage.id);
+    return !isUpdating && 
+      (Math.abs(stageIndex - currentStageIndex) <= 1 || currentStageIndex === -1);
+  };
 
   const handleStageClick = (stage: Stage) => {
     if (isUpdating) return;
@@ -156,28 +210,40 @@ export const DynamicPipelineStages = ({
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-base font-semibold">Progreso del Pipeline</h3>
-            {showConfiguration && (
-              <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configurar
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
-                  <DialogHeader>
-                    <DialogTitle>Configuración del Pipeline</DialogTitle>
-                    <DialogDescription>
-                      Personaliza las etapas y acciones de tu pipeline
-                    </DialogDescription>
-                  </DialogHeader>
-                  <PipelineConfigurationManager 
-                    pipelineId={pipelineId}
-                    onClose={() => setIsConfigOpen(false)}
-                  />
-                </DialogContent>
-              </Dialog>
-            )}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label htmlFor="compact-mode" className="text-sm">
+                  Modo compacto
+                </label>
+                <Switch 
+                  id="compact-mode"
+                  checked={compactMode}
+                  onCheckedChange={setCompactMode}
+                />
+              </div>
+              {showConfiguration && (
+                <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configurar
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+                    <DialogHeader>
+                      <DialogTitle>Configuración del Pipeline</DialogTitle>
+                      <DialogDescription>
+                        Personaliza las etapas y acciones de tu pipeline
+                      </DialogDescription>
+                    </DialogHeader>
+                    <PipelineConfigurationManager 
+                      pipelineId={pipelineId}
+                      onClose={() => setIsConfigOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
           </div>
 
           {/* Progress Visualization */}
@@ -196,10 +262,10 @@ export const DynamicPipelineStages = ({
 
           {/* Stage Timeline */}
           <div className="flex items-center gap-1 mt-4 overflow-x-auto pb-2">
-            {pipelineStages.map((stage, index) => {
+            {visibleStages.map((stage) => {
+              const index = pipelineStages.findIndex(s => s.id === stage.id);
               const status = getStageStatus(stage, index);
-              const isClickable = !isUpdating && 
-                (Math.abs(index - currentStageIndex) <= 1 || currentStageIndex === -1);
+              const isClickable = isStageClickable(stage);
 
               return (
                 <div key={stage.id} className="flex items-center gap-1 flex-shrink-0">
@@ -224,12 +290,53 @@ export const DynamicPipelineStages = ({
                     )}
                   </Button>
                   
-                  {index < pipelineStages.length - 1 && (
+                  {index < pipelineStages.length - 1 && !compactMode && (
+                    <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  )}
+                  {index < pipelineStages.length - 1 && compactMode && visibleStages.findIndex(s => s.id === stage.id) < visibleStages.length - 1 && (
                     <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                   )}
                 </div>
               );
             })}
+            
+            {compactMode && hiddenStages.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="px-2 py-1 text-xs ml-1">
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="z-50 bg-background">
+                  <DropdownMenuLabel>Otras etapas</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {hiddenStages.map((stage) => {
+                    const isClickable = isStageClickable(stage);
+                    return (
+                      <DropdownMenuItem
+                        key={stage.id}
+                        onClick={() => isClickable && handleStageClick(stage)}
+                        disabled={isUpdating || !isClickable}
+                        className={!isClickable ? 'opacity-50 cursor-not-allowed' : ''}
+                      >
+                        <div className="flex items-center gap-2 w-full">
+                          <div 
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: stage.color }}
+                          />
+                          <span>{stage.name}</span>
+                          {stage.probability && (
+                            <Badge variant="secondary" className="ml-auto text-xs">
+                              {stage.probability}%
+                            </Badge>
+                          )}
+                        </div>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Navigation Controls */}
