@@ -236,7 +236,7 @@
   }
 
   .safe-app-height {
-    height: calc(100dvh - 64px);
+    height: 100vh;
   }
 }
 

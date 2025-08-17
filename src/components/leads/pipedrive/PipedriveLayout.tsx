@@ -61,7 +61,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
 
   if (stagesLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="safe-app-height flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
