@@ -1,6 +1,6 @@
 import { Lead } from '@/types/Lead';
 import { PipedriveHeader } from './PipedriveHeader';
-import { SimplePipelineStages } from '@/components/leads/SimplePipelineStages';
+import { DynamicPipelineStages } from '@/components/pipeline/DynamicPipelineStages';
 import { SummarySection } from './SummarySection';
 import { PersonSection } from './PersonSection';
 import { TeamAssignmentSection } from './TeamAssignmentSection';
@@ -75,10 +75,10 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
         onCreateFromLead={() => setClosureOpen(true)}
       />
       
-      {/* Simple Pipeline Stages */}
+      {/* Dynamic Pipeline Stages */}
       {stages && stages.length > 0 && (
-        <SimplePipelineStages
-          stages={stages}
+        <DynamicPipelineStages
+          pipelineId="leads-pipeline"
           currentStageId={lead.pipeline_stage_id}
           leadId={lead.id}
           onStageChange={handleStageChange}
@@ -87,6 +87,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
           leadData={lead}
           isUpdating={isUpdating}
           showConfiguration={true}
+          enableChecklistGate={true}
         />
       )}
 

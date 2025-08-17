@@ -34,6 +34,7 @@ interface DynamicPipelineStagesProps {
   isUpdating?: boolean;
   showConfiguration?: boolean;
   compactMode?: boolean;
+  enableChecklistGate?: boolean;
 }
 
 export const DynamicPipelineStages = ({
@@ -46,7 +47,8 @@ export const DynamicPipelineStages = ({
   leadData,
   isUpdating = false,
   showConfiguration = false,
-  compactMode: propCompactMode = false
+  compactMode: propCompactMode = false,
+  enableChecklistGate = true
 }: DynamicPipelineStagesProps) => {
   const { stages, loading, error } = useStages(pipelineId);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -121,7 +123,7 @@ export const DynamicPipelineStages = ({
     }
 
     // Validar checklist requerido antes de avanzar
-    if (leadId && targetIndex > currentStageIndex && !isRequiredComplete) {
+    if (enableChecklistGate && leadId && targetIndex > currentStageIndex && !isRequiredComplete) {
       toast.error('Completa los pasos requeridos');
       return;
     }
@@ -141,7 +143,7 @@ export const DynamicPipelineStages = ({
   const handleNextStage = () => {
     if (currentStageIndex < pipelineStages.length - 1) {
       // Validar checklist requerido antes de avanzar
-      if (leadId && !isRequiredComplete) {
+      if (enableChecklistGate && leadId && !isRequiredComplete) {
         toast.error('Completa los pasos requeridos');
         return;
       }
