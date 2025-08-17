@@ -1,6 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface ChecklistItem {
+  key: string;
+  label: string;
+  required?: boolean;
+}
+
+export interface StageConfig {
+  checklist?: ChecklistItem[];
+  [key: string]: any;
+}
+
 export interface PipelineStage {
   id: string;
   name: string;
@@ -9,6 +20,7 @@ export interface PipelineStage {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  stage_config?: StageConfig;
 }
 
 export const usePipelineStages = () => {
