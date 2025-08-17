@@ -277,6 +277,11 @@ export const DynamicPipelineStages = ({
             </div>
           </div>
 
+          {/* Help text */}
+          <p className="text-xs text-muted-foreground mb-3">
+            Para avanzar, completa los campos requeridos y los pasos marcados como obligatorios
+          </p>
+
           {/* Progress Visualization */}
           <div className="space-y-4">
             <div className="flex items-center justify-between text-sm">
