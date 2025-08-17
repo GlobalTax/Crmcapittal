@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowRight, Percent, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ArrowRight, Percent, Calendar, Settings } from 'lucide-react';
 import { PipelineStage } from '@/hooks/leads/usePipelineStages';
+import { PipelineConfigurationManager } from '@/components/pipeline/PipelineConfigurationManager';
 import { toast } from 'sonner';
 
 interface SimplePipelineStagesProps {
@@ -16,6 +18,7 @@ interface SimplePipelineStagesProps {
   onLose?: () => void;
   leadData?: any;
   isUpdating?: boolean;
+  showConfiguration?: boolean;
 }
 
 export const SimplePipelineStages = ({
@@ -25,8 +28,10 @@ export const SimplePipelineStages = ({
   onWin,
   onLose,
   leadData,
-  isUpdating = false
+  isUpdating = false,
+  showConfiguration = false
 }: SimplePipelineStagesProps) => {
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const currentStageIndex = stages.findIndex(stage => stage.id === currentStageId);
   const currentStage = stages[currentStageIndex];
 
@@ -96,6 +101,28 @@ export const SimplePipelineStages = ({
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold">Progreso del Pipeline</h3>
+          {showConfiguration && (
+            <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configurar
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+                <DialogHeader>
+                  <DialogTitle>Configuración del Pipeline</DialogTitle>
+                  <DialogDescription>
+                    Crea y personaliza el pipeline de leads con la plantilla simplificada
+                  </DialogDescription>
+                </DialogHeader>
+                <PipelineConfigurationManager 
+                  pipelineId="leads-pipeline"
+                  onClose={() => setIsConfigOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Progress Visualization */}
