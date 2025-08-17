@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, GripVertical, Edit, Trash2, Settings, Save, X, Download, Loader2, Filter } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Stage } from '@/types/Pipeline';
 import { StageAction } from '@/types/StageAction';
 import { useStages } from '@/hooks/useStages';
@@ -30,6 +31,22 @@ interface StageFormData {
   required_fields: string[];
   validation_rules: any[];
 }
+
+interface ChecklistItem {
+  key: string;
+  label: string;
+  required?: boolean;
+}
+
+// Utility function to create slugs from labels
+const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+};
 
 export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineConfigurationManagerProps) => {
   const { stages, loading, createStage, updateStage, deleteStage, reorderStages, refetch } = useStages(pipelineId);
@@ -56,7 +73,7 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
       description: '',
       color: '#3B82F6',
       order_index: pipelineStages.length,
-      stage_config: {},
+      stage_config: { checklist: [] },
       required_fields: [],
       validation_rules: []
     });
@@ -64,12 +81,16 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
   };
 
   const handleEditStage = (stage: Stage) => {
+    const stageConfig = stage.stage_config || {};
     setStageForm({
       name: stage.name,
       description: stage.description || '',
       color: stage.color,
       order_index: stage.order_index,
-      stage_config: stage.stage_config || {},
+      stage_config: {
+        ...stageConfig,
+        checklist: stageConfig.checklist || []
+      },
       required_fields: stage.required_fields || [],
       validation_rules: stage.validation_rules || []
     });
@@ -191,6 +212,58 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
     } finally {
       setIsApplyingPreset(false);
     }
+  };
+
+  // Checklist handlers
+  const handleAddChecklistItem = () => {
+    const newItem: ChecklistItem = {
+      key: `item-${Date.now()}`,
+      label: '',
+      required: false
+    };
+    
+    const updatedChecklist = [...(stageForm.stage_config.checklist || []), newItem];
+    setStageForm(prev => ({
+      ...prev,
+      stage_config: {
+        ...prev.stage_config,
+        checklist: updatedChecklist
+      }
+    }));
+  };
+
+  const handleUpdateChecklistItem = (index: number, field: keyof ChecklistItem, value: any) => {
+    const updatedChecklist = [...(stageForm.stage_config.checklist || [])];
+    updatedChecklist[index] = {
+      ...updatedChecklist[index],
+      [field]: value
+    };
+    
+    // Auto-generate key when label changes
+    if (field === 'label' && value.trim()) {
+      updatedChecklist[index].key = slugify(value);
+    }
+    
+    setStageForm(prev => ({
+      ...prev,
+      stage_config: {
+        ...prev.stage_config,
+        checklist: updatedChecklist
+      }
+    }));
+  };
+
+  const handleRemoveChecklistItem = (index: number) => {
+    const updatedChecklist = [...(stageForm.stage_config.checklist || [])];
+    updatedChecklist.splice(index, 1);
+    
+    setStageForm(prev => ({
+      ...prev,
+      stage_config: {
+        ...prev.stage_config,
+        checklist: updatedChecklist
+      }
+    }));
   };
 
   if (loading) {
@@ -407,8 +480,77 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
             </TabsContent>
             
             <TabsContent value="config" className="space-y-4">
+              {/* Checklist Editor */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <Label>Checklist de la etapa</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Lista de pasos o tareas que se deben completar en esta etapa
+                    </p>
+                  </div>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleAddChecklistItem}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Añadir paso
+                  </Button>
+                </div>
+                
+                {stageForm.stage_config.checklist && stageForm.stage_config.checklist.length > 0 ? (
+                  <div className="space-y-3">
+                    {stageForm.stage_config.checklist.map((item: ChecklistItem, index: number) => (
+                      <div key={`${item.key}-${index}`} className="flex items-center gap-3 p-3 border rounded-lg">
+                        <div className="flex-1 grid grid-cols-1 gap-2">
+                          <Input
+                            placeholder="Descripción del paso"
+                            value={item.label}
+                            onChange={(e) => handleUpdateChecklistItem(index, 'label', e.target.value)}
+                          />
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`required-${index}`}
+                              checked={item.required || false}
+                              onCheckedChange={(checked) => handleUpdateChecklistItem(index, 'required', checked)}
+                            />
+                            <Label 
+                              htmlFor={`required-${index}`} 
+                              className="text-sm font-normal cursor-pointer"
+                            >
+                              Campo obligatorio
+                            </Label>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveChecklistItem(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground border rounded-lg border-dashed">
+                    No hay pasos definidos. Haz clic en "Añadir paso" para comenzar.
+                  </div>
+                )}
+              </div>
+              
+              {/* Separator */}
+              <div className="border-t my-6"></div>
+              
+              {/* Advanced JSON Configuration */}
               <div>
                 <Label>Configuración Avanzada (JSON)</Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Configuración técnica avanzada en formato JSON
+                </p>
                 <Textarea
                   value={JSON.stringify(stageForm.stage_config, null, 2)}
                   onChange={(e) => {
