@@ -78,7 +78,7 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
       {/* Dynamic Pipeline Stages */}
       {stages && stages.length > 0 && (
         <DynamicPipelineStages
-          pipelineId="leads-pipeline"
+          pipelineId="LEAD"
           currentStageId={lead.pipeline_stage_id}
           leadId={lead.id}
           onStageChange={handleStageChange}

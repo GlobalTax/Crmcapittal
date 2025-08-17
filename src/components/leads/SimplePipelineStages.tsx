@@ -117,7 +117,7 @@ export const SimplePipelineStages = ({
                   </DialogDescription>
                 </DialogHeader>
                 <PipelineConfigurationManager 
-                  pipelineId="leads-pipeline"
+                  pipelineId="LEAD"
                   onClose={() => setIsConfigOpen(false)}
                 />
               </DialogContent>
