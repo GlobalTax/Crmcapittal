@@ -6789,6 +6789,7 @@ export type Database = {
           deal_value: number | null
           email: string
           estimated_close_date: string | null
+          extra: Json | null
           highlighted: boolean | null
           id: string
           is_followed: boolean | null
@@ -6834,6 +6835,7 @@ export type Database = {
           deal_value?: number | null
           email: string
           estimated_close_date?: string | null
+          extra?: Json | null
           highlighted?: boolean | null
           id?: string
           is_followed?: boolean | null
@@ -6879,6 +6881,7 @@ export type Database = {
           deal_value?: number | null
           email?: string
           estimated_close_date?: string | null
+          extra?: Json | null
           highlighted?: boolean | null
           id?: string
           is_followed?: boolean | null
