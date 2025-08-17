@@ -21,6 +21,11 @@ export interface Stage {
   created_at: string;
   updated_at: string;
   pipeline?: Pipeline;
+  // Nuevos campos añadidos para personalización
+  stage_config?: any;
+  required_fields?: string[];
+  validation_rules?: any[];
+  probability?: number; // Probabilidad de conversión en esta etapa
 }
 
 export type PipelineType = Pipeline['type'];

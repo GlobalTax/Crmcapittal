@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -8576,6 +8576,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pipeline_templates: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          template_data: Json
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          template_data: Json
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          template_data?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pipelines: {
         Row: {
           created_at: string
@@ -10335,6 +10371,48 @@ export type Database = {
         }
         Relationships: []
       }
+      stage_actions: {
+        Row: {
+          action_config: Json
+          action_name: string
+          action_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          is_required: boolean
+          order_index: number
+          stage_id: string
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json
+          action_name: string
+          action_type: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          order_index?: number
+          stage_id: string
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json
+          action_name?: string
+          action_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          order_index?: number
+          stage_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       stages: {
         Row: {
           color: string | null
@@ -10345,7 +10423,10 @@ export type Database = {
           name: string
           order_index: number
           pipeline_id: string
+          required_fields: Json | null
+          stage_config: Json | null
           updated_at: string
+          validation_rules: Json | null
         }
         Insert: {
           color?: string | null
@@ -10356,7 +10437,10 @@ export type Database = {
           name: string
           order_index: number
           pipeline_id: string
+          required_fields?: Json | null
+          stage_config?: Json | null
           updated_at?: string
+          validation_rules?: Json | null
         }
         Update: {
           color?: string | null
@@ -10367,7 +10451,10 @@ export type Database = {
           name?: string
           order_index?: number
           pipeline_id?: string
+          required_fields?: Json | null
+          stage_config?: Json | null
           updated_at?: string
+          validation_rules?: Json | null
         }
         Relationships: [
           {
@@ -12916,22 +13003,22 @@ export type Database = {
       }
       assign_role_after_signup: {
         Args: {
-          p_user_id: string
           p_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
         }
         Returns: Json
       }
       assign_user_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: Json
       }
       assign_user_role_secure: {
         Args: {
-          _target_user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _target_user_id: string
         }
         Returns: Json
       }
@@ -12962,8 +13049,8 @@ export type Database = {
       check_document_permission: {
         Args: {
           p_document_id: string
-          p_user_id: string
           p_required_permission: string
+          p_user_id: string
         }
         Returns: boolean
       }
@@ -12977,17 +13064,17 @@ export type Database = {
       }
       check_rate_limit_enhanced: {
         Args:
-          | { p_identifier: string; p_action?: string }
+          | { p_action?: string; p_identifier: string }
           | {
-              p_operation: string
               p_identifier: string
               p_max_requests?: number
+              p_operation: string
               p_window_minutes?: number
             }
         Returns: boolean
       }
       check_session_timeout: {
-        Args: { p_user_id: string; p_timeout_minutes?: number }
+        Args: { p_timeout_minutes?: number; p_user_id: string }
         Returns: boolean
       }
       cleanup_old_presence: {
@@ -12996,33 +13083,33 @@ export type Database = {
       }
       convert_lead: {
         Args: {
-          p_lead_id: string
           p_create_company?: boolean
           p_create_deal?: boolean
+          p_lead_id: string
         }
         Returns: Json
       }
       create_deal_from_won_lead: {
-        Args: { p_lead_id: string; p_deal_value?: number }
+        Args: { p_deal_value?: number; p_lead_id: string }
         Returns: Json
       }
       create_entity_from_lead: {
         Args: {
           p_lead_id: string
-          p_type: string
-          p_payload: Json
           p_link?: boolean
+          p_payload: Json
+          p_type: string
         }
         Returns: string
       }
       create_lead_task: {
         Args: {
-          p_lead_id: string
-          p_title: string
+          p_assigned_to?: string
           p_description?: string
           p_due_date?: string
+          p_lead_id: string
           p_priority?: string
-          p_assigned_to?: string
+          p_title: string
         }
         Returns: string
       }
@@ -13035,7 +13122,7 @@ export type Database = {
         Returns: string
       }
       create_qualification_task: {
-        Args: { p_lead_id: string; p_assigned_to: string }
+        Args: { p_assigned_to: string; p_lead_id: string }
         Returns: string
       }
       create_reconversion_with_workflow: {
@@ -13049,10 +13136,10 @@ export type Database = {
       create_user_with_role_secure: {
         Args: {
           p_email: string
-          p_password: string
-          p_role: Database["public"]["Enums"]["app_role"]
           p_first_name?: string
           p_last_name?: string
+          p_password: string
+          p_role: Database["public"]["Enums"]["app_role"]
         }
         Returns: Json
       }
@@ -13075,16 +13162,16 @@ export type Database = {
       enhanced_log_security_event: {
         Args:
           | {
-              p_event_type: string
-              p_severity?: string
               p_description?: string
+              p_event_type: string
               p_metadata?: Json
+              p_severity?: string
             }
           | {
-              p_event_type: string
-              p_severity?: string
               p_description?: string
+              p_event_type: string
               p_metadata?: Json
+              p_severity?: string
               p_user_email?: string
             }
         Returns: string
@@ -13124,15 +13211,15 @@ export type Database = {
       get_all_overdue_tasks: {
         Args: Record<PropertyKey, never>
         Returns: {
+          days_overdue: number
+          due_date: string
+          entity_id: string
+          entity_name: string
+          owner_email: string
+          owner_id: string
           task_id: string
           task_title: string
           task_type: string
-          entity_id: string
-          entity_name: string
-          due_date: string
-          owner_id: string
-          owner_email: string
-          days_overdue: number
         }[]
       }
       get_current_user_role_safe: {
@@ -13146,57 +13233,57 @@ export type Database = {
       get_lead_tasks_with_dependencies: {
         Args: { p_lead_id: string }
         Returns: {
-          id: string
-          lead_id: string
-          type: Database["public"]["Enums"]["lead_task_type"]
-          title: string
+          assigned_to: string
+          can_start: boolean
+          completed_at: string
+          created_at: string
+          created_by: string
+          dependencies: string[]
+          dependency_status: Json
           description: string
           due_date: string
-          assigned_to: string
-          priority: Database["public"]["Enums"]["lead_task_priority"]
-          status: Database["public"]["Enums"]["lead_task_status"]
-          dependencies: string[]
+          id: string
+          lead_id: string
           metadata: Json
-          sla_hours: number
+          priority: Database["public"]["Enums"]["lead_task_priority"]
           sla_breached: boolean
-          completed_at: string
-          created_by: string
-          created_at: string
+          sla_hours: number
+          status: Database["public"]["Enums"]["lead_task_status"]
+          title: string
+          type: Database["public"]["Enums"]["lead_task_type"]
           updated_at: string
-          can_start: boolean
-          dependency_status: Json
         }[]
       }
       get_pending_engine_task_reminders: {
         Args: Record<PropertyKey, never>
         Returns: {
-          task_id: string
-          lead_id: string
-          title: string
-          task_type: string
-          due_date: string
           assignee: string
-          lead_name: string
+          due_date: string
           kind: string
+          lead_id: string
+          lead_name: string
+          task_id: string
+          task_type: string
+          title: string
         }[]
       }
       get_pending_scheduled_reminders: {
         Args: Record<PropertyKey, never>
         Returns: {
+          created_at: string
+          deal_id: string
+          entity_id: string
+          entity_name: string
           id: string
-          task_id: string
-          task_type: string
+          message: string
+          negocio_id: string
           notification_type: string
           reminder_type: string
-          task_title: string
-          entity_name: string
-          entity_id: string
-          message: string
           scheduled_for: string
-          deal_id: string
-          negocio_id: string
+          task_id: string
+          task_title: string
+          task_type: string
           user_id: string
-          created_at: string
         }[]
       }
       get_quantum_token: {
@@ -13210,14 +13297,14 @@ export type Database = {
       get_teams_with_member_count: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          name: string
-          description: string
-          created_by: string
           created_at: string
-          updated_at: string
-          member_count: number
+          created_by: string
           creator_name: string
+          description: string
+          id: string
+          member_count: number
+          name: string
+          updated_at: string
         }[]
       }
       get_user_highest_role: {
@@ -13227,41 +13314,41 @@ export type Database = {
       get_user_permissions: {
         Args: { _user_id: string }
         Returns: {
-          permission_name: string
-          module: string
           action: string
+          module: string
+          permission_name: string
         }[]
       }
       get_users_with_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
-          user_id: string
           email: string
           first_name: string
+          is_manager: boolean
           last_name: string
           role: string
-          is_manager: boolean
+          user_id: string
         }[]
       }
       has_permission: {
-        Args: { _user_id: string; _permission_name: string }
+        Args: { _permission_name: string; _user_id: string }
         Returns: boolean
       }
       has_reconversion_permission: {
-        Args: { p_reconversion_id: string; p_action?: string }
+        Args: { p_action?: string; p_reconversion_id: string }
         Returns: boolean
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       has_role_secure: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
@@ -13275,93 +13362,93 @@ export type Database = {
       }
       log_automation_event: {
         Args: {
-          p_automation_type: string
-          p_entity_type: string
-          p_entity_id: string
-          p_trigger_event: string
-          p_action_taken: string
           p_action_data?: Json
-          p_status?: string
+          p_action_taken: string
+          p_automation_type: string
+          p_entity_id: string
+          p_entity_type: string
           p_error_message?: string
           p_execution_time_ms?: number
+          p_status?: string
+          p_trigger_event: string
         }
         Returns: string
       }
       log_document_access: {
         Args: {
-          p_document_id: string
-          p_share_id?: string
           p_access_type?: string
-          p_session_duration?: number
+          p_document_id: string
           p_metadata?: Json
+          p_session_duration?: number
+          p_share_id?: string
         }
         Returns: string
       }
       log_lead_score_change: {
         Args: {
+          p_delta: number
           p_lead_id: string
           p_regla: string
-          p_delta: number
           p_total: number
         }
         Returns: string
       }
       log_reconversion_audit: {
         Args: {
-          p_reconversion_id: string
-          p_action_type: string
           p_action_description: string
-          p_old_data?: Json
-          p_new_data?: Json
-          p_severity?: string
+          p_action_type: string
           p_metadata?: Json
+          p_new_data?: Json
+          p_old_data?: Json
+          p_reconversion_id: string
+          p_severity?: string
         }
         Returns: string
       }
       log_security_event: {
         Args:
           | {
-              p_event_type: string
-              p_severity: string
               p_description: string
+              p_event_type: string
               p_metadata?: Json
+              p_severity: string
               p_user_id?: string
             }
           | {
-              p_event_type: string
-              p_severity?: string
               p_description?: string
+              p_event_type: string
               p_metadata?: Json
+              p_severity?: string
             }
         Returns: string
       }
       log_security_event_enhanced: {
         Args:
           | {
-              p_event_type: string
-              p_severity?: string
-              p_description?: string
-              p_metadata?: Json
               p_auto_alert?: boolean
+              p_description?: string
+              p_event_type: string
+              p_metadata?: Json
+              p_severity?: string
             }
           | {
-              p_event_type: string
-              p_severity?: string
               p_description?: string
+              p_event_type: string
               p_metadata?: Json
+              p_severity?: string
               p_table_name?: string
             }
         Returns: string
       }
       mark_engine_task_notified: {
-        Args: { p_task_id: string; p_kind: string }
+        Args: { p_kind: string; p_task_id: string }
         Returns: undefined
       }
       mark_reminder_processed: {
         Args: {
+          p_error_message?: string
           p_reminder_id: string
           p_status?: string
-          p_error_message?: string
         }
         Returns: boolean
       }
@@ -13372,8 +13459,8 @@ export type Database = {
       match_targets_for_reconversion: {
         Args: { reconversion_id: string }
         Returns: {
-          target_count: number
           matched_companies: Json
+          target_count: number
         }[]
       }
       normalize_company_name: {
@@ -13391,8 +13478,8 @@ export type Database = {
       process_approval: {
         Args: {
           p_approval_id: string
-          p_status: Database["public"]["Enums"]["approval_status"]
           p_comments?: string
+          p_status: Database["public"]["Enums"]["approval_status"]
         }
         Returns: boolean
       }
@@ -13403,8 +13490,8 @@ export type Database = {
       process_email_tracking: {
         Args: {
           p_email_id: string
-          p_event_type: string
           p_event_data?: Json
+          p_event_type: string
           p_ip_address?: unknown
           p_user_agent?: string
         }
@@ -13415,7 +13502,7 @@ export type Database = {
         Returns: Json
       }
       process_reconversion_closure: {
-        Args: { reconversion_id: string; closure_data: Json; user_id?: string }
+        Args: { closure_data: Json; reconversion_id: string; user_id?: string }
         Returns: boolean
       }
       quick_create_company_from_email: {
@@ -13436,8 +13523,8 @@ export type Database = {
       }
       remove_user_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: Json
       }
@@ -13459,12 +13546,12 @@ export type Database = {
       }
       send_reconversion_notification: {
         Args: {
-          p_reconversion_id: string
-          p_notification_type: string
-          p_recipient_user_id: string
-          p_title: string
           p_message: string
           p_metadata?: Json
+          p_notification_type: string
+          p_recipient_user_id: string
+          p_reconversion_id: string
+          p_title: string
         }
         Returns: string
       }
@@ -13514,21 +13601,21 @@ export type Database = {
       }
       update_reconversion_subfase: {
         Args: {
-          reconversion_id: string
           new_subfase: Database["public"]["Enums"]["reconversion_subfase"]
+          reconversion_id: string
           user_id?: string
         }
         Returns: boolean
       }
       update_user_role_secure: {
         Args: {
-          _target_user_id: string
           _new_role: Database["public"]["Enums"]["app_role"]
+          _target_user_id: string
         }
         Returns: Json
       }
       validate_and_sanitize_input: {
-        Args: { p_input: string; p_max_length?: number; p_allow_html?: boolean }
+        Args: { p_allow_html?: boolean; p_input: string; p_max_length?: number }
         Returns: string
       }
       validate_api_configuration: {
@@ -13548,7 +13635,7 @@ export type Database = {
         Returns: Json
       }
       validate_sensitive_data_access: {
-        Args: { table_name: string; record_id: string; access_type?: string }
+        Args: { access_type?: string; record_id: string; table_name: string }
         Returns: boolean
       }
       validate_session_security: {
