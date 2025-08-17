@@ -422,11 +422,12 @@ export const DynamicPipelineStages = ({
               )}
 
               {/* Stage Checklist */}
-              {leadId && (
+              {leadId && leadData && (
                 <div className="mb-3">
                   <StageChecklist 
-                    stageId={currentStage.id} 
+                    stage={currentStage}
                     leadId={leadId}
+                    leadData={leadData}
                     className="mt-2"
                   />
                 </div>

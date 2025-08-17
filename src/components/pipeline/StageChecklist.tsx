@@ -1,193 +1,116 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useLeadChecklistProgress } from '@/hooks/leads/useLeadChecklistProgress';
-import { CheckCircle2, Circle, Loader2 } from 'lucide-react';
+import { Stage } from '@/types/Pipeline';
+import { Lead } from '@/types/Lead';
+import { updateLead } from '@/services/leadsService';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+interface ChecklistItem {
+  key: string;
+  label: string;
+  required?: boolean;
+}
+
 interface StageChecklistProps {
-  stageId: string;
+  stage: Stage;
   leadId: string;
+  leadData: Lead;
   className?: string;
 }
 
-export const StageChecklist = ({ stageId, leadId, className }: StageChecklistProps) => {
-  const {
-    items,
-    isLoading,
-    error,
-    toggleProgress,
-    completeAll,
-    isToggling,
-    isCompletingAll,
-    stats,
-    completionPercentage,
-    requiredCompletionPercentage,
-    isRequiredComplete
-  } = useLeadChecklistProgress(leadId, stageId);
+export const StageChecklist = ({ stage, leadId, leadData, className }: StageChecklistProps) => {
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
-  if (isLoading) {
-    return (
-      <Card className={cn("w-full", className)}>
-        <CardHeader>
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-32" />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center space-x-3">
-              <Skeleton className="h-4 w-4 rounded" />
-              <Skeleton className="h-4 flex-1" />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    );
-  }
+  // Get checklist items from stage configuration
+  const items: ChecklistItem[] = stage.stage_config?.checklist ?? [];
 
-  if (error) {
-    return (
-      <Card className={cn("w-full", className)}>
-        <CardContent className="py-6">
-          <div className="text-center text-muted-foreground">
-            <Circle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Error al cargar el checklist</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Get progress from leadData.extra
+  const progress = leadData.extra?.stage_checklist?.[stage.id] ?? {};
+
+  const handleItemToggle = async (itemKey: string, checked: boolean) => {
+    if (updatingItems.has(itemKey)) return;
+
+    setUpdatingItems(prev => new Set(prev).add(itemKey));
+
+    try {
+      // Merge the new progress with existing extra data
+      const newExtra = {
+        ...leadData.extra,
+        stage_checklist: {
+          ...leadData.extra?.stage_checklist,
+          [stage.id]: {
+            ...leadData.extra?.stage_checklist?.[stage.id],
+            [itemKey]: checked
+          }
+        }
+      };
+
+      await updateLead(leadId, { extra: newExtra });
+      
+      // Update local leadData reference is handled by parent component's refetch
+      toast.success(checked ? 'Item marcado como completado' : 'Item marcado como pendiente');
+    } catch (error) {
+      console.error('Error updating checklist progress:', error);
+      toast.error('Error al actualizar el progreso del checklist');
+    } finally {
+      setUpdatingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemKey);
+        return newSet;
+      });
+    }
+  };
 
   if (items.length === 0) {
-    return (
-      <Card className={cn("w-full", className)}>
-        <CardContent className="py-6">
-          <div className="text-center text-muted-foreground">
-            <CheckCircle2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No hay elementos en el checklist</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
-  const handleToggleProgress = (itemId: string, completed: boolean) => {
-    toggleProgress({
-      lead_id: leadId,
-      item_id: itemId,
-      stage_id: stageId,
-      completed
-    });
-  };
-
-  const handleCompleteAll = () => {
-    completeAll();
-  };
-
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">
-            Checklist de Etapa
-          </CardTitle>
-          {stats.total > 0 && stats.completed < stats.total && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleCompleteAll}
-              disabled={isCompletingAll}
-              className="text-xs"
-            >
-              {isCompletingAll ? (
-                <Loader2 className="h-3 w-3 animate-spin mr-1" />
-              ) : (
-                "Completar todos"
-              )}
-            </Button>
-          )}
-        </div>
-        
-        {/* Progress Summary */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Progreso general</span>
-            <span>{stats.completed} de {stats.total} completados</span>
-          </div>
-          <Progress value={completionPercentage} className="h-2" />
-          
-          {stats.required > 0 && (
-            <>
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>Items requeridos</span>
-                <span className={cn(
-                  "font-medium",
-                  isRequiredComplete ? "text-green-600" : "text-amber-600"
-                )}>
-                  {stats.requiredCompleted} de {stats.required}
-                </span>
-              </div>
-              <Progress 
-                value={requiredCompletionPercentage} 
-                className="h-1.5"
-              />
-            </>
-          )}
-        </div>
-      </CardHeader>
+    <div className={cn("space-y-2", className)}>
+      <h4 className="text-sm font-medium text-foreground mb-2">
+        Checklist de la etapa
+      </h4>
+      <div className="space-y-1.5">
+        {items.map((item) => {
+          const isChecked = progress[item.key] === true;
+          const isUpdating = updatingItems.has(item.key);
 
-      <CardContent className="space-y-3">
-        {items.map((item) => (
-          <div 
-            key={item.id}
-            className={cn(
-              "flex items-center space-x-3 p-2 rounded-md transition-colors",
-              "hover:bg-muted/50",
-              item.completed && "bg-muted/30"
-            )}
-          >
-            <Checkbox
-              checked={item.completed}
-              onCheckedChange={(checked) => 
-                handleToggleProgress(item.id, checked as boolean)
-              }
-              disabled={isToggling}
-              className="shrink-0"
-            />
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
+          return (
+            <div 
+              key={item.key}
+              className={cn(
+                "flex items-center space-x-2 p-2 rounded-sm transition-colors",
+                "hover:bg-muted/50",
+                isChecked && "bg-muted/30"
+              )}
+            >
+              <Checkbox
+                checked={isChecked}
+                onCheckedChange={(checked) => handleItemToggle(item.key, checked as boolean)}
+                disabled={isUpdating}
+                className="shrink-0"
+              />
+              
+              <div className="flex-1 min-w-0 flex items-center gap-2">
                 <span className={cn(
-                  "text-sm font-medium",
-                  item.completed ? "line-through text-muted-foreground" : "text-foreground"
+                  "text-sm",
+                  isChecked ? "line-through text-muted-foreground" : "text-foreground"
                 )}>
                   {item.label}
                 </span>
                 
-                {item.is_required && (
+                {item.required && (
                   <Badge variant="outline" className="text-xs shrink-0">
                     Requerida
                   </Badge>
                 )}
               </div>
-              
-              {item.completed && item.completed_at && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Completado {new Date(item.completed_at).toLocaleDateString('es-ES', {
-                    day: 'numeric',
-                    month: 'short',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </p>
-              )}
             </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+          );
+        })}
+      </div>
+    </div>
   );
 };
