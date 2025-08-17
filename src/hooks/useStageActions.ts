@@ -23,7 +23,7 @@ export const useStageActions = (stageId?: string) => {
         .order('order_index');
 
       if (error) throw error;
-      setActions(data || []);
+      setActions((data || []) as StageAction[]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar acciones';
       setError(errorMessage);
@@ -37,13 +37,16 @@ export const useStageActions = (stageId?: string) => {
     try {
       const { data, error } = await supabase
         .from('stage_actions')
-        .insert([actionData])
+        .insert([{
+          ...actionData,
+          action_config: actionData.action_config as any
+        }])
         .select()
         .single();
 
       if (error) throw error;
       
-      setActions(prev => [...prev, data]);
+      setActions(prev => [...prev, data as StageAction]);
       toast.success('Acción creada exitosamente');
       return data;
     } catch (err) {
@@ -57,7 +60,10 @@ export const useStageActions = (stageId?: string) => {
     try {
       const { data, error } = await supabase
         .from('stage_actions')
-        .update(updates)
+        .update({
+          ...updates,
+          action_config: updates.action_config as any
+        })
         .eq('id', actionId)
         .select()
         .single();
@@ -65,7 +71,7 @@ export const useStageActions = (stageId?: string) => {
       if (error) throw error;
       
       setActions(prev => prev.map(action => 
-        action.id === actionId ? { ...action, ...data } : action
+        action.id === actionId ? { ...action, ...(data as StageAction) } : action
       ));
       toast.success('Acción actualizada exitosamente');
       return data;

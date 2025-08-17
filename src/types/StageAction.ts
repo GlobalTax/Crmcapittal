@@ -34,6 +34,9 @@ export interface ActionConfig {
   conditions?: ActionCondition[];
   delay_minutes?: number;
   depends_on?: string[]; // IDs de otras acciones
+  
+  // Index signature for compatibility with Json type
+  [key: string]: any;
 }
 
 export interface ValidationRule {

@@ -35,7 +35,8 @@ export const usePipelineTemplates = () => {
         .from('pipeline_templates')
         .insert([{
           ...templateData,
-          template_data: templateData.template_data as any
+          template_data: templateData.template_data as any,
+          created_by: (await supabase.auth.getUser()).data.user?.id
         }])
         .select()
         .single();

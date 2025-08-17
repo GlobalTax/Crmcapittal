@@ -21,7 +21,7 @@ export interface Stage {
   created_at: string;
   updated_at: string;
   pipeline?: Pipeline;
-  // Nuevos campos añadidos para personalización
+  // Nuevos campos añadidos para personalización - compatible con Json type
   stage_config?: any;
   required_fields?: string[];
   validation_rules?: any[];

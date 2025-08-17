@@ -93,6 +93,10 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
       // Transform the data to match our Stage type
       const transformedData = (data || []).map(stage => ({
         ...stage,
+        // Cast Json fields to proper types
+        required_fields: (stage.required_fields as any) || [],
+        validation_rules: (stage.validation_rules as any) || [],
+        stage_config: (stage.stage_config as any) || {},
         pipeline: stage.pipelines ? {
           ...stage.pipelines,
           type: stage.pipelines.type as PipelineType
@@ -100,7 +104,7 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
       }));
       
       console.log(`Fetched ${transformedData.length} stages for pipeline`);
-      setStages(transformedData);
+      setStages(transformedData as Stage[]);
     } catch (err) {
       console.error('Error in fetchStages:', err);
       setError('Error al cargar las etapas');
@@ -124,7 +128,7 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
 
       if (error) throw error;
       
-      setStages(prev => [...prev, data].sort((a, b) => a.order_index - b.order_index));
+      setStages(prev => [...prev, data as Stage].sort((a, b) => a.order_index - b.order_index));
       return { data, error: null };
     } catch (err) {
       console.error('Error creating stage:', err);
@@ -143,7 +147,7 @@ export const useStages = (pipelineTypeOrId?: string | PipelineType) => {
 
       if (error) throw error;
       
-      setStages(prev => prev.map(s => s.id === id ? { ...s, ...data } : s)
+      setStages(prev => prev.map(s => s.id === id ? { ...s, ...(data as Stage) } : s)
         .sort((a, b) => a.order_index - b.order_index));
       return { data, error: null };
     } catch (err) {
