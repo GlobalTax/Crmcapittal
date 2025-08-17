@@ -17,7 +17,7 @@ export function AttioLayout() {
         
         {/* Page Content */}
         <main className="flex-1 overflow-auto min-h-0">
-          <div className="p-6 min-h-0">
+          <div className="p-6 min-h-0 h-full">
             <Outlet />
           </div>
         </main>
