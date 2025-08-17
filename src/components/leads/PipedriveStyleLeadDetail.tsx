@@ -12,7 +12,7 @@ export const PipedriveStyleLeadDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-3">
@@ -27,7 +27,7 @@ export const PipedriveStyleLeadDetail = () => {
 
   if (error || !lead) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-full flex items-center justify-center">
         <Card>
           <CardContent className="p-6">
             <div className="text-center">
