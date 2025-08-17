@@ -234,6 +234,10 @@
   .notification-info {
     @apply border-l-primary bg-primary/5;
   }
+
+  .safe-app-height {
+    height: calc(100dvh - 64px);
+  }
 }
 
 @keyframes fadeIn {
