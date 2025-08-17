@@ -9,6 +9,8 @@ import { Stage } from '@/types/Pipeline';
 import { useStages } from '@/hooks/useStages';
 import { PipelineStageActions } from './PipelineStageActions';
 import { PipelineConfigurationManager } from './PipelineConfigurationManager';
+import { StageChecklist } from './StageChecklist';
+import { useLeadChecklistProgress } from '@/hooks/leads/useLeadChecklistProgress';
 import { toast } from 'sonner';
 
 interface DynamicPipelineStagesProps {
@@ -38,6 +40,12 @@ export const DynamicPipelineStages = ({
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
   
+  // Hook para validar checklist de la etapa actual
+  const { isRequiredComplete } = useLeadChecklistProgress(
+    leadId || '', 
+    currentStageId || ''
+  );
+  
   // Filtrar y ordenar etapas del pipeline actual
   const pipelineStages = stages
     .filter(stage => stage.pipeline_id === pipelineId && stage.is_active)
@@ -58,6 +66,12 @@ export const DynamicPipelineStages = ({
       return;
     }
 
+    // Validar checklist requerido antes de avanzar
+    if (leadId && targetIndex > currentStageIndex && !isRequiredComplete) {
+      toast.error('Completa los pasos requeridos');
+      return;
+    }
+
     if (onStageChange) {
       onStageChange(stage.id, stage.name);
     }
@@ -72,6 +86,12 @@ export const DynamicPipelineStages = ({
 
   const handleNextStage = () => {
     if (currentStageIndex < pipelineStages.length - 1) {
+      // Validar checklist requerido antes de avanzar
+      if (leadId && !isRequiredComplete) {
+        toast.error('Completa los pasos requeridos');
+        return;
+      }
+      
       const nextStage = pipelineStages[currentStageIndex + 1];
       handleStageClick(nextStage);
     }
@@ -289,6 +309,17 @@ export const DynamicPipelineStages = ({
                       </Badge>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Stage Checklist */}
+              {leadId && (
+                <div className="mb-3">
+                  <StageChecklist 
+                    stageId={currentStage.id} 
+                    leadId={leadId}
+                    className="mt-2"
+                  />
                 </div>
               )}
 
