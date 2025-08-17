@@ -8,9 +8,10 @@ import { useNavigate } from 'react-router-dom';
 interface PipedriveHeaderProps {
   currentStage?: string;
   onCreateFromLead?: () => void;
+  onOpenConfiguration?: () => void;
 }
 
-export const PipedriveHeader = ({ currentStage = "Pipeline", onCreateFromLead }: PipedriveHeaderProps) => {
+export const PipedriveHeader = ({ currentStage = "Pipeline", onCreateFromLead, onOpenConfiguration }: PipedriveHeaderProps) => {
   const navigate = useNavigate();
 
   return (
@@ -80,6 +81,8 @@ export const PipedriveHeader = ({ currentStage = "Pipeline", onCreateFromLead }:
             variant="ghost" 
             size="sm" 
             className="h-8 w-8 p-0"
+            onClick={onOpenConfiguration}
+            title="Configurar Pipeline"
           >
             <Settings className="h-4 w-4" />
           </Button>

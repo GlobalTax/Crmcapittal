@@ -1,12 +1,12 @@
 
 import { Lead } from '@/types/Lead';
 import { PipedriveHeader } from './PipedriveHeader';
-import { PipelineStagesBar } from './PipelineStagesBar';
+import { DynamicPipelineStages } from '@/components/pipeline/DynamicPipelineStages';
 import { SummarySection } from './SummarySection';
 import { PersonSection } from './PersonSection';
 import { TeamAssignmentSection } from './TeamAssignmentSection';
 import { PipedriveMainContent } from './PipedriveMainContent';
-import { usePipelineStages } from '@/hooks/leads/usePipelineStages';
+import { useStages } from '@/hooks/useStages';
 import { useUpdateLead } from '@/hooks/leads/useUpdateLead';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -14,20 +14,34 @@ import { LeadClosureActionDialog } from '../LeadClosureActionDialog';
 import { useUiLayout } from '@/state/useUiLayout';
 import { cn } from '@/lib/utils';
 import { useLeadStageAutomations } from '@/hooks/leads/useLeadStageAutomations';
+import { PipelineConfigurationManager } from '@/components/pipeline/PipelineConfigurationManager';
+import { ensureDefaultPipeline } from '@/services/pipelineService';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 interface PipedriveLayoutProps {
   lead: Lead;
 }
 
 export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
-  const { data: stages = [], isLoading: stagesLoading } = usePipelineStages();
+  const { stages, loading: stagesLoading, refetch: refetchStages } = useStages('LEAD');
   const { updateStage, markWon, markLost, isUpdating } = useUpdateLead();
   const [closureOpen, setClosureOpen] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
+  const [defaultPipelineId, setDefaultPipelineId] = useState<string | null>(null);
   const { focusMode } = useUiLayout();
   const { runForStageChange, runForWin, runForLose } = useLeadStageAutomations();
 
   const currentStage = stages.find(s => s.id === lead.pipeline_stage_id) || stages[0];
 
-  const handleStageChange = (stageId: string) => {
+  // Ensure default pipeline exists and get its ID
+  useState(() => {
+    const setupPipeline = async () => {
+      const pipelineId = await ensureDefaultPipeline('LEAD', 'Pipeline de Leads', 'Pipeline por defecto para gestión de leads');
+      setDefaultPipelineId(pipelineId);
+    };
+    setupPipeline();
+  });
+
+  const handleStageChange = (stageId: string, stageName: string) => {
     const stage = stages.find(s => s.id === stageId);
     if (stage) {
       updateStage({
@@ -38,6 +52,11 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
       // Automatizaciones mínimas por etapa
       runForStageChange(lead, stage.name);
     }
+  };
+
+  const handleConfigurationSave = () => {
+    refetchStages();
+    setConfigOpen(false);
   };
 
   const handleWin = () => {
@@ -68,22 +87,26 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <PipedriveHeader currentStage={currentStage?.name || 'Pipeline'} onCreateFromLead={() => setClosureOpen(true)} />
-      
-      {/* Pipeline Stages Bar */}
-      <PipelineStagesBar
-        lead={lead}
-        stages={stages.map(stage => ({
-          id: stage.id,
-          name: stage.name,
-          color: stage.color,
-          isActive: stage.is_active,
-        }))}
-        onStageChange={handleStageChange}
-        onWin={handleWin}
-        onLose={handleLose}
-        isUpdating={isUpdating}
+      <PipedriveHeader 
+        currentStage={currentStage?.name || 'Pipeline'} 
+        onCreateFromLead={() => setClosureOpen(true)}
+        onOpenConfiguration={() => setConfigOpen(true)}
       />
+      
+      {/* Dynamic Pipeline Stages */}
+      {defaultPipelineId && (
+        <DynamicPipelineStages
+          pipelineId={defaultPipelineId}
+          currentStageId={lead.pipeline_stage_id}
+          leadId={lead.id}
+          onStageChange={handleStageChange}
+          onWin={handleWin}
+          onLose={handleLose}
+          leadData={lead}
+          isUpdating={isUpdating}
+          showConfiguration={false}
+        />
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 min-h-0 flex">
@@ -100,13 +123,34 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
       <PipedriveMainContent lead={lead} />
     </div>
 
-    {/* Dialogo de cierre/creación desde lead */}
-    <LeadClosureActionDialog
-      isOpen={closureOpen}
-      onClose={() => setClosureOpen(false)}
-      lead={lead}
-      onCreateFromLead={() => Promise.resolve({ success: true })}
-    />
-  </div>
+      {/* Dialogo de cierre/creación desde lead */}
+      <LeadClosureActionDialog
+        isOpen={closureOpen}
+        onClose={() => setClosureOpen(false)}
+        lead={lead}
+        onCreateFromLead={() => Promise.resolve({ success: true })}
+      />
+
+      {/* Pipeline Configuration Dialog */}
+      {configOpen && defaultPipelineId && (
+        <Dialog open={configOpen} onOpenChange={setConfigOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden">
+            <DialogHeader>
+              <DialogTitle>Configurar Pipeline de Leads</DialogTitle>
+              <DialogDescription>
+                Personaliza las etapas, acciones y automatizaciones del pipeline
+              </DialogDescription>
+            </DialogHeader>
+            <PipelineConfigurationManager
+              pipelineId={defaultPipelineId}
+              onClose={() => {
+                setConfigOpen(false);
+                refetchStages();
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
   );
 };
