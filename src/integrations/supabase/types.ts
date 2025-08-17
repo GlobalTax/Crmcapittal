@@ -8607,6 +8607,7 @@ export type Database = {
           name: string
           probability: number | null
           slug: string | null
+          stage_config: Json | null
           stage_order: number
           updated_at: string
         }
@@ -8618,6 +8619,7 @@ export type Database = {
           name: string
           probability?: number | null
           slug?: string | null
+          stage_config?: Json | null
           stage_order: number
           updated_at?: string
         }
@@ -8629,6 +8631,7 @@ export type Database = {
           name?: string
           probability?: number | null
           slug?: string | null
+          stage_config?: Json | null
           stage_order?: number
           updated_at?: string
         }
