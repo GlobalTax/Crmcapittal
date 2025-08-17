@@ -1,4 +1,3 @@
-
 import { Lead } from '@/types/Lead';
 import { PipedriveHeader } from './PipedriveHeader';
 import { DynamicPipelineStages } from '@/components/pipeline/DynamicPipelineStages';
@@ -9,7 +8,7 @@ import { PipedriveMainContent } from './PipedriveMainContent';
 import { useStages } from '@/hooks/useStages';
 import { useUpdateLead } from '@/hooks/leads/useUpdateLead';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LeadClosureActionDialog } from '../LeadClosureActionDialog';
 import { useUiLayout } from '@/state/useUiLayout';
 import { cn } from '@/lib/utils';
@@ -17,6 +16,7 @@ import { useLeadStageAutomations } from '@/hooks/leads/useLeadStageAutomations';
 import { PipelineConfigurationManager } from '@/components/pipeline/PipelineConfigurationManager';
 import { ensureDefaultPipeline } from '@/services/pipelineService';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 interface PipedriveLayoutProps {
   lead: Lead;
 }
@@ -33,13 +33,13 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
   const currentStage = stages.find(s => s.id === lead.pipeline_stage_id) || stages[0];
 
   // Ensure default pipeline exists and get its ID
-  useState(() => {
+  useEffect(() => {
     const setupPipeline = async () => {
       const pipelineId = await ensureDefaultPipeline('LEAD', 'Pipeline de Leads', 'Pipeline por defecto para gestión de leads');
       setDefaultPipelineId(pipelineId);
     };
     setupPipeline();
-  });
+  }, []);
 
   const handleStageChange = (stageId: string, stageName: string) => {
     const stage = stages.find(s => s.id === stageId);
@@ -119,9 +119,9 @@ export const PipedriveLayout = ({ lead }: PipedriveLayoutProps) => {
           </div>
         </aside>
 
-      {/* Main Content */}
-      <PipedriveMainContent lead={lead} />
-    </div>
+        {/* Main Content */}
+        <PipedriveMainContent lead={lead} />
+      </div>
 
       {/* Dialogo de cierre/creación desde lead */}
       <LeadClosureActionDialog
