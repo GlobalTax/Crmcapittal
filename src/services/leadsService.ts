@@ -184,6 +184,35 @@ export const updateLead = async (id: string, updates: UpdateLeadData): Promise<L
       dbUpdates.status = mapStatusToDb(updates.status);
     }
 
+    // Merge seguro de extra
+    if (updates.extra) {
+      // Obtener extra actual del lead
+      const { data: currentLead, error: fetchError } = await supabase
+        .from('leads')
+        .select('extra')
+        .eq('id', id)
+        .maybeSingle();
+        
+      if (fetchError) {
+        logger.error('Error fetching current lead extra:', fetchError);
+        throw fetchError;
+      }
+
+      // Merge superficial de extra
+      dbUpdates.extra = { 
+        ...((currentLead as any)?.extra || {}), 
+        ...(updates.extra || {}) 
+      };
+
+      // Merge específico para stage_checklist si existe
+      if (updates.extra.stage_checklist) {
+        dbUpdates.extra.stage_checklist = { 
+          ...((currentLead as any)?.extra?.stage_checklist || {}), 
+          ...(updates.extra.stage_checklist || {}) 
+        };
+      }
+    }
+
     // Handle legacy field mappings
     if (updates.company) {
       dbUpdates.company_name = updates.company;
