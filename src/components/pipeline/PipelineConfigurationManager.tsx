@@ -135,29 +135,40 @@ export const PipelineConfigurationManager = ({ pipelineId, onClose }: PipelineCo
   const handleCreateLeadsTemplate = async () => {
     setIsCreatingTemplate(true);
     try {
+      console.log('🔄 Iniciando creación de plantilla de leads...');
+      
       // Verificar si existe pipeline LEAD
       const exists = await checkIfLeadsPipelineExists();
+      console.log('📊 Pipeline existente:', exists);
       
       if (exists) {
         toast.info('Ya existe un pipeline de leads activo');
+        console.log('ℹ️ Pipeline ya existe, cancelando creación');
         return;
       }
       
-      // Crear pipeline con plantilla
+      // Crear pipeline con plantilla simplificada
+      console.log('🚀 Creando nuevo pipeline de leads...');
       const result = await createSampleLeadsPipeline();
+      console.log('✅ Resultado de creación:', result);
       
       if (result.success) {
-        toast.success(result.message);
+        toast.success(`✅ ${result.message}`);
+        console.log('🔄 Actualizando vista...');
         // Refetch stages para mostrar los nuevos datos
-        refetch();
+        await refetch();
+        console.log('✨ Vista actualizada correctamente');
       } else {
-        toast.error(result.message);
+        console.error('❌ Error en resultado:', result.message);
+        toast.error(`❌ ${result.message}`);
       }
     } catch (error) {
-      console.error('Error creating leads template:', error);
-      toast.error('Error al crear la plantilla de leads');
+      console.error('💥 Error creating leads template:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error(`💥 Error al crear la plantilla: ${errorMessage}`);
     } finally {
       setIsCreatingTemplate(false);
+      console.log('🏁 Proceso de creación de plantilla finalizado');
     }
   };
 

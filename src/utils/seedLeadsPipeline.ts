@@ -22,6 +22,7 @@ interface StageData {
   }>;
 }
 
+// Plantilla simplificada con 5 etapas: Nuevo → Contactado → Cualificado → Ganado/Perdido
 const STAGES_DATA: StageData[] = [
   {
     name: 'Nuevo',
@@ -30,19 +31,18 @@ const STAGES_DATA: StageData[] = [
     color: '#94A3B8',
     description: 'Lead recién captado, pendiente de primera validación',
     checklists: [
-      { title: 'Validar email', description: 'Verificar que el email es válido y activo', is_required: true, order_index: 1 },
-      { title: 'Identificar empresa', description: 'Confirmar nombre y sector de la empresa', is_required: true, order_index: 2 },
-      { title: 'Obtener teléfono', description: 'Conseguir número de contacto directo', is_required: false, order_index: 3 }
+      { title: 'Validar contacto', description: 'Verificar email y teléfono válidos', is_required: true, order_index: 1 },
+      { title: 'Identificar empresa', description: 'Confirmar nombre y sector de la empresa', is_required: true, order_index: 2 }
     ]
   },
   {
     name: 'Contactado',
     order_index: 2,
-    probability: 25,
+    probability: 30,
     color: '#3B82F6',
     description: 'Primer contacto establecido con el lead',
     checklists: [
-      { title: 'Registrar primera llamada', description: 'Documentar resultado del primer contacto', is_required: true, order_index: 1 },
+      { title: 'Primera llamada', description: 'Realizar y documentar primer contacto', is_required: true, order_index: 1 },
       { title: 'Programar seguimiento', description: 'Establecer fecha para próxima interacción', is_required: true, order_index: 2 }
     ],
     actions: [
@@ -62,85 +62,35 @@ const STAGES_DATA: StageData[] = [
   {
     name: 'Cualificado',
     order_index: 3,
-    probability: 40,
+    probability: 60,
     color: '#F59E0B',
-    description: 'Lead cualificado con interés confirmado',
+    description: 'Lead cualificado con interés y presupuesto confirmados',
     checklists: [
-      { title: 'Capturar presupuesto', description: 'Obtener rango de presupuesto disponible', is_required: true, order_index: 1 },
+      { title: 'Confirmar presupuesto', description: 'Validar rango de presupuesto disponible', is_required: true, order_index: 1 },
       { title: 'Identificar decision maker', description: 'Confirmar quién toma las decisiones', is_required: true, order_index: 2 },
-      { title: 'Validar timeline', description: 'Establecer timeline de decisión', is_required: false, order_index: 3 }
-    ],
-    actions: [
-      {
-        action_type: 'automatic',
-        action_name: 'Crear tarea preparar propuesta',
-        action_config: {
-          task_type: 'preparation',
-          task_description: 'Preparar propuesta personalizada para el lead',
-          delay_minutes: 1440 // 1 día
-        },
-        is_required: false,
-        order_index: 1
-      }
-    ]
-  },
-  {
-    name: 'Propuesta',
-    order_index: 4,
-    probability: 65,
-    color: '#8B5CF6',
-    description: 'Propuesta enviada al cliente',
-    checklists: [
-      { title: 'Enviar propuesta', description: 'Remitir propuesta formal por email', is_required: true, order_index: 1 },
-      { title: 'Confirmar recepción', description: 'Verificar que recibió y revisó la propuesta', is_required: true, order_index: 2 },
-      { title: 'Programar presentación', description: 'Agendar reunión para presentar propuesta', is_required: false, order_index: 3 }
-    ],
-    actions: [
-      {
-        action_type: 'automatic',
-        action_name: 'Follow-up propuesta',
-        action_config: {
-          task_type: 'follow_up',
-          task_description: 'Hacer seguimiento de la propuesta enviada',
-          delay_minutes: 10080 // 1 semana
-        },
-        is_required: false,
-        order_index: 1
-      }
-    ]
-  },
-  {
-    name: 'Negociación',
-    order_index: 5,
-    probability: 80,
-    color: '#EF4444',
-    description: 'En proceso de negociación de términos',
-    checklists: [
-      { title: 'Registrar feedback', description: 'Documentar comentarios y objeciones', is_required: true, order_index: 1 },
-      { title: 'Negociar términos', description: 'Ajustar condiciones según feedback', is_required: true, order_index: 2 },
-      { title: 'Obtener aprobaciones', description: 'Conseguir aprobaciones internas necesarias', is_required: false, order_index: 3 }
+      { title: 'Preparar propuesta', description: 'Elaborar propuesta o presentación', is_required: true, order_index: 3 }
     ]
   },
   {
     name: 'Ganado',
-    order_index: 6,
+    order_index: 4,
     probability: 100,
     color: '#10B981',
-    description: 'Lead convertido exitosamente',
+    description: 'Lead convertido exitosamente en cliente',
     checklists: [
-      { title: 'Firmar contrato', description: 'Formalizar acuerdo con firma de contrato', is_required: true, order_index: 1 },
+      { title: 'Cerrar deal', description: 'Finalizar negociación y firmar contrato', is_required: true, order_index: 1 },
       { title: 'Programar kick-off', description: 'Planificar inicio del proyecto/servicio', is_required: true, order_index: 2 }
     ]
   },
   {
     name: 'Perdido',
-    order_index: 7,
+    order_index: 5,
     probability: 0,
     color: '#6B7280',
-    description: 'Lead no convertido',
+    description: 'Lead no convertido - documentar para futuro seguimiento',
     checklists: [
-      { title: 'Registrar motivo', description: 'Documentar razón por la cual se perdió', is_required: true, order_index: 1 },
-      { title: 'Programar follow-up futuro', description: 'Establecer fecha para recontacto futuro', is_required: false, order_index: 2 }
+      { title: 'Registrar motivo', description: 'Documentar razón por la cual se perdió el lead', is_required: true, order_index: 1 },
+      { title: 'Programar recontacto', description: 'Establecer fecha para recontacto futuro si aplica', is_required: false, order_index: 2 }
     ]
   }
 ];
@@ -185,7 +135,7 @@ export async function seedLeadsPipeline(): Promise<{ success: boolean; message: 
       .insert({
         name: 'Pipeline de Leads por Defecto',
         type: 'LEAD' as PipelineType,
-        description: 'Pipeline estándar para gestión de leads con 7 etapas optimizadas para conversión',
+        description: 'Pipeline simplificado para gestión de leads con 5 etapas optimizadas (Nuevo → Contactado → Cualificado → Ganado/Perdido)',
         is_active: true
       })
       .select('id')
