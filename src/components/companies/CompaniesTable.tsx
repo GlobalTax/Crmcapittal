@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Company, CompanyStatus, CompanyType } from "@/types/Company";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { RevealSection } from '@/components/ui/RevealSection';
+import { formatCurrency } from '@/utils/format';
 
 interface CompaniesTableProps {
   companies: Company[];
@@ -98,14 +99,6 @@ export const CompaniesTable = ({
     return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const StatsCard = ({ title, value, color }: { title: string; value: string | number; color: string }) => (
     <Card>

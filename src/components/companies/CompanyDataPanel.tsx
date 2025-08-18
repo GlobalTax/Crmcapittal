@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Building2, Calendar, Euro, Users, Hash } from 'lucide-react';
 import { Company } from '@/types/Company';
+import { formatCurrency } from '@/utils/format';
 
 interface EinformaData {
   sector?: string;
@@ -19,13 +20,9 @@ interface CompanyDataPanelProps {
 }
 
 export const CompanyDataPanel = ({ company, enrichmentData }: CompanyDataPanelProps) => {
-  const formatCurrency = (amount?: number) => {
+  const formatCompanyCurrency = (amount?: number) => {
     if (!amount) return 'No disponible';
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0,
-    }).format(amount);
+    return formatCurrency(amount);
   };
 
   const formatNumber = (num?: number) => {
@@ -114,7 +111,7 @@ export const CompanyDataPanel = ({ company, enrichmentData }: CompanyDataPanelPr
                 <Badge variant="outline" className="text-xs">eInforma</Badge>
               )}
             </div>
-            <p className="font-semibold">{formatCurrency(ingresos)}</p>
+            <p className="font-semibold">{formatCompanyCurrency(ingresos)}</p>
           </CardContent>
         </Card>
 

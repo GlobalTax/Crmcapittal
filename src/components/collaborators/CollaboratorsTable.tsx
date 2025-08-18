@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { AgreementViewDialog } from './AgreementViewDialog';
 import { SecureField } from '@/components/ui/SecureField';
+import { formatCurrency } from '@/utils/format';
 
 interface CollaboratorsTableProps {
   collaborators: Collaborator[];
@@ -73,14 +74,6 @@ const getAgreementStatusLabel = (status: string) => {
   }
 };
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
 
 export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
   collaborators,

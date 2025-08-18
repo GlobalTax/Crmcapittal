@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Deal } from '@/types/Deal';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Building2, User } from 'lucide-react';
+import { formatCurrency } from '@/utils/format';
 
 interface DealCardProps {
   deal: Deal;
@@ -34,7 +35,7 @@ export const DealCard = ({ deal, index, onClick }: DealCardProps) => {
     transition,
   };
 
-  const formatCurrency = (amount?: number) => {
+  const formatDealCurrency = (amount?: number) => {
     if (!amount) return '';
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
@@ -72,7 +73,7 @@ className={`
           {deal.amount && (
             <div className="text-right">
               <span className="font-semibold text-sm text-success">
-                {formatCurrency(deal.amount)}
+                {formatDealCurrency(deal.amount)}
               </span>
             </div>
           )}

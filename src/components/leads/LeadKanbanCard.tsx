@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Building2, User, Euro, TrendingUp } from 'lucide-react';
 import { LeadWithStage } from '@/hooks/leads/useLeadKanban';
+import { formatCurrency } from '@/utils/format';
 
 interface LeadKanbanCardProps {
   lead: LeadWithStage;
@@ -36,14 +37,10 @@ export const LeadKanbanCard = ({ lead, onClick }: LeadKanbanCardProps) => {
     return 'bg-destructive text-destructive-foreground';
   };
 
-  // Format currency
-  const formatCurrency = (value?: number) => {
+  // Format currency for leads
+  const formatLeadCurrency = (value?: number) => {
     if (!value) return '€0';
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0,
-    }).format(value);
+    return formatCurrency(value);
   };
 
   const leadScore = lead.lead_score || 0;
@@ -97,7 +94,7 @@ export const LeadKanbanCard = ({ lead, onClick }: LeadKanbanCardProps) => {
           <div className="flex items-center space-x-2">
             <Euro className="h-3 w-3 text-muted-foreground" />
             <span className="text-xs font-medium text-success">
-              {formatCurrency(dealValue)}
+              {formatLeadCurrency(dealValue)}
             </span>
           </div>
         )}

@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, Target, TrendingUp, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/utils/format';
 
 interface CompanyStats {
   contactsCount: number;
@@ -19,14 +20,6 @@ interface CompanyCRMPanelProps {
 
 export const CompanyCRMPanel = ({ companyId, companyName, stats }: CompanyCRMPanelProps) => {
   const { contactsCount, activeDealsCount, totalPipelineValue, isLoading, error } = stats;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   if (error) {
     return (

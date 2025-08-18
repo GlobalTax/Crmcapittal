@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { NewDealModal } from '@/components/deals/NewDealModal';
 import { useNavigate } from 'react-router-dom';
+import { formatCurrency } from '@/utils/format';
 
 interface CompanyDealsTabProps {
   company: Company;
@@ -38,13 +39,8 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
     deal.company?.name?.toLowerCase().includes(company.name.toLowerCase())
   ) || [];
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+  const formatDealsCurrency = (amount: number) => {
+    return formatCurrency(amount);
   };
 
   const getPriorityColor = (stage: string) => {
@@ -107,7 +103,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
             <span className="text-sm font-medium">Valor Total</span>
           </div>
           <span className="text-2xl font-bold text-blue-600">
-            {formatCurrency(totalValue)}
+            {formatDealsCurrency(totalValue)}
           </span>
         </div>
       </div>
@@ -138,7 +134,7 @@ export const CompanyDealsTab = ({ company }: CompanyDealsTabProps) => {
                     {deal.amount && (
                       <div className="flex items-center gap-1">
                         <Euro className="h-3 w-3" />
-                        <span>{formatCurrency(deal.amount)}</span>
+                        <span>{formatDealsCurrency(deal.amount)}</span>
                       </div>
                     )}
                     <span>Probabilidad: {deal.probability}%</span>

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CompanyEnrichmentButton } from './CompanyEnrichmentButton';
+import { formatCurrency } from '@/utils/format';
 
 interface CompanyDetailsDialogProps {
   company: Company;
@@ -51,14 +52,6 @@ export const CompanyDetailsDialog = ({
     return <Badge variant="outline" className={config.color}>{config.label}</Badge>;
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {

@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
+import { formatCurrency } from '@/utils/format';
 
 interface MandatesTableProps {
   mandates: BuyingMandate[];
@@ -29,13 +30,9 @@ export const MandatesTable = ({ mandates, onViewTargets }: MandatesTableProps) =
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  const formatCurrency = (amount?: number) => {
+  const formatMandateCurrency = (amount?: number) => {
     if (!amount) return '-';
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-    }).format(amount);
+    return formatCurrency(amount);
   };
 
   const formatDate = (dateString: string) => {
@@ -93,12 +90,12 @@ export const MandatesTable = ({ mandates, onViewTargets }: MandatesTableProps) =
                 <div className="text-sm">
                   {mandate.min_revenue && mandate.max_revenue ? (
                     <>
-                      {formatCurrency(mandate.min_revenue)} - {formatCurrency(mandate.max_revenue)}
+                      {formatMandateCurrency(mandate.min_revenue)} - {formatMandateCurrency(mandate.max_revenue)}
                     </>
                   ) : mandate.min_revenue ? (
-                    <>Desde {formatCurrency(mandate.min_revenue)}</>
+                    <>Desde {formatMandateCurrency(mandate.min_revenue)}</>
                   ) : mandate.max_revenue ? (
-                    <>Hasta {formatCurrency(mandate.max_revenue)}</>
+                    <>Hasta {formatMandateCurrency(mandate.max_revenue)}</>
                   ) : (
                     'No especificado'
                   )}

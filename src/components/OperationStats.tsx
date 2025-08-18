@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Building2, Eye, DollarSign } from 'lucide-react';
+import { formatCurrency } from '@/utils/format';
 
 interface OperationStatsProps {
   stats: {
@@ -14,14 +15,6 @@ interface OperationStatsProps {
 }
 
 export const OperationStats = ({ stats, isFiltered }: OperationStatsProps) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
 
   const formatLargeNumber = (num: number) => {
     if (num >= 1000000) {
