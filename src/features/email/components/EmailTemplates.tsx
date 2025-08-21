@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Copy, Eye } from 'lucide-react';
 import { useEmailTemplates, useCreateEmailTemplate, useUpdateEmailTemplate, useDeleteEmailTemplate } from '../hooks/useEmailTemplates';
 import { EmailTemplate } from '../types';
+import { SecureHtmlRenderer } from '@/components/security/SecureHtmlRenderer';
 
 export const EmailTemplates: React.FC = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -328,9 +329,10 @@ export const EmailTemplates: React.FC = () => {
               </div>
               <div>
                 <Label>Contenido:</Label>
-                <div 
+                <SecureHtmlRenderer 
+                  content={previewTemplate.body_html}
                   className="border p-4 rounded bg-background max-h-96 overflow-y-auto"
-                  dangerouslySetInnerHTML={{ __html: previewTemplate.body_html }}
+                  allowBasicFormatting={true}
                 />
               </div>
               {previewTemplate.variables.length > 0 && (

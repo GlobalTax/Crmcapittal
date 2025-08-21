@@ -13436,7 +13436,9 @@ export type Database = {
         }[]
       }
       has_permission: {
-        Args: { _permission_name: string; _user_id: string }
+        Args:
+          | { _permission_name: string; _user_id: string }
+          | { permission_type: string }
         Returns: boolean
       }
       has_reconversion_permission: {

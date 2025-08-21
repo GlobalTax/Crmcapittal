@@ -109,7 +109,8 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
       const sanitizedContent = processContentSecurely(processedContent);
       
       const tempDiv = window.document.createElement('div');
-      tempDiv.innerHTML = sanitizedContent;
+      // SECURITY: Use textContent instead of innerHTML to prevent XSS
+      tempDiv.textContent = sanitizedContent;
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '-9999px';
       tempDiv.style.width = '800px';

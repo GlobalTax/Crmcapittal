@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Mail, Plus, Edit, Trash2, Eye, Copy } from 'lucide-react';
 import { useEmailTemplates, EmailTemplate } from '@/hooks/useAutomationSystem';
+import { SecureHtmlRenderer } from '@/components/security/SecureHtmlRenderer';
 
 export const EmailTemplateManager: React.FC = () => {
   const {
@@ -377,9 +378,11 @@ export const EmailTemplateManager: React.FC = () => {
 
               <div>
                 <Label className="text-sm font-medium">Contenido:</Label>
-                <div 
+                <SecureHtmlRenderer 
+                  content={previewTemplate.content}
                   className="mt-1 text-sm border rounded p-4 bg-background"
-                  dangerouslySetInnerHTML={{ __html: previewTemplate.content }}
+                  allowBasicFormatting={true}
+                  maxLength={10000}
                 />
               </div>
 

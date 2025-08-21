@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, Download, Share2, Printer } from 'lucide-react';
 import { CreateProposalData } from '@/types/Proposal';
 import { TEMPLATE_VARIABLES } from '@/types/ProposalTemplate';
+import { SecureHtmlRenderer } from '@/components/security/SecureHtmlRenderer';
 
 interface ContentPreviewProps {
   data: CreateProposalData;
@@ -132,9 +133,10 @@ export const ContentPreview: React.FC<ContentPreviewProps> = ({
 
         {/* Contenido procesado */}
         <div className="prose prose-sm max-w-none">
-          <div 
+          <SecureHtmlRenderer 
+            content={processedContent}
             className="ql-editor border-0 p-0"
-            dangerouslySetInnerHTML={{ __html: processedContent }}
+            allowBasicFormatting={true}
           />
         </div>
 
