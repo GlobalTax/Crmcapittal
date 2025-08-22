@@ -8533,6 +8533,42 @@ export type Database = {
           },
         ]
       }
+      pending_invitations: {
+        Row: {
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          token: string
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          token: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       permissions: {
         Row: {
           action: string
@@ -13186,6 +13222,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      complete_invitation: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: boolean
+      }
       convert_lead: {
         Args: {
           p_create_company?: boolean
@@ -13205,6 +13245,10 @@ export type Database = {
           p_payload: Json
           p_type: string
         }
+        Returns: string
+      }
+      create_invitation_token: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       create_lead_task: {
@@ -13237,6 +13281,13 @@ export type Database = {
       create_security_audit_trail: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_user_invitation: {
+        Args: {
+          p_email: string
+          p_role?: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: string
       }
       create_user_with_role_secure: {
         Args: {
@@ -13744,6 +13795,10 @@ export type Database = {
       validate_input_security: {
         Args: { input_text: string }
         Returns: string
+      }
+      validate_invitation_token: {
+        Args: { p_token: string }
+        Returns: Json
       }
       validate_password_strength: {
         Args: { password: string }
