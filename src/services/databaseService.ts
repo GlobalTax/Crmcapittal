@@ -30,40 +30,48 @@ export class DatabaseService {
   }
 
   static async getAutomationRules(): Promise<DatabaseQueryResult<any[]>> {
-    // Return mock automation rules until database is properly configured
-    return {
-      success: true,
-      data: [
-        {
-          id: '1',
-          name: 'Bienvenida Lead Nuevo',
-          description: 'Envía email de bienvenida a leads nuevos',
-          trigger_type: 'lead_created',
-          trigger_config: {},
-          conditions: [{ field: 'status', operator: 'equals', value: 'NEW' }],
-          actions: [{ type: 'send_email', config: { template: 'welcome_lead' } }],
-          enabled: true,
-          priority: 100,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ]
-    };
+    try {
+      const { data, error } = await supabase
+        .from('automation_rules')
+        .select('*')
+        .eq('enabled', true);
+
+      if (error) {
+        console.error('Error fetching automation rules:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, data: data || [] };
+    } catch (error) {
+      console.error('Error in getAutomationRules:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 
   static async getCapitalMarketConfig(): Promise<DatabaseQueryResult<any>> {
-    // Return mock config until database is properly configured
-    return {
-      success: true,
-      data: {
-        id: '1',
-        api_key: 'demo_key',
-        webhook_secret: 'demo_secret',
-        base_url: 'https://api.capitalmarket.com',
-        enabled: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+    try {
+      const { data, error } = await supabase
+        .from('api_configurations')
+        .select('*')
+        .eq('api_name', 'capital_market')
+        .eq('is_active', true)
+        .single();
+
+      if (error) {
+        console.error('Error fetching capital market config:', error);
+        return { success: false, error: error.message };
       }
-    };
+
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error in getCapitalMarketConfig:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
   }
 }

@@ -51,9 +51,42 @@ const handler = async (req: Request): Promise<Response> => {
     // Parse request body
     const { email, role = 'user' }: InvitationRequest = await req.json();
 
+    // Enhanced email validation
     if (!email) {
       return new Response(
         JSON.stringify({ error: 'Email is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.error('❌ Invalid email format:', email);
+      return new Response(
+        JSON.stringify({ error: 'Invalid email format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate role
+    const validRoles = ['user', 'admin', 'superadmin'];
+    if (!validRoles.includes(role)) {
+      console.error('❌ Invalid role:', role);
+      return new Response(
+        JSON.stringify({ error: 'Invalid role specified' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Input sanitization
+    const sanitizedEmail = email.trim().toLowerCase();
+    
+    // Check for suspicious email patterns
+    if (sanitizedEmail.includes('+') && sanitizedEmail.split('+').length > 2) {
+      console.error('❌ Suspicious email pattern detected:', sanitizedEmail);
+      return new Response(
+        JSON.stringify({ error: 'Invalid email format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
