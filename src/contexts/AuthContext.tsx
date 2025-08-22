@@ -10,9 +10,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  signInWithProvider: (provider: 'microsoft' | 'google') => Promise<{ error: any }>;
   refreshSession: () => Promise<{ error: any }>;
 }
 
@@ -120,69 +118,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
-    console.log('AuthProvider: Attempting sign up for', email);
-    
-    // Input validation
-    if (!validateEmail(email)) {
-      return { error: { message: 'Email format is invalid' } };
-    }
-    
-    if (password.length < 8) {
-      return { error: { message: 'Password should be at least 8 characters long' } };
-    }
-    
-    // Rate limiting
-    if (!checkRateLimit('signup', email)) {
-      return { error: { message: 'Too many signup attempts. Please try again later.' } };
-    }
-    
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-    if (error) {
-      console.error('AuthProvider: Sign up error', error);
-    } else {
-      console.log('AuthProvider: Sign up successful');
-    }
-    return { error };
-  };
-
   const signOut = async () => {
     console.log('AuthProvider: Signing out');
     await supabase.auth.signOut();
     setSession(null);
     setUser(null);
     console.log('AuthProvider: Sign out complete');
-  };
-
-  const signInWithProvider = async (provider: 'microsoft' | 'google') => {
-    console.log(`AuthProvider: Attempting OAuth sign in with ${provider}`);
-    
-    const redirectUrl = `${window.location.origin}/auth/callback`;
-    
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: provider as any,
-      options: {
-        redirectTo: redirectUrl,
-        scopes: provider === 'microsoft' 
-          ? 'openid profile email Mail.Read Mail.Send Calendars.Read Calendars.ReadWrite offline_access'
-          : 'openid profile email https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly'
-      }
-    });
-    
-    if (error) {
-      console.error(`AuthProvider: ${provider} OAuth error`, error);
-    } else {
-      console.log(`AuthProvider: ${provider} OAuth initiated successfully`);
-    }
-    return { error };
   };
 
   const refreshSession = async () => {
@@ -208,9 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     loading,
     signIn,
-    signUp,
     signOut,
-    signInWithProvider,
     refreshSession,
   };
 

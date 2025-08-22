@@ -23,6 +23,7 @@ const OptimizedMandatesPage = lazy(() => import('@/pages/OptimizedMandatesPage')
 // Keep existing lazy-loaded pages for other routes
 const Auth = lazy(() => import('@/pages/Auth'));
 const AuthCallback = lazy(() => import('@/components/auth/AuthCallback'));
+const Invitation = lazy(() => import('@/pages/Invitation'));
 
 
 const MinimalTimeTracking = lazy(() => import('@/pages/MinimalTimeTracking'));
@@ -82,6 +83,14 @@ export const AppRoutes = () => {
           element={
             <Suspense fallback={<LoadingSkeleton />}>
               <AuthCallback />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/invitation/:token" 
+          element={
+            <Suspense fallback={<LoadingSkeleton />}>
+              <Invitation />
             </Suspense>
           } 
         />
