@@ -13331,6 +13331,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_einforma_config: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_integraloop_config: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -13390,6 +13394,10 @@ export type Database = {
           task_type: string
           user_id: string
         }[]
+      }
+      get_quantum_config: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       get_quantum_token: {
         Args: Record<PropertyKey, never>
