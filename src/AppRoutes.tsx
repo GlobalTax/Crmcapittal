@@ -53,6 +53,7 @@ const ReconversionesView = lazy(() => import('@/pages/ReconversionesView'));
 const ActivityPage = lazy(() => import('@/pages/ActivityPage'));
 const AssignmentControl = lazy(() => import('@/pages/AssignmentControl'));
 const AdministracionEmpresarial = lazy(() => import('@/pages/AdministracionEmpresarial'));
+const AdminPanel = lazy(() => import('@/pages/AdminPanel'));
 
 
 
@@ -257,11 +258,7 @@ export const AppRoutes = () => {
           />
           <Route 
             path="/users" 
-            element={
-              <Suspense fallback={<LoadingSkeleton />}>
-                <UserManagement />
-              </Suspense>
-            } 
+            element={<Navigate to="/administracion" replace />}
           />
           <Route 
             path="/collaborators" 
@@ -400,6 +397,14 @@ export const AppRoutes = () => {
              element={
                <Suspense fallback={<LoadingSkeleton />}>
                  <AdministracionEmpresarial />
+               </Suspense>
+             } 
+           />
+           <Route 
+             path="/admin" 
+             element={
+               <Suspense fallback={<LoadingSkeleton />}>
+                 <AdminPanel />
                </Suspense>
              } 
            />

@@ -37,13 +37,17 @@ const InvitationManager = () => {
 
   const fetchInvitations = async () => {
     try {
+      // Use direct query since table isn't in generated types yet
       const { data, error } = await supabase
         .from('pending_invitations' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setInvitations(data || []);
+      
+      // Safely cast the data
+      const invitationsData = (data as unknown as Invitation[]) || [];
+      setInvitations(invitationsData);
     } catch (error: any) {
       console.error('Error fetching invitations:', error);
       toast({
