@@ -13095,19 +13095,6 @@ export type Database = {
           },
         ]
       }
-      vw_leads_kpi: {
-        Row: {
-          avg_lead_score: number | null
-          avg_prob_conversion: number | null
-          contacted_leads: number | null
-          disqualified_leads: number | null
-          new_leads_30d: number | null
-          new_leads_7d: number | null
-          qualified_leads: number | null
-          total_leads: number | null
-        }
-        Relationships: []
-      }
       vw_reconversion_kpi: {
         Row: {
           activas: number | null
