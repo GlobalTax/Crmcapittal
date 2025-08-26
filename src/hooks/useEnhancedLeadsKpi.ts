@@ -57,11 +57,10 @@ export const useEnhancedLeadsKpi = () => {
         setLoading(true);
         setError(null);
         
-        // Fetch enhanced KPIs data
+        // Fetch enhanced KPIs data from leads table directly (fallback)
         const { data: kpiData, error: kpiError } = await supabase
-          .from('vw_leads_kpi')
-          .select('*')
-          .single();
+          .from('leads')
+          .select('id, probability, created_at, lead_score');
 
         if (kpiError) throw kpiError;
 
@@ -73,16 +72,28 @@ export const useEnhancedLeadsKpi = () => {
 
         if (funnelError) throw funnelError;
 
+        // Calculate enhanced KPIs from array data
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        const totalLeads = kpiData?.length || 0;
+        const qualifiedLeads = kpiData?.filter(lead => (lead.probability || 0) > 70).length || 0;
+        const newLeads30d = kpiData?.filter(lead => new Date(lead.created_at) >= thirtyDaysAgo).length || 0;
+        const newLeads7d = kpiData?.filter(lead => new Date(lead.created_at) >= sevenDaysAgo).length || 0;
+        const avgScore = kpiData?.reduce((sum, lead) => sum + (lead.lead_score || 0), 0) / totalLeads || 0;
+        const avgProbConversion = kpiData?.reduce((sum, lead) => sum + (lead.probability || 0), 0) / totalLeads || 0;
+
         setKpis({
-          totalLeads: kpiData?.total_leads || 0,
-          qualifiedLeads: kpiData?.qualified_leads || 0,
-          hotLeads: kpiData?.qualified_leads || 0, // Use qualified_leads as hot_leads
-          newLeads30d: kpiData?.new_leads_30d || 0,
-          newLeads7d: kpiData?.new_leads_7d || 0,
-          avgScore: kpiData?.avg_lead_score || 0, // Use avg_lead_score
-          pipelineValue: (kpiData?.total_leads || 0) * 1000, // Calculate pipeline value
-          conversionRate: kpiData?.avg_prob_conversion || 0, // Use avg_prob_conversion
-          growthRate30d: ((kpiData?.new_leads_30d || 0) / (kpiData?.total_leads || 1)) * 100,
+          totalLeads,
+          qualifiedLeads,
+          hotLeads: qualifiedLeads,
+          newLeads30d,
+          newLeads7d,
+          avgScore,
+          pipelineValue: totalLeads * 1000,
+          conversionRate: avgProbConversion,
+          growthRate30d: totalLeads > 0 ? (newLeads30d / totalLeads) * 100 : 0,
           avgTimeToQualifyDays: 7, // Default average time
           leadsTrend: 'stable' as 'up' | 'down' | 'stable',
           conversionTrendData: [], // Empty array for now
