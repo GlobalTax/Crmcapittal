@@ -1,4 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
+import { createLogger } from '@/utils/productionLogger';
+
+const logger = createLogger('nylasEmailService');
 
 export interface NylasAccount {
   id: string;
@@ -42,7 +45,7 @@ class NylasEmailService {
       });
 
       if (error) {
-        console.error('Error setting up email account:', error);
+        logger.error('Error setting up email account', error);
         return { success: false, error: error.message };
       }
 
@@ -52,7 +55,7 @@ class NylasEmailService {
 
       return { success: true, account: data.account };
     } catch (error: any) {
-      console.error('Error in setupEmailAccount:', error);
+      logger.error('Error in setupEmailAccount', error);
       return { success: false, error: error.message };
     }
   }
@@ -64,7 +67,7 @@ class NylasEmailService {
       });
 
       if (error) {
-        console.error('Error syncing emails:', error);
+        logger.error('Error syncing emails', error);
         return { success: false, error: error.message };
       }
 
@@ -74,7 +77,7 @@ class NylasEmailService {
 
       return { success: true, synced_count: data.synced_count };
     } catch (error: any) {
-      console.error('Error in syncEmails:', error);
+      logger.error('Error in syncEmails', error);
       return { success: false, error: error.message };
     }
   }
@@ -86,7 +89,7 @@ class NylasEmailService {
       });
 
       if (error) {
-        console.error('Error sending email:', error);
+        logger.error('Error sending email', error);
         return { success: false, error: error.message };
       }
 
@@ -96,7 +99,7 @@ class NylasEmailService {
 
       return { success: true, message_id: data.message_id };
     } catch (error: any) {
-      console.error('Error in sendEmail:', error);
+      logger.error('Error in sendEmail', error);
       return { success: false, error: error.message };
     }
   }
@@ -108,7 +111,7 @@ class NylasEmailService {
       });
 
       if (error) {
-        console.error('Error archiving email:', error);
+        logger.error('Error archiving email', error);
         return { success: false, error: error.message };
       }
 
@@ -118,7 +121,7 @@ class NylasEmailService {
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error in archiveEmail:', error);
+      logger.error('Error in archiveEmail', error);
       return { success: false, error: error.message };
     }
   }
@@ -131,13 +134,13 @@ class NylasEmailService {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching Nylas accounts:', error);
+        logger.error('Error fetching Nylas accounts', error);
         return { data: [], error: error.message };
       }
 
       return { data: data || [], error: null };
     } catch (error: any) {
-      console.error('Error in getNylasAccounts:', error);
+      logger.error('Error in getNylasAccounts', error);
       return { data: [], error: error.message };
     }
   }
@@ -150,13 +153,13 @@ class NylasEmailService {
         .eq('id', accountId);
 
       if (error) {
-        console.error('Error deleting Nylas account:', error);
+        logger.error('Error deleting Nylas account', error);
         return { success: false, error: error.message };
       }
 
       return { success: true };
     } catch (error: any) {
-      console.error('Error in deleteAccount:', error);
+      logger.error('Error in deleteAccount', error);
       return { success: false, error: error.message };
     }
   }

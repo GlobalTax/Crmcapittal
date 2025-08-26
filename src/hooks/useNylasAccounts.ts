@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { nylasEmailService, type NylasAccount, type EmailSetupData } from '@/services/nylasEmailService';
 import { useToast } from '@/hooks/use-toast';
+import { createLogger } from '@/utils/productionLogger';
+
+const logger = createLogger('useNylasAccounts');
 
 export const useNylasAccounts = () => {
   const { toast } = useToast();

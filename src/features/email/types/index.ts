@@ -1,21 +1,92 @@
-export interface EmailAccount {
+/**
+ * Email Integration Types
+ * 
+ * Type definitions for email functionality including Nylas integration
+ */
+
+export interface NylasAccount {
   id: string;
   user_id: string;
   email_address: string;
-  display_name?: string;
-  provider: 'smtp' | 'imap' | 'outlook' | 'gmail';
-  smtp_host?: string;
-  smtp_port?: number;
-  smtp_username?: string;
-  smtp_password?: string;
-  imap_host?: string;
-  imap_port?: number;
-  is_default: boolean;
+  provider: string;
+  grant_id: string | null;
+  access_token: string | null;
+  connector_id: string | null;
+  account_status: string;
+  settings: any;
+  created_at: string;
+  updated_at: string;
+  last_sync_at: string | null;
+}
+
+export interface EmailSetupData {
+  email: string;
+  password: string;
+  imapHost: string;
+  imapPort: number;
+  smtpHost: string;
+  smtpPort: number;
+}
+
+export interface SendEmailData {
+  accountId: string;
+  to: string[];
+  subject: string;
+  body: string;
+  cc?: string[];
+  bcc?: string[];
+  replyToMessageId?: string;
+}
+
+export interface EmailFilter {
+  provider?: string;
+  status?: string;
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  account_id?: string;
+  direction?: 'sent' | 'received' | 'all';
+  is_read?: boolean;
+  is_starred?: boolean;
+  contact_id?: string;
+  lead_id?: string;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+}
+
+export interface EmailComposeData {
+  to: string[];
+  subject: string;
+  body: string;
+  cc?: string[];
+  bcc?: string[];
+  attachments?: File[];
+  body_html?: string;
+  body_text?: string;
+  tracking_enabled?: boolean;
+  contact_id?: string;
+  lead_id?: string;
+  deal_id?: string;
+  company_id?: string;
+  template_id?: string;
+}
+
+export interface EmailStats {
+  totalAccounts: number;
+  activeAccounts: number;
+  totalEmails: number;
+  syncedToday: number;
+}
+
+export interface EmailAccount {
+  id: string;
+  user_id: string;
+  email: string;
+  provider: string;
+  settings: any;
   is_active: boolean;
-  last_sync_at?: string;
-  sync_status: 'pending' | 'syncing' | 'success' | 'error';
-  sync_error?: string;
-  settings: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -23,41 +94,19 @@ export interface EmailAccount {
 export interface Email {
   id: string;
   account_id: string;
-  message_id: string;
-  thread_id?: string;
-  subject?: string;
+  thread_id: string;
+  subject: string;
+  body: string;
+  body_html?: string;
+  body_text?: string;
   sender_email: string;
   sender_name?: string;
-  recipient_emails: string[];
-  cc_emails?: string[];
-  bcc_emails?: string[];
-  body_text?: string;
-  body_html?: string;
-  direction: 'incoming' | 'outgoing';
-  status: 'draft' | 'sent' | 'delivered' | 'opened' | 'clicked' | 'replied' | 'bounced';
+  recipients: string[];
+  cc?: string[];
+  bcc?: string[];
   is_read: boolean;
   is_starred: boolean;
-  has_attachments: boolean;
-  email_date: string;
-  
-  // CRM Integration
-  contact_id?: string;
-  lead_id?: string;
-  deal_id?: string;
-  company_id?: string;
-  
-  // Tracking
-  opened_at?: string;
-  clicked_at?: string;
-  replied_at?: string;
-  tracking_pixel_url?: string;
-  
-  // Templates & Automation
-  template_id?: string;
-  sequence_id?: string;
-  sequence_step?: number;
-  
-  created_by?: string;
+  direction: 'sent' | 'received';
   created_at: string;
   updated_at: string;
 }
@@ -67,15 +116,10 @@ export interface EmailTemplate {
   name: string;
   subject: string;
   body_html: string;
-  body_text?: string;
-  category: 'general' | 'follow_up' | 'proposal' | 'closing' | 'welcome';
-  language: string;
+  body_text: string;
   variables: string[];
-  is_shared: boolean;
-  usage_count: number;
-  last_used_at?: string;
-  created_by?: string;
-  team_id?: string;
+  category?: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -84,115 +128,26 @@ export interface EmailSequence {
   id: string;
   name: string;
   description?: string;
-  trigger_type: 'manual' | 'lead_created' | 'deal_stage' | 'time_based';
-  trigger_config: Record<string, any>;
   is_active: boolean;
-  total_steps: number;
-  success_rate: number;
-  created_by?: string;
+  templates: EmailTemplate[];
   created_at: string;
   updated_at: string;
-}
-
-export interface EmailSequenceStep {
-  id: string;
-  sequence_id: string;
-  step_number: number;
-  template_id: string;
-  delay_days: number;
-  delay_hours: number;
-  conditions: Record<string, any>;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface EmailTrackingEvent {
-  id: string;
-  email_id: string;
-  event_type: 'opened' | 'clicked' | 'replied' | 'bounced' | 'unsubscribed';
-  event_data: Record<string, any>;
-  ip_address?: string;
-  user_agent?: string;
-  created_at: string;
 }
 
 export interface EmailConversation {
   id: string;
-  thread_id: string;
-  subject?: string;
-  participants: string[];
-  last_email_at?: string;
-  message_count: number;
-  is_read: boolean;
-  
-  // CRM Links
   contact_id?: string;
   lead_id?: string;
-  deal_id?: string;
-  company_id?: string;
-  
-  created_at: string;
-  updated_at: string;
+  subject: string;
+  emails: Email[];
+  last_activity: string;
+  is_archived: boolean;
 }
 
 export interface EmailSettings {
-  id: string;
-  user_id: string;
-  signature_html?: string;
-  signature_text?: string;
+  signature: string;
   auto_reply_enabled: boolean;
   auto_reply_message?: string;
   tracking_enabled: boolean;
-  sync_frequency: number;
-  notification_settings: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface EmailAnalytics {
-  id: string;
-  email_id?: string;
-  template_id?: string;
-  sequence_id?: string;
-  user_id?: string;
-  metric_type: 'sent' | 'opened' | 'clicked' | 'replied' | 'bounced';
-  metric_value: number;
-  date_bucket: string;
-  created_at: string;
-}
-
-export interface MergeField {
-  key: string;
-  label: string;
-  description: string;
-  example: string;
-}
-
-export interface EmailComposeData {
-  to: string[];
-  cc?: string[];
-  bcc?: string[];
-  subject: string;
-  body_html: string;
-  body_text?: string;
-  template_id?: string;
-  contact_id?: string;
-  lead_id?: string;
-  deal_id?: string;
-  company_id?: string;
-  tracking_enabled?: boolean;
-  scheduled_for?: string;
-}
-
-export interface EmailFilter {
-  account_id?: string;
-  direction?: 'incoming' | 'outgoing';
-  is_read?: boolean;
-  is_starred?: boolean;
-  contact_id?: string;
-  lead_id?: string;
-  date_from?: string;
-  date_to?: string;
-  search?: string;
+  send_notifications: boolean;
 }
