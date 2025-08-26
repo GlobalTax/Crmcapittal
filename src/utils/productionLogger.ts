@@ -15,7 +15,7 @@ export interface LogEntry {
   data?: any;
 }
 
-class ProductionLogger {
+export class ProductionLogger {
   private logs: LogEntry[] = [];
   private maxLogs: number = 1000;
   private isProduction: boolean = process.env.NODE_ENV === 'production';
