@@ -59,54 +59,68 @@ export class ReconversionService {
     }
   }
 
-  static async getReconversionesWithFilters(filters: any): Promise<any[]> {
+  static async getReconversionesWithFilters(filters: Record<string, any>): Promise<DatabaseReconversion[]> {
     try {
       this.logger.info('Fetching filtered reconversiones', { filters });
 
-      let query = supabase
+      // Use the simplest approach - fetch all and filter in memory for now
+      // This avoids the deep type instantiation issue with Supabase query builder
+      const { data: allData, error } = await supabase
         .from('reconversiones')
-        .select('*');
-
-      // Apply filters
-      if (filters.status && filters.status !== 'all') {
-        query = query.eq('status', filters.status);
-      }
-
-      if (filters.priority && filters.priority !== 'all') {
-        query = query.eq('priority', filters.priority as string);
-      }
-
-      if (filters.assignedTo && filters.assignedTo !== 'all') {
-        query = query.eq('assigned_to', filters.assignedTo);
-      }
-
-      if (filters.search) {
-        query = query.or(`company_name.ilike.%${filters.search}%,contact_name.ilike.%${filters.search}%,contact_email.ilike.%${filters.search}%`);
-      }
-
-      if (filters.investmentRange.min) {
-        query = query.gte('investment_capacity_min', filters.investmentRange.min);
-      }
-
-      if (filters.investmentRange.max) {
-        query = query.lte('investment_capacity_max', filters.investmentRange.max);
-      }
-
-      if (filters.createdDateRange.from) {
-        query = query.gte('created_at', filters.createdDateRange.from.toISOString());
-      }
-
-      if (filters.createdDateRange.to) {
-        query = query.lte('created_at', filters.createdDateRange.to.toISOString());
-      }
-
-      query = query.order('created_at', { ascending: false });
-
-      const { data, error } = await query;
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return data || [];
+      if (!allData) return [];
+
+      // Apply filters in memory to avoid type complexity
+      let filteredData = allData;
+
+      if (filters.status && filters.status !== 'all') {
+        filteredData = filteredData.filter(item => item.status === filters.status);
+      }
+
+      if (filters.assignedTo && filters.assignedTo !== 'all') {
+        filteredData = filteredData.filter(item => item.assigned_to === filters.assignedTo);
+      }
+
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredData = filteredData.filter(item => 
+          item.company_name?.toLowerCase().includes(searchLower) ||
+          item.contact_name?.toLowerCase().includes(searchLower) ||
+          item.contact_email?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      if (filters.investmentRange?.min) {
+        filteredData = filteredData.filter(item => 
+          (item.investment_capacity_min || 0) >= filters.investmentRange.min
+        );
+      }
+
+      if (filters.investmentRange?.max) {
+        filteredData = filteredData.filter(item => 
+          (item.investment_capacity_max || 0) <= filters.investmentRange.max
+        );
+      }
+
+      if (filters.createdDateRange?.from) {
+        const fromDate = new Date(filters.createdDateRange.from);
+        filteredData = filteredData.filter(item => 
+          new Date(item.created_at) >= fromDate
+        );
+      }
+
+      if (filters.createdDateRange?.to) {
+        const toDate = new Date(filters.createdDateRange.to);
+        filteredData = filteredData.filter(item => 
+          new Date(item.created_at) <= toDate
+        );
+      }
+
+      return filteredData;
     } catch (error) {
       this.logger.error('Error fetching filtered reconversiones', error);
       throw error;
