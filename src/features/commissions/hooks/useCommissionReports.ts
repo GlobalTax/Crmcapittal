@@ -28,10 +28,13 @@ export const useCommissionReports = () => {
   const transformedData = useMemo(() => {
     return commissionsData.map(commission => ({
       id: commission.id,
-      amount: commission.deal_value || 0,
+      amount: commission.commission_amount || 0, // Use commission amount as base amount
       commission_percentage: commission.commission_percentage || 0,
       commission_amount: commission.commission_amount || 0,
-      collaborator_name: commission.collaborator_id || 'N/A',
+      collaborator_name: commission.recipient_name || 
+                        commission.collaborators?.name || 
+                        `${commission.user_profiles?.first_name || ''} ${commission.user_profiles?.last_name || ''}`.trim() || 
+                        'N/A',
       deal_id: commission.deal_id || '',
       created_at: commission.created_at || new Date().toISOString(),
       status: commission.status || 'pending'
