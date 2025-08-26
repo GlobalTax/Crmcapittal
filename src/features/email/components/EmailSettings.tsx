@@ -25,7 +25,7 @@ export const EmailSettings: React.FC = () => {
   const [accountForm, setAccountForm] = useState<{
     email_address: string;
     display_name: string;
-    provider: 'smtp' | 'imap' | 'outlook' | 'gmail';
+    provider: string;
     smtp_host: string;
     smtp_port: number;
     smtp_username: string;

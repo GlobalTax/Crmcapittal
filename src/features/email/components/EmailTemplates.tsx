@@ -27,7 +27,7 @@ export const EmailTemplates: React.FC = () => {
     subject: string;
     body_html: string;
     body_text: string;
-    category: 'general' | 'follow_up' | 'proposal' | 'closing' | 'welcome';
+    category: string;
     language: string;
     variables: string[];
     is_shared: boolean;

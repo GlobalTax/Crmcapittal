@@ -46,7 +46,7 @@ export interface EmailFilter {
     end: Date;
   };
   account_id?: string;
-  direction?: 'sent' | 'received' | 'all';
+  direction?: 'sent' | 'received' | 'all' | 'incoming' | 'outgoing';
   is_read?: boolean;
   is_starred?: boolean;
   contact_id?: string;
@@ -59,7 +59,7 @@ export interface EmailFilter {
 export interface EmailComposeData {
   to: string[];
   subject: string;
-  body: string;
+  body?: string;
   cc?: string[];
   bcc?: string[];
   attachments?: File[];
@@ -84,7 +84,16 @@ export interface EmailAccount {
   id: string;
   user_id: string;
   email: string;
+  email_address?: string;
+  display_name?: string;
   provider: string;
+  smtp_host?: string;
+  smtp_port?: number;
+  smtp_username?: string;
+  smtp_password?: string;
+  imap_host?: string;
+  imap_port?: number;
+  is_default?: boolean;
   settings: any;
   is_active: boolean;
   created_at: string;
@@ -119,6 +128,8 @@ export interface EmailTemplate {
   body_text: string;
   variables: string[];
   category?: string;
+  language?: string;
+  is_shared?: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;
