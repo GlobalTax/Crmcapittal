@@ -31,7 +31,7 @@ export const SeedLeadsPipeline: React.FC<SeedLeadsPipelineProps> = ({
         toast.success('No se encontró pipeline existente, listo para crear');
       }
     } catch (error) {
-      console.error('Error checking pipeline:', error);
+      // Error checking pipeline
       toast.error('Error al verificar pipeline existente');
     } finally {
       setIsChecking(false);
@@ -52,7 +52,7 @@ export const SeedLeadsPipeline: React.FC<SeedLeadsPipelineProps> = ({
         toast.error(result.message);
       }
     } catch (error) {
-      console.error('Error creating pipeline:', error);
+      // Error creating pipeline
       toast.error('Error inesperado al crear el pipeline');
     } finally {
       setIsLoading(false);

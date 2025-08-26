@@ -75,7 +75,7 @@ export const OCRProcessor = ({ onTextExtracted }: OCRProcessorProps) => {
       });
 
     } catch (error) {
-      console.error('Error processing OCR:', error);
+      // Error processing OCR
       toast({
         title: "Error OCR",
         description: "No se pudo procesar la imagen",

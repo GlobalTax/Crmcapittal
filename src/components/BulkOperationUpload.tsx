@@ -69,13 +69,13 @@ export const BulkOperationUpload = ({ onBulkAdd }: BulkOperationUploadProps) => 
           setValidation(validationResult);
           
         } catch (error) {
-          console.error('Error processing file:', error);
+          // Error processing file
         }
       };
       
       reader.readAsArrayBuffer(selectedFile);
     } catch (error) {
-      console.error('Error loading ExcelJS:', error);
+      // Error loading ExcelJS
     }
   };
 

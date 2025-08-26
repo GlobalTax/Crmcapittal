@@ -57,7 +57,7 @@ export const ManagerPhotoUpload = ({
         setPreviewUrl(null);
       }
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      // Error uploading photo
       alert('Error al subir la foto');
       setPreviewUrl(null);
     } finally {

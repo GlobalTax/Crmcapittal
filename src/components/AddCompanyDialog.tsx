@@ -55,7 +55,7 @@ ${formData.description}
       `;
 
       // En un entorno real, aquí enviarías el email
-      console.log("Enviando solicitud:", emailBody);
+      // Enviando solicitud
 
       toast({
         title: "Solicitud enviada",
