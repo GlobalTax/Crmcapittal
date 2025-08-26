@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     user = auth.user;
     loading = auth.loading;
   } catch (error) {
-    console.log('ProtectedRoute: Auth context not available, using defaults');
+    // Auth context not available, using defaults
     user = null;
     loading = false;
   }

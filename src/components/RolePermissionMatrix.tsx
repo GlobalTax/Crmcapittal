@@ -87,7 +87,7 @@ export default function RolePermissionMatrix() {
         description: `Permisos del rol ${role} actualizados correctamente.`,
       });
     } catch (error) {
-      console.error('Error updating role permission:', error);
+      // Error updating role permission
       toast({
         title: 'Error',
         description: 'No se pudieron actualizar los permisos.',
@@ -97,13 +97,6 @@ export default function RolePermissionMatrix() {
   };
 
   const modules = [...new Set(permissions.map(p => p.module))];
-
-  // Logging para debugging
-  console.log('RolePermissionMatrix - Datos cargados:', {
-    permissions: permissions.length,
-    filteredCount: filteredPermissions.length,
-    modules
-  });
 
   return (
     <div className="space-y-6">

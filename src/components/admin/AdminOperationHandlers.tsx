@@ -41,14 +41,13 @@ export const useAdminOperationHandlers = ({
   };
 
   const handleSaveEdit = async (operationId: string, operationData: Partial<Operation>) => {
-    console.log('Guardando cambios para operación:', operationId);
-    console.log('Datos a actualizar:', operationData);
+    // Guardando cambios para operación
     
     try {
       const { error } = await onUpdateOperation(operationId, operationData);
       
       if (error) {
-        console.error('Error al actualizar:', error);
+        // Error al actualizar
         toast({
           title: "Error",
           description: error,
@@ -56,7 +55,7 @@ export const useAdminOperationHandlers = ({
         });
         return { success: false };
       } else {
-        console.log('Operación actualizada exitosamente');
+        // Operación actualizada exitosamente
         toast({
           title: "Operación actualizada",
           description: "Los cambios se han guardado correctamente",
@@ -64,7 +63,7 @@ export const useAdminOperationHandlers = ({
         return { success: true };
       }
     } catch (error) {
-      console.error('Error inesperado al actualizar:', error);
+      // Error inesperado al actualizar
       toast({
         title: "Error",
         description: "Error inesperado al actualizar la operación",

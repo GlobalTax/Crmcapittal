@@ -85,7 +85,7 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
         });
       }
     } catch (error) {
-      console.error('Error procesando datos:', error);
+      // Error procesando datos
       toast({
         title: "Error",
         description: "Hubo un problema procesando los datos",
@@ -109,11 +109,11 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
     setIsUploading(true);
     
     try {
-      console.log('Subiendo operaciones:', detectedOperations);
+      // Subiendo operaciones
       const { error } = await onBulkAdd(detectedOperations);
       
       if (error) {
-        console.error('Error en subida:', error);
+        // Error en subida
         toast({
           title: "Error",
           description: error,
@@ -129,7 +129,7 @@ export const QuickDataChat = ({ onBulkAdd }: QuickDataChatProps) => {
         setProcessingErrors([]);
       }
     } catch (error) {
-      console.error('Error subiendo operaciones:', error);
+      // Error subiendo operaciones
       toast({
         title: "Error",
         description: "Hubo un problema subiendo las operaciones",
