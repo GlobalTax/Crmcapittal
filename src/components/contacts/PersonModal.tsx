@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { CreateContactData, ContactType, ContactRole } from '@/types/Contact';
+import { logger } from "@/utils/productionLogger";
 
 interface PersonModalProps {
   open: boolean;
@@ -44,11 +45,11 @@ export const PersonModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email) {
-      console.log('❌ Form validation failed - missing name or email');
+      logger.debug('Form validation failed - missing name or email');
       return;
     }
 
-    console.log('📝 Submitting contact form:', {
+    logger.debug('Submitting contact form', {
       name: formData.name,
       email: formData.email,
       contact_type: formData.contact_type,
@@ -81,7 +82,7 @@ export const PersonModal = ({
         time_zone: ''
       });
 
-      console.log('✅ Contact creation completed successfully');
+      logger.debug('Contact creation completed successfully');
 
       // Reset form on success
       setFormData({
@@ -101,9 +102,9 @@ export const PersonModal = ({
         contact_status: 'active'
       });
       onOpenChange(false);
-      console.log('✅ Contact created and form closed');
+      logger.debug('Contact created and form closed');
     } catch (error) {
-      console.error('❌ Error creating contact:', error);
+      logger.error('Error creating contact', { error });
       // Keep form open on error so user can retry
     }
   };

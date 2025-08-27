@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
+import {
   MoreHorizontal, 
   Mail, 
   Phone, 
@@ -18,6 +18,7 @@ import {
   Archive,
   Trash2
 } from 'lucide-react';
+import { logger } from "@/utils/productionLogger";
 
 interface QuickActionsMenuProps {
   contact: Contact;
@@ -59,7 +60,7 @@ export const QuickActionsMenu = ({
       onScheduleCall(contact);
     } else {
       // Fallback to calendar integration
-      console.log('Schedule call with', contact.name);
+      logger.debug('Schedule call with', { contactName: contact.name, contactId: contact.id });
     }
   };
 
@@ -67,7 +68,7 @@ export const QuickActionsMenu = ({
     if (onAddNote) {
       onAddNote(contact);
     } else {
-      console.log('Add note for', contact.name);
+      logger.debug('Add note for', { contactName: contact.name, contactId: contact.id });
     }
   };
 

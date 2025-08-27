@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { logger } from "@/utils/productionLogger";
 
 interface FilterChip {
   id: string;
@@ -130,7 +131,7 @@ export const ModernContactsHeader = ({
             </div>
             <div className="border-t px-2 py-2">
               <div className="text-xs font-medium text-muted-foreground mb-2">ETIQUETAS</div>
-              <DropdownMenuItem onClick={() => console.log('Add tag filter')}>
+              <DropdownMenuItem onClick={() => logger.debug('Add tag filter clicked')}>
                 Buscar etiquetas...
               </DropdownMenuItem>
             </div>

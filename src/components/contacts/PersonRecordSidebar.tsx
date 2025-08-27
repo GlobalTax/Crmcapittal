@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Contact, ContactType } from '@/types/Contact';
+import { logger } from "@/utils/productionLogger";
 
 interface PersonRecordSidebarProps {
   contact: Contact;
@@ -26,7 +27,7 @@ export const PersonRecordSidebar = ({ contact, onEdit }: PersonRecordSidebarProp
 
   const handleFieldSave = (fieldName: string) => {
     // Here you would typically make an API call to update the field
-    console.log(`Saving ${fieldName}:`, fieldValues[fieldName]);
+    logger.debug('Saving field', { fieldName, value: fieldValues[fieldName] });
     setEditingField(null);
   };
 

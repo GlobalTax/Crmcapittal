@@ -3,6 +3,7 @@ import { useContactFiles, ContactFile } from '@/hooks/useContactFiles';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { logger } from "@/utils/productionLogger";
 import { 
   Mail, 
   Trash2
@@ -78,7 +79,7 @@ export default function ContactFilesTab({ contactId, currentUserId }: Props) {
         description: `"${file.name}" se ha subido correctamente.`,
       });
     } catch (error) {
-      console.error('Error al subir archivo:', error);
+      logger.error('Error uploading file', { error, fileName: file.name, contactId });
       toast({
         title: "Error al subir archivo",
         description: "No se pudo subir el archivo. Inténtalo de nuevo.",

@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { logger } from "@/utils/productionLogger";
 
 interface PersonalTimerProps {
   className?: string;
@@ -165,7 +166,7 @@ export const PersonalTimer = ({ className }: PersonalTimerProps) => {
 
       await createTimeEntry(timeEntryData);
     } catch (error) {
-      console.error('Error starting timer:', error);
+      logger.error('Error starting timer', { error, entityType, description });
       setIsRunning(false);
       toast.error('Error al iniciar el timer');
     }
@@ -205,7 +206,7 @@ export const PersonalTimer = ({ className }: PersonalTimerProps) => {
       setEntityId('');
       toast.success(`Timer parado. Registrados ${duration} minutos`);
     } catch (error) {
-      console.error('Error stopping timer:', error);
+      logger.error('Error stopping timer', { error, activeEntryId: activeEntry.id });
       toast.error('Error al parar el timer');
     }
   };

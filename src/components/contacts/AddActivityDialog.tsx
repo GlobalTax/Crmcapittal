@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Contact } from "@/types/Contact";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { logger } from "@/utils/productionLogger";
 
 interface AddActivityDialogProps {
   open: boolean;
@@ -152,7 +153,7 @@ export function AddActivityDialog({ open, onOpenChange, contact, onActivityAdded
       onActivityAdded();
       resetForm();
     } catch (error) {
-      console.error('Error adding activity:', error);
+      logger.error('Error adding activity', { error, contactId: contact.id, activityType: formData.activity_type });
       toast.error('Error al añadir la actividad');
     } finally {
       setIsLoading(false);

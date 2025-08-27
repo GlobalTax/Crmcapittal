@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Check, X, Edit } from "lucide-react";
+import { logger } from "@/utils/productionLogger";
 
 import { DealPreferences } from '@/types/Contact';
 
@@ -54,7 +55,7 @@ export function InlineEditCell({
       await onSave(convertedValue);
       setIsEditing(false);
     } catch (error) {
-      console.error('Error saving inline edit:', error);
+      logger.error('Error saving inline edit', { error, field: 'inline-edit' });
       setEditValue(String(value || ''));
     } finally {
       setIsLoading(false);

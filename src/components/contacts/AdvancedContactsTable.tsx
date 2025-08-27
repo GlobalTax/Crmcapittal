@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { SavedViewsSelector } from "./SavedViewsSelector";
 import { InlineEditCell } from "./InlineEditCell";
+import { logger } from "@/utils/productionLogger";
 
 interface Column {
   id: string;
@@ -103,7 +104,7 @@ export function AdvancedContactsTable({
       .order('created_at');
 
     if (error) {
-      console.error('Error loading saved views:', error);
+      logger.error('Error loading saved views', { error, userId: user.id });
       return;
     }
 
@@ -151,7 +152,7 @@ export function AdvancedContactsTable({
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error loading user preferences:', error);
+      logger.error('Error loading user preferences', { error, userId: user.id });
       return;
     }
 
@@ -172,7 +173,7 @@ export function AdvancedContactsTable({
       });
 
     if (error) {
-      console.error('Error saving user preferences:', error);
+      logger.error('Error saving user preferences', { error, userId: user.id });
     }
   };
 
@@ -199,7 +200,7 @@ export function AdvancedContactsTable({
       toast.success('Campo actualizado correctamente');
     } catch (error) {
       toast.error('Error al actualizar el campo');
-      console.error('Error updating field:', error);
+      logger.error('Error updating field', { error, contactId, field });
     }
   };
 

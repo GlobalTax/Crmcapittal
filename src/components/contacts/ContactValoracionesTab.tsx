@@ -10,6 +10,7 @@ import { Valoracion } from '@/types/Valoracion';
 import { Contact } from '@/types/Contact';
 import { VALORACION_PHASES } from '@/utils/valoracionPhases';
 import { formatCurrency } from '@/utils/format';
+import { logger } from "@/utils/productionLogger";
 
 interface ContactValoracionesTabProps {
   contact: Contact;
@@ -40,7 +41,7 @@ export function ContactValoracionesTab({ contact }: ContactValoracionesTabProps)
       })) as Valoracion[];
       setValoraciones(typedData);
     } catch (error) {
-      console.error('Error loading valoraciones:', error);
+      logger.error('Error loading valoraciones', { error, contactName: contact.name });
     } finally {
       setLoading(false);
     }
@@ -61,7 +62,7 @@ export function ContactValoracionesTab({ contact }: ContactValoracionesTabProps)
       setShowCreateForm(false);
       loadValoraciones();
     } catch (error) {
-      console.error('Error creating valoración:', error);
+      logger.error('Error creating valoración', { error, contactId: contact.id });
     }
   };
 

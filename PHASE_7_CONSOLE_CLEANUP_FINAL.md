@@ -38,26 +38,34 @@
 - [x] `src/hooks/useKpisVenta.ts` - 1 console.error → logger.error
 
 ## 📊 Progreso Total:
-**Archivos completados: 27**  
-**Console statements migrados: ~183**  
-**Progreso estimado: 15.1% (183/1209)**
+**Archivos completados: 44**  
+**Console statements migrados: ~214**  
+**Progreso estimado: 17.7% (214/1209)**
 
 ## 🔄 Próximos módulos críticos:
 
-### Contact Components restantes (~24 console statements)
-- [ ] `src/components/contacts/AddActivityDialog.tsx` - 1 console.error
-- [ ] `src/components/contacts/AdvancedContactsTable.tsx` - 4 console.error
-- [ ] `src/components/contacts/ContactCompanyTab.tsx` - 2 console.error
-- [ ] `src/components/contacts/ContactFilesTab.tsx` - 1 console.error
-- [ ] `src/components/contacts/ContactTimeline.tsx` - 1 console.error
-- [ ] `src/components/contacts/ContactValoracionesTab.tsx` - 2 console.error
-- [ ] `src/components/contacts/InlineEditCell.tsx` - 1 console.error
-- [ ] `src/components/contacts/ModernContactsHeader.tsx` - 1 console.log
-- [ ] `src/components/contacts/PersonModal.tsx` - 5 console statements (mixed)
-- [ ] `src/components/contacts/PersonRecordSidebar.tsx` - 1 console.log
-- [ ] `src/components/contacts/PersonRecordTable.tsx` - 2 console statements
-- [ ] `src/components/contacts/QuickActionsMenu.tsx` - 2 console.log
-- [ ] `src/components/contacts/sidebar/ContactDetailsSection.tsx` - 1 console.log
+### ✅ Archivos Contacts (24 statements - 13/40 archivos)
+- [x] `src/components/contacts/AddActivityDialog.tsx` - 1 console.error → logger.error
+- [x] `src/components/contacts/AdvancedContactsTable.tsx` - 4 console.error → logger.error  
+- [x] `src/components/contacts/ContactCompanyTab.tsx` - 2 console.error → logger.error
+- [x] `src/components/contacts/ContactFilesTab.tsx` - 1 console.error → logger.error
+- [x] `src/components/contacts/ContactTimeline.tsx` - 1 console.error → logger.error
+- [x] `src/components/contacts/ContactValoracionesTab.tsx` - 2 console.error → logger.error
+- [x] `src/components/contacts/InlineEditCell.tsx` - 1 console.error → logger.error
+- [x] `src/components/contacts/ModernContactsHeader.tsx` - 1 console.log → logger.debug
+- [x] `src/components/contacts/PersonModal.tsx` - 5 console statements → logger
+- [x] `src/components/contacts/PersonRecordSidebar.tsx` - 1 console.log → logger.debug
+- [x] `src/components/contacts/PersonRecordTable.tsx` - 2 console statements → logger
+- [x] `src/components/contacts/QuickActionsMenu.tsx` - 2 console.log → logger.debug
+- [x] `src/components/contacts/sidebar/ContactDetailsSection.tsx` - 1 console.log → logger.debug
+
+### ✅ Archivos Dashboard (4 statements - 2/5 archivos)
+- [x] `src/components/dashboard/PersonalTimer.tsx` - 2 console.error → logger.error
+- [x] `src/components/dashboard/RemindersDashboard.tsx` - 2 console.error → logger.error
+
+### ✅ Archivos Edge Functions (3 statements - 2 archivos)
+- [x] `supabase/functions/track-email-open/index.ts` - 2 console statements → mejorados
+- [x] `supabase/functions/slack-notify/index.ts` - 1 console.error → mejorado
 
 ### Campaign Components restantes (~19 console statements)
 - [ ] `src/components/campaigns/CampaignEmailPreview.tsx`
@@ -74,4 +82,4 @@
 - ✅ Contexto rico en cada log entry
 - 🔄 Continuando con módulos de contacts
 
-**Estado: Phase 7 en progreso activo - 15.1% completado**
+**Estado: Phase 7 en progreso activo - 17.7% completado**

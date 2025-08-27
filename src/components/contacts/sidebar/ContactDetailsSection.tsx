@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, ChevronRight, Edit2, Check, X } from 'lucide-react';
 import { Contact, ContactType } from '@/types/Contact';
+import { logger } from "@/utils/productionLogger";
 
 interface ContactDetailsSectionProps {
   contact: Contact;
@@ -25,7 +26,7 @@ export const ContactDetailsSection = ({ contact, onEdit }: ContactDetailsSection
   };
 
   const handleFieldSave = (fieldName: string) => {
-    console.log(`Saving ${fieldName}:`, fieldValues[fieldName]);
+    logger.debug('Saving field', { fieldName, value: fieldValues[fieldName] });
     setEditingField(null);
   };
 

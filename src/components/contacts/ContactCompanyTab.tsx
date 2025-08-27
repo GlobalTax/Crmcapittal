@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from "@/utils/productionLogger";
 import { 
   Plus, 
   Building, 
@@ -74,7 +75,7 @@ export function ContactCompanyTab({ contactId, currentUserId }: ContactCompanyTa
       if (error) throw error;
       setContactCompanies(data || []);
     } catch (error) {
-      console.error('Error fetching contact companies:', error);
+      logger.error('Error fetching contact companies', { error, contactId });
     }
   };
 
@@ -96,7 +97,7 @@ export function ContactCompanyTab({ contactId, currentUserId }: ContactCompanyTa
       if (error) throw error;
       setSearchResults(data || []);
     } catch (error) {
-      console.error('Error searching companies:', error);
+      logger.error('Error searching companies', { error, term });
     } finally {
       setLoading(false);
     }

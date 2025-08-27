@@ -8,6 +8,7 @@ import { useReminders } from '@/hooks/automation/useReminders';
 import { Bell, Clock, AlertTriangle, CheckCircle, Calendar } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { logger } from "@/utils/productionLogger";
 
 export const RemindersDashboard = () => {
   const { 
@@ -47,7 +48,7 @@ export const RemindersDashboard = () => {
     try {
       await markNotificationAsRead(notificationId);
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      logger.error('Error marking notification as read', { error, notificationId });
     }
   };
 
@@ -58,7 +59,7 @@ export const RemindersDashboard = () => {
         type: notification.reminder_type
       });
     } catch (error) {
-      console.error('Error cancelling reminder:', error);
+      logger.error('Error cancelling reminder', { error, dealId: notification.task_id, type: notification.reminder_type });
     }
   };
 

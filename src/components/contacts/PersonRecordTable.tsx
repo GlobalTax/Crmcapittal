@@ -12,6 +12,7 @@ import { cleanTestContacts, createSampleContacts } from '@/utils/cleanTestData';
 import { useToast } from '@/hooks/use-toast';
 import { ContactRoleBadges } from './ContactRoleBadges';
 import { ContactStatusBadge } from './ContactStatusBadge';
+import { logger } from "@/utils/productionLogger";
 
 interface PersonRecordTableProps {
   contacts: Contact[];
@@ -133,7 +134,7 @@ export const PersonRecordTable = ({
             <Filter className="h-4 w-4 mr-1" />
             Filtros
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => console.log('Configurar columnas')}>
+          <Button variant="ghost" size="sm" onClick={() => logger.debug('Configure columns clicked')}>
             <Settings className="h-4 w-4 mr-1" />
             Ver columnas
           </Button>
@@ -288,7 +289,7 @@ export const PersonRecordTable = ({
         });
       }
     } catch (error) {
-      console.error('Error cleaning data:', error);
+      logger.error('Error cleaning data', { error });
       toast({
         title: 'Error',
         description: 'Hubo un problema al limpiar los datos.',

@@ -41,6 +41,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (e) {
+    // Log error for debugging purposes
     console.error('slack-notify error', e);
     return new Response(JSON.stringify({ error: 'Unexpected error', details: String(e) }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }

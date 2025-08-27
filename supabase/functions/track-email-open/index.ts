@@ -39,12 +39,15 @@ serve(async (req: Request) => {
       .eq('tracking_id', trackingId);
 
     if (error) {
+      // Log the error for debugging purposes
       console.error('Error updating email tracking:', error);
     } else {
+      // Log successful email open
       console.log(`Email opened: ${trackingId}`);
     }
 
   } catch (error) {
+    // Log error for debugging purposes
     console.error('Error in track-email-open:', error);
   }
 

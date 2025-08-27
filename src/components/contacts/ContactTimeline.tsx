@@ -24,6 +24,7 @@ import { AddActivityDialog } from "./AddActivityDialog";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
+import { logger } from "@/utils/productionLogger";
 
 interface ContactActivity {
   id: string;
@@ -93,7 +94,7 @@ export function ContactTimeline({ contact, className = "" }: ContactTimelineProp
         activity_data: typeof activity.activity_data === 'object' ? activity.activity_data as Record<string, string | number | boolean | null> : {}
       })));
     } catch (error) {
-      console.error('Error loading activities:', error);
+      logger.error('Error loading activities', { error, contactId: contact.id });
       toast.error('Error al cargar las actividades');
     } finally {
       setIsLoading(false);
