@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 interface EnrichCompanyParams {
   companyId: string;
@@ -20,7 +21,7 @@ export const useEinformaEnrichment = () => {
       });
 
       if (error) {
-        console.error('Error enriching company:', error);
+        logger.error('Error enriching company via eInforma API', { error, nif, companyId });
         throw error;
       }
 
@@ -38,7 +39,7 @@ export const useEinformaEnrichment = () => {
       }
     },
     onError: (error) => {
-      console.error('Error enriching company:', error);
+      logger.error('eInforma enrichment mutation failed', { error });
       toast.error('Error al enriquecer los datos de la empresa');
     },
   });

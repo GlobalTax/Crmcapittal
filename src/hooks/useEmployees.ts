@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserRole } from '@/hooks/useUserRole';
+import { logger } from '@/utils/productionLogger';
 
 interface Employee {
   id: string;
@@ -37,7 +38,7 @@ export const useEmployees = () => {
 
       setEmployees(data || []);
     } catch (err) {
-      console.error('Error fetching employees:', err);
+      logger.error('Failed to fetch employees list', { error: err, userRole: role });
       setError('Error al cargar empleados');
     } finally {
       setLoading(false);

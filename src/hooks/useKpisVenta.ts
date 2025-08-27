@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/productionLogger';
 
 interface VentaKpisData {
   activeTx: number;
@@ -41,7 +42,7 @@ export const useKpisVenta = () => {
         });
 
       } catch (err) {
-        console.error('Error fetching venta KPIs:', err);
+        logger.error('Failed to fetch venta KPIs', { error: err, userId: user.id });
         setError(err instanceof Error ? err.message : 'Error fetching venta KPIs');
         
         // Fallback data
