@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Company } from '@/types/Company';
 import { einformaService } from '@/services/einformaService';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyRecordSidebarProps {
   company: Company;
@@ -29,7 +30,7 @@ export const CompanyRecordSidebar = ({ company, onEdit }: CompanyRecordSidebarPr
 
   const handleFieldSave = (fieldName: string) => {
     // Here you would typically make an API call to update the field
-    console.log(`Saving ${fieldName}:`, fieldValues[fieldName]);
+    logger.debug('Saving company field', { fieldName, value: fieldValues[fieldName], companyId: company.id }, 'CompanyRecordSidebar');
     setEditingField(null);
   };
 
@@ -56,7 +57,7 @@ export const CompanyRecordSidebar = ({ company, onEdit }: CompanyRecordSidebarPr
         toast.error(result.message || 'Error al enriquecer con eInforma');
       }
     } catch (error) {
-      console.error('Error enriching company:', error);
+      logger.error('Error enriching company with eInforma', { error, companyId: company.id, nif: company.nif }, 'CompanyRecordSidebar');
       toast.error('Error al conectar con eInforma');
     } finally {
       setIsEnriching(false);

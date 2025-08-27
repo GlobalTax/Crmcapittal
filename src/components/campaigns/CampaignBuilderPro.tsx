@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useSubscriberSegments } from '@/hooks/useSubscriberSegments';
 import { useCampaigns } from '@/hooks/useCampaigns';
+import { logger } from '@/utils/productionLogger';
 import { 
   Send, 
   Users, 
@@ -96,7 +97,7 @@ export function CampaignBuilderPro({ onClose }: CampaignBuilderProProps) {
       });
       onClose();
     } catch (error) {
-      console.error('Error sending campaign:', error);
+      logger.error('Error sending campaign', { error, campaignData }, 'CampaignBuilderPro');
     }
   };
 

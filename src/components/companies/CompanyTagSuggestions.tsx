@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Check, X, Sparkles, Loader2 } from 'lucide-react';
 import { useOpenAIAssistant } from '@/hooks/useOpenAIAssistant';
 import { cn } from '@/lib/utils';
+import { logger } from '@/utils/productionLogger';
 
 interface Company {
   id: string;
@@ -80,11 +81,11 @@ export function CompanyTagSuggestions({
             setSuggestions(parsed.suggestions);
           }
         } catch (e) {
-          console.error('Error parsing AI response:', e);
+          logger.error('Error parsing AI response for tag suggestions', { error: e, companyId: company.id }, 'CompanyTagSuggestions');
         }
       }
     } catch (error) {
-      console.error('Error generando sugerencias:', error);
+      logger.error('Error generating tag suggestions with AI', { error, companyId: company.id }, 'CompanyTagSuggestions');
     } finally {
       setIsLoading(false);
     }

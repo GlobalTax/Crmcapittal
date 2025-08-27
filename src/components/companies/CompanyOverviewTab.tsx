@@ -7,6 +7,7 @@ import { useCompanyProfileScore } from '@/hooks/useCompanyProfileScore';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { RevealSection } from '@/components/ui/RevealSection';
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyOverviewTabProps {
   company: Company;
@@ -28,7 +29,7 @@ export const CompanyOverviewTab = ({ company }: CompanyOverviewTabProps) => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching enrichment data:', error);
+        logger.error('Error fetching company enrichment data', { error, companyId: company.id }, 'CompanyOverviewTab');
         return null;
       }
 

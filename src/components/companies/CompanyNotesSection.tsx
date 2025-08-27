@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyNotesSectionProps {
   company: Company;
@@ -38,7 +39,7 @@ export const CompanyNotesSection = ({ company }: CompanyNotesSectionProps) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching company notes:', error);
+        logger.error('Error fetching company notes', { error, companyId: company.id }, 'CompanyNotesSection');
         throw error;
       }
 
@@ -73,7 +74,7 @@ export const CompanyNotesSection = ({ company }: CompanyNotesSectionProps) => {
       toast.success('Nota añadida correctamente');
     },
     onError: (error) => {
-      console.error('Error creating note:', error);
+      logger.error('Error creating company note', { error, companyId: company.id }, 'CompanyNotesSection');
       toast.error('Error al añadir la nota');
     },
   });
@@ -92,7 +93,7 @@ export const CompanyNotesSection = ({ company }: CompanyNotesSectionProps) => {
       toast.success('Nota eliminada correctamente');
     },
     onError: (error) => {
-      console.error('Error deleting note:', error);
+      logger.error('Error deleting company note', { error, companyId: company.id }, 'CompanyNotesSection');
       toast.error('Error al eliminar la nota');
     },
   });
