@@ -11,6 +11,7 @@ import { FinancialBalanceSection } from './enrichment/FinancialBalanceSection';
 import { IncomeStatementSection } from './enrichment/IncomeStatementSection';
 import { FinancialRatiosSection } from './enrichment/FinancialRatiosSection';
 import { CreditInfoSection } from './enrichment/CreditInfoSection';
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyEnrichmentButtonProps {
   company: Company;
@@ -67,7 +68,7 @@ export const CompanyEnrichmentButton: React.FC<CompanyEnrichmentButtonProps> = (
     setIsLoading(true);
     
     try {
-      console.log('Enriqueciendo empresa con CIF:', cif);
+      logger.debug('Starting company enrichment with eInforma', { cif, companyId: company.id });
       
       const enrichmentResult = await einformaService.enrichCompany(cif);
       
@@ -79,7 +80,7 @@ export const CompanyEnrichmentButton: React.FC<CompanyEnrichmentButtonProps> = (
       const saved = await einformaService.saveEnrichmentResult(company.id, enrichmentResult);
       
       if (!saved) {
-        console.warn('Could not save enrichment result to database');
+        logger.warn('Enrichment result could not be saved to database', { companyId: company.id, cif });
       }
 
       setEnrichmentData(enrichmentResult);
@@ -93,7 +94,7 @@ export const CompanyEnrichmentButton: React.FC<CompanyEnrichmentButtonProps> = (
       onEnrichmentComplete?.(enrichmentResult);
       
     } catch (error) {
-      console.error('Error durante el enriquecimiento:', error);
+      logger.error('eInforma enrichment process failed', { error, cif, companyId: company.id });
       toast({
         title: "Error en enriquecimiento",
         description: error instanceof Error ? error.message : "Error desconocido al conectar con eInforma",

@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyFilesTabProps {
   company: Company;
@@ -39,7 +40,7 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching company files:', error);
+        logger.error('Failed to fetch company files', { error, companyId: company.id });
         throw error;
       }
 
@@ -49,27 +50,28 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
 
   const uploadFileMutation = useMutation({
     mutationFn: async (file: File) => {
-      console.log('Iniciando subida de archivo:', { 
+      logger.debug('Starting file upload process', { 
         fileName: file.name, 
         fileSize: file.size, 
-        fileType: file.type 
+        fileType: file.type,
+        companyId: company.id
       });
 
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) {
-        console.error('Error obteniendo usuario:', userError);
+        logger.error('Authentication error during file upload', { error: userError });
         throw new Error('Error de autenticación');
       }
       if (!userData.user) {
-        console.error('No hay usuario autenticado');
+        logger.error('User not authenticated for file upload');
         throw new Error('Usuario no autenticado');
       }
 
-      console.log('Usuario autenticado:', userData.user.id);
+      logger.debug('User authenticated for file upload', { userId: userData.user.id });
 
       // Upload file to storage with user folder structure
       const fileName = `${userData.user.id}/${Date.now()}-${file.name}`;
-      console.log('Subiendo archivo como:', fileName);
+      logger.debug('Uploading file to storage', { fileName });
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('company-files')
@@ -79,11 +81,11 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
         });
 
       if (uploadError) {
-        console.error('Error al subir archivo al storage:', uploadError);
+        logger.error('Storage upload failed', { error: uploadError, fileName });
         throw new Error(`Error de storage: ${uploadError.message}`);
       }
 
-      console.log('Archivo subido al storage:', uploadData);
+      logger.debug('File uploaded to storage successfully', { uploadData });
 
       // Get public URL - ensure it includes /public/ for public buckets
       const { data: urlData } = supabase.storage
@@ -96,7 +98,7 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
         publicUrl = publicUrl.replace('/object/company-files/', '/object/public/company-files/');
       }
 
-      console.log('URL pública generada:', publicUrl);
+      logger.debug('Generated public URL for file', { publicUrl });
 
       // Save file record to database
       const fileRecord = {
@@ -108,7 +110,7 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
         uploaded_by: userData.user.id,
       };
 
-      console.log('Guardando registro en BD:', fileRecord);
+      logger.debug('Saving file record to database', { fileRecord });
 
       const { data, error } = await supabase
         .from('company_files')
@@ -117,11 +119,11 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
         .single();
 
       if (error) {
-        console.error('Error al guardar en BD:', error);
+        logger.error('Database insert failed for file record', { error, fileRecord });
         throw new Error(`Error de base de datos: ${error.message}`);
       }
 
-      console.log('Archivo guardado exitosamente:', data);
+      logger.info('File uploaded and saved successfully', { fileId: data.id, fileName: file.name });
       return data;
     },
     onSuccess: () => {
@@ -129,7 +131,7 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
       toast.success('Archivo subido correctamente');
     },
     onError: (error) => {
-      console.error('Error uploading file:', error);
+      logger.error('File upload operation failed', { error: error.message, companyId: company.id });
       toast.error(`Error al subir el archivo: ${error.message}`);
     },
   });
@@ -142,14 +144,14 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
       
       if (pathIndex !== -1 && pathIndex < urlParts.length - 1) {
         const filePath = urlParts.slice(pathIndex + 1).join('/');
-        console.log('Deleting file with path:', filePath);
+        logger.debug('Attempting to delete file from storage', { filePath, fileId: file.id });
         
         const { error: storageError } = await supabase.storage
           .from('company-files')
           .remove([filePath]);
           
         if (storageError) {
-          console.error('Storage deletion error:', storageError);
+          logger.error('Failed to delete file from storage', { error: storageError, filePath });
         }
       }
 
@@ -166,7 +168,7 @@ export const CompanyFilesTab = ({ company }: CompanyFilesTabProps) => {
       toast.success('Archivo eliminado correctamente');
     },
     onError: (error) => {
-      console.error('Error deleting file:', error);
+      logger.error('File deletion operation failed', { error, companyId: company.id });
       toast.error('Error al eliminar el archivo');
     },
   });

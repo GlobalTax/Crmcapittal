@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Settings, Percent, TrendingUp, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/productionLogger';
 
 interface CommissionRule {
   id?: string;
@@ -92,7 +93,7 @@ export const AdvancedCommissionRules = () => {
       if (error) throw error;
       setRules(data || []);
     } catch (error) {
-      console.error('Error fetching rules:', error);
+      logger.error('Failed to fetch commission rules', { error });
     }
   };
 
@@ -161,7 +162,7 @@ export const AdvancedCommissionRules = () => {
 
       fetchRules();
     } catch (error) {
-      console.error('Error saving rule:', error);
+      logger.error('Failed to save commission rule', { error, ruleName: newRule.name });
       toast({
         title: "Error",
         description: "No se pudo crear la regla de comisión",
@@ -188,7 +189,7 @@ export const AdvancedCommissionRules = () => {
 
       fetchRules();
     } catch (error) {
-      console.error('Error deleting rule:', error);
+      logger.error('Failed to delete commission rule', { error, ruleId });
       toast({
         title: "Error",
         description: "No se pudo eliminar la regla",
@@ -207,7 +208,7 @@ export const AdvancedCommissionRules = () => {
       if (error) throw error;
       fetchRules();
     } catch (error) {
-      console.error('Error updating rule status:', error);
+      logger.error('Failed to update commission rule status', { error, ruleId, isActive });
     }
   };
 

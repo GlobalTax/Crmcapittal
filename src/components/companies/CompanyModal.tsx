@@ -13,6 +13,7 @@ import { Plus, Building2, Globe, Phone, MapPin, Users, TrendingUp, Tag, Link, Aw
 import { CompanySize, CompanyType, CompanyStatus, CompanyLifecycleStage, CreateCompanyData } from "@/types/Company";
 import { useCompanyLookup } from "@/hooks/useCompanyLookup";
 import { toast } from "sonner";
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyModalProps {
   open: boolean;
@@ -138,7 +139,7 @@ export const CompanyModal = ({
         toast.error(result.error || 'No se encontraron datos para este NIF');
       }
     } catch (error) {
-      console.error('Error searching by NIF:', error);
+      logger.error('Failed to search company by NIF', { error, nif: nifSearch });
       toast.error('Error al buscar en eInforma');
     }
   };

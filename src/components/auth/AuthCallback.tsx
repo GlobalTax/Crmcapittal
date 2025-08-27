@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/productionLogger';
 
 const AuthCallback = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const AuthCallback = () => {
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('OAuth callback error:', error);
+          logger.error('OAuth callback authentication failed', { error: error.message, searchParams: Object.fromEntries(searchParams) });
           toast({
             title: "Error de autenticación",
             description: error.message,
@@ -42,7 +43,7 @@ const AuthCallback = () => {
           navigate('/auth', { replace: true });
         }
       } catch (error) {
-        console.error('Unexpected error in OAuth callback:', error);
+        logger.error('Unexpected error in OAuth authentication process', { error });
         toast({
           title: "Error",
           description: "Ha ocurrido un error inesperado durante la autenticación.",
