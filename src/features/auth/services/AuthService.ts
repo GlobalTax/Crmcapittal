@@ -6,6 +6,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { UserRole, OAuthProvider, UserProfile } from '../types';
+import { logger } from '@/utils/productionLogger';
 
 export class AuthService {
   /**
@@ -94,13 +95,13 @@ export class AuthService {
         .rpc('get_user_highest_role', { _user_id: userId });
 
       if (error) {
-        console.error('Error fetching user role:', error);
+        logger.error('Failed to fetch user role', { error, userId });
         return 'user';
       }
 
       return (data as UserRole) || 'user';
     } catch (err) {
-      console.error('Error in getUserRole:', err);
+      logger.error('Error in getUserRole', { error: err, userId });
       return 'user';
     }
   }
@@ -117,13 +118,13 @@ export class AuthService {
         .single();
 
       if (error) {
-        console.error('Error fetching user profile:', error);
+        logger.error('Failed to fetch user profile', { error, userId });
         return null;
       }
 
       return data as UserProfile;
     } catch (err) {
-      console.error('Error in getUserProfile:', err);
+      logger.error('Error in getUserProfile', { error: err, userId });
       return null;
     }
   }
@@ -142,7 +143,7 @@ export class AuthService {
 
       return { data, error };
     } catch (err) {
-      console.error('Error in updateUserProfile:', err);
+      logger.error('Error in updateUserProfile', { error: err, userId, updates });
       return { data: null, error: err };
     }
   }
@@ -174,13 +175,13 @@ export class AuthService {
         .rpc('has_role', { _user_id: userId, _role: role });
 
       if (error) {
-        console.error('Error checking user role:', error);
+        logger.error('Failed to check user role', { error, userId, role });
         return false;
       }
 
       return data as boolean;
     } catch (err) {
-      console.error('Error in hasRole:', err);
+      logger.error('Error in hasRole', { error: err, userId, role });
       return false;
     }
   }

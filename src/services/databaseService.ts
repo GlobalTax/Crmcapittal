@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/productionLogger';
 
 export interface DatabaseQueryResult<T = any> {
   success: boolean;
@@ -13,7 +14,7 @@ export class DatabaseService {
     try {
       // Since execute_sql doesn't exist, we'll use direct table queries
       // This is a temporary solution until the database types are updated
-      console.log('Database query:', sql, params);
+      logger.debug('Database query attempted', { sql, params });
       
       // Return mock data for now to prevent errors
       return {
@@ -21,7 +22,7 @@ export class DatabaseService {
         data: [] as T
       };
     } catch (error) {
-      console.error('Database query error:', error);
+      logger.error('Database query failed', { error, sql, params });
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown database error'
@@ -37,13 +38,13 @@ export class DatabaseService {
         .eq('enabled', true);
 
       if (error) {
-        console.error('Error fetching automation rules:', error);
+        logger.error('Failed to fetch automation rules', { error });
         return { success: false, error: error.message };
       }
 
       return { success: true, data: data || [] };
     } catch (error) {
-      console.error('Error in getAutomationRules:', error);
+      logger.error('Error in getAutomationRules', { error });
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -61,13 +62,13 @@ export class DatabaseService {
         .single();
 
       if (error) {
-        console.error('Error fetching capital market config:', error);
+        logger.error('Failed to fetch capital market config', { error });
         return { success: false, error: error.message };
       }
 
       return { success: true, data };
     } catch (error) {
-      console.error('Error in getCapitalMarketConfig:', error);
+      logger.error('Error in getCapitalMarketConfig', { error });
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'

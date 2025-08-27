@@ -5,6 +5,7 @@ import {
   EInformaApiResponse,
   EInformaEnrichmentResult
 } from "@/types/EInforma";
+import { logger } from '@/utils/productionLogger';
 
 class EInformaService {
   private baseUrl = 'https://nbvvdaprcecaqvvkqcto.supabase.co/functions/v1';
@@ -16,13 +17,13 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error searching company by CIF:', error);
+        logger.error('Failed to search company by CIF', { error, cif });
         return null;
       }
 
       return data?.company || null;
     } catch (error) {
-      console.error('EInforma CIF search failed:', error);
+      logger.error('EInforma CIF search failed', { error, cif });
       return null;
     }
   }
@@ -34,13 +35,13 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error searching company by name:', error);
+        logger.error('Failed to search company by name', { error, name, limit });
         return [];
       }
 
       return data?.results || [];
     } catch (error) {
-      console.error('EInforma name search failed:', error);
+      logger.error('EInforma name search failed', { error, name, limit });
       return [];
     }
   }
@@ -52,7 +53,7 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error enriching company:', error);
+        logger.error('Failed to enrich company', { error, cif });
         return null;
       }
 
@@ -77,7 +78,7 @@ class EInformaService {
 
       return null;
     } catch (error) {
-      console.error('EInforma enrichment failed:', error);
+      logger.error('EInforma enrichment failed', { error, cif });
       return null;
     }
   }
@@ -89,13 +90,13 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error getting financial data:', error);
+        logger.error('Failed to get financial data', { error, cif, years });
         return [];
       }
 
       return data?.financial_data || [];
     } catch (error) {
-      console.error('EInforma financial data failed:', error);
+      logger.error('EInforma financial data failed', { error, cif, years });
       return [];
     }
   }
@@ -107,13 +108,13 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error getting balance sheet:', error);
+        logger.error('Failed to get balance sheet', { error, cif, years });
         return [];
       }
 
       return data?.balance_sheet || [];
     } catch (error) {
-      console.error('EInforma balance sheet failed:', error);
+      logger.error('EInforma balance sheet failed', { error, cif, years });
       return [];
     }
   }
@@ -125,13 +126,13 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error getting income statement:', error);
+        logger.error('Failed to get income statement', { error, cif, years });
         return [];
       }
 
       return data?.income_statement || [];
     } catch (error) {
-      console.error('EInforma income statement failed:', error);
+      logger.error('EInforma income statement failed', { error, cif, years });
       return [];
     }
   }
@@ -143,13 +144,13 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error getting credit info:', error);
+        logger.error('Failed to get credit info', { error, cif });
         return null;
       }
 
       return data?.credit_info || null;
     } catch (error) {
-      console.error('EInforma credit info failed:', error);
+      logger.error('EInforma credit info failed', { error, cif });
       return null;
     }
   }
@@ -161,13 +162,13 @@ class EInformaService {
       });
 
       if (error) {
-        console.error('Error getting directors:', error);
+        logger.error('Failed to get directors', { error, cif });
         return [];
       }
 
       return data?.directors || [];
     } catch (error) {
-      console.error('EInforma directors failed:', error);
+      logger.error('EInforma directors failed', { error, cif });
       return [];
     }
   }
@@ -202,13 +203,13 @@ class EInformaService {
         });
 
       if (error) {
-        console.error('Error saving enrichment result:', error);
+        logger.error('Failed to save enrichment result', { error, companyId });
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Failed to save enrichment result:', error);
+      logger.error('Failed to save enrichment result', { error, companyId });
       return false;
     }
   }
@@ -223,13 +224,13 @@ class EInformaService {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error getting enrichment history:', error);
+        logger.error('Failed to get enrichment history', { error, companyId });
         return [];
       }
 
       return data || [];
     } catch (error) {
-      console.error('Failed to get enrichment history:', error);
+      logger.error('Failed to get enrichment history', { error, companyId });
       return [];
     }
   }
@@ -250,7 +251,7 @@ class EInformaService {
         };
       }
 
-      console.log('Enriqueciendo empresa con NIF:', nif);
+      logger.debug('Enriching company with NIF', { nif });
 
       // Llamar a la API de eInforma
       const enrichmentResult = await this.enrichCompany(nif);
@@ -314,7 +315,7 @@ class EInformaService {
           .single();
 
         if (updateError) {
-          console.error('Error updating company:', updateError);
+          logger.error('Failed to update company', { error: updateError, companyId: existingCompany.id });
           return {
             success: false,
             message: 'Error al actualizar los datos de la empresa',
@@ -350,7 +351,7 @@ class EInformaService {
           .single();
 
         if (createError) {
-          console.error('Error creating company:', createError);
+          logger.error('Failed to create company', { error: createError });
           return {
             success: false,
             message: 'Error al crear la empresa en la base de datos',
@@ -384,7 +385,7 @@ class EInformaService {
       };
 
     } catch (error) {
-      console.error('Error in enrichCompanyWithEInforma:', error);
+      logger.error('Error in enrichCompanyWithEInforma', { error, nif });
       return {
         success: false,
         message: 'Error interno al procesar el enriquecimiento',

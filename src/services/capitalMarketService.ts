@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { CreateLeadData, LeadSource, Lead } from '@/types/Lead';
 // import { triggerAutomation } from './leadsService'; // Removed until implemented
 import { DatabaseService } from './databaseService';
+import { logger } from '@/utils/productionLogger';
 
 export interface CapitalMarketLead {
   id: string;
@@ -27,7 +28,7 @@ export class CapitalMarketService {
         const result = await DatabaseService.getCapitalMarketConfig();
         this.config = result.success ? result.data : null;
       } catch (error) {
-        console.error('Error fetching capital market config:', error);
+        logger.error('Failed to fetch capital market config', { error });
         this.config = null;
       }
     }
@@ -35,7 +36,7 @@ export class CapitalMarketService {
   }
 
   async createLeadFromCapitalMarket(capitalMarketData: CapitalMarketLead): Promise<any> {
-    console.log('Processing Capital Market lead:', capitalMarketData);
+    logger.debug('Processing Capital Market lead', { leadData: capitalMarketData });
 
     // Map Capital Market data to our Lead structure
     const leadData: CreateLeadData = {
@@ -74,7 +75,7 @@ export class CapitalMarketService {
       .single();
 
     if (error) {
-      console.error('Error creating lead from Capital Market:', error);
+      logger.error('Failed to create lead from Capital Market', { error, leadData });
       throw error;
     }
 
@@ -152,10 +153,10 @@ export class CapitalMarketService {
 
       for (const sequence of sequences || []) {
         // For now, just log the sequence start since we don't have the full nurturing tables
-        console.log(`Would start nurturing sequence "${sequence.name}" for lead ${leadData.id}`);
+        logger.debug('Would start nurturing sequence', { sequenceName: sequence.name, leadId: leadData.id });
       }
     } catch (error) {
-      console.error('Error starting nurturing sequence:', error);
+      logger.error('Failed to start nurturing sequence', { error, leadId: leadData.id });
     }
   }
 

@@ -1,9 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Operation } from '@/types/Operation';
 import { CreateOperationData, BulkOperationData } from '@/types/OperationData';
+import { logger } from '@/utils/productionLogger';
 
 export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]> => {
-  console.log('Iniciando consulta optimizada de operaciones con join de managers...');
+  logger.debug('Starting optimized operations query with manager join', { role });
   
   let query = supabase
     .from('operations')
@@ -28,15 +29,15 @@ export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]>
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error en la consulta:', error);
+    logger.error('Failed to fetch operations', { error });
     throw error;
   }
 
-  console.log('Datos obtenidos de la consulta:', data?.length, 'operaciones');
+  logger.debug('Operations data retrieved', { operationsCount: data?.length });
 
   // Procesar y mapear los datos de manera optimizada
   const typedOperations: Operation[] = (data || []).map(op => {
-    console.log('Procesando operación:', op.company_name);
+    logger.debug('Processing operation', { companyName: op.company_name });
     
     // Manejar el caso donde operation_managers puede ser null o undefined
     let managerData = undefined;
@@ -59,13 +60,12 @@ export const fetchOperationsFromDB = async (role?: string): Promise<Operation[]>
     };
   });
 
-  console.log('Operaciones procesadas exitosamente:', typedOperations.length);
+  logger.info('Operations processed successfully', { operationsCount: typedOperations.length });
   return typedOperations;
 };
 
 export const insertOperation = async (operationData: CreateOperationData, userId: string) => {
-  console.log('Añadiendo operación con datos:', operationData);
-  console.log('Usuario actual:', userId);
+  logger.debug('Adding operation', { operationData, userId });
 
   if (!userId) {
     throw new Error('Usuario no autenticado');
@@ -93,7 +93,7 @@ export const insertOperation = async (operationData: CreateOperationData, userId
     created_by: userId
   };
 
-  console.log('Datos preparados para inserción:', insertData);
+  logger.debug('Data prepared for insertion', { insertData });
 
   const { data, error } = await supabase
     .from('operations')
@@ -102,17 +102,16 @@ export const insertOperation = async (operationData: CreateOperationData, userId
     .single();
 
   if (error) {
-    console.error('Error de Supabase:', error);
+    logger.error('Supabase error during operation insert', { error });
     throw error;
   }
 
-  console.log('Operación creada exitosamente:', data);
+  logger.info('Operation created successfully', { operationId: data.id });
   return data;
 };
 
 export const insertBulkOperations = async (operationsData: BulkOperationData[], userId: string) => {
-  console.log('Añadiendo operaciones masivas:', operationsData.length, 'operaciones');
-  console.log('Usuario actual:', userId);
+  logger.debug('Adding bulk operations', { operationsCount: operationsData.length, userId });
 
   // Para operaciones públicas de ejemplo, permitir userId = 'public'
   if (!userId && userId !== 'public') {
@@ -142,7 +141,7 @@ export const insertBulkOperations = async (operationsData: BulkOperationData[], 
     created_by: userId === 'public' ? null : userId
   }));
 
-  console.log('Datos preparados para inserción masiva:', insertData);
+  logger.debug('Data prepared for bulk insertion', { insertDataCount: insertData.length });
 
   const { data, error } = await supabase
     .from('operations')
@@ -150,11 +149,11 @@ export const insertBulkOperations = async (operationsData: BulkOperationData[], 
     .select();
 
   if (error) {
-    console.error('Error de Supabase en inserción masiva:', error);
+    logger.error('Supabase error during bulk insertion', { error });
     throw error;
   }
 
-  console.log('Operaciones creadas exitosamente:', data?.length, 'operaciones');
+  logger.info('Bulk operations created successfully', { operationsCount: data?.length });
   return data;
 };
 
@@ -192,7 +191,7 @@ export const updateOperationStatusInDB = async (operationId: string, newStatus: 
 };
 
 export const deleteOperationFromDB = async (operationId: string, userRole?: string) => {
-  console.log('Intentando eliminar operación:', operationId, 'con rol:', userRole);
+  logger.debug('Attempting to delete operation', { operationId, userRole });
   
   // Si es admin o superadmin, permitir eliminar cualquier operación
   if (userRole === 'admin' || userRole === 'superadmin') {
@@ -202,11 +201,11 @@ export const deleteOperationFromDB = async (operationId: string, userRole?: stri
       .eq('id', operationId);
 
     if (error) {
-      console.error('Error eliminando operación como admin:', error);
+      logger.error('Failed to delete operation as admin', { error, operationId });
       throw error;
     }
     
-    console.log('Operación eliminada exitosamente por admin');
+    logger.info('Operation deleted successfully by admin', { operationId });
     return;
   }
 
@@ -218,15 +217,15 @@ export const deleteOperationFromDB = async (operationId: string, userRole?: stri
     .eq('created_by', (await supabase.auth.getUser()).data.user?.id);
 
   if (error) {
-    console.error('Error eliminando operación como usuario:', error);
+    logger.error('Failed to delete operation as user', { error, operationId });
     throw error;
   }
   
-  console.log('Operación eliminada exitosamente por usuario');
+  logger.info('Operation deleted successfully by user', { operationId });
 };
 
 export const updateTeaserUrlInDB = async (operationId: string, teaserUrl: string | null) => {
-  console.log('Actualizando teaser_url para operación:', operationId, 'nueva URL:', teaserUrl);
+  logger.debug('Updating teaser_url for operation', { operationId, teaserUrl });
   
   const { data, error } = await supabase
     .from('operations')
@@ -239,10 +238,10 @@ export const updateTeaserUrlInDB = async (operationId: string, teaserUrl: string
     .single();
 
   if (error) {
-    console.error('Error actualizando teaser_url:', error);
+    logger.error('Failed to update teaser_url', { error, operationId });
     throw error;
   }
 
-  console.log('Teaser URL actualizada exitosamente:', data);
+  logger.info('Teaser URL updated successfully', { operationId, teaserUrl });
   return data;
 };

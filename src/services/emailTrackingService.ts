@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { CreateTrackedEmailData, TrackedEmail } from "@/types/EmailTracking";
+import { logger } from '@/utils/productionLogger';
 
 export class EmailTrackingService {
   static async createTrackedEmail(data: CreateTrackedEmailData & { 
@@ -23,7 +24,7 @@ export class EmailTrackingService {
       });
 
       if (error) {
-        console.error('Error calling send-tracked-email function:', error);
+        logger.error('Failed to call send-tracked-email function', { error, data });
         return { data: null, error: error.message };
       }
 
@@ -39,7 +40,7 @@ export class EmailTrackingService {
         .single();
 
       if (fetchError) {
-        console.error('Error fetching created email:', fetchError);
+        logger.error('Failed to fetch created email', { error: fetchError, emailId: response.email_id });
         return { data: null, error: fetchError.message };
       }
 
@@ -52,7 +53,7 @@ export class EmailTrackingService {
       return { data: convertedEmail, error: null };
 
     } catch (error) {
-      console.error('Error in createTrackedEmail:', error);
+      logger.error('Error in createTrackedEmail', { error, data });
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -94,7 +95,7 @@ export class EmailTrackingService {
 
       return { data: convertedEmails, error: null };
     } catch (error) {
-      console.error('Error fetching tracked emails:', error);
+      logger.error('Failed to fetch tracked emails', { error, filters });
       return { data: [], error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
@@ -120,7 +121,7 @@ export class EmailTrackingService {
         recentEmails
       };
     } catch (error) {
-      console.error('Error getting email stats:', error);
+      logger.error('Failed to get email stats', { error });
       return {
         totalSent: 0,
         totalOpened: 0,

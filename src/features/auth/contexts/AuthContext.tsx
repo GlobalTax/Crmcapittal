@@ -11,13 +11,14 @@ import { AuthContextType, OAuthProvider } from '../types';
 import { AuthService } from '../services/AuthService';
 import { useSecureInput } from '@/hooks/useSecureInput';
 import { useRateLimit } from '@/utils/rateLimit';
+import { logger } from '@/utils/productionLogger';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    console.error('useAuth called outside AuthProvider. Component tree:', {
+    logger.error('useAuth called outside AuthProvider', {
       location: window.location.pathname,
       stack: new Error().stack
     });
@@ -34,21 +35,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { checkRateLimit } = useRateLimit();
 
   useEffect(() => {
-    console.log('AuthProvider: Setting up auth listeners');
+    logger.debug('AuthProvider: Setting up auth listeners');
     
     // Get initial session first
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await AuthService.getSession();
         if (error) {
-          console.error('AuthProvider: Error getting initial session:', error);
+          logger.error('AuthProvider: Error getting initial session', { error });
         } else {
-          console.log('AuthProvider: Initial session', session?.user?.email || 'no session');
+          logger.debug('AuthProvider: Initial session', { userEmail: session?.user?.email || 'no session' });
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error('AuthProvider: Error in getInitialSession:', error);
+        logger.error('AuthProvider: Error in getInitialSession', { error });
       } finally {
         setLoading(false);
       }

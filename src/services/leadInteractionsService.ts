@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { LeadInteraction, CreateLeadInteractionData, UpdateLeadInteractionData } from '@/types/LeadInteraction';
+import { logger } from '@/utils/productionLogger';
 
 export const leadInteractionsService = {
   // Obtener todas las interacciones de un lead
@@ -11,7 +12,7 @@ export const leadInteractionsService = {
       .order('fecha', { ascending: false });
 
     if (error) {
-      console.error('Error fetching lead interactions:', error);
+      logger.error('Failed to fetch lead interactions', { error, leadId });
       throw new Error('Error al cargar las interacciones del lead');
     }
 
@@ -33,7 +34,7 @@ export const leadInteractionsService = {
       .single();
 
     if (error) {
-      console.error('Error creating lead interaction:', error);
+      logger.error('Failed to create lead interaction', { error, interactionData });
       throw new Error('Error al crear la interacción');
     }
 
@@ -52,7 +53,7 @@ export const leadInteractionsService = {
       .single();
 
     if (error) {
-      console.error('Error updating lead interaction:', error);
+      logger.error('Failed to update lead interaction', { error, updates });
       throw new Error('Error al actualizar la interacción');
     }
 
@@ -67,7 +68,7 @@ export const leadInteractionsService = {
       .eq('id', id);
 
     if (error) {
-      console.error('Error deleting lead interaction:', error);
+      logger.error('Failed to delete lead interaction', { error, id });
       throw new Error('Error al eliminar la interacción');
     }
   }

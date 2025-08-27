@@ -9,6 +9,7 @@ import { UserProfile } from '../types';
 import { AuthService } from '../services/AuthService';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 export const useUserProfile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -22,7 +23,7 @@ export const useUserProfile = () => {
       const userProfile = await AuthService.getUserProfile(userId);
       setProfile(userProfile);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      logger.error('Failed to fetch user profile', { error, userId });
       setProfile(null);
     } finally {
       setLoading(false);
@@ -48,7 +49,7 @@ export const useUserProfile = () => {
       toast.success('Perfil actualizado correctamente');
       return { data, error: null };
     } catch (error) {
-      console.error('Error updating profile:', error);
+      logger.error('Failed to update user profile', { error, userId: user.id });
       toast.error('Error al actualizar perfil');
       return { error: error instanceof Error ? error.message : 'Error desconocido' };
     } finally {

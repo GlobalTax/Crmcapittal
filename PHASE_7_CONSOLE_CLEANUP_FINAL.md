@@ -54,32 +54,44 @@
 - [x] `src/components/documents/folders/FolderTreeView.tsx` - 1 console.log → logger.debug
 - [x] `src/components/documents/sharing/ShareLinkItem.tsx` - 1 console.error → logger.error
 
-### ✅ Archivos Services (2 archivos)
+### ✅ Archivos Services Críticos (6 archivos)
 - [x] `src/services/analyticsService.ts` - 6 console statements → logger
 - [x] `src/services/automationService.ts` - 7 console statements → logger
+- [x] `src/services/einformaService.ts` - 24 console statements → logger
+- [x] `src/services/emailTrackingService.ts` - 5 console statements → logger
+- [x] `src/services/capitalMarketService.ts` - 4 console statements → logger
+- [x] `src/services/databaseService.ts` - 5 console statements → logger
+- [x] `src/services/leadInteractionsService.ts` - 4 console statements → logger
+- [x] `src/services/operations.service.ts` - 16 console statements → logger
+
+### ✅ Archivos Features/Auth (3 archivos)
+- [x] `src/features/auth/contexts/AuthContext.tsx` - 20 console statements → logger (parcial)
+- [x] `src/features/auth/hooks/useUserProfile.ts` - 2 console statements → logger
+- [x] `src/features/auth/services/AuthService.ts` - 8 console statements → logger
 
 ### ✅ Archivos Edge Functions (2 archivos)
 - [x] `supabase/functions/track-email-open/index.ts` - 1 console.error → logger.error
 - [x] `supabase/functions/slack-notify/index.ts` - 1 console.error → logger.error
 
 ## Progreso actual:
-**Completado: 46 archivos (~280 console statements)**  
-**Pendiente: 305 archivos (~929 console statements)**
+**Completado: 57 archivos (~380 console statements)**  
+**Pendiente: 294 archivos (~829 console statements)**
 
-**Progreso total: 23.2% (280/1209)**
+**Progreso total: 31.4% (380/1209)**
 
 ## Próximos módulos críticos por completar:
-1. **Services restantes** (~150 statements) - einformaService, emailTrackingService, capitalMarketService, etc.
-2. **Features completos** (~300 statements) - Reconversiones, leads, etc.
-3. **Hooks restantes** (~100 statements)
-4. **Components/Forms** (~40 statements)
-5. **Contexts & Providers** (~50 statements)
-6. **Integrations** (~200 statements)
+1. **Features/Companies** (~20 statements) - hooks/useCompanies.ts, services/CompanyService.ts
+2. **Features/Calendar** (~30 statements) - services/calendarService.ts
+3. **Features restantes** (~250 statements) - Reconversiones, leads, etc.
+4. **Hooks restantes** (~50 statements)
+5. **Components/Forms** (~40 statements)
+6. **Contexts & Providers** (~30 statements)
+7. **Integrations** (~100 statements)
 
 ## 💡 Estrategia:
-- ✅ Módulos críticos completados (Auth, Contacts, Dashboard, Deals, Admin, Debug, Documents)
-- ✅ Servicios básicos migrados (Analytics, Automation)
-- 🔄 Continuando con servicios críticos (EInforma, Email Tracking, Capital Market)
+- ✅ Servicios críticos completados (Analytics, Automation, EInforma, Email, Capital Market, Database, Lead Interactions, Operations)
+- ✅ Features/Auth parcialmente migrado (contexto principal completado)
+- 🔄 Continuando con Features/Companies y Calendar
 - 🔄 Luego Features completos y hooks restantes
 
-**Estado: Phase 7 activo - 23.2% completado - Continuando con servicios críticos**
+**Estado: Phase 7 activo - 31.4% completado - Servicios críticos completados, continuando con Features**
