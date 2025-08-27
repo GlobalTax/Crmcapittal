@@ -14,6 +14,7 @@ import { mandateValidationRules } from '@/utils/entityValidationRules';
 import { useLeads } from '@/hooks/useLeads';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 interface CreateMandateDialogProps {
   trigger?: React.ReactNode;
@@ -61,15 +62,15 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
 
     setIsSubmitting(true);
     try {
-      console.log('Creating mandate with data:', formData);
+      logger.info('Creating buying mandate', { formData, leadId });
       
       const mandate = await createMandate(formData);
-      console.log('Mandate created successfully:', mandate);
+      logger.info('Mandate created successfully', { mandateId: mandate?.id, leadId });
       
       // Si el mandato se creó desde un lead, actualizar el estado del lead
       if (leadId && mandate) {
         try {
-          console.log('Updating lead status for leadId:', leadId);
+          logger.info('Updating lead status after mandate creation', { leadId });
           await updateLead({ 
             id: leadId, 
             updates: { 
@@ -77,9 +78,9 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
               status: 'CONVERTED'
             } 
           });
-          console.log('Lead updated successfully');
+          logger.info('Lead updated successfully after mandate creation', { leadId });
         } catch (error) {
-          console.warn('Error updating lead status:', error);
+          logger.warn('Failed to update lead status after mandate creation', { error, leadId });
           // No bloquear el flujo si falla la actualización del lead
         }
       }
@@ -109,7 +110,7 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
           description: 'El lead ha sido convertido. Redirigiendo a mandatos...',
         });
         
-        console.log('Navigating to /mandatos');
+        logger.info('Navigating to mandatos after creation', { leadId });
         // Redirección inmediata a mandatos
         navigate('/mandatos');
       } else {
@@ -117,7 +118,7 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
       }
       
     } catch (error) {
-      console.error('Error creating mandate:', error);
+      logger.error('Failed to create buying mandate', { error, formData, leadId });
       toast.error('Error al crear el mandato', {
         description: error instanceof Error ? error.message : 'Error desconocido'
       });

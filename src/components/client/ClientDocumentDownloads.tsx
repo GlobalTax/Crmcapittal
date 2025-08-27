@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Download, FileText, Shield, Calendar } from 'lucide-react';
 import { MandateDocument } from '@/types/BuyingMandate';
+import { logger } from '@/utils/productionLogger';
 
 interface ClientDocumentDownloadsProps {
   documents: MandateDocument[];
@@ -43,7 +44,7 @@ export const ClientDocumentDownloads = ({ documents }: ClientDocumentDownloadsPr
       link.click();
       window.document.body.removeChild(link);
     } catch (error) {
-      console.error('Error downloading file:', error);
+      logger.error('Failed to download document file', { error, documentName: doc.document_name });
     }
   };
 

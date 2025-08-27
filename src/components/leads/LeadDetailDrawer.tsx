@@ -23,6 +23,7 @@ import { LeadUnifiedActivityTab } from './LeadUnifiedActivityTab';
 import { LeadNotesTab } from './LeadNotesTab';
 import { LeadTasksTab } from './tabs/LeadTasksTab';
 import { LeadSidebarWidgets } from './widgets/LeadSidebarWidgets';
+import { logger } from '@/utils/productionLogger';
 
 interface LeadDetailDrawerProps {
   lead: Lead | null;
@@ -37,8 +38,11 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
   const { deleteLead, convertToDeal, isDeleting, isConverting } = useLeadActions();
 
   // CONFIRMACIÓN: Solo existen 4 pestañas - Propuesta eliminada definitivamente
-  console.log('🔥 PESTAÑA PROPUESTA ELIMINADA DEFINITIVAMENTE - Solo 4 pestañas:', ['resumen', 'actividades', 'notas', 'tareas']);
-  console.log('🔄 LeadDetailDrawer timestamp:', new Date().toISOString());
+  logger.debug('LeadDetailDrawer tab configuration confirmed', { 
+    tabs: ['resumen', 'actividades', 'notas', 'tareas'],
+    leadId: lead?.id,
+    timestamp: new Date().toISOString()
+  });
 
   const handleActionClick = (action: string) => {
     if (!lead) return;
@@ -70,7 +74,7 @@ export const LeadDetailDrawer = ({ lead, open, onOpenChange, onStageUpdate }: Le
         onOpenChange(false);
         break;
       default:
-        console.log('Unknown action:', action);
+        logger.debug('Unknown action requested in LeadDetailDrawer', { action, leadId: lead.id });
     }
   };
 

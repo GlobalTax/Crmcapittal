@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { MandateDocument } from '@/types/BuyingMandate';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/productionLogger';
 
 interface DocumentUploaderProps {
   mandateId: string;
@@ -96,7 +97,7 @@ export const DocumentUploader = ({ mandateId, targetId, documents, onDocumentUpl
         description: 'Documento subido correctamente',
       });
     } catch (error) {
-      console.error('Error uploading document:', error);
+      logger.error('Failed to upload mandate document', { error, mandateId, targetId, fileName: file.name });
       toast({
         title: 'Error',
         description: 'No se pudo subir el documento',
@@ -124,7 +125,7 @@ export const DocumentUploader = ({ mandateId, targetId, documents, onDocumentUpl
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading document:', error);
+      logger.error('Failed to download mandate document', { error, documentName: doc.document_name });
       toast({
         title: 'Error',
         description: 'No se pudo descargar el documento',

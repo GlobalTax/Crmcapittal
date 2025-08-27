@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 interface ConfigStatus {
   clientId: boolean;
@@ -72,7 +73,7 @@ export const EInformaCredentialsConfig = () => {
         setTestResult(data);
       }
     } catch (error) {
-      console.error('Error checking configuration:', error);
+      logger.error('Failed to check eInforma configuration status', { error });
     }
   };
 

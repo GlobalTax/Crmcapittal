@@ -1,6 +1,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { ErrorFallback } from './ErrorFallback'
+import { logger } from '@/utils/productionLogger'
 
 interface Props {
   children: ReactNode
@@ -23,7 +24,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    logger.error('ErrorBoundary caught application error', { 
+      error, 
+      errorInfo,
+      component: errorInfo.componentStack
+    })
     
     // Here you could send error to logging service
     // logErrorToService(error, errorInfo)

@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
 import { GlobalSearchDialog } from './GlobalSearchDialog';
+import { logger } from '@/utils/productionLogger';
 
 // Breadcrumb mapping for routes
 const routeTitles: Record<string, string> = {
@@ -76,7 +77,7 @@ export function AttioTopbar() {
     user = auth.user;
     signOut = auth.signOut;
   } catch (error) {
-    console.log('AttioTopbar: Auth context not available, using defaults');
+    logger.debug('AttioTopbar: Auth context not available, using defaults', { error });
     user = null;
     signOut = async () => {};
   }

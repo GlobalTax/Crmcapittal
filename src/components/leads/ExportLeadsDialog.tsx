@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Lead, LeadStatus } from "@/types/Lead";
 import { Download, FileText, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/utils/productionLogger";
 
 interface ExportLeadsDialogProps {
   leads: Lead[];
@@ -190,7 +191,7 @@ export const ExportLeadsDialog = ({ leads }: ExportLeadsDialogProps) => {
       toast.success(`${filteredLeads.length} leads exportados exitosamente`);
       setOpen(false);
     } catch (error) {
-      console.error('Error exporting leads:', error);
+      logger.error('Failed to export leads data', { error, format, filteredCount: filteredLeads.length });
       toast.error('Error al exportar los leads');
     }
   };

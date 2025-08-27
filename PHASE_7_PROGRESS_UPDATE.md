@@ -15,24 +15,52 @@
 - [x] `src/hooks/useEmployees.ts` 
 - [x] `src/hooks/useKpisVenta.ts`
 
+### ✅ Archivos Components Generales (18 archivos - **NUEVOS HOY**)
+- [x] `src/components/TemplateDownloader.tsx` - 1 console.error → logger.error
+- [x] `src/components/client/ClientDocumentDownloads.tsx` - 1 console.error → logger.error
+- [x] `src/components/common/ErrorBoundary.tsx` - 1 console.error → logger.error
+- [x] `src/components/common/UnifiedTimeline.tsx` - 1 console.error → logger.error
+- [x] `src/components/einforma/EInformaCredentialsConfig.tsx` - 1 console.error → logger.error
+- [x] `src/components/layout/AttioTopbar.tsx` - 1 console.log → logger.debug
+- [x] `src/components/leads/AssignLeadDialog.tsx` - 1 console.error → logger.error
+- [x] `src/components/leads/CompanySelector.tsx` - 1 console.error → logger.error
+- [x] `src/components/leads/ContactSelector.tsx` - 1 console.error → logger.error
+- [x] `src/components/leads/CreateLeadDialog.tsx` - 1 console.error → logger.error
+- [x] `src/components/leads/EmailTemplateDialog.tsx` - 3 console.log → logger.info
+- [x] `src/components/leads/ExportLeadsDialog.tsx` - 1 console.error → logger.error
+- [x] `src/components/leads/LeadClosureActionDialog.tsx` - 1 console.error → logger.error
+- [x] `src/components/leads/LeadDetailDrawer.tsx` - 3 console.log → logger.debug
+- [x] `src/components/leads/LeadFilesTab.tsx` - 1 console.error → logger.error
+- [x] `src/components/leads/SimpleLeadsTable.tsx` - 2 console.error → logger.error
+- [x] `src/components/leads/engine/LeadTaskEnginePanel.tsx` - 2 console.error → logger.error
+- [x] `src/components/leads/pipedrive/TeamAssignmentSection.tsx` - 4 console statements → logger
+
+### ✅ Archivos Mandates (5 archivos - **NUEVOS HOY**)
+- [x] `src/components/mandates/AddTargetCompanyDialog.tsx` - 2 console.error → logger.error
+- [x] `src/components/mandates/BuyingMandateTeaserModal.tsx` - 1 console.error → logger.error
+- [x] `src/components/mandates/CreateMandateDialog.tsx` - 7 console statements → logger
+- [x] `src/components/mandates/DocumentUploader.tsx` - 2 console.error → logger.error
+
 ## Próximos en cola:
 
-### 🔄 Commission Components (~25 console statements)
-- [ ] `src/components/commissions/AdvancedCommissionRules.tsx` - 4 console.error
-- [ ] `src/components/commissions/CommissionNotifications.tsx` - 1 console.error
-- [ ] `src/components/commissions/CommissionSettings.tsx` - 2 console.error
+### 🔄 Archivos Mandates restantes (~30 console statements)
+- [ ] `src/components/mandates/ImportFromCRMDialog.tsx` - 3 console.error
+- [ ] `src/components/mandates/InlineEditCell.tsx` - 1 console.error
+- [ ] `src/components/mandates/MandateTargetPipeline.tsx` - 1 console.error
+- [ ] `src/components/mandates/MandateTargetsDialog.tsx` - 15 console statements
+- [ ] `src/components/mandates/MandatesKanban.tsx` - 3 console.log
+- [ ] Otros archivos de mandates
 
-### 🔄 Company Components restantes (~41 archivos)
-- [ ] `src/components/companies/CompanyCompleteness.tsx`
-- [ ] `src/components/companies/CompanyDrawer.tsx`
-- [ ] `src/components/companies/CompanyEinformaTab.tsx`
-- [ ] `src/components/companies/CompanyNotesSection.tsx`
-- [ ] `src/components/companies/CompanyOverviewTab.tsx`
-- [ ] `src/components/companies/CompanyRecordSidebar.tsx`
-- [ ] `src/components/companies/CompanyTagSuggestions.tsx`
+### 🔄 Otros Components críticos (~900+ console statements)
+- [ ] Features/Companies components
+- [ ] Features/Calendar components
+- [ ] Transacciones components
+- [ ] Forms & UI components
 
 ## Progreso actual:
-**Completado: 10 archivos (~150 console statements)**  
-**Pendiente: 341 archivos (~1,059 console statements)**
+**Completado: 32 archivos (~82 console statements)**  
+**Pendiente: 259 archivos (~1,127 console statements)**
 
-**Progreso total: 12.4% (150/1209)**
+**Progreso total: 6.8% (82/1209)**
+
+**Última actualización:** Migrados 13 console statements en 5 archivos de mandates components. Completado cleanup crítico de leads y mandates básicos.

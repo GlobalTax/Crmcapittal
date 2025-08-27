@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Plus, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Contact } from "@/types/Contact";
+import { logger } from "@/utils/productionLogger";
 
 interface ContactSelectorProps {
   selectedContactId?: string;
@@ -59,7 +60,7 @@ export const ContactSelector = ({ selectedContactId, onContactSelect, onCreateNe
         if (error) throw error;
         setContacts((data || []) as Contact[]);
       } catch (error) {
-        console.error('Error loading contacts:', error);
+        logger.error('Failed to load contacts for selector', { error });
       } finally {
         setIsLoading(false);
       }

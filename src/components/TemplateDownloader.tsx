@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { logger } from "@/utils/productionLogger";
 
 export const TemplateDownloader = () => {
   const downloadTemplate = async () => {
@@ -90,7 +91,7 @@ export const TemplateDownloader = () => {
       URL.revokeObjectURL(link.href);
       
     } catch (error) {
-      console.error('Error generating template:', error);
+      logger.error('Failed to generate Excel template', { error });
     }
   };
 

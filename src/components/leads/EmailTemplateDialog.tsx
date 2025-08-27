@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Lead } from "@/types/Lead";
 import { Mail, Send, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/utils/productionLogger";
 
 interface EmailTemplateDialogProps {
   lead: Lead | null;
@@ -167,9 +168,12 @@ export const EmailTemplateDialog = ({ lead }: EmailTemplateDialogProps) => {
     setOpen(false);
     
     // In a real implementation, you would integrate with an email service
-    console.log('Sending email to:', lead.email);
-    console.log('Subject:', previewContent.subject);
-    console.log('Body:', previewContent.body);
+    logger.info('Email template sent to lead', { 
+      leadEmail: lead.email, 
+      subject: previewContent.subject,
+      leadName: lead.name,
+      templateType: selectedTemplate
+    });
   };
 
   if (!lead) return null;

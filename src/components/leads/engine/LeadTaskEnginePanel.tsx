@@ -9,6 +9,7 @@ import { LeadTaskSLA } from './LeadTaskSLA';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { generateValuationLightPDF } from '@/utils/valuation/pdf';
+import { logger } from '@/utils/productionLogger';
 
 interface Props { leadId: string }
 
@@ -105,7 +106,7 @@ export const LeadTaskEnginePanel: React.FC<Props> = ({ leadId }) => {
       await updateTask({ id: task.id, updates: { metadata: meta } as Partial<LeadTaskEngineRecord> });
       toast.success('PDF generado y adjuntado a la tarea');
     } catch (e: any) {
-      console.error(e);
+      logger.error('Failed to generate valuation PDF for lead task', { error: e, leadId, taskId: task.id });
       toast.error('Error al generar la valoración');
     }
   };
@@ -128,7 +129,7 @@ export const LeadTaskEnginePanel: React.FC<Props> = ({ leadId }) => {
       if (error) throw error;
       toast.success('Email enviado (revisa seguimiento)');
     } catch (e: any) {
-      console.error(e);
+      logger.error('Failed to send valuation email via edge function', { error: e, leadId, taskId: task.id });
       toast.error('No se pudo enviar el email (configura Resend si es la primera vez)');
     }
   };

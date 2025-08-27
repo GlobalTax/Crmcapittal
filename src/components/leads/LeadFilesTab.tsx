@@ -8,6 +8,7 @@ import { StrictFileUploader } from '@/components/StrictFileUploader';
 import { Download, Trash2, FileText, Image, File } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { logger } from '@/utils/productionLogger';
 
 interface LeadFilesTabProps {
   lead: Lead;
@@ -56,7 +57,7 @@ export const LeadFilesTab = ({ lead }: LeadFilesTabProps) => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading file:', error);
+      logger.error('Failed to download lead file', { error, fileName, leadId: lead.id });
     }
   };
 

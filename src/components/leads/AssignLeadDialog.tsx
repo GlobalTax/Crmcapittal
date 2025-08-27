@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from "@/utils/productionLogger";
 
 interface AssignLeadDialogProps {
   open: boolean;
@@ -53,7 +54,7 @@ export const AssignLeadDialog = ({
       if (error) throw error;
       setUsers(data || []);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      logger.error('Failed to fetch users for lead assignment', { error });
     } finally {
       setIsLoading(false);
     }

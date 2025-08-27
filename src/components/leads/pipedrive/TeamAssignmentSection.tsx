@@ -8,6 +8,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { useTeams } from '@/hooks/useTeams';
 import { Lead } from '@/types/Lead';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 interface TeamAssignmentSectionProps {
   lead: Lead;
@@ -23,10 +24,10 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_users_with_roles');
       if (error) {
-        console.error('Error fetching users:', error);
+        logger.error('Failed to fetch users with roles for team assignment', { error });
         throw error;
       }
-      console.log('Raw users data:', data);
+      logger.debug('Fetched users with roles for team assignment', { userCount: data?.length });
       // Remove duplicates based on user_id
       const uniqueUsers = data?.reduce((acc: any[], user: any) => {
         if (!acc.find(u => u.user_id === user.user_id)) {
@@ -34,7 +35,7 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
         }
         return acc;
       }, []) || [];
-      console.log('Unique users:', uniqueUsers);
+      logger.debug('Processed unique users for team assignment', { uniqueUserCount: uniqueUsers.length });
       return uniqueUsers;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -69,7 +70,7 @@ export const TeamAssignmentSection = ({ lead }: TeamAssignmentSectionProps) => {
       }
       toast.success('Lead asignado correctamente');
     } catch (error) {
-      console.error('Error assigning lead:', error);
+      logger.error('Failed to assign lead to team member', { error, leadId: lead.id, assignmentValue: value });
       toast.error('Error al asignar el lead');
     }
   };

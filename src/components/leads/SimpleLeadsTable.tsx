@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { Company } from "@/types/Company";
+import { logger } from "@/utils/productionLogger";
 
 export const SimpleLeadsTable = () => {
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ export const SimpleLeadsTable = () => {
     try {
       await updateLead({ id: leadId, updates: { [field]: value } as any });
     } catch (error) {
-      console.error('Error updating lead:', error);
+      logger.error('Failed to update lead field', { error, leadId, field, value });
       toast.error('Error al actualizar el lead');
     }
   };
@@ -95,7 +96,7 @@ export const SimpleLeadsTable = () => {
         } as any
       });
     } catch (error) {
-      console.error('Error updating lead company:', error);
+      logger.error('Failed to update lead company association', { error, leadId, companyId: company?.id });
       toast.error('Error al actualizar la empresa del lead');
     }
   };

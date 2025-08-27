@@ -23,6 +23,7 @@ import { getActivityColor } from '@/utils/activityTransformers';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { logger } from '@/utils/productionLogger';
 
 interface UnifiedTimelineProps {
   entityType: ActivityEntityType;
@@ -242,7 +243,7 @@ export function UnifiedTimeline({
 
       doc.save(`timeline-${entityType}-${entityId}.pdf`);
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      logger.error('Failed to generate timeline PDF export', { error, entityType, entityId });
     }
   };
 

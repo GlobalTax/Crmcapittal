@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Lead } from '@/types/Lead';
 import { logLeadClosureDialogOpened } from '@/hooks/leads/useLeadClosure';
+import { logger } from '@/utils/productionLogger';
 
 type LeadClosureType = 'mandato_venta' | 'valoracion';
 
@@ -96,7 +97,7 @@ export const LeadClosureActionDialog: React.FC<LeadClosureActionDialogProps> = (
     } catch (err) {
       // En error, mantener el diálogo abierto (los tests lo esperan)
       // La notificación la maneja el mock de useToast en tests de la app principal
-      console.error('Error creando desde lead:', err);
+      logger.error('Failed to create element from lead', { error: err, leadId: lead.id, type: selectedType });
     } finally {
       setSubmitting(false);
     }

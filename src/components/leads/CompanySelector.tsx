@@ -18,6 +18,7 @@ import {
 import { useCompanies } from "@/hooks/useCompanies";
 import { CompanyModal } from "@/components/companies/CompanyModal";
 import { Company } from "@/types/Company";
+import { logger } from "@/utils/productionLogger";
 
 interface CompanySelectorProps {
   value?: string; // company_id
@@ -63,7 +64,7 @@ export function CompanySelector({ value, companyName, onSelect }: CompanySelecto
       handleSelect(newCompany);
       setShowCreateDialog(false);
     } catch (error) {
-      console.error("Error creating company:", error);
+      logger.error("Failed to create company from selector", { error });
     }
   };
 

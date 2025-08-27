@@ -11,6 +11,7 @@ import { FormValidationProvider, useFormValidation } from '@/contexts/FormValida
 import { ValidatedInput } from '@/components/validation/ValidatedInput';
 import { ValidatedSelect } from '@/components/validation/ValidatedSelect';
 import { getLeadValidationRules } from '@/utils/entityValidationRules';
+import { logger } from '@/utils/productionLogger';
 
 interface User {
   id: string;
@@ -103,7 +104,7 @@ const CreateLeadForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       });
       onSuccess?.();
     } catch (error) {
-      console.error('Error creating lead:', error);
+      logger.error('Failed to create new lead', { error, leadData: formData });
       toast({
         title: "Error",
         description: "No se pudo crear el lead",

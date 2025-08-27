@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/productionLogger';
 
 interface BuyingMandateTeaserModalProps {
   mandate: any;
@@ -107,7 +108,7 @@ Estamos preparados para actuar rápidamente en las oportunidades adecuadas.
       toast({ title: 'Perfil de oportunidad creado correctamente' });
       onOpenChange(false);
     } catch (error) {
-      console.error('Error saving teaser:', error);
+      logger.error('Failed to create buying mandate teaser', { error, mandateId: mandate.id });
       toast({
         title: 'Error al crear el perfil',
         description: 'Por favor, inténtelo de nuevo',

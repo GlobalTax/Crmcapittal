@@ -13,6 +13,7 @@ import { Company } from '@/types';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useOptimizedCompanies } from '@/hooks/useOptimizedCompanies';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/productionLogger';
 
 interface AddTargetCompanyDialogProps {
   mandate: BuyingMandate | null;
@@ -112,7 +113,7 @@ export const AddTargetCompanyDialog = ({ mandate, open, onOpenChange, onTargetAd
         throw new Error('No se pudo crear el target');
       }
     } catch (error) {
-      console.error('Error creating target:', error);
+      logger.error('Failed to create mandate target', { error, mandateId: mandate?.id, companyName: formData.company_name });
       toast({
         title: "Error",
         description: "No se pudo añadir la empresa al mandato",
@@ -172,7 +173,7 @@ export const AddTargetCompanyDialog = ({ mandate, open, onOpenChange, onTargetAd
       onTargetAdded?.();
       handleClose();
     } catch (error) {
-      console.error('Error adding selected companies:', error);
+      logger.error('Failed to add selected companies as targets', { error, mandateId: mandate?.id, companyCount: selectedCompanies.length });
       toast({
         title: "Error",
         description: "No se pudieron añadir todas las empresas al mandato",
