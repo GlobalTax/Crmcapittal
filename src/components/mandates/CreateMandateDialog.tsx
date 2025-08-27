@@ -64,11 +64,11 @@ const CreateMandateForm = ({ onSuccess, initialData, leadId }: { onSuccess?: () 
     try {
       logger.info('Creating buying mandate', { formData, leadId });
       
-      const mandate = await createMandate(formData);
-      logger.info('Mandate created successfully', { mandateId: mandate?.id, leadId });
+      const result = await createMandate(formData);
+      logger.info('Mandate created successfully', { mandateId: result.data?.id, leadId });
       
       // Si el mandato se creó desde un lead, actualizar el estado del lead
-      if (leadId && mandate) {
+      if (leadId && result.data) {
         try {
           logger.info('Updating lead status after mandate creation', { leadId });
           await updateLead({ 
