@@ -14,6 +14,7 @@ import {
 import { AgreementViewDialog } from './AgreementViewDialog';
 import { SecureField } from '@/components/ui/SecureField';
 import { formatCurrency } from '@/utils/format';
+import { logger } from '@/utils/productionLogger';
 
 interface CollaboratorsTableProps {
   collaborators: Collaborator[];
@@ -226,7 +227,7 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => console.log('Ver detalles', collaborator.id)}>
+                          <DropdownMenuItem onClick={() => logger.debug('Collaborator details requested', { collaboratorId: collaborator.id, collaboratorName: collaborator.name })}>
                             <Eye className="h-4 w-4 mr-2" />
                             Ver detalles
                           </DropdownMenuItem>
@@ -243,7 +244,7 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                             </DropdownMenuItem>
                           )}
                           {collaborator.agreement_status === 'generated' && (
-                            <DropdownMenuItem onClick={() => console.log('Enviar acuerdo', collaborator.id)}>
+                            <DropdownMenuItem onClick={() => logger.debug('Agreement send requested', { collaboratorId: collaborator.id, collaboratorName: collaborator.name })}>
                               <Send className="h-4 w-4 mr-2" />
                               Enviar Acuerdo
                             </DropdownMenuItem>

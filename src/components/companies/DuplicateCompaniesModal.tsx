@@ -24,6 +24,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { logger } from '@/utils/productionLogger';
 
 interface Company {
   id: string;
@@ -136,7 +137,9 @@ export function DuplicateCompaniesModal({
 
       setDuplicateGroups(groups);
     } catch (error) {
-      console.error('Error finding duplicates:', error);
+      logger.error('Failed to find duplicate companies', { 
+        error: error instanceof Error ? error.message : error 
+      });
       toast.error('Error buscando duplicados');
     } finally {
       setIsLoading(false);
@@ -172,7 +175,12 @@ export function DuplicateCompaniesModal({
       
       toast.success(`Se fusionaron ${group.duplicates.length + 1} empresas duplicadas`);
     } catch (error) {
-      console.error('Error merging companies:', error);
+      logger.error('Failed to merge duplicate companies', { 
+        error: error instanceof Error ? error.message : error, 
+        primaryCompanyId: group.primary.id, 
+        primaryCompanyName: group.primary.name, 
+        duplicateCount: group.duplicates.length 
+      });
       toast.error('Error fusionando empresas');
     } finally {
       setIsMerging(null);

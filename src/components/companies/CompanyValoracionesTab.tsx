@@ -10,6 +10,7 @@ import { Valoracion } from '@/types/Valoracion';
 import { Company } from '@/types/Company';
 import { VALORACION_PHASES } from '@/utils/valoracionPhases';
 import { formatCurrency } from '@/utils/format';
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyValoracionesTabProps {
   company: Company;
@@ -40,7 +41,11 @@ export function CompanyValoracionesTab({ company }: CompanyValoracionesTabProps)
       })) as Valoracion[];
       setValoraciones(typedData);
     } catch (error) {
-      console.error('Error loading valoraciones:', error);
+      logger.error('Failed to load valoraciones for company', { 
+        error: error instanceof Error ? error.message : error, 
+        companyId: company.id, 
+        companyName: company.name 
+      });
     } finally {
       setLoading(false);
     }
@@ -61,7 +66,12 @@ export function CompanyValoracionesTab({ company }: CompanyValoracionesTabProps)
       setShowCreateForm(false);
       loadValoraciones();
     } catch (error) {
-      console.error('Error creating valoración:', error);
+      logger.error('Failed to create valoración for company', { 
+        error: error instanceof Error ? error.message : error, 
+        companyId: company.id, 
+        companyName: company.name, 
+        valoracionData: data 
+      });
     }
   };
 

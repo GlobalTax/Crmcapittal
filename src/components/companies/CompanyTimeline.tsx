@@ -4,6 +4,7 @@ import { Building2, User, Calendar, StickyNote, FileText } from 'lucide-react';
 import { Company } from '@/types/Company';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { logger } from '@/utils/productionLogger';
 
 interface CompanyTimelineProps {
   company: Company;
@@ -30,7 +31,11 @@ export const CompanyTimeline = ({ company }: CompanyTimelineProps) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching company activities:', error);
+        logger.error('Failed to fetch company activities', { 
+          error: error.message, 
+          companyId: company.id, 
+          companyName: company.name 
+        });
         throw error;
       }
 

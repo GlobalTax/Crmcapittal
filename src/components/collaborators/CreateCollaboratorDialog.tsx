@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { CreateCollaboratorData, CollaboratorType } from '@/types/Collaborator';
 import { UserPlus } from 'lucide-react';
+import { logger } from '@/utils/productionLogger';
 
 interface CreateCollaboratorDialogProps {
   onCreateCollaborator: (data: CreateCollaboratorData) => Promise<any>;
@@ -50,7 +51,14 @@ export const CreateCollaboratorDialog: React.FC<CreateCollaboratorDialogProps> =
         notes: ''
       });
     } catch (error) {
-      console.error('Error creating collaborator:', error);
+      logger.error('Failed to create new collaborator', { 
+        error: error instanceof Error ? error.message : error, 
+        collaboratorData: { 
+          name: formData.name, 
+          email: formData.email, 
+          collaborator_type: formData.collaborator_type 
+        } 
+      });
     }
   };
 
