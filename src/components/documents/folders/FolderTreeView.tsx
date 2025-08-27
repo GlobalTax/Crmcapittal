@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useDocumentFolders } from '@/hooks/useDocumentFolders';
 import { FolderTreeItem } from '@/types/DocumentFolder';
+import { logger } from '@/utils/productionLogger';
 
 interface FolderNodeProps {
   folder: FolderTreeItem;
@@ -188,7 +189,7 @@ export const FolderTreeView: React.FC<FolderTreeViewProps> = ({
     if (!over || active.id === over.id) return;
     
     // Aquí implementarías la lógica para mover carpetas
-    console.log('Move folder', active.id, 'to', over.id);
+    logger.debug('Move folder requested', { fromFolderId: active.id, toFolderId: over.id });
   };
 
   return (

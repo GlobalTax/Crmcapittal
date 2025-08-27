@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { validateSecrets, isSecretConfigured } from '@/utils/secretsManager';
+import { logger } from '@/utils/productionLogger';
 
 interface ServiceStatus {
   name: string;
@@ -61,7 +62,7 @@ export const SecretsMonitor: React.FC = () => {
       setSystemStatus(data);
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('Error fetching system status:', error);
+      logger.error('Failed to fetch system status', { error });
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ export const SecretsMonitor: React.FC = () => {
       
       return data;
     } catch (error) {
-      console.error('Error running health check:', error);
+      logger.error('Failed to run health check', { error });
       return null;
     }
   };

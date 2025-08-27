@@ -22,6 +22,7 @@ import { CommentSystem } from './collaboration/CommentSystem';
 import { PresenceIndicator } from './collaboration/PresenceIndicator';
 import { NotificationCenter } from './collaboration/NotificationCenter';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { logger } from '@/utils/productionLogger';
 
 interface DocumentEditorProps {
   document?: Document;
@@ -155,7 +156,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({ document, templa
         description: "PDF exportado correctamente",
       });
     } catch (error) {
-      console.error('Error exporting PDF:', error);
+      logger.error('Failed to export PDF', { error, title });
       toast({
         title: "Error",
         description: "No se pudo exportar el PDF",

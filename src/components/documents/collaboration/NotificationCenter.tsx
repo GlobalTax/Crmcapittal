@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { logger } from '@/utils/productionLogger';
 
 export const NotificationCenter: React.FC = () => {
   const { 
@@ -47,7 +48,7 @@ export const NotificationCenter: React.FC = () => {
     // Navegar al documento si es necesario
     if (notification.document_id) {
       // Aquí podrías agregar lógica de navegación
-      console.log('Navigate to document:', notification.document_id);
+      logger.debug('Navigate to document requested', { documentId: notification.document_id });
     }
   };
 

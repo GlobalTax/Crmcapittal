@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { QueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { logger } from '@/utils/productionLogger';
 
 export type ReminderType = 'NDA_NOT_SIGNED' | 'NO_ACTIVITY_NEGOTIATION' | 'PROPOSAL_PENDING';
 
@@ -23,7 +24,7 @@ export class AutomationService {
    */
   static async onDealStageUpdate(prevStage: string, newStage: string, dealId: string, dealType: 'negocio' | 'deal' = 'negocio') {
     try {
-      console.log(`Deal stage updated: ${prevStage} → ${newStage} for ${dealType} ${dealId}`);
+      logger.info('Deal stage updated', { prevStage, newStage, dealId, dealType });
       
       // Invalidate relevant queries
       this.invalidateQueries();
@@ -32,7 +33,7 @@ export class AutomationService {
       await this.scheduleStageBasedReminders(prevStage, newStage, dealId, dealType);
       
     } catch (error) {
-      console.error('Error handling deal stage update:', error);
+      logger.error('Failed to handle deal stage update', { error, prevStage, newStage, dealId, dealType });
       toast.error('Error al procesar cambio de etapa');
     }
   }
@@ -115,11 +116,11 @@ export class AutomationService {
         }
       });
 
-      console.log(`Reminder scheduled: ${reminderType} for ${dealType} ${dealId} in ${delayHours} hours`);
-      
+      logger.info('Reminder scheduled', { reminderType, dealType, dealId, delayHours });
+      return true;
     } catch (error) {
-      console.error('Error creating reminder task:', error);
-      throw error;
+      logger.error('Failed to create reminder task', { error, reminderType, dealType, dealId });
+      return false;
     }
   }
 
@@ -168,11 +169,11 @@ export class AutomationService {
         throw error;
       }
 
-      console.log(`Reminder cancelled: ${reminderType} for deal ${dealId}`);
+      logger.info('Reminder cancelled successfully', { reminderType, dealId });
       this.invalidateQueries();
       
     } catch (error) {
-      console.error('Error cancelling reminder:', error);
+      logger.error('Failed to cancel reminder', { error, reminderType, dealId });
       throw error;
     }
   }
@@ -204,7 +205,7 @@ export class AutomationService {
       return data || [];
       
     } catch (error) {
-      console.error('Error getting active reminders:', error);
+      logger.error('Failed to get active reminders', { error });
       return [];
     }
   }

@@ -3,17 +3,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ProductionSecurityGuard } from '@/components/security/ProductionSecurityGuard';
+import { logger } from '@/utils/productionLogger';
 
 export const AuthDebugPanel: React.FC = () => {
   const { user, session, refreshSession } = useAuth();
 
   const testAuthUID = async () => {
     try {
-      console.log('🔍 Testing authentication...');
+      logger.debug('Testing authentication functionality');
       
       // Test current session
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      console.log('🔍 Session check:', { 
+      logger.debug('Session check result', { 
         hasSession: !!sessionData.session,
         hasUser: !!sessionData.session?.user,
         userId: sessionData.session?.user?.id,
@@ -22,23 +23,23 @@ export const AuthDebugPanel: React.FC = () => {
       });
       
       // Test direct query
-      console.log('🔧 Testing direct query...');
+      logger.debug('Testing direct query');
       const { data: queryData, error: queryError } = await supabase.from('leads').select('count').limit(1);
-      console.log('✅ Direct query result:', { data: queryData, error: queryError });
+      logger.debug('Direct query result', { dataCount: queryData?.length, error: queryError });
       
       const result = { data: queryData, error: queryError };
       
       // Test RPC function if exists
       try {
         const { data: rpcData, error: rpcError } = await supabase.rpc('test_auth_uid');
-        console.log('🔍 RPC test_auth_uid:', { data: rpcData, error: rpcError });
+        logger.debug('RPC test_auth_uid result', { rpcData, rpcError });
         return { 
           sessionTest: { data: sessionData, error: sessionError },
           queryTest: result,
           rpcTest: { data: rpcData, error: rpcError }
         };
       } catch (rpcError) {
-        console.log('🔍 RPC function not available');
+        logger.debug('RPC function not available');
         return { 
           sessionTest: { data: sessionData, error: sessionError },
           queryTest: result,
@@ -46,13 +47,13 @@ export const AuthDebugPanel: React.FC = () => {
         };
       }
     } catch (error) {
-      console.error('🔍 Error testing auth:', error);
+      logger.error('Auth UID test failed', { error });
       return { error };
     }
   };
 
   const handleRefreshSession = async () => {
-    console.log('🔄 Manual session refresh triggered');
+    logger.debug('Manual session refresh triggered');
     await refreshSession();
   };
 

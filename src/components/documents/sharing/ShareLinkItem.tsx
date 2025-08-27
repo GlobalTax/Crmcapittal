@@ -7,6 +7,7 @@ import { DocumentShare } from '@/types/DocumentPermissions';
 import { Copy, Eye, Download, Lock, Calendar, MoreHorizontal, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/productionLogger';
 
 interface ShareLinkItemProps {
   share: DocumentShare;
@@ -44,7 +45,7 @@ export const ShareLinkItem: React.FC<ShareLinkItemProps> = ({ share }) => {
         description: "El enlace se ha copiado al portapapeles",
       });
     } catch (error) {
-      console.error('Error copying link:', error);
+      logger.error('Failed to copy share link', { error, shareUrl });
       toast({
         title: "Error",
         description: "No se pudo copiar el enlace",

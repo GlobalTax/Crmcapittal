@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useDocumentComments } from '@/hooks/useDocumentComments';
 import { DocumentComment } from '@/types/DocumentCollaboration';
+import { logger } from '@/utils/productionLogger';
 
 interface CommentSystemProps {
   documentId: string;
@@ -33,7 +34,7 @@ export const CommentSystem: React.FC<CommentSystemProps> = ({ documentId }) => {
       setNewComment('');
       setReplyingTo(null);
     } catch (error) {
-      console.error('Error creating comment:', error);
+      logger.error('Failed to create comment', { error, documentId });
     }
   };
 
@@ -45,7 +46,7 @@ export const CommentSystem: React.FC<CommentSystemProps> = ({ documentId }) => {
       setEditingComment(null);
       setEditContent('');
     } catch (error) {
-      console.error('Error updating comment:', error);
+      logger.error('Failed to update comment', { error, commentId });
     }
   };
 

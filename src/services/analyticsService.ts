@@ -9,6 +9,8 @@ interface EventQueue {
   lastFlush: number;
 }
 
+import { logger } from '@/utils/productionLogger';
+
 class AnalyticsService {
   private eventQueue: EventQueue = {
     events: [],
@@ -83,19 +85,19 @@ class AnalyticsService {
   private queueEvent(event: string, properties?: Record<string, any>): boolean {
     // Rate limiting check
     if (this.isRateLimited()) {
-      console.warn(`[Analytics] Rate limited - skipping event: ${event}`);
+      logger.warn('Analytics rate limited - skipping event', { event });
       return false;
     }
 
     // Throttling check
     if (this.isThrottled(event)) {
-      console.debug(`[Analytics] Throttled - skipping event: ${event}`);
+      logger.debug('Analytics throttled - skipping event', { event });
       return false;
     }
 
     // Sampling check
     if (!this.shouldSample()) {
-      console.debug(`[Analytics] Sampled out - skipping event: ${event}`);
+      logger.debug('Analytics sampled out - skipping event', { event });
       return false;
     }
 
@@ -139,13 +141,13 @@ class AnalyticsService {
         try {
           posthog.capture(event, properties);
         } catch (error) {
-          console.error(`[Analytics] Error sending event ${event}:`, error);
+          logger.error('Failed to send analytics event', { error, event });
         }
       });
 
-      console.debug(`[Analytics] Flushed ${eventsToSend.length} events to PostHog`);
+      logger.debug('Analytics events flushed to PostHog', { eventCount: eventsToSend.length });
     } else {
-      console.debug(`[Analytics] PostHog not available, would send ${eventsToSend.length} events`);
+      logger.debug('PostHog not available - would send events', { eventCount: eventsToSend.length });
     }
   }
 
@@ -243,7 +245,7 @@ class AnalyticsService {
       });
     }
 
-    console.log('[Analytics] Service initialized with rate limiting and throttling');
+    logger.info('Analytics service initialized with rate limiting and throttling');
   }
 }
 
