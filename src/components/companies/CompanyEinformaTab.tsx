@@ -7,12 +7,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { createLogger } from '@/utils/productionLogger';
 
 interface CompanyEinformaTabProps {
   company: Company;
 }
 
 export const CompanyEinformaTab = ({ company }: CompanyEinformaTabProps) => {
+  const logger = createLogger('CompanyEinformaTab');
+  
   // Fetch enrichment data
   const { data: enrichmentData, isLoading } = useQuery({
     queryKey: ['company-enrichments', company.id],
@@ -24,7 +27,7 @@ export const CompanyEinformaTab = ({ company }: CompanyEinformaTabProps) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching enrichment data:', error);
+        logger.error('Error fetching enrichment data', { error, companyId: company.id });
         throw error;
       }
 

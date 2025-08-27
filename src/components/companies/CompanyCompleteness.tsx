@@ -5,6 +5,7 @@ import { Check, X, Sparkles, Building, DollarSign, Users, MapPin, Globe, Tags } 
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useEinformaEnrichment } from '@/hooks/useEinformaEnrichment';
+import { createLogger } from '@/utils/productionLogger';
 
 interface Company {
   id: string;
@@ -45,6 +46,7 @@ export function CompanyCompleteness({
 }: CompanyCompletenessProps) {
   const [showChecklist, setShowChecklist] = useState(false);
   const { enrichCompany, isEnriching: isEnrichingEinforma } = useEinformaEnrichment();
+  const logger = createLogger('CompanyCompleteness');
 
   const calculateCompleteness = () => {
     let score = 0;
@@ -107,7 +109,7 @@ export function CompanyCompleteness({
       try {
         await enrichCompany({ companyId: company.id, nif: company.nif });
       } catch (error) {
-        console.error('Error enriching company:', error);
+        logger.error('Error enriching company', { error, companyId: company.id, nif: company.nif });
       }
     } else if (onEnrich) {
       onEnrich();

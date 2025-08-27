@@ -13,6 +13,7 @@ import { useCompanyStats } from '@/hooks/useCompanyStats';
 import { useCompanyProfileScore } from '@/hooks/useCompanyProfileScore';
 import { einformaService } from '@/services/einformaService';
 import { toast } from 'sonner';
+import { createLogger } from '@/utils/productionLogger';
 
 interface CompanyDrawerProps {
   company: Company | null;
@@ -38,6 +39,7 @@ export const CompanyDrawer = ({
 }: CompanyDrawerProps) => {
   const [showEinformaDialog, setShowEinformaDialog] = useState(false);
   const [isEnrichingFromEinforma, setIsEnrichingFromEinforma] = useState(false);
+  const logger = createLogger('CompanyDrawer');
 
   // Hooks for data
   const { enrichmentData, isLoading: enrichmentLoading } = useCompanyEnrichments(company?.id || '');
@@ -86,7 +88,7 @@ export const CompanyDrawer = ({
         toast.error(result.message || 'Error al consultar eInforma');
       }
     } catch (error) {
-      console.error('Error enriching company:', error);
+      logger.error('Error enriching company', { error, companyId: company?.id, nif: (company as any)?.nif });
       toast.error('Error inesperado al consultar eInforma');
     } finally {
       setIsEnrichingFromEinforma(false);

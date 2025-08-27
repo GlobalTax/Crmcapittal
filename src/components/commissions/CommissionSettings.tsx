@@ -17,9 +17,11 @@ import { Badge } from '@/components/ui/badge';
 import { useCommissionSettings } from '@/hooks/useCommissionSettings';
 import { Settings, Save, Percent, Calendar, Zap, Mail, Bell, FileText, Users, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { createLogger } from '@/utils/productionLogger';
 
 export const CommissionSettings = () => {
   const { settings, loading, updateSetting } = useCommissionSettings();
+  const logger = createLogger('CommissionSettings');
   
   const [localSettings, setLocalSettings] = useState({
     autoCalculate: false,
@@ -98,7 +100,7 @@ export const CommissionSettings = () => {
         }
       });
     } catch (error) {
-      console.error('Error testing notification:', error);
+      logger.error('Error testing notification', { error });
     }
   };
 
@@ -112,7 +114,7 @@ export const CommissionSettings = () => {
         }
       });
     } catch (error) {
-      console.error('Error generating report:', error);
+      logger.error('Error generating report', { error });
     }
   };
 

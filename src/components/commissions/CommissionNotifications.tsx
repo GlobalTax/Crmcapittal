@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Commission } from '@/hooks/useCommissions';
+import { createLogger } from '@/utils/productionLogger';
 
 interface CommissionNotification {
   id: string;
@@ -21,6 +22,7 @@ export const CommissionNotifications = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const logger = createLogger('CommissionNotifications');
 
   useEffect(() => {
     fetchNotifications();
@@ -126,7 +128,7 @@ export const CommissionNotifications = () => {
         setUnreadCount(notifications.filter(n => !n.isRead).length);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      logger.error('Error fetching notifications', { error });
     }
   };
 
