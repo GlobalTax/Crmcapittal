@@ -16,6 +16,7 @@ import { validateSecrets, isSecretConfigured } from '@/utils/secretsManager';
 import { SERVICE_CONFIGS, generateSecretsDocumentation } from '@/utils/edgeFunctionHelpers';
 import { runSecretValidationTests, startSecretsMonitoring, getSecretsStats } from '@/utils/secretsConfig';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/productionLogger';
 
 interface SecretStatus {
   key: string;
@@ -73,7 +74,7 @@ export const SecretsConfiguration: React.FC = () => {
       setTestResults(tests);
 
     } catch (error) {
-      console.error('Error refreshing configuration:', error);
+      logger.error('Failed to refresh secrets configuration', { error });
     } finally {
       setLoading(false);
     }

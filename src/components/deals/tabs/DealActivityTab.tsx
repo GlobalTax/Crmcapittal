@@ -15,6 +15,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/productionLogger';
 
 interface Activity {
   id: string;
@@ -81,7 +82,7 @@ export const DealActivityTab = ({ deal }: DealActivityTabProps) => {
 
       setActivities(mockActivities);
     } catch (error) {
-      console.error('Error loading activities:', error);
+      logger.error('Failed to load deal activities', { error, dealId: deal?.id });
     } finally {
       setIsLoading(false);
     }

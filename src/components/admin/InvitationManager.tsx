@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/utils/productionLogger';
 import { Mail, Users, Clock, CheckCircle, XCircle, Send, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -49,7 +50,7 @@ const InvitationManager = () => {
       const invitationsData = (data as unknown as Invitation[]) || [];
       setInvitations(invitationsData);
     } catch (error: any) {
-      console.error('Error fetching invitations:', error);
+      logger.error('Failed to fetch invitations', { error });
       toast({
         title: "Error",
         description: "No se pudieron cargar las invitaciones",
@@ -93,7 +94,7 @@ const InvitationManager = () => {
       setRole('user');
       fetchInvitations();
     } catch (error: any) {
-      console.error('Error sending invitation:', error);
+      logger.error('Failed to send invitation', { error, email, role });
       toast({
         title: "Error",
         description: error.message || "No se pudo enviar la invitación",
@@ -120,7 +121,7 @@ const InvitationManager = () => {
 
       fetchInvitations();
     } catch (error: any) {
-      console.error('Error deleting invitation:', error);
+      logger.error('Failed to delete invitation', { error, invitationId: id });
       toast({
         title: "Error",
         description: "No se pudo eliminar la invitación",

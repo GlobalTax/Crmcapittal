@@ -17,6 +17,7 @@ import { useDeals } from '@/hooks/useDeals';
 import { useToast } from '@/hooks/use-toast';
 import { usePipelineConfiguration } from '@/hooks/usePipelineConfiguration';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/utils/productionLogger';
 
 interface OptimizedDealsBoardProps {
   onNewDeal: () => void;
@@ -152,7 +153,7 @@ export const OptimizedDealsBoard = ({
         });
       }
     } catch (error) {
-      console.error('Error moving deal:', error);
+      logger.error('Failed to move deal in optimized board', { error, dealId, newStage: newStage.name });
       toast({
         title: "Error",
         description: "No se pudo mover el deal",

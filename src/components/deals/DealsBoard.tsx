@@ -16,6 +16,7 @@ import { useIsClient } from '@/hooks/useIsClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { usePipelineConfiguration } from '@/hooks/usePipelineConfiguration';
+import { logger } from '@/utils/productionLogger';
 
 interface DealsBoardProps {
   onNewDeal: (stageName?: string) => void;
@@ -94,7 +95,7 @@ export const DealsBoard = ({ onNewDeal, onDealClick }: DealsBoardProps) => {
         });
       }
     } catch (error) {
-      console.error('Error moving deal:', error);
+      logger.error('Failed to move deal in board', { error, dealId: event.active.id, newStage });
     }
   };
 
