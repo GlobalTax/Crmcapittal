@@ -8,6 +8,7 @@ import { MandateTarget, MandateDocument } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { InlineEditCell } from './InlineEditCell';
 import { TargetProgressBar } from './TargetProgressBar';
+import { logger } from '@/utils/productionLogger';
 
 interface TargetDataTableProps {
   targets: MandateTarget[];
@@ -42,7 +43,7 @@ export const TargetDataTable = ({
     try {
       await updateTarget(targetId, { [field]: value });
     } catch (error) {
-      console.error('Error updating target:', error);
+      logger.error('Error updating target field', { error, targetId, field, value }, 'TargetDataTable');
     }
   };
 
@@ -50,7 +51,7 @@ export const TargetDataTable = ({
     try {
       await updateTarget(targetId, { status });
     } catch (error) {
-      console.error('Error updating status:', error);
+      logger.error('Error updating target status', { error, targetId, status }, 'TargetDataTable');
     }
   };
 
@@ -63,7 +64,7 @@ export const TargetDataTable = ({
         status: 'contacted',
       });
     } catch (error) {
-      console.error('Error marking as contacted:', error);
+      logger.error('Error marking target as contacted', { error, targetId, method }, 'TargetDataTable');
     }
   };
 

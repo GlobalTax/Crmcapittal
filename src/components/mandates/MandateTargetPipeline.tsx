@@ -17,6 +17,7 @@ import { MandateTarget, MandateDocument } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { TargetPipelineColumn } from './TargetPipelineColumn';
 import { TargetPipelineCard } from './TargetPipelineCard';
+import { logger } from '@/utils/productionLogger';
 
 interface MandateTargetPipelineProps {
   targets: MandateTarget[];
@@ -145,7 +146,11 @@ export const MandateTargetPipeline = ({
         status: targetColumn.status as MandateTarget['status'] 
       });
     } catch (error) {
-      console.error('Error updating target status:', error);
+      logger.error('Error updating target status in pipeline', { 
+        error, 
+        targetId: activeId, 
+        newStatus: targetColumn.status 
+      }, 'MandateTargetPipeline');
     }
   };
 

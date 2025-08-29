@@ -25,7 +25,9 @@ export const usePerformanceOptimizer = (options: UsePerformanceOptimizerOptions 
   useEffect(() => {
     renderCountRef.current += 1;
     if (process.env.NODE_ENV === 'development') {
-      console.log(`Component rendered ${renderCountRef.current} times`);
+      logger.debug('Component render count', { 
+        count: renderCountRef.current 
+      }, 'usePerformanceOptimizer');
     }
   });
 
@@ -47,7 +49,10 @@ export const usePerformanceOptimizer = (options: UsePerformanceOptimizerOptions 
     return () => {
       const end = performance.now();
       if (process.env.NODE_ENV === 'development') {
-        console.log(`${componentName} render time: ${end - start}ms`);
+        logger.debug('Component render time', { 
+          componentName, 
+          renderTime: `${end - start}ms` 
+        }, 'usePerformanceOptimizer');
       }
     };
   }, []);

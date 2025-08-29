@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, Edit, Check, X, ExternalLink } from 'lucide-react';
 import { MandateTarget } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
+import { logger } from '@/utils/productionLogger';
 
 interface TargetContactSectionProps {
   target: MandateTarget;
@@ -28,7 +29,7 @@ export const TargetContactSection = ({ target, onUpdate }: TargetContactSectionP
       setIsEditing(false);
       onUpdate({ ...target, ...editData });
     } catch (error) {
-      console.error('Error updating contact:', error);
+      logger.error('Error updating target contact', { error, targetId: target.id }, 'TargetContactSection');
     }
   };
 

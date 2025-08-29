@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PipelineViewToggle } from './PipelineViewToggle';
 import { MandateTargetPipeline } from './MandateTargetPipeline';
 import { TargetDetailPanel } from './TargetDetailPanel';
+import { logger } from '@/utils/productionLogger';
 
 interface MandateTargetsDialogProps {
   mandate: BuyingMandate | null;
@@ -57,24 +58,25 @@ export const MandateTargetsDialog = ({ mandate, open, onOpenChange }: MandateTar
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('🔍 [MandateTargetsDialog] handleSubmit iniciado');
-    console.log('📋 [MandateTargetsDialog] formData:', formData);
-    console.log('📋 [MandateTargetsDialog] mandate:', mandate);
-    console.log('📋 [MandateTargetsDialog] editingTarget:', editingTarget);
+    logger.debug('MandateTargetsDialog handleSubmit iniciado', { 
+      formData, 
+      mandate: mandate?.id, 
+      editingTarget: editingTarget?.id 
+    }, 'MandateTargetsDialog');
 
     // Validaciones básicas
     if (!formData.company_name?.trim()) {
-      console.error('❌ [MandateTargetsDialog] Nombre de empresa requerido');
+      logger.error('Nombre de empresa requerido en MandateTargetsDialog', {}, 'MandateTargetsDialog');
       return;
     }
     
     if (!mandate) {
-      console.error('❌ [MandateTargetsDialog] Mandato no encontrado');
+      logger.error('Mandato no encontrado en MandateTargetsDialog', {}, 'MandateTargetsDialog');
       return;
     }
 
     if (!formData.mandate_id) {
-      console.error('❌ [MandateTargetsDialog] mandate_id faltante');
+      logger.error('mandate_id faltante en MandateTargetsDialog', {}, 'MandateTargetsDialog');
       return;
     }
 

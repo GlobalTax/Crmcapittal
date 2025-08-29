@@ -11,6 +11,7 @@ import { Search, Users, Building } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/productionLogger';
 
 interface ImportFromCRMDialogProps {
   mandateId: string;
@@ -71,7 +72,7 @@ export const ImportFromCRMDialog = ({
       if (error) throw error;
       setContacts(data || []);
     } catch (error) {
-      console.error('Error fetching contacts:', error);
+      logger.error('Error fetching contacts for import', { error }, 'ImportFromCRMDialog');
     }
   };
 
@@ -86,7 +87,7 @@ export const ImportFromCRMDialog = ({
       if (error) throw error;
       setCompanies(data || []);
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      logger.error('Error fetching companies for import', { error }, 'ImportFromCRMDialog');
     }
   };
 

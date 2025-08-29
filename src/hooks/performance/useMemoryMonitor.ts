@@ -54,38 +54,38 @@ export const useMemoryMonitor = (options: UseMemoryMonitorOptions = {}) => {
       const increase = usedMB - previousUsedMB;
       
       if (increase > 20) { // More than 20MB increase
-        console.warn(`Potential memory leak detected: +${increase}MB increase`, {
-          previous: previousUsedMB,
-          current: usedMB,
-          total: totalMB
-        });
+        logger.warn('Potential memory leak detected', {
+          increase: `+${increase}MB`,
+          previous: `${previousUsedMB}MB`,
+          current: `${usedMB}MB`,
+          total: `${totalMB}MB`
+        }, 'useMemoryMonitor');
       }
     }
 
     // Alert if memory usage is too high
     if (usedMB > alertThreshold) {
-      console.warn(`High memory usage detected: ${usedMB}MB / ${limitMB}MB`, {
-        usedMB,
-        totalMB,
-        limitMB,
+      logger.warn('High memory usage detected', {
+        used: `${usedMB}MB`,
+        limit: `${limitMB}MB`,
         usage: `${((usedMB / limitMB) * 100).toFixed(1)}%`
-      });
+      }, 'useMemoryMonitor');
     }
 
     lastMetrics.current = metrics;
 
-    console.log('Memory usage:', {
-      used: `${usedMB} MB`,
-      total: `${totalMB} MB`,
-      limit: `${limitMB} MB`,
+    logger.debug('Memory usage stats', {
+      used: `${usedMB}MB`,
+      total: `${totalMB}MB`,
+      limit: `${limitMB}MB`,
       usage: `${((usedMB / limitMB) * 100).toFixed(1)}%`
-    });
+    }, 'useMemoryMonitor');
   }, [enabled, alertThreshold, formatBytes, getMemoryMetrics]);
 
   const forceGarbageCollection = useCallback(() => {
     if (enabled && window.gc) {
       window.gc();
-      console.log('Forced garbage collection');
+      logger.info('Forced garbage collection executed', {}, 'useMemoryMonitor');
     }
   }, [enabled]);
 

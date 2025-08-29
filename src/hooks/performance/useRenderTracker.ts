@@ -1,4 +1,5 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
+import { logger } from '@/utils/productionLogger';
 
 interface RenderInfo {
   componentName: string;
@@ -56,7 +57,11 @@ class RenderTracker {
 
       // Alert for slow renders
       if (renderTime > this.slowRenderThreshold) {
-        console.warn(`Slow render in ${componentName}: ${renderTime.toFixed(2)}ms (avg: ${newAverage.toFixed(2)}ms)`);
+        logger.warn('Slow render detected', {
+          componentName,
+          renderTime: `${renderTime.toFixed(2)}ms`,
+          average: `${newAverage.toFixed(2)}ms`
+        }, 'useRenderTracker');
       }
     } else {
       this.renderInfoMap.set(componentName, {

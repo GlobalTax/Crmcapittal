@@ -18,6 +18,7 @@ import {
   Shield
 } from 'lucide-react';
 import { MandateTarget, MandateDocument } from '@/types/BuyingMandate';
+import { logger } from '@/utils/productionLogger';
 
 interface TargetDocumentsSectionProps {
   target: MandateTarget;
@@ -75,7 +76,7 @@ export const TargetDocumentsSection = ({
 
   const handleUpload = () => {
     // TODO: Implement file upload logic
-    console.log('Upload document:', uploadData);
+    logger.info('Document upload requested', { uploadData }, 'TargetDocumentsSection');
     setIsUploadOpen(false);
     onDocumentUploaded();
   };

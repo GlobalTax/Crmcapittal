@@ -1,4 +1,5 @@
 import { Lead } from '@/types/Lead';
+import { logger } from '@/utils/productionLogger';
 
 // Utility to validate acceptance criteria
 export class AcceptanceCriteriaValidator {
@@ -204,17 +205,17 @@ export class AcceptanceCriteriaValidator {
 
 // Test runner for acceptance criteria
 export const runAcceptanceCriteriaTests = () => {
-  console.log('🧪 Running Acceptance Criteria Tests');
+  logger.info('Running Acceptance Criteria Tests', {}, 'AcceptanceCriteriaValidator');
   
   // Test 1: Dialog visibility
   const testLead = { stage: 'pipeline', status: 'NEW' } as Lead;
   const shouldShow = AcceptanceCriteriaValidator.shouldShowDialog(testLead);
-  console.log(`✅ Criterion 1 - Dialog shows for non-spam leads: ${shouldShow}`);
+  logger.info('Criterion 1 - Dialog shows for non-spam leads', { shouldShow }, 'AcceptanceCriteriaValidator');
   
   // Test 2: Recommendation accuracy
   const testDataset = AcceptanceCriteriaValidator.generateTestDataset();
   const accuracy = AcceptanceCriteriaValidator.testRecommendationAccuracy(testDataset);
-  console.log(`✅ Criterion 2 - Recommendation accuracy: ${accuracy}% (target: ≥80%)`);
+  logger.info('Criterion 2 - Recommendation accuracy', { accuracy, target: '≥80%' }, 'AcceptanceCriteriaValidator');
   
   // Test 3: Payload validation
   const samplePayload = {
@@ -227,11 +228,13 @@ export const runAcceptanceCriteriaTests = () => {
     status: 'draft'
   };
   const payloadValid = AcceptanceCriteriaValidator.validatePayload('mandato_venta', samplePayload, { id: 'lead-123' } as Lead);
-  console.log(`✅ Criterion 3 - Payload structure valid: ${payloadValid}`);
+  logger.info('Criterion 3 - Payload structure valid', { payloadValid }, 'AcceptanceCriteriaValidator');
   
   // Test 4: Navigation behavior
   const navBehavior = AcceptanceCriteriaValidator.validateNavigationBehavior(true, 'mandato_venta');
-  console.log(`✅ Criterion 4 - Navigation behavior: ${navBehavior.shouldNavigate ? 'Navigate' : 'Stay'}`);
+  logger.info('Criterion 4 - Navigation behavior', { 
+    shouldNavigate: navBehavior.shouldNavigate ? 'Navigate' : 'Stay'
+  }, 'AcceptanceCriteriaValidator');
   
   // Test 5: Telemetry validation
   const sampleEvents = [
@@ -240,11 +243,11 @@ export const runAcceptanceCriteriaTests = () => {
     { event: 'lead_closure_creation_success', properties: { timestamp: Date.now() } }
   ];
   const telemetryValid = AcceptanceCriteriaValidator.validateTelemetryEvents(sampleEvents);
-  console.log(`✅ Criterion 5 - Telemetry events valid: ${telemetryValid}`);
+  logger.info('Criterion 5 - Telemetry events valid', { telemetryValid }, 'AcceptanceCriteriaValidator');
   
   // Test 6: Design system compliance
   const designValid = AcceptanceCriteriaValidator.validateDesignSystemCompliance();
-  console.log(`✅ Criterion 6 - Design system compliance: ${designValid}`);
+  logger.info('Criterion 6 - Design system compliance', { designValid }, 'AcceptanceCriteriaValidator');
   
   return {
     dialogVisibility: shouldShow,

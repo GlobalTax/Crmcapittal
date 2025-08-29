@@ -24,6 +24,7 @@ import { LeadStatus, Lead } from "@/types/Lead";
 import WebhookSettings from "./WebhookSettings";
 import { LeadManagementDashboard } from "./LeadManagementDashboard";
 import { LeadNurturingPipeline } from "./LeadNurturingPipeline";
+import { logger } from '@/utils/productionLogger';
 
 const LeadNurturingDashboard = () => {
   const { leadScores, isLoading } = useLeadScoring();
@@ -361,7 +362,7 @@ const LeadNurturingDashboard = () => {
             onUpdateLeadStatus={handleUpdateLeadStatus}
             onViewLead={(lead) => setSelectedLeadId(lead.id)}
             onScheduleActivity={(leadId, activityType) => {
-              console.log('Schedule activity:', leadId, activityType);
+              logger.info('Schedule activity requested', { leadId, activityType }, 'LeadNurturingDashboard');
               // Implement activity scheduling logic
             }}
           />

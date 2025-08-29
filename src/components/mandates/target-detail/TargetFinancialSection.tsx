@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Euro, Edit, Check, X } from 'lucide-react';
 import { MandateTarget } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
+import { logger } from '@/utils/productionLogger';
 
 interface TargetFinancialSectionProps {
   target: MandateTarget;
@@ -27,7 +28,7 @@ export const TargetFinancialSection = ({ target, onUpdate }: TargetFinancialSect
       setIsEditing(false);
       onUpdate({ ...target, ...editData });
     } catch (error) {
-      console.error('Error updating financials:', error);
+      logger.error('Error updating target financials', { error, targetId: target.id }, 'TargetFinancialSection');
     }
   };
 

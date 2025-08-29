@@ -8,6 +8,7 @@ import { Plus, StickyNote, Clock, User, Lock, Globe } from 'lucide-react';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { logger } from '@/utils/productionLogger';
 
 interface MandateNotesTabProps {
   mandate: BuyingMandate;
@@ -87,7 +88,7 @@ export const MandateNotesTab: React.FC<MandateNotesTabProps> = ({ mandate }) => 
   const handleAddNote = () => {
     if (newNote.trim()) {
       // Aquí se agregaría la lógica para guardar la nota
-      console.log('Nueva nota:', newNote);
+      logger.info('Nueva nota agregada', { note: newNote.substring(0, 50) }, 'MandateNotesTab');
       setNewNote('');
       setShowAddNote(false);
     }

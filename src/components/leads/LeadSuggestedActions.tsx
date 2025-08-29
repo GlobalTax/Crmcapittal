@@ -11,6 +11,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Lead, LeadStatus } from '@/types/Lead';
+import { logger } from '@/utils/productionLogger';
 
 interface LeadSuggestedActionsProps {
   lead: Lead;
@@ -87,10 +88,10 @@ export const LeadSuggestedActions = ({
         break;
       case 'qualify':
         // In real app, this would update status to QUALIFIED
-        console.log('Qualifying lead:', lead.id);
+        logger.info('Qualifying lead requested', { leadId: lead.id }, 'LeadSuggestedActions');
         break;
       default:
-        console.log(`Action ${action} for lead:`, lead.id);
+        logger.info('Lead action requested', { action, leadId: lead.id }, 'LeadSuggestedActions');
     }
   };
 

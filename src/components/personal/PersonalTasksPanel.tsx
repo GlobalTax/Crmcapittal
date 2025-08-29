@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/minimal/Button';
 import { usePersonalTasks } from '@/hooks/usePersonalTasks';
 import { CheckCircle, Plus } from 'lucide-react';
 import { TaskModal } from './TaskModal';
+import { logger } from '@/utils/productionLogger';
 
 export const PersonalTasksPanel = () => {
   const { tasks, completeTask, loading } = usePersonalTasks();
@@ -17,7 +18,7 @@ export const PersonalTasksPanel = () => {
     try {
       await completeTask(taskId);
     } catch (error) {
-      console.error('Error completing task:', error);
+      logger.error('Error completing task', { error, taskId }, 'PersonalTasksPanel');
     }
   };
 

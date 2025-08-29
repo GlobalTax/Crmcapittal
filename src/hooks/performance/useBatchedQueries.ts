@@ -1,5 +1,6 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { requestManager } from '@/services/requestManager';
+import { logger } from '@/utils/productionLogger';
 
 export interface BatchedQuery {
   key: string;
@@ -63,7 +64,7 @@ export const useBatchedQueries = () => {
     try {
       await Promise.allSettled(promises);
     } catch (error) {
-      console.error('Batch execution error:', error);
+      logger.error('Batch execution error', { error }, 'useBatchedQueries');
     }
   }, []);
 

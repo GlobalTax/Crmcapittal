@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Settings, Save, User, Calendar, Mail, Bell, Archive } from 'lucide-react';
 import { BuyingMandate } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
+import { logger } from '@/utils/productionLogger';
 
 interface MandateConfigurationPanelProps {
   mandate: BuyingMandate;

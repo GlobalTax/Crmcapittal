@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { User, Building, Phone, Mail, Zap } from 'lucide-react';
+import { logger } from '@/utils/productionLogger';
 
 interface QuickActionsProps {
   className?: string;
@@ -26,7 +27,7 @@ export const QuickActions = ({ className }: QuickActionsProps) => {
     {
       title: 'Registrar Llamada',
       icon: Phone,
-      onClick: () => console.log('Registrar llamada'),
+      onClick: () => logger.info('Registrar llamada action requested', {}, 'QuickActions'),
       description: 'Anotar llamada realizada'
     },
     {

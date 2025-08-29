@@ -32,6 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { logger } from '@/utils/productionLogger';
 
 interface OptimizedLeadsTableProps {
   leads: Lead[];
@@ -63,12 +64,12 @@ const TableRow = React.memo(({ index, style, data }: {
 
   const handleAssignClick = (leadId: string) => {
     // This would trigger the assign dialog
-    console.log('Assign lead:', leadId);
+    logger.info('Assign lead dialog requested', { leadId }, 'OptimizedLeadsTable');
   };
 
   const handleConvertClick = (lead: Lead) => {
     // This would trigger the convert dialog
-    console.log('Convert lead:', lead.id);
+    logger.info('Convert lead dialog requested', { leadId: lead.id }, 'OptimizedLeadsTable');
   };
 
   const handleQuickConvert = (lead: Lead, type: 'contact' | 'company' | 'full') => {

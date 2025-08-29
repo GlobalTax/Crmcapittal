@@ -12,6 +12,7 @@ import { ActivityType } from "@/types/LeadNurturing";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/productionLogger';
 
 interface LeadScoringRule {
   id: string;
@@ -82,7 +83,7 @@ export const LeadScoringRules = () => {
     },
     onError: (error) => {
       toast.error('Error al guardar la regla');
-      console.error(error);
+      logger.error('Error saving lead scoring rule', { error }, 'LeadScoringRules');
     }
   });
 

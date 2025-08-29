@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Building2, MapPin, Tag, Edit, Check, X } from 'lucide-react';
 import { MandateTarget } from '@/types/BuyingMandate';
 import { useBuyingMandates } from '@/hooks/useBuyingMandates';
+import { logger } from '@/utils/productionLogger';
 
 interface TargetHeaderProps {
   target: MandateTarget;
@@ -29,7 +30,7 @@ export const TargetHeader = ({ target, onUpdate }: TargetHeaderProps) => {
       setIsEditing(false);
       onUpdate({ ...target, ...editData });
     } catch (error) {
-      console.error('Error updating target:', error);
+      logger.error('Error updating target header', { error, targetId: target.id }, 'TargetHeader');
     }
   };
 
