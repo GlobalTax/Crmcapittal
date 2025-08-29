@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { logger } from '@/utils/productionLogger';
 
 interface MemoryMetrics {
   usedJSHeapSize: number;

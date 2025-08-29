@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { throttle, debounce } from '@/utils/performance';
+import { logger } from '@/utils/productionLogger';
 
 interface UsePerformanceOptimizerOptions {
   enableVirtualization?: boolean;

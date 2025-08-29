@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { requestManager } from '@/services/requestManager';
 import { logger } from '@/utils/productionLogger';
 
