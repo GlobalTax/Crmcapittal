@@ -111,7 +111,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
                 <SelectValue placeholder="Todos los colaboradores" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los colaboradores</SelectItem>
+                <SelectItem value="all">Todos los colaboradores</SelectItem>
                 {collaborators.map(collaborator => (
                   <SelectItem key={collaborator.id} value={collaborator.id}>
                     {collaborator.name}
@@ -129,7 +129,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
                 <SelectValue placeholder="Todos los estados" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los estados</SelectItem>
+                <SelectItem value="all">Todos los estados</SelectItem>
                 <SelectItem value="pending">Pendiente</SelectItem>
                 <SelectItem value="paid">Pagada</SelectItem>
                 <SelectItem value="cancelled">Cancelada</SelectItem>
@@ -145,7 +145,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
                 <SelectValue placeholder="Todos los tipos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los tipos</SelectItem>
+                <SelectItem value="all">Todos los tipos</SelectItem>
                 <SelectItem value="percentage">Porcentaje</SelectItem>
                 <SelectItem value="fixed">Fijo</SelectItem>
               </SelectContent>
@@ -160,7 +160,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
                 <SelectValue placeholder="Todos los tipos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los tipos</SelectItem>
+                <SelectItem value="all">Todos los tipos</SelectItem>
                 <SelectItem value="internal">Interno</SelectItem>
                 <SelectItem value="external">Externo</SelectItem>
               </SelectContent>

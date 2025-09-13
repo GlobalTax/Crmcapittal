@@ -65,7 +65,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                 <SelectValue placeholder="Todos los colaboradores" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los colaboradores</SelectItem>
+                <SelectItem value="all">Todos los colaboradores</SelectItem>
                 {collaborators.map(collaborator => (
                   <SelectItem key={collaborator.id} value={collaborator.id}>
                     {collaborator.name}
@@ -86,7 +86,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                 <SelectValue placeholder="Todos los estados" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los estados</SelectItem>
+                <SelectItem value="all">Todos los estados</SelectItem>
                 <SelectItem value="pending">Pendiente</SelectItem>
                 <SelectItem value="paid">Pagada</SelectItem>
                 <SelectItem value="cancelled">Cancelada</SelectItem>
@@ -105,7 +105,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                 <SelectValue placeholder="Todas las fuentes" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas las fuentes</SelectItem>
+                <SelectItem value="all">Todas las fuentes</SelectItem>
                 <SelectItem value="lead">Lead</SelectItem>
                 <SelectItem value="deal">Deal</SelectItem>
                 <SelectItem value="referral">Referencia</SelectItem>

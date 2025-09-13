@@ -251,7 +251,7 @@ export function CampaignBuilderPro({ onClose }: CampaignBuilderProProps) {
                       <SelectValue placeholder="Todos los niveles" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todos los niveles</SelectItem>
+                      <SelectItem value="all">Todos los niveles</SelectItem>
                       <SelectItem value="high">Alto engagement</SelectItem>
                       <SelectItem value="medium">Engagement medio</SelectItem>
                       <SelectItem value="low">Bajo engagement</SelectItem>
