@@ -115,7 +115,7 @@ export function AttioSidebar() {
   const allSections = [getPrincipalSection(isSuperAdmin), ...navigationSections, ...(isAdmin ? [getAdminSection(isSuperAdmin)] : [])];
 
   return (
-    <aside className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col" style={{ backgroundColor: '#FBFBFB' }}>
+    <aside className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col relative z-30" style={{ backgroundColor: '#FBFBFB' }}>
       {/* Brand Section */}
       <div className="p-4 border-b border-sidebar-border">
         <div className="flex items-center space-x-2">

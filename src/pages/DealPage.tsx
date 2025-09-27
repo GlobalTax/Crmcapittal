@@ -212,7 +212,7 @@ export default function DealPage() {
       </div>
 
       {/* Mobile Details Button */}
-      <div className="fixed bottom-4 right-4 lg:hidden">
+      <div className="fixed bottom-4 right-4 lg:hidden z-40">
         <Button
           onClick={() => setActiveTab(activeTab === 'details' ? 'overview' : 'details')}
           className="rounded-full shadow-lg"
@@ -223,7 +223,7 @@ export default function DealPage() {
 
       {/* Mobile Details Panel */}
       {activeTab === 'details' && (
-        <div className="fixed inset-0 bg-background z-50 lg:hidden overflow-y-auto">
+        <div className="fixed inset-0 bg-background z-40 lg:hidden overflow-y-auto">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h2 className="text-lg font-semibold">Detalles de la Oportunidad</h2>
             <Button

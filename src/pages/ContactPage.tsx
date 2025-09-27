@@ -286,7 +286,7 @@ export default function ContactPage() {
       </div>
 
       {/* Mobile Details Button - Updated for new layout */}
-      <div className="fixed bottom-4 right-4 lg:hidden">
+      <div className="fixed bottom-4 right-4 lg:hidden z-40">
         <Button
           onClick={() => setActiveTab(activeTab === 'details' ? 'overview' : 'details')}
           className="rounded-full shadow-lg"
