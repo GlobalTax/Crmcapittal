@@ -45,6 +45,22 @@
   }
 }
 
+/* Utility for centering elements within the main content area */
+.app-center-in-main {
+  position: fixed;
+  z-index: var(--z-content);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@screen lg {
+  .app-center-in-main {
+    left: calc(var(--sidebar-width) + 50%);
+    width: calc(100vw - var(--sidebar-width));
+    transform: translateX(-50%);
+  }
+}
+
 /* Mobile-only overlays that should be full screen on mobile but hidden on desktop */
 .app-mobile-overlay {
   position: fixed;
