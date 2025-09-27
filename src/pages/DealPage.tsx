@@ -100,7 +100,7 @@ export default function DealPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-0 flex">
+    <div className="h-full bg-neutral-0 flex">
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         <DealHeader
@@ -169,27 +169,27 @@ export default function DealPage() {
             <div className="flex">
               {/* Main Content Area */}
               <div className="flex-1 overflow-y-auto">
-                <TabsContent value="overview" className="mt-0 p-6">
+                <TabsContent value="overview" className="mt-0 p-4">
                   <DealOverviewTab deal={deal} />
                 </TabsContent>
                 
-                <TabsContent value="activity" className="mt-0 p-6">
+                <TabsContent value="activity" className="mt-0 p-4">
                   <DealActivityTab deal={deal} />
                 </TabsContent>
                 
-                <TabsContent value="documents" className="mt-0 p-6">
+                <TabsContent value="documents" className="mt-0 p-4">
                   <DealDocumentsTab deal={deal} />
                 </TabsContent>
                 
-                <TabsContent value="tasks" className="mt-0 p-6">
+                <TabsContent value="tasks" className="mt-0 p-4">
                   <DealTasksTab deal={deal} />
                 </TabsContent>
                 
-                <TabsContent value="people" className="mt-0 p-6">
+                <TabsContent value="people" className="mt-0 p-4">
                   <DealPeopleTab deal={deal} />
                 </TabsContent>
                 
-                <TabsContent value="notes" className="mt-0 p-6">
+                <TabsContent value="notes" className="mt-0 p-4">
                   <DealNotesTab deal={deal} />
                 </TabsContent>
 
@@ -207,7 +207,7 @@ export default function DealPage() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="hidden lg:block w-80 border-l border-border bg-neutral-50 overflow-y-auto">
+      <div className="hidden lg:block w-72 border-l border-border bg-neutral-50 overflow-y-auto">
         <DealDetailsSidebar deal={deal} onUpdate={updateDeal} />
       </div>
 

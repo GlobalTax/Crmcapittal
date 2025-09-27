@@ -73,10 +73,10 @@ export const AssignmentDashboard = () => {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="space-y-6">
+      <div className="h-full flex flex-col">
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border-b border-border">
           <div className="bg-card rounded-lg border p-4">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
@@ -119,7 +119,7 @@ export const AssignmentDashboard = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 overflow-hidden">
         {/* Workers Column */}
         <div className="lg:col-span-1 space-y-4">
           <div className="flex items-center justify-between">

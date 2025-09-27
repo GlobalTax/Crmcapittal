@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users } from 'lucide-react';
@@ -9,23 +9,23 @@ interface ConversionChartProps {
   qualifiedLeads: number;
 }
 
-export const ConversionChart = ({ 
+export const ConversionChart = memo(({ 
   conversionRate, 
   totalLeads, 
   qualifiedLeads 
 }: ConversionChartProps) => {
-  const data = [
+  const data = useMemo(() => [
     {
       name: 'Leads Totales',
       value: totalLeads,
-      fill: '#6b7280'
+      fill: 'hsl(var(--muted-foreground))'
     },
     {
       name: 'Cualificados',
       value: qualifiedLeads,
-      fill: '#3b82f6'
+      fill: 'hsl(var(--primary))'
     }
-  ];
+  ], [totalLeads, qualifiedLeads]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -47,10 +47,10 @@ export const ConversionChart = ({
   };
 
   return (
-    <Card className="bg-white shadow-sm border-gray-200">
+    <Card className="bg-card shadow-sm border-border">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-          <Users className="mr-2 h-5 w-5 text-gray-600" />
+        <CardTitle className="text-lg font-semibold text-foreground flex items-center">
+          <Users className="mr-2 h-5 w-5 text-muted-foreground" />
           Conversión de Leads
         </CardTitle>
       </CardHeader>
@@ -80,14 +80,14 @@ export const ConversionChart = ({
         </div>
         
         <div className="mt-4 text-center">
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-foreground">
             {conversionRate.toFixed(1)}%
           </div>
-          <div className="text-xs text-gray-600">
+          <div className="text-xs text-muted-foreground">
             Tasa de conversión actual
           </div>
         </div>
       </CardContent>
     </Card>
   );
-};
+});

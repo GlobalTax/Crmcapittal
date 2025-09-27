@@ -100,7 +100,7 @@ export default function TransaccionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-0 flex">
+    <div className="h-full bg-neutral-0 flex">
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Breadcrumb Navigation */}
@@ -184,35 +184,35 @@ export default function TransaccionPage() {
             <div className="flex">
               {/* Main Content Area */}
               <div className="flex-1 overflow-y-auto">
-                <TabsContent value="overview" className="mt-0 p-6">
+                <TabsContent value="overview" className="mt-0 p-4">
                   <TransaccionOverviewTab transaccion={transaccion} />
                 </TabsContent>
                 
-                <TabsContent value="activity" className="mt-0 p-6">
+                <TabsContent value="activity" className="mt-0 p-4">
                   <TransaccionActivityTab transaccion={transaccion} />
                 </TabsContent>
                 
-                <TabsContent value="documents" className="mt-0 p-6">
+                <TabsContent value="documents" className="mt-0 p-4">
                   <TransaccionDocumentsTab transaccion={transaccion} />
                 </TabsContent>
                 
-                <TabsContent value="tasks" className="mt-0 p-6">
+                <TabsContent value="tasks" className="mt-0 p-4">
                   <TransaccionTasksTab transaccion={transaccion} />
                 </TabsContent>
                 
-                <TabsContent value="people" className="mt-0 p-6">
+                <TabsContent value="people" className="mt-0 p-4">
                   <TransaccionPeopleTab transaccion={transaccion} />
                 </TabsContent>
                 
-                <TabsContent value="notes" className="mt-0 p-6">
+                <TabsContent value="notes" className="mt-0 p-4">
                   <TransaccionNotesTab transaccion={transaccion} />
                 </TabsContent>
                 
-                <TabsContent value="interesados" className="mt-0 p-6">
+                <TabsContent value="interesados" className="mt-0 p-4">
                   <TransaccionInteresadosTab transaccionId={transaccion.id} />
                 </TabsContent>
                 
-                <TabsContent value="teaser" className="mt-0 p-6">
+                <TabsContent value="teaser" className="mt-0 p-4">
                   <TransaccionTeaserTab transaccion={transaccion} />
                 </TabsContent>
               </div>
@@ -222,7 +222,7 @@ export default function TransaccionPage() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="hidden lg:block w-80 border-l border-border bg-neutral-50 overflow-y-auto">
+      <div className="hidden lg:block w-72 border-l border-border bg-neutral-50 overflow-y-auto">
         <TransaccionDetailsSidebar transaccion={transaccion} onUpdate={updateTransaccion} />
       </div>
 
