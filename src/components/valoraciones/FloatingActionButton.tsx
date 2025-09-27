@@ -9,7 +9,7 @@ interface FloatingActionButtonProps {
 
 export const FloatingActionButton = ({ onSuccess }: FloatingActionButtonProps) => {
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="app-fab-in-main bottom-6 right-6">
       <NewValoracionDialog onSuccess={onSuccess}>
         <Button 
           size="lg" 

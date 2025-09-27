@@ -1,0 +1,59 @@
+/* Layout utilities for sidebar-aware positioning */
+
+/* CSS Variables for layout consistency */
+:root {
+  --sidebar-width: 240px;
+  --topbar-height: 64px;
+  --z-sidebar: 30;
+  --z-topbar: 20;
+  --z-content: 10;
+  --z-overlay: 50;
+}
+
+/* Focus mode - hide sidebar */
+.focus-mode {
+  --sidebar-width: 0px;
+}
+
+/* Utility for overlays that should respect the main content area */
+.app-overlay-in-main {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-overlay);
+}
+
+@screen lg {
+  .app-overlay-in-main {
+    left: var(--sidebar-width);
+    width: calc(100vw - var(--sidebar-width));
+  }
+}
+
+/* Utility for FABs and floating elements in main area */
+.app-fab-in-main {
+  position: fixed;
+  z-index: var(--z-content);
+}
+
+@screen lg {
+  .app-fab-in-main {
+    right: calc(1rem + 0px); /* Offset from the main content area */
+    /* Don't overlap with sidebar by ensuring we're in the main content area */
+  }
+}
+
+/* Mobile-only overlays that should be full screen on mobile but hidden on desktop */
+.app-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+}
+
+@screen lg {
+  .app-mobile-overlay {
+    display: none;
+  }
+}

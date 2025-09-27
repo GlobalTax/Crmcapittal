@@ -6,7 +6,13 @@ import { useUiLayout } from '@/state/useUiLayout';
 export function AttioLayout() {
   const { focusMode } = useUiLayout();
   return (
-    <div className={`h-screen bg-neutral-0 grid ${focusMode ? 'grid-cols-[0px_1fr]' : 'grid-cols-[240px_1fr]'}`}>
+    <div 
+      className={`h-screen bg-neutral-0 grid ${focusMode ? 'grid-cols-[0px_1fr] focus-mode' : 'grid-cols-[240px_1fr]'}`}
+      style={{
+        '--sidebar-width': focusMode ? '0px' : '240px',
+        '--topbar-height': '64px'
+      } as React.CSSProperties}
+    >
       {/* Sidebar */}
       {!focusMode && <AttioSidebar />}
       

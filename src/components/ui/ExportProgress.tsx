@@ -18,7 +18,7 @@ export const ExportProgress: React.FC<ExportProgressProps> = ({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-80 bg-card rounded-lg shadow-lg border p-4 z-50 animate-in slide-in-from-bottom-5">
+    <div className="app-fab-in-main bottom-4 right-4 w-80 bg-card rounded-lg shadow-lg border p-4 animate-in slide-in-from-bottom-5">
       <div className="flex justify-between items-center mb-2">
         <h3 className="font-medium">Exportando datos</h3>
         <Button variant="ghost" size="icon" onClick={onCancel} className="h-6 w-6">

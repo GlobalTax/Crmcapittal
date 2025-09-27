@@ -23,7 +23,7 @@ export const FloatingLeadsWidget = () => {
   if (!isVisible || (safeLeads.length === 0 && unreadCount === 0)) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 animate-notification-enter">
+    <div className="app-fab-in-main bottom-4 right-4 animate-notification-enter">
       <div className="bg-white border border-red-200 rounded-lg shadow-lg p-4 max-w-sm glass-effect">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">

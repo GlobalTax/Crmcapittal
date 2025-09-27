@@ -68,7 +68,7 @@ export const LeadBulkActions = ({ selectedLeads, onSelectionClear }: LeadBulkAct
   if (selectedLeads.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+    <div className="app-fab-in-main bottom-6 left-1/2 transform -translate-x-1/2">
       <div className="bg-background border rounded-lg shadow-lg p-4 flex items-center gap-4">
         <Badge variant="secondary" className="px-3 py-1">
           {selectedLeads.length} leads seleccionados

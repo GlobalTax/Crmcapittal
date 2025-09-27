@@ -39,7 +39,7 @@ export const PerformanceDebugger: React.FC<PerformanceDebuggerProps> = ({
   const slowComponents = getSlowComponents();
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-96 max-h-96 overflow-y-auto bg-background border border-border rounded-lg shadow-lg">
+    <div className="app-fab-in-main bottom-4 right-4 w-96 max-h-96 overflow-y-auto bg-background border border-border rounded-lg shadow-lg">
       <Card>
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">

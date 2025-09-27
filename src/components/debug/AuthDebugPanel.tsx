@@ -59,7 +59,7 @@ export const AuthDebugPanel: React.FC = () => {
 
   return (
     <ProductionSecurityGuard>
-      <div className="fixed bottom-4 right-4 bg-white p-4 border rounded-lg shadow-lg z-50">
+      <div className="app-fab-in-main bottom-4 right-4 bg-white p-4 border rounded-lg shadow-lg">
         <h3 className="font-semibold mb-2">Auth Debug</h3>
         <div className="space-y-2 text-sm">
           <div>User ID: {user?.id || 'null'}</div>
