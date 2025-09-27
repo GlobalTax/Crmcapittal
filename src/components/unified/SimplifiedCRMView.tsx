@@ -69,79 +69,77 @@ export const SimplifiedCRMView = ({ initialTab = 'leads' }: SimplifiedCRMViewPro
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Vista Unificada CRM</h1>
-              <p className="text-sm text-gray-600">
-                Gestiona todos tus datos comerciales desde una vista centralizada
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={getActionByTab().action}
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                {getActionByTab().label}
-              </Button>
-            </div>
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Vista Unificada CRM</h1>
+            <p className="text-sm text-gray-600">
+              Gestiona todos tus datos comerciales desde una vista centralizada
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={getActionByTab().action}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              {getActionByTab().label}
+            </Button>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="h-auto p-1 bg-gray-100 w-full justify-start">
+            {getTabConfig().map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex items-center gap-2 px-4 py-2.5 data-[state=active]:bg-white data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none rounded-lg"
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="font-medium">{tab.label}</span>
+                  <Badge 
+                    variant="secondary" 
+                    className={`ml-1 ${tab.color} text-xs font-semibold`}
+                  >
+                    {metricsLoading ? '...' : tab.count}
+                  </Badge>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+
+          {/* Quick Filters */}
+          <div className="mt-4">
+            <QuickFilters activeTab={activeTab} />
           </div>
 
-          {/* Tab Navigation */}
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="h-auto p-1 bg-gray-100 w-full justify-start">
-              {getTabConfig().map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="flex items-center gap-2 px-4 py-2.5 data-[state=active]:bg-white data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:shadow-none rounded-lg"
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span className="font-medium">{tab.label}</span>
-                    <Badge 
-                      variant="secondary" 
-                      className={`ml-1 ${tab.color} text-xs font-semibold`}
-                    >
-                      {metricsLoading ? '...' : tab.count}
-                    </Badge>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-
-            {/* Quick Filters */}
-            <div className="mt-4">
-              <QuickFilters activeTab={activeTab} />
-            </div>
-
-            {/* Tab Content */}
-            <div className="mt-4">
-              <TabsContent value="leads" className="m-0">
-                <CRMTabContent type="leads" />
-              </TabsContent>
-              
-              <TabsContent value="companies" className="m-0">
-                <CRMTabContent type="companies" />
-              </TabsContent>
-              
-              <TabsContent value="mandates" className="m-0">
-                <CRMTabContent type="mandates" />
-              </TabsContent>
-              
-              <TabsContent value="targets" className="m-0">
-                <CRMTabContent type="targets" />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </div>
+          {/* Tab Content */}
+          <div className="mt-4">
+            <TabsContent value="leads" className="m-0">
+              <CRMTabContent type="leads" />
+            </TabsContent>
+            
+            <TabsContent value="companies" className="m-0">
+              <CRMTabContent type="companies" />
+            </TabsContent>
+            
+            <TabsContent value="mandates" className="m-0">
+              <CRMTabContent type="mandates" />
+            </TabsContent>
+            
+            <TabsContent value="targets" className="m-0">
+              <CRMTabContent type="targets" />
+            </TabsContent>
+          </div>
+        </Tabs>
       </div>
 
       {/* Floating Action Button */}

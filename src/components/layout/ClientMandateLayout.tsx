@@ -10,7 +10,7 @@ export function ClientMandateLayout({ children, mandateName }: ClientMandateLayo
     <div className="min-h-screen bg-background">
       {/* Simple Header */}
       <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="text-xl font-semibold text-foreground">
@@ -33,13 +33,13 @@ export function ClientMandateLayout({ children, mandateName }: ClientMandateLayo
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-6 py-4 flex-1">
         {children}
       </main>
 
       {/* Simple Footer */}
       <footer className="border-t bg-card mt-auto">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-6 py-3">
           <div className="text-center text-xs text-muted-foreground">
             Portal de acceso para cliente • Vista restringida
           </div>

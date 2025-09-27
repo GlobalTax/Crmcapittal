@@ -149,7 +149,7 @@ export default function CompanyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-full flex flex-col bg-background">
       {/* Quick Actions Header */}
       <QuickActionsHeader
         company={company}
@@ -164,9 +164,9 @@ export default function CompanyPage() {
       />
 
       {/* Optimized Tabs (5 tabs only) */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
         <div className="border-b">
-          <div className="max-w-6xl mx-auto">
+          <div className="px-6">
             <TabsList className="h-auto p-0 bg-transparent justify-start">
               <TabsTrigger 
                 value="overview"
@@ -202,37 +202,37 @@ export default function CompanyPage() {
           </div>
         </div>
 
-        {/* Tab Content with max-width centering */}
-        <div className="py-6">
-          <TabsContent value="overview" className="mt-0">
+        {/* Tab Content - Full width utilization */}
+        <div className="flex-1 overflow-auto">
+          <TabsContent value="overview" className="mt-0 h-full">
             <Suspense fallback={<LoadingSkeleton />}>
               <EnrichedOverviewTab company={company} />
             </Suspense>
           </TabsContent>
           
-          <TabsContent value="contacts" className="mt-0">
-            <div className="max-w-6xl mx-auto px-6">
+          <TabsContent value="contacts" className="mt-0 h-full">
+            <div className="px-6 py-6 h-full">
               <Suspense fallback={<LoadingSkeleton />}>
                 <CompanyContactsTab company={company} />
               </Suspense>
             </div>
           </TabsContent>
           
-          <TabsContent value="deals" className="mt-0">
-            <div className="max-w-6xl mx-auto px-6">
+          <TabsContent value="deals" className="mt-0 h-full">
+            <div className="px-6 py-6 h-full">
               <Suspense fallback={<LoadingSkeleton />}>
                 <CompanyDealsTab company={company} />
               </Suspense>
             </div>
           </TabsContent>
           
-          <TabsContent value="activity" className="mt-0">
+          <TabsContent value="activity" className="mt-0 h-full">
             <Suspense fallback={<LoadingSkeleton />}>
               <IntegratedActivityTab company={company} />
             </Suspense>
           </TabsContent>
           
-          <TabsContent value="documents" className="mt-0">
+          <TabsContent value="documents" className="mt-0 h-full">
             <Suspense fallback={<LoadingSkeleton />}>
               <CompanyAllDocumentsTab company={company} />
             </Suspense>

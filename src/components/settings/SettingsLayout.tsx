@@ -128,9 +128,9 @@ export const SettingsLayout = () => {
   return (
     <div className="flex h-screen bg-neutral-0">
       {/* Sidebar */}
-      <div className="w-60 border-r border-border bg-neutral-0 flex flex-col">
+      <div className="w-56 border-r border-border bg-neutral-0 flex flex-col">
         {/* Header with back button */}
-        <div className="p-4 border-b border-border">
+        <div className="p-3 border-b border-border">
           <Button
             variant="ghost"
             size="sm"
@@ -195,8 +195,8 @@ export const SettingsLayout = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-8 py-10">
+      <div className="flex-1 overflow-y-auto h-full">
+        <div className="px-6 py-6 h-full">
           <Outlet />
         </div>
       </div>

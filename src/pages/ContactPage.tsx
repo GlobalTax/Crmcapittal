@@ -148,14 +148,14 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-0 flex">
+    <div className="h-full bg-neutral-0 flex">
       {/* Left Sidebar - New Pipedrive-style layout */}
       <div className="hidden lg:block">
         <ContactLeftSidebar contact={contact} onEdit={handleEdit} />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full">
         <ContactHeader
           contact={contact}
           onEdit={handleEdit}
@@ -166,8 +166,8 @@ export default function ContactPage() {
         />
 
         {/* Tabs Navigation */}
-        <div className="border-b border-border bg-background">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <div className="border-b border-border bg-background flex-1 flex flex-col">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
             <TabsList className="h-auto p-0 bg-transparent">
               <div className="flex overflow-x-auto">
                 <TabsTrigger 
@@ -228,56 +228,56 @@ export default function ContactPage() {
             </TabsList>
 
             {/* Tab Content */}
-            <div className="overflow-y-auto">
-              <TabsContent value="overview" className="mt-0 p-6">
+            <div className="flex-1 overflow-y-auto">
+              <TabsContent value="overview" className="mt-0 p-4 h-full">
                 <PersonOverviewTab contact={contact} />
               </TabsContent>
               
-              <TabsContent value="activity" className="mt-0 p-6">
+              <TabsContent value="activity" className="mt-0 p-4 h-full">
                 <ContactTimeline contact={contact} />
               </TabsContent>
               
-              <TabsContent value="emails" className="mt-0 p-6">
+              <TabsContent value="emails" className="mt-0 p-4 h-full">
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">Integración de email próximamente</p>
                 </div>
               </TabsContent>
               
-              <TabsContent value="calls" className="mt-0 p-6">
+              <TabsContent value="calls" className="mt-0 p-4 h-full">
                 <div className="text-center py-12">
                   <p className="text-muted-foreground">Registro de llamadas próximamente</p>
                 </div>
               </TabsContent>
               
-              <TabsContent value="company" className="mt-0 p-6">
+              <TabsContent value="company" className="mt-0 p-4 h-full">
                 <ContactCompanyTab 
                   contactId={contact.id} 
                   currentUserId={currentUserId} 
                 />
               </TabsContent>
               
-              <TabsContent value="notes" className="mt-0 p-6">
+              <TabsContent value="notes" className="mt-0 p-4 h-full">
                 <ContactNotesTab 
                   contactId={contact.id} 
                   currentUserId={currentUserId} 
                 />
               </TabsContent>
               
-              <TabsContent value="tasks" className="mt-0 p-6">
+              <TabsContent value="tasks" className="mt-0 p-4 h-full">
                 <ContactTasksTab 
                   contactId={contact.id} 
                   currentUserId={currentUserId} 
                 />
               </TabsContent>
               
-              <TabsContent value="files" className="mt-0 p-6">
+              <TabsContent value="files" className="mt-0 p-4 h-full">
                 <ContactFilesTab 
                   contactId={contact.id} 
                   currentUserId={currentUserId} 
                 />
               </TabsContent>
               
-              <TabsContent value="valoraciones" className="mt-0 p-6">
+              <TabsContent value="valoraciones" className="mt-0 p-4 h-full">
                 <ContactValoracionesTab contact={contact} />
               </TabsContent>
             </div>
