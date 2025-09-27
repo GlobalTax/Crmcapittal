@@ -49,15 +49,16 @@
 .app-center-in-main {
   position: fixed;
   z-index: var(--z-content);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
 }
 
 @screen lg {
   .app-center-in-main {
-    left: calc(var(--sidebar-width) + 50%);
-    width: calc(100vw - var(--sidebar-width));
-    transform: translateX(-50%);
+    left: var(--sidebar-width);
+    right: 0;
   }
 }
 
