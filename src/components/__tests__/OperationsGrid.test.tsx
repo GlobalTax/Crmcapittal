@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { OperationsGrid } from '../OperationsGrid';
+import { BrowserRouter } from 'react-router-dom';
 import type { Operation } from '@/types/Operation';
 
 function makeOp(id: number, overrides: Partial<Operation> = {}): Operation {
@@ -27,11 +28,13 @@ describe('OperationsGrid (UI smoke)', () => {
     const ops: Operation[] = [makeOp(1), makeOp(2), makeOp(3)];
 
     render(
-      <OperationsGrid 
-        operations={ops} 
-        onToggleFavorite={() => {}}
-        isFavorite={() => false}
-      />
+      <BrowserRouter>
+        <OperationsGrid 
+          operations={ops} 
+          onToggleFavorite={() => {}}
+          isFavorite={() => false}
+        />
+      </BrowserRouter>
     );
 
     expect(screen.getByTestId('operations-grid')).toBeInTheDocument();
