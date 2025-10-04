@@ -238,6 +238,16 @@
   .safe-app-height {
     height: 100vh;
   }
+
+  /* No gradients utility */
+  .no-gradients * {
+    background-image: none !important;
+  }
+  
+  .no-gradients .bg-clip-text.text-transparent {
+    -webkit-text-fill-color: currentColor !important;
+    color: currentColor !important;
+  }
 }
 
 @keyframes fadeIn {
