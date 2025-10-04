@@ -23,7 +23,7 @@ export function AttioLayout() {
         
         {/* Page Content */}
         <main className="flex-1 min-h-0 overflow-auto">
-          <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="w-full max-w-[1400px] mx-auto">
             <Outlet />
           </div>
         </main>
