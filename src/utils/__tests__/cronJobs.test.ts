@@ -226,12 +226,13 @@ describe('CronJobsService', () => {
           days_overdue: 1
         }];
 
-        (supabase.rpc as any).mockResolvedValue({
+        (supabase.rpc as any).mockResolvedValueOnce({
           data: mockTasks,
           error: null
         });
 
         const result = await CronJobsService.checkPendingReminders();
+        expect(result[0]).toBeDefined();
         expect(result[0].notification_type).toBe(testCase.expected);
       }
     });
