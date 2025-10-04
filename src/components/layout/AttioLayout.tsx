@@ -7,7 +7,7 @@ export function AttioLayout() {
   const { focusMode } = useUiLayout();
   return (
     <div 
-      className={`h-screen bg-neutral-0 grid ${focusMode ? 'grid-cols-[0px_1fr] focus-mode' : 'grid-cols-[240px_1fr]'}`}
+      className={`min-h-[100dvh] h-full bg-neutral-0 grid ${focusMode ? 'grid-cols-[0px_1fr] focus-mode' : 'grid-cols-[240px_1fr]'}`}
       style={{
         '--sidebar-width': focusMode ? '0px' : '240px',
         '--topbar-height': '64px'
@@ -17,12 +17,12 @@ export function AttioLayout() {
       {!focusMode && <AttioSidebar />}
       
       {/* Main Content Area */}
-      <div className="flex flex-col min-w-0 h-full relative z-10">
+      <div className="flex flex-col min-w-0 min-h-0 h-full relative z-10">
         {/* Topbar */}
         <AttioTopbar />
         
         {/* Page Content */}
-        <main className="flex-1 overflow-auto h-full">
+        <main className="flex-1 min-h-0 overflow-auto">
           <Outlet />
         </main>
       </div>
