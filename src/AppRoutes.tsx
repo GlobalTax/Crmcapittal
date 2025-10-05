@@ -17,6 +17,7 @@ import { HubSpotDatabase } from '@/components/hubspot/HubSpotDatabase';
 // Import the unified lead page and enhanced mandate detail view
 import LeadPage from '@/pages/LeadPage';
 const OptimizedMandatesPage = lazy(() => import('@/pages/OptimizedMandatesPage'));
+import { TasksPage } from '@/pages/TasksPage';
 
 
 
@@ -119,6 +120,10 @@ export const AppRoutes = () => {
                 <PersonalDashboard />
               </Suspense>
             } 
+          />
+          <Route 
+            path="/tareas" 
+            element={<TasksPage />} 
           />
           <Route 
             path="/" 

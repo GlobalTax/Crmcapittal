@@ -12,6 +12,7 @@ export interface Task {
   due_date: string;
   completed: boolean;
   category: 'lead' | 'meeting' | 'follow-up' | 'admin';
+  tags?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -49,7 +50,8 @@ export const usePersonalTasks = () => {
   const tasks = (rawTasks || []).map(task => ({
     ...task,
     priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
-    category: task.category as 'lead' | 'meeting' | 'follow-up' | 'admin'
+    category: task.category as 'lead' | 'meeting' | 'follow-up' | 'admin',
+    tags: task.tags || []
   }));
 
   const error = pollingError?.message || null;
@@ -130,10 +132,21 @@ export const usePersonalTasks = () => {
     }
   };
 
+  // Actualizar tags de una tarea
+  const updateTags = async (taskId: string, tags: string[]) => {
+    return updateTask(taskId, { tags });
+  };
+
   // Obtener tareas filtradas
   const getTodayTasks = () => tasks.filter(task => !task.completed);
   const getCompletedTasks = () => tasks.filter(task => task.completed);
   const getUrgentTasks = () => tasks.filter(task => !task.completed && task.priority === 'urgent');
+  const getTasksByTag = (tag: string) => tasks.filter(task => task.tags?.includes(tag));
+  const getAllTags = () => {
+    const tagSet = new Set<string>();
+    tasks.forEach(task => task.tags?.forEach(tag => tagSet.add(tag)));
+    return Array.from(tagSet).sort();
+  };
 
   return {
     tasks,
@@ -144,8 +157,11 @@ export const usePersonalTasks = () => {
     completeTask,
     deleteTask,
     loadTasks,
+    updateTags,
     getTodayTasks,
     getCompletedTasks,
     getUrgentTasks,
+    getTasksByTag,
+    getAllTags,
   };
 };

@@ -21,7 +21,8 @@ import {
   Send,
   Calculator,
   RefreshCw,
-  FileImage
+  FileImage,
+  CheckSquare
 } from 'lucide-react';
 
 interface NavItem {
@@ -86,6 +87,7 @@ const getPrincipalSection = (isSuperAdmin: boolean): NavSection => ({
   title: "Principal",
   items: [
     { to: '/personal', label: 'Dashboard Personal', icon: LayoutDashboard },
+    { to: '/tareas', label: 'Tareas', icon: CheckSquare },
     { to: '/', label: 'Control Leads', icon: LayoutDashboard },
     ...(isSuperAdmin ? [{ to: '/asignaciones', label: 'Control de Asignaciones', icon: Users2 }] : []),
     { to: '/gestion-leads', label: 'Gestión de Leads', icon: TrendingUp },
