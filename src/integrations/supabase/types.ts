@@ -11592,7 +11592,7 @@ export type Database = {
             foreignKeyName: "target_contacts_target_company_id_fkey"
             columns: ["target_company_id"]
             isOneToOne: false
-            referencedRelation: "security_companies"
+            referencedRelation: "target_companies"
             referencedColumns: ["id"]
           },
         ]
