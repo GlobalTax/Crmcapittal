@@ -37,10 +37,9 @@ const createWrapper = () => {
     }
   });
 
-  return ({ children }: any) => {
-    const Provider = QueryClientProvider;
-    return { client: queryClient, children };
-  };
+  return ({ children }: any) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 };
 
 describe('useReminders', () => {
@@ -53,7 +52,7 @@ describe('useReminders', () => {
       (AutomationService.onDealStageUpdate as any).mockResolvedValue(undefined);
 
       const wrapper = createWrapper();
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       result.current.scheduleReminder({
         type: 'NDA_NOT_SIGNED',
@@ -73,7 +72,7 @@ describe('useReminders', () => {
     it('should schedule reminder with custom delay hours', async () => {
       (AutomationService.onDealStageUpdate as any).mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       result.current.scheduleReminder({
         type: 'PROPOSAL_PENDING',
@@ -96,7 +95,7 @@ describe('useReminders', () => {
       const error = new Error('Scheduling failed');
       (AutomationService.onDealStageUpdate as any).mockRejectedValue(error);
 
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       result.current.scheduleReminder({
         type: 'NO_ACTIVITY_NEGOTIATION',
@@ -113,7 +112,7 @@ describe('useReminders', () => {
     it('should cancel a specific reminder', async () => {
       (AutomationService.cancelReminder as any).mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       result.current.cancelReminder({
         dealId: 'deal-123',
@@ -133,7 +132,7 @@ describe('useReminders', () => {
     it('should schedule NDA reminder with correct parameters', async () => {
       (AutomationService.onDealStageUpdate as any).mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       result.current.scheduleNDAReminder('deal-123', 'negocio');
 
@@ -150,7 +149,7 @@ describe('useReminders', () => {
     it('should schedule inactivity reminder', async () => {
       (AutomationService.onDealStageUpdate as any).mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       result.current.scheduleInactivityReminder('deal-456');
 
@@ -167,7 +166,7 @@ describe('useReminders', () => {
     it('should schedule proposal reminder', async () => {
       (AutomationService.onDealStageUpdate as any).mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       result.current.scheduleProposalReminder('deal-789', 'deal');
 
@@ -186,7 +185,7 @@ describe('useReminders', () => {
     it('should schedule multiple reminders and return results', async () => {
       (AutomationService.onDealStageUpdate as any).mockResolvedValue(undefined);
 
-      const { result } = renderHook(() => useReminders());
+      const { result } = renderHook(() => useReminders(), { wrapper: createWrapper() });
 
       const reminders = [
         { type: 'NDA_NOT_SIGNED' as const, dealId: 'deal-1' },

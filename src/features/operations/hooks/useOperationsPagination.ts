@@ -35,15 +35,17 @@ export const useOperationsPagination = (operations: Operation[], pageSize: numbe
   };
 
   const goToNextPage = () => {
-    if (currentPage < paginationConfig.totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    setCurrentPage((prevPage) => {
+      const nextPage = prevPage + 1;
+      return nextPage <= paginationConfig.totalPages ? nextPage : prevPage;
+    });
   };
 
   const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    setCurrentPage((prevPage) => {
+      const previousPage = prevPage - 1;
+      return previousPage >= 1 ? previousPage : prevPage;
+    });
   };
 
   const resetPagination = () => {
